@@ -7,7 +7,7 @@ Use this reference when a prompt asks for specialist routing, agent panels, sour
 | Prompt signal | Primary skill | Specialist agent | Secondary coordination |
 | --- | --- | --- | --- |
 | Google Earth, KML/KMZ, visual proof, imagery, OCR/CV, field boundary | `$cplayout-imagery-mapping-agent` | `cplayout_imagery_mapper` | Pivot design, database, UI as needed |
-| Interface, screen, component, map surface, map visual overlays, right sidebar/drawer, toolbar, UI-proof, Expo, Playwright evidence | `$cplayout-interface-development-agent` | `cplayout_interface_developer` | Database and pivot design as needed |
+| Interface, screen, component, map surface, map visual overlays, right sidebar/drawer, toolbar, UI-proof, Expo, Playwright evidence, UI test server, local web launcher | `$cplayout-interface-development-agent` | `cplayout_interface_developer` | Database and pivot design as needed |
 | Center pivot, lateral or linear move, corner arm, wheel/tower tracks, end-of-machine paths, irrigation scoring | `$cplayout-center-pivot-design-agent` | `cplayout_center_pivot_designer` | Imagery and database as needed |
 | SQLite, project-store, archive, schema, CRUD, migration | `$cplayout-database-agent` | `cplayout_database_specialist` | Interface and pivot design as needed |
 | Skills, agents, hooks, route keywords, governance keywords, source ledger, known gaps, prompt registry | `$cplayout-expert-agent-panels` | `cplayout_kb_curator` | Planning review as needed |
@@ -21,6 +21,7 @@ Use this reference when a prompt asks for specialist routing, agent panels, sour
 - Treat managed-hook planning as a Codex policy task: separate local repo facts from official OpenAI docs and record trust, restart, and runtime-verification gaps.
 - Keep custom agents read-only unless the coordinator assigns a bounded mutation scope to a worker.
 - Keep projected/local `XY` canonical geometry separate from WGS84 display/input, KML/KMZ styling, imagery evidence, and operator labels.
+- For local browser UI server launches, use repo-owned launcher commands instead of ad hoc servers: `npm run ui:test:start -- --no-open`, `npm run ui:test:status`, `npm run ui:test:stop`, or `npm run dev:web:smart` when live reload is specifically needed. Report the exact printed URL and cleanup status.
 
 ## Coordinator Contract
 
@@ -58,4 +59,4 @@ The project-local `Stop` continuation hook is disabled. `.codex/hooks.json` does
 
 - For skill, hook, and agent surface changes, run `npm run validate:skills`, TOML/JSON parsing, hook sample execution, `git diff --check`, and `npm audit`.
 - For TypeScript or UI changes, also run `npm run validate`.
-- For visible UI changes, run a web/dev-server check and capture Playwright evidence when available.
+- For visible UI changes, run `npm run ui:test:start -- --no-open` for local static-export checks and capture Playwright evidence from the exact printed URL when available. Use `npm run proof:web` for deterministic browser proof.

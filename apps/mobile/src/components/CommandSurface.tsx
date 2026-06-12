@@ -32,6 +32,7 @@ export interface CommandIconButtonConfig {
   id: string;
   label: string;
   disabled?: boolean;
+  hint?: string;
   icon: React.ReactNode;
   onPress: () => void | Promise<void>;
   selected?: boolean;
@@ -174,7 +175,6 @@ export function CommandMenuItem({
       onPress={() => onSelect(item)}
       style={[styles.menuItem, item.disabled && styles.menuItemDisabled]}
       testID={item.testID}
-      {...webProps(item.description ?? item.label)}
     >
       <View style={styles.menuItemIcon}>{tintIcon(item.icon, item.disabled ? "#79887e" : "#254234", 17)}</View>
       <View style={styles.menuItemTextBlock}>
@@ -187,6 +187,7 @@ export function CommandMenuItem({
 
 export function IconCommandButton({
   disabled = false,
+  hint,
   icon,
   label,
   onPress,
@@ -203,7 +204,7 @@ export function IconCommandButton({
       onPress={onPress}
       style={[styles.iconButton, showLabel && styles.iconButtonWithLabel, selected && styles.iconButtonSelected, disabled && styles.iconButtonDisabled]}
       testID={testID ?? `command-icon-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
-      {...webProps(label, selected ? { "aria-pressed": "true" } : undefined)}
+      {...controlHintProps({ hint, label, selected, showLabel })}
     >
       {tintIcon(icon, selected ? "#ffffff" : disabled ? "#79887e" : "#254234", 18)}
       {showLabel ? <Text style={[styles.iconButtonText, selected && styles.iconButtonTextSelected, disabled && styles.iconButtonTextDisabled]}>{label}</Text> : null}
@@ -238,6 +239,26 @@ function tintIcon(icon: React.ReactNode, color: string, size: number): React.Rea
 function webProps(title: string, extra?: Record<string, string>): Record<string, unknown> {
   if (Platform.OS !== "web") return {};
   return { title, ...extra };
+}
+
+function controlHintProps({
+  hint,
+  label,
+  selected,
+  showLabel,
+}: {
+  hint?: string;
+  label: string;
+  selected?: boolean;
+  showLabel: boolean;
+}): Record<string, unknown> {
+  const props: Record<string, unknown> = {};
+  if (hint) props.accessibilityHint = hint;
+  if (Platform.OS === "web") {
+    if (!showLabel) props.title = hint ? `${label}: ${hint}` : label;
+    if (selected) props["aria-pressed"] = "true";
+  }
+  return props;
 }
 
 const styles = StyleSheet.create({

@@ -31,6 +31,18 @@ npm run dev:web:smart
 
 The developer mode default port is `8081`. Override it with `CPLAYOUT_DEV_WEB_PORT`.
 
+## Agent Workflow
+
+Agents should use this launcher instead of ad hoc local web server commands whenever a browser UI check needs a running CPLayout app.
+
+- Before launching, run `npm run ui:test:status` when there may already be a server or a port conflict.
+- For local static-export checks, run `npm run ui:test:start -- --no-open`, use the exact printed URL for browser or Playwright work, and report that URL.
+- For live-reload development only, run `npm run dev:web:smart` and report the selected URL.
+- For deterministic evidence, keep using `npm run proof:web`; set `CPLAYOUT_WEB_PROOF_PORT` explicitly when a non-default proof port is required.
+- After manual launcher checks, run `npm run ui:test:stop` unless the user explicitly asks to leave the server running. The stop command may terminate only launcher-owned CPLayout servers.
+- Never kill an unknown listener on `19006`, `19007`, `8081`, or adjacent ports. Use status output and port hopping instead.
+- Do not treat launcher health, static export success, or browser screenshots as Android/iOS, native SQLite, ZIP sharing, MapLibre native, Google Earth, or raw tile-package proof.
+
 ## Desktop Shortcut
 
 From Windows PowerShell, install the user Desktop shortcut:

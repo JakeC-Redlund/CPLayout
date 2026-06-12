@@ -82,7 +82,7 @@
       "routingReason": "Expo, React Native, web, screen, component, or visible workflow work needs interface verification.",
       "validationExpectations": [
         "Run npm run validate after TypeScript or UI changes.",
-        "For visible UI changes, run web proof and capture Playwright evidence when available."
+        "For visible UI changes, use npm run ui:test:start -- --no-open for local checks or npm run proof:web for deterministic browser proof, and capture Playwright evidence when available."
       ],
       "priority": 20,
       "positiveKeywords": [
@@ -113,6 +113,14 @@
         { "term": "component", "weight": 7 },
         { "term": "screen", "weight": 7 },
         { "term": "playwright", "weight": 7 },
+        { "term": "ui:test:start", "weight": 12 },
+        { "term": "ui:test:status", "weight": 10 },
+        { "term": "ui:test:stop", "weight": 10 },
+        { "term": "dev:web:smart", "weight": 10 },
+        { "term": "local web launcher", "weight": 12 },
+        { "term": "ui test server", "weight": 12 },
+        { "term": "launching server", "weight": 9 },
+        { "term": "desktop shortcut", "weight": 8 },
         { "term": "help route", "weight": 10 },
         { "term": "training panel", "weight": 9 },
         { "term": "onboarding help prompts", "weight": 10 },
@@ -353,6 +361,9 @@
         { "term": "release evidence", "weight": 12 },
         { "term": "Playwright screenshot", "weight": 12 },
         { "term": "proof:web", "weight": 12 },
+        { "term": "ui:test:start", "weight": 10 },
+        { "term": "ui:test:status", "weight": 10 },
+        { "term": "ui:test:stop", "weight": 10 },
         { "term": "npm run validate", "weight": 12 },
         { "term": "validation reviewer", "weight": 10 }
       ],

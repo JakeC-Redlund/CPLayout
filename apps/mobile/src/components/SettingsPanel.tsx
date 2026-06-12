@@ -177,41 +177,92 @@ export function SettingsPanel({ mapPackages = [], settings, onChange }: Settings
 
   return (
     <View style={styles.shell} testID="settings-view">
-      <SettingsGroup icon={<Ruler size={20} color="#254234" />} title="Units and Coordinates">
-        <View style={styles.buttonRow}>
-          <Choice active={settings.unitSystem === "metric"} label="Metric" onPress={() => update({ unitSystem: "metric" })} />
-          <Choice active={settings.unitSystem === "us_survey_feet"} label="Imperial" onPress={() => update({ unitSystem: "us_survey_feet" })} />
-        </View>
-        <View style={styles.buttonRow}>
-          {COORDINATE_FORMATS.map((format) => (
-            <Choice
-              key={format}
-              active={settings.coordinateDisplayFormat === format}
-              label={COORDINATE_FORMAT_LABELS[format]}
-              onPress={() => update({ coordinateDisplayFormat: format as CoordinateDisplayFormat })}
-            />
-          ))}
-        </View>
-      </SettingsGroup>
+      <SettingsSection title="Essentials">
+        <SettingsGroup icon={<Ruler size={20} color="#254234" />} title="Units and Coordinates">
+          <View style={styles.buttonRow}>
+            <Choice active={settings.unitSystem === "metric"} label="Metric" onPress={() => update({ unitSystem: "metric" })} />
+            <Choice active={settings.unitSystem === "us_survey_feet"} label="Imperial" onPress={() => update({ unitSystem: "us_survey_feet" })} />
+          </View>
+          <View style={styles.buttonRow}>
+            {COORDINATE_FORMATS.map((format) => (
+              <Choice
+                key={format}
+                active={settings.coordinateDisplayFormat === format}
+                label={COORDINATE_FORMAT_LABELS[format]}
+                onPress={() => update({ coordinateDisplayFormat: format as CoordinateDisplayFormat })}
+              />
+            ))}
+          </View>
+        </SettingsGroup>
 
-      <SettingsGroup icon={<Map size={20} color="#254234" />} title="Map View">
-        <Stepper
-          label="Default zoom"
-          value={settings.defaultZoomLevel.toFixed(2)}
-          onDecrease={() => update({ defaultZoomLevel: clamp(settings.defaultZoomLevel / settings.drawing.zoomStepFactor, 0.25, 12) })}
-          onIncrease={() => update({ defaultZoomLevel: clamp(settings.defaultZoomLevel * settings.drawing.zoomStepFactor, 0.25, 12) })}
-        />
-        <View style={styles.buttonRow}>
-          {MAP_STYLES.map((style) => (
+        <SettingsGroup icon={<Map size={20} color="#254234" />} title="Map View">
+          <Stepper
+            label="Default zoom"
+            value={settings.defaultZoomLevel.toFixed(2)}
+            onDecrease={() => update({ defaultZoomLevel: clamp(settings.defaultZoomLevel / settings.drawing.zoomStepFactor, 0.25, 12) })}
+            onIncrease={() => update({ defaultZoomLevel: clamp(settings.defaultZoomLevel * settings.drawing.zoomStepFactor, 0.25, 12) })}
+          />
+          <View style={styles.buttonRow}>
+            {MAP_STYLES.map((style) => (
+              <Choice
+                key={style}
+                active={settings.mapStyle === style}
+                label={mapStyleLabel(style)}
+                onPress={() => update({ mapStyle: style as MapStyle })}
+              />
+            ))}
+          </View>
+        </SettingsGroup>
+
+        <SettingsGroup icon={<Satellite size={20} color="#254234" />} title="Aerial Imagery">
+          <View style={styles.buttonRow}>
             <Choice
-              key={style}
-              active={settings.mapStyle === style}
-              label={mapStyleLabel(style)}
-              onPress={() => update({ mapStyle: style as MapStyle })}
+              active={aerialWorkflow === "off"}
+              label="Aerial Off"
+              onPress={() => setAerialWorkflow("off")}
+              testID="settings-aerial-mode-off"
             />
-          ))}
-        </View>
-      </SettingsGroup>
+            <Choice
+              active={aerialWorkflow === "auto_local"}
+              label="Auto"
+              onPress={() => setAerialWorkflow("auto_local")}
+              testID="settings-aerial-mode-auto"
+            />
+            <Choice
+              active={aerialWorkflow === "manual_local"}
+              label="Manual local"
+              onPress={() => setAerialWorkflow("manual_local")}
+              testID="settings-aerial-mode-manual-local"
+            />
+            <Choice
+              active={aerialWorkflow === "usgs_live_preview"}
+              label="USGS only"
+              onPress={() => setAerialWorkflow("usgs_live_preview")}
+              testID="settings-aerial-mode-usgs-only"
+            />
+          </View>
+          {settings.aerialImagery.mode === "manual" && !settings.onlineImagery.enabled ? (
+            <View style={styles.buttonRow}>
+              {localAerialCandidates.map((candidate) => (
+                <Choice
+                  key={candidate.packageId}
+                  active={settings.aerialImagery.sourcePackageId === candidate.packageId}
+                  label={candidate.packageName}
+                  onPress={() => updateAerialImagery({ mode: "manual" as AerialImageryMode, sourcePackageId: candidate.packageId })}
+                />
+              ))}
+            </View>
+          ) : null}
+          <Text style={styles.lockedText} testID="settings-aerial-summary">
+            {aerialSummary}
+          </Text>
+          <Text style={styles.lockedText} testID="settings-aerial-guardrail">
+            Offline production imagery uses generated local raster TileJSON or tile templates, with NAIP packages as the preferred U.S. farm source. USGS live preview is connected-only; raw PMTiles/MBTiles and public tile caches remain blocked until separately adapter-proven.
+          </Text>
+        </SettingsGroup>
+      </SettingsSection>
+
+      <SettingsSection title="Advanced">
 
       <SettingsGroup icon={<SlidersHorizontal size={20} color="#254234" />} title="Drawing and Snapping">
         <Stepper
@@ -303,53 +354,6 @@ export function SettingsPanel({ mapPackages = [], settings, onChange }: Settings
         </View>
         <Text style={styles.lockedText} testID="settings-offline-package-summary">
           Network tiles: disabled · Attribution: required · Local directory: {settings.offlineMaps.packageDirectory}
-        </Text>
-      </SettingsGroup>
-
-      <SettingsGroup icon={<Satellite size={20} color="#254234" />} title="Aerial Imagery">
-        <View style={styles.buttonRow}>
-          <Choice
-            active={aerialWorkflow === "off"}
-            label="Aerial Off"
-            onPress={() => setAerialWorkflow("off")}
-            testID="settings-aerial-mode-off"
-          />
-          <Choice
-            active={aerialWorkflow === "auto_local"}
-            label="Auto"
-            onPress={() => setAerialWorkflow("auto_local")}
-            testID="settings-aerial-mode-auto"
-          />
-          <Choice
-            active={aerialWorkflow === "manual_local"}
-            label="Manual local"
-            onPress={() => setAerialWorkflow("manual_local")}
-            testID="settings-aerial-mode-manual-local"
-          />
-          <Choice
-            active={aerialWorkflow === "usgs_live_preview"}
-            label="USGS only"
-            onPress={() => setAerialWorkflow("usgs_live_preview")}
-            testID="settings-aerial-mode-usgs-only"
-          />
-        </View>
-        {settings.aerialImagery.mode === "manual" && !settings.onlineImagery.enabled ? (
-          <View style={styles.buttonRow}>
-            {localAerialCandidates.map((candidate) => (
-              <Choice
-                key={candidate.packageId}
-                active={settings.aerialImagery.sourcePackageId === candidate.packageId}
-                label={candidate.packageName}
-                onPress={() => updateAerialImagery({ mode: "manual" as AerialImageryMode, sourcePackageId: candidate.packageId })}
-              />
-            ))}
-          </View>
-        ) : null}
-        <Text style={styles.lockedText} testID="settings-aerial-summary">
-          {aerialSummary}
-        </Text>
-        <Text style={styles.lockedText} testID="settings-aerial-guardrail">
-          Offline production imagery uses generated local raster TileJSON or tile templates, with NAIP packages as the preferred U.S. farm source. USGS live preview is connected-only; raw PMTiles/MBTiles and public tile caches remain blocked until separately adapter-proven.
         </Text>
       </SettingsGroup>
 
@@ -521,6 +525,16 @@ export function SettingsPanel({ mapPackages = [], settings, onChange }: Settings
           </View>
         ) : null}
       </SettingsGroup>
+      </SettingsSection>
+    </View>
+  );
+}
+
+function SettingsSection({ children, title }: { children: React.ReactNode; title: string }): React.JSX.Element {
+  return (
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      {children}
     </View>
   );
 }
@@ -665,6 +679,15 @@ function clamp(value: number, min: number, max: number): number {
 const styles = StyleSheet.create({
   shell: {
     gap: 14,
+  },
+  section: {
+    gap: 12,
+  },
+  sectionTitle: {
+    color: "#405146",
+    fontSize: 12,
+    fontWeight: "900",
+    textTransform: "uppercase",
   },
   group: {
     backgroundColor: "#fbfcf8",

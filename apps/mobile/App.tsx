@@ -18,8 +18,10 @@ import {
   MapPin,
   MapPinned,
   Monitor,
+  MoreHorizontal,
   PackageCheck,
   Pentagon,
+  Plus,
   Route,
   RotateCcw,
   Ruler,
@@ -1366,7 +1368,7 @@ function AppContent(): React.JSX.Element {
       ) : (
         <View style={styles.mapFeatureEditor}>
           <Text style={styles.mapFeatureTitle}>No active form</Text>
-          <Text style={styles.mapFeatureMeta}>Choose Point, Line, Polygon, Circle, Machine, or Calculate from Tools.</Text>
+          <Text style={styles.mapFeatureMeta}>Choose Point, Line, Area, Coverage, Machine, or Calculate from Tools.</Text>
         </View>
       );
     }
@@ -2244,9 +2246,9 @@ function WorkspaceCommandSurface({
     sampleItems,
   });
   const iconButtons: CommandIconButtonConfig[] = [
-    { id: "save", label: dirty ? "Save *" : "Save", disabled: homeMapView, icon: <Save />, onPress: onSave, testID: "command-icon-save" },
-    { id: "undo", label: "Undo", disabled: !canUndo, icon: <RotateCcw />, onPress: onUndo, testID: "command-icon-undo" },
-    { id: "redo", label: "Redo", disabled: !canRedo, icon: <RotateCcw />, onPress: onRedo, testID: "command-icon-redo" },
+    { id: "save", label: dirty ? "Save *" : "Save", disabled: homeMapView, hint: "Save the active project package locally.", icon: <Save />, onPress: onSave, testID: "command-icon-save" },
+    { id: "undo", label: "Undo", disabled: !canUndo, hint: "Undo the last project edit.", icon: <RotateCcw />, onPress: onUndo, testID: "command-icon-undo" },
+    { id: "redo", label: "Redo", disabled: !canRedo, hint: "Redo the last undone project edit.", icon: <RotateCcw />, onPress: onRedo, testID: "command-icon-redo" },
   ];
 
   return <CommandBar iconButtons={iconButtons} menus={menus} testID="workspace-command-bar" />;
@@ -5624,10 +5626,10 @@ function rightWorkflowSidebarPages({
     { id: "overview", label: "Overview", shortLabel: "MAP" },
     ...(activeCatalogForm ? [{ id: "catalogForm" as const, label: "Form", shortLabel: "FORM" }] : []),
     ...(mappingWorkflowMode === "design" ? [{ id: "tools" as const, label: "Tools", shortLabel: "TOOL" }] : []),
-    ...(mappingWorkflowMode === "design" && activePurposeForm ? [{ id: "purpose" as const, label: "Purpose", shortLabel: "PURP" }] : []),
+    ...(mappingWorkflowMode === "design" && activePurposeForm ? [{ id: "purpose" as const, label: "Form", shortLabel: "FORM" }] : []),
     ...(mappingWorkflowMode === "design" && activeToolForm ? [{ id: "toolForm" as const, label: "Form", shortLabel: "FORM" }] : []),
     { id: "layers", label: "Layers", shortLabel: "LAY" },
-    { id: "rtk", label: "RTK", shortLabel: "RTK" },
+    ...(mappingWorkflowMode === "layout" ? [{ id: "rtk" as const, label: "RTK", shortLabel: "RTK" }] : []),
     ...(selectedMapFeature ? [{ id: "feature" as const, label: "Feature", shortLabel: "FEAT" }] : []),
     { id: "warnings", label: "Warnings", shortLabel: "WARN", count: warningCount },
   ];
@@ -5751,6 +5753,8 @@ function ProjectTreeRail({
   const secondaryRailItems = menuDefinition.railItems.filter((item) => item.section === "secondary");
   const createActions = menuDefinition.catalogActions.filter((item) => item.section === "create");
   const utilityActions = menuDefinition.catalogActions.filter((item) => item.section === "utility");
+  const overflowActions = [...createActions, ...utilityActions];
+  const [createOverflowOpen, setCreateOverflowOpen] = useState(false);
 
   function onPressRailItem(item: CplayoutLeftNavRailItemDefinition): void {
     if (item.action === "navigate_map") onNavigate("map");
@@ -5772,12 +5776,21 @@ function ProjectTreeRail({
   }
 
   function onPressCatalogAction(item: CplayoutLeftNavCatalogActionDefinition): void | Promise<void> {
+    setCreateOverflowOpen(false);
     if (item.action === "create_client") return onCreateClient();
     if (item.action === "create_project") return onCreateProject();
     if (item.action === "create_field_map") return onCreateFieldMap();
     if (item.action === "create_design") return onCreateDesign();
     if (item.action === "start_blank_design") return onStartBlankDesign();
     if (item.action === "open_sample") return onOpenSample();
+  }
+
+  function catalogActionDisabled(item: CplayoutLeftNavCatalogActionDefinition): boolean {
+    return isLeftNavItemDisabled(item, { activeContext, activeView, homeMapView: false });
+  }
+
+  function defaultCreateAction(): CplayoutLeftNavCatalogActionDefinition {
+    return createActions.find((item) => !catalogActionDisabled(item)) ?? createActions[0]!;
   }
 
   function renderRailItem(item: CplayoutLeftNavRailItemDefinition, collapsed: boolean): React.JSX.Element {
@@ -5794,17 +5807,21 @@ function ProjectTreeRail({
     );
   }
 
-  function renderCatalogAction(item: CplayoutLeftNavCatalogActionDefinition): React.JSX.Element {
+  function renderOverflowCatalogAction(item: CplayoutLeftNavCatalogActionDefinition): React.JSX.Element {
     return (
-      <IconCommandButton
-        disabled={isLeftNavItemDisabled(item, { activeContext, activeView, homeMapView: false })}
-        icon={leftNavIcon(item.icon)}
-        id={item.id}
+      <Pressable
+        accessibilityLabel={item.label}
+        accessibilityRole="button"
+        accessibilityState={{ disabled: catalogActionDisabled(item) }}
+        disabled={catalogActionDisabled(item)}
         key={`${item.section}-${item.id}`}
-        label={item.label}
         onPress={() => onPressCatalogAction(item)}
+        style={[styles.projectTreeOverflowItem, catalogActionDisabled(item) && styles.projectTreeOverflowItemDisabled]}
         testID={item.testID}
-      />
+      >
+        {leftNavIcon(item.icon, catalogActionDisabled(item) ? "#8ba095" : "#d5e2db")}
+        <Text style={[styles.projectTreeOverflowText, catalogActionDisabled(item) && styles.projectTreeOverflowTextDisabled]}>{item.label}</Text>
+      </Pressable>
     );
   }
 
@@ -5831,8 +5848,33 @@ function ProjectTreeRail({
             <Text style={styles.projectTreeTitle}>{tree.activeProjectLabel}</Text>
           </View>
           <View style={styles.projectTreeActions} testID="project-tree-actions">
-            {createActions.map(renderCatalogAction)}
+            <IconCommandButton
+              disabled={catalogActionDisabled(defaultCreateAction())}
+              hint={`Create ${defaultCreateAction().label.toLowerCase()} from the current catalog selection.`}
+              icon={<Plus />}
+              id="project-tree-new"
+              label="New"
+              onPress={() => onPressCatalogAction(defaultCreateAction())}
+              showLabel
+              testID="project-tree-action-new"
+            />
+            <IconCommandButton
+              hint="Show more create and sample actions."
+              icon={<MoreHorizontal />}
+              id="project-tree-more"
+              label="More"
+              onPress={() => setCreateOverflowOpen((open) => !open)}
+              selected={createOverflowOpen}
+              testID="project-tree-action-more"
+            />
           </View>
+          {createOverflowOpen ? (
+            <View style={styles.projectTreeOverflow} testID="project-tree-action-overflow">
+              <ScrollView style={styles.projectTreeOverflowScroll}>
+                {overflowActions.map(renderOverflowCatalogAction)}
+              </ScrollView>
+            </View>
+          ) : null}
           <ScrollView style={[styles.projectTreeScroll, compact && styles.projectTreeScrollCompact]} contentContainerStyle={styles.projectTreeContent} testID="project-tree-scroll">
             {catalog.clients.length === 0 ? (
               <Text style={styles.projectTreeEmpty}>No client folders yet.</Text>
@@ -5903,9 +5945,6 @@ function ProjectTreeRail({
               );
             })}
           </ScrollView>
-          <View style={styles.projectTreeUtilityActions} testID="project-tree-utility-actions">
-            {utilityActions.map(renderCatalogAction)}
-          </View>
         </View>
       ) : null}
       <View style={[styles.projectTreeNav, compact && !consoleMode && styles.projectTreeNavCompact, consoleMode && !drawerOpen && styles.projectTreeNavConsole, consoleMode && !drawerOpen && styles.projectTreeNavCollapsed]}>
@@ -6722,6 +6761,37 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingBottom: 6,
   },
+  projectTreeOverflow: {
+    backgroundColor: "#16251d",
+    borderColor: "#31483a",
+    borderRadius: 8,
+    borderWidth: 1,
+    gap: 4,
+    padding: 6,
+  },
+  projectTreeOverflowScroll: {
+    maxHeight: 72,
+  },
+  projectTreeOverflowItem: {
+    alignItems: "center",
+    borderRadius: 6,
+    flexDirection: "row",
+    gap: 8,
+    minHeight: 40,
+    paddingHorizontal: 8,
+    paddingVertical: 7,
+  },
+  projectTreeOverflowItemDisabled: {
+    opacity: 0.55,
+  },
+  projectTreeOverflowText: {
+    color: "#eef7f1",
+    fontSize: 12,
+    fontWeight: "900",
+  },
+  projectTreeOverflowTextDisabled: {
+    color: "#8ba095",
+  },
   projectTreeUtilityActions: {
     borderTopColor: "#26392f",
     borderTopWidth: 1,
@@ -6751,6 +6821,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "800",
     lineHeight: 17,
+    marginBottom: 8,
   },
   projectTreeSectionLabel: {
     color: "#8fa79b",

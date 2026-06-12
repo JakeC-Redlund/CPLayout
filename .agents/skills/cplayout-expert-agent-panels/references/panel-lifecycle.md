@@ -8,7 +8,7 @@ Use this lifecycle when a CPLayout task requests expert panels, multi-agent revi
 - Read `.agents/skills/cplayout-workspace-preflight/SKILL.md`.
 - Run `git status --short` and note pre-existing changes.
 - Confirm whether the task is read-only, documentation-only, implementation, architecture, native/runtime, release, or deployment affecting.
-- Select validation before editing: skill validation and `git diff --check` for skill/doc work; `npm run validate` after TypeScript or UI changes; `npm audit` when reporting repository success.
+- Select validation before editing: skill validation and `git diff --check` for skill/doc work; `npm run validate` after TypeScript or UI changes; `npm audit` when reporting repository success. For local browser UI checks, use `npm run ui:test:start -- --no-open`, record the exact printed URL, and clean up with `npm run ui:test:stop`.
 
 ## 2. Skill Inventory
 
@@ -77,7 +77,7 @@ Run the narrowest checks that prove the change:
 - Skill work: `python3 /home/cyber/.codex/skills/.system/skill-creator/scripts/quick_validate.py .agents/skills/cplayout-expert-agent-panels`
 - Docs/skill whitespace: `git diff --check`
 - TypeScript or UI changes: `npm run validate`
-- Visible UI changes: web export/dev-server check plus Playwright screenshot when available
+- Visible UI changes: `npm run ui:test:start -- --no-open` for local static-export checks plus Playwright screenshot from the exact printed URL when available; use `npm run proof:web` for deterministic browser proof
 - Repository success report: `npm audit`, with findings reported and no forced fix without approval
 
 If a command cannot run, record the blocker and residual risk.

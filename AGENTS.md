@@ -33,6 +33,7 @@
 - Keep drawing viewport state separate from geometry mutation so pan/zoom cannot corrupt vertices.
 - Store project-relevant settings in project export data; keep local machine paths as local-only settings.
 - Use repo-local skills in `.agents/skills/` when they match the task; they are reusable workflow surfaces, not product runtime code.
+- Use the repo-owned launcher for local browser UI server sessions: `npm run ui:test:start` for static user-testing, `npm run ui:test:status` to inspect launcher-owned state, and `npm run ui:test:stop` for cleanup. Use `npm run dev:web:smart` only when Expo live reload is needed. Do not start ad hoc web servers or kill unknown port listeners when the launcher/status/stop commands can be used.
 - Every CPLayout Google Earth Pro automation pass must clean up the targeted Google Earth session by default, or explicitly use and report `-LeaveGoogleEarthOpen` for manual review. Cleanup closes generated Temporary Places/import prompts without saving them into persistent My Places; it must not clear caches, delete saved places, or change Google Earth settings unless an explicit repair task requests that.
 
 ## Google Earth Pro Automation Checklist
@@ -69,6 +70,6 @@
 ## Validation
 
 - Run `npm run validate` after TypeScript or UI changes.
-- For visible UI changes, run a web export/dev-server check and capture a Playwright screenshot when available.
+- For visible UI changes, prefer `npm run ui:test:start -- --no-open` for local static-export browser checks and capture a Playwright screenshot from the exact printed URL when available. Use `npm run proof:web` for deterministic browser proof, and keep `CPLAYOUT_WEB_PROOF_PORT` explicit when selecting a non-default proof port.
 - Run `npm audit` and report findings. Do not apply breaking `npm audit fix --force` without explicit approval.
 - Before reporting success, mention any checks that could not be run locally.

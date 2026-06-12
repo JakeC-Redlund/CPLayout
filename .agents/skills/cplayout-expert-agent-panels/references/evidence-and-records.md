@@ -19,7 +19,7 @@ For Google Earth, KML, or KMZ improvement loops, record these items before relea
 - Dirty-tree preflight and explicit intended staging scope from `git status --short`.
 - Primary KML sources used, usually Google KML Reference, Google shared-style tutorial, OGC KML, and repo source ledger entries.
 - KML/KMZ artifact paths, SHA-256 hashes, feature-count notes, and whether `doc.kml` contains CPLayout `ExtendedData`.
-- Browser evidence for visible workflows, including local web export, dev/static server URL, console caveats, and Playwright screenshots when available.
+- Browser evidence for visible workflows, including the launcher command used, exact local server URL, `npm run ui:test:status` or health notes when relevant, cleanup status from `npm run ui:test:stop`, console caveats, and Playwright screenshots when available.
 - Native, Google Earth Pro, MapLibre, SQLite, ZIP sharing, and raw tile-rendering claims that remain unverified.
 - Direct-main publish evidence when applicable: `git fetch origin main`, `git rev-list --left-right --count origin/main...HEAD`, commit hash, and push result.
 

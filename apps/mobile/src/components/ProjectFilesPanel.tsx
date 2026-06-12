@@ -1,4 +1,4 @@
-import { Archive, Database, Download, FolderOpen, RefreshCw, Save, Trash2, Upload } from "lucide-react-native";
+import { Archive, Database, Download, FolderOpen, Map, RefreshCw, Save, Trash2, Upload } from "lucide-react-native";
 import React, { useState } from "react";
 import { Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
@@ -389,20 +389,21 @@ export function ProjectFilesPanel({
         <Archive size={20} color="#254234" />
         <Text style={styles.title}>Project Files</Text>
       </View>
-      <Text style={styles.groupTitle}>Canonical Project Package</Text>
-      <View style={styles.actionRow}>
-        <FileAction accessibilityLabel="Save local project" icon={<Save size={18} color="#ffffff" />} label={dirty ? "Save Local *" : "Save Local"} primary onPress={onSaveProject} testID="files-action-save-local" />
-        <FileAction accessibilityLabel="Export project ZIP" icon={<Download size={18} color="#254234" />} label="Export ZIP" onPress={exportZip} testID="files-action-export-zip" />
-        <FileAction accessibilityLabel="Import project ZIP" icon={<Upload size={18} color="#254234" />} label="Import ZIP" onPress={importZip} testID="files-action-import-zip" />
-        <FileAction accessibilityLabel="Refresh local projects" icon={<RefreshCw size={18} color="#254234" />} label="Refresh" onPress={onRefreshProjects} testID="files-action-refresh" />
-      </View>
-      <View style={styles.destructiveActionRow}>
-        <FileAction accessibilityLabel="Delete local project" icon={<Trash2 size={18} color="#8b1e18" />} label="Delete Local Project" danger onPress={() => void onDeleteProject(project.id)} testID="files-action-delete-local-project" />
-      </View>
       <View style={[styles.statusBox, statusToneStyle(status.tone)]} testID="files-status" {...webStatusProps()}>
         <Database size={17} color={statusToneColor(status.tone)} />
         <Text style={[styles.statusText, statusTextToneStyle(status.tone)]}>{dirty ? "Unsaved edits. " : ""}{repository.statusMessage} · {status.text}</Text>
       </View>
+      <FileLane icon={<Archive size={18} color="#254234" />} title="Project Package">
+        <View style={styles.actionRow}>
+          <FileAction accessibilityLabel="Save local project" icon={<Save size={18} color="#ffffff" />} label={dirty ? "Save *" : "Save"} primary onPress={onSaveProject} testID="files-action-save-local" />
+          <FileAction accessibilityLabel="Export project ZIP" icon={<Download size={18} color="#254234" />} label="Export ZIP" onPress={exportZip} testID="files-action-export-zip" />
+          <FileAction accessibilityLabel="Import project ZIP" icon={<Upload size={18} color="#254234" />} label="Import ZIP" onPress={importZip} testID="files-action-import-zip" />
+          <FileAction accessibilityLabel="Refresh local projects" icon={<RefreshCw size={18} color="#254234" />} label="Refresh" onPress={onRefreshProjects} testID="files-action-refresh" />
+        </View>
+        <View style={styles.destructiveActionRow}>
+          <FileAction accessibilityLabel="Delete local project" icon={<Trash2 size={18} color="#8b1e18" />} label="Delete Local Project" danger onPress={() => void onDeleteProject(project.id)} testID="files-action-delete-local-project" />
+        </View>
+      </FileLane>
       {repository.backendInfo && (
         <View style={styles.backendGrid}>
           <BackendTile label="Backend" value={repository.backendInfo.backendLabel} />
@@ -415,26 +416,61 @@ export function ProjectFilesPanel({
         <Text key={note} style={styles.backendNote}>{note}</Text>
       ))}
 
-      <Text style={styles.groupTitle}>Offline Map Packages</Text>
-      <View style={styles.actionRow}>
-        <FileAction accessibilityLabel="Import map package ZIP" icon={<Upload size={18} color="#254234" />} label="Import Map Package" onPress={importMapPackageZip} testID="files-action-import-map-package" />
-      </View>
-      <Text style={styles.backendNote}>Map package ZIPs install generated local tiles. Project archives store logical package metadata and visible attribution, not tile binaries.</Text>
+      <FileLane icon={<Map size={18} color="#254234" />} title="Offline Maps">
+        <View style={styles.actionRow}>
+          <FileAction accessibilityLabel="Import map package ZIP" icon={<Upload size={18} color="#254234" />} label="Import Map Package" onPress={importMapPackageZip} testID="files-action-import-map-package" />
+        </View>
+        <Text style={styles.backendNote}>Map package ZIPs install generated local tiles. Project archives store logical package metadata and visible attribution, not tile binaries.</Text>
+      </FileLane>
 
-      <Text style={styles.groupTitle}>GIS Exchange</Text>
-      <View style={styles.gisExchangeGrid}>
+      <FileLane icon={<Download size={18} color="#254234" />} title="GIS Exchange">
+        <View style={styles.gisExchangeGrid}>
+          <View style={styles.gisActionBox}>
+            <View style={styles.actionRow}>
+              <FileAction accessibilityLabel="Import KML or KMZ" icon={<Upload size={18} color="#254234" />} label="Import KML/KMZ" onPress={importKmlOrKmz} testID="files-action-import-kml-kmz" />
+              <FileAction accessibilityLabel="Export KML" icon={<Download size={18} color="#254234" />} label="Export KML" onPress={exportKml} testID="files-action-export-kml" />
+              <FileAction accessibilityLabel="Export KMZ" icon={<Download size={18} color="#254234" />} label="Export KMZ" onPress={exportKmz} testID="files-action-export-kmz" />
+            </View>
+          </View>
+          <GoogleEarthImportWizard />
+        </View>
+        <View style={styles.importGrid}>
+          <View style={styles.importBox}>
+            <Text style={styles.importTitle}>Projected GeoJSON Import</Text>
+            <TextInput
+              multiline
+              onChangeText={setGeoJsonImport}
+              placeholder="FeatureCollection with projectCrs and field_boundary/obstacle features"
+              style={styles.importInput}
+              testID="files-geojson-import-input"
+              value={geoJsonImport}
+            />
+            <FileAction accessibilityLabel="Import projected GeoJSON" icon={<Upload size={18} color="#254234" />} label="Import GeoJSON" onPress={applyGeoJsonImport} testID="files-action-import-geojson" />
+          </View>
+          <View style={styles.importBox}>
+            <Text style={styles.importTitle}>Survey CSV Import</Text>
+            <TextInput
+              multiline
+              onChangeText={setSurveyCsvImport}
+              placeholder="id,label,role,x,y,source,confidence"
+              style={styles.importInput}
+              testID="files-survey-csv-import-input"
+              value={surveyCsvImport}
+            />
+            <FileAction accessibilityLabel="Import survey CSV" icon={<Upload size={18} color="#254234" />} label="Import CSV" onPress={applySurveyCsvImport} testID="files-action-import-csv" />
+          </View>
+        </View>
+      </FileLane>
+
+      <FileLane icon={<Database size={18} color="#254234" />} title="Legacy Review">
         <View style={styles.gisActionBox}>
           <View style={styles.actionRow}>
             <FileAction accessibilityLabel="Import CornerGPSMap BPF" icon={<Upload size={18} color="#254234" />} label="Import BPF" onPress={importCornerGpsMapBpf} testID="files-action-import-bpf" />
             <FileAction accessibilityLabel="Export CornerGPSMap BPF" icon={<Download size={18} color="#254234" />} label="Export BPF" onPress={exportBpf} testID="files-action-export-bpf" />
             <FileAction accessibilityLabel="Review FLT or CornerGPSMap legacy evidence" icon={<Upload size={18} color="#254234" />} label="Review Legacy" onPress={importLegacyEvidence} testID="files-action-review-legacy-evidence" />
-            <FileAction accessibilityLabel="Import KML or KMZ" icon={<Upload size={18} color="#254234" />} label="Import KML/KMZ" onPress={importKmlOrKmz} testID="files-action-import-kml-kmz" />
-            <FileAction accessibilityLabel="Export KML" icon={<Download size={18} color="#254234" />} label="Export KML" onPress={exportKml} testID="files-action-export-kml" />
-            <FileAction accessibilityLabel="Export KMZ" icon={<Download size={18} color="#254234" />} label="Export KMZ" onPress={exportKmz} testID="files-action-export-kmz" />
           </View>
         </View>
-        <GoogleEarthImportWizard />
-      </View>
+      </FileLane>
       {pendingKmlImport ? (
         <View style={styles.importPreviewBox}>
           <View>
@@ -538,33 +574,6 @@ export function ProjectFilesPanel({
         </View>
       ) : null}
 
-      <View style={styles.importGrid}>
-        <View style={styles.importBox}>
-          <Text style={styles.importTitle}>Projected GeoJSON Import</Text>
-          <TextInput
-            multiline
-            onChangeText={setGeoJsonImport}
-            placeholder="FeatureCollection with projectCrs and field_boundary/obstacle features"
-            style={styles.importInput}
-            testID="files-geojson-import-input"
-            value={geoJsonImport}
-          />
-          <FileAction accessibilityLabel="Import projected GeoJSON" icon={<Upload size={18} color="#254234" />} label="Import GeoJSON" onPress={applyGeoJsonImport} testID="files-action-import-geojson" />
-        </View>
-        <View style={styles.importBox}>
-          <Text style={styles.importTitle}>Survey CSV Import</Text>
-          <TextInput
-            multiline
-            onChangeText={setSurveyCsvImport}
-            placeholder="id,label,role,x,y,source,confidence"
-            style={styles.importInput}
-            testID="files-survey-csv-import-input"
-            value={surveyCsvImport}
-          />
-          <FileAction accessibilityLabel="Import survey CSV" icon={<Upload size={18} color="#254234" />} label="Import CSV" onPress={applySurveyCsvImport} testID="files-action-import-csv" />
-        </View>
-      </View>
-
       <View style={styles.projectList}>
         {repository.projects.length === 0 ? (
           <Text style={styles.emptyText}>No local projects saved yet.</Text>
@@ -585,6 +594,18 @@ export function ProjectFilesPanel({
           </View>
         ))}
       </View>
+    </View>
+  );
+}
+
+function FileLane({ children, icon, title }: { children: React.ReactNode; icon: React.ReactNode; title: string }): React.JSX.Element {
+  return (
+    <View style={styles.fileLane}>
+      <View style={styles.fileLaneHeader}>
+        {icon}
+        <Text style={styles.groupTitle}>{title}</Text>
+      </View>
+      {children}
     </View>
   );
 }
@@ -800,6 +821,18 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "900",
     textTransform: "uppercase",
+  },
+  fileLane: {
+    borderColor: "#dce3da",
+    borderRadius: 8,
+    borderWidth: 1,
+    gap: 10,
+    padding: 12,
+  },
+  fileLaneHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8,
   },
   actionRow: {
     flexDirection: "row",

@@ -7,7 +7,7 @@ Stay read-only unless the parent explicitly assigns a bounded worker scope.
 
 Use AGENTS.md and .agents/skills/cplayout-interface-development-agent/SKILL.md as the operating contract. Prefer existing Expo React Native patterns under apps/mobile and shared TypeScript domain packages. Keep drawing viewport state separate from geometry mutation.
 
-For visible UI changes, require a web export or dev-server check and Playwright screenshot when available. Do not add paid services, hidden keys, or native dependencies without source-backed package and platform verification.
+For visible UI changes, require the repo-owned launcher path when a local browser server is needed: `npm run ui:test:start -- --no-open` for static export checks, the exact printed URL for Playwright screenshots, and `npm run ui:test:stop` cleanup. Use `npm run dev:web:smart` only when live reload is specifically needed, and keep `npm run proof:web` as deterministic browser proof. Do not add paid services, hidden keys, or native dependencies without source-backed package and platform verification.
 
-Return concrete UI risks, expected files, verification gates, and integration needs. Coordinate storage or CRUD impacts with cplayout_database_specialist and geometry/design impacts with cplayout_center_pivot_designer.
+Return concrete UI risks, expected files, verification gates, exact server URL when used, cleanup status, and integration needs. Coordinate storage or CRUD impacts with cplayout_database_specialist and geometry/design impacts with cplayout_center_pivot_designer.
 '''

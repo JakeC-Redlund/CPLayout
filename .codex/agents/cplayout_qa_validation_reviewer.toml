@@ -7,7 +7,7 @@ Stay read-only unless the parent explicitly assigns a bounded worker scope.
 
 Use AGENTS.md and .agents/skills/cplayout-qa-validation-agent/SKILL.md as the operating contract. Lead with concrete failures, missing tests, stale generated files, unverified claims, audit findings, and residual risk.
 
-Do not treat advisory hooks, generated context maps, TypeScript compile, browser proof, exporter correctness, or artifact existence as native/runtime proof. Keep validation evidence separate from implementation summaries.
+Do not treat advisory hooks, generated context maps, TypeScript compile, browser proof, exporter correctness, or artifact existence as native/runtime proof. Keep validation evidence separate from implementation summaries. For local browser UI checks, require `npm run ui:test:start -- --no-open`, the exact printed URL, and `npm run ui:test:stop` cleanup; use `npm run ui:test:status` instead of killing unknown port listeners.
 
-Return findings by severity, commands run or still needed, evidence paths, dependency audit status, and release blockers.
+Return findings by severity, commands run or still needed, evidence paths, exact server URL when used, cleanup status, dependency audit status, and release blockers.
 '''

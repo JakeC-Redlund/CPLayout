@@ -12,7 +12,7 @@ import {
   Wrench,
 } from "lucide-react-native";
 import React, { useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import type { AppSettings, ProjectMapFeatureKind } from "@cplayout/core";
 import type { DrawingLayerType, DrawingMode } from "@cplayout/geometry";
@@ -195,13 +195,13 @@ function ToolButton({
     <View style={[styles.toolGroupShell, { borderTopColor: visualGroup.color }]} testID={testID}>
       <Pressable
         accessibilityLabel={tool.label}
-        accessibilityHint={`${visualGroup.label} tool group`}
+        accessibilityHint={tool.statusLabel}
         accessibilityRole="button"
         accessibilityState={{ selected: active }}
-        aria-pressed={active}
         onPress={onPress}
         style={[styles.toolButton, { borderColor: visualGroup.borderColor }, expanded && styles.toolButtonExpanded, sidebar && styles.sidebarToolButton, active && styles.toolButtonActive]}
         testID={legacyTestID}
+        {...toolButtonWebHint(tool.label, tool.statusLabel, active, expanded)}
       >
         {icon}
         {expanded ? <Text style={[styles.toolText, active && styles.toolTextActive]}>{tool.shortLabel}</Text> : null}
@@ -269,7 +269,7 @@ function groupTestId(id: MapToolId): string {
     case "line":
       return "drawing-tool-group-utilities";
     case "polygon":
-      return "drawing-tool-group-draw";
+      return "drawing-tool-group-area";
     case "circle":
       return "drawing-tool-group-coverage";
   }
@@ -308,6 +308,14 @@ function toolIcon(id: MapToolId, active: boolean): React.ReactNode {
     case "circle":
       return <Circle size={19} color={color} />;
   }
+}
+
+function toolButtonWebHint(label: string, hint: string, active: boolean, expanded: boolean): Record<string, unknown> {
+  if (Platform.OS !== "web") return {};
+  return {
+    ...(active ? { "aria-pressed": "true" } : {}),
+    ...(!expanded ? { title: `${label}: ${hint}` } : {}),
+  };
 }
 
 function WorkflowActionButton({
