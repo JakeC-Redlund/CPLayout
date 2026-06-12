@@ -12,6 +12,7 @@ CPLayout is an offline-first, no-cost center-pivot planning app. Canonical proje
 ## Task-Specific Docs
 
 - Governance, hooks, skills, managed policy: `docs/agent-prompt-registry.md`, `docs/agent-source-ledger.md`, `docs/agent-known-gaps.md`, `docs/codex-managed-hook-deployment.md`.
+- Local UI testing server launcher and Windows Desktop shortcut: `docs/local-ui-testing-server-launch.md`.
 - Storage, archives, native proof: `docs/android-native-verification.md`, `packages/project-store/src/index.ts`, `packages/project-store/src/projectArchive.ts`, `packages/project-store/src/projectRepository.native.ts`.
 - Imagery, KML/KMZ, Google Earth, ML/CV: `docs/kml-kmz-google-earth-source-ledger.md`, `packages/core/src/imageryEvidence.ts`, `docs/imagery-ml-capability-roadmap.md`.
 - Interface and visible web/native proof: `apps/mobile/App.tsx`, `packages/map-adapters/src/SvgMapSurface.tsx`, `docs/android-native-verification.md`.
