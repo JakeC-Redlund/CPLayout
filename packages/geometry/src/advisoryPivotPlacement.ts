@@ -27,7 +27,8 @@ import {
   multiPolygonAreaSquareMeters,
   polygonAreaSquareMeters,
 } from "./geometry";
-import { optimizePivotCenter, type PivotCenterAlternative, type PivotCenterSeedKind } from "./pivotCenterOptimizer";
+import { optimizePivotCenterSteps, type PivotCenterAlternative, type PivotCenterSeedKind } from "./pivotCenterOptimizer";
+import { completeCalculation, type Calculation } from "./calculation";
 
 type ClipPosition = [number, number];
 type ClipPolygon = ClipPosition[][];
@@ -857,17 +858,28 @@ export function buildPivotPlacementCandidates(
   project: PivotProject,
   options: PivotPlacementCandidateOptions = {},
 ): PivotPlacementCandidate[] {
+  return completeCalculation(buildPivotPlacementCandidatesSteps(project, options));
+}
+
+export function* buildPivotPlacementCandidatesSteps(
+  project: PivotProject,
+  options: PivotPlacementCandidateOptions = {},
+): Calculation<PivotPlacementCandidate[]> {
   const gridDivisions = Math.max(3, Math.floor(options.gridDivisions ?? 9));
   const maxCandidates = Math.max(1, Math.floor(options.maxCandidates ?? 5));
   const sourceRefs = options.sourceRefs ?? DEFAULT_ADVISORY_PLACEMENT_SOURCE_REFS;
-  const optimizerAlternatives = optimizePivotCenter(project, {
+  const optimizerAlternatives = yield* optimizePivotCenterSteps(project, {
     gridDivisions,
     maxAlternatives: Math.max(maxCandidates + 2, 6),
     boundaryEpsilonSquareMeters: options.boundaryEpsilonSquareMeters ?? DEFAULT_BOUNDARY_EPSILON_SQUARE_METERS,
     includeVisualCenterSeed: true,
   });
 
-  const candidates = optimizerAlternatives.map((alternative) => candidateFromAlternative(project, alternative, options, sourceRefs));
+  const candidates: PivotPlacementCandidate[] = [];
+  for (const alternative of optimizerAlternatives) {
+    candidates.push(candidateFromAlternative(project, alternative, options, sourceRefs));
+    yield;
+  }
   if (options.includeMaximumInscribedCircleSeed !== false) {
     const micSeed = maximumInscribedCircleSeed(project.fieldBoundary, gridDivisions, options.maximumInteriorSeedRefinement ?? "local");
     candidates.push(candidateFromProject(project, micSeed.center, "maximum_inscribed_circle", options, sourceRefs));
@@ -940,11 +952,22 @@ export function analyzeAdvisoryMultiMachineLayout(
   project: PivotProject,
   options: AdvisoryMultiMachineReviewOptions = {},
 ): AdvisoryMultiMachineReview {
+  return completeCalculation(analyzeAdvisoryMultiMachineLayoutSteps(project, options));
+}
+
+export function* analyzeAdvisoryMultiMachineLayoutSteps(
+  project: PivotProject,
+  options: AdvisoryMultiMachineReviewOptions = {},
+): Calculation<AdvisoryMultiMachineReview> {
   const sourceRefs = options.sourceRefs ?? DEFAULT_ADVISORY_PLACEMENT_SOURCE_REFS;
   const planningBoundaries = planningBoundaryFeatures(project);
   const machineZones = machineZoneFeatures(project);
   const scenarioFeatures = machineZones.length > 0 ? machineZones : planningBoundaries;
-  const scenarios = scenarioFeatures.map((feature) => buildAdvisoryMachineScenario(project, feature, options, sourceRefs));
+  const scenarios: AdvisoryMachineScenario[] = [];
+  for (const feature of scenarioFeatures) {
+    scenarios.push(buildAdvisoryMachineScenario(project, feature, options, sourceRefs));
+    yield;
+  }
   const readyScenarios = scenarios.filter((scenario) => scenario.status === "ready" && scenario.bestCandidate);
   const conflicts = buildMachineEnvelopeConflicts(project, readyScenarios, options);
   const compilation = buildBoundaryCompilation(project, planningBoundaries, machineZones, scenarios);
@@ -999,6 +1022,13 @@ export function planAdvisoryFieldPivots(
   project: PivotProject,
   options: AdvisoryFieldPivotPlanOptions = {},
 ): AdvisoryFieldPivotPlan {
+  return completeCalculation(planAdvisoryFieldPivotsSteps(project, options));
+}
+
+export function* planAdvisoryFieldPivotsSteps(
+  project: PivotProject,
+  options: AdvisoryFieldPivotPlanOptions = {},
+): Calculation<AdvisoryFieldPivotPlan> {
   const sourceRefs = options.sourceRefs ?? DEFAULT_ADVISORY_PLACEMENT_SOURCE_REFS;
   const requestedMachineCount = Math.max(1, Math.floor(options.maxMachines ?? 3));
   const machineRadius = machineRadiusMeters(project.machine);
@@ -1041,9 +1071,9 @@ export function planAdvisoryFieldPivots(
     };
   }
 
-  const candidatePool = buildFieldPivotPlanCandidatePool(project, options, sourceRefs, requestedMachineCount);
+  const candidatePool = yield* buildFieldPivotPlanCandidatePool(project, options, sourceRefs, requestedMachineCount);
   const feasibleCandidates = candidatePool.filter((candidate) => candidate.feasible && candidate.insideFieldBoundary);
-  const { selected, separationRejections } = selectAdvisoryFieldPivotCandidates(
+  const { selected, separationRejections } = yield* selectAdvisoryFieldPivotCandidates(
     project,
     feasibleCandidates,
     requestedMachineCount,
@@ -1053,7 +1083,8 @@ export function planAdvisoryFieldPivots(
   const fieldBoundaryAcres = squareMetersToAcres(polygonAreaSquareMeters(project.fieldBoundary));
   let runningCoverage: MultiPolygonXY = [];
   let modeledIrrigatedAcresSum = 0;
-  const planCandidates = selected.map((candidate, index): AdvisoryFieldPivotPlanCandidate => {
+  const planCandidates: AdvisoryFieldPivotPlanCandidate[] = [];
+  for (const [index, candidate] of selected.entries()) {
     const scenarioProject: PivotProject = { ...project, pivotCenter: candidate.pivotCenter };
     const result = evaluateLayout(scenarioProject);
     const priorCoverageAcres = squareMetersToAcres(multiPolygonAreaSquareMeters(
@@ -1065,7 +1096,7 @@ export function planAdvisoryFieldPivots(
     ));
     modeledIrrigatedAcresSum += result.metrics.irrigatedAcres;
     const nearest = nearestSelectedPlacementCandidate(candidate, selected.slice(0, index));
-    return {
+    planCandidates.push({
       id: `field-pivot-${index + 1}-${candidate.id}`,
       sequence: index + 1,
       placementCandidate: candidate,
@@ -1087,8 +1118,9 @@ export function planAdvisoryFieldPivots(
         ...candidate.warnings,
       ],
       sourceRefs,
-    };
-  });
+    });
+    yield;
+  }
 
   const modeledCoverageUnion = intersectMultiPolygons(runningCoverage, [[project.fieldBoundary]]);
   const modeledIrrigatedUnionAcres = squareMetersToAcres(multiPolygonAreaSquareMeters(modeledCoverageUnion));
@@ -2076,34 +2108,34 @@ function buildMachineZoneReviews(
   });
 }
 
-function buildFieldPivotPlanCandidatePool(
+function* buildFieldPivotPlanCandidatePool(
   project: PivotProject,
   options: AdvisoryFieldPivotPlanOptions,
   sourceRefs: AdvisorySourceReference[],
   requestedMachineCount: number,
-): PivotPlacementCandidate[] {
+): Calculation<PivotPlacementCandidate[]> {
   const candidatePoolSize = Math.max(
     requestedMachineCount,
     Math.floor(options.candidatePoolSize ?? Math.max(requestedMachineCount * 10, 18)),
   );
   const gridDivisions = Math.max(3, Math.floor(options.gridDivisions ?? 9));
-  const optimizedCandidates = buildPivotPlacementCandidates(project, {
+  const optimizedCandidates = yield* buildPivotPlacementCandidatesSteps(project, {
     ...options,
     maxCandidates: Math.max(candidatePoolSize, requestedMachineCount * 4),
     includeMachineZoneReviews: false,
     sourceRefs,
   });
-  const gridCandidates = fieldPivotGridCandidates(project, options, sourceRefs, gridDivisions);
+  const gridCandidates = yield* fieldPivotGridCandidates(project, options, sourceRefs, gridDivisions);
   return dedupePlacementCandidates([...optimizedCandidates, ...gridCandidates])
     .sort(comparePlacementCandidates);
 }
 
-function fieldPivotGridCandidates(
+function* fieldPivotGridCandidates(
   project: PivotProject,
   options: PivotPlacementCandidateOptions,
   sourceRefs: AdvisorySourceReference[],
   gridDivisions: number,
-): PivotPlacementCandidate[] {
+): Calculation<PivotPlacementCandidate[]> {
   const bounds = boundsForGeometry([project.fieldBoundary]);
   const xStep = (bounds.maxX - bounds.minX) / gridDivisions;
   const yStep = (bounds.maxY - bounds.minY) / gridDivisions;
@@ -2117,17 +2149,18 @@ function fieldPivotGridCandidates(
       if (!pointInPolygon(pivotCenter, project.fieldBoundary)) continue;
       if (distanceToRing(pivotCenter, project.fieldBoundary) <= 0.001) continue;
       candidates.push(candidateFromProject(project, pivotCenter, "bbox_grid", options, sourceRefs));
+      yield;
     }
   }
   return candidates;
 }
 
-function selectAdvisoryFieldPivotCandidates(
+function* selectAdvisoryFieldPivotCandidates(
   project: PivotProject,
   candidates: PivotPlacementCandidate[],
   requestedMachineCount: number,
   minimumRequiredSeparationMeters: number,
-): { selected: PivotPlacementCandidate[]; separationRejections: AdvisoryFieldPivotSeparationRejection[] } {
+): Calculation<{ selected: PivotPlacementCandidate[]; separationRejections: AdvisoryFieldPivotSeparationRejection[] }> {
   const selected: PivotPlacementCandidate[] = [];
   const separationRejections: AdvisoryFieldPivotSeparationRejection[] = [];
   const rejectedIds = new Set<string>();
@@ -2151,11 +2184,15 @@ function selectAdvisoryFieldPivotCandidates(
     }
 
     if (separatedCandidates.length === 0) break;
-    const chosen = separatedCandidates
-      .map((candidate) => ({
+    const scored: { candidate: PivotPlacementCandidate; incrementalCoverageAcres: number }[] = [];
+    for (const candidate of separatedCandidates) {
+      scored.push({
         candidate,
         incrementalCoverageAcres: fieldPivotIncrementalCoverageAcres(project, runningCoverage, candidate),
-      }))
+      });
+      yield;
+    }
+    const chosen = scored
       .sort((left, right) => {
         if (right.incrementalCoverageAcres !== left.incrementalCoverageAcres) return right.incrementalCoverageAcres - left.incrementalCoverageAcres;
         return comparePlacementCandidates(left.candidate, right.candidate);

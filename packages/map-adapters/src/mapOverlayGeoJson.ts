@@ -54,9 +54,7 @@ export function projectLayoutToWgs84FeatureCollection(
   const readyTwoMachineAdvisoryRender = advisoryMachineRenderModel?.status === "ready"
     && advisoryMachineRenderModel.instances.length >= 2;
   const canonicalMachineLayersVisible = !readyTwoMachineAdvisoryRender;
-  const layoutPathFeatures = canonicalMachineLayersVisible
-    ? buildLayoutPathOverlays(project).flatMap((overlay) => layoutPathOverlayFeatures(project, overlay))
-    : [];
+  const layoutPathFeatures = buildLayoutPathOverlays(project).flatMap((overlay) => layoutPathOverlayFeatures(project, overlay));
   const visibleMapFeatures = readyTwoMachineAdvisoryRender
     ? (project.mapFeatures ?? []).filter((feature) => !isGeneratedMeasurementCircleFeature(feature))
     : (project.mapFeatures ?? []);
@@ -76,10 +74,10 @@ export function projectLayoutToWgs84FeatureCollection(
       pointFeature(project, "pivot_center", project.pivotCenter, { label: "Pivot" }),
       pointFeature(project, "water_source", project.waterSource, { label: "Water" }),
       pointFeature(project, "power_source", project.powerSource, { label: "Power" }),
-      ...(canonicalMachineLayersVisible ? result.towers.map((tower) => pointFeature(project, "tower_location", tower.point, {
+      ...result.towers.map((tower) => pointFeature(project, "tower_location", tower.point, {
         towerIndex: tower.towerIndex,
         radiusMeters: tower.radiusMeters,
-      })) : []),
+      })),
       ...visibleMapFeatures.map((feature) => {
         const properties = {
           ...feature.properties,
@@ -229,6 +227,11 @@ function layoutPathOverlayFeatures(project: PivotProject, overlay: LayoutPathOve
     advisoryOnly: overlay.advisoryOnly,
     renderOnly: true,
     canonicalGeometryMutation: false,
+    designLayer: overlay.kind.startsWith("corner_arm") ? "advisory_proposal" : "derived_machine_path",
+    machinePathRoles: overlay.machinePathRoles.join(","),
+    coincidentPath: overlay.coincidentPath,
+    provenance: overlay.kind.startsWith("corner_arm") ? "stored_or_explicit_preview" : "canonical_machine_specification",
+    testId: `machine-path-${overlay.machinePathRoles.join("-")}-${overlay.towerIndex ?? "path"}`,
     ...(overlay.towerIndex === undefined ? {} : { towerIndex: overlay.towerIndex }),
     ...(overlay.evidenceFeatureIds === undefined ? {} : { evidenceFeatureIds: overlay.evidenceFeatureIds }),
     ...(overlay.wheelOverhangSeparationVerified === undefined ? {} : { wheelOverhangSeparationVerified: overlay.wheelOverhangSeparationVerified }),
@@ -280,9 +283,11 @@ function centerlineFeatures(
 function layoutPathInsideLayerType(overlay: LayoutPathOverlay): string {
   switch (overlay.kind) {
     case "wheel_track":
-      return "wheel_track_path";
+      return overlay.coincidentPath ? "combined_last_wheel_machine_end_path" : "wheel_track_path";
     case "end_of_machine":
       return "end_machine_path";
+    case "end_gun_reach":
+      return "end_gun_reach_path";
     case "corner_arm_wheel_track":
       return "corner_arm_wheel_track_path";
     case "corner_arm_overhang_end":
@@ -293,9 +298,11 @@ function layoutPathInsideLayerType(overlay: LayoutPathOverlay): string {
 function layoutPathOutsideLayerType(overlay: LayoutPathOverlay): string {
   switch (overlay.kind) {
     case "wheel_track":
-      return "wheel_track_outside_field";
+      return overlay.coincidentPath ? "combined_last_wheel_machine_end_outside_field" : "wheel_track_outside_field";
     case "end_of_machine":
       return "end_machine_outside_field";
+    case "end_gun_reach":
+      return "end_gun_reach_outside_field";
     case "corner_arm_wheel_track":
       return "corner_arm_wheel_track_outside_field";
     case "corner_arm_overhang_end":

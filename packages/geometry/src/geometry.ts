@@ -16,6 +16,7 @@ import {
   XY,
 } from "@cplayout/core";
 import { assertProjectedCrs, feetToMeters, squareMetersToAcres } from "@cplayout/core";
+import { Calculation, completeCalculation } from "./calculation";
 
 type ClipPosition = [number, number];
 type ClipPolygon = ClipPosition[][];
@@ -23,8 +24,6 @@ type ClipMultiPolygon = ClipPolygon[];
 
 const DEFAULT_SEGMENTS = 288;
 const EPSILON_AREA = 0.000001;
-const DEFAULT_CORNER_ARM_WHEEL_TRACK_EXTENSION_METERS = 66;
-const DEFAULT_CORNER_ARM_OVERHANG_EXTENSION_METERS = 25;
 export const DEFAULT_BOUNDARY_EPSILON_SQUARE_METERS = 0.01;
 
 export type CornerArmPathModel = "max_extension_envelope" | "corner_swing_limit_variable_reach";
@@ -117,8 +116,17 @@ export interface CornerArmPathEvaluation {
 export type LayoutPathOverlayKind =
   | "wheel_track"
   | "end_of_machine"
+  | "end_gun_reach"
   | "corner_arm_wheel_track"
   | "corner_arm_overhang_end";
+
+export type MachinePathRole =
+  | "tower_wheel"
+  | "last_wheel"
+  | "machine_end"
+  | "end_gun"
+  | "corner_arm_wheel"
+  | "corner_arm_end";
 
 export interface LayoutPathOverlay {
   kind: LayoutPathOverlayKind;
@@ -130,6 +138,8 @@ export interface LayoutPathOverlay {
   centerlineSegments: XY[][];
   insideFieldEnvelope: MultiPolygonXY;
   outsideFieldEnvelope: MultiPolygonXY;
+  machinePathRoles: MachinePathRole[];
+  coincidentPath: boolean;
   towerIndex?: number;
   evidenceFeatureIds?: string[];
   wheelOverhangSeparationVerified?: boolean;
@@ -147,6 +157,7 @@ export interface LayoutPathOverlay {
 
 export interface LayoutPathOverlayOptions {
   settings?: Pick<ProjectSettings, "layoutReview">;
+  cornerArmPreview?: AdvisoryCornerArmConfig;
 }
 
 export type MachineBoundaryClearanceRowKind =
@@ -172,6 +183,7 @@ export interface MachineBoundaryClearanceRow {
   outsideFieldAreaSquareMeters: number;
   outsideFieldAcres: number;
   sampledPointCount: number;
+  boundaryDistanceEvaluation?: PathBoundaryDistanceEvaluation;
   towerIndex?: number;
   evidenceFeatureIds?: string[];
   wheelOverhangSeparationVerified?: boolean;
@@ -363,6 +375,10 @@ export function evaluateMechanicalConflicts(project: PivotProject): LayoutMechan
 }
 
 export function buildLayoutPathOverlays(project: PivotProject, options: LayoutPathOverlayOptions = {}): LayoutPathOverlay[] {
+  return completeCalculation(buildLayoutPathOverlaysSteps(project, options));
+}
+
+export function* buildLayoutPathOverlaysSteps(project: PivotProject, options: LayoutPathOverlayOptions = {}): Calculation<LayoutPathOverlay[]> {
   assertProjectedCrs(project.projectCrs);
 
   const field = toClipMultiPolygon([[project.fieldBoundary]]);
@@ -371,33 +387,61 @@ export function buildLayoutPathOverlays(project: PivotProject, options: LayoutPa
   const towerBuffer = Math.max(0, project.machine.towerClearanceBufferMeters);
   let towerRadius = 0;
 
-  project.machine.spanLengthsMeters.forEach((spanLength, index) => {
+  for (const [index, spanLength] of project.machine.spanLengthsMeters.entries()) {
     towerRadius += spanLength;
+    const isLastWheel = index === project.machine.spanLengthsMeters.length - 1;
+    const coincidesWithMachineEnd = isLastWheel && nearlyEqual(towerRadius, machineRadiusMeters(project.machine));
     overlays.push(layoutPathOverlay(
       "wheel_track",
-      `Tower ${index + 1} wheel track`,
+      coincidesWithMachineEnd ? "Last wheel / machine end path" : `Tower ${index + 1} wheel track`,
       towerRadius,
       towerBuffer,
       clipCenterlines([pathCenterlineSegment(project.pivotCenter, towerRadius, project.machine.sweep)]),
       field,
       createBufferedPathClip(project.pivotCenter, towerRadius, towerBuffer, project.machine.sweep),
       index + 1,
+      {
+        machinePathRoles: coincidesWithMachineEnd
+          ? ["last_wheel", "machine_end"]
+          : [isLastWheel ? "last_wheel" : "tower_wheel"],
+        coincidentPath: coincidesWithMachineEnd,
+      },
     ));
-  });
+    yield;
+  }
 
   const machineRadius = machineRadiusMeters(project.machine);
   const machineBuffer = Math.max(0, project.machine.machineClearanceBufferMeters);
-  overlays.push(layoutPathOverlay(
-    "end_of_machine",
-    "End of machine path",
-    machineRadius,
-    machineBuffer,
-    clipCenterlines([pathCenterlineSegment(project.pivotCenter, machineRadius, project.machine.sweep)]),
-    field,
-    createBufferedPathClip(project.pivotCenter, machineRadius, machineBuffer, project.machine.sweep),
-  ));
+  if (!nearlyEqual(machineRadius, towerRadius)) {
+    overlays.push(layoutPathOverlay(
+      "end_of_machine",
+      "Machine end path",
+      machineRadius,
+      machineBuffer,
+      clipCenterlines([pathCenterlineSegment(project.pivotCenter, machineRadius, project.machine.sweep)]),
+      field,
+      createBufferedPathClip(project.pivotCenter, machineRadius, machineBuffer, project.machine.sweep),
+      undefined,
+      { machinePathRoles: ["machine_end"], coincidentPath: false },
+    ));
+  }
 
-  const cornerArmPath = evaluateCornerArmPath(project, options);
+  const endGunRadius = endGunRadiusMeters(project.machine);
+  if (endGunRadius > machineRadius && !nearlyEqual(endGunRadius, machineRadius)) {
+    overlays.push(layoutPathOverlay(
+      "end_gun_reach",
+      "End-gun reach",
+      endGunRadius,
+      0,
+      clipCenterlines([pathCenterlineSegment(project.pivotCenter, endGunRadius, project.machine.sweep)]),
+      field,
+      createBufferedPathClip(project.pivotCenter, endGunRadius, 0.5, project.machine.sweep),
+      undefined,
+      { machinePathRoles: ["end_gun"], coincidentPath: false },
+    ));
+  }
+
+  const cornerArmPath = yield* evaluateCornerArmPathSteps(project, options);
   if (cornerArmPath) {
     overlays.push(layoutPathOverlay(
       "corner_arm_wheel_track",
@@ -409,6 +453,8 @@ export function buildLayoutPathOverlays(project: PivotProject, options: LayoutPa
       toClipMultiPolygon(cornerArmPath.wheelTrackEnvelope),
       undefined,
       {
+        machinePathRoles: ["corner_arm_wheel"],
+        coincidentPath: false,
         evidenceFeatureIds: cornerArmPath.evidenceFeatureIds,
         wheelOverhangSeparationVerified: cornerArmPath.wheelOverhangSeparationVerified,
         anchorRadiusMeters: cornerArmPath.anchorRadiusMeters,
@@ -433,6 +479,8 @@ export function buildLayoutPathOverlays(project: PivotProject, options: LayoutPa
       toClipMultiPolygon(cornerArmPath.overhangEndEnvelope),
       undefined,
       {
+        machinePathRoles: ["corner_arm_end"],
+        coincidentPath: false,
         evidenceFeatureIds: cornerArmPath.evidenceFeatureIds,
         wheelOverhangSeparationVerified: cornerArmPath.wheelOverhangSeparationVerified,
         anchorRadiusMeters: cornerArmPath.anchorRadiusMeters,
@@ -453,10 +501,15 @@ export function buildLayoutPathOverlays(project: PivotProject, options: LayoutPa
 }
 
 export function evaluateCornerArmPath(project: PivotProject, options: LayoutPathOverlayOptions = {}): CornerArmPathEvaluation | null {
+  return completeCalculation(evaluateCornerArmPathSteps(project, options));
+}
+
+export function* evaluateCornerArmPathSteps(project: PivotProject, options: LayoutPathOverlayOptions = {}): Calculation<CornerArmPathEvaluation | null> {
   assertProjectedCrs(project.projectCrs);
 
-  const config = project.machine.cornerArm ?? defaultAdvisoryCornerArmConfig();
-  const usingDefaultConfig = project.machine.cornerArm === undefined;
+  const config = project.machine.cornerArm ?? options.cornerArmPreview;
+  if (!config) return null;
+  const usingPreviewConfig = project.machine.cornerArm === undefined;
   const cornerArmPaths = cornerArmPathLengths(config);
   if (!cornerArmPaths) return null;
 
@@ -464,7 +517,7 @@ export function evaluateCornerArmPath(project: PivotProject, options: LayoutPath
   const evidence = cornerSwingEvidence(project);
   const hasEvidence = evidence.multiPolygon.length > 0;
   const modelFamily = config.modelFamily ?? "single_span_lrdu_sdu";
-  const sampledPath = sampleCornerArmPath(project, anchorRadius, cornerArmPaths, evidence.multiPolygon);
+  const sampledPath = yield* sampleCornerArmPath(project, anchorRadius, cornerArmPaths, evidence.multiPolygon);
   const pathModel: CornerArmPathModel = hasEvidence ? "corner_swing_limit_variable_reach" : "max_extension_envelope";
   const maxWheelTrackRadius = anchorRadius + cornerArmPaths.wheelTrackLengthMeters;
   const maxOverhangEndRadius = anchorRadius + cornerArmPaths.overhangEndLengthMeters;
@@ -487,8 +540,8 @@ export function evaluateCornerArmPath(project: PivotProject, options: LayoutPath
     ...(hasEvidence
       ? []
       : ["No corner_swing_limit map feature is present; conservative max-extension envelope is rendered without operator footprint evidence."]),
-    ...(usingDefaultConfig
-      ? ["No saved corner-arm config is present; CPLayout renders a public/default advisory corner-arm path without persisting it to the project."]
+    ...(usingPreviewConfig
+      ? ["An explicitly enabled corner-arm preview is rendered without persisting it to the project."]
       : []),
     ...(hasEvidence && sampledPath.points.length === 0
       ? ["corner_swing_limit evidence did not intersect sampled advisory corner-arm reach angles; rendered path envelopes are empty."]
@@ -542,7 +595,8 @@ export function evaluateMachineBoundaryClearance(
 
   const requiredBoundaryClearanceMeters = Math.max(0, settings?.layoutReview?.requiredBoundaryClearanceMeters ?? 0);
   const rows: MachineBoundaryClearanceRow[] = [];
-  const pointDistance = signedBoundaryDistance(project.pivotCenter, project.fieldBoundary);
+  const pivotEvaluation = evaluatePathBoundaryDistance(project, 0);
+  const pointDistance = pivotEvaluation.minimumBoundaryDistanceMeters;
   rows.push(machineBoundaryClearanceRow({
     kind: "pivot_center",
     label: "Pivot center",
@@ -552,12 +606,13 @@ export function evaluateMachineBoundaryClearance(
     requiredBoundaryClearanceMeters,
     outsideFieldEnvelope: pointDistance < 0 ? [[createCirclePolygon(project.pivotCenter, 0.5, 16)]] : [],
     sampledPointCount: 1,
+    boundaryDistanceEvaluation: pivotEvaluation,
     warnings: ["Pivot-center clearance is advisory and does not move the saved pivot unless the operator applies a candidate."],
   }));
 
   const overlays = buildLayoutPathOverlays(project);
   for (const overlay of overlays) {
-    const sampled = sampledPathBoundaryDistance(project, overlay.radiusMeters);
+    const sampled = evaluatePathBoundaryDistance(project, overlay.radiusMeters);
     rows.push(machineBoundaryClearanceRow({
       kind: overlay.kind,
       label: overlay.label,
@@ -566,27 +621,12 @@ export function evaluateMachineBoundaryClearance(
       minimumBoundaryDistanceMeters: sampled.minimumBoundaryDistanceMeters,
       requiredBoundaryClearanceMeters,
       outsideFieldEnvelope: overlay.outsideFieldEnvelope,
-      sampledPointCount: sampled.sampledPointCount,
+      sampledPointCount: sampled.evaluatedPointCount,
+      boundaryDistanceEvaluation: sampled,
       towerIndex: overlay.towerIndex,
       evidenceFeatureIds: overlay.evidenceFeatureIds,
       wheelOverhangSeparationVerified: overlay.wheelOverhangSeparationVerified,
       warnings: overlay.warnings ?? [],
-    }));
-  }
-
-  const endGunRadius = endGunRadiusMeters(project.machine);
-  if (endGunRadius > machineRadiusMeters(project.machine)) {
-    const sampled = sampledPathBoundaryDistance(project, endGunRadius);
-    rows.push(machineBoundaryClearanceRow({
-      kind: "end_gun_reach",
-      label: "End-gun reach",
-      radiusMeters: endGunRadius,
-      bufferMeters: 0,
-      minimumBoundaryDistanceMeters: sampled.minimumBoundaryDistanceMeters,
-      requiredBoundaryClearanceMeters,
-      outsideFieldEnvelope: pathOutsideFieldEnvelope(project, endGunRadius, 0.5),
-      sampledPointCount: sampled.sampledPointCount,
-      warnings: ["End-gun reach is a wet-coverage review row, not a physical tower or corner-arm path."],
     }));
   }
 
@@ -822,18 +862,195 @@ function obstacleIntersectionArea(clip: ClipMultiPolygon, obstacle: ObstacleZone
   return multiPolygonAreaSquareMeters(fromClipMultiPolygon(intersection ?? []));
 }
 
-function sampledPathBoundaryDistance(project: PivotProject, radiusMeters: number): {
+export interface PathBoundaryDistanceOptions {
+  toleranceMeters?: number;
+  maxEvaluatedPointCount?: number;
+}
+
+export interface PathBoundaryDistanceEvaluation {
+  /** Conservative lower bound; do not round before making clearance decisions. */
   minimumBoundaryDistanceMeters: number;
-  sampledPointCount: number;
-} {
-  const angles = project.machine.sweep.mode === "full_circle"
-    ? Array.from({ length: DEFAULT_SEGMENTS }, (_value, index) => (index / DEFAULT_SEGMENTS) * 360)
-    : buildSweepAngles(project.machine.sweep.startAngleDegrees, project.machine.sweep.stopAngleDegrees, project.machine.sweep.direction, DEFAULT_SEGMENTS);
-  const distances = angles.map((angle) => signedBoundaryDistance(polarOffset(project.pivotCenter, radiusMeters, angle), project.fieldBoundary));
-  return {
-    minimumBoundaryDistanceMeters: round(distances.reduce((minimum, value) => Math.min(minimum, value), Number.POSITIVE_INFINITY)),
-    sampledPointCount: distances.length,
+  lowerBoundMeters: number;
+  upperBoundMeters: number;
+  errorBoundMeters: number;
+  toleranceMeters: number;
+  numericalErrorBudgetMeters: number;
+  maxEvaluatedPointCount: number;
+  evaluatedPointCount: number;
+  method: "exact_full_circle" | "bounded_arc_search" | "single_point";
+  converged: boolean;
+  terminationReason: "tolerance" | "evaluation_budget" | "numerical_precision";
+  warnings: string[];
+}
+
+type BoundaryArcInterval = {
+  start: number;
+  stop: number;
+  left: number;
+  middle: number;
+  right: number;
+  lower: number;
+};
+
+export function evaluatePathBoundaryDistance(
+  project: PivotProject,
+  radiusMeters: number,
+  options: PathBoundaryDistanceOptions = {},
+): PathBoundaryDistanceEvaluation {
+  const toleranceMeters = options.toleranceMeters ?? 0.001;
+  const maxEvaluatedPointCount = options.maxEvaluatedPointCount ?? 8193;
+  if (!Number.isFinite(radiusMeters) || radiusMeters < 0) throw new RangeError("radiusMeters must be finite and nonnegative.");
+  assertPositive(toleranceMeters, "toleranceMeters");
+  if (!Number.isSafeInteger(maxEvaluatedPointCount) || maxEvaluatedPointCount < 3) {
+    throw new RangeError("maxEvaluatedPointCount must be a safe integer of at least 3.");
+  }
+  const { pivotCenter: center, fieldBoundary, machine: { sweep } } = project;
+  if (fieldBoundary.length < 3 || [center, ...fieldBoundary].some((point) => !Number.isFinite(point.x) || !Number.isFinite(point.y))) {
+    throw new RangeError("A finite center and a validated polygon ring with at least three vertices are required.");
+  }
+  if (sweep.mode !== "full_circle" && (sweep.mode !== "partial_circle"
+    || !Number.isFinite(sweep.startAngleDegrees) || !Number.isFinite(sweep.stopAngleDegrees)
+    || !["clockwise", "counterclockwise"].includes(sweep.direction))) {
+    throw new RangeError("A finite full-circle or directed partial-circle sweep is required.");
+  }
+
+  // Translate and normalize before segment predicates to avoid squared-coordinate overflow.
+  let scale = radiusMeters;
+  let coordinateScale = Math.max(Math.abs(center.x), Math.abs(center.y), radiusMeters);
+  const localRing = fieldBoundary.map((point) => {
+    const local = { x: point.x - center.x, y: point.y - center.y };
+    scale = Math.max(scale, Math.abs(local.x), Math.abs(local.y));
+    coordinateScale = Math.max(coordinateScale, Math.abs(point.x), Math.abs(point.y));
+    return local;
+  });
+  if (!Number.isFinite(scale) || scale <= 0 || scale > Number.MAX_VALUE / 16) {
+    throw new RangeError("Geometry exceeds the supported finite numerical range.");
+  }
+  const ring = localRing.map((point) => ({ x: point.x / scale, y: point.y / scale }));
+  const radius = radiusMeters / scale;
+  const numericalErrorBudgetMeters = Math.max(128 * Number.MIN_VALUE, 128 * Number.EPSILON * Math.max(scale, coordinateScale));
+  const numericalBudget = numericalErrorBudgetMeters / scale;
+  if (!Number.isFinite(numericalBudget)) throw new RangeError("Geometry exceeds the supported numerical resolution.");
+  const signedDistance = (point: XY): number => {
+    const distance = distanceToRing(point, ring);
+    // Legacy point-on-segment tolerance is not a signed-distance predicate at small scales.
+    return (pointInPolygon(point, ring, false) ? 1 : -1) * distance;
   };
+  let evaluatedPointCount = 0;
+  const finish = (
+    lower: number, upper: number, method: PathBoundaryDistanceEvaluation["method"],
+    stopped: PathBoundaryDistanceEvaluation["terminationReason"] = "numerical_precision",
+  ): PathBoundaryDistanceEvaluation => {
+    const lowerBoundMeters = (lower - numericalBudget) * scale;
+    const upperBoundMeters = (upper + numericalBudget) * scale;
+    const errorBoundMeters = upperBoundMeters - lowerBoundMeters;
+    const converged = errorBoundMeters <= toleranceMeters;
+    return {
+      minimumBoundaryDistanceMeters: lowerBoundMeters,
+      lowerBoundMeters, upperBoundMeters, errorBoundMeters, toleranceMeters, numericalErrorBudgetMeters,
+      maxEvaluatedPointCount, evaluatedPointCount, method, converged,
+      terminationReason: converged ? "tolerance" : stopped,
+      warnings: [
+        "Clearance bounds assume a validated simple polygon in projected/local XY and include a floating-point numerical allowance.",
+        ...(converged ? [] : ["Clearance evaluation is unresolved within the requested tolerance; retain the reported range and do not approve clearance."]),
+      ],
+    };
+  };
+  const centerDistance = signedDistance({ x: 0, y: 0 });
+  if (radiusMeters > 0 && sweep.mode === "full_circle" && centerDistance - numericalBudget >= radius) {
+    return finish(centerDistance - radius, centerDistance - radius, "exact_full_circle");
+  }
+  const direction = sweep.mode === "full_circle" || sweep.direction === "counterclockwise" ? 1 : -1;
+  const startDegrees = sweep.mode === "full_circle" ? 0 : sweep.startAngleDegrees % 360;
+  const span = boundarySweepSpanDegrees(sweep) * Math.PI / 180;
+  const startRadians = startDegrees * Math.PI / 180;
+  const evaluate = (progress: number): number => {
+    evaluatedPointCount += 1;
+    const theta = startRadians + direction * progress;
+    return signedDistance({ x: radius * Math.cos(theta), y: radius * Math.sin(theta) });
+  };
+  if (radiusMeters === 0 || span === 0) {
+    const distance = evaluate(0);
+    return finish(distance, distance, "single_point");
+  }
+
+  // Signed distance is 1-Lipschitz in XY. Every point is within the midpoint's
+  // chord radius; endpoint cones also bound the interval using its arc length.
+  const interval = (start: number, stop: number, left: number, middle: number, right: number): BoundaryArcInterval => {
+    const width = stop - start;
+    const lower = Math.max((left + right - radius * width) / 2, middle - 2 * radius * Math.sin(width / 4));
+    return { start, stop, left, middle, right, lower };
+  };
+  const heap: BoundaryArcInterval[] = [];
+  const push = (node: BoundaryArcInterval): void => {
+    let index = heap.length;
+    heap.push(node);
+    while (index > 0) {
+      const parent = Math.floor((index - 1) / 2);
+      if (heap[parent].lower <= node.lower) break;
+      heap[index] = heap[parent];
+      index = parent;
+    }
+    heap[index] = node;
+  };
+  const pop = (): BoundaryArcInterval => {
+    const first = heap[0];
+    const tail = heap.pop()!;
+    if (heap.length > 0) {
+      let index = 0;
+      while (index * 2 + 1 < heap.length) {
+        let child = index * 2 + 1;
+        if (child + 1 < heap.length && heap[child + 1].lower < heap[child].lower) child += 1;
+        if (tail.lower <= heap[child].lower) break;
+        heap[index] = heap[child];
+        index = child;
+      }
+      heap[index] = tail;
+    }
+    return first;
+  };
+  const left = evaluate(0);
+  const middle = evaluate(span / 2);
+  const right = evaluate(span);
+  let upper = Math.min(left, middle, right);
+  push(interval(0, span, left, middle, right));
+  // The center-to-path distance is always radius, so this is a global lower
+  // bound even where subtracting radius does not give the exact signed minimum.
+  const globalLower = (): number => Math.max(centerDistance - radius, heap[0].lower);
+  let stopped: PathBoundaryDistanceEvaluation["terminationReason"] = "numerical_precision";
+  while ((upper - globalLower() + 2 * numericalBudget) * scale > toleranceMeters) {
+    if (2 * numericalErrorBudgetMeters >= toleranceMeters) break;
+    if (evaluatedPointCount + 2 > maxEvaluatedPointCount) {
+      stopped = "evaluation_budget";
+      break;
+    }
+    const node = heap[0];
+    const midpoint = (node.start + node.stop) / 2;
+    const firstQuarter = (node.start + midpoint) / 2;
+    const thirdQuarter = (midpoint + node.stop) / 2;
+    if (firstQuarter <= node.start || thirdQuarter >= node.stop) break;
+    pop();
+    const firstDistance = evaluate(firstQuarter);
+    const thirdDistance = evaluate(thirdQuarter);
+    upper = Math.min(upper, firstDistance, thirdDistance);
+    push(interval(node.start, midpoint, node.left, firstDistance, node.middle));
+    push(interval(midpoint, node.stop, node.middle, thirdDistance, node.right));
+  }
+  return finish(globalLower(), upper, "bounded_arc_search", stopped);
+}
+
+function boundarySweepSpanDegrees(sweep: PivotSweep): number {
+  if (sweep.mode === "full_circle") return 360;
+  const start = sweep.startAngleDegrees % 360;
+  const stop = sweep.stopAngleDegrees % 360;
+  // Preserve the subtraction residual at the wrap: losing its sign can turn
+  // an almost-full sweep into a single point. Signed remainders avoid overflow.
+  const difference = stop - start;
+  const virtualStart = stop - difference;
+  const residual = (stop - (difference + virtualStart)) + (virtualStart - start);
+  const direction = sweep.direction === "counterclockwise" ? 1 : -1;
+  const remainder = (direction * difference) % 360 + direction * residual;
+  return remainder < 0 ? remainder + 360 : remainder;
 }
 
 function minimumSignedDistanceToRing(points: XY[], ring: XY[]): number | undefined {
@@ -864,6 +1081,7 @@ function machineBoundaryClearanceRow(input: {
   requiredBoundaryClearanceMeters: number;
   outsideFieldEnvelope: MultiPolygonXY;
   sampledPointCount: number;
+  boundaryDistanceEvaluation?: PathBoundaryDistanceEvaluation;
   towerIndex?: number;
   evidenceFeatureIds?: string[];
   wheelOverhangSeparationVerified?: boolean;
@@ -883,16 +1101,23 @@ function machineBoundaryClearanceRow(input: {
     minimumBoundaryDistanceMeters,
     requiredBoundaryClearanceMeters,
     clearanceShortfallMeters,
-    meetsRequiredBoundaryClearance: clearanceShortfallMeters <= 0,
+    meetsRequiredBoundaryClearance: input.minimumBoundaryDistanceMeters >= input.requiredBoundaryClearanceMeters
+      && (input.boundaryDistanceEvaluation?.converged ?? true),
     outsideFieldEnvelope: input.outsideFieldEnvelope,
     outsideFieldAreaSquareMeters: round(outsideFieldAreaSquareMeters),
     outsideFieldAcres: squareMetersToAcres(outsideFieldAreaSquareMeters),
     sampledPointCount: input.sampledPointCount,
+    ...(input.boundaryDistanceEvaluation === undefined ? {} : { boundaryDistanceEvaluation: input.boundaryDistanceEvaluation }),
     ...(input.towerIndex === undefined ? {} : { towerIndex: input.towerIndex }),
     ...(input.evidenceFeatureIds === undefined ? {} : { evidenceFeatureIds: input.evidenceFeatureIds }),
     ...(input.wheelOverhangSeparationVerified === undefined ? {} : { wheelOverhangSeparationVerified: input.wheelOverhangSeparationVerified }),
     warnings: [
-      "Machine-to-boundary clearance is sampled advisory geometry in projected/local XY and does not mutate canonical project geometry.",
+      "Machine-to-boundary clearance is advisory geometry in projected/local XY and does not mutate canonical project geometry.",
+      ...(input.boundaryDistanceEvaluation?.warnings ?? []),
+      ...(input.boundaryDistanceEvaluation
+        && input.boundaryDistanceEvaluation.lowerBoundMeters < input.requiredBoundaryClearanceMeters
+        && input.boundaryDistanceEvaluation.upperBoundMeters >= input.requiredBoundaryClearanceMeters
+        ? ["The clearance range overlaps the required clearance; clearance is not established."] : []),
       ...(clearanceShortfallMeters > 0 ? [`Required boundary clearance is short by ${clearanceShortfallMeters.toFixed(2)} meters.`] : []),
       ...input.warnings,
     ],
@@ -912,17 +1137,17 @@ interface SampledCornerArmPathPoint extends CornerArmPathPoint {
   sequenceIndex: number;
 }
 
-function sampleCornerArmPath(
+function* sampleCornerArmPath(
   project: PivotProject,
   anchorRadiusMeters: number,
   cornerArmPaths: CornerArmPathLengths,
   evidenceMultiPolygon: MultiPolygonXY,
-): {
+): Calculation<{
   points: SampledCornerArmPathPoint[];
   wheelTrackEnvelope: MultiPolygonXY;
   overhangEndEnvelope: MultiPolygonXY;
   extensionSlopeSummary: CornerArmExtensionSlopeSummary;
-} {
+}> {
   const hasEvidence = evidenceMultiPolygon.length > 0;
   const angles = sweepSampleAngles(project.machine.sweep);
   const points = angles.flatMap((sample): SampledCornerArmPathPoint[] => {
@@ -956,13 +1181,13 @@ function sampleCornerArmPath(
 
   return {
     points,
-    wheelTrackEnvelope: bufferedSampledPathEnvelope(
+    wheelTrackEnvelope: yield* bufferedSampledPathEnvelope(
         project.pivotCenter,
         points.map((point) => ({ ...point, radiusMeters: point.wheelTrackRadiusMeters })),
         Math.max(0.5, project.machine.towerClearanceBufferMeters),
         false,
       ),
-    overhangEndEnvelope: bufferedSampledPathEnvelope(
+    overhangEndEnvelope: yield* bufferedSampledPathEnvelope(
         project.pivotCenter,
         points.map((point) => ({ ...point, radiusMeters: point.overhangEndRadiusMeters })),
         Math.max(0.5, project.machine.machineClearanceBufferMeters),
@@ -1291,12 +1516,12 @@ function clamp01(value: number): number {
   return Math.max(0, Math.min(1, value));
 }
 
-function bufferedSampledPathEnvelope(
+function* bufferedSampledPathEnvelope(
   center: XY,
   samples: Array<SampledCornerArmPathPoint & { radiusMeters: number }>,
   bufferMeters: number,
   closeLoop: boolean,
-): MultiPolygonXY {
+): Calculation<MultiPolygonXY> {
   if (samples.length === 0) return [];
   const clips: ClipMultiPolygon[] = [];
   for (const sample of samples) {
@@ -1320,7 +1545,7 @@ function bufferedSampledPathEnvelope(
       bufferMeters,
     )]]));
   }
-  return fromClipMultiPolygon(unionClipMultiPolygons(clips));
+  return fromClipMultiPolygon(yield* unionClipMultiPolygons(clips));
 }
 
 function lineSegmentBufferPolygon(start: XY, end: XY, bufferMeters: number): XY[] {
@@ -1338,13 +1563,15 @@ function lineSegmentBufferPolygon(start: XY, end: XY, bufferMeters: number): XY[
   ];
 }
 
-function unionClipMultiPolygons(clips: ClipMultiPolygon[]): ClipMultiPolygon {
+function* unionClipMultiPolygons(clips: ClipMultiPolygon[]): Calculation<ClipMultiPolygon> {
   if (clips.length === 0) return [];
   if (clips.length === 1) return clips[0];
-  return clips.slice(1).reduce(
-    (merged, clip) => polygonClipping.union(merged, clip) as ClipMultiPolygon,
-    clips[0],
-  );
+  let merged = clips[0];
+  for (const clip of clips.slice(1)) {
+    merged = polygonClipping.union(merged, clip) as ClipMultiPolygon;
+    yield;
+  }
+  return merged;
 }
 
 function createCornerArmExtensionEnvelope(
@@ -1384,31 +1611,6 @@ function cornerArmSlopeSummary(points: SampledCornerArmPathPoint[]): CornerArmEx
 function signedBoundaryDistance(point: XY, fieldBoundary: XY[]): number {
   const boundaryDistance = distanceToRing(point, fieldBoundary);
   return (pointInPolygon(point, fieldBoundary) ? 1 : -1) * boundaryDistance;
-}
-
-function defaultAdvisoryCornerArmConfig(): AdvisoryCornerArmConfig {
-  return {
-    id: "default-advisory-corner-arm",
-    name: "Default advisory corner arm",
-    advisoryOnly: true,
-    lengthMeters: DEFAULT_CORNER_ARM_WHEEL_TRACK_EXTENSION_METERS + DEFAULT_CORNER_ARM_OVERHANG_EXTENSION_METERS,
-    wheelTrackLengthMeters: DEFAULT_CORNER_ARM_WHEEL_TRACK_EXTENSION_METERS,
-    overhangLengthMeters: DEFAULT_CORNER_ARM_OVERHANG_EXTENSION_METERS,
-    metadataSource: "manufacturer_public",
-    modelFamily: "single_span_lrdu_sdu",
-    guidanceType: "gps_guidance",
-    sequencingType: "electronic",
-    orientation: "unknown",
-    confidence: "user_estimated",
-    sourceRefs: [{
-      sourceId: "SRC-VALLEY-VFLEX-CORNER",
-      title: "Valley VFlex Corner",
-      url: "https://www.valleyirrigation.com/vflex-corner",
-      checkedAt: "2026-06-05",
-      limit: "Public/default advisory rendering only; not a field-specific preset, compatibility certification, or proprietary kinematic reproduction.",
-    }],
-    notes: "Default advisory path used for map visualization only; CPLayout does not persist this config unless the operator saves one.",
-  };
 }
 
 function cornerArmPathLengths(config: AdvisoryCornerArmConfig | undefined): {
@@ -1483,8 +1685,10 @@ function layoutPathOverlay(
   centerlineSegments: XY[][],
   field: ClipMultiPolygon,
   envelope: ClipMultiPolygon,
-  towerIndex?: number,
+  towerIndex: number | undefined,
   options: {
+    machinePathRoles: MachinePathRole[];
+    coincidentPath: boolean;
     evidenceLimit?: ClipMultiPolygon | null;
     evidenceFeatureIds?: string[];
     wheelOverhangSeparationVerified?: boolean;
@@ -1498,7 +1702,7 @@ function layoutPathOverlay(
     maxExtensionSlopeMetersPerDegree?: number;
     maxRetractionSlopeMetersPerDegree?: number;
     warnings?: string[];
-  } = {},
+  },
 ): LayoutPathOverlay {
   const limitedEnvelope = options.evidenceLimit
     ? polygonClipping.intersection(envelope, options.evidenceLimit) as ClipMultiPolygon | null
@@ -1515,6 +1719,8 @@ function layoutPathOverlay(
     centerlineSegments,
     insideFieldEnvelope: fromClipMultiPolygon(inside ?? []),
     outsideFieldEnvelope: fromClipMultiPolygon(outside),
+    machinePathRoles: options.machinePathRoles,
+    coincidentPath: options.coincidentPath,
     ...(towerIndex === undefined ? {} : { towerIndex }),
     ...(options.evidenceFeatureIds === undefined ? {} : { evidenceFeatureIds: options.evidenceFeatureIds }),
     ...(options.wheelOverhangSeparationVerified === undefined ? {} : { wheelOverhangSeparationVerified: options.wheelOverhangSeparationVerified }),
@@ -1529,6 +1735,10 @@ function layoutPathOverlay(
     ...(options.maxRetractionSlopeMetersPerDegree === undefined ? {} : { maxRetractionSlopeMetersPerDegree: options.maxRetractionSlopeMetersPerDegree }),
     ...(options.warnings === undefined ? {} : { warnings: options.warnings }),
   };
+}
+
+function nearlyEqual(left: number, right: number): boolean {
+  return Math.abs(left - right) <= 0.000001;
 }
 
 function mechanicalConflict(
@@ -1556,12 +1766,12 @@ function pointInMultiPolygon(point: XY, multiPolygon: MultiPolygonXY): boolean {
   });
 }
 
-function pointInPolygon(point: XY, ring: XY[]): boolean {
+function pointInPolygon(point: XY, ring: XY[], includeBoundaryTolerance = true): boolean {
   let inside = false;
   for (let currentIndex = 0, previousIndex = ring.length - 1; currentIndex < ring.length; previousIndex = currentIndex, currentIndex += 1) {
     const current = ring[currentIndex];
     const previous = ring[previousIndex];
-    if (pointOnSegment(point, previous, current)) return true;
+    if (includeBoundaryTolerance && pointOnSegment(point, previous, current)) return true;
     const intersects = ((current.y > point.y) !== (previous.y > point.y))
       && point.x < ((previous.x - current.x) * (point.y - current.y)) / (previous.y - current.y) + current.x;
     if (intersects) inside = !inside;

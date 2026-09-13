@@ -1,8 +1,10 @@
 import { StatusBar } from "expo-status-bar";
 import {
   AlertTriangle,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
   CheckCircle2,
   Calculator,
   Circle,
@@ -52,6 +54,8 @@ import {
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { CoordinateFormatPanel } from "./src/components/CoordinateFormatPanel";
+import { useAdvisoryJob } from "./src/advisory/useAdvisoryJob";
+import { advisoryDemand } from "./src/advisory/advisoryDemand";
 import { AndroidNativeProofRunner } from "./src/components/AndroidNativeProofRunner";
 import { BrowserRtkReceiverPanel, type BrowserRtkReceiverStatus } from "./src/components/BrowserRtkReceiverPanel";
 import { CommandBar, IconCommandButton, type CommandIconButtonConfig, type CommandMenuConfig, type CommandMenuItemConfig } from "./src/components/CommandSurface";
@@ -61,6 +65,8 @@ import {
   draftVerticesToFeatureGeometry,
   featureOptionsForGeometry,
   type PendingMapFeatureDraft,
+  type ManualDesignMapCapture,
+  type ManualDesignMapCaptureRole,
   type UtilityFeatureGeometry,
   type UtilityFeatureOption,
 } from "@cplayout/map-adapters";
@@ -100,7 +106,11 @@ import {
   VALLEY_CORNER_ARM_SCAFFOLD_CATALOG,
   MACHINE_CATALOG_PRESETS,
   applyMachineCatalogPreset,
+  buildMachinePathSummary,
+  createManualDesignDraft,
   createProjectEditorState,
+  evaluateManualDesignReadiness,
+  evaluateProjectEditorAction,
   coordinateExample,
   defaultProjectSettings,
   formatCoordinate,
@@ -111,7 +121,7 @@ import {
   projectXyToLonLat,
   projectSettingsFromApp,
   reduceProjectEditorState,
-  resolveAerialReferenceImagerySource,
+  buildMapReferenceViewModel,
   importGoogleEarthKmlToProject,
   importProjectedGeoJsonToProject,
   importSurveyCsvToProject,
@@ -131,11 +141,15 @@ import {
   type CornerGpsMapModelPreset,
   type AdvisoryDriveUnitConfig,
   type LonLat,
+  type ManualDesignDraft,
+  type ManualDesignInputSource,
+  type ManualDesignStep,
   type MapPackageManifest,
   type ObstacleZone,
   type PivotMachine,
   type PivotProject,
   type ProjectEditorAction,
+  type ProjectMutationResult,
   type ProjectMapFeature,
   type ProjectMapFeatureKind,
   type PivotSweep,
@@ -149,7 +163,9 @@ import {
   auditGeneratedFieldPivotReviewZones,
   buildAdvisoryDesignReport,
   buildAdvisoryEndGunSensitivityReview,
-  buildAdvisoryMachineRenderModel,
+  buildAdvisoryMachineRenderModelSteps,
+  analyzeAdvisoryMultiMachineLayoutSteps,
+  planAdvisoryFieldPivotsSteps,
   buildAdvisoryGeneratedMultiPivotScenarioReview,
   buildAdvisoryRadiusSensitivityReview,
   buildAdvisorySweepEfficiencyReview,
@@ -195,7 +211,7 @@ const leftNavMenuDefinition = parseCplayoutLeftNavMenuXml();
 
 type WorkspaceView = "dashboard" | "map" | "survey" | "files" | "settings" | "help";
 type Screen = "projects" | "workspace";
-type WalkthroughModuleId = "imagery" | "boundary" | "obstacles" | "pivot" | "survey" | "validation" | "export";
+type WalkthroughModuleId = "imagery" | "boundary" | "obstacles" | "pivot" | "survey" | "cornerArmInputs" | "cornerArmCalculation" | "validation" | "export";
 type DesignConsoleModal = DrawingToolPaletteModal;
 type RightWorkflowSidebarPage = "overview" | "tools" | "purpose" | "toolForm" | "layers" | "rtk" | "feature" | "warnings" | "catalog" | "catalogForm";
 type AdvisoryCostDraft = {
@@ -302,6 +318,8 @@ function AppContent(): React.JSX.Element {
     mode: DrawingMode;
     requestId: number;
   } | null>(null);
+  const [manualDesignCaptureRequest, setManualDesignCaptureRequest] = useState<{ requestId: number; role: ManualDesignMapCaptureRole } | null>(null);
+  const [manualDesignMapCapture, setManualDesignMapCapture] = useState<(ManualDesignMapCapture & { sequence: number }) | null>(null);
   const [designConsoleModal, setDesignConsoleModal] = useState<DesignConsoleModal>(null);
   const [homeMapView, setHomeMapView] = useState(true);
   const [activeCatalogContext, setActiveCatalogContext] = useState<{
@@ -333,22 +351,6 @@ function AppContent(): React.JSX.Element {
   const repository = useProjectRepository();
   const result = useMemo(() => evaluateLayout(project), [project]);
   const advisoryCostInput = useMemo(() => advisoryCostInputFromDraft(advisoryCostDraft), [advisoryCostDraft]);
-  const advisoryFieldPivotPlan = useMemo<AdvisoryFieldPivotPlan>(() => planAdvisoryFieldPivots(project, {
-    gridDivisions: 6,
-    maxMachines: 3,
-    candidatePoolSize: 24,
-    collisionBufferMeters: project.machine.machineClearanceBufferMeters,
-    costInput: advisoryCostInput,
-  }), [advisoryCostInput, project]);
-  const advisoryMultiMachineReview = useMemo<AdvisoryMultiMachineReview>(() => analyzeAdvisoryMultiMachineLayout(project, {
-    maxCandidates: 3,
-    collisionBufferMeters: project.machine.machineClearanceBufferMeters,
-  }), [project]);
-  const advisoryMachineRenderModel = useMemo<AdvisoryMachineRenderModel>(() => buildAdvisoryMachineRenderModel(project, {
-    maxInstances: 2,
-    endGunThrowMeters: 30.48,
-  }), [project]);
-  const cornerArmEvaluation = useMemo(() => evaluateAdvisoryCornerArm(project), [project]);
   const androidNativeProofEnabled = Platform.OS === "android" && process.env.EXPO_PUBLIC_CPLAYOUT_ANDROID_NATIVE_PROOF === "1";
   const nativeMapLibreProofEnabled = Platform.OS === "android" && process.env.EXPO_PUBLIC_CPLAYOUT_NATIVE_MAPLIBRE_PROOF === "1";
   const isDirty = editor.revision !== savedRevision;
@@ -395,6 +397,39 @@ function AppContent(): React.JSX.Element {
   const effectiveSidebarPage = visibleSidebarPages.some((page) => page.id === requestedSidebarPage)
     ? requestedSidebarPage
     : (visibleSidebarPages[0]?.id ?? "overview");
+  const sidebarGeometryToolsVisible = sidebarInlineWorkflow
+    || (compactLayout && !nativeMapLibreProofEnabled && !homeMapView && rightDrawerOpen && effectiveSidebarPage === "tools");
+  const demand = advisoryDemand({ homeView: homeMapView, view: activeView, modal: designConsoleModal, sidebar: effectiveSidebarPage, sidebarOpen: rightDrawerOpen });
+  const projectGeneration = projectLoadSequenceRef.current;
+  const fieldPlanRequest = useMemo(() => ({
+    projectId: project.id, generation: projectGeneration, revision: editor.revision,
+    create: () => planAdvisoryFieldPivotsSteps(project, {
+      gridDivisions: 6, maxMachines: 3, candidatePoolSize: 24,
+      collisionBufferMeters: project.machine.machineClearanceBufferMeters, costInput: advisoryCostInput,
+    }),
+  }), [advisoryCostInput, editor.revision, project, projectGeneration]);
+  const multiMachineRequest = useMemo(() => ({
+    projectId: project.id, generation: projectGeneration, revision: editor.revision,
+    create: () => analyzeAdvisoryMultiMachineLayoutSteps(project, {
+      maxCandidates: 3, collisionBufferMeters: project.machine.machineClearanceBufferMeters,
+    }),
+  }), [editor.revision, project, projectGeneration]);
+  const renderModelRequest = useMemo(() => ({
+    projectId: project.id, generation: projectGeneration, revision: editor.revision,
+    create: () => buildAdvisoryMachineRenderModelSteps(project, { maxInstances: 2, endGunThrowMeters: 30.48 }),
+  }), [editor.revision, project, projectGeneration]);
+  const fieldPlanJob = useAdvisoryJob(fieldPlanRequest, demand.fieldPlan);
+  const multiMachineJob = useAdvisoryJob(multiMachineRequest, demand.multiMachine);
+  const renderModelJob = useAdvisoryJob(renderModelRequest, demand.renderModel);
+  const advisoryFieldPivotPlan = fieldPlanJob.status === "ready" ? fieldPlanJob.value : null;
+  const advisoryMultiMachineReview = multiMachineJob.status === "ready" ? multiMachineJob.value : null;
+  const advisoryMachineRenderModel = renderModelJob.status === "ready" ? renderModelJob.value : null;
+  const advisoryError = (demand.fieldPlan && fieldPlanJob.status === "error")
+    || (demand.multiMachine && multiMachineJob.status === "error")
+    || (demand.renderModel && renderModelJob.status === "error");
+  const advisoryStatus = advisoryError ? "Advisory calculation failed." : "Calculating advisory results...";
+  const retryAdvisory = () => { fieldPlanJob.retry(); multiMachineJob.retry(); renderModelJob.retry(); };
+  const cornerArmEvaluation = useMemo(() => demand.cornerArm ? evaluateAdvisoryCornerArm(project) : null, [demand.cornerArm, project]);
 
   useEffect(() => {
     if (selectedMapFeatureId && !(project.mapFeatures ?? []).some((feature) => feature.id === selectedMapFeatureId)) {
@@ -410,6 +445,8 @@ function AppContent(): React.JSX.Element {
 
   useEffect(() => {
     setAdvisoryCostDraft(EMPTY_ADVISORY_COST_DRAFT);
+    setManualDesignCaptureRequest(null);
+    setManualDesignMapCapture(null);
   }, [project.id]);
 
   useEffect(() => {
@@ -454,9 +491,13 @@ function AppContent(): React.JSX.Element {
   }
 
   function dispatchProjectWithResult(action: ProjectEditorAction): boolean {
-    const nextEditor = reduceProjectEditorState(editor, action);
+    return dispatchProjectTransaction(action).ok;
+  }
+
+  function dispatchProjectTransaction(action: ProjectEditorAction): ProjectMutationResult {
+    const result = evaluateProjectEditorAction(editor, action);
     dispatchProject(action);
-    return nextEditor.lastError === null;
+    return result;
   }
 
   function calculateDesignScenarios(): void {
@@ -635,10 +676,11 @@ function AppContent(): React.JSX.Element {
     dispatchProject({ type: "apply_project_import", project: nextProject });
   }
 
-  function addMapFeature(feature: Omit<ProjectMapFeature, "id"> & { id?: string }): void {
+  function addMapFeature(feature: Omit<ProjectMapFeature, "id"> & { id?: string }): ProjectMutationResult {
     const id = feature.id ?? `map-feature-${Date.now().toString(36)}-${(project.mapFeatures ?? []).length + 1}`;
-    dispatchProject({ type: "add_map_feature", feature: { ...feature, id } });
-    setSelectedMapFeatureId(id);
+    const mutation = dispatchProjectTransaction({ type: "add_map_feature", feature: { ...feature, id } });
+    if (mutation.ok) setSelectedMapFeatureId(id);
+    return mutation;
   }
 
   function createPendingMapFeatureDraft(draft: PendingMapFeatureDraft): void {
@@ -717,6 +759,7 @@ function AppContent(): React.JSX.Element {
   }
 
   function activateGuidedMapTool(mode: DrawingMode, activeLayer: DrawingLayerType, featureKind?: ProjectMapFeatureKind, draftGeometry?: UtilityFeatureGeometry): void {
+    setManualDesignCaptureRequest(null);
     setWorkflowMode("design");
     setGuidedMapTool((current) => ({
       activeLayer,
@@ -725,6 +768,22 @@ function AppContent(): React.JSX.Element {
       mode,
       requestId: (current?.requestId ?? 0) + 1,
     }));
+  }
+
+  function requestManualDesignMapCapture(role: ManualDesignMapCaptureRole | null): void {
+    if (!role) {
+      activateGuidedMapTool("pan", "field_boundary");
+      return;
+    }
+    activateGuidedMapTool(role === "boundary" ? "draw_boundary" : "place_pivot", role === "boundary" ? "field_boundary" : "pivot_center");
+    setManualDesignCaptureRequest({ role, requestId: Date.now() });
+    setActiveSidebarPage("tools");
+    setRightDrawerOpen(true);
+    setActiveView("map");
+  }
+
+  function captureManualDesignMapInput(capture: ManualDesignMapCapture): void {
+    setManualDesignMapCapture((current) => ({ ...capture, sequence: (current?.sequence ?? 0) + 1 }));
   }
 
   function activateDesignConsoleTool(mode: DrawingMode, activeLayer: DrawingLayerType, featureKind?: ProjectMapFeatureKind): void {
@@ -1268,14 +1327,14 @@ function AppContent(): React.JSX.Element {
             <Text style={styles.mapFeatureTitle}>Workflow Sidebar</Text>
             <Text style={styles.mapFeatureMeta}>Drawing tools, focused inputs, layers, RTK capture, selected features, and warnings are managed from this right sidebar. Draft vertices and save/clear actions remain on the map.</Text>
           </View>
-          <AdvisoryEvidenceStatusPanel
+          {advisoryMachineRenderModel && advisoryMultiMachineReview ? <AdvisoryEvidenceStatusPanel
             advisoryMachineRenderModel={advisoryMachineRenderModel}
             multiMachineReview={advisoryMultiMachineReview}
             project={project}
             result={result}
             settings={settings}
             surface="overview"
-          />
+          /> : <AdvisoryCalculationStatus message={advisoryStatus} failed={advisoryError} onRetry={retryAdvisory} />}
         </>
       );
     }
@@ -1292,9 +1351,23 @@ function AppContent(): React.JSX.Element {
             onOpenModal={openDesignConsolePanel}
             onToggleLayers={toggleLayersPanel}
             settings={settings}
-            showGeometryTools={sidebarInlineWorkflow}
+            showGeometryTools={sidebarGeometryToolsVisible}
             variant="sidebar"
           />
+          {settings.mappingWorkflowMode === "design" ? (
+            <ManualDesignTransactionPanel
+              mapCapture={manualDesignMapCapture}
+              onApply={(draft) => dispatchProjectWithResult({ type: "apply_manual_design", draft })}
+              onRequestMapCapture={requestManualDesignMapCapture}
+              onOpenRtk={() => {
+                setActiveSidebarPage("rtk");
+                setRightDrawerOpen(true);
+              }}
+              project={project}
+              projectRevision={editor.revision}
+              unitSystem={settings.unitSystem}
+            />
+          ) : null}
           <View style={styles.mapFeatureEditor} testID="sidebar-tool-hud-summary">
             <Text style={styles.mapFeatureTitle}>Map HUD</Text>
             <View style={styles.metricGrid}>
@@ -1332,9 +1405,13 @@ function AppContent(): React.JSX.Element {
           <DesignConsolePanel
             activeModal={designConsoleModal}
             advisoryCostDraft={advisoryCostDraft}
+            advisoryStatus={advisoryStatus}
+            advisoryError={advisoryError}
+            onRetryAdvisory={retryAdvisory}
             advisoryCostInput={advisoryCostInput}
             advisoryMachineRenderModel={advisoryMachineRenderModel}
             cornerArmEvaluation={cornerArmEvaluation}
+            multiMachineReview={advisoryMultiMachineReview}
             editorError={editor.lastError}
             fieldPivotPlan={advisoryFieldPivotPlan}
             onActivatePrimitive={activatePrimitiveMapTool}
@@ -1403,26 +1480,21 @@ function AppContent(): React.JSX.Element {
     }
 
     if (page === "rtk") {
-      return settings.mappingWorkflowMode === "layout" ? (
+      return (
         <>
-          <Text style={styles.sectionTitle}>RTK Layout Capture</Text>
+          <Text style={styles.sectionTitle}>{settings.mappingWorkflowMode === "design" ? "RTK Design Evidence" : "RTK Layout Capture"}</Text>
           <BrowserRtkReceiverPanel
             onAddMapFeature={addMapFeature}
-            onAddSurveyPoint={(point) => dispatchProject({ type: "add_survey_point", point })}
-            onCommitBoundaryDraft={(vertices) => dispatchProject({ type: "commit_boundary_draft", vertices })}
-            onCommitObstacleDraft={(vertices, kind, confidence) => dispatchProject({ type: "commit_obstacle_draft", vertices, kind, confidence })}
+            onAddSurveyPoint={(point) => dispatchProjectTransaction({ type: "add_survey_point", point })}
+            onCommitBoundaryDraft={(vertices, captureEvidence) => dispatchProjectTransaction({ type: "commit_boundary_draft", vertices, captureEvidence })}
+            onCommitObstacleDraft={(vertices, kind, confidence, captureEvidence) => dispatchProjectTransaction({ type: "commit_obstacle_draft", vertices, kind, confidence, captureEvidence })}
             onStatusChange={setRtkReceiverStatus}
             project={project}
             settings={settings}
           />
-        </>
-      ) : (
-        <>
-          <Text style={styles.sectionTitle}>RTK Layout Capture</Text>
-          <View style={styles.mapFeatureEditor}>
-            <Text style={styles.mapFeatureTitle}>Layout mode inactive</Text>
-            <Text style={styles.mapFeatureMeta}>Switch to Layout when RTK-only capture is needed. Design mode keeps pointer edits separate from survey capture.</Text>
-          </View>
+          {settings.mappingWorkflowMode === "design" ? (
+            <Text style={styles.mapFeatureMeta}>Accepted captures remain explicit survey or map-feature evidence. Return to the guided transaction to select an input source and apply canonical geometry atomically.</Text>
+          ) : null}
         </>
       );
     }
@@ -1692,16 +1764,22 @@ function AppContent(): React.JSX.Element {
           {activeView === "map" && (
             <WorkspaceConsoleShell compact={compactLayout} rightDrawerOpen={nativeMapLibreProofEnabled ? false : rightDrawerOpen} testID="map-view">
               <View style={styles.mapConsoleFrame}>
+                <AdvisoryCalculationStatus
+                  message={!homeMapView && (advisoryError || !advisoryFieldPivotPlan || !advisoryMachineRenderModel) ? advisoryStatus : ""}
+                  failed={!homeMapView && advisoryError}
+                  onRetry={retryAdvisory}
+                  testID="advisory-map-job-status"
+                />
                 <MapSurface
                   activeLayer={guidedMapTool?.activeLayer}
                   activeDraftGeometry={guidedMapTool?.draftGeometry}
                   activeMapFeatureKind={guidedMapTool?.featureKind}
                   activeToolMode={guidedMapTool?.mode}
                   activeToolRequestId={guidedMapTool?.requestId}
-                  advisoryFieldPivotPlan={!homeMapView ? advisoryFieldPivotPlan : undefined}
-                  advisoryMachineRenderModel={!homeMapView ? advisoryMachineRenderModel : undefined}
+                  advisoryFieldPivotPlan={!homeMapView ? advisoryFieldPivotPlan ?? undefined : undefined}
+                  advisoryMachineRenderModel={!homeMapView ? advisoryMachineRenderModel ?? undefined : undefined}
                   controlLayout="externalHud"
-                  bottomOverlay={!homeMapView && !nativeMapLibreProofEnabled && !sidebarInlineWorkflow ? (
+                  bottomOverlay={!homeMapView && !nativeMapLibreProofEnabled && !sidebarGeometryToolsVisible ? (
                     <DesignActionHud
                       activeModal={designConsoleModal}
                       activeTool={guidedMapTool}
@@ -1717,15 +1795,19 @@ function AppContent(): React.JSX.Element {
                   result={result}
                   settings={settings}
                   selectedMapFeatureId={selectedMapFeatureId}
+                  manualDesignCaptureRequest={manualDesignCaptureRequest}
                   onSettingsChange={commitSettings}
                   onMappingWorkflowModeChange={setWorkflowMode}
                   onCommitBoundaryDraft={(vertices) => dispatchProjectWithResult({ type: "commit_boundary_draft", vertices })}
                   onCommitObstacleDraft={(vertices, kind, confidence) => dispatchProjectWithResult({ type: "commit_obstacle_draft", vertices, kind, confidence })}
                   onMoveBoundaryVertex={(vertexIndex, point) => dispatchProject({ type: "move_boundary_vertex", vertexIndex, point })}
+                  onInsertBoundaryVertex={(afterVertexIndex, point) => dispatchProject({ type: "insert_boundary_vertex", afterVertexIndex, point })}
                   onDeleteBoundaryVertex={(vertexIndex) => dispatchProject({ type: "delete_boundary_vertex", vertexIndex })}
                   onMoveObstacleVertex={(obstacleId, vertexIndex, point) => dispatchProject({ type: "move_obstacle_vertex", obstacleId, vertexIndex, point })}
+                  onInsertObstacleVertex={(obstacleId, afterVertexIndex, point) => dispatchProject({ type: "insert_obstacle_vertex", obstacleId, afterVertexIndex, point })}
                   onDeleteObstacleVertex={(obstacleId, vertexIndex) => dispatchProject({ type: "delete_obstacle_vertex", obstacleId, vertexIndex })}
                   onMoveMapFeatureVertex={(featureId, vertexIndex, point) => dispatchProject({ type: "move_map_feature_vertex", featureId, vertexIndex, point })}
+                  onInsertMapFeatureVertex={(featureId, afterVertexIndex, point) => dispatchProject({ type: "insert_map_feature_vertex", featureId, afterVertexIndex, point })}
                   onDeleteMapFeatureVertex={(featureId, vertexIndex) => dispatchProject({ type: "delete_map_feature_vertex", featureId, vertexIndex })}
                   onMoveMapFeatureCircleRadiusHandle={(featureId, point) => dispatchProject({ type: "move_map_feature_circle_radius_handle", featureId, point })}
                   onPlacePivot={(point, wgs84) => dispatchProject({ type: "place_pivot", point, wgs84 })}
@@ -1734,11 +1816,13 @@ function AppContent(): React.JSX.Element {
                   onAddMapFeature={addMapFeature}
                   onCreateMapFeatureDraft={createPendingMapFeatureDraft}
                   onSelectMapFeature={setSelectedMapFeatureId}
+                  onManualDesignCapture={captureManualDesignMapInput}
                   />
               </View>
               {nativeMapLibreProofEnabled ? null : (
                 <RightWorkflowSidebar
                   activePage={effectiveSidebarPage}
+                  compact={compactLayout}
                   onToggle={() => setRightDrawerOpen((open) => !open)}
                   open={rightDrawerOpen}
                   pages={visibleSidebarPages}
@@ -1761,9 +1845,9 @@ function AppContent(): React.JSX.Element {
               <Section title="Survey Capture Readiness" icon={<Satellite size={20} color="#254234" />} testID="survey-view">
                 <BrowserRtkReceiverPanel
                   onAddMapFeature={addMapFeature}
-                  onAddSurveyPoint={(point) => dispatchProject({ type: "add_survey_point", point })}
-                  onCommitBoundaryDraft={(vertices) => dispatchProject({ type: "commit_boundary_draft", vertices })}
-                  onCommitObstacleDraft={(vertices, kind, confidence) => dispatchProject({ type: "commit_obstacle_draft", vertices, kind, confidence })}
+                  onAddSurveyPoint={(point) => dispatchProjectTransaction({ type: "add_survey_point", point })}
+                  onCommitBoundaryDraft={(vertices, captureEvidence) => dispatchProjectTransaction({ type: "commit_boundary_draft", vertices, captureEvidence })}
+                  onCommitObstacleDraft={(vertices, kind, confidence, captureEvidence) => dispatchProjectTransaction({ type: "commit_obstacle_draft", vertices, kind, confidence, captureEvidence })}
                   onStatusChange={setRtkReceiverStatus}
                   project={project}
                   settings={settings}
@@ -1870,10 +1954,14 @@ function AppContent(): React.JSX.Element {
       {!homeMapView && !sidebarInlineWorkflow ? (
           <DesignConsoleDialog
             activeModal={designConsoleModal}
+            advisoryStatus={advisoryStatus}
+            advisoryError={advisoryError}
+            onRetryAdvisory={retryAdvisory}
             advisoryCostDraft={advisoryCostDraft}
             advisoryCostInput={advisoryCostInput}
             advisoryMachineRenderModel={advisoryMachineRenderModel}
             cornerArmEvaluation={cornerArmEvaluation}
+            multiMachineReview={advisoryMultiMachineReview}
             editorError={editor.lastError}
             fieldPivotPlan={advisoryFieldPivotPlan}
             onActivatePrimitive={activatePrimitiveMapTool}
@@ -2020,6 +2108,8 @@ const WALKTHROUGH_MODULES: Array<{
   { id: "obstacles", title: "Add Obstacles", checkpoint: "Roads, ditches, buildings, and no-spray zones are marked." },
   { id: "pivot", title: "Place Pivot", checkpoint: "Pivot, water source, and power source are positioned." },
   { id: "survey", title: "Survey Points", checkpoint: "RTK or imported control points meet the configured quality gate." },
+  { id: "cornerArmInputs", title: "Corner-Arm Inputs", checkpoint: "Verified LRDU speed, source-labeled model, orientation, rotation, and SDU guidance path are supplied." },
+  { id: "cornerArmCalculation", title: "Corner-Arm Calculation", checkpoint: "Kinematic panel is ready and advisory LRDU, SDU, overhang, and end-gun rows are reviewed." },
   { id: "validation", title: "Layout Validation", checkpoint: "Layout warnings are inspected on the Map before export." },
   { id: "export", title: "Export Package", checkpoint: "ZIP/KML/GeoJSON are exported after saving local edits." },
 ];
@@ -2094,7 +2184,7 @@ function WorkspaceBottomStatusBar({
             <BottomStatusChip icon={<ClipboardList size={12} color="#254234" />} label={dirty ? "Unsaved edits" : "Saved"} testID="project-save-state" />
             <BottomStatusChip icon={<AlertTriangle size={12} color="#254234" />} label={warningCount === 0 ? "0 warnings" : `${warningCount} warnings`} />
             <BottomStatusChip icon={<Satellite size={12} color="#254234" />} label={gpsGateLabel} />
-            {liveRtkLabel ? <BottomStatusChip icon={<Satellite size={12} color="#254234" />} label={liveRtkLabel} testID="workspace-live-rtk-status" /> : null}
+            {liveRtkLabel ? <BottomStatusChip icon={rtkStatus?.connected && rtkStatus.gateAccepted ? <Satellite size={12} color="#254234" /> : <AlertTriangle size={12} color="#8b1e18" />} label={liveRtkLabel} testID="workspace-live-rtk-status" /> : null}
             <BottomStatusChip icon={<UtilityPole size={12} color={powerEvidenceIconColor} />} label={`Power ${powerEvidenceStatus.status.replaceAll("_", " ")}`} testID="workspace-power-evidence-status" />
           </>
         )}
@@ -2288,10 +2378,14 @@ type DesignConsolePanelProps = {
   activeModal: DesignConsoleModal;
   advisoryCostDraft: AdvisoryCostDraft;
   advisoryCostInput: AdvisoryCostInput | undefined;
-  advisoryMachineRenderModel: AdvisoryMachineRenderModel;
-  cornerArmEvaluation: AdvisoryCornerArmEvaluation;
+  advisoryMachineRenderModel: AdvisoryMachineRenderModel | null;
+  cornerArmEvaluation: AdvisoryCornerArmEvaluation | null;
+  multiMachineReview: AdvisoryMultiMachineReview | null;
+  advisoryStatus: string;
+  advisoryError: boolean;
+  onRetryAdvisory: () => void;
   editorError: string | null;
-  fieldPivotPlan: AdvisoryFieldPivotPlan;
+  fieldPivotPlan: AdvisoryFieldPivotPlan | null;
   onActivatePrimitive: (geometry: UtilityFeatureGeometry) => void;
   onActivateTool: (mode: DrawingMode, activeLayer: DrawingLayerType, featureKind?: ProjectMapFeatureKind) => void;
   onApplyPivot: (point: XY, wgs84?: LonLat) => boolean;
@@ -2334,9 +2428,13 @@ function DesignConsoleDialog({
 function DesignConsolePanel({
   activeModal,
   advisoryCostDraft,
+  advisoryStatus,
+  advisoryError,
+  onRetryAdvisory,
   advisoryCostInput,
   advisoryMachineRenderModel,
   cornerArmEvaluation,
+  multiMachineReview,
   editorError,
   fieldPivotPlan,
   onActivatePrimitive,
@@ -2395,7 +2493,7 @@ function DesignConsolePanel({
           {activeModal === "endGun" ? (
             <EndGunSettingsForm machine={project.machine} onChange={onUpdateMachine} result={result} unitSystem={settings.unitSystem} />
           ) : null}
-          {activeModal === "cornerArm" ? (
+          {activeModal === "cornerArm" && cornerArmEvaluation ? (
             <CornerArmSheet
               evaluation={cornerArmEvaluation}
               footprintCount={(project.mapFeatures ?? []).filter((feature) => feature.kind === "corner_swing_limit").length}
@@ -2407,12 +2505,19 @@ function DesignConsolePanel({
             />
           ) : null}
           {activeModal === "calculate" ? (
+            <View>
+              <AdvisoryCostReviewPanel draft={advisoryCostDraft} onChange={onUpdateAdvisoryCostDraft} />
+              <Pressable accessibilityRole="button" onPress={onCalculate} style={styles.calculateButton} testID="design-console-calculate">
+                <Calculator size={16} color="#ffffff" />
+                <Text style={styles.calculateButtonText}>Calculate Preview</Text>
+              </Pressable>
             <CalculateSheet
               advisoryCostDraft={advisoryCostDraft}
               advisoryCostInput={advisoryCostInput}
               advisoryMachineRenderModel={advisoryMachineRenderModel}
               editorError={editorError}
               fieldPivotPlan={fieldPivotPlan}
+              multiMachineReview={multiMachineReview}
               idealCenterAnalysis={idealCenterAnalysis}
               onCalculate={onCalculate}
               onRequestApplyPivotCandidate={onRequestApplyPivotCandidate}
@@ -2425,6 +2530,8 @@ function DesignConsolePanel({
               result={result}
               settings={settings}
             />
+              {(!advisoryMachineRenderModel || !fieldPivotPlan || !multiMachineReview) ? <AdvisoryCalculationStatus message={advisoryStatus} failed={advisoryError} onRetry={onRetryAdvisory} testID="advisory-calculation-status" /> : null}
+            </View>
           ) : null}
           {activeModal === "layers" ? (
             <LayersSheet
@@ -2436,6 +2543,21 @@ function DesignConsolePanel({
             />
           ) : null}
       </ScrollView>
+    </View>
+  );
+}
+
+function AdvisoryCalculationStatus({ message, failed, onRetry, testID }: {
+  message: string; failed: boolean; onRetry: () => void; testID?: string;
+}): React.JSX.Element {
+  return (
+    <View style={{ minHeight: 28, flexDirection: "row", alignItems: "center", paddingHorizontal: 12 }}>
+      <Text accessibilityLiveRegion="polite" testID={testID} style={{ flex: 1, fontSize: 12, color: failed ? "#a32828" : "#46564b" }}>{message}</Text>
+      {failed ? (
+        <Pressable accessibilityRole="button" accessibilityLabel="Retry advisory calculation" onPress={onRetry} style={{ width: 28, height: 28, alignItems: "center", justifyContent: "center" }}>
+          <RotateCcw size={16} color="#46564b" />
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -2981,7 +3103,7 @@ function CornerArmSheet({
       <CornerArmEvaluationPanel evaluation={evaluation} unitSystem={unitSystem} />
       <View style={styles.consoleChoiceGrid}>
         <ConsoleChoiceButton label="Draw Footprint Polygon" meta="Click vertices for an advisory corner-arm swing or coverage footprint." onPress={() => onActivateTool("measure", "control_point", "corner_swing_limit")} />
-        <ConsoleChoiceButton label="Draw Track Evidence" meta="Trace track or operator-supplied evidence as a utility line." onPress={() => onActivateTool("measure", "control_point", "access_lane")} />
+        <ConsoleChoiceButton label="Draw SDU Guidance Path" meta="Trace operator-supplied SDU guidance evidence as a linear_move_path for kinematic review." onPress={() => onActivateTool("measure", "control_point", "linear_move_path")} />
       </View>
       <View style={styles.inlineActions}>
         <SmallActionButton label="Save Corner Arm Advisory" onPress={requestSave} testID="corner-arm-save-advisory" />
@@ -2996,6 +3118,7 @@ function CalculateSheet({
   advisoryMachineRenderModel,
   editorError,
   fieldPivotPlan,
+  multiMachineReview,
   idealCenterAnalysis,
   onCalculate,
   onRequestApplyPivotCandidate,
@@ -3010,9 +3133,10 @@ function CalculateSheet({
 }: {
   advisoryCostDraft: AdvisoryCostDraft;
   advisoryCostInput: AdvisoryCostInput | undefined;
-  advisoryMachineRenderModel: AdvisoryMachineRenderModel;
+  advisoryMachineRenderModel: AdvisoryMachineRenderModel | null;
   editorError: string | null;
-  fieldPivotPlan: AdvisoryFieldPivotPlan;
+  fieldPivotPlan: AdvisoryFieldPivotPlan | null;
+  multiMachineReview: AdvisoryMultiMachineReview | null;
   idealCenterAnalysis: IdealCenterPointAnalysis | null;
   onCalculate: () => void;
   onRequestApplyPivotCandidate: (candidate: PivotPlacementCandidate) => void;
@@ -3063,18 +3187,14 @@ function CalculateSheet({
     endGunAngleRanges: project.machine.endGunAngleRanges,
     safetyZoneMeters: settings.layoutReview.requiredBoundaryClearanceMeters,
   }), [project, settings.layoutReview.requiredBoundaryClearanceMeters]);
-  const multiMachineReview = useMemo<AdvisoryMultiMachineReview>(() => analyzeAdvisoryMultiMachineLayout(project, {
-    maxCandidates: 3,
-    collisionBufferMeters: project.machine.machineClearanceBufferMeters,
-  }), [project]);
-  const generatedMultiPivotScenarioReview = useMemo<AdvisoryGeneratedMultiPivotScenarioReview>(() => (
-    buildAdvisoryGeneratedMultiPivotScenarioReview(fieldPivotPlan)
+  const generatedMultiPivotScenarioReview = useMemo<AdvisoryGeneratedMultiPivotScenarioReview | null>(() => (
+    fieldPivotPlan ? buildAdvisoryGeneratedMultiPivotScenarioReview(fieldPivotPlan) : null
   ), [fieldPivotPlan]);
   const bestStrategy = strategyComparison.bestStrategy;
   const benderStrategy = benderStrategyForReview(strategyComparison);
-  const reviewZoneAudit = useMemo<AdvisoryGeneratedReviewZoneAudit>(() => auditGeneratedFieldPivotReviewZones(project, fieldPivotPlan), [fieldPivotPlan, project]);
+  const reviewZoneAudit = useMemo<AdvisoryGeneratedReviewZoneAudit | null>(() => fieldPivotPlan ? auditGeneratedFieldPivotReviewZones(project, fieldPivotPlan) : null, [fieldPivotPlan, project]);
   const [advisoryReportExportStatus, setAdvisoryReportExportStatus] = useState("Report export has not run.");
-  const advisoryDesignReport = useMemo<AdvisoryDesignReport>(() => buildAdvisoryDesignReport({
+  const advisoryDesignReport = useMemo<AdvisoryDesignReport | null>(() => fieldPivotPlan && multiMachineReview && advisoryMachineRenderModel && generatedMultiPivotScenarioReview && reviewZoneAudit ? buildAdvisoryDesignReport({
     project,
     result,
     fieldPivotPlan,
@@ -3087,9 +3207,10 @@ function CalculateSheet({
     generatedMultiPivotScenarioReview,
     reviewZoneAudit,
     advisoryMachineRenderAcreLedger: advisoryMachineRenderModel.status === "ready" ? advisoryMachineRenderModel.acreLedger : null,
-  }), [advisoryMachineRenderModel, endGunSensitivityReview, fieldPivotPlan, generatedMultiPivotScenarioReview, multiMachineReview, obstacleInteractionReview, project, radiusSensitivityReview, result, reviewZoneAudit, strategyComparison, sweepEfficiencyReview]);
+  }) : null, [advisoryMachineRenderModel, endGunSensitivityReview, fieldPivotPlan, generatedMultiPivotScenarioReview, multiMachineReview, obstacleInteractionReview, project, radiusSensitivityReview, result, reviewZoneAudit, strategyComparison, sweepEfficiencyReview]);
 
   async function exportAdvisoryDesignReport(): Promise<void> {
+    if (!advisoryDesignReport) return;
     try {
       const filename = `${slugIdPart(project.id)}.advisory-design-report.txt`;
       const outcome = await exportFileAsync(filename, advisoryDesignReport.text, { mimeType: "text/plain;charset=utf-8" });
@@ -3116,14 +3237,6 @@ function CalculateSheet({
         <MetricTile label="Irrigated" value={formatAreaFromAcres(result.metrics.irrigatedAcres, settings.unitSystem)} tone="good" />
         <MetricTile label="Outside field" value={formatAreaFromAcres(result.metrics.outsideFieldAcres, settings.unitSystem)} tone={result.metrics.outsideFieldAcres > 0 ? "danger" : "good"} />
       </View>
-      <AdvisoryCostReviewPanel
-        draft={advisoryCostDraft}
-        onChange={onUpdateAdvisoryCostDraft}
-      />
-      <Pressable accessibilityRole="button" onPress={onCalculate} style={styles.calculateButton} testID="design-console-calculate">
-        <Calculator size={16} color="#ffffff" />
-        <Text style={styles.calculateButtonText}>Calculate Preview</Text>
-      </Pressable>
       {editorError ? <Text style={styles.formError}>{editorError}</Text> : null}
       {advisoryCostInput ? (
         <Text style={styles.mapFeatureMeta} testID="advisory-cost-active-note">
@@ -3181,23 +3294,23 @@ function CalculateSheet({
         <Text style={styles.mapFeatureMeta}>{formatFirstObstacleInteraction(obstacleInteractionReview)}</Text>
         <Text style={styles.mapFeatureMeta}>Obstacle interaction review is advisory only and does not mutate canonical projected XY, obstacle settings, utility features, or machine settings.</Text>
       </View>
-      <View style={styles.placementReviewPanel} testID="advisory-full-scope-boundary-summary">
+      {multiMachineReview ? <View style={styles.placementReviewPanel} testID="advisory-full-scope-boundary-summary">
         <View style={styles.scenarioRowHeader}>
           <Text style={styles.rowTitle}>Full-Scope Boundary Review</Text>
           <Text style={styles.scenarioScore}>{multiMachineReview.compilation.fullScopeCoveragePercent.toFixed(1)}%</Text>
         </View>
         <Text style={styles.rowMeta}>{formatFullScopeBoundarySummary(multiMachineReview, settings)}</Text>
         <Text style={styles.mapFeatureMeta}>Compiled full-scope boundary review is advisory only and leaves canonical projected XY, field boundary, machine zones, and project storage unchanged.</Text>
-      </View>
-      <AdvisoryEvidenceStatusPanel
+      </View> : null}
+      {advisoryMachineRenderModel && multiMachineReview ? <AdvisoryEvidenceStatusPanel
         advisoryMachineRenderModel={advisoryMachineRenderModel}
         multiMachineReview={multiMachineReview}
         project={project}
         result={result}
         settings={settings}
         surface="calculate"
-      />
-      <View style={styles.placementReviewPanel} testID="advisory-generated-field-pivot-plan">
+      /> : null}
+      {fieldPivotPlan && reviewZoneAudit && generatedMultiPivotScenarioReview ? <View style={styles.placementReviewPanel} testID="advisory-generated-field-pivot-plan">
         <View style={styles.scenarioRowHeader}>
           <Text style={styles.rowTitle}>Generated Field Pivot Plan</Text>
           <Text style={styles.scenarioScore}>{fieldPivotPlan.selectedMachineCount}/{fieldPivotPlan.requestedMachineCount}</Text>
@@ -3219,8 +3332,8 @@ function CalculateSheet({
             testID="save-generated-field-pivot-zones"
           />
         </View>
-      </View>
-      <View style={styles.placementReviewPanel} testID="advisory-design-report-panel">
+      </View> : null}
+      {advisoryDesignReport && reviewZoneAudit ? <View style={styles.placementReviewPanel} testID="advisory-design-report-panel">
         <View style={styles.scenarioRowHeader}>
           <Text style={styles.rowTitle}>Advisory Design Report</Text>
           <Text style={styles.scenarioScore}>{advisoryDesignReport.readiness.replaceAll("_", " ")}</Text>
@@ -3241,7 +3354,7 @@ function CalculateSheet({
           <SmallActionButton label="Export Report" onPress={exportAdvisoryDesignReport} testID="export-advisory-design-report" />
         </View>
         <Text style={styles.mapFeatureMeta} testID="advisory-design-report-export-status">{advisoryReportExportStatus}</Text>
-      </View>
+      </View> : null}
       <IdealCenterSummary analysis={idealCenterAnalysis} onRequestApplyPivotCandidate={onRequestApplyPivotCandidate} settings={settings} />
       <ScenarioPreviewList preview={preview} settings={settings} />
       <PlacementReviewPanel analysis={idealCenterAnalysis} candidates={placementCandidates} onRequestApplyPivotCandidate={onRequestApplyPivotCandidate} settings={settings} />
@@ -3631,27 +3744,17 @@ function LayersSheet({
       ? "ios_maplibre_rn"
       : "web_maplibre_gl_js";
   const aerialCandidates = listAerialImageryCandidates({ mapPackages, target: mapLibreTarget });
-  const aerialReference = useMemo(
-    () => resolveAerialReferenceImagerySource({
-      preferences: settings.aerialImagery,
-      onlineImagery: settings.onlineImagery,
+  const referenceView = useMemo(
+    () => buildMapReferenceViewModel({
+      settings,
       mapPackages,
       target: mapLibreTarget,
+      surface: "workbench",
     }),
-    [mapLibreTarget, mapPackages, settings.aerialImagery, settings.onlineImagery],
+    [mapLibreTarget, mapPackages, settings.aerialImagery, settings.onlineImagery, settings.referenceOverlay],
   );
-  const aerialMode = settings.aerialImagery.mode === "off" && settings.onlineImagery.enabled && settings.onlineImagery.providerId === "usgs_imagery_only"
-    ? "USGS only"
-    : settings.aerialImagery.mode === "off"
-      ? "Off"
-      : settings.aerialImagery.mode === "manual"
-        ? "Manual local"
-        : "Auto";
-  const aerialStatus = aerialReference.sourceKind === "local_raster"
-    ? `Local raster first: ${aerialReference.localAerial.packageName ?? aerialReference.localAerial.packageId}.`
-    : aerialReference.sourceKind === "online_provider" && aerialReference.onlineProvider
-      ? `${aerialProviderLabel(aerialReference.autoFallback, settings.aerialImagery.mode, aerialReference.onlineProvider.id)}: ${aerialReference.onlineProvider.name}.`
-      : aerialReference.reason;
+  const aerialMode = { usgs_live_preview: "USGS only", off: "Off", manual_local: "Manual local", auto_local: "Auto" }[referenceView.aerialWorkflow];
+  const aerialStatus = referenceView.aerialSummary;
 
   function setAerialMode(mode: "off" | "auto" | "manual" | "usgs_live_preview"): void {
     if (mode === "usgs_live_preview") {
@@ -3723,8 +3826,8 @@ function LayersSheet({
         />
         <LayerGroupCard
           title="Reference Overlays"
-          detail={settings.referenceOverlay.mode === "off" ? "Roads, borders, labels off" : "Roads, borders, labels available"}
-          meta="Overlay toggles are reference display controls, not project geometry visibility state."
+          detail={referenceView.referenceSummary}
+          meta={`${referenceView.evidenceLabel} · ${referenceView.runtimeLabel ?? "Overlay toggles are reference display controls, not project geometry visibility state."}`}
         />
       </View>
       <Text style={styles.mapFeatureMeta}>
@@ -3780,6 +3883,372 @@ function LayerGroupCard({ detail, meta, title }: { detail: string; meta: string;
       <Text style={styles.mapFeatureTitle}>{title}</Text>
       <Text style={styles.mapFeatureMeta}>{detail}</Text>
       <Text style={styles.dashboardMuted}>{meta}</Text>
+    </View>
+  );
+}
+
+const GUIDED_MANUAL_DESIGN_STEPS: Array<{ id: Exclude<ManualDesignStep, "apply">; label: string }> = [
+  { id: "boundary", label: "Boundary" },
+  { id: "pivot", label: "Pivot" },
+  { id: "last_wheel", label: "Last Wheel" },
+  { id: "machine_end", label: "Machine End" },
+  { id: "review", label: "Review" },
+];
+
+const MANUAL_DESIGN_SOURCE_OPTIONS: Record<Exclude<ManualDesignStep, "review" | "apply">, Array<{ id: ManualDesignInputSource; label: string }>> = {
+  boundary: [
+    { id: "map_click", label: "Map clicks" },
+    { id: "projected_xy", label: "Projected XY" },
+    { id: "rtk_evidence", label: "RTK" },
+    { id: "imported_evidence", label: "Imported" },
+  ],
+  pivot: [
+    { id: "map_click", label: "Map click" },
+    { id: "projected_xy", label: "Projected XY" },
+    { id: "wgs84", label: "WGS84" },
+    { id: "rtk_evidence", label: "RTK" },
+    { id: "imported_evidence", label: "Imported" },
+  ],
+  last_wheel: [
+    { id: "map_click", label: "Map click" },
+    { id: "machine_specs", label: "Machine specs" },
+    { id: "rtk_evidence", label: "RTK radius" },
+    { id: "imported_evidence", label: "Imported" },
+  ],
+  machine_end: [
+    { id: "map_click", label: "Map click" },
+    { id: "machine_specs", label: "Machine specs" },
+    { id: "rtk_evidence", label: "RTK radius" },
+    { id: "imported_evidence", label: "Imported" },
+  ],
+};
+
+function ManualDesignTransactionPanel({
+  mapCapture,
+  onApply,
+  onOpenRtk,
+  onRequestMapCapture,
+  project,
+  projectRevision,
+  unitSystem,
+}: {
+  mapCapture: (ManualDesignMapCapture & { sequence: number }) | null;
+  onApply: (draft: ManualDesignDraft) => boolean;
+  onOpenRtk: () => void;
+  onRequestMapCapture: (role: ManualDesignMapCaptureRole | null) => void;
+  project: PivotProject;
+  projectRevision: number;
+  unitSystem: PivotProject["unitSystem"];
+}): React.JSX.Element {
+  const [activeStep, setActiveStep] = useState<Exclude<ManualDesignStep, "apply">>("boundary");
+  const [draft, setDraft] = useState<ManualDesignDraft>(() => createManualDesignDraft(project, projectRevision));
+  const [spanRows, setSpanRows] = useState(() => project.machine.spanLengthsMeters.map((span) => formatDistanceInputValue(span, unitSystem)));
+  const [overhang, setOverhang] = useState(() => formatDistanceInputValue(project.machine.overhangMeters, unitSystem));
+  const [endGunThrow, setEndGunThrow] = useState(() => formatDistanceInputValue(project.machine.endGunThrowMeters, unitSystem));
+  const [status, setStatus] = useState("Preview only. Apply creates one project revision and one undo entry.");
+  const readiness = useMemo(() => evaluateManualDesignReadiness(draft), [draft]);
+  const pathSummary = draft.machine ? buildMachinePathSummary(draft.machine.value) : null;
+  const radiusMeasurementFeatures = (project.mapFeatures ?? []).filter((feature) => feature.kind === "measurement_line" && feature.geometry.type === "LineString");
+  const stale = draft.baseRevision !== projectRevision;
+
+  useEffect(() => {
+    resetFromProject();
+    // Project identity and unit changes require a new session-only draft.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [project.id, unitSystem]);
+
+  useEffect(() => {
+    if (!mapCapture) return;
+    if (mapCapture.role === "boundary") {
+      if (mapCapture.vertices) {
+        setDraft((current) => ({
+          ...current,
+          boundary: { vertices: mapCapture.vertices ?? [], source: "map_click" },
+        }));
+        setStatus(`${mapCapture.vertices.length} map-click boundary vertices staged. Project geometry is unchanged.`);
+      }
+      return;
+    }
+    if (!mapCapture.point) return;
+    if (mapCapture.role === "pivot") {
+      setDraft((current) => ({ ...current, pivot: { point: mapCapture.point!, source: "map_click" } }));
+      setStatus("Map-click pivot staged. Project geometry is unchanged.");
+      return;
+    }
+    stageRadiusPoint(mapCapture.point, mapCapture.role);
+  }, [mapCapture?.sequence]);
+
+  function resetFromProject(): void {
+    setDraft(createManualDesignDraft(project, projectRevision));
+    setSpanRows(project.machine.spanLengthsMeters.map((span) => formatDistanceInputValue(span, unitSystem)));
+    setOverhang(formatDistanceInputValue(project.machine.overhangMeters, unitSystem));
+    setEndGunThrow(formatDistanceInputValue(project.machine.endGunThrowMeters, unitSystem));
+    setActiveStep("boundary");
+    setStatus("Draft reset from the current project.");
+  }
+
+  function selectSource(source: ManualDesignInputSource): void {
+    setDraft((current) => {
+      if (activeStep === "boundary" && current.boundary) return { ...current, boundary: { ...current.boundary, source } };
+      if (activeStep === "pivot" && current.pivot) return { ...current, pivot: { ...current.pivot, source } };
+      if (activeStep === "last_wheel" && current.machine) return { ...current, machine: { ...current.machine, lastWheelSource: source } };
+      if (activeStep === "machine_end" && current.machine) return { ...current, machine: { ...current.machine, machineEndSource: source } };
+      return current;
+    });
+    if (source === "map_click" && activeStep !== "review") {
+      onRequestMapCapture(activeStep);
+      setStatus(`Map capture armed for ${activeStep.replaceAll("_", " ")}. Click the map; only this draft will change.`);
+    } else {
+      onRequestMapCapture(null);
+    }
+  }
+
+  function stageRadiusPoint(point: XY, role: "last_wheel" | "machine_end"): void {
+    setDraft((current) => {
+      if (!current.pivot || !current.machine) return current;
+      const radiusMeters = Math.hypot(point.x - current.pivot.point.x, point.y - current.pivot.point.y);
+      const nextMachine = { ...current.machine.value, spanLengthsMeters: [...current.machine.value.spanLengthsMeters] };
+      if (role === "last_wheel") {
+        const priorSpans = nextMachine.spanLengthsMeters.slice(0, -1);
+        const priorRadius = priorSpans.reduce((sum, span) => sum + span, 0);
+        nextMachine.spanLengthsMeters = [...priorSpans, Math.max(0.001, radiusMeters - priorRadius)];
+        setSpanRows(nextMachine.spanLengthsMeters.map((span) => formatDistanceInputValue(span, unitSystem)));
+      } else {
+        const lastWheelRadius = nextMachine.spanLengthsMeters.reduce((sum, span) => sum + span, 0);
+        nextMachine.overhangMeters = Math.max(0, radiusMeters - lastWheelRadius);
+        setOverhang(formatDistanceInputValue(nextMachine.overhangMeters, unitSystem));
+      }
+      return {
+        ...current,
+        machine: {
+          ...current.machine,
+          value: nextMachine,
+          ...(role === "last_wheel" ? { lastWheelSource: "map_click" as const } : { machineEndSource: "map_click" as const }),
+        },
+      };
+    });
+    setStatus(`Map-click ${role.replaceAll("_", " ")} radius staged. Project geometry is unchanged.`);
+  }
+
+  function selectedSource(): ManualDesignInputSource | null {
+    if (activeStep === "boundary") return draft.boundary?.source ?? null;
+    if (activeStep === "pivot") return draft.pivot?.source ?? null;
+    if (activeStep === "last_wheel") return draft.machine?.lastWheelSource ?? null;
+    if (activeStep === "machine_end") return draft.machine?.machineEndSource ?? null;
+    return null;
+  }
+
+  function applySpanRows(): boolean {
+    try {
+      const spans = spanRows.map((value, index) => requiredPositiveDistanceInput(value, unitSystem, `Span ${index + 1}`));
+      setDraft((current) => current.machine ? {
+        ...current,
+        machine: { ...current.machine, value: { ...current.machine.value, spanLengthsMeters: spans } },
+      } : current);
+      setStatus(`${spans.length} span rows staged in the draft.`);
+      return true;
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : String(error));
+      return false;
+    }
+  }
+
+  function applyMachineEnd(): boolean {
+    try {
+      const overhangMeters = requiredNonNegativeDistanceInput(overhang, unitSystem, "Overhang");
+      const endGunThrowMeters = requiredNonNegativeDistanceInput(endGunThrow, unitSystem, "End-gun throw");
+      setDraft((current) => current.machine ? {
+        ...current,
+        machine: { ...current.machine, value: { ...current.machine.value, overhangMeters, endGunThrowMeters } },
+      } : current);
+      setStatus("Machine end and end-gun reach staged in the draft.");
+      return true;
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : String(error));
+      return false;
+    }
+  }
+
+  function stageRadiusEvidence(feature: ProjectMapFeature, role: "last_wheel" | "machine_end"): void {
+    if (!draft.pivot || !draft.machine || feature.geometry.type !== "LineString") return;
+    const point = feature.geometry.vertices.at(-1);
+    if (!point) return;
+    const alreadySelected = draft.selectedEvidenceFeatureIds.includes(feature.id);
+    const currentEvidence = draft.radiusEvidence.find((entry) => entry.role === role);
+    const occupations = alreadySelected
+      ? (currentEvidence?.occupations ?? [])
+      : [
+        ...(currentEvidence?.occupations ?? []),
+        {
+          point,
+          captureEvidence: feature.vertexCaptureEvidence?.at(-1) ?? undefined,
+        },
+      ];
+    if (occupations.length === 0) return;
+    const meanRadius = occupations.reduce((sum, occupation) => sum + Math.hypot(occupation.point.x - draft.pivot!.point.x, occupation.point.y - draft.pivot!.point.y), 0) / occupations.length;
+    const nextMachine = { ...draft.machine.value, spanLengthsMeters: [...draft.machine.value.spanLengthsMeters] };
+    if (role === "last_wheel") {
+      const priorSpans = nextMachine.spanLengthsMeters.slice(0, -1);
+      const priorRadius = priorSpans.reduce((sum, span) => sum + span, 0);
+      nextMachine.spanLengthsMeters = [...priorSpans, Math.max(0.001, meanRadius - priorRadius)];
+      setSpanRows(nextMachine.spanLengthsMeters.map((span) => formatDistanceInputValue(span, unitSystem)));
+    } else {
+      const lastWheelRadius = nextMachine.spanLengthsMeters.reduce((sum, span) => sum + span, 0);
+      nextMachine.overhangMeters = Math.max(0, meanRadius - lastWheelRadius);
+      setOverhang(formatDistanceInputValue(nextMachine.overhangMeters, unitSystem));
+    }
+    const source = feature.vertexCaptureEvidence?.some(Boolean) ? "rtk_evidence" : "imported_evidence";
+    setDraft((current) => ({
+      ...current,
+      machine: current.machine ? {
+        ...current.machine,
+        value: nextMachine,
+        ...(role === "last_wheel" ? { lastWheelSource: source as ManualDesignInputSource } : { machineEndSource: source as ManualDesignInputSource }),
+      } : current.machine,
+      radiusEvidence: [
+        ...current.radiusEvidence.filter((entry) => entry.role !== role),
+        { role, source, confidence: feature.confidence, occupations },
+      ],
+      selectedEvidenceFeatureIds: alreadySelected ? current.selectedEvidenceFeatureIds : [...current.selectedEvidenceFeatureIds, feature.id],
+    }));
+    setStatus(`${feature.name} staged as ${role.replaceAll("_", " ")} evidence with ${occupations.length} occupation${occupations.length === 1 ? "" : "s"}.`);
+  }
+
+  function applyTransaction(): void {
+    if (stale) {
+      setStatus("Draft is stale. Reset it from the current project before applying.");
+      return;
+    }
+    if (!readiness.ready) {
+      setStatus(readiness.errors[0] ?? "Draft is not ready.");
+      return;
+    }
+    if (onApply(draft)) {
+      setStatus("Manual design applied atomically. Undo restores the prior project revision.");
+    }
+  }
+
+  const sourceOptions = activeStep === "review" ? [] : MANUAL_DESIGN_SOURCE_OPTIONS[activeStep];
+  const unitLabel = unitSystem === "metric" ? "m" : "ft/in";
+  const pivotPreviewProject = draft.pivot ? { ...project, pivotCenter: draft.pivot.point } : project;
+
+  return (
+    <View style={styles.mapFeatureEditor} testID="manual-design-transaction">
+      <View style={styles.scenarioRowHeader}>
+        <View style={styles.manualDesignHeading} testID="manual-design-heading">
+          <Text style={styles.mapFeatureTitle}>Guided Manual Design</Text>
+        </View>
+        <Text style={stale ? styles.scenarioScoreWarn : styles.scenarioScore} testID="manual-design-readiness">{stale ? "Stale" : readiness.ready ? "Ready" : "Draft"}</Text>
+      </View>
+
+      <View style={styles.controlRow}>
+        {GUIDED_MANUAL_DESIGN_STEPS.map((step) => (
+          <ActionButton key={step.id} label={step.label} selected={activeStep === step.id} onPress={() => { onRequestMapCapture(null); setActiveStep(step.id); }} testID={`manual-design-step-${step.id}`} />
+        ))}
+      </View>
+
+      {sourceOptions.length > 0 ? (
+        <View style={styles.controlRow} testID={`manual-design-${activeStep}-sources`}>
+          {sourceOptions.map((option) => (
+            <ActionButton key={option.id} label={option.label} selected={selectedSource() === option.id} onPress={() => selectSource(option.id)} testID={`manual-design-source-${activeStep}-${option.id}`} />
+          ))}
+          {sourceOptions.some((option) => option.id === "rtk_evidence") ? <SmallActionButton label="Open Receiver" onPress={onOpenRtk} /> : null}
+        </View>
+      ) : null}
+
+      {activeStep === "boundary" && draft.boundary ? (
+        <>
+          <ProjectedPolygonEditor
+            label="Draft boundary projected XY"
+            onApply={(vertices) => {
+              setDraft((current) => ({ ...current, boundary: { ...(current.boundary ?? { source: "projected_xy" }), vertices } }));
+              setStatus(`${vertices.length} boundary vertices staged without changing the project.`);
+              return true;
+            }}
+            vertices={draft.boundary.vertices}
+          />
+          <View style={styles.inlineActions}>
+            <SmallActionButton disabled={draft.boundary.vertices.length === 0} label="Undo Last Vertex" onPress={() => setDraft((current) => current.boundary ? { ...current, boundary: { ...current.boundary, vertices: current.boundary.vertices.slice(0, -1) } } : current)} />
+            <SmallActionButton label="Close / Continue" onPress={() => setActiveStep("pivot")} />
+          </View>
+        </>
+      ) : null}
+
+      {activeStep === "pivot" && draft.pivot ? (
+        <>
+          <PivotGpsCoordinateForm
+            onApply={(point, wgs84) => {
+              setDraft((current) => ({ ...current, pivot: { point, source: wgs84 ? "wgs84" : current.pivot?.source ?? "projected_xy" } }));
+              setStatus("Projected pivot staged without changing the project.");
+              return true;
+            }}
+            project={pivotPreviewProject}
+          />
+          <SmallActionButton label="Continue to Last Wheel" onPress={() => setActiveStep("last_wheel")} />
+        </>
+      ) : null}
+
+      {activeStep === "last_wheel" ? (
+        <>
+          <View style={styles.formGrid} testID="manual-design-span-rows">
+            {spanRows.map((value, index) => (
+              <FormField key={`span-${index + 1}`} label={`Span ${index + 1} (${unitLabel})`} value={value} onChangeText={(next) => setSpanRows((rows) => rows.map((row, rowIndex) => rowIndex === index ? next : row))} />
+            ))}
+          </View>
+          <View style={styles.inlineActions}>
+            <SmallActionButton label="Add Span" onPress={() => setSpanRows((rows) => [...rows, rows.at(-1) ?? formatDistanceInputValue(50, unitSystem)])} />
+            <SmallActionButton disabled={spanRows.length <= 1} label="Remove Span" onPress={() => setSpanRows((rows) => rows.slice(0, -1))} />
+            <SmallActionButton label="Stage / Continue" onPress={() => { if (applySpanRows()) setActiveStep("machine_end"); }} />
+          </View>
+          <Text style={styles.mapFeatureMeta}>Last wheel radius {pathSummary ? formatDistance(pathSummary.lastWheelRadiusMeters, unitSystem) : "pending"}.</Text>
+          {radiusMeasurementFeatures.length > 0 ? (
+            <View style={styles.inlineActions} testID="manual-design-last-wheel-evidence">
+              {radiusMeasurementFeatures.slice(-3).map((feature) => <SmallActionButton key={feature.id} label={`Use ${feature.name}`} onPress={() => stageRadiusEvidence(feature, "last_wheel")} />)}
+            </View>
+          ) : null}
+        </>
+      ) : null}
+
+      {activeStep === "machine_end" ? (
+        <>
+          <View style={styles.formGrid}>
+            <FormField label={`Overhang (${unitLabel})`} value={overhang} onChangeText={setOverhang} />
+            <FormField label={`End-gun throw (${unitLabel})`} value={endGunThrow} onChangeText={setEndGunThrow} />
+          </View>
+          <View style={styles.inlineActions}>
+            <SmallActionButton label="Stage / Review" onPress={() => { if (applyMachineEnd()) setActiveStep("review"); }} />
+          </View>
+          {pathSummary ? (
+            <Text style={styles.mapFeatureMeta}>Machine end {formatDistance(pathSummary.endMachineRadiusMeters, unitSystem)} · end-gun reach {formatDistance(pathSummary.endGunReachMeters, unitSystem)}.</Text>
+          ) : null}
+          {radiusMeasurementFeatures.length > 0 ? (
+            <View style={styles.inlineActions} testID="manual-design-machine-end-evidence">
+              {radiusMeasurementFeatures.slice(-3).map((feature) => <SmallActionButton key={feature.id} label={`Use ${feature.name}`} onPress={() => stageRadiusEvidence(feature, "machine_end")} />)}
+            </View>
+          ) : null}
+        </>
+      ) : null}
+
+      {activeStep === "review" ? (
+        <View testID="manual-design-review">
+          <View style={styles.metricGrid}>
+            <MetricTile label="Boundary" value={readiness.components.boundary ? `${draft.boundary?.vertices.length ?? 0} vertices` : "Invalid"} tone={readiness.components.boundary ? "good" : "danger"} />
+            <MetricTile label="Pivot" value={readiness.pivotContainment.replaceAll("_", " ")} tone={readiness.pivotContainment === "inside" ? "good" : "warn"} />
+            <MetricTile label="Last wheel" value={pathSummary ? formatDistance(pathSummary.lastWheelRadiusMeters, unitSystem) : "Missing"} />
+            <MetricTile label="Machine end" value={pathSummary ? formatDistance(pathSummary.endMachineRadiusMeters, unitSystem) : "Missing"} />
+            <MetricTile label="Coincident" value={pathSummary?.coincidentLastWheelAndMachineEnd ? "LRDU / end" : "No"} />
+            <MetricTile label="Source" value={readiness.sourceConfidence.level} tone={readiness.sourceConfidence.level === "high" ? "good" : "warn"} />
+          </View>
+          {readiness.errors.map((error) => <Text key={error} style={styles.formError}>{error}</Text>)}
+          {readiness.warnings.map((warning) => <Text key={warning} style={styles.mapFeatureMeta}>{warning}</Text>)}
+          <View style={styles.inlineActions}>
+            <SmallActionButton label="Reset" onPress={resetFromProject} />
+            <SmallActionButton disabled={!readiness.ready || stale} label="Apply Design" onPress={applyTransaction} testID="manual-design-apply" />
+          </View>
+        </View>
+      ) : null}
+
+      <Text style={styles.mapFeatureMeta} testID="manual-design-status">{status}</Text>
     </View>
   );
 }
@@ -4750,6 +5219,14 @@ function cornerArmGuidancePath(project: PivotProject): XY[] | undefined {
   return guidanceFeature?.geometry.type === "LineString" ? guidanceFeature.geometry.vertices : undefined;
 }
 
+function isWillRheaGuidedDemo(project: PivotProject): boolean {
+  return project.id === willRheaJasonHarmelinkExampleProject.id;
+}
+
+function positiveFiniteNumber(value: unknown): boolean {
+  return typeof value === "number" && Number.isFinite(value) && value > 0;
+}
+
 function layoutReviewClearanceStepMeters(unitSystem: AppSettings["unitSystem"]): number {
   return unitSystem === "metric" ? 5 : 15.24;
 }
@@ -5126,6 +5603,10 @@ function ProjectDashboard({
         progress={walkthroughProgress}
       />
 
+      {isWillRheaGuidedDemo(project) ? (
+        <WillRheaGuidedDemoPanel project={project} settings={settings} />
+      ) : null}
+
       <View style={styles.dashboardGrid}>
         <View style={styles.dashboardPanel} testID="dashboard-recent-projects">
           <View style={styles.dashboardPanelHeader}>
@@ -5232,6 +5713,90 @@ function WorkflowWalkthrough({
   );
 }
 
+function WillRheaGuidedDemoPanel({
+  project,
+  settings,
+}: {
+  project: PivotProject;
+  settings: AppSettings;
+}): React.JSX.Element {
+  const features = project.mapFeatures ?? [];
+  const machineZones = features.filter((feature) => feature.kind === "machine_zone");
+  const preferredOutlines = machineZones.filter((feature) => feature.properties?.preferredMachineOutline === true);
+  const lrduEvidence = features.find((feature) => feature.id === "will-rhea-lrdu-distance" && feature.kind === "measurement_line");
+  const boundaryEvidence = features.find((feature) => feature.id === "will-rhea-full-scope-field-boundary-evidence" && feature.kind === "planning_boundary");
+  const pivotEvidence = project.surveyPoints.find((point) => point.id === "will-rhea-pivot-point" && point.role === "pivot_center");
+  const sourcePaths = Array.from(new Set(features
+    .map((feature) => typeof feature.properties?.sourcePath === "string" ? feature.properties.sourcePath : null)
+    .filter((value): value is string => Boolean(value))));
+  const sourceHashes = Array.from(new Set(features.flatMap((feature) => [
+    typeof feature.properties?.sourceKmzSha256 === "string" ? feature.properties.sourceKmzSha256 : null,
+    typeof feature.properties?.sourceSha256 === "string" ? feature.properties.sourceSha256 : null,
+  ]).filter((value): value is string => Boolean(value))));
+  const lrduRadiusMeters = typeof lrduEvidence?.properties?.derivedLengthMeters === "number"
+    ? lrduEvidence.properties.derivedLengthMeters
+    : machineRadiusMeters(project.machine);
+  const hasMeasuredLrduSpeed = positiveFiniteNumber(project.machine.driveUnits?.lrdu?.operatorMeasuredSpeedMetersPerMinute);
+  const hasSourceLabeledCornerArmModel = Boolean(project.machine.cornerArm && VALLEY_CORNER_ARM_SCAFFOLD_CATALOG.some((entry) => entry.id === project.machine.cornerArm?.id));
+  const hasSelectedOrientation = project.machine.cornerArm?.orientation === "leading" || project.machine.cornerArm?.orientation === "trailing";
+  const hasGuidancePath = Boolean(cornerArmGuidancePath(project));
+  const missingInputs = [
+    hasMeasuredLrduSpeed ? null : "Measured LRDU speed at 100% timer",
+    hasSourceLabeledCornerArmModel ? null : "Source-labeled corner-arm model/config",
+    hasSelectedOrientation ? null : "Operator-selected leading/trailing orientation and rotation context",
+    hasGuidancePath ? null : "Projected-XY SDU guidance path saved as linear_move_path",
+  ].filter((value): value is string => Boolean(value));
+
+  return (
+    <View style={styles.dashboardPanel} testID="will-rhea-guided-demo-panel">
+      <View style={styles.dashboardPanelHeader}>
+        <MapPinned size={19} color="#173428" />
+        <Text style={styles.dashboardPanelTitle}>Will Rhea Guided Demo</Text>
+      </View>
+      <Text style={styles.dashboardMuted}>
+        This sample opens as an explicit demo map. It is not silently created as a saved catalog client/project record, and walkthrough progress stays local-only.
+      </Text>
+      <AdvisoryBadgeRow badges={["EPSG:32614", "projected XY", "advisory evidence", "no Google Earth proof"]} />
+      <View style={styles.metricGrid}>
+        <MetricTile label="Boundary evidence" value={boundaryEvidence ? "Recorded" : "Missing"} tone="warn" />
+        <MetricTile label="Pivot evidence" value={pivotEvidence ? "Imported point" : "Missing"} tone={pivotEvidence ? "good" : "warn"} />
+        <MetricTile label="LRDU radius" value={formatDistance(lrduRadiusMeters, settings.unitSystem)} />
+        <MetricTile label="Machine zones" value={`${machineZones.length}`} />
+        <MetricTile label="Preferred outlines" value={`${preferredOutlines.length}`} />
+        <MetricTile label="Guidance path" value={hasGuidancePath ? "linear_move_path" : "Missing"} tone={hasGuidancePath ? "good" : "warn"} />
+      </View>
+      <View style={styles.warningList} testID="will-rhea-evidence-status">
+        <EvidenceStatusRow label="Field boundary" value={boundaryEvidence ? "Imported planning_boundary evidence. Current boundary match unverified." : "Missing imported boundary evidence."} />
+        <EvidenceStatusRow label="Pivot point" value={pivotEvidence ? "Imported pivot_center survey evidence; it does not move the active pivot without an explicit operator action." : "Missing imported pivot evidence."} />
+        <EvidenceStatusRow label="LRDU line" value={lrduEvidence ? "LRDU Distance measurement_line with derived radius evidence; not overhang/end-boom proof." : "Missing LRDU measurement_line evidence."} />
+        <EvidenceStatusRow label="Sources" value={`${sourcePaths.length} local path${sourcePaths.length === 1 ? "" : "s"} and ${sourceHashes.length} SHA-256 hash${sourceHashes.length === 1 ? "" : "es"} recorded on evidence features.`} />
+      </View>
+      <View testID="will-rhea-corner-arm-input-blockers">
+        <Text style={styles.formLabel}>Corner-arm calculation blockers</Text>
+        {missingInputs.map((input) => (
+          <Text key={input} style={styles.formError}>{input}</Text>
+        ))}
+        {missingInputs.length === 0 ? (
+          <Text style={styles.mapFeatureMeta}>Required inputs are present; use Calculate Preview to review advisory LRDU, SDU, overhang, and end-gun rows.</Text>
+        ) : (
+          <Text style={styles.mapFeatureMeta}>
+            Do not prefill Will Rhea with synthetic speed, model, orientation, or guidance data. Supply verified inputs before treating the kinematic panel as ready.
+          </Text>
+        )}
+      </View>
+    </View>
+  );
+}
+
+function EvidenceStatusRow({ label, value }: { label: string; value: string }): React.JSX.Element {
+  return (
+    <View style={styles.warningItem}>
+      <CheckCircle2 size={17} color="#0f5e3d" />
+      <Text style={styles.warningText}>{label}: {value}</Text>
+    </View>
+  );
+}
+
 function HelpTrainingPanel({
   onNavigate,
   onResetWalkthrough,
@@ -5295,7 +5860,7 @@ function HelpTrainingPanel({
     },
     {
       boundary: "Validation warnings stay in the layout workflow; Files imports and map edits are operator-selected projected XY changes.",
-      checkpoints: ["validation"],
+      checkpoints: ["cornerArmInputs", "cornerArmCalculation", "validation"],
       detail: "Inspect coverage warnings, obstacle conflicts, outside-field acres, and draft validation before export.",
       icon: <ClipboardList size={18} color="#254234" />,
       route: "map",
@@ -5485,6 +6050,8 @@ function emptyWalkthroughProgress(): Record<WalkthroughModuleId, boolean> {
     obstacles: false,
     pivot: false,
     survey: false,
+    cornerArmInputs: false,
+    cornerArmCalculation: false,
     validation: false,
     export: false,
   };
@@ -5503,6 +6070,8 @@ function loadWalkthroughProgress(projectId: string): Record<WalkthroughModuleId,
       obstacles: parsed.obstacles === true,
       pivot: parsed.pivot === true,
       survey: parsed.survey === true,
+      cornerArmInputs: parsed.cornerArmInputs === true,
+      cornerArmCalculation: parsed.cornerArmCalculation === true,
       validation: parsed.validation === true,
       export: parsed.export === true,
     };
@@ -5542,15 +6111,11 @@ function fixTypeLabel(fixType: string): string {
 
 function formatLiveRtkStatus(status: BrowserRtkReceiverStatus | null): string | null {
   if (!status || (!status.connected && status.sentenceCount === 0)) return null;
+  if (!status.connected) return "RTK disconnected - gate closed";
+  if (!status.gateAccepted) return "RTK gate closed";
   const satellites = status.quality.satellites === null ? "sat unknown" : `${status.quality.satellites} sat`;
   const hdop = status.quality.hdop === null ? "HDOP unknown" : `HDOP ${status.quality.hdop.toFixed(2)}`;
-  return `RTK ${fixTypeLabel(status.quality.fixType)} - ${satellites} - ${hdop}`;
-}
-
-function aerialProviderLabel(autoFallback: boolean, aerialMode: AppSettings["aerialImagery"]["mode"], providerId: string): string {
-  if (providerId === "usgs_imagery_only" && (autoFallback || aerialMode === "auto")) return "USGS fallback";
-  if (providerId === "usgs_imagery_only") return "USGS only";
-  return "Connected preview";
+  return `RTK gate accepted - ${fixTypeLabel(status.quality.fixType)} - ${satellites} - ${hdop}`;
 }
 
 function Section({ title, icon, children, testID }: { title: string; icon: React.ReactNode; children: React.ReactNode; testID?: string }): React.JSX.Element {
@@ -5629,7 +6194,7 @@ function rightWorkflowSidebarPages({
     ...(mappingWorkflowMode === "design" && activePurposeForm ? [{ id: "purpose" as const, label: "Form", shortLabel: "FORM" }] : []),
     ...(mappingWorkflowMode === "design" && activeToolForm ? [{ id: "toolForm" as const, label: "Form", shortLabel: "FORM" }] : []),
     { id: "layers", label: "Layers", shortLabel: "LAY" },
-    ...(mappingWorkflowMode === "layout" ? [{ id: "rtk" as const, label: "RTK", shortLabel: "RTK" }] : []),
+    { id: "rtk", label: "RTK", shortLabel: "RTK" },
     ...(selectedMapFeature ? [{ id: "feature" as const, label: "Feature", shortLabel: "FEAT" }] : []),
     { id: "warnings", label: "Warnings", shortLabel: "WARN", count: warningCount },
   ];
@@ -5638,6 +6203,7 @@ function rightWorkflowSidebarPages({
 function RightWorkflowSidebar({
   activePage,
   children,
+  compact,
   onPageChange,
   onToggle,
   open,
@@ -5645,6 +6211,7 @@ function RightWorkflowSidebar({
 }: {
   activePage: RightWorkflowSidebarPage;
   children: React.ReactNode;
+  compact: boolean;
   onPageChange: (page: RightWorkflowSidebarPage) => void;
   onToggle: () => void;
   open: boolean;
@@ -5652,17 +6219,24 @@ function RightWorkflowSidebar({
 }): React.JSX.Element {
   const activePageLabel = pages.find((page) => page.id === activePage)?.shortLabel ?? "MAP";
   return (
-    <View style={[styles.inspectorDrawer, !open && styles.inspectorDrawerCollapsed]} testID="right-workflow-sidebar">
+    <View style={[
+      styles.inspectorDrawer,
+      compact && styles.inspectorDrawerCompact,
+      !open && styles.inspectorDrawerCollapsed,
+      compact && !open && styles.inspectorDrawerCollapsedCompact,
+    ]} testID="right-workflow-sidebar">
       <Pressable
         accessibilityLabel={open ? "Collapse right workflow sidebar" : "Open right workflow sidebar"}
         accessibilityRole="button"
         onPress={onToggle}
-        style={styles.inspectorDrawerHandle}
+        style={[styles.inspectorDrawerHandle, compact && styles.inspectorDrawerHandleCompact]}
         testID="right-drawer-handle"
       >
-        {open ? <ChevronRight size={21} color="#d5e2db" /> : <ChevronLeft size={21} color="#d5e2db" />}
+        {compact
+          ? open ? <ChevronDown size={21} color="#d5e2db" /> : <ChevronUp size={21} color="#d5e2db" />
+          : open ? <ChevronRight size={21} color="#d5e2db" /> : <ChevronLeft size={21} color="#d5e2db" />}
       </Pressable>
-      {!open ? (
+      {!open && !compact ? (
         <View style={styles.inspectorCollapsedStatus} testID="inspector-collapsed-status">
           <Text style={styles.inspectorCollapsedStatusText} numberOfLines={1}>{activePageLabel}</Text>
         </View>
@@ -6020,9 +6594,9 @@ function RailButton({ active, collapsed = false, icon, label, onPress, testID }:
   );
 }
 
-function ActionButton({ label, onPress, selected = false }: { label: string; onPress: () => void; selected?: boolean }): React.JSX.Element {
+function ActionButton({ label, onPress, selected = false, testID }: { label: string; onPress: () => void; selected?: boolean; testID?: string }): React.JSX.Element {
   return (
-    <Pressable onPress={onPress} style={[styles.actionButton, selected && styles.actionButtonSelected]}>
+    <Pressable accessibilityLabel={label} accessibilityRole="button" accessibilityState={{ selected }} onPress={onPress} style={[styles.actionButton, selected && styles.actionButtonSelected]} testID={testID}>
       <Text style={[styles.actionText, selected && styles.actionTextSelected]}>{label}</Text>
     </Pressable>
   );
@@ -6292,7 +6866,7 @@ function mapFeatureGeometryLabel(feature: ProjectMapFeature): string {
 }
 
 function MachineSettingsForm({ machine, onChange, unitSystem }: { machine: PivotMachine; onChange: (machine: PivotMachine) => void; unitSystem: PivotProject["unitSystem"] }): React.JSX.Element {
-  const [spans, setSpans] = useState(formatDistanceInputList(machine.spanLengthsMeters, unitSystem));
+  const [spanRows, setSpanRows] = useState(machine.spanLengthsMeters.map((span) => formatDistanceInputValue(span, unitSystem)));
   const [overhang, setOverhang] = useState(formatDistanceInputValue(machine.overhangMeters, unitSystem));
   const [towerClearance, setTowerClearance] = useState(formatDistanceInputValue(machine.towerClearanceBufferMeters, unitSystem));
   const [machineClearance, setMachineClearance] = useState(formatDistanceInputValue(machine.machineClearanceBufferMeters, unitSystem));
@@ -6309,7 +6883,7 @@ function MachineSettingsForm({ machine, onChange, unitSystem }: { machine: Pivot
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setSpans(formatDistanceInputList(machine.spanLengthsMeters, unitSystem));
+    setSpanRows(machine.spanLengthsMeters.map((span) => formatDistanceInputValue(span, unitSystem)));
     setOverhang(formatDistanceInputValue(machine.overhangMeters, unitSystem));
     setTowerClearance(formatDistanceInputValue(machine.towerClearanceBufferMeters, unitSystem));
     setMachineClearance(formatDistanceInputValue(machine.machineClearanceBufferMeters, unitSystem));
@@ -6329,7 +6903,7 @@ function MachineSettingsForm({ machine, onChange, unitSystem }: { machine: Pivot
 
   function apply(): void {
     try {
-      const spanValues = spans.split(",").map((value) => requiredPositiveDistanceInput(value.trim(), unitSystem, "Span length"));
+      const spanValues = spanRows.map((value, index) => requiredPositiveDistanceInput(value.trim(), unitSystem, `Span ${index + 1}`));
       const nextMachine: PivotMachine = {
         ...machine,
         spanLengthsMeters: spanValues,
@@ -6400,7 +6974,9 @@ function MachineSettingsForm({ machine, onChange, unitSystem }: { machine: Pivot
       </View>
       {error ? <Text style={styles.formError}>{error}</Text> : null}
       <View style={styles.formGrid}>
-        <FormField label={`Spans (${unitLabel}, comma separated)`} value={spans} onChangeText={setSpans} />
+        {spanRows.map((value, index) => (
+          <FormField key={`machine-span-${index + 1}`} label={`Span ${index + 1} (${unitLabel})`} value={value} onChangeText={(next) => setSpanRows((rows) => rows.map((row, rowIndex) => rowIndex === index ? next : row))} />
+        ))}
         <FormField label={`Overhang (${unitLabel})`} value={overhang} onChangeText={setOverhang} />
         <FormField label={`Tower clearance (${unitLabel})`} value={towerClearance} onChangeText={setTowerClearance} />
         <FormField label={`Machine clearance (${unitLabel})`} value={machineClearance} onChangeText={setMachineClearance} />
@@ -6417,6 +6993,10 @@ function MachineSettingsForm({ machine, onChange, unitSystem }: { machine: Pivot
             </View>
           </>
         ) : null}
+      </View>
+      <View style={styles.inlineActions} testID="machine-structured-span-actions">
+        <SmallActionButton label="Add Span" onPress={() => setSpanRows((rows) => [...rows, rows.at(-1) ?? formatDistanceInputValue(50, unitSystem)])} />
+        <SmallActionButton disabled={spanRows.length <= 1} label="Remove Span" onPress={() => setSpanRows((rows) => rows.slice(0, -1))} />
       </View>
       <View style={styles.machineCatalogPanel}>
         <Text style={styles.formLabel}>Advisory drive units</Text>
@@ -6532,10 +7112,6 @@ function parseXyLinesAllowEmpty(text: string): XY[] {
 
 function roundCoordinate(value: number): string {
   return Number(value.toFixed(3)).toString();
-}
-
-function formatDistanceInputList(values: number[], unitSystem: PivotProject["unitSystem"]): string {
-  return values.map((value) => formatDistanceInputValue(value, unitSystem)).join(", ");
 }
 
 function requiredPositiveDistanceInput(value: string, unitSystem: PivotProject["unitSystem"], label: string): number {
@@ -7072,6 +7648,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   consoleShellCompact: {
+    flexDirection: "column",
     gap: 8,
     padding: 8,
   },
@@ -7126,6 +7703,16 @@ const styles = StyleSheet.create({
     borderColor: "#26392f",
     width: 56,
   },
+  inspectorDrawerCompact: {
+    flexDirection: "column",
+    height: "36%",
+    width: "100%",
+  },
+  inspectorDrawerCollapsedCompact: {
+    height: 52,
+    minHeight: 52,
+    width: "100%",
+  },
   inspectorDrawerHandle: {
     alignItems: "center",
     alignSelf: "stretch",
@@ -7133,6 +7720,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     minHeight: 56,
     width: 56,
+  },
+  inspectorDrawerHandleCompact: {
+    alignSelf: "stretch",
+    height: 52,
+    minHeight: 52,
+    width: "100%",
   },
   inspectorCollapsedStatus: {
     alignItems: "center",
@@ -7873,6 +8466,10 @@ const styles = StyleSheet.create({
   },
   clientProjectText: {
     gap: 3,
+    minWidth: 0,
+  },
+  manualDesignHeading: {
+    flex: 1,
     minWidth: 0,
   },
   mapFeatureTitle: {

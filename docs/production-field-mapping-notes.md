@@ -18,6 +18,10 @@
   Sources: https://github.com/protomaps/PMTiles/blob/main/spec/v3/spec.md, https://github.com/mapbox/mbtiles-spec
 - Google Earth exchange: KML coordinates are WGS84 longitude/latitude with optional altitude, and KMZ is a ZIP archive that should contain one primary KML file such as `doc.kml`. CPLayout treats KML/KMZ as WGS84 exchange only and projects imports into the project CRS before any geometry mutation.
   Sources: https://developers.google.com/kml/documentation/kmlreference, https://developers.google.com/kml/documentation/kmzarchives, https://docs.ogc.org/is/12-007r2/12-007r2.html
+- RTK receiver boundary: desktop Chromium Web Serial uses explicit user device selection and asynchronous byte streams; Android native receiver work must use a rebuilt development client and Android USB host permission/endpoint handling; iOS Classic Bluetooth serial cannot be assumed because External Accessory is an MFi/manufacturer protocol boundary.
+  Sources: https://developer.chrome.com/docs/capabilities/serial, https://developer.android.com/develop/connectivity/usb/host, https://docs.expo.dev/develop/development-builds/introduction/, https://developer.apple.com/documentation/externalaccessory/
+- GNSS field metadata: antenna calibration is referenced to an Antenna Reference Point, and antenna type/height plus reference-frame/epoch facts materially affect high-accuracy results.
+  Sources: https://www.ngs.noaa.gov/research/gnss-satellite/gnss-antenna-calibration.shtml, https://www.ngs.noaa.gov/OPUS/about.jsp
 
 ## MVP Implemented Here
 
@@ -33,6 +37,9 @@
 - Aerial imagery preferences now separate offline local package selection from session-only live imagery preview. NAIP-style package provenance is stored as metadata; large tile binaries are imported map packages rather than canonical project geometry.
 - The project files UI reports the active persistence backend, runtime, schema version, and project count so compile-ready native code is not confused with device-verified runtime behavior.
 - The SVG drawing workspace supports draft vertex capture while keeping pan/zoom as viewport-only state.
+- The GNSS package now assembles strict checksum-valid, coherent GGA/GST/RMC epochs; uses monotonic reception time for stale-data gating; requires explicit `EPSG:4326` source confirmation; and projects only accepted observations into canonical project-CRS `XY`.
+- Survey, boundary, obstacle, and map-feature capture can retain `gnss-capture-v1` provenance through project validation and ZIP round trips. Referenced observations remain immutable evidence when the promoted infrastructure geometry later moves.
+- Desktop Web Serial implements the shared GNSS transport for commissioning and browser testing. It is not Android/iOS or physical-receiver proof.
 
 ## Deferred Work
 
@@ -44,7 +51,7 @@
 - iOS native SQLite/FileSystem/Sharing runtime acceptance; current Android schema-v11 SQLite plus ZIP share/picker proof requires a newly completed report, while the completed 2026-06-03 and 2026-06-05 Android reports remain historical schema-v8/schema-v10 evidence.
 - Full geometry editor commit/undo flows from draft vertices into project field and obstacle entities.
 - R-tree/FTS/SQLCipher configuration gates after target platform builds are established.
-- Live GNSS receiver transports and RTK correction workflows.
+- Physical receiver commissioning, Android USB/Bluetooth, iOS BLE/MFi, RTCM/NTRIP correction delivery, antenna/reference-frame capture UI, repeated control occupations, and field-accuracy reports. See `docs/rtk-gnss-integration-plan.md`.
 
 ## Current Native/Web Split
 

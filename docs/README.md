@@ -14,6 +14,12 @@ CPLayout is an offline-first, no-cost center-pivot planning app. Canonical proje
 - Governance, hooks, skills, managed policy: `docs/agent-prompt-registry.md`, `docs/agent-source-ledger.md`, `docs/agent-known-gaps.md`, `docs/codex-managed-hook-deployment.md`.
 - Local UI testing server launcher and Windows Desktop shortcut: `docs/local-ui-testing-server-launch.md`.
 - Storage, archives, native proof: `docs/android-native-verification.md`, `packages/project-store/src/index.ts`, `packages/project-store/src/projectArchive.ts`, `packages/project-store/src/projectRepository.native.ts`.
+- RTK/GNSS hardware, corrections, capture provenance, and field proof: `docs/rtk-gnss-integration-plan.md`, `docs/gnss-runtime-verification-report-template.json`, `packages/gnss/src/index.ts`, `tools/roadmapCompletion.ts`.
+- Derived GNSS 3D evidence contracts and physical/native acceptance blockers: [gnss-derived-evidence-contract.md](gnss-derived-evidence-contract.md).
+- Direct package inventory, current alignment, advisories, and upgrade gates: `docs/dependency-upgrade-plan.md`.
+- Shared mapping controller, renderer boundaries, and regression coverage: [mapping-refactor-plan.md](mapping-refactor-plan.md).
+- Agricultural mapping/RTK quality review, comparison criteria, and improvement packets: [mapping-rtk-quality-program.md](mapping-rtk-quality-program.md).
+- GitHub parent migration, authorization, recovery, and publication state: [github-migration-plan.md](github-migration-plan.md).
 - Imagery, KML/KMZ, Google Earth, ML/CV: `docs/kml-kmz-google-earth-source-ledger.md`, `packages/core/src/imageryEvidence.ts`, `docs/imagery-ml-capability-roadmap.md`.
 - Interface and visible web/native proof: `apps/mobile/App.tsx`, `packages/map-adapters/src/SvgMapSurface.tsx`, `docs/android-native-verification.md`.
 - Pivot, corner-arm, and irrigation design evidence: `docs/design-guides/topic-index.md`, `docs/corner-service-manuals/topic-index.md`, `packages/geometry/src/index.ts`.

@@ -1,0 +1,1883 @@
+{
+  "schemaVersion": 1,
+  "syntheticOnly": true,
+  "physicalAccuracyClaim": false,
+  "source": {
+    "repositoryRelativePath": "reports/continuous-improvement/coordinate-review-20260913/proj-oracle.json",
+    "sha256": "9d2acfa4716fee06175eb5a60ca32d8ded418c50bf15e082533efaaf2240a02b",
+    "createdAt": "2026-09-13T13:34:24.244Z",
+    "expectedValues": "records[].proj",
+    "derivation": "Selected crs, input, and proj fields verbatim as JSON values. No candidate output or error metrics retained; no expected coordinates recomputed."
+  },
+  "tool": {
+    "name": "PROJ",
+    "version": "9.4.0",
+    "versionBanner": "Rel. 9.4.0, March 1st, 2024"
+  },
+  "network": "OFF",
+  "cli": {
+    "inputAxisOrder": [
+      "latitude",
+      "longitude"
+    ],
+    "flags": [
+      "--no-ballpark",
+      "--only-best=yes",
+      "-f %.9f"
+    ],
+    "executable": null,
+    "completeCommand": null,
+    "evidenceLimit": "The source snapshot records the input axis order and flags, but not the executable name or complete command."
+  },
+  "count": 168,
+  "records": [
+    {
+      "crs": "EPSG:32701",
+      "input": {
+        "latitude": -55,
+        "longitude": -179.8
+      },
+      "proj": {
+        "x": 320912.468468833,
+        "y": 3901622.837028747
+      }
+    },
+    {
+      "crs": "EPSG:32701",
+      "input": {
+        "latitude": -55,
+        "longitude": -177
+      },
+      "proj": {
+        "x": 500000,
+        "y": 3905208.579001066
+      }
+    },
+    {
+      "crs": "EPSG:32701",
+      "input": {
+        "latitude": -55,
+        "longitude": -174.2
+      },
+      "proj": {
+        "x": 679087.531531167,
+        "y": 3901622.837028747
+      }
+    },
+    {
+      "crs": "EPSG:32701",
+      "input": {
+        "latitude": -30,
+        "longitude": -179.8
+      },
+      "proj": {
+        "x": 229892.333913933,
+        "y": 6677912.999381758
+      }
+    },
+    {
+      "crs": "EPSG:32701",
+      "input": {
+        "latitude": -30,
+        "longitude": -177
+      },
+      "proj": {
+        "x": 500000,
+        "y": 6681214.647418793
+      }
+    },
+    {
+      "crs": "EPSG:32701",
+      "input": {
+        "latitude": -30,
+        "longitude": -174.2
+      },
+      "proj": {
+        "x": 770107.666086067,
+        "y": 6677912.999381758
+      }
+    },
+    {
+      "crs": "EPSG:32701",
+      "input": {
+        "latitude": -1,
+        "longitude": -179.8
+      },
+      "proj": {
+        "x": 188352.408148859,
+        "y": 9889336.860694252
+      }
+    },
+    {
+      "crs": "EPSG:32701",
+      "input": {
+        "latitude": -1,
+        "longitude": -177
+      },
+      "proj": {
+        "x": 500000,
+        "y": 9889469.841197625
+      }
+    },
+    {
+      "crs": "EPSG:32701",
+      "input": {
+        "latitude": -1,
+        "longitude": -174.2
+      },
+      "proj": {
+        "x": 811647.591851141,
+        "y": 9889336.860694252
+      }
+    },
+    {
+      "crs": "EPSG:32601",
+      "input": {
+        "latitude": 0,
+        "longitude": -179.8
+      },
+      "proj": {
+        "x": 188305.177071543,
+        "y": 0
+      }
+    },
+    {
+      "crs": "EPSG:32601",
+      "input": {
+        "latitude": 0,
+        "longitude": -177
+      },
+      "proj": {
+        "x": 500000,
+        "y": 0
+      }
+    },
+    {
+      "crs": "EPSG:32601",
+      "input": {
+        "latitude": 0,
+        "longitude": -174.2
+      },
+      "proj": {
+        "x": 811694.822928457,
+        "y": 0
+      }
+    },
+    {
+      "crs": "EPSG:32601",
+      "input": {
+        "latitude": 15,
+        "longitude": -179.8
+      },
+      "proj": {
+        "x": 198874.574130994,
+        "y": 1660231.456307313
+      }
+    },
+    {
+      "crs": "EPSG:32601",
+      "input": {
+        "latitude": 15,
+        "longitude": -177
+      },
+      "proj": {
+        "x": 500000,
+        "y": 1658325.993564785
+      }
+    },
+    {
+      "crs": "EPSG:32601",
+      "input": {
+        "latitude": 15,
+        "longitude": -174.2
+      },
+      "proj": {
+        "x": 801125.425869006,
+        "y": 1660231.456307313
+      }
+    },
+    {
+      "crs": "EPSG:32601",
+      "input": {
+        "latitude": 40,
+        "longitude": -179.8
+      },
+      "proj": {
+        "x": 260976.129725698,
+        "y": 4431513.027758238
+      }
+    },
+    {
+      "crs": "EPSG:32601",
+      "input": {
+        "latitude": 40,
+        "longitude": -177
+      },
+      "proj": {
+        "x": 500000,
+        "y": 4427757.218738374
+      }
+    },
+    {
+      "crs": "EPSG:32601",
+      "input": {
+        "latitude": 40,
+        "longitude": -174.2
+      },
+      "proj": {
+        "x": 739023.870274302,
+        "y": 4431513.027758238
+      }
+    },
+    {
+      "crs": "EPSG:32601",
+      "input": {
+        "latitude": 70,
+        "longitude": -179.8
+      },
+      "proj": {
+        "x": 393153.043369956,
+        "y": 7768327.053755502
+      }
+    },
+    {
+      "crs": "EPSG:32601",
+      "input": {
+        "latitude": 70,
+        "longitude": -177
+      },
+      "proj": {
+        "x": 500000,
+        "y": 7765873.135479086
+      }
+    },
+    {
+      "crs": "EPSG:32601",
+      "input": {
+        "latitude": 70,
+        "longitude": -174.2
+      },
+      "proj": {
+        "x": 606846.956630044,
+        "y": 7768327.053755502
+      }
+    },
+    {
+      "crs": "EPSG:32601",
+      "input": {
+        "latitude": 83,
+        "longitude": -179.8
+      },
+      "proj": {
+        "x": 461918.062676396,
+        "y": 9217382.789706107
+      }
+    },
+    {
+      "crs": "EPSG:32601",
+      "input": {
+        "latitude": 83,
+        "longitude": -177
+      },
+      "proj": {
+        "x": 500000,
+        "y": 9216459.019058235
+      }
+    },
+    {
+      "crs": "EPSG:32601",
+      "input": {
+        "latitude": 83,
+        "longitude": -174.2
+      },
+      "proj": {
+        "x": 538081.937323604,
+        "y": 9217382.789706107
+      }
+    },
+    {
+      "crs": "EPSG:32710",
+      "input": {
+        "latitude": -55,
+        "longitude": -125.8
+      },
+      "proj": {
+        "x": 320912.468468833,
+        "y": 3901622.837028747
+      }
+    },
+    {
+      "crs": "EPSG:32710",
+      "input": {
+        "latitude": -55,
+        "longitude": -123
+      },
+      "proj": {
+        "x": 500000,
+        "y": 3905208.579001066
+      }
+    },
+    {
+      "crs": "EPSG:32710",
+      "input": {
+        "latitude": -55,
+        "longitude": -120.2
+      },
+      "proj": {
+        "x": 679087.531531167,
+        "y": 3901622.837028747
+      }
+    },
+    {
+      "crs": "EPSG:32710",
+      "input": {
+        "latitude": -30,
+        "longitude": -125.8
+      },
+      "proj": {
+        "x": 229892.333913933,
+        "y": 6677912.999381758
+      }
+    },
+    {
+      "crs": "EPSG:32710",
+      "input": {
+        "latitude": -30,
+        "longitude": -123
+      },
+      "proj": {
+        "x": 500000,
+        "y": 6681214.647418793
+      }
+    },
+    {
+      "crs": "EPSG:32710",
+      "input": {
+        "latitude": -30,
+        "longitude": -120.2
+      },
+      "proj": {
+        "x": 770107.666086067,
+        "y": 6677912.999381758
+      }
+    },
+    {
+      "crs": "EPSG:32710",
+      "input": {
+        "latitude": -1,
+        "longitude": -125.8
+      },
+      "proj": {
+        "x": 188352.408148859,
+        "y": 9889336.860694252
+      }
+    },
+    {
+      "crs": "EPSG:32710",
+      "input": {
+        "latitude": -1,
+        "longitude": -123
+      },
+      "proj": {
+        "x": 500000,
+        "y": 9889469.841197625
+      }
+    },
+    {
+      "crs": "EPSG:32710",
+      "input": {
+        "latitude": -1,
+        "longitude": -120.2
+      },
+      "proj": {
+        "x": 811647.591851141,
+        "y": 9889336.860694252
+      }
+    },
+    {
+      "crs": "EPSG:32610",
+      "input": {
+        "latitude": 0,
+        "longitude": -125.8
+      },
+      "proj": {
+        "x": 188305.177071543,
+        "y": 0
+      }
+    },
+    {
+      "crs": "EPSG:32610",
+      "input": {
+        "latitude": 0,
+        "longitude": -123
+      },
+      "proj": {
+        "x": 500000,
+        "y": 0
+      }
+    },
+    {
+      "crs": "EPSG:32610",
+      "input": {
+        "latitude": 0,
+        "longitude": -120.2
+      },
+      "proj": {
+        "x": 811694.822928457,
+        "y": 0
+      }
+    },
+    {
+      "crs": "EPSG:32610",
+      "input": {
+        "latitude": 15,
+        "longitude": -125.8
+      },
+      "proj": {
+        "x": 198874.574130994,
+        "y": 1660231.456307313
+      }
+    },
+    {
+      "crs": "EPSG:32610",
+      "input": {
+        "latitude": 15,
+        "longitude": -123
+      },
+      "proj": {
+        "x": 500000,
+        "y": 1658325.993564785
+      }
+    },
+    {
+      "crs": "EPSG:32610",
+      "input": {
+        "latitude": 15,
+        "longitude": -120.2
+      },
+      "proj": {
+        "x": 801125.425869006,
+        "y": 1660231.456307313
+      }
+    },
+    {
+      "crs": "EPSG:32610",
+      "input": {
+        "latitude": 40,
+        "longitude": -125.8
+      },
+      "proj": {
+        "x": 260976.129725698,
+        "y": 4431513.027758238
+      }
+    },
+    {
+      "crs": "EPSG:32610",
+      "input": {
+        "latitude": 40,
+        "longitude": -123
+      },
+      "proj": {
+        "x": 500000,
+        "y": 4427757.218738374
+      }
+    },
+    {
+      "crs": "EPSG:32610",
+      "input": {
+        "latitude": 40,
+        "longitude": -120.2
+      },
+      "proj": {
+        "x": 739023.870274302,
+        "y": 4431513.027758238
+      }
+    },
+    {
+      "crs": "EPSG:32610",
+      "input": {
+        "latitude": 70,
+        "longitude": -125.8
+      },
+      "proj": {
+        "x": 393153.043369956,
+        "y": 7768327.053755502
+      }
+    },
+    {
+      "crs": "EPSG:32610",
+      "input": {
+        "latitude": 70,
+        "longitude": -123
+      },
+      "proj": {
+        "x": 500000,
+        "y": 7765873.135479086
+      }
+    },
+    {
+      "crs": "EPSG:32610",
+      "input": {
+        "latitude": 70,
+        "longitude": -120.2
+      },
+      "proj": {
+        "x": 606846.956630044,
+        "y": 7768327.053755502
+      }
+    },
+    {
+      "crs": "EPSG:32610",
+      "input": {
+        "latitude": 83,
+        "longitude": -125.8
+      },
+      "proj": {
+        "x": 461918.062676396,
+        "y": 9217382.789706107
+      }
+    },
+    {
+      "crs": "EPSG:32610",
+      "input": {
+        "latitude": 83,
+        "longitude": -123
+      },
+      "proj": {
+        "x": 500000,
+        "y": 9216459.019058235
+      }
+    },
+    {
+      "crs": "EPSG:32610",
+      "input": {
+        "latitude": 83,
+        "longitude": -120.2
+      },
+      "proj": {
+        "x": 538081.937323604,
+        "y": 9217382.789706107
+      }
+    },
+    {
+      "crs": "EPSG:32713",
+      "input": {
+        "latitude": -55,
+        "longitude": -107.8
+      },
+      "proj": {
+        "x": 320912.468468833,
+        "y": 3901622.837028747
+      }
+    },
+    {
+      "crs": "EPSG:32713",
+      "input": {
+        "latitude": -55,
+        "longitude": -105
+      },
+      "proj": {
+        "x": 499999.999999999,
+        "y": 3905208.579001066
+      }
+    },
+    {
+      "crs": "EPSG:32713",
+      "input": {
+        "latitude": -55,
+        "longitude": -102.2
+      },
+      "proj": {
+        "x": 679087.531531166,
+        "y": 3901622.837028747
+      }
+    },
+    {
+      "crs": "EPSG:32713",
+      "input": {
+        "latitude": -30,
+        "longitude": -107.8
+      },
+      "proj": {
+        "x": 229892.333913933,
+        "y": 6677912.999381758
+      }
+    },
+    {
+      "crs": "EPSG:32713",
+      "input": {
+        "latitude": -30,
+        "longitude": -105
+      },
+      "proj": {
+        "x": 499999.999999999,
+        "y": 6681214.647418793
+      }
+    },
+    {
+      "crs": "EPSG:32713",
+      "input": {
+        "latitude": -30,
+        "longitude": -102.2
+      },
+      "proj": {
+        "x": 770107.666086066,
+        "y": 6677912.999381758
+      }
+    },
+    {
+      "crs": "EPSG:32713",
+      "input": {
+        "latitude": -1,
+        "longitude": -107.8
+      },
+      "proj": {
+        "x": 188352.408148859,
+        "y": 9889336.860694252
+      }
+    },
+    {
+      "crs": "EPSG:32713",
+      "input": {
+        "latitude": -1,
+        "longitude": -105
+      },
+      "proj": {
+        "x": 499999.999999999,
+        "y": 9889469.841197625
+      }
+    },
+    {
+      "crs": "EPSG:32713",
+      "input": {
+        "latitude": -1,
+        "longitude": -102.2
+      },
+      "proj": {
+        "x": 811647.591851139,
+        "y": 9889336.860694252
+      }
+    },
+    {
+      "crs": "EPSG:32613",
+      "input": {
+        "latitude": 0,
+        "longitude": -107.8
+      },
+      "proj": {
+        "x": 188305.177071543,
+        "y": 0
+      }
+    },
+    {
+      "crs": "EPSG:32613",
+      "input": {
+        "latitude": 0,
+        "longitude": -105
+      },
+      "proj": {
+        "x": 499999.999999999,
+        "y": 0
+      }
+    },
+    {
+      "crs": "EPSG:32613",
+      "input": {
+        "latitude": 0,
+        "longitude": -102.2
+      },
+      "proj": {
+        "x": 811694.822928456,
+        "y": 0
+      }
+    },
+    {
+      "crs": "EPSG:32613",
+      "input": {
+        "latitude": 15,
+        "longitude": -107.8
+      },
+      "proj": {
+        "x": 198874.574130994,
+        "y": 1660231.456307313
+      }
+    },
+    {
+      "crs": "EPSG:32613",
+      "input": {
+        "latitude": 15,
+        "longitude": -105
+      },
+      "proj": {
+        "x": 499999.999999999,
+        "y": 1658325.993564785
+      }
+    },
+    {
+      "crs": "EPSG:32613",
+      "input": {
+        "latitude": 15,
+        "longitude": -102.2
+      },
+      "proj": {
+        "x": 801125.425869005,
+        "y": 1660231.456307313
+      }
+    },
+    {
+      "crs": "EPSG:32613",
+      "input": {
+        "latitude": 40,
+        "longitude": -107.8
+      },
+      "proj": {
+        "x": 260976.129725698,
+        "y": 4431513.027758238
+      }
+    },
+    {
+      "crs": "EPSG:32613",
+      "input": {
+        "latitude": 40,
+        "longitude": -105
+      },
+      "proj": {
+        "x": 499999.999999999,
+        "y": 4427757.218738374
+      }
+    },
+    {
+      "crs": "EPSG:32613",
+      "input": {
+        "latitude": 40,
+        "longitude": -102.2
+      },
+      "proj": {
+        "x": 739023.870274301,
+        "y": 4431513.027758238
+      }
+    },
+    {
+      "crs": "EPSG:32613",
+      "input": {
+        "latitude": 70,
+        "longitude": -107.8
+      },
+      "proj": {
+        "x": 393153.043369956,
+        "y": 7768327.053755502
+      }
+    },
+    {
+      "crs": "EPSG:32613",
+      "input": {
+        "latitude": 70,
+        "longitude": -105
+      },
+      "proj": {
+        "x": 500000,
+        "y": 7765873.135479086
+      }
+    },
+    {
+      "crs": "EPSG:32613",
+      "input": {
+        "latitude": 70,
+        "longitude": -102.2
+      },
+      "proj": {
+        "x": 606846.956630043,
+        "y": 7768327.053755502
+      }
+    },
+    {
+      "crs": "EPSG:32613",
+      "input": {
+        "latitude": 83,
+        "longitude": -107.8
+      },
+      "proj": {
+        "x": 461918.062676396,
+        "y": 9217382.789706107
+      }
+    },
+    {
+      "crs": "EPSG:32613",
+      "input": {
+        "latitude": 83,
+        "longitude": -105
+      },
+      "proj": {
+        "x": 500000,
+        "y": 9216459.019058235
+      }
+    },
+    {
+      "crs": "EPSG:32613",
+      "input": {
+        "latitude": 83,
+        "longitude": -102.2
+      },
+      "proj": {
+        "x": 538081.937323604,
+        "y": 9217382.789706107
+      }
+    },
+    {
+      "crs": "EPSG:32720",
+      "input": {
+        "latitude": -55,
+        "longitude": -65.8
+      },
+      "proj": {
+        "x": 320912.468468833,
+        "y": 3901622.837028747
+      }
+    },
+    {
+      "crs": "EPSG:32720",
+      "input": {
+        "latitude": -55,
+        "longitude": -63
+      },
+      "proj": {
+        "x": 500000,
+        "y": 3905208.579001066
+      }
+    },
+    {
+      "crs": "EPSG:32720",
+      "input": {
+        "latitude": -55,
+        "longitude": -60.2
+      },
+      "proj": {
+        "x": 679087.531531166,
+        "y": 3901622.837028747
+      }
+    },
+    {
+      "crs": "EPSG:32720",
+      "input": {
+        "latitude": -30,
+        "longitude": -65.8
+      },
+      "proj": {
+        "x": 229892.333913933,
+        "y": 6677912.999381758
+      }
+    },
+    {
+      "crs": "EPSG:32720",
+      "input": {
+        "latitude": -30,
+        "longitude": -63
+      },
+      "proj": {
+        "x": 500000,
+        "y": 6681214.647418793
+      }
+    },
+    {
+      "crs": "EPSG:32720",
+      "input": {
+        "latitude": -30,
+        "longitude": -60.2
+      },
+      "proj": {
+        "x": 770107.666086066,
+        "y": 6677912.999381758
+      }
+    },
+    {
+      "crs": "EPSG:32720",
+      "input": {
+        "latitude": -1,
+        "longitude": -65.8
+      },
+      "proj": {
+        "x": 188352.408148859,
+        "y": 9889336.860694252
+      }
+    },
+    {
+      "crs": "EPSG:32720",
+      "input": {
+        "latitude": -1,
+        "longitude": -63
+      },
+      "proj": {
+        "x": 500000,
+        "y": 9889469.841197625
+      }
+    },
+    {
+      "crs": "EPSG:32720",
+      "input": {
+        "latitude": -1,
+        "longitude": -60.2
+      },
+      "proj": {
+        "x": 811647.591851139,
+        "y": 9889336.860694252
+      }
+    },
+    {
+      "crs": "EPSG:32620",
+      "input": {
+        "latitude": 0,
+        "longitude": -65.8
+      },
+      "proj": {
+        "x": 188305.177071543,
+        "y": 0
+      }
+    },
+    {
+      "crs": "EPSG:32620",
+      "input": {
+        "latitude": 0,
+        "longitude": -63
+      },
+      "proj": {
+        "x": 500000,
+        "y": 0
+      }
+    },
+    {
+      "crs": "EPSG:32620",
+      "input": {
+        "latitude": 0,
+        "longitude": -60.2
+      },
+      "proj": {
+        "x": 811694.822928456,
+        "y": 0
+      }
+    },
+    {
+      "crs": "EPSG:32620",
+      "input": {
+        "latitude": 15,
+        "longitude": -65.8
+      },
+      "proj": {
+        "x": 198874.574130994,
+        "y": 1660231.456307313
+      }
+    },
+    {
+      "crs": "EPSG:32620",
+      "input": {
+        "latitude": 15,
+        "longitude": -63
+      },
+      "proj": {
+        "x": 500000,
+        "y": 1658325.993564785
+      }
+    },
+    {
+      "crs": "EPSG:32620",
+      "input": {
+        "latitude": 15,
+        "longitude": -60.2
+      },
+      "proj": {
+        "x": 801125.425869005,
+        "y": 1660231.456307313
+      }
+    },
+    {
+      "crs": "EPSG:32620",
+      "input": {
+        "latitude": 40,
+        "longitude": -65.8
+      },
+      "proj": {
+        "x": 260976.129725698,
+        "y": 4431513.027758238
+      }
+    },
+    {
+      "crs": "EPSG:32620",
+      "input": {
+        "latitude": 40,
+        "longitude": -63
+      },
+      "proj": {
+        "x": 500000,
+        "y": 4427757.218738374
+      }
+    },
+    {
+      "crs": "EPSG:32620",
+      "input": {
+        "latitude": 40,
+        "longitude": -60.2
+      },
+      "proj": {
+        "x": 739023.870274301,
+        "y": 4431513.027758238
+      }
+    },
+    {
+      "crs": "EPSG:32620",
+      "input": {
+        "latitude": 70,
+        "longitude": -65.8
+      },
+      "proj": {
+        "x": 393153.043369956,
+        "y": 7768327.053755502
+      }
+    },
+    {
+      "crs": "EPSG:32620",
+      "input": {
+        "latitude": 70,
+        "longitude": -63
+      },
+      "proj": {
+        "x": 500000,
+        "y": 7765873.135479086
+      }
+    },
+    {
+      "crs": "EPSG:32620",
+      "input": {
+        "latitude": 70,
+        "longitude": -60.2
+      },
+      "proj": {
+        "x": 606846.956630043,
+        "y": 7768327.053755502
+      }
+    },
+    {
+      "crs": "EPSG:32620",
+      "input": {
+        "latitude": 83,
+        "longitude": -65.8
+      },
+      "proj": {
+        "x": 461918.062676396,
+        "y": 9217382.789706107
+      }
+    },
+    {
+      "crs": "EPSG:32620",
+      "input": {
+        "latitude": 83,
+        "longitude": -63
+      },
+      "proj": {
+        "x": 500000,
+        "y": 9216459.019058235
+      }
+    },
+    {
+      "crs": "EPSG:32620",
+      "input": {
+        "latitude": 83,
+        "longitude": -60.2
+      },
+      "proj": {
+        "x": 538081.937323604,
+        "y": 9217382.789706107
+      }
+    },
+    {
+      "crs": "EPSG:32730",
+      "input": {
+        "latitude": -55,
+        "longitude": -5.8
+      },
+      "proj": {
+        "x": 320912.468468833,
+        "y": 3901622.837028747
+      }
+    },
+    {
+      "crs": "EPSG:32730",
+      "input": {
+        "latitude": -55,
+        "longitude": -3
+      },
+      "proj": {
+        "x": 499999.999999999,
+        "y": 3905208.579001066
+      }
+    },
+    {
+      "crs": "EPSG:32730",
+      "input": {
+        "latitude": -55,
+        "longitude": -0.20000000000000018
+      },
+      "proj": {
+        "x": 679087.531531166,
+        "y": 3901622.837028747
+      }
+    },
+    {
+      "crs": "EPSG:32730",
+      "input": {
+        "latitude": -30,
+        "longitude": -5.8
+      },
+      "proj": {
+        "x": 229892.333913932,
+        "y": 6677912.999381758
+      }
+    },
+    {
+      "crs": "EPSG:32730",
+      "input": {
+        "latitude": -30,
+        "longitude": -3
+      },
+      "proj": {
+        "x": 499999.999999999,
+        "y": 6681214.647418793
+      }
+    },
+    {
+      "crs": "EPSG:32730",
+      "input": {
+        "latitude": -30,
+        "longitude": -0.20000000000000018
+      },
+      "proj": {
+        "x": 770107.666086066,
+        "y": 6677912.999381758
+      }
+    },
+    {
+      "crs": "EPSG:32730",
+      "input": {
+        "latitude": -1,
+        "longitude": -5.8
+      },
+      "proj": {
+        "x": 188352.408148858,
+        "y": 9889336.860694252
+      }
+    },
+    {
+      "crs": "EPSG:32730",
+      "input": {
+        "latitude": -1,
+        "longitude": -3
+      },
+      "proj": {
+        "x": 499999.999999999,
+        "y": 9889469.841197625
+      }
+    },
+    {
+      "crs": "EPSG:32730",
+      "input": {
+        "latitude": -1,
+        "longitude": -0.20000000000000018
+      },
+      "proj": {
+        "x": 811647.591851139,
+        "y": 9889336.860694252
+      }
+    },
+    {
+      "crs": "EPSG:32630",
+      "input": {
+        "latitude": 0,
+        "longitude": -5.8
+      },
+      "proj": {
+        "x": 188305.177071542,
+        "y": 0
+      }
+    },
+    {
+      "crs": "EPSG:32630",
+      "input": {
+        "latitude": 0,
+        "longitude": -3
+      },
+      "proj": {
+        "x": 499999.999999999,
+        "y": 0
+      }
+    },
+    {
+      "crs": "EPSG:32630",
+      "input": {
+        "latitude": 0,
+        "longitude": -0.20000000000000018
+      },
+      "proj": {
+        "x": 811694.822928456,
+        "y": 0
+      }
+    },
+    {
+      "crs": "EPSG:32630",
+      "input": {
+        "latitude": 15,
+        "longitude": -5.8
+      },
+      "proj": {
+        "x": 198874.574130993,
+        "y": 1660231.456307313
+      }
+    },
+    {
+      "crs": "EPSG:32630",
+      "input": {
+        "latitude": 15,
+        "longitude": -3
+      },
+      "proj": {
+        "x": 499999.999999999,
+        "y": 1658325.993564785
+      }
+    },
+    {
+      "crs": "EPSG:32630",
+      "input": {
+        "latitude": 15,
+        "longitude": -0.20000000000000018
+      },
+      "proj": {
+        "x": 801125.425869005,
+        "y": 1660231.456307313
+      }
+    },
+    {
+      "crs": "EPSG:32630",
+      "input": {
+        "latitude": 40,
+        "longitude": -5.8
+      },
+      "proj": {
+        "x": 260976.129725697,
+        "y": 4431513.027758239
+      }
+    },
+    {
+      "crs": "EPSG:32630",
+      "input": {
+        "latitude": 40,
+        "longitude": -3
+      },
+      "proj": {
+        "x": 499999.999999999,
+        "y": 4427757.218738374
+      }
+    },
+    {
+      "crs": "EPSG:32630",
+      "input": {
+        "latitude": 40,
+        "longitude": -0.20000000000000018
+      },
+      "proj": {
+        "x": 739023.870274301,
+        "y": 4431513.027758238
+      }
+    },
+    {
+      "crs": "EPSG:32630",
+      "input": {
+        "latitude": 70,
+        "longitude": -5.8
+      },
+      "proj": {
+        "x": 393153.043369956,
+        "y": 7768327.053755502
+      }
+    },
+    {
+      "crs": "EPSG:32630",
+      "input": {
+        "latitude": 70,
+        "longitude": -3
+      },
+      "proj": {
+        "x": 500000,
+        "y": 7765873.135479086
+      }
+    },
+    {
+      "crs": "EPSG:32630",
+      "input": {
+        "latitude": 70,
+        "longitude": -0.20000000000000018
+      },
+      "proj": {
+        "x": 606846.956630043,
+        "y": 7768327.053755502
+      }
+    },
+    {
+      "crs": "EPSG:32630",
+      "input": {
+        "latitude": 83,
+        "longitude": -5.8
+      },
+      "proj": {
+        "x": 461918.062676396,
+        "y": 9217382.789706107
+      }
+    },
+    {
+      "crs": "EPSG:32630",
+      "input": {
+        "latitude": 83,
+        "longitude": -3
+      },
+      "proj": {
+        "x": 500000,
+        "y": 9216459.019058235
+      }
+    },
+    {
+      "crs": "EPSG:32630",
+      "input": {
+        "latitude": 83,
+        "longitude": -0.20000000000000018
+      },
+      "proj": {
+        "x": 538081.937323604,
+        "y": 9217382.789706107
+      }
+    },
+    {
+      "crs": "EPSG:32745",
+      "input": {
+        "latitude": -55,
+        "longitude": 84.2
+      },
+      "proj": {
+        "x": 320912.468468831,
+        "y": 3901622.837028747
+      }
+    },
+    {
+      "crs": "EPSG:32745",
+      "input": {
+        "latitude": -55,
+        "longitude": 87
+      },
+      "proj": {
+        "x": 499999.999999998,
+        "y": 3905208.579001066
+      }
+    },
+    {
+      "crs": "EPSG:32745",
+      "input": {
+        "latitude": -55,
+        "longitude": 89.8
+      },
+      "proj": {
+        "x": 679087.531531165,
+        "y": 3901622.837028747
+      }
+    },
+    {
+      "crs": "EPSG:32745",
+      "input": {
+        "latitude": -30,
+        "longitude": 84.2
+      },
+      "proj": {
+        "x": 229892.33391393,
+        "y": 6677912.999381758
+      }
+    },
+    {
+      "crs": "EPSG:32745",
+      "input": {
+        "latitude": -30,
+        "longitude": 87
+      },
+      "proj": {
+        "x": 499999.999999996,
+        "y": 6681214.647418793
+      }
+    },
+    {
+      "crs": "EPSG:32745",
+      "input": {
+        "latitude": -30,
+        "longitude": 89.8
+      },
+      "proj": {
+        "x": 770107.666086064,
+        "y": 6677912.999381758
+      }
+    },
+    {
+      "crs": "EPSG:32745",
+      "input": {
+        "latitude": -1,
+        "longitude": 84.2
+      },
+      "proj": {
+        "x": 188352.408148856,
+        "y": 9889336.860694252
+      }
+    },
+    {
+      "crs": "EPSG:32745",
+      "input": {
+        "latitude": -1,
+        "longitude": 87
+      },
+      "proj": {
+        "x": 499999.999999996,
+        "y": 9889469.841197625
+      }
+    },
+    {
+      "crs": "EPSG:32745",
+      "input": {
+        "latitude": -1,
+        "longitude": 89.8
+      },
+      "proj": {
+        "x": 811647.591851137,
+        "y": 9889336.860694252
+      }
+    },
+    {
+      "crs": "EPSG:32645",
+      "input": {
+        "latitude": 0,
+        "longitude": 84.2
+      },
+      "proj": {
+        "x": 188305.17707154,
+        "y": 0
+      }
+    },
+    {
+      "crs": "EPSG:32645",
+      "input": {
+        "latitude": 0,
+        "longitude": 87
+      },
+      "proj": {
+        "x": 499999.999999996,
+        "y": 0
+      }
+    },
+    {
+      "crs": "EPSG:32645",
+      "input": {
+        "latitude": 0,
+        "longitude": 89.8
+      },
+      "proj": {
+        "x": 811694.822928453,
+        "y": 0
+      }
+    },
+    {
+      "crs": "EPSG:32645",
+      "input": {
+        "latitude": 15,
+        "longitude": 84.2
+      },
+      "proj": {
+        "x": 198874.574130991,
+        "y": 1660231.456307313
+      }
+    },
+    {
+      "crs": "EPSG:32645",
+      "input": {
+        "latitude": 15,
+        "longitude": 87
+      },
+      "proj": {
+        "x": 499999.999999996,
+        "y": 1658325.993564785
+      }
+    },
+    {
+      "crs": "EPSG:32645",
+      "input": {
+        "latitude": 15,
+        "longitude": 89.8
+      },
+      "proj": {
+        "x": 801125.425869002,
+        "y": 1660231.456307313
+      }
+    },
+    {
+      "crs": "EPSG:32645",
+      "input": {
+        "latitude": 40,
+        "longitude": 84.2
+      },
+      "proj": {
+        "x": 260976.129725695,
+        "y": 4431513.027758239
+      }
+    },
+    {
+      "crs": "EPSG:32645",
+      "input": {
+        "latitude": 40,
+        "longitude": 87
+      },
+      "proj": {
+        "x": 499999.999999997,
+        "y": 4427757.218738374
+      }
+    },
+    {
+      "crs": "EPSG:32645",
+      "input": {
+        "latitude": 40,
+        "longitude": 89.8
+      },
+      "proj": {
+        "x": 739023.870274299,
+        "y": 4431513.027758238
+      }
+    },
+    {
+      "crs": "EPSG:32645",
+      "input": {
+        "latitude": 70,
+        "longitude": 84.2
+      },
+      "proj": {
+        "x": 393153.043369955,
+        "y": 7768327.053755502
+      }
+    },
+    {
+      "crs": "EPSG:32645",
+      "input": {
+        "latitude": 70,
+        "longitude": 87
+      },
+      "proj": {
+        "x": 499999.999999999,
+        "y": 7765873.135479086
+      }
+    },
+    {
+      "crs": "EPSG:32645",
+      "input": {
+        "latitude": 70,
+        "longitude": 89.8
+      },
+      "proj": {
+        "x": 606846.956630042,
+        "y": 7768327.053755502
+      }
+    },
+    {
+      "crs": "EPSG:32645",
+      "input": {
+        "latitude": 83,
+        "longitude": 84.2
+      },
+      "proj": {
+        "x": 461918.062676396,
+        "y": 9217382.789706107
+      }
+    },
+    {
+      "crs": "EPSG:32645",
+      "input": {
+        "latitude": 83,
+        "longitude": 87
+      },
+      "proj": {
+        "x": 499999.999999999,
+        "y": 9216459.019058235
+      }
+    },
+    {
+      "crs": "EPSG:32645",
+      "input": {
+        "latitude": 83,
+        "longitude": 89.8
+      },
+      "proj": {
+        "x": 538081.937323603,
+        "y": 9217382.789706107
+      }
+    },
+    {
+      "crs": "EPSG:32760",
+      "input": {
+        "latitude": -55,
+        "longitude": 174.2
+      },
+      "proj": {
+        "x": 320912.468468835,
+        "y": 3901622.837028747
+      }
+    },
+    {
+      "crs": "EPSG:32760",
+      "input": {
+        "latitude": -55,
+        "longitude": 177
+      },
+      "proj": {
+        "x": 500000.000000002,
+        "y": 3905208.579001066
+      }
+    },
+    {
+      "crs": "EPSG:32760",
+      "input": {
+        "latitude": -55,
+        "longitude": 179.8
+      },
+      "proj": {
+        "x": 679087.531531169,
+        "y": 3901622.837028747
+      }
+    },
+    {
+      "crs": "EPSG:32760",
+      "input": {
+        "latitude": -30,
+        "longitude": 174.2
+      },
+      "proj": {
+        "x": 229892.333913935,
+        "y": 6677912.999381758
+      }
+    },
+    {
+      "crs": "EPSG:32760",
+      "input": {
+        "latitude": -30,
+        "longitude": 177
+      },
+      "proj": {
+        "x": 500000.000000002,
+        "y": 6681214.647418793
+      }
+    },
+    {
+      "crs": "EPSG:32760",
+      "input": {
+        "latitude": -30,
+        "longitude": 179.8
+      },
+      "proj": {
+        "x": 770107.66608607,
+        "y": 6677912.999381758
+      }
+    },
+    {
+      "crs": "EPSG:32760",
+      "input": {
+        "latitude": -1,
+        "longitude": 174.2
+      },
+      "proj": {
+        "x": 188352.408148862,
+        "y": 9889336.860694252
+      }
+    },
+    {
+      "crs": "EPSG:32760",
+      "input": {
+        "latitude": -1,
+        "longitude": 177
+      },
+      "proj": {
+        "x": 500000.000000003,
+        "y": 9889469.841197625
+      }
+    },
+    {
+      "crs": "EPSG:32760",
+      "input": {
+        "latitude": -1,
+        "longitude": 179.8
+      },
+      "proj": {
+        "x": 811647.591851144,
+        "y": 9889336.860694252
+      }
+    },
+    {
+      "crs": "EPSG:32660",
+      "input": {
+        "latitude": 0,
+        "longitude": 174.2
+      },
+      "proj": {
+        "x": 188305.177071546,
+        "y": 0
+      }
+    },
+    {
+      "crs": "EPSG:32660",
+      "input": {
+        "latitude": 0,
+        "longitude": 177
+      },
+      "proj": {
+        "x": 500000.000000003,
+        "y": 0
+      }
+    },
+    {
+      "crs": "EPSG:32660",
+      "input": {
+        "latitude": 0,
+        "longitude": 179.8
+      },
+      "proj": {
+        "x": 811694.82292846,
+        "y": 0
+      }
+    },
+    {
+      "crs": "EPSG:32660",
+      "input": {
+        "latitude": 15,
+        "longitude": 174.2
+      },
+      "proj": {
+        "x": 198874.574130997,
+        "y": 1660231.456307313
+      }
+    },
+    {
+      "crs": "EPSG:32660",
+      "input": {
+        "latitude": 15,
+        "longitude": 177
+      },
+      "proj": {
+        "x": 500000.000000003,
+        "y": 1658325.993564785
+      }
+    },
+    {
+      "crs": "EPSG:32660",
+      "input": {
+        "latitude": 15,
+        "longitude": 179.8
+      },
+      "proj": {
+        "x": 801125.425869009,
+        "y": 1660231.456307313
+      }
+    },
+    {
+      "crs": "EPSG:32660",
+      "input": {
+        "latitude": 40,
+        "longitude": 174.2
+      },
+      "proj": {
+        "x": 260976.1297257,
+        "y": 4431513.027758238
+      }
+    },
+    {
+      "crs": "EPSG:32660",
+      "input": {
+        "latitude": 40,
+        "longitude": 177
+      },
+      "proj": {
+        "x": 500000.000000002,
+        "y": 4427757.218738374
+      }
+    },
+    {
+      "crs": "EPSG:32660",
+      "input": {
+        "latitude": 40,
+        "longitude": 179.8
+      },
+      "proj": {
+        "x": 739023.870274305,
+        "y": 4431513.027758239
+      }
+    },
+    {
+      "crs": "EPSG:32660",
+      "input": {
+        "latitude": 70,
+        "longitude": 174.2
+      },
+      "proj": {
+        "x": 393153.043369957,
+        "y": 7768327.053755502
+      }
+    },
+    {
+      "crs": "EPSG:32660",
+      "input": {
+        "latitude": 70,
+        "longitude": 177
+      },
+      "proj": {
+        "x": 500000.000000001,
+        "y": 7765873.135479086
+      }
+    },
+    {
+      "crs": "EPSG:32660",
+      "input": {
+        "latitude": 70,
+        "longitude": 179.8
+      },
+      "proj": {
+        "x": 606846.956630045,
+        "y": 7768327.053755502
+      }
+    },
+    {
+      "crs": "EPSG:32660",
+      "input": {
+        "latitude": 83,
+        "longitude": 174.2
+      },
+      "proj": {
+        "x": 461918.062676396,
+        "y": 9217382.789706107
+      }
+    },
+    {
+      "crs": "EPSG:32660",
+      "input": {
+        "latitude": 83,
+        "longitude": 177
+      },
+      "proj": {
+        "x": 500000,
+        "y": 9216459.019058235
+      }
+    },
+    {
+      "crs": "EPSG:32660",
+      "input": {
+        "latitude": 83,
+        "longitude": 179.8
+      },
+      "proj": {
+        "x": 538081.937323604,
+        "y": 9217382.789706107
+      }
+    }
+  ]
+}

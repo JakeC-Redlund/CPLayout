@@ -92,6 +92,15 @@ state = reduceProjectEditorState(state, { type: "undo" });
 assert.deepEqual(state.project.fieldBoundary[0], boundary[0]);
 state = reduceProjectEditorState(state, { type: "redo" });
 assert.deepEqual(state.project.fieldBoundary[0], { x: 500990, y: 4505990 });
+state = reduceProjectEditorState(state, {
+  type: "insert_boundary_vertex",
+  afterVertexIndex: 0,
+  point: { x: 501095, y: 4505997.5 },
+});
+assert.equal(state.project.fieldBoundary.length, 5);
+assert.deepEqual(state.project.fieldBoundary[1], { x: 501095, y: 4505997.5 });
+state = reduceProjectEditorState(state, { type: "undo" });
+assert.equal(state.project.fieldBoundary.length, 4);
 
 state = reduceProjectEditorState(state, {
   type: "add_survey_point",
@@ -108,6 +117,7 @@ state = reduceProjectEditorState(state, {
 assert.equal(state.project.surveyPoints.some((point) => point.id === "survey-map-capture"), true);
 state = reduceProjectEditorState(state, { type: "promote_survey_point", id: "survey-map-capture", target: "water_source" });
 assert.deepEqual(state.project.waterSource, { x: 501060, y: 4506060 });
+assert.equal(state.project.infrastructureObservationRefs?.water_source, "survey-map-capture");
 state = reduceProjectEditorState(state, {
   type: "update_survey_point",
   point: {
@@ -120,8 +130,35 @@ state = reduceProjectEditorState(state, { type: "undo" });
 assert.equal(state.project.surveyPoints.find((point) => point.id === "survey-map-capture")?.label, "Map capture");
 state = reduceProjectEditorState(state, { type: "redo" });
 assert.equal(state.project.surveyPoints.find((point) => point.id === "survey-map-capture")?.label, "Updated map capture");
+const referencedSurveyDelete = reduceProjectEditorState(state, { type: "delete_survey_point", id: "survey-map-capture" });
+assert.equal(referencedSurveyDelete.lastError, "Survey point survey-map-capture is referenced by project infrastructure and cannot be deleted.");
+state = reduceProjectEditorState(state, { type: "move_infrastructure", pointType: "water_source", point: { x: 501061, y: 4506061 } });
+assert.equal(state.project.infrastructureObservationRefs?.water_source, undefined);
 state = reduceProjectEditorState(state, { type: "delete_survey_point", id: "survey-map-capture" });
 assert.equal(state.project.surveyPoints.some((point) => point.id === "survey-map-capture"), false);
+
+state = reduceProjectEditorState(state, {
+  type: "add_survey_point",
+  point: {
+    id: "immutable-pivot-observation",
+    label: "Observed pivot",
+    role: "pivot_center",
+    projected: { x: 501075, y: 4506075 },
+    observedAt: "2026-08-09T12:00:00.000Z",
+    source: "external_gnss",
+    confidence: "rtk_fixed",
+  },
+});
+state = reduceProjectEditorState(state, { type: "promote_survey_point", id: "immutable-pivot-observation", target: "pivot_center" });
+const immutablePivotObservation = state.project.surveyPoints.find((point) => point.id === "immutable-pivot-observation")!;
+state = reduceProjectEditorState(state, { type: "place_pivot", point: { x: 501080, y: 4506080 } });
+assert.deepEqual(state.project.surveyPoints.find((point) => point.id === "immutable-pivot-observation"), immutablePivotObservation);
+assert.equal(state.project.infrastructureObservationRefs?.pivot_center, undefined);
+const rewrittenObservation = reduceProjectEditorState(state, {
+  type: "update_survey_point",
+  point: { ...immutablePivotObservation, projected: { x: 501081, y: 4506081 } },
+});
+assert.equal(rewrittenObservation.lastError, "Survey observation coordinates, timing, source, quality, and capture evidence are immutable.");
 
 state = reduceProjectEditorState(state, {
   type: "add_map_feature",
@@ -172,27 +209,49 @@ assert.equal(invalidPlanningBoundaryState.lastError, "Planning Boundary map feat
 assert.equal(invalidPlanningBoundaryState.project, state.project);
 const beforeLineFeatureEditPivotCenter = state.project.pivotCenter;
 state = reduceProjectEditorState(state, {
+  type: "insert_map_feature_vertex",
+  featureId: "pipeline-a",
+  afterVertexIndex: 0,
+  point: { x: 501100, y: 4506000 },
+});
+const insertedPipelineGeometry = state.project.mapFeatures?.find((feature) => feature.id === "pipeline-a")?.geometry;
+assert.equal(insertedPipelineGeometry?.type, "LineString");
+if (insertedPipelineGeometry?.type === "LineString") {
+  assert.equal(insertedPipelineGeometry.vertices.length, 4);
+  assert.deepEqual(insertedPipelineGeometry.vertices[1], { x: 501100, y: 4506000 });
+}
+state = reduceProjectEditorState(state, {
   type: "move_map_feature_vertex",
   featureId: "pipeline-a",
-  vertexIndex: 1,
+  vertexIndex: 2,
   point: { x: 501225, y: 4506005 },
 });
 const movedPipelineGeometry = state.project.mapFeatures?.find((feature) => feature.id === "pipeline-a")?.geometry;
 assert.equal(movedPipelineGeometry?.type, "LineString");
 if (movedPipelineGeometry?.type === "LineString") {
-  assert.deepEqual(movedPipelineGeometry.vertices[1], { x: 501225, y: 4506005 });
+  assert.deepEqual(movedPipelineGeometry.vertices[2], { x: 501225, y: 4506005 });
 }
 assert.deepEqual(state.project.pivotCenter, beforeLineFeatureEditPivotCenter);
 assert.equal(state.project.wgs84Companion?.mapFeatures?.some((feature) => feature.id === "pipeline-a" && feature.geometry.type === "LineString"), true);
 state = reduceProjectEditorState(state, {
   type: "delete_map_feature_vertex",
   featureId: "pipeline-a",
-  vertexIndex: 2,
+  vertexIndex: 3,
 });
 const shortenedPipelineGeometry = state.project.mapFeatures?.find((feature) => feature.id === "pipeline-a")?.geometry;
 assert.equal(shortenedPipelineGeometry?.type, "LineString");
 if (shortenedPipelineGeometry?.type === "LineString") {
-  assert.equal(shortenedPipelineGeometry.vertices.length, 2);
+  assert.equal(shortenedPipelineGeometry.vertices.length, 3);
+}
+state = reduceProjectEditorState(state, {
+  type: "delete_map_feature_vertex",
+  featureId: "pipeline-a",
+  vertexIndex: 2,
+});
+const twoPointPipelineGeometry = state.project.mapFeatures?.find((feature) => feature.id === "pipeline-a")?.geometry;
+assert.equal(twoPointPipelineGeometry?.type, "LineString");
+if (twoPointPipelineGeometry?.type === "LineString") {
+  assert.equal(twoPointPipelineGeometry.vertices.length, 2);
 }
 const beforeInvalidLineFeatureDelete = state.project;
 const invalidLineFeatureDelete = reduceProjectEditorState(state, {
@@ -390,13 +449,23 @@ assert.equal(updatedMachineZoneUpsertState.project.mapFeatures?.find((feature) =
 
 const obstacleId = state.project.obstacles.at(-1)?.id ?? "";
 state = reduceProjectEditorState(state, {
+  type: "insert_obstacle_vertex",
+  obstacleId,
+  afterVertexIndex: 0,
+  point: { x: 501035, y: 4506017.5 },
+});
+assert.equal(state.project.obstacles.find((obstacle) => obstacle.id === obstacleId)?.polygon.length, 4);
+
+state = reduceProjectEditorState(state, {
   type: "move_obstacle_vertex",
   obstacleId,
-  vertexIndex: 1,
+  vertexIndex: 2,
   point: { x: 501050, y: 4506025 },
 });
-assert.deepEqual(state.project.obstacles.at(-1)?.polygon[1], { x: 501050, y: 4506025 });
+assert.deepEqual(state.project.obstacles.at(-1)?.polygon[2], { x: 501050, y: 4506025 });
 
+state = reduceProjectEditorState(state, { type: "delete_obstacle_vertex", obstacleId, vertexIndex: 1 });
+assert.equal(state.project.obstacles.at(-1)?.polygon.length, 3);
 state = reduceProjectEditorState(state, { type: "delete_obstacle_vertex", obstacleId, vertexIndex: 2 });
 assert.equal(state.lastError, "Obstacle needs at least three vertices before commit.");
 assert.equal(state.project.obstacles.at(-1)?.polygon.length, 3);

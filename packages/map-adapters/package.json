@@ -6,7 +6,7 @@
   "types": "src/index.ts",
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
-    "test": "tsx src/mapOverlayGeoJson.test.ts && tsx src/referenceOverlayStyle.test.ts && tsx src/browserMapInteraction.test.ts && tsx src/projectVertexEditing.test.ts && tsx src/mapTools.test.ts",
+    "test": "tsx src/mapOverlayGeoJson.test.ts && tsx src/referenceOverlayStyle.test.ts && tsx src/browserMapInteraction.test.ts && tsx src/projectVertexEditing.test.ts && tsx src/mapTools.test.ts && tsx src/mapInteractionController.test.ts",
     "validate": "npm run typecheck"
   },
   "dependencies": {
@@ -14,10 +14,10 @@
     "@cplayout/geometry": "*",
     "@maplibre/maplibre-react-native": "^11.2.1",
     "lucide-react-native": "1.16.0",
-    "maplibre-gl": "^5.24.0",
+    "maplibre-gl": "6.9.0",
     "pmtiles": "^4.4.1",
     "react": "19.2.0",
-    "react-native": "0.83.6",
+    "react-native": "0.83.10",
     "react-native-svg": "15.15.3"
   }
 }

@@ -66,6 +66,27 @@ export function selectedProjectVertexCanDelete(project: PivotProject, selected: 
   return false;
 }
 
+export function selectedProjectVertexCanInsert(project: PivotProject, selected: SelectedProjectVertex): boolean {
+  if (selected.layer === "field_boundary" || selected.layer === "obstacle") {
+    return selectedProjectVertexCount(project, selected) >= 3;
+  }
+  const feature = (project.mapFeatures ?? []).find((candidate) => candidate.id === selected.featureId);
+  if (!feature || feature.geometry.type === "Point" || feature.geometry.type === "Circle") return false;
+  if (feature.geometry.type === "Polygon") return feature.geometry.vertices.length >= 3;
+  return selected.vertexIndex >= 0 && selected.vertexIndex < feature.geometry.vertices.length - 1;
+}
+
+export function selectedProjectVertexInsertionPoint(project: PivotProject, selected: SelectedProjectVertex): XY | null {
+  if (!selectedProjectVertexCanInsert(project, selected)) return null;
+  const current = selectedProjectVertexPoint(project, selected);
+  if (!current) return null;
+  const count = selectedProjectVertexCount(project, selected);
+  const nextIndex = selected.vertexIndex + 1 < count ? selected.vertexIndex + 1 : 0;
+  const next = selectedProjectVertexPoint(project, { ...selected, vertexIndex: nextIndex });
+  if (!next) return null;
+  return { x: (current.x + next.x) / 2, y: (current.y + next.y) / 2 };
+}
+
 export function selectedProjectVertexIsMapFeatureCircleRadius(project: PivotProject, selected: SelectedProjectVertex): boolean {
   if (selected.layer !== "map_feature") return false;
   const feature = (project.mapFeatures ?? []).find((candidate) => candidate.id === selected.featureId);

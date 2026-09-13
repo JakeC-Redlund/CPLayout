@@ -12,9 +12,9 @@
   "dependencies": {
     "@cplayout/core": "*",
     "@cplayout/geometry": "*",
-    "expo-file-system": "~55.0.21",
-    "expo-sharing": "~55.0.19",
-    "expo-sqlite": "~55.0.16",
+    "expo-file-system": "~55.0.24",
+    "expo-sharing": "~55.0.22",
+    "expo-sqlite": "~55.0.18",
     "fflate": "^0.8.2",
     "zod": "4.4.3"
   }

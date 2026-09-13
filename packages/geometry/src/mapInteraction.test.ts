@@ -139,6 +139,58 @@ const draftTriangle = [
   { x: 100, y: 0 },
   { x: 100, y: 100 },
 ];
+const snapTolerances = { vertexSnapToleranceMeters: 1, featureSnapToleranceMeters: 3 };
+const phantomClosingEdgePoint = { x: 50, y: 50 };
+assert.equal(
+  snapPointToGeometry(phantomClosingEdgePoint, { lines: [draftTriangle] }, snapTolerances),
+  null,
+  "An open line must not snap to its last-to-first phantom segment.",
+);
+assert.deepEqual(
+  snapPointToGeometry({ x: 50, y: 2 }, { lines: [draftTriangle] }, snapTolerances),
+  { kind: "feature", point: { x: 50, y: 0 }, distanceMeters: 2 },
+);
+assert.deepEqual(
+  snapPointToGeometry({ x: 98, y: 50 }, { lines: [draftTriangle] }, snapTolerances),
+  { kind: "feature", point: { x: 100, y: 50 }, distanceMeters: 2 },
+);
+assert.deepEqual(
+  snapPointToGeometry({ x: 100.5, y: 100 }, { lines: [draftTriangle] }, snapTolerances),
+  { kind: "vertex", point: draftTriangle[2], distanceMeters: 0.5 },
+);
+assert.deepEqual(
+  snapPointToGeometry(phantomClosingEdgePoint, { rings: [draftTriangle] }, snapTolerances),
+  { kind: "feature", point: phantomClosingEdgePoint, distanceMeters: 0 },
+  "A closed polygon must retain its last-to-first edge.",
+);
+
+let unfinishedDraft = reduceDrawingMapState(state, { type: "set_mode", mode: "draw_boundary" });
+for (const vertex of draftTriangle) {
+  unfinishedDraft = reduceDrawingMapState(unfinishedDraft, { type: "add_draft_vertex", vertex });
+}
+assert.equal(
+  snapPointToGeometry(phantomClosingEdgePoint, { lines: [unfinishedDraft.draftVertices] }, snapTolerances),
+  null,
+  "Three draft vertices do not implicitly close a boundary under capture.",
+);
+assert.deepEqual(
+  snapPointToGeometry(
+    { x: 50, y: 2 },
+    { rings: [[{ x: 0, y: 4 }, { x: 100, y: 4 }, { x: 100, y: 100 }]], lines: [[{ x: 0, y: 1 }, { x: 100, y: 1 }]] },
+    snapTolerances,
+  ),
+  { kind: "feature", point: { x: 50, y: 1 }, distanceMeters: 1 },
+  "Open segments compete with closed edges for the nearest feature snap.",
+);
+assert.equal(
+  snapPointToGeometry({ x: 2, y: 0 }, { lines: [[], [{ x: 0, y: 0 }]] }, snapTolerances),
+  null,
+  "Empty and single-vertex drafts have no feature segments.",
+);
+assert.deepEqual(
+  snapPointToGeometry({ x: 0.5, y: 0 }, { lines: [[{ x: 0, y: 0 }]] }, snapTolerances),
+  { kind: "vertex", point: { x: 0, y: 0 }, distanceMeters: 0.5 },
+);
 const closeByFirstPointSnap = resolveDraftVertexIntent({
   currentVertices: draftTriangle,
   mode: "draw_boundary",

@@ -12,6 +12,7 @@
     ],
     "cplayout_gis_geometry_guardian": [
       "workspace_preflight",
+      "rtk_gnss_hardware",
       "gis_geometry_guardrails"
     ],
     "cplayout_imagery_mapper": [
@@ -21,7 +22,8 @@
     ],
     "cplayout_interface_developer": [
       "workspace_preflight",
-      "interface_ui"
+      "interface_ui",
+      "rtk_gnss_hardware"
     ],
     "cplayout_kb_curator": [
       "workspace_preflight",
@@ -34,6 +36,7 @@
     ],
     "cplayout_runtime_proof_gatekeeper": [
       "workspace_preflight",
+      "rtk_gnss_hardware",
       "runtime_proof_gates"
     ]
   },
@@ -75,7 +78,8 @@
       ],
       "secondaryPaths": [
         ".agents/skills/cplayout-workspace-preflight/SKILL.md",
-        "docs/agent-known-gaps.md"
+        "docs/agent-known-gaps.md",
+        "docs/dependency-upgrade-plan.md"
       ],
       "tokenBudget": 650,
       "triggerTerms": [
@@ -184,6 +188,61 @@
         "machine overlay",
         "screen",
         "Playwright"
+      ],
+      "validationCommandIds": [
+        "validate_product",
+        "proof_web",
+        "validate_skills",
+        "diff_check",
+        "audit"
+      ]
+    },
+    {
+      "agentIds": [
+        "cplayout_interface_developer",
+        "cplayout_gis_geometry_guardian",
+        "cplayout_runtime_proof_gatekeeper"
+      ],
+      "expectedOutput": "Transport/data-flow scope, CRS authority, receiver/correction/antenna unknowns, hardware proof gates, and explicit non-claims.",
+      "hardVetoIds": [
+        "no_paid_or_keyed_services",
+        "preserve_projected_xy",
+        "no_runtime_proof_without_evidence"
+      ],
+      "id": "rtk_gnss_hardware",
+      "purpose": "Route RTK/GNSS receiver, NMEA epoch, correction, antenna, native transport, capture provenance, and field-proof work.",
+      "readFirstPaths": [
+        "docs/rtk-gnss-integration-plan.md",
+        "packages/gnss/src/nmea.ts",
+        "packages/gnss/src/transport.ts",
+        "packages/core/src/types.ts",
+        "apps/mobile/src/gnss/webSerialTransport.ts"
+      ],
+      "routeIds": [
+        "cplayout_interface_developer",
+        "cplayout_gis_geometry_guardian",
+        "cplayout_runtime_proof_gatekeeper"
+      ],
+      "secondaryPaths": [
+        "packages/core/src/projectReducer.ts",
+        "apps/mobile/src/components/BrowserRtkReceiverPanel.tsx",
+        "docs/android-native-verification.md",
+        "docs/agent-known-gaps.md",
+        "tools/roadmapCompletion.ts"
+      ],
+      "tokenBudget": 1100,
+      "triggerTerms": [
+        "RTK receiver",
+        "GNSS hardware",
+        "Web Serial",
+        "NMEA epoch",
+        "NTRIP corrections",
+        "RTCM corrections",
+        "Android USB GNSS",
+        "antenna reference point",
+        "coordinate epoch",
+        "GNSS field report",
+        "RTK field proof"
       ],
       "validationCommandIds": [
         "validate_product",
@@ -694,6 +753,7 @@
     ],
     "cplayout_gis_geometry_guardian": [
       "workspace_preflight",
+      "rtk_gnss_hardware",
       "gis_geometry_guardrails"
     ],
     "cplayout_imagery_mapper": [
@@ -703,7 +763,8 @@
     ],
     "cplayout_interface_developer": [
       "workspace_preflight",
-      "interface_ui"
+      "interface_ui",
+      "rtk_gnss_hardware"
     ],
     "cplayout_kb_curator": [
       "workspace_preflight",
@@ -716,6 +777,7 @@
     ],
     "cplayout_runtime_proof_gatekeeper": [
       "workspace_preflight",
+      "rtk_gnss_hardware",
       "runtime_proof_gates"
     ]
   },
@@ -742,16 +804,16 @@
     ".codex/agents/cplayout_runtime_proof_gatekeeper.toml": "6be58ee37b1c8de7985d1eeb08c0db121c5378d1a3af7990ca29fa3b946901d7",
     ".codex/hooks.json": "2bdbfed0fcdfb1b3351a8834b89f11fb3e6f0cedda9491107b0d5c3c7b3174ca",
     ".codex/hooks/cplayout_prompt_triage.py": "01fede914801451d80abec923dc1f7a0136053df5c66a33b6f6464b9f5c9d7c8",
-    ".codex/hooks/cplayout_route_data.json": "6db733c0c4af35cea64fcd728718043ba34402b5f8b2d336c65269c09ae8f793",
+    ".codex/hooks/cplayout_route_data.json": "b98d5a1c94cc26570010cdc14dc378e1a9d53b9468ba878d6e6b314724608dd0",
     ".codex/hooks/cplayout_subagent_start.py": "2c54b41069c7cc68a380788735a4d5c7b1209ea83e24c4f5a0ea614645fac8a5",
     "AGENTS.md": "2c537c8832b52667cfced912dbd4d0a30493726623799650898f652f088c8398",
-    "docs/README.md": "1fd13234ed76b0fc7dae632b89113f315ca1a8a81f295b0d9f67c062e2b9a6da",
-    "docs/agent-known-gaps.md": "2253a2a0105d1c3aae0c04beee2330d86d485cc3fd2dc4740d152bdfd0747115",
-    "docs/agent-prompt-registry.md": "ea8ce5e6795ae1a3e2eedd67a3a33462075d0756180fd2f55d1fdd66d77dd1f3",
-    "docs/agent-source-ledger.md": "714acc5c0f5ba89897ddeb3dba020178619c37c81fc776714771b8c538a6af40",
+    "docs/README.md": "34a8e9bc014f88926c787dd2d1e544fe346dbac95c196b2e6db4dca0b6919f00",
+    "docs/agent-known-gaps.md": "491e25b5b8b090c3e262f82ac510d4a948b3b8f2c422b37e98c4bca26cd833b8",
+    "docs/agent-prompt-registry.md": "dd8ea97f4170e3d4e575a8cf5a20b4b5ea7209675c9520a2a52d6b18215118eb",
+    "docs/agent-source-ledger.md": "0fb5eaf71ad671215f00b8edb077ec8de3c72aecd7b21b9f3030600c597f6ac2",
     "docs/codex-managed-hook-deployment.md": "75a3ef85b723b66de5284feee9e3630d52f347a202414da5809474fea2ff5318",
-    "package.json": "9b701b4dd1082e0c01540917cd271cdbdbc809bfbea6678c883a3f86297e8e22",
-    "tools/build_cplayout_context_map.py": "b16e1abcd615de2a7e31d95590b0ff3358412ecad960bbe48fbabe177a22b0b0",
+    "package.json": "c7f44058a4676cad075efdf71b7bef745ce8dc31db28615f2fb325409f9577dd",
+    "tools/build_cplayout_context_map.py": "6cf4dd255fcc829221d277a868e372313536c2b404afe93d3fe70f84e2740dd1",
     "tools/validate_cplayout_skills.py": "4673563ed896cfeca5ad123280a90294a981516b346bcee57bded4b6707004a7"
   },
   "validationCommands": {

@@ -16,18 +16,18 @@ import {
   UtilityPole,
 } from "lucide-react-native";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { PanResponder, Platform, Pressable, StyleSheet, Text, View, useWindowDimensions, type GestureResponderEvent } from "react-native";
+import { PanResponder, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions, type GestureResponderEvent } from "react-native";
 import Svg, { Circle, G, Image as SvgImage, Line, Path, Rect, Text as SvgText } from "react-native-svg";
 
 import { buildLayoutPathOverlays, boundsForGeometry, createCirclePolygon, planOnlineImageryTiles, ringsToSvgPath, supportsSvgOnlineImageryOverlay } from "@cplayout/geometry";
 import {
-  createDrawingMapState,
   createInitialViewport,
   DrawingLayerType,
   DrawingMapAction,
   DrawingMapState,
-  reduceDrawingMapState,
-  resolveDraftVertexIntent,
+  panViewport,
+  panViewportByScreenDelta,
+  zoomViewport,
   screenPointToWorld,
   snapPointToGeometry,
   viewportToSvgViewBox,
@@ -36,32 +36,23 @@ import {
 } from "@cplayout/geometry";
 import type { InfrastructurePoint, MapStyle, MappingWorkflowMode, ObstacleZone, ProjectMapFeature, ProjectMapFeatureKind, SurveyPoint } from "@cplayout/core";
 import type { AdvisoryFieldPivotPlan, AdvisoryMachineRenderModel, AdvisoryMachineRenderSurface, LayoutPathOverlay } from "@cplayout/geometry";
-import { resolveReferenceOverlaySource } from "@cplayout/core";
+import { buildMapReferenceViewModel } from "@cplayout/core";
 import { XY } from "@cplayout/core";
 import { MapLibreImageryPreview } from "./MapLibreImageryPreview";
 import {
-  featureDraftMinimumVertices,
-  featureOptionForKind,
   UTILITY_FEATURE_OPTIONS,
-  type UtilityFeatureGeometry,
 } from "./mapTools";
 import {
-  adjacentProjectVertexSelection,
-  firstBoundaryVertexSelection,
-  firstMapFeatureVertexSelection,
-  firstObstacleVertexSelection,
   hasMapFeatureVertexSelection,
   hasObstacleVertexSelection,
-  selectedProjectVertexCanDelete,
-  selectedProjectVertexIsMapFeatureCircleRadius,
-  selectedProjectVertexPoint,
   selectedProjectVertexText,
-  type SelectedProjectVertex,
 } from "./projectVertexEditing";
 import type { MapSurfaceProps } from "./types";
+import { useMapInteractionController } from "./useMapInteractionController";
 
 type MapPalette = ReturnType<typeof paletteForMapStyle>;
 type SvgSymbolScale = ReturnType<typeof createSvgSymbolScale>;
+type SvgMapSurfaceProps = MapSurfaceProps & { webGlRenderingDisabled?: boolean };
 
 const CATALOG_HOME_BOUNDS = {
   minX: -168,
@@ -70,37 +61,13 @@ const CATALOG_HOME_BOUNDS = {
   maxY: 72,
 };
 
-export function SvgMapSurface({
-  activeLayer: externalActiveLayer,
-  activeDraftGeometry,
-  activeMapFeatureKind,
-  activeToolMode,
-  activeToolRequestId,
-  advisoryFieldPivotPlan,
-  advisoryMachineRenderModel,
-  bottomOverlay,
-  controlLayout = "internalRows",
-  homeView = false,
-  project,
-  result,
-  settings,
-  selectedMapFeatureId,
-  onMappingWorkflowModeChange,
-  onCommitBoundaryDraft,
-  onCommitObstacleDraft,
-  onMoveBoundaryVertex,
-  onDeleteBoundaryVertex,
-  onMoveObstacleVertex,
-  onDeleteObstacleVertex,
-  onMoveMapFeatureVertex,
-  onDeleteMapFeatureVertex,
-  onMoveMapFeatureCircleRadiusHandle,
-  onPlacePivot,
-  onMoveInfrastructurePoint,
-  onAddSurveyPoint,
-  onCreateMapFeatureDraft,
-  onSelectMapFeature,
-}: MapSurfaceProps): React.JSX.Element {
+export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
+  const {
+    advisoryFieldPivotPlan, advisoryMachineRenderModel, bottomOverlay,
+    controlLayout = "internalRows", homeView = false, project, result, settings,
+    selectedMapFeatureId, webGlRenderingDisabled = false,
+    onMappingWorkflowModeChange, onSelectMapFeature,
+  } = props;
   const { width: windowWidth } = useWindowDimensions();
   const compactLayout = windowWidth < 760;
   const catalogHomeView = homeView === true;
@@ -138,8 +105,8 @@ export function SvgMapSurface({
     ])
     : [];
   const layoutPathOverlays = useMemo(
-    () => canonicalMachineLayersVisible ? buildLayoutPathOverlays(project) : [],
-    [canonicalMachineLayersVisible, project],
+    () => showProjectGeometry ? buildLayoutPathOverlays(project) : [],
+    [project, showProjectGeometry],
   );
   const allRings = showProjectGeometry
     ? [
@@ -165,19 +132,31 @@ export function SvgMapSurface({
     }, settings.defaultZoomLevel),
     [bounds.maxX, bounds.maxY, bounds.minX, bounds.minY, settings.defaultZoomLevel],
   );
-  const [mapState, setMapState] = useState<DrawingMapState>(() => createDrawingMapState(initialViewport));
+  const [viewport, setViewport] = useState(initialViewport);
   const [mapPixelWidth, setMapPixelWidth] = useState(900);
   const [mapPixelHeight, setMapPixelHeight] = useState(440);
-  const [selectedVertex, setSelectedVertex] = useState<SelectedProjectVertex | null>(null);
   const [localSelectedMapFeatureId, setLocalSelectedMapFeatureId] = useState<string | null>(null);
-  const [mapFeatureKind, setMapFeatureKind] = useState<ProjectMapFeatureKind>("underground_pipeline");
+  const activeSelectedMapFeatureId = selectedMapFeatureId === undefined ? localSelectedMapFeatureId : selectedMapFeatureId;
+  const controller = useMapInteractionController(
+    { ...props, selectedMapFeatureId: activeSelectedMapFeatureId },
+    { imageryEnabled: settings.onlineImagery.enabled },
+  );
+  const {
+    selectedVertex, mapFeatureKind, activeFeatureGeometry, setMapFeatureKind,
+    setTool: setToolMode, commitDraft, handleDraftVertexIntent, selectVertex,
+    deleteSelectedVertex, selectFirstBoundaryVertex, selectFirstObstacleVertex,
+    selectFirstMapFeatureVertex, selectAdjacentVertex, nudgeSelectedVertex,
+    insertAfterSelectedVertex, canDeleteSelectedVertex, canInsertSelectedVertex,
+  } = controller;
+  const mapState = {
+    viewport, mode: controller.mode, activeLayer: controller.activeLayer,
+    draftVertices: controller.draftVertices,
+  };
   const [lastSnap, setLastSnap] = useState<{ point: XY; kind: "vertex" | "feature" } | null>(null);
   const lastSvgPressAt = useRef(0);
+  const suppressTapUntil = useRef(0);
   const pressStartPoint = useRef<{ x: number; y: number } | null>(null);
   const palette = paletteForMapStyle(settings.mapStyle);
-  const mapFeatureOption = featureOptionForKind(mapFeatureKind);
-  const activeFeatureGeometry = activeDraftGeometry ?? mapFeatureOption.geometry;
-  const activeSelectedMapFeatureId = selectedMapFeatureId ?? localSelectedMapFeatureId;
   const viewWidth = visibleWidthMeters(mapState.viewport);
   const viewHeight = visibleHeightMeters(mapState.viewport);
   const symbolScale = useMemo(() => createSvgSymbolScale(mapState.viewport, mapPixelWidth), [mapPixelWidth, mapState.viewport]);
@@ -206,22 +185,26 @@ export function SvgMapSurface({
       settings.onlineImagery.providerId,
     ],
   );
-  const shouldShowMapLibrePreview = !catalogHomeView && settings.onlineImagery.enabled && !supportsSvgOnlineImageryOverlay(project.projectCrs);
+  const shouldShowMapLibrePreview = !webGlRenderingDisabled
+    && !catalogHomeView
+    && settings.onlineImagery.enabled
+    && !supportsSvgOnlineImageryOverlay(project.projectCrs);
   const referenceOverlayNotice = useMemo(
-    () => settings.referenceOverlay.mode !== "off"
-      ? resolveReferenceOverlaySource({
-        preferences: settings.referenceOverlay,
-        mapPackages: project.mapPackages ?? [],
-        target: Platform.OS === "web" ? "svg_mvp" : "native_maplibre_rn",
-      })
-      : null,
-    [project.mapPackages, settings.referenceOverlay],
+    () => settings.referenceOverlay.mode === "off" ? null : buildMapReferenceViewModel({
+      settings, mapPackages: project.mapPackages ?? [], target: "svg_mvp", surface: "svg",
+    }).reference,
+    [project.mapPackages, settings.aerialImagery, settings.onlineImagery, settings.referenceOverlay],
   );
 
   const panResponder = useMemo(
     () => PanResponder.create({
       onMoveShouldSetPanResponder: (_event, gesture) => Math.abs(gesture.dx) + Math.abs(gesture.dy) > 6,
+      onPanResponderGrant: () => {
+        suppressTapUntil.current = Infinity;
+      },
+      onPanResponderTerminate: () => { suppressTapUntil.current = Date.now() + 350; },
       onPanResponderRelease: (_event, gesture) => {
+        suppressTapUntil.current = Date.now() + 350;
         dispatch({
           type: "pan_screen",
           dxPixels: gesture.dx,
@@ -231,49 +214,55 @@ export function SvgMapSurface({
         });
       },
     }),
-    [mapPixelHeight, mapPixelWidth, mapState.mode, mapState.viewport],
+    [designMode, mapPixelHeight, mapPixelWidth, mapState.mode, mapState.viewport, selectedVertex],
   );
   const panHandlers = panResponder.panHandlers;
   const svgInteractionProps = Platform.OS === "web"
     ? { onClick: addDraftVertexFromWebClick, onDoubleClick: closeDraftFromWebDoubleClick, onPress: addDraftVertexFromPress }
     : { onPress: addDraftVertexFromPress };
   const mapClickLayerProps = Platform.OS === "web" ? { onClick: addDraftVertexFromWebClick, onDoubleClick: closeDraftFromWebDoubleClick } : {};
-  const canCommitCurrentDraft = designMode && canCommitDraft(mapState);
-  const canSaveCurrentMapFeature = designMode && canSaveMapFeature(mapState, activeFeatureGeometry);
+  const canCommitCurrentDraft = controller.canCommitDraft;
+  const canSaveCurrentMapFeature = controller.canSaveFeature || (designMode && mapState.mode === "measure"
+    && activeFeatureGeometry === "Point"
+    && Boolean(props.activeMapFeatureKind ? props.onAddMapFeature : props.onCreateMapFeatureDraft));
   const mapClickLayerActive = designMode && mapState.mode !== "pan" && mapState.mode !== "edit_vertices";
-  const canDeleteSelectedVertex = designMode && selectedVertex !== null && selectedProjectVertexCanDelete(project, selectedVertex);
-
   useEffect(() => {
-    if (designMode) return;
-    setSelectedVertex(null);
-    setMapState((current) => {
-      let next = current;
-      if (next.mode !== "pan") next = reduceDrawingMapState(next, { type: "set_mode", mode: "pan" });
-      if (next.draftVertices.length > 0) next = reduceDrawingMapState(next, { type: "clear_draft" });
-      return next;
-    });
-  }, [designMode]);
-
-  useEffect(() => {
-    if (!designMode) return;
-    if (activeMapFeatureKind) setMapFeatureKind(activeMapFeatureKind);
-    setMapState((current) => {
-      let next = current;
-      if (externalActiveLayer && externalActiveLayer !== next.activeLayer) {
-        next = reduceDrawingMapState(next, { type: "set_active_layer", activeLayer: externalActiveLayer });
-      }
-      if (activeToolMode && activeToolMode !== next.mode) {
-        next = reduceDrawingMapState(next, { type: "set_mode", mode: activeToolMode });
-      }
-      return next;
-    });
-  }, [activeMapFeatureKind, activeToolMode, activeToolRequestId, designMode, externalActiveLayer]);
+    setViewport(initialViewport);
+    setLocalSelectedMapFeatureId(null);
+  }, [project.id, project.projectCrs, catalogHomeView]);
 
   function dispatch(action: DrawingMapAction): void {
-    setMapState((current) => reduceDrawingMapState(current, action));
+    switch (action.type) {
+      case "pan":
+        setViewport((current) => panViewport(current, action.delta));
+        break;
+      case "pan_screen":
+        setViewport((current) => panViewportByScreenDelta(current, action.dxPixels, action.dyPixels, action.screenWidthPixels, action.screenHeightPixels));
+        break;
+      case "zoom":
+        setViewport((current) => zoomViewport(current, action.factor));
+        break;
+      case "set_mode":
+        controller.setTool(action.mode);
+        break;
+      case "set_active_layer":
+        controller.setActiveLayer(action.activeLayer);
+        break;
+      case "add_draft_vertex":
+        controller.handleDraftVertexIntent(action.vertex, false);
+        break;
+      case "clear_draft":
+        controller.clearDraft();
+        break;
+      case "select_feature":
+        setLocalSelectedMapFeatureId(action.featureId);
+        break;
+    }
   }
 
   function addDraftVertexFromPress(event: GestureResponderEvent): void {
+    if (Date.now() < suppressTapUntil.current) return;
+    if ("detail" in event.nativeEvent && typeof event.nativeEvent.detail === "number" && event.nativeEvent.detail > 1) return;
     if (!Number.isFinite(event.nativeEvent.locationX) || !Number.isFinite(event.nativeEvent.locationY)) return;
     lastSvgPressAt.current = Date.now();
     addDraftVertexAtScreenPoint(event.nativeEvent.locationX, event.nativeEvent.locationY);
@@ -299,7 +288,9 @@ export function SvgMapSurface({
     addDraftVertexFromPress(event);
   }
 
-  function addDraftVertexFromWebClick(event: { nativeEvent?: { offsetX?: number; offsetY?: number }; currentTarget?: { getBoundingClientRect?: () => { left: number; top: number } }; clientX?: number; clientY?: number }): void {
+  function addDraftVertexFromWebClick(event: { nativeEvent?: { offsetX?: number; offsetY?: number; detail?: number }; currentTarget?: { getBoundingClientRect?: () => { left: number; top: number } }; clientX?: number; clientY?: number; detail?: number }): void {
+    if (Date.now() < suppressTapUntil.current) return;
+    if ((event.nativeEvent?.detail ?? event.detail ?? 0) > 1) return;
     if (Date.now() - lastSvgPressAt.current < 80) return;
     const bounds = event.currentTarget?.getBoundingClientRect?.();
     const xPixels = event.nativeEvent?.offsetX ?? (bounds ? (event.clientX ?? 0) - bounds.left : 0);
@@ -336,153 +327,15 @@ export function SvgMapSurface({
       },
     );
     const vertex = snapWorldPoint(rawVertex);
-    if (mapState.mode === "place_pivot") {
-      if (mapState.activeLayer === "water_source" || mapState.activeLayer === "power_source") onMoveInfrastructurePoint?.(mapState.activeLayer, vertex);
-      else onPlacePivot?.(vertex);
+    if (mapState.mode === "edit_vertices") {
+      controller.moveSelectedVertexToPoint(vertex);
       return;
     }
-    if (mapState.mode === "capture_point") {
-      captureSurveyPoint(vertex);
-      return;
-    }
-    if (mapState.mode === "measure" && activeFeatureGeometry === "Point") {
-      createPendingMapFeatureDraft("Point", [vertex]);
-      return;
-    }
-    if (mapState.mode === "edit_vertices" && selectedVertex) {
-      if (selectedVertex.layer === "field_boundary") {
-        onMoveBoundaryVertex?.(selectedVertex.vertexIndex, vertex);
-      } else if (selectedVertex.layer === "obstacle") {
-        onMoveObstacleVertex?.(selectedVertex.obstacleId, selectedVertex.vertexIndex, vertex);
-      } else if (selectedProjectVertexIsMapFeatureCircleRadius(project, selectedVertex)) {
-        onMoveMapFeatureCircleRadiusHandle?.(selectedVertex.featureId, vertex);
-      } else {
-        onMoveMapFeatureVertex?.(selectedVertex.featureId, selectedVertex.vertexIndex, vertex);
-      }
-      return;
-    }
-    if (!canAddDraftVertex(mapState.mode)) return;
-    handleDraftVertexIntent(vertex, false);
+    controller.handleProjectedPoint(vertex);
   }
 
   function addDraftVertexAtViewCenter(): void {
-    if (!designMode) return;
-    const vertex = snapWorldPoint(mapState.viewport.center);
-    if (mapState.mode === "capture_point") {
-      captureSurveyPoint(vertex);
-      return;
-    }
-    if (!canAddDraftVertex(mapState.mode)) return;
-    dispatch({ type: "add_draft_vertex", vertex });
-  }
-
-  function commitDraft(): void {
-    commitDraftVertices(mapState.draftVertices);
-  }
-
-  function commitDraftVertices(vertices: XY[]): void {
-    if (!designMode) return;
-    if (vertices.length < 3) return;
-    let committed = false;
-    if (mapState.mode === "draw_boundary") {
-      committed = onCommitBoundaryDraft?.(vertices) !== false;
-    } else if (mapState.mode === "mark_obstacle") {
-      committed = onCommitObstacleDraft?.(vertices, obstacleKindForLayer(mapState.activeLayer)) !== false;
-    } else {
-      return;
-    }
-    if (committed) dispatch({ type: "clear_draft" });
-  }
-
-  function handleDraftVertexIntent(vertex: XY, closeRequested: boolean): void {
-    const intent = resolveDraftVertexIntent({
-      closeRequested,
-      currentVertices: mapState.draftVertices,
-      mode: mapState.mode,
-      vertex,
-      vertexSnapToleranceMeters: settings.drawing.vertexSnapToleranceMeters,
-    });
-    if (intent.type === "commit") {
-      commitDraftVertices(intent.vertices);
-      return;
-    }
-    dispatch({ type: "add_draft_vertex", vertex: intent.vertex });
-  }
-
-  function setToolMode(mode: DrawingMapState["mode"], layer?: DrawingLayerType): void {
-    if (!designMode && mode !== "pan") {
-      dispatch({ type: "set_mode", mode: "pan" });
-      return;
-    }
-    const nextLayer = setToolLayerForMode(mode, layer);
-    if (nextLayer) dispatch({ type: "set_active_layer", activeLayer: nextLayer });
-    dispatch({ type: "set_mode", mode });
-    if (mode !== "edit_vertices") setSelectedVertex(null);
-  }
-
-  function selectVertex(nextSelectedVertex: SelectedProjectVertex | null): void {
-    if (!designMode) return;
-    if (!nextSelectedVertex) return;
-    setSelectedVertex(nextSelectedVertex);
-    dispatch({ type: "set_mode", mode: "edit_vertices" });
-  }
-
-  function deleteSelectedVertex(): void {
-    if (!designMode) return;
-    if (!selectedVertex) return;
-    if (!selectedProjectVertexCanDelete(project, selectedVertex)) return;
-    if (selectedVertex.layer === "field_boundary") {
-      onDeleteBoundaryVertex?.(selectedVertex.vertexIndex);
-    } else if (selectedVertex.layer === "obstacle") {
-      onDeleteObstacleVertex?.(selectedVertex.obstacleId, selectedVertex.vertexIndex);
-    } else {
-      onDeleteMapFeatureVertex?.(selectedVertex.featureId, selectedVertex.vertexIndex);
-    }
-    setSelectedVertex(null);
-  }
-
-  function selectFirstBoundaryVertex(): void {
-    if (!designMode) return;
-    selectVertex(firstBoundaryVertexSelection(project));
-  }
-
-  function selectFirstObstacleVertex(): void {
-    if (!designMode) return;
-    selectVertex(firstObstacleVertexSelection(project));
-  }
-
-  function selectFirstMapFeatureVertex(): void {
-    if (!designMode) return;
-    const selectedFeatureVertex: SelectedProjectVertex | null = activeSelectedMapFeatureId
-      ? { layer: "map_feature", featureId: activeSelectedMapFeatureId, vertexIndex: 0 }
-      : null;
-    selectVertex(
-      selectedFeatureVertex && selectedProjectVertexPoint(project, selectedFeatureVertex)
-        ? selectedFeatureVertex
-        : firstMapFeatureVertexSelection(project),
-    );
-  }
-
-  function selectAdjacentVertex(direction: -1 | 1): void {
-    if (!designMode) return;
-    selectVertex(adjacentProjectVertexSelection(project, selectedVertex, direction));
-  }
-
-  function nudgeSelectedVertex(delta: XY): void {
-    if (!designMode) return;
-    if (!selectedVertex) return;
-    const currentPoint = selectedProjectVertexPoint(project, selectedVertex);
-    if (!currentPoint) return;
-    const nextPoint = { x: currentPoint.x + delta.x, y: currentPoint.y + delta.y };
-    if (selectedVertex.layer === "field_boundary") {
-      onMoveBoundaryVertex?.(selectedVertex.vertexIndex, nextPoint);
-    } else if (selectedVertex.layer === "obstacle") {
-      onMoveObstacleVertex?.(selectedVertex.obstacleId, selectedVertex.vertexIndex, nextPoint);
-    } else if (selectedProjectVertexIsMapFeatureCircleRadius(project, selectedVertex)) {
-      onMoveMapFeatureCircleRadiusHandle?.(selectedVertex.featureId, nextPoint);
-    } else {
-      onMoveMapFeatureVertex?.(selectedVertex.featureId, selectedVertex.vertexIndex, nextPoint);
-    }
+    controller.handleProjectedPoint(snapWorldPoint(mapState.viewport.center));
   }
 
   function snapWorldPoint(point: XY): XY {
@@ -499,11 +352,14 @@ export function SvgMapSurface({
             return [];
           }),
         ],
+        lines: [
+          ...mapFeatures.flatMap((feature) => feature.geometry.type === "LineString" ? [feature.geometry.vertices] : []),
+          mapState.draftVertices,
+        ],
         rings: [
           project.fieldBoundary,
           ...project.obstacles.map((obstacle) => obstacle.polygon),
-          ...mapFeatures.flatMap(mapFeatureRings),
-          mapState.draftVertices,
+          ...mapFeatures.filter((feature) => feature.geometry.type === "Polygon" || feature.geometry.type === "Circle").flatMap(mapFeatureRings),
         ],
       },
       settings.drawing,
@@ -512,42 +368,11 @@ export function SvgMapSurface({
     return snap?.point ?? point;
   }
 
-  function captureSurveyPoint(point: XY): void {
-    if (!designMode) return;
-    onAddSurveyPoint?.({
-      label: `${surveyRoleForLayer(mapState.activeLayer).replaceAll("_", " ")} point ${project.surveyPoints.length + 1}`,
-      role: surveyRoleForLayer(mapState.activeLayer),
-      projected: point,
-      source: "manual",
-      confidence: settings.onlineImagery.enabled ? "imagery_digitized" : "user_estimated",
-      notes: settings.onlineImagery.enabled ? "Captured from online imagery preview; verify by field survey." : undefined,
-    });
-  }
-
-  function createPendingMapFeatureDraft(geometryType: UtilityFeatureGeometry, vertices: XY[]): void {
-    if (!designMode) return;
-    onCreateMapFeatureDraft?.({
-      geometryType,
-      vertices,
-      sourceConfidence: settings.onlineImagery.enabled ? "imagery_digitized" : "user_estimated",
-      notes: settings.onlineImagery.enabled ? "Captured from online imagery preview; verify by field survey." : undefined,
-    });
-  }
-
-  function commitMapFeatureFromDraft(): void {
-    if (!designMode) return;
-    if (activeFeatureGeometry === "Point") return;
-    if (mapState.draftVertices.length < featureDraftMinimumVertices(activeFeatureGeometry)) return;
-    createPendingMapFeatureDraft(activeFeatureGeometry, mapState.draftVertices);
-    dispatch({ type: "clear_draft" });
-  }
-
   function saveMapFeatureFromHud(): void {
-    if (!designMode) return;
     if (activeFeatureGeometry === "Point") {
-      createPendingMapFeatureDraft("Point", [snapWorldPoint(mapState.viewport.center)]);
+      controller.handleProjectedPoint(snapWorldPoint(mapState.viewport.center));
     } else {
-      commitMapFeatureFromDraft();
+      controller.saveMapFeatureFromDraft();
     }
   }
 
@@ -557,6 +382,72 @@ export function SvgMapSurface({
     onSelectMapFeature?.(nextId);
     dispatch({ type: "select_feature", featureId: nextId });
   }
+
+  const deferMapNotices = externalHudLayout && (compactLayout || mapPixelWidth < 560);
+  const draftCommands = (
+    <>
+          <Pressable accessibilityRole="button" accessibilityLabel="Add draft vertex at view center" disabled={!designMode} onPress={addDraftVertexAtViewCenter} style={[styles.clearDraftButton, !designMode && styles.disabledDraftButton]}>
+            <Text style={styles.clearDraftText}>{mapState.mode === "capture_point" ? "Capture Center" : "Add Center"}</Text>
+          </Pressable>
+          {mapState.mode === "edit_vertices" ? (
+            <>
+              <Pressable accessibilityRole="button" accessibilityLabel="Select first boundary vertex" disabled={project.fieldBoundary.length === 0 || !designMode} onPress={selectFirstBoundaryVertex} style={[styles.clearDraftButton, (project.fieldBoundary.length === 0 || !designMode) && styles.disabledDraftButton]}>
+                <Text style={styles.clearDraftText}>Boundary</Text>
+              </Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Select first obstacle vertex" disabled={!hasObstacleVertexSelection(project) || !designMode} onPress={selectFirstObstacleVertex} style={[styles.clearDraftButton, (!hasObstacleVertexSelection(project) || !designMode) && styles.disabledDraftButton]}>
+                <Text style={styles.clearDraftText}>Obstacle</Text>
+              </Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Select first map feature vertex" disabled={!hasMapFeatureVertexSelection(project) || !designMode} onPress={selectFirstMapFeatureVertex} style={[styles.clearDraftButton, (!hasMapFeatureVertexSelection(project) || !designMode) && styles.disabledDraftButton]}>
+                <Text style={styles.clearDraftText}>Feature</Text>
+              </Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Select previous editable vertex" disabled={!selectedVertex || !designMode} onPress={() => selectAdjacentVertex(-1)} style={[styles.clearDraftButton, (!selectedVertex || !designMode) && styles.disabledDraftButton]}>
+                <Text style={styles.clearDraftText}>Prev</Text>
+              </Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Select next editable vertex" disabled={!selectedVertex || !designMode} onPress={() => selectAdjacentVertex(1)} style={[styles.clearDraftButton, (!selectedVertex || !designMode) && styles.disabledDraftButton]}>
+                <Text style={styles.clearDraftText}>Next</Text>
+              </Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Insert vertex after selected" disabled={!canInsertSelectedVertex} onPress={insertAfterSelectedVertex} style={[styles.clearDraftButton, !canInsertSelectedVertex && styles.disabledDraftButton]} testID="svg-edit-insert-vertex">
+                <Text style={styles.clearDraftText}>Insert</Text>
+              </Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Move selected vertex east" disabled={!selectedVertex || !designMode} onPress={() => nudgeSelectedVertex({ x: Math.max(1, settings.drawing.panStepMeters / 4), y: 0 })} style={[styles.clearDraftButton, (!selectedVertex || !designMode) && styles.disabledDraftButton]}>
+                <Text style={styles.clearDraftText}>Nudge E</Text>
+              </Pressable>
+            </>
+          ) : null}
+          <Pressable accessibilityRole="button" accessibilityLabel="Commit draft geometry" disabled={!canCommitCurrentDraft} onPress={commitDraft} style={[styles.clearDraftButton, canCommitCurrentDraft && styles.commitDraftButton, !canCommitCurrentDraft && styles.disabledDraftButton]}>
+            <Text style={[styles.clearDraftText, canCommitCurrentDraft && styles.commitDraftText]}>{mapState.mode === "measure" ? "Measure Only" : "Commit"}</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="Save utility map feature" disabled={!canSaveCurrentMapFeature} onPress={saveMapFeatureFromHud} style={[styles.clearDraftButton, canSaveCurrentMapFeature && styles.commitDraftButton, !canSaveCurrentMapFeature && styles.disabledDraftButton]}>
+            <Text style={[styles.clearDraftText, canSaveCurrentMapFeature && styles.commitDraftText]}>{activeFeatureGeometry === "Point" ? "Use Center Point" : "Choose Purpose"}</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="Delete selected vertex" disabled={!canDeleteSelectedVertex} onPress={deleteSelectedVertex} style={[styles.clearDraftButton, !canDeleteSelectedVertex && styles.disabledDraftButton]}>
+            <Text style={styles.clearDraftText}>Delete Vertex</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="Clear draft vertices" onPress={() => dispatch({ type: "clear_draft" })} style={styles.clearDraftButton}>
+            <Text style={styles.clearDraftText}>Clear</Text>
+          </Pressable>
+    </>
+  );
+  const draftHud = (
+    <View
+      style={[styles.draftHud, externalHudLayout && !deferMapNotices && styles.draftHudExternal, deferMapNotices && styles.draftHudCompact]}
+      testID="svg-map-draft-hud"
+    >
+      <Text style={styles.draftHudText}>
+        {designMode
+          ? `${mapState.activeLayer.replaceAll("_", " ")} \u00b7 ${mapState.draftVertices.length} pts${measureText(mapState.draftVertices)}${selectedVertex ? ` \u00b7 ${selectedProjectVertexText(project, selectedVertex)}` : ""}`
+          : catalogHomeView ? "Catalog view \u00b7 open a saved design to edit projected XY geometry" : "Layout \u00b7 RTK-only mutation \u00b7 pointer editing controls hidden"}
+      </Text>
+      {deferMapNotices ? (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.draftCommandScroller} contentContainerStyle={styles.draftCommandRow}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Reset view" onPress={() => setViewport(initialViewport)} style={styles.clearDraftButton}>
+            <RefreshCcw size={16} color="#254234" />
+          </Pressable>
+          {designMode ? draftCommands : null}
+        </ScrollView>
+      ) : designMode ? draftCommands : null}
+    </View>
+  );
 
   return (
     <View style={[styles.shell, compactLayout && styles.shellCompact]}>
@@ -638,7 +529,7 @@ export function SvgMapSurface({
               {advisoryMachineRenderVisible && advisoryMachineRenderModel ? (
                 <AdvisoryMachineRenderOverlay model={advisoryMachineRenderModel} palette={palette} />
               ) : null}
-              {canonicalMachineLayersVisible ? <LayoutPathOverlayLayer overlays={layoutPathOverlays} palette={palette} pivotCenter={project.pivotCenter} /> : null}
+              <LayoutPathOverlayLayer overlays={layoutPathOverlays} palette={palette} pivotCenter={project.pivotCenter} />
               <Path d={fieldPath} fill="none" stroke={palette.fieldStroke} strokeWidth={7} strokeLinejoin="round" />
               <Path d={ringsToSvgPath(result.obstacles)} fill={palette.obstacle} opacity={0.78} stroke={palette.obstacleStroke} strokeWidth={3} />
               <EditableRing
@@ -690,7 +581,7 @@ export function SvgMapSurface({
               {project.surveyPoints.map((point) => (
                 <SurveyPointSymbol key={point.id} point={point} color={palette.survey} scale={symbolScale} />
               ))}
-              {canonicalMachineLayersVisible ? result.towers.map((tower) => (
+              {result.towers.map((tower) => (
                 <React.Fragment key={tower.towerIndex}>
                   <Line
                     x1={project.pivotCenter.x}
@@ -706,7 +597,7 @@ export function SvgMapSurface({
                     T{tower.towerIndex}
                   </SvgText>
                 </React.Fragment>
-              )) : null}
+              ))}
             </>
           )}
         </Svg>
@@ -723,97 +614,33 @@ export function SvgMapSurface({
           />
         ) : null}
 
-        <View style={styles.zoomControls}>
+        <View style={[styles.zoomControls, deferMapNotices && styles.zoomControlsCompact]} testID="svg-map-zoom-controls">
           <IconControl icon={<Plus size={22} />} label="Zoom in" onPress={() => dispatch({ type: "zoom", factor: settings.drawing.zoomStepFactor })} />
           <IconControl icon={<Minus size={22} />} label="Zoom out" onPress={() => dispatch({ type: "zoom", factor: 1 / settings.drawing.zoomStepFactor })} />
-          <IconControl icon={<RefreshCcw size={20} />} label="Reset view" onPress={() => setMapState(createDrawingMapState(initialViewport))} />
+          {!deferMapNotices ? <IconControl icon={<RefreshCcw size={20} />} label="Reset view" onPress={() => setViewport(initialViewport)} /> : null}
         </View>
 
-        <View style={styles.panControls}>
+        {!deferMapNotices ? <View style={styles.panControls}>
           <IconControl icon={<ArrowUp size={20} />} label="Pan north" onPress={() => dispatch({ type: "pan", delta: { x: 0, y: settings.drawing.panStepMeters } })} />
           <View style={styles.panMiddle}>
             <IconControl icon={<ArrowLeft size={20} />} label="Pan west" onPress={() => dispatch({ type: "pan", delta: { x: -settings.drawing.panStepMeters, y: 0 } })} />
             <IconControl icon={<ArrowRight size={20} />} label="Pan east" onPress={() => dispatch({ type: "pan", delta: { x: settings.drawing.panStepMeters, y: 0 } })} />
           </View>
           <IconControl icon={<ArrowDown size={20} />} label="Pan south" onPress={() => dispatch({ type: "pan", delta: { x: 0, y: -settings.drawing.panStepMeters } })} />
-        </View>
-        {designMode ? (
-        <View style={[styles.draftHud, externalHudLayout && styles.draftHudExternal]}>
-          <Text style={styles.draftHudText}>
-            {mapState.activeLayer.replaceAll("_", " ")} · {mapState.draftVertices.length} pts{measureText(mapState.draftVertices)}{selectedVertex ? ` · ${selectedProjectVertexText(project, selectedVertex)}` : ""}
-          </Text>
-          <Pressable accessibilityRole="button" accessibilityLabel="Add draft vertex at view center" disabled={!designMode} onPress={addDraftVertexAtViewCenter} style={[styles.clearDraftButton, !designMode && styles.disabledDraftButton]}>
-            <Text style={styles.clearDraftText}>{mapState.mode === "capture_point" ? "Capture Center" : "Add Center"}</Text>
-          </Pressable>
-          {mapState.mode === "edit_vertices" ? (
-            <>
-              <Pressable accessibilityRole="button" accessibilityLabel="Select first boundary vertex" disabled={project.fieldBoundary.length === 0 || !designMode} onPress={selectFirstBoundaryVertex} style={[styles.clearDraftButton, (project.fieldBoundary.length === 0 || !designMode) && styles.disabledDraftButton]}>
-                <Text style={styles.clearDraftText}>Boundary</Text>
-              </Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel="Select first obstacle vertex" disabled={!hasObstacleVertexSelection(project) || !designMode} onPress={selectFirstObstacleVertex} style={[styles.clearDraftButton, (!hasObstacleVertexSelection(project) || !designMode) && styles.disabledDraftButton]}>
-                <Text style={styles.clearDraftText}>Obstacle</Text>
-              </Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel="Select first map feature vertex" disabled={!hasMapFeatureVertexSelection(project) || !designMode} onPress={selectFirstMapFeatureVertex} style={[styles.clearDraftButton, (!hasMapFeatureVertexSelection(project) || !designMode) && styles.disabledDraftButton]}>
-                <Text style={styles.clearDraftText}>Feature</Text>
-              </Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel="Select previous editable vertex" disabled={!selectedVertex || !designMode} onPress={() => selectAdjacentVertex(-1)} style={[styles.clearDraftButton, (!selectedVertex || !designMode) && styles.disabledDraftButton]}>
-                <Text style={styles.clearDraftText}>Prev</Text>
-              </Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel="Select next editable vertex" disabled={!selectedVertex || !designMode} onPress={() => selectAdjacentVertex(1)} style={[styles.clearDraftButton, (!selectedVertex || !designMode) && styles.disabledDraftButton]}>
-                <Text style={styles.clearDraftText}>Next</Text>
-              </Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel="Move selected vertex east" disabled={!selectedVertex || !designMode} onPress={() => nudgeSelectedVertex({ x: Math.max(1, settings.drawing.panStepMeters / 4), y: 0 })} style={[styles.clearDraftButton, (!selectedVertex || !designMode) && styles.disabledDraftButton]}>
-                <Text style={styles.clearDraftText}>Nudge E</Text>
-              </Pressable>
-            </>
-          ) : null}
-          <Pressable accessibilityRole="button" accessibilityLabel="Commit draft geometry" disabled={!canCommitCurrentDraft} onPress={commitDraft} style={[styles.clearDraftButton, canCommitCurrentDraft && styles.commitDraftButton, !canCommitCurrentDraft && styles.disabledDraftButton]}>
-            <Text style={[styles.clearDraftText, canCommitCurrentDraft && styles.commitDraftText]}>{mapState.mode === "measure" ? "Measure Only" : "Commit"}</Text>
-          </Pressable>
-          <Pressable accessibilityRole="button" accessibilityLabel="Save utility map feature" disabled={!canSaveCurrentMapFeature} onPress={saveMapFeatureFromHud} style={[styles.clearDraftButton, canSaveCurrentMapFeature && styles.commitDraftButton, !canSaveCurrentMapFeature && styles.disabledDraftButton]}>
-            <Text style={[styles.clearDraftText, canSaveCurrentMapFeature && styles.commitDraftText]}>{activeFeatureGeometry === "Point" ? "Use Center Point" : "Choose Purpose"}</Text>
-          </Pressable>
-          <Pressable accessibilityRole="button" accessibilityLabel="Delete selected vertex" disabled={!canDeleteSelectedVertex} onPress={deleteSelectedVertex} style={[styles.clearDraftButton, !canDeleteSelectedVertex && styles.disabledDraftButton]}>
-            <Text style={styles.clearDraftText}>Delete Vertex</Text>
-          </Pressable>
-          <Pressable accessibilityRole="button" accessibilityLabel="Clear draft vertices" onPress={() => dispatch({ type: "clear_draft" })} style={styles.clearDraftButton}>
-            <Text style={styles.clearDraftText}>Clear</Text>
-          </Pressable>
-        </View>
-        ) : (
-          <View style={[styles.draftHud, externalHudLayout && styles.draftHudExternal]}>
-            <Text style={styles.draftHudText}>{catalogHomeView ? "Catalog view · open a saved design to edit projected XY geometry" : "Layout · RTK-only mutation · pointer editing controls hidden"}</Text>
-          </View>
-        )}
-        {imageryPlan ? (
-          <View style={styles.imageryBadge}>
-            <Text style={styles.imageryBadgeText}>
-              {imageryPlan.error ? `Imagery unavailable: ${imageryPlan.error}` : `${imageryPlan.provider.name} · z${imageryPlan.tiles[0]?.z ?? "-"} · ${imageryPlan.tiles.length} tiles${imageryPlan.capped ? " capped" : ""}`}
-            </Text>
-            {!imageryPlan.error ? (
-              <Text style={styles.imageryBadgeSubtext}>
-                {imageryPlan.provider.attribution} · {imageryPlan.provider.licenseText}
-              </Text>
-            ) : (
-              <Text style={styles.imageryBadgeSubtext}>
-                {imageryPlan.provider.attribution} · {imageryPlan.provider.licenseText}
-              </Text>
-            )}
-          </View>
-        ) : null}
-        {referenceOverlayNotice ? (
-          <View style={styles.referenceOverlayBadge} testID="svg-reference-overlay-unavailable">
-            <Text style={styles.imageryBadgeText}>Reference overlays unavailable</Text>
-            <Text style={styles.imageryBadgeSubtext}>{referenceOverlayNotice.reason}</Text>
-          </View>
-        ) : null}
-        {!catalogHomeView && externalHudLayout ? (
-          <View pointerEvents="none" style={styles.compactLegendBadge} testID="svg-map-compact-legend">
-            <LegendSwatch color="#6cb6df" label="Wet" />
-            <LegendSwatch color={palette.wheelTrack} label="Track" />
-            <LegendSwatch color="#e68b58" label="Outside" />
-            <LegendSwatch color="#c64f43" label="Obstacle" />
-            <LegendSwatch color={palette.utility} label="Feature" />
+        </View> : null}
+        {!deferMapNotices ? draftHud : null}
+        {(!deferMapNotices && (imageryPlan || referenceOverlayNotice)) || (!catalogHomeView && externalHudLayout) ? (
+          <View pointerEvents="none" style={[styles.topOverlayStack, deferMapNotices && styles.topOverlayStackCompact]} testID="svg-map-top-overlay-stack">
+            {!catalogHomeView && externalHudLayout ? (
+              <View style={styles.compactLegendBadge} testID="svg-map-compact-legend">
+                <LegendSwatch color="#6cb6df" label="Wet" />
+                <LegendSwatch color={palette.wheelTrack} label="LRDU / track" />
+                <LegendSwatch color="#e68b58" label="Outside" />
+                <LegendSwatch color="#c64f43" label="Obstacle" />
+                <LegendSwatch color={palette.utility} label="Feature" />
+              </View>
+            ) : null}
+            {!deferMapNotices ? <SvgMapNotices imageryPlan={imageryPlan} referenceOverlayNotice={referenceOverlayNotice} /> : null}
           </View>
         ) : null}
         {bottomOverlay ? (
@@ -822,6 +649,14 @@ export function SvgMapSurface({
           </View>
         ) : null}
       </View>
+
+      {deferMapNotices ? draftHud : null}
+
+      {deferMapNotices && (imageryPlan || referenceOverlayNotice) ? (
+        <View pointerEvents="none" style={styles.compactMapNoticeBand}>
+          <SvgMapNotices imageryPlan={imageryPlan} referenceOverlayNotice={referenceOverlayNotice} />
+        </View>
+      ) : null}
 
       <MapLibreImageryPreview
         project={project}
@@ -867,9 +702,10 @@ export function SvgMapSurface({
         <View style={styles.legend}>
           <LegendSwatch color="#6cb6df" label="Allowed wet area" />
           <LegendSwatch color="#63c7cf" label="End gun" />
-          <LegendSwatch color={palette.machinePath} label="Advisory machine paths" />
-          <LegendSwatch color={palette.wheelTrack} label="Wheel track" />
-          <LegendSwatch color={palette.machinePath} label="End-machine path" />
+          <LegendSwatch color={palette.wheelTrack} label="Tower / LRDU path" />
+          <LegendSwatch color={palette.machinePath} label="Machine-end path" />
+          <LegendSwatch color={palette.endGun} label="End-gun reach" />
+          <LegendSwatch color={palette.cornerArmTrack} label="Configured corner-arm preview" />
           <LegendSwatch color="#e68b58" label="Outside field" />
           <LegendSwatch color={palette.advisory} label="Generated advisory plan" />
           <LegendSwatch color="#c64f43" label="Obstacle/no-spray" />
@@ -883,16 +719,33 @@ export function SvgMapSurface({
 
 export const LayoutMap = SvgMapSurface;
 
-function canAddDraftVertex(mode: DrawingMapState["mode"]): boolean {
-  return mode === "draw_boundary" || mode === "mark_obstacle" || mode === "measure";
-}
-
-function canCommitDraft(mapState: DrawingMapState): boolean {
-  return mapState.draftVertices.length >= 3 && (mapState.mode === "draw_boundary" || mapState.mode === "mark_obstacle");
-}
-
-function canSaveMapFeature(mapState: DrawingMapState, geometry: UtilityFeatureGeometry): boolean {
-  return mapState.mode === "measure" && (geometry === "Point" || mapState.draftVertices.length >= featureDraftMinimumVertices(geometry));
+function SvgMapNotices({
+  imageryPlan,
+  referenceOverlayNotice,
+}: {
+  imageryPlan: ReturnType<typeof planOnlineImageryTiles> | null;
+  referenceOverlayNotice: ReturnType<typeof buildMapReferenceViewModel>["reference"] | null;
+}): React.JSX.Element {
+  return (
+    <View style={styles.mapNoticeStack} testID="svg-map-status-notices">
+      {imageryPlan ? (
+        <View style={styles.imageryBadge}>
+          <Text style={styles.imageryBadgeText}>
+            {imageryPlan.error ? `Imagery unavailable: ${imageryPlan.error}` : `${imageryPlan.provider.name} · z${imageryPlan.tiles[0]?.z ?? "-"} · ${imageryPlan.tiles.length} tiles${imageryPlan.capped ? " capped" : ""}`}
+          </Text>
+          <Text numberOfLines={2} style={styles.imageryBadgeSubtext}>
+            {imageryPlan.provider.attribution} · {imageryPlan.provider.licenseText}
+          </Text>
+        </View>
+      ) : null}
+      {referenceOverlayNotice ? (
+        <View style={styles.referenceOverlayBadge} testID="svg-reference-overlay-unavailable">
+          <Text style={styles.imageryBadgeText}>Reference overlays unavailable</Text>
+          <Text numberOfLines={2} style={styles.imageryBadgeSubtext}>{referenceOverlayNotice.reason}</Text>
+        </View>
+      ) : null}
+    </View>
+  );
 }
 
 function createSvgSymbolScale(viewport: DrawingMapState["viewport"], renderedPixelWidth: number): {
@@ -936,32 +789,6 @@ function mapFeatureRings(feature: ProjectMapFeature): XY[][] {
   if (feature.geometry.type === "LineString") return [feature.geometry.vertices];
   if (feature.geometry.type === "Polygon") return [feature.geometry.vertices];
   return [createCirclePolygon(feature.geometry.center, feature.geometry.radiusMeters, 72)];
-}
-
-function setToolLayerForMode(mode: DrawingMapState["mode"], layer?: DrawingLayerType): DrawingLayerType | null {
-  if (layer) return layer;
-  if (mode === "draw_boundary") return "field_boundary";
-  if (mode === "mark_obstacle") return "obstacle";
-  if (mode === "capture_point") return "control_point";
-  if (mode === "place_pivot") return "pivot_center";
-  return null;
-}
-
-function obstacleKindForLayer(layer: DrawingLayerType): ObstacleZone["kind"] {
-  if (layer === "road" || layer === "ditch" || layer === "fence" || layer === "building" || layer === "canal" || layer === "tree" || layer === "exclusion") {
-    return layer;
-  }
-  return "exclusion";
-}
-
-function surveyRoleForLayer(layer: DrawingLayerType): SurveyPoint["role"] {
-  if (layer === "field_boundary") return "boundary";
-  if (layer === "pivot_center") return "pivot_center";
-  if (layer === "water_source") return "water_source";
-  if (layer === "power_source") return "power_source";
-  if (layer === "control_point") return "control";
-  if (layer === "note_point") return "note";
-  return "obstacle";
 }
 
 function measureText(vertices: XY[]): string {
@@ -1240,7 +1067,7 @@ function LayoutPathOverlayLayer({ overlays, palette, pivotCenter }: { overlays: 
         const labelPoint = polarLabelPoint(pivotCenter, overlay.radiusMeters, layoutPathLabelAngle(overlay.kind));
         const centerlinePaths = overlay.centerlineSegments.map(lineSvgPath).filter(Boolean);
         return (
-          <React.Fragment key={key}>
+          <G key={key} accessibilityLabel={overlay.label} testID={`svg-machine-path-${overlay.machinePathRoles.join("-")}-${overlay.towerIndex ?? "path"}`}>
             {centerlinePaths.map((centerlinePath, segmentIndex) => (
               <React.Fragment key={`${key}-centerline-${segmentIndex}`}>
                 {overlay.kind === "end_of_machine" ? (
@@ -1250,10 +1077,10 @@ function LayoutPathOverlayLayer({ overlays, palette, pivotCenter }: { overlays: 
                   d={centerlinePath}
                   fill="none"
                   stroke={layoutPathLabelColor(overlay.kind, palette)}
-                  strokeDasharray={layoutPathCenterlineDash(overlay.kind)}
+                  strokeDasharray={layoutPathCenterlineDash(overlay)}
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth={layoutPathCenterlineWidth(overlay.kind)}
+                  strokeWidth={layoutPathCenterlineWidth(overlay)}
                 />
               </React.Fragment>
             ))}
@@ -1268,7 +1095,7 @@ function LayoutPathOverlayLayer({ overlays, palette, pivotCenter }: { overlays: 
                 {layoutPathLabel(overlay)}
               </SvgText>
             ) : null}
-          </React.Fragment>
+          </G>
         );
       })}
     </G>
@@ -1276,21 +1103,29 @@ function LayoutPathOverlayLayer({ overlays, palette, pivotCenter }: { overlays: 
 }
 
 function layoutPathLabel(overlay: LayoutPathOverlay): string {
+  if (overlay.coincidentPath) return "LRDU / END";
   if (overlay.kind === "wheel_track") return `T${overlay.towerIndex}`;
   if (overlay.kind === "end_of_machine") return "EOM";
+  if (overlay.kind === "end_gun_reach") return "EGR";
   if (overlay.kind === "corner_arm_wheel_track") return "CAW";
   return "CAO";
 }
 
-function layoutPathCenterlineDash(kind: LayoutPathOverlay["kind"]): string | undefined {
+function layoutPathCenterlineDash(overlay: LayoutPathOverlay): string | undefined {
+  if (overlay.coincidentPath) return "12 4 2 4";
+  const kind = overlay.kind;
   if (kind === "wheel_track" || kind === "corner_arm_wheel_track") return "6 7";
+  if (kind === "end_gun_reach") return "16 6 3 6";
   if (kind === "corner_arm_overhang_end") return "14 7";
   return undefined;
 }
 
-function layoutPathCenterlineWidth(kind: LayoutPathOverlay["kind"]): number {
+function layoutPathCenterlineWidth(overlay: LayoutPathOverlay): number {
+  if (overlay.coincidentPath) return 3.4;
+  const kind = overlay.kind;
   if (kind === "wheel_track") return 2;
   if (kind === "end_of_machine") return 3.2;
+  if (kind === "end_gun_reach") return 2.4;
   if (kind === "corner_arm_wheel_track") return 2.2;
   return 2.6;
 }
@@ -1298,6 +1133,7 @@ function layoutPathCenterlineWidth(kind: LayoutPathOverlay["kind"]): number {
 function layoutPathLabelAngle(kind: LayoutPathOverlay["kind"]): number {
   if (kind === "wheel_track") return 225;
   if (kind === "end_of_machine") return 315;
+  if (kind === "end_gun_reach") return 20;
   if (kind === "corner_arm_wheel_track") return 250;
   return 290;
 }
@@ -1305,6 +1141,7 @@ function layoutPathLabelAngle(kind: LayoutPathOverlay["kind"]): number {
 function layoutPathLabelColor(kind: LayoutPathOverlay["kind"], palette: MapPalette): string {
   if (kind === "wheel_track") return palette.wheelTrack;
   if (kind === "end_of_machine") return palette.machinePath;
+  if (kind === "end_gun_reach") return palette.endGun;
   if (kind === "corner_arm_wheel_track") return palette.cornerArmTrack;
   return palette.cornerArmReach;
 }
@@ -1986,6 +1823,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 0,
     position: "relative",
+    ...(Platform.OS === "web" ? { userSelect: "none" as const } : {}),
   },
   mapClickLayer: {
     backgroundColor: "transparent",
@@ -2089,6 +1927,10 @@ const styles = StyleSheet.create({
     top: 174,
     zIndex: 2,
   },
+  zoomControlsCompact: {
+    flexDirection: "row",
+    gap: 6,
+  },
   panMiddle: {
     flexDirection: "row",
     gap: 44,
@@ -2116,38 +1958,70 @@ const styles = StyleSheet.create({
     maxHeight: 70,
     overflow: "hidden",
   },
+  draftHudCompact: {
+    alignItems: "stretch",
+    borderRadius: 0,
+    borderWidth: 0,
+    borderTopWidth: 1,
+    bottom: 0,
+    flexDirection: "column",
+    flexShrink: 0,
+    left: 0,
+    position: "relative",
+    right: 0,
+  },
+  draftCommandScroller: {
+    flexGrow: 0,
+    flexShrink: 0,
+    height: 40,
+    width: "100%",
+  },
+  draftCommandRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8,
+  },
   imageryBadge: {
     backgroundColor: "rgba(255, 254, 248, 0.92)",
     borderColor: "#b9c5b6",
     borderRadius: 8,
     borderWidth: 1,
-    left: 12,
-    maxWidth: 560,
     paddingHorizontal: 10,
     paddingVertical: 7,
-    position: "absolute",
-    right: 12,
-    top: 12,
-    zIndex: 2,
   },
   referenceOverlayBadge: {
     backgroundColor: "rgba(255, 250, 235, 0.95)",
     borderColor: "#dfc77f",
     borderRadius: 8,
     borderWidth: 1,
-    left: 12,
-    maxWidth: 560,
     paddingHorizontal: 10,
     paddingVertical: 7,
+  },
+  mapNoticeStack: {
+    gap: 6,
+  },
+  compactMapNoticeBand: {
+    backgroundColor: "#f4f7f2",
+    borderTopColor: "#d8ded6",
+    borderTopWidth: 1,
+    padding: 8,
+  },
+  topOverlayStack: {
+    gap: 6,
+    left: 12,
+    maxWidth: 560,
     position: "absolute",
-    right: 12,
-    top: 74,
+    right: 76,
+    top: 12,
     zIndex: 2,
   },
   imageryBadgeText: {
     color: "#26392f",
     fontSize: 12,
     fontWeight: "900",
+  },
+  topOverlayStackCompact: {
+    right: 126,
   },
   imageryBadgeSubtext: {
     color: "#405448",
@@ -2249,13 +2123,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8,
-    left: 12,
     maxWidth: 360,
     paddingHorizontal: 8,
     paddingVertical: 6,
-    position: "absolute",
-    top: 12,
-    zIndex: 2,
   },
   legendItem: {
     alignItems: "center",

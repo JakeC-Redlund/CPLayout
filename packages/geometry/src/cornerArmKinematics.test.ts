@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 
-import { VALLEY_CORNER_ARM_SCAFFOLD_CATALOG } from "@cplayout/core";
+import { VALLEY_CORNER_ARM_SCAFFOLD_CATALOG, willRheaJasonHarmelinkExampleProject } from "@cplayout/core";
 import { feetToMeters } from "@cplayout/core";
 
 import {
@@ -51,6 +51,28 @@ assert.ok(missing.infeasibleDiagnostics.some((diagnostic) => diagnostic.code ===
 assert.ok(missing.infeasibleDiagnostics.some((diagnostic) => diagnostic.code === "missing_lrdu_radius"));
 assert.ok(missing.infeasibleDiagnostics.some((diagnostic) => diagnostic.code === "missing_guidance_path"));
 assert.equal(missing.safetyZoneMeters, Number(CORNER_ARM_MINIMUM_PHYSICAL_SAFETY_ZONE_METERS.toFixed(6)));
+
+const willRheaBlocked = evaluateCornerArmKinematics({
+  projectCrs: willRheaJasonHarmelinkExampleProject.projectCrs,
+  pivotCenter: willRheaJasonHarmelinkExampleProject.pivotCenter,
+  pivotCenterToLrduRadiusMeters: willRheaJasonHarmelinkExampleProject.machine.spanLengthsMeters.reduce((sum, span) => sum + span, 0),
+  lrduSpeedMetersPerMinuteAt100Percent: willRheaJasonHarmelinkExampleProject.machine.driveUnits?.lrdu?.operatorMeasuredSpeedMetersPerMinute,
+  modelSpec: undefined,
+  rotationDirection: "counterclockwise",
+  orientation: "leading",
+  sweep: willRheaJasonHarmelinkExampleProject.machine.sweep,
+  fieldBoundary: willRheaJasonHarmelinkExampleProject.fieldBoundary,
+  guidancePath: undefined,
+});
+assert.equal(willRheaBlocked.status, "blocked");
+assert.ok(willRheaBlocked.infeasibleDiagnostics.some((diagnostic) => diagnostic.code === "missing_lrdu_speed"));
+assert.ok(willRheaBlocked.infeasibleDiagnostics.some((diagnostic) => diagnostic.code === "missing_model_spec"));
+assert.ok(willRheaBlocked.infeasibleDiagnostics.some((diagnostic) => diagnostic.code === "missing_guidance_path"));
+assert.equal(
+  willRheaJasonHarmelinkExampleProject.mapFeatures?.some((feature) => feature.kind === "measurement_line" && feature.id === "will-rhea-lrdu-distance"),
+  true,
+);
+assert.equal(willRheaJasonHarmelinkExampleProject.mapFeatures?.some((feature) => feature.kind === "linear_move_path"), false);
 
 const ready = evaluateCornerArmKinematics(readyInput);
 assert.equal(ready.status, "ready");

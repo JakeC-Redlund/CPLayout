@@ -104,6 +104,18 @@ This loop does not satisfy Android native SQLite/ZIP proof, schema-v11 migration
 4. Record screenshot paths, device model, orientation, and whether the proof used `adb exec-out screencap`, UIAutomator bounds, or manual screenshot capture.
 5. Do not report Android tablet console runtime proof until this evidence exists. Web Playwright tablet screenshots are browser proof only.
 
+## Android RTK Receiver Proof
+
+This checklist becomes executable only after the Android USB/Bluetooth adapter in `docs/rtk-gnss-integration-plan.md` is implemented in a rebuilt development client.
+
+1. Record app commit/build, Android device, receiver manufacturer/model/firmware, transport/chipset, antenna model/ARP/height, source reference frame/epoch, project CRS, and correction source/delivery mode.
+2. Prove the Android permission path, checksum-valid read, optional correction write, physical detach, app background/foreground, reconnect, and exactly one terminal disconnect event.
+3. Confirm capture is impossible after detach, stale observation, stale correction, checksum failure, void/incoherent epoch, or unknown source CRS.
+4. Occupy at least two independently known controls with repeated observations. Record the acceptance thresholds, horizontal RMS, maximum error, maximum observation/correction age, fixed/total samples, and session times.
+5. Export only sanitized observation/control artifacts. Do not include caster credentials, raw correction payloads, or private receiver tokens.
+6. Hash every evidence artifact and produce `cplayout-gnss-runtime-proof-v1` with the current commit.
+7. Run `npm run verify:release -- --gnss-report <report.json>` from a clean worktree. A passing browser fixture or Android connection indicator is not receiver/field proof.
+
 ## Pass Criteria
 
 Native persistence is verified only when save, relaunch, list, load, delete, export, and import all pass on device/emulator. If any step is not run, report it as unverified rather than complete.
@@ -113,3 +125,4 @@ Native persistence is verified only when save, relaunch, list, load, delete, exp
 - Expo SQLite web support is alpha and requires Metro WASM plus COOP/COEP headers: https://docs.expo.dev/versions/latest/sdk/sqlite/
 - Expo Sharing has native local-file sharing behavior that does not carry to web local file URIs: https://docs.expo.dev/versions/latest/sdk/sharing/
 - Expo development builds are distinct from Expo Go and are required when native libraries/config need a built app: https://docs.expo.dev/develop/development-builds/introduction/
+- Android USB host mode requires device discovery, user permission, endpoint communication, and non-UI-thread transfers: https://developer.android.com/develop/connectivity/usb/host

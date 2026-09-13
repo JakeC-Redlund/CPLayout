@@ -1,7 +1,7 @@
 import proj4 from "proj4";
 
 import type { LonLat, XY } from "./types";
-import { assertProjectedCrs } from "./units";
+import { assertProjectedCrs, normalizeCrsName } from "./units";
 
 export const COORDINATE_FORMATS = [
   "decimal_degrees",
@@ -29,12 +29,9 @@ export type CoordinateParseResult =
   | { ok: true; coordinate: CanonicalCoordinate }
   | { ok: false; error: string };
 
-interface AngularParts {
-  degrees: number;
-  minutes: number;
-  seconds: number;
-  hemisphere?: "N" | "S" | "E" | "W";
-}
+const DECIMAL_NUMBER = String.raw`(?:\d+(?:\.\d*)?|\.\d+)`;
+const SIGNED_NUMBER = String.raw`[+-]?${DECIMAL_NUMBER}(?:[eE][+-]?\d+)?`;
+const PAIR_SEPARATOR = String.raw`(?:\s*[,;]\s*|\s+)`;
 
 export function parseCoordinateInput(input: string, format: CoordinateDisplayFormat, projectCrs: string): CoordinateParseResult {
   const trimmed = input.trim();
@@ -43,14 +40,30 @@ export function parseCoordinateInput(input: string, format: CoordinateDisplayFor
   }
 
   if (format === "projected_local") {
-    const numbers = extractNumbers(trimmed);
-    if (numbers.length < 2) {
-      return { ok: false, error: "Projected coordinates need X and Y values." };
+    try {
+      assertProjectedCrs(projectCrs);
+    } catch (error) {
+      return {
+        ok: false,
+        error: error instanceof Error ? error.message : "Supported projected CRS required.",
+      };
+    }
+    const suffix = /\s*\(([^()]+)\)$/.exec(trimmed);
+    if (suffix && normalizeCrsName(suffix[1]) !== normalizeCrsName(projectCrs)) {
+      return { ok: false, error: "Coordinate CRS suffix must match the selected project CRS." };
+    }
+    const values = suffix ? trimmed.slice(0, suffix.index).trim() : trimmed;
+    const match = new RegExp(
+      String.raw`^(?:X\s*[:=]?\s*)?(${SIGNED_NUMBER})${PAIR_SEPARATOR}(?:Y\s*[:=]?\s*)?(${SIGNED_NUMBER})$`,
+      "i",
+    ).exec(values);
+    if (!match || !Number.isFinite(Number(match[1])) || !Number.isFinite(Number(match[2]))) {
+      return { ok: false, error: "Projected coordinates need exactly two finite X and Y values." };
     }
     return {
       ok: true,
       coordinate: {
-        projected: { x: numbers[0], y: numbers[1] },
+        projected: { x: Number(match[1]), y: Number(match[2]) },
         projectCrs,
       },
     };
@@ -80,56 +93,20 @@ export function parseWgs84Input(
   input: string,
   format: Exclude<CoordinateDisplayFormat, "projected_local">,
 ): { ok: true; coordinate: LonLat } | { ok: false; error: string } {
-  if (format === "decimal_degrees") {
-    const numbers = extractNumbers(input);
-    if (numbers.length < 2) {
-      return { ok: false, error: "Decimal degrees need latitude and longitude." };
-    }
-    const latitude = applyHemisphere(numbers[0], input, "latitude");
-    const longitude = applyHemisphere(numbers[1], input, "longitude");
-    return validateLonLat({ latitude, longitude });
-  }
-
-  const latitude = parseAxis(input, "latitude", format);
-  const longitude = parseAxis(input, "longitude", format);
-  if (latitude && longitude) {
-    try {
-      return validateLonLat({
-        latitude: angularPartsToDecimal(latitude, "latitude"),
-        longitude: angularPartsToDecimal(longitude, "longitude"),
-      });
-    } catch (error) {
-      return { ok: false, error: error instanceof Error ? error.message : "Invalid angular coordinate." };
-    }
-  }
-
-  const numbers = extractNumbers(input);
-  const required = format === "degrees_decimal_minutes" ? 4 : 6;
-  if (numbers.length < required) {
+  const match = new RegExp(
+    `^${angularAxisPattern("latitude", format)}${PAIR_SEPARATOR}${angularAxisPattern("longitude", format)}$`,
+    "i",
+  ).exec(input.trim());
+  if (!match?.groups) {
     return {
       ok: false,
-      error: format === "degrees_decimal_minutes"
-        ? "Degrees decimal minutes need latitude degrees/minutes and longitude degrees/minutes."
-        : "Degrees minutes seconds need latitude degrees/minutes/seconds and longitude degrees/minutes/seconds.",
+      error: `Enter exactly one latitude and longitude in ${COORDINATE_FORMAT_LABELS[format].toLowerCase()} format, with matching axis hemispheres.`,
     };
   }
-
-  const fallbackLatitude: AngularParts = {
-    degrees: numbers[0],
-    minutes: numbers[1],
-    seconds: format === "degrees_minutes_seconds" ? numbers[2] : 0,
-  };
-  const fallbackLongitudeOffset = format === "degrees_minutes_seconds" ? 3 : 2;
-  const fallbackLongitude: AngularParts = {
-    degrees: numbers[fallbackLongitudeOffset],
-    minutes: numbers[fallbackLongitudeOffset + 1],
-    seconds: format === "degrees_minutes_seconds" ? numbers[fallbackLongitudeOffset + 2] : 0,
-  };
-
   try {
     return validateLonLat({
-      latitude: angularPartsToDecimal(fallbackLatitude, "latitude"),
-      longitude: angularPartsToDecimal(fallbackLongitude, "longitude"),
+      latitude: angularAxisToDecimal(match.groups, "latitude"),
+      longitude: angularAxisToDecimal(match.groups, "longitude"),
     });
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "Invalid angular coordinate." };
@@ -141,13 +118,18 @@ export function formatCoordinate(
   format: CoordinateDisplayFormat,
   precision = 6,
 ): string {
+  assertFinitePair(coordinate.projected.x, coordinate.projected.y, "Coordinate formatting requires finite X and Y coordinates.");
+  if (coordinate.wgs84) {
+    const validated = validateLonLat(coordinate.wgs84);
+    if (!validated.ok) throw new Error(validated.error);
+  }
   if (format === "projected_local") {
-    return `X ${coordinate.projected.x.toFixed(2)}, Y ${coordinate.projected.y.toFixed(2)} (${coordinate.projectCrs})`;
+    return `X ${fixedWithSign(coordinate.projected.x, 2)}, Y ${fixedWithSign(coordinate.projected.y, 2)} (${coordinate.projectCrs})`;
   }
 
   const wgs84 = coordinate.wgs84 ?? projectXyToLonLat(coordinate.projected, coordinate.projectCrs);
   if (format === "decimal_degrees") {
-    return `${wgs84.latitude.toFixed(precision)}, ${wgs84.longitude.toFixed(precision)}`;
+    return `${fixedWithSign(wgs84.latitude, precision)}, ${fixedWithSign(wgs84.longitude, precision)}`;
   }
   if (format === "degrees_decimal_minutes") {
     return `${formatDdm(wgs84.latitude, "latitude")} ${formatDdm(wgs84.longitude, "longitude")}`;
@@ -156,16 +138,21 @@ export function formatCoordinate(
 }
 
 export function projectLonLatToXy(coordinate: LonLat, projectCrs: string): XY {
-  assertProjectedCrs(projectCrs);
-  const [x, y] = proj4("EPSG:4326", projectCrs, [coordinate.longitude, coordinate.latitude]);
+  const validated = validateLonLat(coordinate);
+  if (!validated.ok) throw new Error(validated.error);
+  const normalized = transformCrs(projectCrs);
+  const [x, y] = proj4("EPSG:4326", normalized, [coordinate.longitude, coordinate.latitude]);
   assertFinitePair(x, y, "Projection returned invalid coordinates.");
   return { x, y };
 }
 
 export function projectXyToLonLat(point: XY, projectCrs: string): LonLat {
-  assertProjectedCrs(projectCrs);
-  const [longitude, latitude] = proj4(projectCrs, "EPSG:4326", [point.x, point.y]);
+  assertFinitePair(point.x, point.y, "Inverse projection requires finite X and Y coordinates.");
+  const normalized = transformCrs(projectCrs);
+  const [longitude, latitude] = proj4(normalized, "EPSG:4326", [point.x, point.y]);
   assertFinitePair(longitude, latitude, "Inverse projection returned invalid coordinates.");
+  const validated = validateLonLat({ longitude, latitude });
+  if (!validated.ok) throw new Error(validated.error);
   return { longitude, latitude };
 }
 
@@ -182,62 +169,57 @@ export function coordinateExample(format: CoordinateDisplayFormat): string {
   }
 }
 
-function parseAxis(
-  input: string,
+function angularAxisPattern(
   axis: "latitude" | "longitude",
-  format: Exclude<CoordinateDisplayFormat, "decimal_degrees" | "projected_local">,
-): AngularParts | null {
+  format: Exclude<CoordinateDisplayFormat, "projected_local">,
+): string {
   const hemispheres = axis === "latitude" ? "NS" : "EW";
-  const number = "([+-]?\\d+(?:\\.\\d+)?)";
-  const separator = "[^0-9+\\-.NSEW]+";
-  const beforeHemisphere = "[^0-9+\\-.NSEW]*";
-  const suffix = new RegExp(
-    `${number}${separator}${number}(?:${separator}${number})?${beforeHemisphere}([${hemispheres}])\\b`,
-    "i",
-  );
-  const prefix = new RegExp(
-    `\\b([${hemispheres}])${beforeHemisphere}${number}${separator}${number}(?:${separator}${number})?`,
-    "i",
-  );
-
-  const suffixMatch = input.match(suffix);
-  if (suffixMatch) {
-    return {
-      degrees: Number(suffixMatch[1]),
-      minutes: Number(suffixMatch[2]),
-      seconds: format === "degrees_minutes_seconds" ? Number(suffixMatch[3] ?? 0) : 0,
-      hemisphere: suffixMatch[4].toUpperCase() as AngularParts["hemisphere"],
-    };
+  const capture = (name: string, pattern: string) => `(?<${axis}${name}>${pattern})`;
+  const degrees = format === "decimal_degrees" ? SIGNED_NUMBER : String.raw`[+-]?\d+`;
+  let body = capture("Degrees", degrees);
+  if (format === "decimal_degrees") {
+    body += String.raw`(?:\s*°)?`;
+  } else {
+    body += String.raw`(?:\s*°\s*|\s+)`;
+    body += capture("Minutes", format === "degrees_decimal_minutes" ? DECIMAL_NUMBER : String.raw`\d+`);
+    if (format === "degrees_decimal_minutes") {
+      body += String.raw`(?:\s*['\u2032\u2019])?`;
+    } else {
+      body += String.raw`(?:\s*['\u2032\u2019]\s*|\s+)`;
+      body += capture("Seconds", DECIMAL_NUMBER);
+      body += String.raw`(?:\s*["\u2033\u201d])?`;
+    }
   }
-
-  const prefixMatch = input.match(prefix);
-  if (prefixMatch) {
-    return {
-      degrees: Number(prefixMatch[2]),
-      minutes: Number(prefixMatch[3]),
-      seconds: format === "degrees_minutes_seconds" ? Number(prefixMatch[4] ?? 0) : 0,
-      hemisphere: prefixMatch[1].toUpperCase() as AngularParts["hemisphere"],
-    };
-  }
-
-  return null;
+  return `${capture("Prefix", `[${hemispheres}]`)}?\\s*${body}\\s*${capture("Suffix", `[${hemispheres}]`)}?`;
 }
 
-function angularPartsToDecimal(parts: AngularParts, axis: "latitude" | "longitude"): number {
-  if (!Number.isFinite(parts.degrees) || !Number.isFinite(parts.minutes) || !Number.isFinite(parts.seconds)) {
+function angularAxisToDecimal(parts: Record<string, string>, axis: "latitude" | "longitude"): number {
+  const degreeText = parts[`${axis}Degrees`];
+  const degrees = Number(degreeText);
+  const minutes = Number(parts[`${axis}Minutes`] ?? 0);
+  const seconds = Number(parts[`${axis}Seconds`] ?? 0);
+  const prefix = parts[`${axis}Prefix`];
+  const suffix = parts[`${axis}Suffix`];
+  if (prefix && suffix) throw new Error("Use only one hemisphere per coordinate axis.");
+  const hemisphere = (prefix ?? suffix)?.toUpperCase();
+  if (!Number.isFinite(degrees) || !Number.isFinite(minutes) || !Number.isFinite(seconds)) {
     throw new Error("Coordinate contains a non-numeric angle component.");
   }
-  if (Math.abs(parts.minutes) >= 60 || parts.minutes < 0) {
+  if (minutes >= 60 || minutes < 0) {
     throw new Error("Coordinate minutes must be between 0 and 60.");
   }
-  if (Math.abs(parts.seconds) >= 60 || parts.seconds < 0) {
+  if (seconds >= 60 || seconds < 0) {
     throw new Error("Coordinate seconds must be between 0 and 60.");
   }
 
-  const signFromHemisphere = parts.hemisphere === "S" || parts.hemisphere === "W" ? -1 : 1;
-  const signFromDegree = parts.degrees < 0 ? -1 : 1;
-  const sign = parts.hemisphere ? signFromHemisphere : signFromDegree;
-  const value = Math.abs(parts.degrees) + parts.minutes / 60 + parts.seconds / 3600;
+  const signFromHemisphere = hemisphere === "S" || hemisphere === "W" ? -1 : 1;
+  const signFromDegree = degreeText.startsWith("-") ? -1 : 1;
+  const explicitSign = /^[+-]/.test(degreeText);
+  if (hemisphere && explicitSign && signFromDegree !== signFromHemisphere) {
+    throw new Error("Coordinate sign conflicts with its hemisphere.");
+  }
+  const sign = hemisphere ? signFromHemisphere : signFromDegree;
+  const value = Math.abs(degrees) + minutes / 60 + seconds / 3600;
   const decimal = sign * value;
   const limit = axis === "latitude" ? 90 : 180;
   if (Math.abs(decimal) > limit) {
@@ -256,41 +238,39 @@ function validateLonLat(coordinate: LonLat): { ok: true; coordinate: LonLat } | 
   return { ok: true, coordinate };
 }
 
-function applyHemisphere(value: number, input: string, axis: "latitude" | "longitude"): number {
-  const positive = axis === "latitude" ? "N" : "E";
-  const negative = axis === "latitude" ? "S" : "W";
-  if (containsHemisphere(input, negative)) return -Math.abs(value);
-  if (containsHemisphere(input, positive)) return Math.abs(value);
-  return value;
+function transformCrs(projectCrs: string): string {
+  const normalized = normalizeCrsName(projectCrs);
+  assertProjectedCrs(normalized);
+  if (normalized === "LOCAL" || normalized.startsWith("LOCAL:")) {
+    throw new Error("WGS84 transforms are unavailable for a LOCAL project CRS.");
+  }
+  return normalized;
 }
 
-function containsHemisphere(input: string, hemisphere: string): boolean {
-  return new RegExp(`(^|[^A-Z])${hemisphere}([^A-Z]|$)`, "i").test(input);
-}
-
-function extractNumbers(input: string): number[] {
-  return (input.match(/[+-]?\d+(?:\.\d+)?/g) ?? []).map(Number).filter(Number.isFinite);
+function fixedWithSign(value: number, precision: number): string {
+  return Object.is(value, -0) ? `-${value.toFixed(precision)}` : value.toFixed(precision);
 }
 
 function formatDdm(value: number, axis: "latitude" | "longitude"): string {
-  const absolute = Math.abs(value);
-  const degrees = Math.floor(absolute);
-  const minutes = (absolute - degrees) * 60;
+  // Round total display units before splitting, so 60 minutes carries into degrees.
+  const ticks = Math.round(Math.abs(value) * 60 * 10000);
+  const degrees = Math.floor(ticks / 600000);
+  const minutes = (ticks % 600000) / 10000;
   return `${degrees}° ${minutes.toFixed(4)}' ${hemisphereFor(value, axis)}`;
 }
 
 function formatDms(value: number, axis: "latitude" | "longitude"): string {
-  const absolute = Math.abs(value);
-  const degrees = Math.floor(absolute);
-  const minuteFloat = (absolute - degrees) * 60;
-  const minutes = Math.floor(minuteFloat);
-  const seconds = (minuteFloat - minutes) * 60;
+  const ticks = Math.round(Math.abs(value) * 3600 * 100);
+  const degrees = Math.floor(ticks / 360000);
+  const minutes = Math.floor((ticks % 360000) / 6000);
+  const seconds = (ticks % 6000) / 100;
   return `${degrees}° ${minutes}' ${seconds.toFixed(2)}" ${hemisphereFor(value, axis)}`;
 }
 
 function hemisphereFor(value: number, axis: "latitude" | "longitude"): "N" | "S" | "E" | "W" {
-  if (axis === "latitude") return value < 0 ? "S" : "N";
-  return value < 0 ? "W" : "E";
+  const negative = value < 0 || Object.is(value, -0);
+  if (axis === "latitude") return negative ? "S" : "N";
+  return negative ? "W" : "E";
 }
 
 function assertFinitePair(a: number, b: number, message: string): void {

@@ -32,6 +32,27 @@ const RtkQualitySchema = z.object({
   nmeaQualityCode: z.number().optional(),
 });
 
+const GnssCaptureEvidenceSchema = z.object({
+  schemaVersion: z.literal("gnss-capture-v1"),
+  observationId: z.string().min(1),
+  sessionId: z.string().min(1),
+  transport: z.enum(["web_serial", "android_ble", "android_spp", "android_usb", "ios_ble", "ios_mfi", "local_tcp", "replay"]),
+  receivedAt: z.string().min(1),
+  receivedMonotonicMs: z.number().finite().min(0),
+  receiverObservedAt: z.string().min(1).optional(),
+  sourceCoordinateFrame: z.string().min(1),
+  coordinateEpoch: z.number().finite().optional(),
+  height: z.object({
+    meters: z.number().finite(),
+    type: z.enum(["ellipsoidal", "orthometric", "unknown"]),
+    geoidSeparationMeters: z.number().finite().optional(),
+  }).optional(),
+  antennaReference: z.enum(["arp", "phase_center", "pole_tip", "tilt_compensated", "unknown"]),
+  sentenceTypes: z.array(z.string().min(1)),
+  coherent: z.boolean(),
+  rawRecordHashes: z.array(z.string().min(1)).optional(),
+});
+
 const SurveyPointSchema = z.object({
   id: z.string().min(1),
   label: z.string().min(1),
@@ -42,6 +63,7 @@ const SurveyPointSchema = z.object({
   source: z.enum(["device_gps", "external_gnss", "imported", "manual"]),
   confidence: z.enum(["rtk_fixed", "rtk_float", "dgps", "autonomous_gps", "imagery_digitized", "imported_cad", "user_estimated", "optimized"]),
   rtk: RtkQualitySchema.optional(),
+  captureEvidence: GnssCaptureEvidenceSchema.optional(),
   notes: z.string().optional(),
 });
 
@@ -175,6 +197,11 @@ const ObstacleZoneSchema = z.object({
   hardConflict: z.boolean(),
   noSpray: z.boolean(),
   confidence: z.enum(["rtk_fixed", "rtk_float", "dgps", "autonomous_gps", "imagery_digitized", "imported_cad", "user_estimated", "optimized"]),
+  vertexCaptureEvidence: z.array(GnssCaptureEvidenceSchema.nullable()).optional(),
+}).superRefine((obstacle, context) => {
+  if (obstacle.vertexCaptureEvidence && obstacle.vertexCaptureEvidence.length !== obstacle.polygon.length) {
+    context.addIssue({ code: "custom", message: "Obstacle vertex capture evidence must align with polygon vertices.", path: ["vertexCaptureEvidence"] });
+  }
 });
 
 const ProjectMapFeatureKindSchema = z.enum([
@@ -219,14 +246,52 @@ const ProjectMapFeatureGeometrySchema = z.discriminatedUnion("type", [
   }),
 ]);
 
+const ProjectMapFeatureGeometryByKind: Record<z.infer<typeof ProjectMapFeatureKindSchema>, Array<z.infer<typeof ProjectMapFeatureGeometrySchema>["type"]>> = {
+  pump_location: ["Point"],
+  well_location: ["Point"],
+  underground_pipeline: ["LineString"],
+  underground_wire: ["LineString"],
+  power_pole: ["Point"],
+  power_line: ["LineString"],
+  tree: ["Point"],
+  road: ["LineString"],
+  access_lane: ["LineString"],
+  ditch: ["LineString"],
+  canal: ["LineString"],
+  fence: ["LineString"],
+  planning_boundary: ["Polygon"],
+  machine_zone: ["Polygon", "Circle", "LineString"],
+  linear_move_path: ["LineString"],
+  measurement_line: ["LineString"],
+  end_gun_mark: ["Point"],
+  end_gun_arc: ["Circle", "LineString"],
+  corner_swing_limit: ["Polygon", "LineString"],
+};
+
 const ProjectMapFeatureSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   kind: ProjectMapFeatureKindSchema,
   geometry: ProjectMapFeatureGeometrySchema,
   confidence: z.enum(["rtk_fixed", "rtk_float", "dgps", "autonomous_gps", "imagery_digitized", "imported_cad", "user_estimated", "optimized"]),
+  vertexCaptureEvidence: z.array(GnssCaptureEvidenceSchema.nullable()).optional(),
   notes: z.string().optional(),
   properties: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()])).optional(),
+}).superRefine((feature, context) => {
+  const allowedGeometry = ProjectMapFeatureGeometryByKind[feature.kind];
+  if (!allowedGeometry.includes(feature.geometry.type)) {
+    context.addIssue({
+      code: "custom",
+      message: `${feature.kind} requires ${allowedGeometry.join(" or ")} geometry.`,
+      path: ["geometry", "type"],
+    });
+  }
+  const expectedEvidenceCount = feature.geometry.type === "Point" || feature.geometry.type === "Circle"
+    ? 1
+    : feature.geometry.vertices.length;
+  if (feature.vertexCaptureEvidence && feature.vertexCaptureEvidence.length !== expectedEvidenceCount) {
+    context.addIssue({ code: "custom", message: "Map feature capture evidence must align with geometry vertices.", path: ["vertexCaptureEvidence"] });
+  }
 });
 
 const ProjectMapFeatureWgs84GeometrySchema = z.discriminatedUnion("type", [
@@ -270,9 +335,15 @@ export const PivotProjectSchema = z.object({
   unitSystem: z.enum(["metric", "us_survey_feet"]),
   settings: ProjectSettingsSchema.optional(),
   fieldBoundary: z.array(XySchema).min(3),
+  fieldBoundaryCaptureEvidence: z.array(GnssCaptureEvidenceSchema.nullable()).optional(),
   pivotCenter: XySchema,
   waterSource: XySchema,
   powerSource: XySchema,
+  infrastructureObservationRefs: z.object({
+    pivot_center: z.string().min(1).optional(),
+    water_source: z.string().min(1).optional(),
+    power_source: z.string().min(1).optional(),
+  }).optional(),
   machine: PivotMachineSchema,
   obstacles: z.array(ObstacleZoneSchema),
   surveyPoints: z.array(SurveyPointSchema),
@@ -288,6 +359,30 @@ export const PivotProjectSchema = z.object({
       message: error instanceof Error ? error.message : "Projected CRS required.",
       path: ["projectCrs"],
     });
+  }
+  if (project.fieldBoundaryCaptureEvidence && project.fieldBoundaryCaptureEvidence.length !== project.fieldBoundary.length) {
+    context.addIssue({
+      code: "custom",
+      message: "Field-boundary capture evidence must align with boundary vertices.",
+      path: ["fieldBoundaryCaptureEvidence"],
+    });
+  }
+  const observations = new Map<string, typeof project.surveyPoints[number]>();
+  project.surveyPoints.forEach((observation, index) => {
+    if (observations.has(observation.id)) {
+      context.addIssue({ code: "custom", message: `Duplicate survey observation ID ${observation.id}; explicit repair is required.`, path: ["surveyPoints", index, "id"] });
+    }
+    observations.set(observation.id, observation);
+  });
+  for (const [role, target] of [
+    ["pivot_center", project.pivotCenter], ["water_source", project.waterSource], ["power_source", project.powerSource],
+  ] as const) {
+    const id = project.infrastructureObservationRefs?.[role];
+    if (!id) continue;
+    const observation = observations.get(id);
+    if (!observation || observation.projected.x !== target.x || observation.projected.y !== target.y) {
+      context.addIssue({ code: "custom", message: `Infrastructure observation reference ${id} must resolve to its exact projected XY coordinate.`, path: ["infrastructureObservationRefs", role] });
+    }
   }
 });
 

@@ -188,8 +188,13 @@ assert.ok(workbenchStyleWithAdvisoryMachineRender.layers.some((layer) => layer.i
 assert.equal(willRheaRenderModel.status, "ready");
 assert.equal(willRheaRenderModel.instances.length, 2);
 assert.equal(willRheaFeatureCollectionWithReadyRender.features.some((feature) => feature.properties.layerType === "allowed_coverage"), false);
-assert.equal(willRheaFeatureCollectionWithReadyRender.features.some((feature) => feature.properties.layerType === "wheel_track_path"), false);
-assert.equal(willRheaFeatureCollectionWithReadyRender.features.some((feature) => feature.properties.layerType === "tower_location"), false);
+assert.equal(willRheaFeatureCollectionWithReadyRender.features.some((feature) => (
+  (feature.properties.layerType === "wheel_track_path" || feature.properties.layerType === "combined_last_wheel_machine_end_path")
+  && feature.properties.designLayer === "derived_machine_path"
+  && feature.properties.provenance === "canonical_machine_specification"
+)), true);
+assert.equal(willRheaFeatureCollectionWithReadyRender.features.some((feature) => feature.properties.layerType === "tower_location"), true);
+assert.equal(willRheaFeatureCollectionWithReadyRender.features.some((feature) => feature.properties.layerType === "corner_arm_wheel_track_path"), false);
 assert.equal(willRheaFeatureCollectionWithReadyRender.features.some((feature) => feature.properties.id === "will-rhea-generated-lrdu-circle-test"), false);
 assert.equal(willRheaFeatureCollectionWithReadyRender.features.some((feature) => feature.properties.id === "will-rhea-lrdu-distance" && feature.properties.kind === "measurement_line"), true);
 assert.equal(willRheaFeatureCollectionWithReadyRender.features.some((feature) => feature.properties.layerType === "advisory_machine_lrdu_path"), true);

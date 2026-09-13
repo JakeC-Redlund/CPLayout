@@ -6,13 +6,13 @@
   "types": "src/index.ts",
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
-    "test": "tsx src/coordinates.test.ts && tsx src/cornerArmCatalog.test.ts && tsx src/cornerGpsMapImport.test.ts && tsx src/cornerGpsMapExport.test.ts && tsx src/cornerGpsMapLegacyEvidence.test.ts && tsx src/settings.test.ts && tsx src/mapTilePackages.test.ts && tsx src/referenceOverlays.test.ts && tsx src/imageryEvidence.test.ts && tsx src/navigationMenuXml.test.ts && tsx src/projectDocument.test.ts && tsx src/projectKml.test.ts && tsx src/projectXml.test.ts && tsx src/projectReducer.test.ts && tsx src/units.test.ts",
+    "test": "tsx src/coordinates.test.ts && tsx src/coordinatesSafety.test.ts && tsx src/cornerArmCatalog.test.ts && tsx src/cornerGpsMapImport.test.ts && tsx src/cornerGpsMapExport.test.ts && tsx src/cornerGpsMapLegacyEvidence.test.ts && tsx src/settings.test.ts && tsx src/mapTilePackages.test.ts && tsx src/referenceOverlays.test.ts && tsx src/mapReferenceViewModel.test.ts && tsx src/imageryEvidence.test.ts && tsx src/manualDesign.test.ts && tsx src/navigationMenuXml.test.ts && tsx src/projectDocument.test.ts && tsx src/projectKml.test.ts && tsx src/projectXml.test.ts && tsx src/projectReducer.test.ts && tsx src/provenanceSafety.test.ts && tsx src/units.test.ts",
     "validate": "npm run typecheck && npm test"
   },
   "dependencies": {
     "@placemarkio/tokml": "^0.3.9",
     "@tmcw/togeojson": "^7.1.2",
-    "@xmldom/xmldom": "^0.9.10",
+    "@xmldom/xmldom": "0.9.12",
     "proj4": "2.20.8",
     "zod": "4.4.3"
   },

@@ -5,6 +5,7 @@ node_modules/
 dist/
 dist-android/
 web-build/
+apps/mobile/public/maplibre/
 reports/android-native-verification/
 reports/client-kmz-advisory/
 reports/android-layout/

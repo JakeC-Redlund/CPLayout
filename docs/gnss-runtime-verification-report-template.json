@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "cplayout-gnss-runtime-proof-v1",
+  "evidenceContractVersion": "cplayout-gnss-derived-evidence-v1",
+  "evidenceContractReference": "docs/gnss-derived-evidence-contract.md",
+  "status": "incomplete",
+  "generatedAt": "",
+  "commit": "",
+  "platform": "",
+  "projectId": "",
+  "projectCrs": "",
+  "verticalReference": {
+    "heightType": "",
+    "datum": "",
+    "referencePoint": ""
+  },
+  "comparisonFrame": {
+    "kind": "local_orthonormal_enu",
+    "linearUnit": "meters",
+    "referenceFrame": "",
+    "realization": "",
+    "coordinateEpoch": "",
+    "referencePoint": "",
+    "origin": {
+      "latitudeDegrees": null,
+      "longitudeDegrees": null,
+      "ellipsoidalHeightMeters": null
+    }
+  },
+  "sourceCrs": "EPSG:4326",
+  "sourceCrsConfirmed": false,
+  "receiver": {
+    "manufacturer": "",
+    "model": "",
+    "firmware": ""
+  },
+  "antenna": {
+    "model": "",
+    "referencePoint": "",
+    "heightMeters": null
+  },
+  "corrections": {
+    "sourceType": "",
+    "delivery": "",
+    "credentialMaterialStored": false,
+    "rawPayloadsStored": false
+  },
+  "capturePolicy": {
+    "canonicalCoordinates": "projected_xy",
+    "rawWgs84Canonical": false,
+    "operatorConfirmedWritesOnly": true
+  },
+  "acceptance": {
+    "maxHorizontalRmsMeters": 0.03,
+    "maxControlErrorMeters": 0.10,
+    "maxThreeDimensionalErrorMeters": 0.10,
+    "maxObservationAgeSeconds": 2,
+    "maxCorrectionAgeSeconds": 3
+  },
+  "results": {
+    "controlPointCount": 0,
+    "horizontalRmsMeters": 0,
+    "maxControlErrorMeters": 0,
+    "threeDimensionalRmsMeters": 0,
+    "maxThreeDimensionalErrorMeters": 0,
+    "verticalRmsMeters": 0,
+    "maxVerticalErrorMeters": 0,
+    "maxObservationAgeSeconds": 0,
+    "maxCorrectionAgeSeconds": 0,
+    "reconnectPassed": false,
+    "staleObservationGatePassed": false,
+    "disconnectedCaptureGatePassed": false,
+    "checksumFailureGatePassed": false
+  },
+  "sessions": [
+    { "id": "", "startedAt": "", "endedAt": "", "sampleCount": 0, "rtkFixedSampleCount": 0 }
+  ],
+  "evidence": [
+    { "kind": "observation_summary", "path": "gnss-observation-summary.json", "sha256": "" },
+    { "kind": "control_point_comparison", "path": "gnss-control-point-comparison.json", "sha256": "" }
+  ]
+}

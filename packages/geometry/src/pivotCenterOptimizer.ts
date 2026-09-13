@@ -1,4 +1,5 @@
 import type { PivotProject, XY } from "@cplayout/core";
+import { completeCalculation, type Calculation } from "./calculation";
 
 import { DEFAULT_BOUNDARY_EPSILON_SQUARE_METERS, boundsForGeometry, evaluateLayout, validateWetCoverageWithinField } from "./geometry";
 import { scoreLayoutAlternative, type RankedLayoutAlternative } from "./layoutScoring";
@@ -47,6 +48,13 @@ export function optimizePivotCenter(
   project: PivotProject,
   options: PivotCenterOptimizerOptions = {},
 ): PivotCenterAlternative[] {
+  return completeCalculation(optimizePivotCenterSteps(project, options));
+}
+
+export function* optimizePivotCenterSteps(
+  project: PivotProject,
+  options: PivotCenterOptimizerOptions = {},
+): Calculation<PivotCenterAlternative[]> {
   const gridDivisions = Math.max(2, Math.floor(options.gridDivisions ?? DEFAULT_GRID_DIVISIONS));
   const maxAlternatives = Math.max(1, Math.floor(options.maxAlternatives ?? DEFAULT_MAX_ALTERNATIVES));
   const boundaryEpsilonSquareMeters = options.boundaryEpsilonSquareMeters ?? DEFAULT_BOUNDARY_EPSILON_SQUARE_METERS;
@@ -57,13 +65,19 @@ export function optimizePivotCenter(
     ...generateBoundingBoxGrid(project.fieldBoundary, gridDivisions),
   ]);
 
-  const seedAlternatives = seeds
-    .map((seed, index) => tryBuildAlternative(project, seed, index, boundaryEpsilonSquareMeters))
-    .filter((alternative): alternative is PivotCenterAlternative => alternative !== null);
-  const refinedAlternatives = seedAlternatives
+  const seedAlternatives: PivotCenterAlternative[] = [];
+  for (const [index, seed] of seeds.entries()) {
+    const alternative = tryBuildAlternative(project, seed, index, boundaryEpsilonSquareMeters);
+    if (alternative) seedAlternatives.push(alternative);
+    yield;
+  }
+  const refinementSeeds = seedAlternatives
     .sort(compareAlternatives)
-    .slice(0, Math.max(maxAlternatives, 6))
-    .flatMap((alternative, index) => refineAlternative(project, alternative, index, gridDivisions, boundaryEpsilonSquareMeters));
+    .slice(0, Math.max(maxAlternatives, 6));
+  const refinedAlternatives: PivotCenterAlternative[] = [];
+  for (const [index, alternative] of refinementSeeds.entries()) {
+    refinedAlternatives.push(...yield* refineAlternative(project, alternative, index, gridDivisions, boundaryEpsilonSquareMeters));
+  }
 
   return dedupeAlternatives([...seedAlternatives, ...refinedAlternatives])
     .sort(compareAlternatives)
@@ -202,13 +216,13 @@ function generateBoundingBoxGrid(fieldBoundary: XY[], gridDivisions: number): Pi
   return seeds;
 }
 
-function refineAlternative(
+function* refineAlternative(
   project: PivotProject,
   alternative: PivotCenterAlternative,
   index: number,
   gridDivisions: number,
   boundaryEpsilonSquareMeters: number,
-): PivotCenterAlternative[] {
+): Calculation<PivotCenterAlternative[]> {
   const bounds = boundsForGeometry([project.fieldBoundary]);
   const step = Math.max(
     1,
@@ -222,7 +236,7 @@ function refineAlternative(
     { x: -step, y: -step },
     { x: step, y: step },
   ];
-  return offsets
+  const seeds = offsets
     .map((offset, offsetIndex) => ({
       point: {
         x: alternative.pivotCenter.x + offset.x,
@@ -231,9 +245,14 @@ function refineAlternative(
       kind: "local_refinement" as PivotCenterSeedKind,
       index: index * 10 + offsetIndex,
     }))
-    .filter((seed) => pointInPolygon(seed.point, project.fieldBoundary) && distanceToRing(seed.point, project.fieldBoundary) > 0.001)
-    .map((seed) => tryBuildAlternative(project, seed, seed.index, boundaryEpsilonSquareMeters))
-    .filter((candidate): candidate is PivotCenterAlternative => candidate !== null);
+    .filter((seed) => pointInPolygon(seed.point, project.fieldBoundary) && distanceToRing(seed.point, project.fieldBoundary) > 0.001);
+  const candidates: PivotCenterAlternative[] = [];
+  for (const seed of seeds) {
+    const candidate = tryBuildAlternative(project, seed, seed.index, boundaryEpsilonSquareMeters);
+    if (candidate) candidates.push(candidate);
+    yield;
+  }
+  return candidates;
 }
 
 function dedupeAlternatives(alternatives: PivotCenterAlternative[]): PivotCenterAlternative[] {

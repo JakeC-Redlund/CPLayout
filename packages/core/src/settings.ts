@@ -25,7 +25,7 @@ export type AerialImageryMode = typeof AERIAL_IMAGERY_MODES[number];
 export const MAPPING_WORKFLOW_MODES = ["design", "layout"] as const;
 export type MappingWorkflowMode = typeof MAPPING_WORKFLOW_MODES[number];
 
-export const GPS_FIX_ORDER = ["invalid", "autonomous", "dgps", "rtk_float", "rtk_fixed", "ppp"] as const;
+export const GPS_FIX_ORDER = ["invalid", "autonomous", "dgps", "ppp", "rtk_float", "rtk_fixed"] as const;
 export type MinimumGpsFixType = typeof GPS_FIX_ORDER[number];
 
 export interface DrawingSettings {
@@ -42,6 +42,7 @@ export interface GpsQualityThresholds {
   maxHdop: number;
   maxHorizontalAccuracyMeters: number;
   maxCorrectionAgeSeconds: number;
+  maxObservationAgeSeconds: number;
 }
 
 export interface OfflineMapPreferences {
@@ -149,6 +150,7 @@ export const GpsQualityThresholdsSchema = z.object({
   maxHdop: z.number().min(0.1).max(99),
   maxHorizontalAccuracyMeters: z.number().min(0.001).max(100),
   maxCorrectionAgeSeconds: z.number().min(0).max(3600),
+  maxObservationAgeSeconds: z.number().min(0.1).max(60).default(2),
 });
 
 export const OfflineMapPreferencesSchema = z.object({
@@ -274,6 +276,7 @@ export function defaultAppSettings(): AppSettings {
       maxHdop: 1.2,
       maxHorizontalAccuracyMeters: 0.05,
       maxCorrectionAgeSeconds: 3,
+      maxObservationAgeSeconds: 2,
     },
     layoutReview: {
       requiredBoundaryClearanceMeters: DEFAULT_LAYOUT_SAFETY_ZONE_METERS,

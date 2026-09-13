@@ -34,6 +34,40 @@ assert.ok(bundle.manifest.files.includes(PROJECT_MAP_XML_FILENAME));
 assert.ok(bundle.files[MAP_PACKAGES_CSV_FILENAME].startsWith("id,name,packageType"));
 assert.doesNotMatch(bundle.files[PROJECT_JSON_FILENAME], /onlineImagery|referenceOverlay|tileUrlTemplate|walkthroughProgress|packageDirectory/);
 
+const archiveCaptureEvidence = {
+  schemaVersion: "gnss-capture-v1" as const,
+  observationId: "archive-session:172814:1000",
+  sessionId: "archive-session",
+  transport: "replay" as const,
+  receivedAt: "2026-08-09T12:00:00.000Z",
+  receivedMonotonicMs: 1000,
+  sourceCoordinateFrame: "EPSG:4326",
+  antennaReference: "unknown" as const,
+  sentenceTypes: ["GGA", "GST"],
+  coherent: true,
+};
+const evidenceArchiveProject: PivotProject = {
+  ...sampleProject,
+  surveyPoints: [{
+    id: "archive-evidence-point",
+    label: "Archive evidence point",
+    role: "control",
+    projected: sampleProject.pivotCenter,
+    observedAt: "2026-08-09T12:00:00.000Z",
+    source: "external_gnss",
+    confidence: "rtk_fixed",
+    captureEvidence: archiveCaptureEvidence,
+  }],
+};
+const evidenceArchiveBundle = buildProjectArchiveBundle(
+  evidenceArchiveProject,
+  evaluateLayout(evidenceArchiveProject),
+  exportScenarioGeoJson(evidenceArchiveProject, evaluateLayout(evidenceArchiveProject)),
+  "2026-08-09T12:00:00.000Z",
+);
+const evidenceArchiveRoundTrip = importProjectArchiveZip(exportProjectArchiveZip(evidenceArchiveBundle));
+assert.equal(evidenceArchiveRoundTrip.surveyPoints[0]?.captureEvidence?.observationId, archiveCaptureEvidence.observationId);
+
 const localOnlyDraftProject = {
   ...sampleProject,
   settings: {

@@ -11,3 +11,4 @@ export * from "./mapInteraction";
 export * from "./onlineImagery";
 export * from "./pivotCenterOptimizer";
 export * from "./visualLayoutReview";
+export * from "./calculation";

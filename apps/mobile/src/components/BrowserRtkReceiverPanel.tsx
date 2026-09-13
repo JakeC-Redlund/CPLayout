@@ -1,28 +1,36 @@
 import { CheckCircle2, CircleAlert, PlugZap, Satellite } from "lucide-react-native";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 import {
-  projectLonLatToXy,
   type AppSettings,
+  type GnssCaptureEvidence,
   type ObstacleZone,
   type PivotProject,
+  type ProjectMutationResult,
   type ProjectMapFeature,
   type ProjectMapFeatureKind,
   type RtkQuality,
-  type SourceConfidence,
   type SurveyPoint,
   type XY,
 } from "@cplayout/core";
 import {
+  EMPTY_RTK_QUALITY,
+  captureEvidenceFromObservation,
   createNmeaStreamAccumulator,
-  evaluateRtkQualityGate,
-  latestPositionFromNmeaSamples,
+  evaluateGnssObservationGate,
+  latestGnssObservationEpoch,
   parseNmeaStreamChunk,
-  rtkQualityFromNmeaSamples,
-  surveyPointFromNmeaSamples,
+  surveyPointFromGnssObservation,
+  withNmeaReceptionMetadata,
+  type GnssObservationEpoch,
+  type GnssSession,
   type ParsedNmeaSample,
 } from "@cplayout/gnss";
+
+import { WebSerialGnssTransport, type WebSerialLike } from "../gnss/webSerialTransport";
+import { browserSerialSessionOwner } from "../gnss/webSerialSessionOwner";
+import { captureDraftMatchesProject, capturedDraftConfidence, type CapturedDraftVertex } from "../gnss/captureDraft";
 
 export interface BrowserRtkReceiverStatus {
   connected: boolean;
@@ -35,26 +43,18 @@ export interface BrowserRtkReceiverStatus {
 interface BrowserRtkReceiverPanelProps {
   project: PivotProject;
   settings: AppSettings;
-  onAddSurveyPoint: (point: Omit<SurveyPoint, "id" | "observedAt"> & { id?: string; observedAt?: string }) => void;
-  onCommitBoundaryDraft: (vertices: XY[]) => void;
-  onCommitObstacleDraft: (vertices: XY[], kind: ObstacleZone["kind"], confidence?: SourceConfidence) => void;
-  onAddMapFeature: (feature: Omit<ProjectMapFeature, "id"> & { id?: string }) => void;
+  onAddSurveyPoint: (point: Omit<SurveyPoint, "id" | "observedAt"> & { id?: string; observedAt?: string }) => ProjectMutationResult;
+  onCommitBoundaryDraft: (vertices: XY[], captureEvidence: Array<GnssCaptureEvidence | null>) => ProjectMutationResult;
+  onCommitObstacleDraft: (vertices: XY[], kind: ObstacleZone["kind"], confidence: SurveyPoint["confidence"], captureEvidence: Array<GnssCaptureEvidence | null>) => ProjectMutationResult;
+  onAddMapFeature: (feature: Omit<ProjectMapFeature, "id"> & { id?: string }) => ProjectMutationResult;
   onStatusChange?: (status: BrowserRtkReceiverStatus | null) => void;
 }
 
-type WebSerialPort = {
-  open: (options: { baudRate: number }) => Promise<void>;
-  close: () => Promise<void>;
-  readable: ReadableStream<Uint8Array> | null;
-};
-
-type WebSerial = {
-  requestPort: () => Promise<WebSerialPort>;
-};
-
 type NavigatorWithSerial = Navigator & {
-  serial?: WebSerial;
+  serial?: WebSerialLike;
 };
+
+type PreparedCapturedVertex = CapturedDraftVertex;
 
 const SURVEY_ROLE_OPTIONS: { role: SurveyPoint["role"]; label: string }[] = [
   { role: "control", label: "Control" },
@@ -106,35 +106,90 @@ export function BrowserRtkReceiverPanel({
   const serial = getWebSerial();
   const serialSupported = Boolean(serial);
   const [baudRateText, setBaudRateText] = useState("115200");
+  const [sourceCrsText, setSourceCrsText] = useState("unknown");
   const [connected, setConnected] = useState(false);
+  const ownership = useSyncExternalStore(browserSerialSessionOwner.subscribe, browserSerialSessionOwner.getSnapshot, browserSerialSessionOwner.getSnapshot);
+  const connectionPending = ownership.phase === "opening";
+  const closePending = ownership.phase === "closing";
+  const cleanupFailed = ownership.phase === "cleanup_failed";
   const [status, setStatus] = useState(serialSupported ? "No receiver connected." : "Web Serial is unavailable in this browser.");
-  const [samples, setSamples] = useState<ParsedNmeaSample[]>([]);
+  const [observation, setObservation] = useState<GnssObservationEpoch | null>(null);
+  const [nowMonotonicMs, setNowMonotonicMs] = useState(monotonicNow());
   const [sentenceCount, setSentenceCount] = useState(0);
   const [surveyRole, setSurveyRole] = useState<SurveyPoint["role"]>("control");
   const [obstacleKind, setObstacleKind] = useState<ObstacleZone["kind"]>("exclusion");
   const [mapFeatureKind, setMapFeatureKind] = useState<ProjectMapFeatureKind>("underground_pipeline");
-  const [boundaryDraft, setBoundaryDraft] = useState<XY[]>([]);
-  const [obstacleDraft, setObstacleDraft] = useState<XY[]>([]);
-  const [mapFeatureDraft, setMapFeatureDraft] = useState<XY[]>([]);
-  const portRef = useRef<WebSerialPort | null>(null);
-  const readerRef = useRef<ReadableStreamDefaultReader<Uint8Array> | null>(null);
+  const [boundaryDraft, setBoundaryDraft] = useState<PreparedCapturedVertex[]>([]);
+  const [obstacleDraft, setObstacleDraft] = useState<PreparedCapturedVertex[]>([]);
+  const [mapFeatureDraft, setMapFeatureDraft] = useState<PreparedCapturedVertex[]>([]);
+  const samplesRef = useRef<ParsedNmeaSample[]>([]);
+  const observationRef = useRef<GnssObservationEpoch | null>(null);
+  const lastEpochRef = useRef<GnssObservationEpoch | null>(null);
+  const sessionRef = useRef<GnssSession | null>(null);
   const runIdRef = useRef(0);
+  const mountedRef = useRef(true);
 
-  const quality = useMemo(() => rtkQualityFromNmeaSamples(samples), [samples]);
-  const gate = useMemo(() => evaluateRtkQualityGate(quality, settings.gpsQuality), [quality, settings.gpsQuality]);
-  const latestPosition = useMemo(() => latestPositionFromNmeaSamples(samples), [samples]);
-  const canCapture = gate.accepted && latestPosition !== null;
+  const gate = useMemo(() => evaluateGnssObservationGate(observation, {
+    connected,
+    nowMonotonicMs,
+    sourceCoordinateFrame: sourceCrsText,
+  }, settings.gpsQuality), [connected, nowMonotonicMs, observation, settings.gpsQuality, sourceCrsText]);
+  const quality = gate.quality ?? EMPTY_RTK_QUALITY;
+  const canCapture = gate.accepted && observation !== null;
   const mapFeatureOption = MAP_FEATURE_OPTIONS.find((option) => option.kind === mapFeatureKind) ?? MAP_FEATURE_OPTIONS[0];
-  const canSaveMapFeature = mapFeatureOption.geometry === "Point" ? canCapture : mapFeatureDraft.length >= 2;
-  const confidence = confidenceForQuality(quality);
+  const canSaveMapFeature = mapFeatureOption.geometry === "Point"
+    ? canCapture
+    : mapFeatureDraft.length >= (mapFeatureOption.geometry === "Polygon" ? 3 : 2);
+  const mapFeatureGeometryLabel = mapFeatureOption.geometry === "LineString" ? "Line" : mapFeatureOption.geometry;
+
+  function updateObservation(next: GnssObservationEpoch | null): void {
+    observationRef.current = next;
+    if (next) lastEpochRef.current = next;
+    setObservation(next);
+  }
+
+  function captureObservationNow(): GnssObservationEpoch | null {
+    const latest = observationRef.current;
+    const currentGate = evaluateGnssObservationGate(latest, {
+      connected: browserSerialSessionOwner.getSnapshot().phase === "connected"
+        && sessionRef.current !== null && sessionRef.current.id === latest?.sessionId,
+      nowMonotonicMs: monotonicNow(),
+      sourceCoordinateFrame: sourceCrsText,
+    }, settings.gpsQuality);
+    if (!latest || !currentGate.accepted) {
+      setStatus("RTK gate is closed; capture was blocked.");
+      return null;
+    }
+    return { ...latest, quality: currentGate.quality };
+  }
 
   useEffect(() => {
+    mountedRef.current = true;
     return () => {
+      mountedRef.current = false;
       runIdRef.current += 1;
-      void readerRef.current?.cancel().catch(() => undefined);
-      void portRef.current?.close().catch(() => undefined);
+      const owned = browserSerialSessionOwner.getSnapshot();
+      if (owned.phase === "connected" && owned.session === sessionRef.current && owned.session) {
+        void browserSerialSessionOwner.close(owned.session).catch(() => undefined);
+      }
     };
   }, []);
+
+  useEffect(() => {
+    if (ownership.error) setStatus(ownership.error);
+  }, [ownership.error]);
+
+  useEffect(() => {
+    if (!connected) return;
+    const timer = setInterval(() => setNowMonotonicMs(monotonicNow()), 500);
+    return () => clearInterval(timer);
+  }, [connected]);
+
+  useEffect(() => {
+    setBoundaryDraft([]);
+    setObstacleDraft([]);
+    setMapFeatureDraft([]);
+  }, [project.id, project.projectCrs]);
 
   useEffect(() => {
     return () => {
@@ -153,6 +208,7 @@ export function BrowserRtkReceiverPanel({
   }, [connected, gate.accepted, onStatusChange, quality, sentenceCount, status]);
 
   async function connect(): Promise<void> {
+    if (browserSerialSessionOwner.getSnapshot().phase !== "idle") return;
     if (!serial) {
       setStatus("Web Serial is unavailable in this browser.");
       return;
@@ -162,89 +218,117 @@ export function BrowserRtkReceiverPanel({
       setStatus("Baud rate must be a positive integer.");
       return;
     }
+    const runId = ++runIdRef.current;
     try {
-      const port = await serial.requestPort();
-      await port.open({ baudRate });
-      portRef.current = port;
+      const session = await browserSerialSessionOwner.open(new WebSerialGnssTransport(serial), { baudRate });
+      if (!mountedRef.current || runIdRef.current !== runId) {
+        await browserSerialSessionOwner.close(session);
+        return;
+      }
+      sessionRef.current = session;
+      samplesRef.current = [];
+      lastEpochRef.current = null;
+      updateObservation(null);
+      setSentenceCount(0);
       setConnected(true);
+      setNowMonotonicMs(monotonicNow());
       setStatus("Reading NMEA from browser serial port.");
-      const runId = runIdRef.current + 1;
-      runIdRef.current = runId;
-      void readNmeaLoop(port, runId);
+      void readNmeaLoop(session, runId);
     } catch (error) {
-      setStatus(errorMessage(error, "Could not open browser serial receiver."));
+      if (mountedRef.current && runIdRef.current === runId) setStatus(errorMessage(error, "Could not open browser serial receiver."));
     }
   }
 
   async function disconnect(): Promise<void> {
     runIdRef.current += 1;
-    const reader = readerRef.current;
-    const port = portRef.current;
-    readerRef.current = null;
-    portRef.current = null;
-    try {
-      await reader?.cancel();
-    } catch {
-      // The stream may already be closed by the browser.
-    }
-    try {
-      await port?.close();
-    } catch {
-      // The browser may have closed the device after reader cancellation.
-    }
+    const session = browserSerialSessionOwner.getSnapshot().session;
     setConnected(false);
-    setStatus("Receiver disconnected.");
+    samplesRef.current = [];
+    lastEpochRef.current = null;
+    updateObservation(null);
+    if (!session || await closeSession(session)) {
+      if (mountedRef.current) setStatus("Receiver disconnected.");
+    }
   }
 
-  async function readNmeaLoop(port: WebSerialPort, runId: number): Promise<void> {
-    if (!port.readable) {
-      setStatus("Serial port opened without a readable stream.");
-      return;
+  async function closeSession(session: GnssSession): Promise<boolean> {
+    try {
+      await browserSerialSessionOwner.close(session);
+      if (sessionRef.current === session) sessionRef.current = null;
+      return true;
+    } catch (error) {
+      if (mountedRef.current) {
+        setStatus(errorMessage(error, "Receiver cleanup failed. Retry closing the port."));
+      }
+      return false;
     }
-    const reader = port.readable.getReader();
-    readerRef.current = reader;
+  }
+
+  async function readNmeaLoop(session: GnssSession, runId: number): Promise<void> {
     const decoder = new TextDecoder();
     let accumulator = createNmeaStreamAccumulator();
     try {
-      while (runIdRef.current === runId) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        if (!value) continue;
-        const parsed = parseNmeaStreamChunk(accumulator, decoder.decode(value, { stream: true }));
+      for await (const event of session.events()) {
+        if (runIdRef.current !== runId) return;
+        if (event.type === "error") {
+          setConnected(false);
+          samplesRef.current = [];
+          updateObservation(null);
+          setStatus(event.error.message);
+          return;
+        }
+        if (event.type === "ended") {
+          setConnected(false);
+          samplesRef.current = [];
+          updateObservation(null);
+          setStatus(event.reason === "eof" ? "Receiver stream ended." : "Receiver disconnected.");
+          return;
+        }
+        const parsed = parseNmeaStreamChunk(accumulator, decoder.decode(event.bytes, { stream: true }));
         accumulator = parsed.accumulator;
         if (parsed.lines.length > 0) setSentenceCount((current) => current + parsed.lines.length);
         if (parsed.samples.length > 0) {
-          setSamples((current) => [...current, ...parsed.samples].slice(-120));
+          const stamped = withNmeaReceptionMetadata(parsed.samples, {
+            receivedAt: event.receivedAt,
+            receivedMonotonicMs: event.receivedMonotonicMs,
+          });
+          setNowMonotonicMs(event.receivedMonotonicMs);
+          const next = [...samplesRef.current, ...stamped].slice(-120);
+          samplesRef.current = next;
+          updateObservation(latestGnssObservationEpoch(next, session.id, lastEpochRef.current));
         }
       }
     } catch (error) {
-      if (runIdRef.current === runId) setStatus(errorMessage(error, "NMEA serial read failed."));
-    } finally {
-      try {
-        reader.releaseLock();
-      } catch {
-        // Ignore stale reader cleanup.
+      if (runIdRef.current === runId) {
+        setConnected(false);
+        samplesRef.current = [];
+        updateObservation(null);
+        setStatus(errorMessage(error, "NMEA serial read failed."));
       }
-      if (readerRef.current === reader) readerRef.current = null;
+    } finally {
+      if (runIdRef.current === runId && sessionRef.current === session) {
+        await closeSession(session);
+      }
     }
   }
 
   function captureSurveyPoint(): void {
-    if (!canCapture) {
-      setStatus("RTK gate is closed; survey capture was blocked.");
-      return;
-    }
+    const captureObservation = captureObservationNow();
+    if (!captureObservation) return;
     try {
-      const point = surveyPointFromNmeaSamples({
-        samples,
+      const point = surveyPointFromGnssObservation({
+        observation: captureObservation,
         projectCrs: project.projectCrs,
+        sourceCoordinateFrame: sourceCrsText,
+        transport: "web_serial",
         id: `rtk-${Date.now().toString(36)}-${project.surveyPoints.length + 1}`,
         label: `${surveyRole.replaceAll("_", " ")} RTK ${project.surveyPoints.length + 1}`,
         role: surveyRole,
-        observedAt: new Date().toISOString(),
       });
-      onAddSurveyPoint(point);
-      setStatus(`Captured ${surveyRole.replaceAll("_", " ")} survey point with ${point.confidence} confidence.`);
+      const result = onAddSurveyPoint(point);
+      setStatus(result.ok
+        ? `Captured ${surveyRole.replaceAll("_", " ")} survey point with ${formatSourceConfidence(point.confidence)} confidence.`
+        : result.error);
     } catch (error) {
       setStatus(errorMessage(error, "RTK survey capture failed."));
     }
@@ -262,66 +346,113 @@ export function BrowserRtkReceiverPanel({
     addDraftVertex(setMapFeatureDraft, "Map feature");
   }
 
-  function addDraftVertex(updateDraft: React.Dispatch<React.SetStateAction<XY[]>>, label: string): void {
-    const point = latestProjectedPoint();
-    if (!point) return;
-    updateDraft((current) => [...current, point]);
+  function addDraftVertex(updateDraft: React.Dispatch<React.SetStateAction<PreparedCapturedVertex[]>>, label: string): void {
+    const vertex = latestPreparedVertex();
+    if (!vertex) return;
+    updateDraft((current) => [...(captureDraftMatchesProject(current, project) ? current : []), vertex]);
     setStatus(`${label} RTK vertex added.`);
   }
 
   function commitBoundary(): void {
-    if (boundaryDraft.length < 3) return;
-    onCommitBoundaryDraft(boundaryDraft);
-    setBoundaryDraft([]);
-    setStatus("RTK boundary ring committed as projected XY.");
+    if (boundaryDraft.length < 3 || !validateDraftScope(boundaryDraft)) return;
+    const result = onCommitBoundaryDraft(
+      boundaryDraft.map((vertex) => vertex.projected),
+      boundaryDraft.map((vertex) => vertex.evidence),
+    );
+    if (result.ok) {
+      setBoundaryDraft([]);
+      setStatus("RTK boundary ring committed as projected XY.");
+    } else {
+      setStatus(result.error);
+    }
   }
 
   function commitObstacle(): void {
-    if (obstacleDraft.length < 3) return;
-    onCommitObstacleDraft(obstacleDraft, obstacleKind, confidence);
-    setObstacleDraft([]);
-    setStatus(`RTK ${obstacleKind} obstacle ring committed as projected XY.`);
+    if (obstacleDraft.length < 3 || !validateDraftScope(obstacleDraft)) return;
+    const result = onCommitObstacleDraft(
+      obstacleDraft.map((vertex) => vertex.projected),
+      obstacleKind,
+      capturedDraftConfidence(obstacleDraft),
+      obstacleDraft.map((vertex) => vertex.evidence),
+    );
+    if (result.ok) {
+      setObstacleDraft([]);
+      setStatus(`RTK ${obstacleKind} obstacle ring committed as projected XY.`);
+    } else {
+      setStatus(result.error);
+    }
   }
 
   function saveMapFeature(): void {
     if (!mapFeatureOption) return;
     const notes = "Captured through browser Web Serial NMEA; hardware compatibility remains unverified until a receiver proof session is recorded.";
     if (mapFeatureOption.geometry === "Point") {
-      const point = latestProjectedPoint();
-      if (!point) return;
-      onAddMapFeature({
+      const vertex = latestPreparedVertex();
+      if (!vertex) return;
+      const result = onAddMapFeature({
         name: `${mapFeatureOption.label} RTK`,
         kind: mapFeatureOption.kind,
-        geometry: { type: "Point", point },
-        confidence,
+        geometry: { type: "Point", point: vertex.projected },
+        confidence: vertex.confidence,
+        vertexCaptureEvidence: [vertex.evidence],
         notes,
       });
-      setStatus(`RTK ${mapFeatureOption.label.toLowerCase()} saved as projected XY.`);
+      setStatus(result.ok ? `RTK ${mapFeatureOption.label.toLowerCase()} saved as projected XY.` : result.error);
       return;
     }
-    if (mapFeatureDraft.length < 2) return;
-    onAddMapFeature({
+    const minimumVertices = mapFeatureOption.geometry === "Polygon" ? 3 : 2;
+    if (mapFeatureDraft.length < minimumVertices || !validateDraftScope(mapFeatureDraft)) return;
+    const result = onAddMapFeature({
       name: `${mapFeatureOption.label} RTK`,
       kind: mapFeatureOption.kind,
-      geometry: { type: "LineString", vertices: mapFeatureDraft },
-      confidence,
+      geometry: mapFeatureOption.geometry === "Polygon"
+        ? { type: "Polygon", vertices: mapFeatureDraft.map((vertex) => vertex.projected) }
+        : { type: "LineString", vertices: mapFeatureDraft.map((vertex) => vertex.projected) },
+      confidence: capturedDraftConfidence(mapFeatureDraft),
+      vertexCaptureEvidence: mapFeatureDraft.map((vertex) => vertex.evidence),
       notes,
     });
-    setMapFeatureDraft([]);
-    setStatus(`RTK ${mapFeatureOption.label.toLowerCase()} saved as projected XY.`);
+    if (result.ok) {
+      setMapFeatureDraft([]);
+      setStatus(`RTK ${mapFeatureOption.label.toLowerCase()} saved as projected XY.`);
+    } else {
+      setStatus(result.error);
+    }
   }
 
-  function latestProjectedPoint(): XY | null {
-    if (!canCapture || !latestPosition) {
-      setStatus("RTK gate is closed; geometry capture was blocked.");
-      return null;
-    }
+  function latestPreparedVertex(): PreparedCapturedVertex | null {
+    const captureObservation = captureObservationNow();
+    if (!captureObservation) return null;
     try {
-      return projectLonLatToXy({ longitude: latestPosition.longitude, latitude: latestPosition.latitude }, project.projectCrs);
+      const surveyPoint = surveyPointFromGnssObservation({
+        observation: captureObservation,
+        projectCrs: project.projectCrs,
+        sourceCoordinateFrame: sourceCrsText,
+        transport: "web_serial",
+        id: `prepared-${captureObservation.id}`,
+        label: "Prepared RTK vertex",
+      });
+      return {
+        projectId: project.id,
+        projectCrs: project.projectCrs,
+        confidence: surveyPoint.confidence,
+        projected: surveyPoint.projected,
+        evidence: surveyPoint.captureEvidence ?? captureEvidenceFromObservation({
+          observation: captureObservation,
+          transport: "web_serial",
+          sourceCoordinateFrame: sourceCrsText,
+        }),
+      };
     } catch (error) {
       setStatus(errorMessage(error, "Could not project the latest RTK fix."));
       return null;
     }
+  }
+
+  function validateDraftScope(vertices: PreparedCapturedVertex[]): boolean {
+    if (captureDraftMatchesProject(vertices, project)) return true;
+    setStatus("Capture draft belongs to a different project or CRS; commit was blocked.");
+    return false;
   }
 
   return (
@@ -340,17 +471,25 @@ export function BrowserRtkReceiverPanel({
       <View style={styles.connectionRow}>
         <TextInput
           accessibilityLabel="RTK serial baud rate"
-          editable={!connected}
+          editable={!connected && !connectionPending && !closePending && !cleanupFailed}
           keyboardType="number-pad"
           onChangeText={setBaudRateText}
           style={styles.baudInput}
           value={baudRateText}
         />
+        <TextInput
+          accessibilityLabel="Receiver source CRS"
+          autoCapitalize="characters"
+          onChangeText={setSourceCrsText}
+          placeholder="EPSG:4326"
+          style={styles.crsInput}
+          value={sourceCrsText}
+        />
         <PanelButton
-          disabled={!serialSupported}
+          disabled={!serialSupported || connectionPending || closePending}
           icon={<PlugZap size={16} color={serialSupported ? "#254234" : "#68766d"} />}
-          label={connected ? "Disconnect" : "Open Serial"}
-          onPress={() => { void (connected ? disconnect() : connect()); }}
+          label={connectionPending ? "Opening Serial" : closePending ? "Closing Serial" : cleanupFailed ? "Retry Close" : connected ? "Disconnect" : "Open Serial"}
+          onPress={() => { void (connected || cleanupFailed ? disconnect() : connect()); }}
         />
       </View>
 
@@ -362,10 +501,12 @@ export function BrowserRtkReceiverPanel({
         <RtkMetric label="VDOP" value={formatNullable(quality.vdop)} />
         <RtkMetric label="PDOP" value={formatNullable(quality.pdop)} />
         <RtkMetric label="Correction age" value={quality.correctionAgeSeconds === null ? "unknown" : `${quality.correctionAgeSeconds}s`} />
-        <RtkMetric label="Est. accuracy" value={quality.horizontalAccuracyMeters === null ? "unknown" : `${quality.horizontalAccuracyMeters.toFixed(3)} m`} />
+        <RtkMetric label="Horizontal RMS" value={quality.horizontalAccuracyMeters === null ? "unknown" : `${quality.horizontalAccuracyMeters.toFixed(3)} m`} />
+        <RtkMetric label="Observation age" value={gate.observationAgeSeconds === null ? "unknown" : `${gate.observationAgeSeconds.toFixed(1)}s`} />
+        <RtkMetric label="Receiver time" value={observation?.receiverObservedAt ?? "unavailable"} />
         <RtkMetric label="NMEA lines" value={`${sentenceCount}`} />
       </View>
-      {!gate.accepted ? <Text style={styles.gateReasons} testID="rtk-gate-reasons">{gate.reasons.slice(0, 3).join("; ") || "Waiting for accepted NMEA quality."}</Text> : null}
+      {!gate.accepted ? <Text style={styles.gateReasons} testID="rtk-gate-reasons">{gate.reasons.slice(0, 4).join("; ") || "Waiting for accepted NMEA quality."}</Text> : null}
 
       <View style={styles.captureBlock}>
         <Text style={styles.groupTitle}>Survey Point</Text>
@@ -405,7 +546,7 @@ export function BrowserRtkReceiverPanel({
         </View>
         <View style={styles.actionRow}>
           <PanelButton disabled={!canCapture || mapFeatureOption.geometry === "Point"} label={`Add Feature Vertex (${mapFeatureDraft.length})`} onPress={addMapFeatureVertex} />
-          <PanelButton disabled={!canSaveMapFeature} label={mapFeatureOption.geometry === "Point" ? "Save Point Feature" : "Save Line Feature"} primary onPress={saveMapFeature} />
+          <PanelButton disabled={!canSaveMapFeature} label={`Save ${mapFeatureGeometryLabel} Feature`} primary onPress={saveMapFeature} />
           <PanelButton disabled={mapFeatureDraft.length === 0} label="Clear Feature" onPress={() => setMapFeatureDraft([])} />
         </View>
       </View>
@@ -413,22 +554,25 @@ export function BrowserRtkReceiverPanel({
   );
 }
 
-function getWebSerial(): WebSerial | undefined {
+function getWebSerial(): WebSerialLike | undefined {
   if (Platform.OS !== "web" || typeof navigator === "undefined") return undefined;
   return (navigator as NavigatorWithSerial).serial;
 }
 
-function confidenceForQuality(quality: RtkQuality): SourceConfidence {
-  if (quality.fixType === "rtk_fixed") return "rtk_fixed";
-  if (quality.fixType === "rtk_float") return "rtk_float";
-  if (quality.fixType === "dgps") return "dgps";
-  if (quality.fixType === "autonomous" || quality.fixType === "ppp") return "autonomous_gps";
-  return "user_estimated";
+function monotonicNow(): number {
+  return typeof performance === "undefined" ? Date.now() : performance.now();
 }
 
 function formatNullable(value: number | null): string {
   if (value === null) return "unknown";
   return Number.isInteger(value) ? String(value) : value.toFixed(2);
+}
+
+function formatSourceConfidence(confidence: SurveyPoint["confidence"]): string {
+  if (confidence === "rtk_fixed") return "RTK fixed";
+  if (confidence === "rtk_float") return "RTK float";
+  if (confidence === "dgps") return "DGPS";
+  return confidence.replaceAll("_", " ");
 }
 
 function errorMessage(error: unknown, fallback: string): string {
@@ -529,6 +673,19 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     minHeight: 40,
     minWidth: 112,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+  },
+  crsInput: {
+    backgroundColor: "#ffffff",
+    borderColor: "#cdd8ca",
+    borderRadius: 8,
+    borderWidth: 1,
+    color: "#1d2c22",
+    fontSize: 14,
+    fontWeight: "800",
+    minHeight: 40,
+    minWidth: 150,
     paddingHorizontal: 10,
     paddingVertical: 8,
   },

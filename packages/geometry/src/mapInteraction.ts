@@ -56,6 +56,7 @@ export interface SnapCandidate {
 export interface SnapGeometry {
   vertices?: XY[];
   rings?: XY[][];
+  lines?: XY[][];
 }
 
 export type DraftCloseReason = "first_point_snap" | "double_click";
@@ -216,8 +217,9 @@ export function snapPointToGeometry(
 ): SnapCandidate | null {
   const vertices = geometry.vertices ?? [];
   const rings = geometry.rings ?? [];
+  const lines = geometry.lines ?? [];
   const ringVertices = rings.flat();
-  const vertexCandidate = nearestPoint(point, [...vertices, ...ringVertices]);
+  const vertexCandidate = nearestPoint(point, [...vertices, ...ringVertices, ...lines.flat()]);
   if (vertexCandidate && vertexCandidate.distanceMeters <= tolerances.vertexSnapToleranceMeters) {
     return { ...vertexCandidate, kind: "vertex" };
   }
@@ -228,6 +230,12 @@ export function snapPointToGeometry(
       const start = ring[index];
       const end = ring[(index + 1) % ring.length];
       const candidate = nearestPointOnSegment(point, start, end);
+      if (!nearestFeature || candidate.distanceMeters < nearestFeature.distanceMeters) nearestFeature = candidate;
+    }
+  }
+  for (const line of lines) {
+    for (let index = 1; index < line.length; index += 1) {
+      const candidate = nearestPointOnSegment(point, line[index - 1], line[index]);
       if (!nearestFeature || candidate.distanceMeters < nearestFeature.distanceMeters) nearestFeature = candidate;
     }
   }

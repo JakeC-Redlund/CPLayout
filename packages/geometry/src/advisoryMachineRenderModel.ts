@@ -11,17 +11,20 @@ import type {
   XY,
 } from "@cplayout/core";
 import { feetToMeters, squareMetersToAcres } from "@cplayout/core";
+import { completeCalculation, type Calculation } from "./calculation";
 
 import {
-  buildLayoutPathOverlays,
+  buildLayoutPathOverlaysSteps,
   createAnnularSector,
   createCirclePolygon,
   createSectorPolygon,
-  evaluateCornerArmPath,
+  evaluateCornerArmPathSteps,
+  evaluatePathBoundaryDistance,
   machineRadiusMeters,
   multiPolygonAreaSquareMeters,
   polygonAreaSquareMeters,
   type LayoutPathOverlay,
+  type PathBoundaryDistanceEvaluation,
 } from "./geometry";
 
 type ClipPosition = [number, number];
@@ -105,6 +108,9 @@ export interface AdvisoryMachinePathBoundaryShortfall {
   minimumShortfallMeters: number;
   shortfallSampleCount: number;
   sampledPointCount: number;
+  evaluationMethod: PathBoundaryDistanceEvaluation["method"];
+  boundaryDistanceEvaluation: PathBoundaryDistanceEvaluation;
+  clearanceStatus: "meets_required_clearance" | "shortfall" | "unresolved";
   shortfallEnvelopeAcres: number;
   towerIndex?: number;
   warnings: string[];
@@ -173,15 +179,25 @@ export function buildAdvisoryMachineRenderModel(
   project: PivotProject,
   options: AdvisoryMachineRenderOptions = {},
 ): AdvisoryMachineRenderModel {
+  return completeCalculation(buildAdvisoryMachineRenderModelSteps(project, options));
+}
+
+export function* buildAdvisoryMachineRenderModelSteps(
+  project: PivotProject,
+  options: AdvisoryMachineRenderOptions = {},
+): Calculation<AdvisoryMachineRenderModel> {
   const sourceRefs = options.sourceRefs ?? DEFAULT_ADVISORY_MACHINE_RENDER_SOURCE_REFS;
   const preferredFeatures = preferredMachineOutlineFeatures(project, options);
   const maxInstances = Math.max(1, Math.floor(options.maxInstances ?? 2));
   const instanceBuilds = preferredFeatures.slice(0, maxInstances).map((feature) => instanceFromFeature(project, feature, options));
   const completeBuilds = instanceBuilds.filter(isCompleteInstanceBuild);
   const instances = completeBuilds.map((build) => build.instance);
-  const surfaces = completeBuilds
-    .map((build) => surfaceForInstance(project, build.instance, build.outline, build.warnings, Math.max(0, options.safetyZoneMeters ?? DEFAULT_SAFETY_ZONE_METERS)));
+  const surfaces: AdvisoryMachineRenderSurface[] = [];
+  for (const build of completeBuilds) {
+    surfaces.push(yield* surfaceForInstance(project, build.instance, build.outline, build.warnings, Math.max(0, options.safetyZoneMeters ?? DEFAULT_SAFETY_ZONE_METERS)));
+  }
   const conflicts = buildPhysicalEnvelopeConflicts(surfaces);
+  yield;
   const acreLedger = buildAcreLedger(surfaces);
   const blockers = instanceBuilds.flatMap((build) => build.blockers);
   const status = instances.length > 0 && blockers.length === 0 ? "ready" : "insufficient_evidence";
@@ -321,13 +337,13 @@ function publicVflexFallbackCornerArmConfig(): AdvisoryCornerArmConfig {
   };
 }
 
-function surfaceForInstance(
+function* surfaceForInstance(
   project: PivotProject,
   instance: AdvisoryMachineRenderInstance,
   preferredOutlinePath: XY[],
   inheritedWarnings: string[],
   safetyZoneMeters: number,
-): AdvisoryMachineRenderSurface {
+): Calculation<AdvisoryMachineRenderSurface> {
   const field = toClipMultiPolygon([[project.fieldBoundary]]);
   const noSpray = toClipMultiPolygon(project.obstacles.filter((obstacle) => obstacle.noSpray).map((obstacle) => [obstacle.polygon]));
   const variantProject: PivotProject = {
@@ -343,37 +359,52 @@ function surfaceForInstance(
     radius + Math.max(0, instance.machine.endGunThrowMeters),
     instance.sweep,
   ));
-  const cornerArmPath = evaluateCornerArmPath(variantProject);
+  const cornerArmPath = yield* evaluateCornerArmPathSteps(variantProject);
+  yield;
   const cornerArmRaw = cornerArmPath ? toClipMultiPolygon(cornerArmPath.extensionEnvelope) : [];
   const wetRaw = unionClip([standardRaw, endGunRaw, cornerArmRaw]);
+  yield;
   const physicalRaw = unionClip([
     standardRaw,
     cornerArmPath ? toClipMultiPolygon(cornerArmPath.overhangEndEnvelope) : [],
     cornerArmPath ? toClipMultiPolygon(cornerArmPath.wheelTrackEnvelope) : [],
   ]);
   const standardPivotCoverage = clipAllowedToField(standardRaw, field, noSpray);
+  yield;
   const endGunWetAnnulus = clipAllowedToField(endGunRaw, field, noSpray);
+  yield;
   const cornerArmCoverage = clipAllowedToField(cornerArmRaw, field, noSpray);
+  yield;
   const clippedWetCoverage = clipAllowedToField(wetRaw, field, noSpray);
+  yield;
   const physicalEnvelope = fromClipMultiPolygon(polygonClipping.intersection(physicalRaw, field) as ClipMultiPolygon | null ?? []);
+  yield;
   const outsideWet = fromClipMultiPolygon(polygonClipping.difference(wetRaw, field) as ClipMultiPolygon);
+  yield;
   const wetInsideField = fromClipMultiPolygon(polygonClipping.intersection(wetRaw, field) as ClipMultiPolygon | null ?? []);
   const blockedByNoSprayArea = Math.max(
     0,
     multiPolygonAreaSquareMeters(wetInsideField) - multiPolygonAreaSquareMeters(clippedWetCoverage),
   );
-  const pathOverlays = buildLayoutPathOverlays(variantProject);
-  const lrduPath = pathOverlays.find((overlay) => overlay.kind === "end_of_machine") ?? null;
+  const pathOverlays = yield* buildLayoutPathOverlaysSteps(variantProject);
+  yield;
+  const lrduPath = pathOverlays.find((overlay) => overlay.machinePathRoles.includes("last_wheel")) ?? null;
   const towerPaths = pathOverlays.filter((overlay) => overlay.kind === "wheel_track");
   const cornerArmWheelPath = pathOverlays.find((overlay) => overlay.kind === "corner_arm_wheel_track") ?? null;
   const cornerArmOverhangEndPath = pathOverlays.find((overlay) => overlay.kind === "corner_arm_overhang_end") ?? null;
-  const pathBoundaryShortfalls = [
-    ...(lrduPath ? [pathBoundaryShortfall(variantProject, lrduPath, safetyZoneMeters, "lrdu")] : []),
-    ...towerPaths.map((overlay) => pathBoundaryShortfall(variantProject, overlay, safetyZoneMeters, "tower")),
-    ...(cornerArmWheelPath ? [pathBoundaryShortfall(variantProject, cornerArmWheelPath, safetyZoneMeters, "corner_arm_wheel_track")] : []),
-    ...(cornerArmOverhangEndPath ? [pathBoundaryShortfall(variantProject, cornerArmOverhangEndPath, safetyZoneMeters, "corner_arm_overhang_end")] : []),
-    endGunPathBoundaryShortfall(variantProject, safetyZoneMeters),
-  ].filter((shortfall): shortfall is AdvisoryMachinePathBoundaryShortfall => Boolean(shortfall));
+  const pathBoundaryShortfalls: AdvisoryMachinePathBoundaryShortfall[] = [];
+  const paths: { path: LayoutPathOverlay; kind: AdvisoryMachinePathBoundaryShortfall["kind"] }[] = [
+    ...(lrduPath ? [{ path: lrduPath, kind: "lrdu" as const }] : []),
+    ...towerPaths.map((path) => ({ path, kind: "tower" as const })),
+    ...(cornerArmWheelPath ? [{ path: cornerArmWheelPath, kind: "corner_arm_wheel_track" as const }] : []),
+    ...(cornerArmOverhangEndPath ? [{ path: cornerArmOverhangEndPath, kind: "corner_arm_overhang_end" as const }] : []),
+  ];
+  for (const { path, kind } of paths) {
+    pathBoundaryShortfalls.push(pathBoundaryShortfall(variantProject, path, safetyZoneMeters, kind));
+    yield;
+  }
+  const endGunShortfall = endGunPathBoundaryShortfall(variantProject, safetyZoneMeters);
+  if (endGunShortfall) pathBoundaryShortfalls.push(endGunShortfall);
 
   return {
     instanceId: instance.id,
@@ -454,16 +485,12 @@ function sampledPathShortfall(input: {
   towerIndex?: number;
   warnings: string[];
 }): AdvisoryMachinePathBoundaryShortfall {
-  const angles = input.project.machine.sweep.mode === "full_circle"
-    ? Array.from({ length: 144 }, (_value, index) => (index / 144) * 360)
-    : buildSweepAngles(input.project.machine.sweep.startAngleDegrees, input.project.machine.sweep.stopAngleDegrees, input.project.machine.sweep.direction, 144);
-  const shortfalls = angles.map((angle) => {
-    const point = polarOffset(input.project.pivotCenter, input.radiusMeters, angle);
-    const signedDistance = signedDistanceToBoundary(point, input.project.fieldBoundary);
-    return signedDistance - input.pathBufferMeters - input.safetyZoneMeters;
-  });
-  const minimumShortfall = shortfalls.reduce((minimum, value) => Math.min(minimum, value), Number.POSITIVE_INFINITY);
-  const shortfallSampleCount = shortfalls.filter((value) => value < 0).length;
+  const boundaryDistance = evaluatePathBoundaryDistance(input.project, input.radiusMeters);
+  const minimumShortfall = boundaryDistance.minimumBoundaryDistanceMeters - input.pathBufferMeters - input.safetyZoneMeters;
+  const upperShortfall = boundaryDistance.upperBoundMeters - input.pathBufferMeters - input.safetyZoneMeters;
+  const clearanceStatus = upperShortfall < 0 ? "shortfall"
+    : boundaryDistance.converged && minimumShortfall >= 0 ? "meets_required_clearance" : "unresolved";
+  const shortfallSampleCount = upperShortfall < 0 && boundaryDistance.evaluatedPointCount > 0 ? 1 : 0;
   return {
     kind: input.kind,
     label: input.label,
@@ -472,15 +499,22 @@ function sampledPathShortfall(input: {
     radiusMeters: round(input.radiusMeters),
     pathBufferMeters: round(input.pathBufferMeters),
     safetyZoneMeters: round(input.safetyZoneMeters),
-    minimumSignedDistanceToBoundaryMeters: round(minimumShortfall + input.pathBufferMeters + input.safetyZoneMeters),
-    minimumShortfallMeters: round(Math.max(0, -minimumShortfall)),
+    minimumSignedDistanceToBoundaryMeters: boundaryDistance.lowerBoundMeters,
+    minimumShortfallMeters: Math.max(0, -minimumShortfall),
     shortfallSampleCount,
-    sampledPointCount: angles.length,
+    sampledPointCount: boundaryDistance.evaluatedPointCount,
+    evaluationMethod: boundaryDistance.method,
+    boundaryDistanceEvaluation: boundaryDistance,
+    clearanceStatus,
     shortfallEnvelopeAcres: round(squareMetersToAcres(multiPolygonAreaSquareMeters(input.shortfallEnvelope))),
     ...(input.towerIndex === undefined ? {} : { towerIndex: input.towerIndex }),
     warnings: [
-      "Path shortfall is sampled advisory projected/local XY evidence and does not mutate canonical project geometry.",
-      ...(shortfallSampleCount > 0 ? [`${shortfallSampleCount} sampled path points are short of the path buffer plus safety zone.`] : []),
+      boundaryDistance.method === "exact_full_circle"
+        ? "Contained full-circle clearance uses the center-to-boundary formula with a numerical allowance."
+        : "Path shortfall uses conservative signed-distance bounds over the complete sweep in projected/local XY.",
+      ...boundaryDistance.warnings,
+      ...(clearanceStatus === "shortfall" ? ["The path is short of the path buffer plus safety zone."] : []),
+      ...(clearanceStatus === "unresolved" ? ["The clearance range does not establish the required path buffer plus safety zone."] : []),
       ...input.warnings,
     ],
   };
@@ -689,60 +723,6 @@ function normalizeDegrees(angle: number): number {
 function shortestSignedDelta(from: number, to: number): number {
   const delta = normalizeDegrees(to - from);
   return delta > 180 ? delta - 360 : delta;
-}
-
-function buildSweepAngles(startDegrees: number, stopDegrees: number, direction: "clockwise" | "counterclockwise", segments: number): number[] {
-  const start = normalizeDegrees(startDegrees);
-  const stop = normalizeDegrees(stopDegrees);
-  const clockwiseSpan = normalizeDegrees(start - stop) || 360;
-  const counterclockwiseSpan = normalizeDegrees(stop - start) || 360;
-  const span = direction === "clockwise" ? -clockwiseSpan : counterclockwiseSpan;
-  return Array.from({ length: segments + 1 }, (_value, index) => start + (span * index) / segments);
-}
-
-function polarOffset(center: XY, radiusMeters: number, angleDegreesValue: number): XY {
-  const angle = (angleDegreesValue * Math.PI) / 180;
-  return {
-    x: center.x + Math.cos(angle) * radiusMeters,
-    y: center.y + Math.sin(angle) * radiusMeters,
-  };
-}
-
-function signedDistanceToBoundary(point: XY, ring: XY[]): number {
-  const boundaryDistance = distanceToRing(point, ring);
-  return pointInPolygon(point, ring) ? boundaryDistance : -boundaryDistance;
-}
-
-function distanceToRing(point: XY, ring: XY[]): number {
-  if (ring.length === 0) return Number.POSITIVE_INFINITY;
-  let minimum = Number.POSITIVE_INFINITY;
-  for (let index = 0; index < ring.length; index += 1) {
-    const start = ring[index];
-    const end = ring[(index + 1) % ring.length];
-    minimum = Math.min(minimum, distanceToSegment(point, start, end));
-  }
-  return minimum;
-}
-
-function distanceToSegment(point: XY, start: XY, end: XY): number {
-  const dx = end.x - start.x;
-  const dy = end.y - start.y;
-  const lengthSquared = dx * dx + dy * dy;
-  if (lengthSquared <= 0) return distance(point, start);
-  const t = Math.max(0, Math.min(1, ((point.x - start.x) * dx + (point.y - start.y) * dy) / lengthSquared));
-  return distance(point, { x: start.x + t * dx, y: start.y + t * dy });
-}
-
-function pointInPolygon(point: XY, polygon: XY[]): boolean {
-  let inside = false;
-  for (let index = 0, previous = polygon.length - 1; index < polygon.length; previous = index, index += 1) {
-    const a = polygon[index];
-    const b = polygon[previous];
-    const intersects = ((a.y > point.y) !== (b.y > point.y))
-      && point.x < ((b.x - a.x) * (point.y - a.y)) / (b.y - a.y || Number.EPSILON) + a.x;
-    if (intersects) inside = !inside;
-  }
-  return inside;
 }
 
 function radiusWithEndGun(machine: PivotMachine): number {

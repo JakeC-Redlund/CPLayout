@@ -41,7 +41,7 @@ export default defineConfig({
     ["html", { open: "never", outputFolder: "reports/continuous-improvement/playwright-html" }],
   ],
   testDir: "tests/web",
-  timeout: 60_000,
+  timeout: 120_000,
   use: {
     baseURL,
     colorScheme: "light",

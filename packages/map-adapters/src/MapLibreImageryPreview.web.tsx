@@ -1,6 +1,8 @@
-import maplibregl, { type StyleSpecification } from "maplibre-gl";
+import type { StyleSpecification } from "maplibre-gl";
+import { maplibregl, maplibreErrorMessage } from "./maplibreRuntime.web";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { X } from "lucide-react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { resolveOnlineImageryProvider, resolveReferenceOverlaySource, type OnlineImageryProvider } from "@cplayout/core";
 import { projectLayoutToWgs84FeatureCollection, projectWgs84Bounds, projectWgs84Center } from "./mapOverlayGeoJson";
@@ -15,6 +17,8 @@ export function MapLibreImageryPreview({
   visible,
 }: MapLibreImageryPreviewProps): React.JSX.Element | null {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const [previewClosed, setPreviewClosed] = useState(false);
+  const [mapInitializationError, setMapInitializationError] = useState<string | null>(null);
   const [runtimeError, setRuntimeError] = useState<string | null>(null);
   const provider = useMemo(() => {
     if (!settings.onlineImagery.enabled) return null;
@@ -38,40 +42,49 @@ export function MapLibreImageryPreview({
   );
 
   useEffect(() => {
-    if (!visible || !containerRef.current || provider === null || provider instanceof Error) return undefined;
+    if (!visible || previewClosed || !containerRef.current || provider === null || provider instanceof Error || mapInitializationError) return undefined;
     setRuntimeError(null);
-    registerPmtilesProtocolOnce();
-    const map = new maplibregl.Map({
-      attributionControl: false,
-      center,
-      container: containerRef.current,
-      interactive: false,
-      style: buildPreviewStyle(provider, featureCollection, referenceOverlay, settings.referenceOverlay),
-      zoom: Math.min(15, provider.maxZoom),
-    });
+    let map: maplibregl.Map;
+    try {
+      registerPmtilesProtocolOnce();
+      map = new maplibregl.Map({
+        attributionControl: false,
+        center,
+        container: containerRef.current,
+        interactive: false,
+        style: buildPreviewStyle(provider, featureCollection, referenceOverlay, settings.referenceOverlay),
+        zoom: Math.min(15, provider.maxZoom),
+      });
 
-    map.fitBounds(
-      [
-        [bounds[0], bounds[1]],
-        [bounds[2], bounds[3]],
-      ],
-      {
-        duration: 0,
-        maxZoom: Math.min(17, provider.maxZoom),
-        padding: 36,
-      },
-    );
+      map.fitBounds(
+        [
+          [bounds[0], bounds[1]],
+          [bounds[2], bounds[3]],
+        ],
+        {
+          duration: 0,
+          maxZoom: Math.min(17, provider.maxZoom),
+          padding: 36,
+        },
+      );
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      setMapInitializationError(/webgl/i.test(detail)
+        ? "WebGL imagery preview is unavailable. The projected SVG map remains active."
+        : "The imagery preview could not start. The projected SVG map remains active.");
+      return undefined;
+    }
     map.on("error", (event) => {
-      const message = event.error?.message;
+      const message = event.error ? maplibreErrorMessage(event.error) : null;
       if (message) setRuntimeError(message);
     });
 
     return () => {
       map.remove();
     };
-  }, [bounds, center, featureCollection, provider, referenceOverlay, settings.referenceOverlay, visible]);
+  }, [bounds, center, featureCollection, mapInitializationError, previewClosed, provider, referenceOverlay, settings.referenceOverlay, visible]);
 
-  if (!visible) return null;
+  if (!visible || previewClosed) return null;
 
   const providerError = provider instanceof Error ? provider.message : null;
   const activeProvider = provider instanceof Error || provider === null ? null : provider;
@@ -84,9 +97,18 @@ export function MapLibreImageryPreview({
           <Text style={styles.previewSubtitle}>{activeProvider?.name ?? "Custom source"} · WGS84 display overlay</Text>
         </View>
         <Text style={styles.previewBadge}>Preview only</Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Close imagery preview"
+          onPress={() => setPreviewClosed(true)}
+          style={styles.closeButton}
+          testID="maplibre-preview-close"
+        >
+          <X size={18} color="#254234" />
+        </Pressable>
       </View>
-      {providerError ? (
-        <Text style={styles.errorText}>{providerError}</Text>
+      {providerError || mapInitializationError ? (
+        <Text style={styles.errorText} testID="maplibre-preview-fallback">{providerError ?? mapInitializationError}</Text>
       ) : (
         React.createElement("div", {
           "aria-label": "MapLibre imagery preview",
@@ -94,7 +116,7 @@ export function MapLibreImageryPreview({
           style: mapContainerStyle,
         })
       )}
-      {runtimeError ? <Text style={styles.errorText}>{runtimeError}</Text> : null}
+      {runtimeError && !mapInitializationError ? <Text numberOfLines={2} style={styles.errorText}>{runtimeError}</Text> : null}
       <Text style={styles.attributionText}>
         {(activeProvider ?? settingsFallbackProvider()).attribution} · {(activeProvider ?? settingsFallbackProvider()).licenseText}
       </Text>
@@ -142,6 +164,8 @@ function buildPreviewStyle(
       fillLayer("wheel-track-outside-fill", "wheel_track_outside_field", "#e68b58", 0.2),
       fillLayer("end-machine-path-fill", "end_machine_path", "#253f2f", 0.16),
       fillLayer("end-machine-path-outside-fill", "end_machine_outside_field", "#e68b58", 0.24),
+      fillLayer("combined-machine-path-outside-fill", "combined_last_wheel_machine_end_outside_field", "#e68b58", 0.24),
+      fillLayer("end-gun-reach-outside-fill", "end_gun_reach_outside_field", "#e68b58", 0.2),
       fillLayer("corner-arm-wheel-track-fill", "corner_arm_wheel_track_path", "#8b6f2a", 0.16),
       fillLayer("corner-arm-wheel-track-outside-fill", "corner_arm_wheel_track_outside_field", "#e68b58", 0.2),
       fillLayer("corner-arm-overhang-end-fill", "corner_arm_overhang_end_path", "#2f6d73", 0.14),
@@ -151,6 +175,8 @@ function buildPreviewStyle(
       lineLayer("wheel-track-outside-line", "wheel_track_outside_field", "#a14322", 2, { "line-dasharray": [1, 1] }),
       lineLayer("end-machine-path-halo", "end_machine_path", "#fffef8", 5),
       lineLayer("end-machine-path-line", "end_machine_path", "#15241b", 2.5),
+      lineLayer("combined-machine-path-line", "combined_last_wheel_machine_end_path", "#0f766e", 3, { "line-dasharray": [5, 1.5, 1, 1.5] }),
+      lineLayer("end-gun-reach-line", "end_gun_reach_path", "#b42318", 2, { "line-dasharray": [6, 2, 1, 2] }),
       lineLayer("end-machine-path-outside-halo", "end_machine_outside_field", "#fff4e8", 5),
       lineLayer("end-machine-path-outside-line", "end_machine_outside_field", "#a14322", 2.5, { "line-dasharray": [2, 1.2] }),
       lineLayer("corner-arm-wheel-track-line", "corner_arm_wheel_track_path", "#80631f", 2, { "line-dasharray": [1.2, 1.2] }),
@@ -236,6 +262,12 @@ const mapContainerStyle: React.CSSProperties = {
 };
 
 const styles = StyleSheet.create({
+  closeButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    height: 36,
+    width: 36,
+  },
   previewBand: {
     backgroundColor: "#eef3ea",
     borderTopColor: "#d8ded6",

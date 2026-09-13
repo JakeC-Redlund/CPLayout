@@ -12,8 +12,7 @@ import {
   OFFLINE_PACKAGE_TYPES,
   ONLINE_IMAGERY_PROVIDER_LIST,
   REFERENCE_OVERLAY_SCHEMAS,
-  resolveAerialReferenceImagerySource,
-  resolveReferenceOverlaySource,
+  buildMapReferenceViewModel,
   validateCustomOpenImagerySource,
   type AerialImageryMode,
   type OnlineImageryCustomSource,
@@ -48,31 +47,20 @@ export function SettingsPanel({ mapPackages = [], settings, onChange }: Settings
     }),
     [mapLibreTarget, mapPackages],
   );
-  const aerialReferenceStatus = useMemo(
-    () => resolveAerialReferenceImagerySource({
-      preferences: settings.aerialImagery,
-      onlineImagery: settings.onlineImagery,
+  const referenceView = useMemo(
+    () => buildMapReferenceViewModel({
+      settings,
       mapPackages,
       target: mapLibreTarget,
+      surface: "workbench",
     }),
-    [mapLibreTarget, mapPackages, settings.aerialImagery, settings.onlineImagery],
+    [mapLibreTarget, mapPackages, settings.aerialImagery, settings.onlineImagery, settings.referenceOverlay],
   );
-  const aerialWorkflow = settings.aerialImagery.mode === "off" && settings.onlineImagery.enabled && settings.onlineImagery.providerId === "usgs_imagery_only"
-    ? "usgs_live_preview"
-    : settings.aerialImagery.mode === "off"
-      ? "off"
-      : settings.aerialImagery.mode === "manual"
-        ? "manual_local"
-        : "auto_local";
-  const referenceProvider = aerialReferenceStatus.onlineProvider;
-  const aerialSummary = aerialReferenceStatus.sourceKind === "local_raster"
-    ? `${aerialReferenceStatus.localAerial.autoApplied ? "Auto local first" : "Manual local"}: ${aerialReferenceStatus.localAerial.packageName ?? aerialReferenceStatus.localAerial.packageId} · ${aerialReferenceStatus.localAerial.reason}`
-    : referenceProvider
-      ? `${aerialProviderLabel(aerialReferenceStatus.autoFallback, settings.aerialImagery.mode, referenceProvider.id)}: ${referenceProvider.name} · ${referenceProvider.coverageLabel} · connected preview only`
-      : aerialReferenceStatus.reason;
+  const { aerialWorkflow, aerialSummary, referenceSummary: referenceOverlaySummary } = referenceView;
+  const referenceProvider = referenceView.aerial.onlineProvider;
   const imagerySourceSummary = referenceProvider
     ? `${referenceProvider.coverageLabel} · ${referenceProvider.projection} · ${referenceProvider.tileScheme.toUpperCase()} ${referenceProvider.tileSize}px · z${referenceProvider.minZoom}-${referenceProvider.maxZoom} · live preview only`
-    : "Live imagery disabled · browser map uses offline overlay only · no external tile source is requested";
+    : "No connected aerial provider selected · local raster packages remain reference-only";
   const imageryGuardrailSummary = referenceProvider
     ? `${referenceProvider.attribution} · ${referenceProvider.licenseText} · imagery is reference-only and never canonical geometry`
     : "Imagery settings are browser-local aids; project exports keep projected/local XY geometry and exclude live tile requests.";
@@ -85,18 +73,6 @@ export function SettingsPanel({ mapPackages = [], settings, onChange }: Settings
     }),
     [mapPackages, referenceOverlayTarget],
   );
-  const referenceOverlayStatus = useMemo(
-    () => resolveReferenceOverlaySource({
-      allowPublicNetwork: settings.onlineImagery.enabled,
-      preferences: settings.referenceOverlay,
-      mapPackages,
-      target: referenceOverlayTarget,
-    }),
-    [mapPackages, referenceOverlayTarget, settings.onlineImagery.enabled, settings.referenceOverlay],
-  );
-  const referenceOverlaySummary = referenceOverlayStatus.canRender
-    ? `${referenceOverlayStatus.autoApplied ? "Auto-applied" : "Manual"}: ${referenceOverlayStatus.packageName ?? referenceOverlayStatus.packageId} · ${referenceOverlayStatus.sourceKind === "public_raster" ? "public no-key raster" : referenceOverlayStatus.schema.replaceAll("_", " ")} · ${referenceOverlayStatus.reason}`
-    : referenceOverlayStatus.reason;
 
   useEffect(() => {
     setCustomDraft(customDraftFromSettings(settings));
@@ -329,6 +305,24 @@ export function SettingsPanel({ mapPackages = [], settings, onChange }: Settings
           onDecrease={() => update({ gpsQuality: { ...settings.gpsQuality, maxHdop: clamp(settings.gpsQuality.maxHdop - 0.1, 0.1, 99) } })}
           onIncrease={() => update({ gpsQuality: { ...settings.gpsQuality, maxHdop: clamp(settings.gpsQuality.maxHdop + 0.1, 0.1, 99) } })}
         />
+        <Stepper
+          label="Max horizontal accuracy"
+          value={`${settings.gpsQuality.maxHorizontalAccuracyMeters.toFixed(2)} m`}
+          onDecrease={() => update({ gpsQuality: { ...settings.gpsQuality, maxHorizontalAccuracyMeters: clamp(settings.gpsQuality.maxHorizontalAccuracyMeters - 0.01, 0.001, 100) } })}
+          onIncrease={() => update({ gpsQuality: { ...settings.gpsQuality, maxHorizontalAccuracyMeters: clamp(settings.gpsQuality.maxHorizontalAccuracyMeters + 0.01, 0.001, 100) } })}
+        />
+        <Stepper
+          label="Max correction age"
+          value={`${settings.gpsQuality.maxCorrectionAgeSeconds.toFixed(1)} s`}
+          onDecrease={() => update({ gpsQuality: { ...settings.gpsQuality, maxCorrectionAgeSeconds: clamp(settings.gpsQuality.maxCorrectionAgeSeconds - 0.5, 0, 3600) } })}
+          onIncrease={() => update({ gpsQuality: { ...settings.gpsQuality, maxCorrectionAgeSeconds: clamp(settings.gpsQuality.maxCorrectionAgeSeconds + 0.5, 0, 3600) } })}
+        />
+        <Stepper
+          label="Max observation age"
+          value={`${settings.gpsQuality.maxObservationAgeSeconds.toFixed(1)} s`}
+          onDecrease={() => update({ gpsQuality: { ...settings.gpsQuality, maxObservationAgeSeconds: clamp(settings.gpsQuality.maxObservationAgeSeconds - 0.5, 0.1, 60) } })}
+          onIncrease={() => update({ gpsQuality: { ...settings.gpsQuality, maxObservationAgeSeconds: clamp(settings.gpsQuality.maxObservationAgeSeconds + 0.5, 0.1, 60) } })}
+        />
         <View style={styles.buttonRow}>
           {GPS_FIX_ORDER.filter((fixType) => fixType !== "invalid").map((fixType) => (
             <Choice
@@ -400,7 +394,7 @@ export function SettingsPanel({ mapPackages = [], settings, onChange }: Settings
           </View>
         ) : null}
         <Text style={styles.lockedText} testID="settings-reference-overlay-summary">
-          {referenceOverlaySummary}
+          {referenceOverlaySummary}{referenceView.runtimeLabel ? ` · ${referenceView.runtimeLabel}` : ""}
         </Text>
         <Text style={styles.lockedText} testID="settings-reference-overlay-guardrail">
           Display-only overlays; local vector packages are preferred, then public no-key USGS Imagery Topo may be used when live reference sources are enabled. Project ZIPs keep projected/local XY geometry and no public OSM tiles, keys, accounts, or bulk network tile caches are used.
@@ -660,12 +654,6 @@ function mapStyleLabel(style: MapStyle): string {
     case "topographic":
       return "Topo";
   }
-}
-
-function aerialProviderLabel(autoFallback: boolean, aerialMode: AppSettings["aerialImagery"]["mode"], providerId: string): string {
-  if (providerId === "usgs_imagery_only" && (autoFallback || aerialMode === "auto")) return "Auto USGS fallback";
-  if (providerId === "usgs_imagery_only") return "USGS only";
-  return "Connected preview";
 }
 
 function referenceOverlaySchemaLabel(schema: ReferenceOverlaySchema): string {

@@ -15,7 +15,7 @@ import {
   polygonAreaSquareMeters,
   validateWetCoverageWithinField,
 } from "./geometry";
-import { sampleProject } from "@cplayout/core";
+import { sampleProject, willRheaJasonHarmelinkExampleProject } from "@cplayout/core";
 
 const square = [
   { x: 0, y: 0 },
@@ -58,6 +58,15 @@ assert.equal(lrduAnchorRadiusMeters(sampleProject.machine), 188.8);
 
 const towers = calculateTowerPoints({ x: 0, y: 0 }, sampleProject.machine, 0);
 assert.deepEqual(towers.map((tower) => Number(tower.radiusMeters.toFixed(1))), [47.2, 94.4, 141.6, 188.8]);
+
+const willRheaPathOverlays = buildLayoutPathOverlays(willRheaJasonHarmelinkExampleProject);
+const willRheaCombinedPath = willRheaPathOverlays.find((overlay) => overlay.machinePathRoles.includes("last_wheel"));
+assert.equal(willRheaJasonHarmelinkExampleProject.fieldBoundary.length, 61);
+assert.equal(Number(willRheaCombinedPath?.radiusMeters.toFixed(1)), 462.9);
+assert.deepEqual(willRheaCombinedPath?.machinePathRoles, ["last_wheel", "machine_end"]);
+assert.equal(willRheaCombinedPath?.coincidentPath, true);
+assert.equal(willRheaPathOverlays.some((overlay) => overlay.kind.startsWith("corner_arm")), false);
+assert.equal(Number(evaluateLayout(willRheaJasonHarmelinkExampleProject).metrics.outsideFieldAcres.toFixed(3)), 74.691);
 
 const sector = createSectorPolygon(
   { x: 0, y: 0 },
@@ -174,7 +183,7 @@ const fullCirclePathOverlays = buildLayoutPathOverlays({
 });
 const fullCircleStandardOverlays = fullCirclePathOverlays.filter((overlay) => overlay.kind === "wheel_track" || overlay.kind === "end_of_machine");
 const fullCircleDefaultCornerArmOverlays = fullCirclePathOverlays.filter((overlay) => overlay.kind === "corner_arm_wheel_track" || overlay.kind === "corner_arm_overhang_end");
-assert.deepEqual(fullCirclePathOverlays.map((overlay) => overlay.kind), ["wheel_track", "wheel_track", "end_of_machine", "corner_arm_wheel_track", "corner_arm_overhang_end"]);
+assert.deepEqual(fullCirclePathOverlays.map((overlay) => overlay.kind), ["wheel_track", "wheel_track", "end_of_machine"]);
 assert.deepEqual(fullCirclePathOverlays.filter((overlay) => overlay.kind === "wheel_track").map((overlay) => overlay.radiusMeters), [15, 35]);
 assert.equal(fullCirclePathOverlays[0]?.towerIndex, 1);
 assert.equal(fullCircleStandardOverlays.find((overlay) => overlay.kind === "end_of_machine")?.radiusMeters, 40);
@@ -185,15 +194,9 @@ assert.ok(fullCirclePathOverlays.every((overlay) => overlay.advisoryOnly === tru
 assert.ok(fullCirclePathOverlays.every((overlay) => overlay.canonicalGeometryMutation === false));
 assert.ok(fullCirclePathOverlays.every((overlay) => multiPolygonAreaSquareMeters(overlay.insideFieldEnvelope) > 0));
 assert.ok(fullCircleStandardOverlays.every((overlay) => multiPolygonAreaSquareMeters(overlay.outsideFieldEnvelope) === 0));
-assert.equal(fullCircleDefaultCornerArmOverlays.length, 2);
-assert.ok(fullCircleDefaultCornerArmOverlays.every((overlay) => overlay.pathModel === "max_extension_envelope"));
-assert.ok(fullCircleDefaultCornerArmOverlays.every((overlay) => overlay.extensionEvidenceSource === "none"));
-assert.ok(fullCircleDefaultCornerArmOverlays.every((overlay) => overlay.wheelOverhangSeparationVerified === true));
+assert.equal(fullCircleDefaultCornerArmOverlays.length, 0);
+assert.equal(evaluateCornerArmPath(fieldBoundedProject), null);
 assertCenterlinesStayInsideField(fullCirclePathOverlays, fieldBoundedProject.fieldBoundary);
-const defaultCornerArmOverhang = fullCircleDefaultCornerArmOverlays.find((overlay) => overlay.kind === "corner_arm_overhang_end");
-assert.ok(defaultCornerArmOverhang);
-const defaultCornerArmRadii = defaultCornerArmOverhang.centerlineSegments.flat().map((point) => Math.hypot(point.x - fieldBoundedProject.pivotCenter.x, point.y - fieldBoundedProject.pivotCenter.y));
-assert.ok(Math.max(...defaultCornerArmRadii) - Math.min(...defaultCornerArmRadii) > 1);
 assert.equal(JSON.stringify({
   fieldBoundary: fieldBoundedProject.fieldBoundary,
   machine: fieldBoundedProject.machine,
@@ -228,12 +231,13 @@ const clearanceRows = evaluateMachineBoundaryClearance(fieldBoundedProject, {
     showMachineBoundaryDistances: true,
   },
 });
-assert.deepEqual(clearanceRows.map((row) => row.kind), ["pivot_center", "wheel_track", "end_of_machine", "corner_arm_wheel_track", "corner_arm_overhang_end"]);
+assert.deepEqual(clearanceRows.map((row) => row.kind), ["pivot_center", "wheel_track"]);
 assert.equal(clearanceRows.every((row) => row.advisoryOnly === true && row.canonicalGeometryMutation === false), true);
 assert.equal(clearanceRows.find((row) => row.kind === "pivot_center")?.minimumBoundaryDistanceMeters, 50);
 assert.equal(clearanceRows.find((row) => row.kind === "wheel_track")?.minimumBoundaryDistanceMeters, 30);
-assert.equal(clearanceRows.find((row) => row.kind === "end_of_machine")?.minimumBoundaryDistanceMeters, 30);
-assert.equal(clearanceRows.find((row) => row.kind === "corner_arm_overhang_end")?.meetsRequiredBoundaryClearance, false);
+assert.deepEqual(buildLayoutPathOverlays(fieldBoundedProject)[0]?.machinePathRoles, ["last_wheel", "machine_end"]);
+assert.equal(buildLayoutPathOverlays(fieldBoundedProject)[0]?.coincidentPath, true);
+assert.equal(clearanceRows.find((row) => row.kind === "wheel_track")?.sampledPointCount, 0);
 
 const strictClearanceRows = evaluateMachineBoundaryClearance(fieldBoundedProject, {
   layoutReview: {
@@ -241,7 +245,7 @@ const strictClearanceRows = evaluateMachineBoundaryClearance(fieldBoundedProject
     showMachineBoundaryDistances: true,
   },
 });
-const strictMachineRow = strictClearanceRows.find((row) => row.kind === "end_of_machine");
+const strictMachineRow = strictClearanceRows.find((row) => row.kind === "wheel_track");
 assert.equal(strictMachineRow?.meetsRequiredBoundaryClearance, false);
 assert.equal(strictMachineRow?.clearanceShortfallMeters, 5);
 
@@ -258,6 +262,32 @@ const partialOutsideClearanceRows = evaluateMachineBoundaryClearance({
 });
 assert.ok((partialOutsideClearanceRows.find((row) => row.kind === "end_of_machine")?.minimumBoundaryDistanceMeters ?? 0) < 0);
 assert.ok(partialOutsideClearanceRows.some((row) => row.kind === "end_gun_reach"));
+
+const explicitCornerPreview = buildLayoutPathOverlays(fieldBoundedProject, {
+  cornerArmPreview: {
+    id: "explicit-corner-preview",
+    name: "Explicit corner preview",
+    advisoryOnly: true,
+    lengthMeters: 15,
+    guidanceType: "operator_supplied",
+    sequencingType: "operator_supplied",
+    orientation: "unknown",
+    confidence: "user_estimated",
+    sourceRefs: [{ sourceId: "SRC-EXPLICIT-PREVIEW", limit: "Synthetic explicit preview test." }],
+  },
+});
+assert.equal(explicitCornerPreview.filter((overlay) => overlay.kind.startsWith("corner_arm")).length, 2);
+assert.match(evaluateCornerArmPath(fieldBoundedProject, { cornerArmPreview: {
+  id: "explicit-corner-preview",
+  name: "Explicit corner preview",
+  advisoryOnly: true,
+  lengthMeters: 15,
+  guidanceType: "operator_supplied",
+  sequencingType: "operator_supplied",
+  orientation: "unknown",
+  confidence: "user_estimated",
+  sourceRefs: [{ sourceId: "SRC-EXPLICIT-PREVIEW", limit: "Synthetic explicit preview test." }],
+} })?.warnings.join("\n") ?? "", /explicitly enabled/);
 
 const cornerArmFallbackProject = {
   ...fieldBoundedProject,

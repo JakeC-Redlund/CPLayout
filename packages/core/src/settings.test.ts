@@ -31,6 +31,7 @@ assert.equal(ONLINE_IMAGERY_PROVIDER_CATALOG.usgs_imagery_only.cachePolicy, "int
 assert.equal(defaults.coordinateDisplayFormat, "decimal_degrees");
 assert.equal(defaults.mappingWorkflowMode, "design");
 assert.equal(defaults.gpsQuality.minimumFixType, "rtk_fixed");
+assert.equal(defaults.gpsQuality.maxObservationAgeSeconds, 2);
 assert.equal(parseAppSettings({ ...defaults, referenceOverlay: { ...defaults.referenceOverlay, enabled: false, mode: undefined } }).referenceOverlay.mode, "off");
 assert.equal(parseAppSettings({ ...defaults, referenceOverlay: { ...defaults.referenceOverlay, enabled: true, mode: undefined } }).referenceOverlay.mode, "manual");
 
@@ -67,6 +68,7 @@ assert.equal("onlineImagery" in manualAerial, false);
 assert.equal(gpsFixMeetsThreshold("rtk_fixed", "rtk_float"), true);
 assert.equal(gpsFixMeetsThreshold("autonomous", "rtk_float"), false);
 assert.equal(gpsFixMeetsThreshold("unknown", "autonomous"), false);
+assert.equal(gpsFixMeetsThreshold("ppp", "rtk_float"), false);
 
 assert.throws(
   () => parseAppSettings({ ...defaults, offlineMaps: { ...defaults.offlineMaps, allowNetworkTiles: true } }),

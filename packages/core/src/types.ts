@@ -60,6 +60,37 @@ export interface RtkQuality {
   nmeaQualityCode?: number;
 }
 
+export type GnssTransportKind =
+  | "web_serial"
+  | "android_ble"
+  | "android_spp"
+  | "android_usb"
+  | "ios_ble"
+  | "ios_mfi"
+  | "local_tcp"
+  | "replay";
+
+export interface GnssCaptureEvidence {
+  schemaVersion: "gnss-capture-v1";
+  observationId: string;
+  sessionId: string;
+  transport: GnssTransportKind;
+  receivedAt: string;
+  receivedMonotonicMs: number;
+  receiverObservedAt?: string;
+  sourceCoordinateFrame: string | "unknown";
+  coordinateEpoch?: number;
+  height?: {
+    meters: number;
+    type: "ellipsoidal" | "orthometric" | "unknown";
+    geoidSeparationMeters?: number;
+  };
+  antennaReference: "arp" | "phase_center" | "pole_tip" | "tilt_compensated" | "unknown";
+  sentenceTypes: string[];
+  coherent: boolean;
+  rawRecordHashes?: string[];
+}
+
 export interface SurveyPoint {
   id: string;
   label: string;
@@ -77,6 +108,7 @@ export interface SurveyPoint {
   source: "device_gps" | "external_gnss" | "imported" | "manual";
   confidence: SourceConfidence;
   rtk?: RtkQuality;
+  captureEvidence?: GnssCaptureEvidence;
   notes?: string;
 }
 
@@ -235,6 +267,7 @@ export interface ObstacleZone {
   hardConflict: boolean;
   noSpray: boolean;
   confidence: SourceConfidence;
+  vertexCaptureEvidence?: Array<GnssCaptureEvidence | null>;
 }
 
 export type ProjectMapFeatureKind =
@@ -270,6 +303,7 @@ export interface ProjectMapFeature {
   kind: ProjectMapFeatureKind;
   geometry: ProjectMapFeatureGeometry;
   confidence: SourceConfidence;
+  vertexCaptureEvidence?: Array<GnssCaptureEvidence | null>;
   notes?: string;
   properties?: Record<string, string | number | boolean | null>;
 }
@@ -301,9 +335,15 @@ export interface PivotProject {
   unitSystem: UnitSystem;
   settings?: ProjectSettings;
   fieldBoundary: XY[];
+  fieldBoundaryCaptureEvidence?: Array<GnssCaptureEvidence | null>;
   pivotCenter: XY;
   waterSource: XY;
   powerSource: XY;
+  infrastructureObservationRefs?: {
+    pivot_center?: string;
+    water_source?: string;
+    power_source?: string;
+  };
   machine: PivotMachine;
   obstacles: ObstacleZone[];
   surveyPoints: SurveyPoint[];

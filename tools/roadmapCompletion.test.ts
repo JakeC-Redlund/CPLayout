@@ -13,12 +13,18 @@ import {
 } from "@cplayout/project-store";
 import {
   findCompletedAndroidNativeReport,
+  androidNativeGate,
+  gnssRuntimeGate,
+  nativeMapLibreGate,
   parseRoadmapArgs,
   runRoadmapCompletion,
+  validateGnssRuntimeReport,
   validateGoogleEarthManifest,
   validateNativeMapLibreReport,
   validateRealPivotEvidencePacket,
 } from "./roadmapCompletion";
+import { analyzePngPixels, createNativeMapLibreProofTilePng } from "./pngMetrics";
+import "./roadmapEvidenceQuality.test";
 
 const parsed = parseRoadmapArgs(
   [
@@ -36,6 +42,7 @@ const parsed = parseRoadmapArgs(
 );
 
 assert.equal(parsed.full, false);
+assert.equal(parsed.profile, "fast");
 assert.equal(parsed.dryRun, true);
 assert.equal(parsed.outputDirectory, "reports/roadmap-completion/test");
 assert.equal(parsed.realPivotFixturesPath, "fixtures/real-pivot/manifest.json");
@@ -50,11 +57,12 @@ const report = runRoadmapCompletion({
   outputDirectory,
 });
 
-assert.equal(report.schemaVersion, "cplayout-roadmap-completion-v1");
-assert.equal(report.status, "pass");
+assert.equal(report.schemaVersion, "cplayout-roadmap-completion-v2");
+assert.equal(report.profile, "fast");
+assert.equal(report.status, "incomplete");
 assert.ok(report.gates.every((gate) => gate.status === "not_run"));
-assert.ok(existsSync(join(outputDirectory, "latest.json")));
-assert.ok(existsSync(join(outputDirectory, "latest.md")));
+assert.equal(existsSync(join(outputDirectory, "latest.json")), false);
+assert.equal(existsSync(join(outputDirectory, "latest.md")), false);
 
 const proofRoot = mkdtempSync(join(tmpdir(), "cplayout-roadmap-proof-"));
 const androidReportDirectory = join(proofRoot, "android-native-verification");
@@ -143,8 +151,22 @@ assert.equal(
 );
 
 const googleEarthManifestPath = join(proofRoot, "visual-fidelity-manifest.json");
+const androidOptions = { full: false, dryRun: false, outputDirectory: proofRoot,
+  androidReportPath: join(androidReportDirectory, "android-native-verification-20260605-134316325Z.json") };
+assert.equal(androidNativeGate(androidOptions, "2026-09-13T00:00:00.000Z").status, "pass");
+assert.equal(androidNativeGate(androidOptions, "2026-09-13T00:00:00.000Z", "abcdef123456").status, "blocked");
+assert.equal(androidNativeGate(androidOptions, "2026-09-13T00:00:00.000Z", "abcdef123456-dirty").status, "fail");
+assert.equal(androidNativeGate({ ...androidOptions, androidReportPath: undefined }, "2026-09-13T00:00:00.000Z", "abcdef123456").status, "blocked");
+const googleEarthKml = "<kml xmlns=\"http://www.opengis.net/kml/2.2\"><Document /></kml>";
+const googleEarthKmz = Buffer.from("PK\u0003\u0004fixture-kmz", "binary");
+const pngFixture = createNativeMapLibreProofTilePng(120, 80);
+const pngMetrics = analyzePngPixels(pngFixture);
+writeFileSync(join(proofRoot, "fixture.kml"), googleEarthKml, "utf8");
+writeFileSync(join(proofRoot, "fixture.kmz"), googleEarthKmz);
+writeFileSync(join(proofRoot, "google-earth-visual-fidelity-map-canvas.png"), pngFixture);
 writeFileSync(googleEarthManifestPath, JSON.stringify({
   schemaVersion: "cplayout-google-earth-visual-fidelity-proof-v1",
+  commit: "abcdef123456",
   status: "passed",
   proofPassed: true,
   outputDir: proofRoot,
@@ -162,6 +184,10 @@ writeFileSync(googleEarthManifestPath, JSON.stringify({
   artifacts: {
     kml: "fixture.kml",
     kmz: "fixture.kmz",
+    sha256: {
+      kml: createHash("sha256").update(googleEarthKml).digest("hex"),
+      kmz: createHash("sha256").update(googleEarthKmz).digest("hex"),
+    },
     kmlIntegrity: { passed: true },
   },
   captures: [{
@@ -169,10 +195,10 @@ writeFileSync(googleEarthManifestPath, JSON.stringify({
     label: "Google Earth Pro map-canvas crop",
     width: 120,
     height: 80,
-    sha256: "a".repeat(64),
+    sha256: createHash("sha256").update(pngFixture).digest("hex"),
     analysis: {
-      nonBlackRatio: 0.95,
-      grayVariance: 120,
+      nonBlackRatio: pngMetrics.nonBlankPixelRatio,
+      grayVariance: pngMetrics.grayVariance,
       mostlyBlack: false,
       nearUniform: false,
     },
@@ -182,10 +208,12 @@ writeFileSync(googleEarthManifestPath, JSON.stringify({
   },
 }), "utf8");
 assert.equal(validateGoogleEarthManifest(googleEarthManifestPath).ok, true);
+assert.equal(validateGoogleEarthManifest(googleEarthManifestPath, "abcdef123456").ok, true);
+assert.equal(validateGoogleEarthManifest(googleEarthManifestPath, "000000000000").ok, false);
 
 const screenshotPath = join(proofRoot, "native-maplibre.png");
-writeFileSync(screenshotPath, "native maplibre screenshot fixture", "utf8");
-const screenshotSha256 = createHash("sha256").update("native maplibre screenshot fixture").digest("hex");
+writeFileSync(screenshotPath, pngFixture);
+const screenshotSha256 = createHash("sha256").update(pngFixture).digest("hex");
 const nativeMapLibreLogcatPath = join(proofRoot, "native-maplibre-logcat.txt");
 writeFileSync(nativeMapLibreLogcatPath, "MapLibre Native [INFO] [Mbgl-HttpRequest] local vector tile proof loaded\n", "utf8");
 const nativeMapLibreLogcatSha256 = createHash("sha256").update("MapLibre Native [INFO] [Mbgl-HttpRequest] local vector tile proof loaded\n").digest("hex");
@@ -226,10 +254,10 @@ writeFileSync(nativeMapLibreReportPath, JSON.stringify({
   screenshot: {
     path: "native-maplibre.png",
     sha256: screenshotSha256,
-    width: 320,
-    height: 240,
-    nonBlankPixelRatio: 0.8,
-    grayVariance: 100,
+    width: pngMetrics.width,
+    height: pngMetrics.height,
+    nonBlankPixelRatio: pngMetrics.nonBlankPixelRatio,
+    grayVariance: pngMetrics.grayVariance,
   },
   boundaries: {
     noRawPmtilesMbtilesNativeProof: true,
@@ -252,6 +280,111 @@ writeFileSync(nativeMapLibreReportPath, JSON.stringify({
   },
 }), "utf8");
 assert.equal(validateNativeMapLibreReport(nativeMapLibreReportPath).ok, true);
+assert.equal(validateNativeMapLibreReport(nativeMapLibreReportPath, "abcdef123456").ok, false);
+assert.equal(validateNativeMapLibreReport(nativeMapLibreReportPath, "abcdef123456").blocked, true);
+assert.equal(nativeMapLibreGate({ ...androidOptions, nativeMapLibreReportPath }, "abcdef123456").status, "blocked");
+assert.equal(validateNativeMapLibreReport(nativeMapLibreReportPath, "000000000000").ok, false);
+
+const gnssObservationEvidencePath = join(proofRoot, "gnss-observations.json");
+const gnssControlEvidencePath = join(proofRoot, "gnss-controls.json");
+const gnssArtifactContext = { projectId: "synthetic-project", projectCrs: "EPSG:32613", coordinateSpace: "projected_xy", linearUnit: "meters", commit: "abcdef123456",
+  verticalReference: { heightType: "ellipsoidal", datum: "synthetic-test-datum", referencePoint: "synthetic-test-mark" },
+  comparisonFrame: { kind: "local_orthonormal_enu", linearUnit: "meters", referenceFrame: "synthetic-frame", realization: "synthetic-realization",
+    coordinateEpoch: "2026-08-09T00:00:00.000Z", referencePoint: "synthetic-test-mark",
+    origin: { latitudeDegrees: 40, longitudeDegrees: -105, ellipsoidalHeightMeters: 1500 } } };
+const gnssSourceHash = (kind: string, keys: string[], x: number, y: number, height: number) => {
+  const v = gnssArtifactContext.verticalReference;
+  return createHash("sha256").update(JSON.stringify(["cplayout-gnss-comparison-source-v1", kind,
+    gnssArtifactContext.projectId, gnssArtifactContext.projectCrs, v.heightType, v.datum, v.referencePoint, ...keys, x, y, height])).digest("hex");
+};
+writeFileSync(gnssObservationEvidencePath, JSON.stringify({
+  ...gnssArtifactContext, schemaVersion: "cplayout-gnss-observation-summary-v1",
+  observations: [0, 1].map((i) => ({ id: `obs-${i}`, sessionId: "session-1", observedAt: "2026-08-09T00:01:00.000Z",
+    projectedXY: { x: 500000 + i * 10 + (i + 1) / 100, y: 4400000 }, heightMeters: 0, fix: "rtk_fixed", observationAgeSeconds: 0.7, correctionAgeSeconds: 1.2,
+    comparisonEnu: { eastMeters: i * 10 + (i + 1) / 100, northMeters: 0, upMeters: 0 },
+    sourceSha256: gnssSourceHash("observation_summary", [`obs-${i}`, "session-1", "2026-08-09T00:01:00.000Z"], 500000 + i * 10 + (i + 1) / 100, 4400000, 0) })),
+}), "utf8");
+writeFileSync(gnssControlEvidencePath, JSON.stringify({
+  ...gnssArtifactContext, schemaVersion: "cplayout-gnss-control-point-comparison-v1",
+  observationSummarySha256: createHash("sha256").update(readFileSync(gnssObservationEvidencePath)).digest("hex"),
+  comparisons: [0, 1].map((i) => ({ controlId: `control-${i}`, observationId: `obs-${i}`, sessionId: "session-1", referenceXY: { x: 500000 + i * 10, y: 4400000 }, referenceHeightMeters: 0,
+    comparisonEnu: { eastMeters: i * 10, northMeters: 0, upMeters: 0 },
+    sourceSha256: gnssSourceHash("control_point_comparison", [`control-${i}`, `obs-${i}`, "session-1"], 500000 + i * 10, 4400000, 0) })),
+}), "utf8");
+const gnssReportPath = join(proofRoot, "gnss-runtime-report.json");
+writeFileSync(gnssReportPath, JSON.stringify({
+  schemaVersion: "cplayout-gnss-runtime-proof-v1",
+  evidenceContractVersion: "cplayout-gnss-derived-evidence-v1",
+  projectId: "synthetic-project",
+  verticalReference: gnssArtifactContext.verticalReference,
+  comparisonFrame: gnssArtifactContext.comparisonFrame,
+  status: "pass",
+  generatedAt: "2026-08-09T00:06:00.000Z",
+  commit: "abcdef123456",
+  platform: "web",
+  projectCrs: "EPSG:32613",
+  sourceCrs: "EPSG:4326",
+  sourceCrsConfirmed: true,
+  receiver: { manufacturer: "Fixture", model: "RTK-1", firmware: "1.0" },
+  antenna: { model: "Fixture antenna", referencePoint: "ARP", heightMeters: 2 },
+  corrections: {
+    sourceType: "NTRIP",
+    delivery: "receiver-managed",
+    credentialMaterialStored: false,
+    rawPayloadsStored: false,
+  },
+  capturePolicy: {
+    canonicalCoordinates: "projected_xy",
+    rawWgs84Canonical: false,
+    operatorConfirmedWritesOnly: true,
+  },
+  acceptance: {
+    maxHorizontalRmsMeters: 0.03,
+    maxControlErrorMeters: 0.10,
+    maxThreeDimensionalErrorMeters: 0.10,
+    maxObservationAgeSeconds: 2,
+    maxCorrectionAgeSeconds: 5,
+  },
+  results: {
+    controlPointCount: 2,
+    horizontalRmsMeters: Math.sqrt((0.01 ** 2 + 0.02 ** 2) / 2),
+    maxControlErrorMeters: 0.02,
+    threeDimensionalRmsMeters: Math.sqrt((0.01 ** 2 + 0.02 ** 2) / 2),
+    maxThreeDimensionalErrorMeters: 0.02,
+    verticalRmsMeters: 0,
+    maxVerticalErrorMeters: 0,
+    maxObservationAgeSeconds: 0.7,
+    maxCorrectionAgeSeconds: 1.2,
+    reconnectPassed: true,
+    staleObservationGatePassed: true,
+    disconnectedCaptureGatePassed: true,
+    checksumFailureGatePassed: true,
+  },
+  sessions: [{
+    id: "session-1",
+    startedAt: "2026-08-09T00:00:00.000Z",
+    endedAt: "2026-08-09T00:05:00.000Z",
+    sampleCount: 2,
+    rtkFixedSampleCount: 2,
+  }],
+  evidence: [
+    {
+      kind: "observation_summary",
+      path: "gnss-observations.json",
+      sha256: createHash("sha256").update(readFileSync(gnssObservationEvidencePath)).digest("hex"),
+    },
+    {
+      kind: "control_point_comparison",
+      path: "gnss-controls.json",
+      sha256: createHash("sha256").update(readFileSync(gnssControlEvidencePath)).digest("hex"),
+    },
+  ],
+}), "utf8");
+assert.equal(validateGnssRuntimeReport(gnssReportPath).ok, true);
+assert.equal(validateGnssRuntimeReport(gnssReportPath, "abcdef123456").ok, false);
+assert.equal(validateGnssRuntimeReport(gnssReportPath, "abcdef123456").blocked, true);
+assert.equal(gnssRuntimeGate({ ...androidOptions, gnssReportPath }, "abcdef123456").status, "blocked");
+assert.equal(validateGnssRuntimeReport(gnssReportPath, "000000000000").ok, false);
 
 const realPivotPacketPath = join(proofRoot, "real-pivot-v2-packet.json");
 const realPivotPacket = realPivotEvidencePacketFixture();

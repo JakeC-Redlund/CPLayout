@@ -10,60 +10,22 @@ import {
 } from "lucide-react-native";
 import { Camera, Map as MapLibreMap } from "@maplibre/maplibre-react-native";
 import type { NativeSyntheticEvent } from "react-native";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Pressable, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import React, { useMemo, useState } from "react";
+import { Platform, Pressable, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 
-import {
-  resolveAerialReferenceImagerySource,
-  resolveReferenceOverlaySource,
-  type ObstacleZone,
-  type ProjectMapFeatureKind,
-  type XY,
-} from "@cplayout/core";
-import type { DrawingLayerType, DrawingMode } from "@cplayout/geometry";
-import { resolveDraftVertexIntent } from "@cplayout/geometry";
-import {
-  confidenceForImagery,
-  mapClickToProjectedIntent,
-  type MapClickIntent,
-} from "./mapClickIntent";
-import {
-  defaultMapFeatureName,
-  draftVerticesToFeatureGeometry,
-  featureDraftMinimumVertices,
-  featureOptionForKind,
-} from "./mapTools";
+import { buildMapReferenceViewModel } from "@cplayout/core";
 import { projectLayoutToWgs84FeatureCollection, projectWgs84Bounds, projectWgs84Center } from "./mapOverlayGeoJson";
 import {
   buildWorkbenchStyle,
   rasterStyleSourceFromAerialReferenceResolution,
-  type RasterImageryStyleSource,
 } from "./mapWorkbenchStyle";
 import {
-  adjacentProjectVertexSelection,
-  firstBoundaryVertexSelection,
-  firstMapFeatureVertexSelection,
-  firstObstacleVertexSelection,
   hasMapFeatureVertexSelection,
   hasObstacleVertexSelection,
-  selectedProjectVertexCanDelete,
-  selectedProjectVertexIsMapFeatureCircleRadius,
-  selectedProjectVertexPoint,
-  selectedProjectVertexText,
-  type SelectedProjectVertex,
 } from "./projectVertexEditing";
 import { SvgMapSurface } from "./SvgMapSurface";
 import type { MapSurfaceProps } from "./types";
-
-interface InteractionState {
-  activeLayer: DrawingLayerType;
-  featureGeometry: ReturnType<typeof featureOptionForKind>["geometry"];
-  featureKind: ProjectMapFeatureKind;
-  imageryEnabled: boolean;
-  mode: DrawingMode;
-  projectCrs: string;
-  workflowMode: MapSurfaceProps["settings"]["mappingWorkflowMode"];
-}
+import { useMapInteractionController } from "./useMapInteractionController";
 
 type NativeMapPressEvent = NativeSyntheticEvent<{
   features?: Array<{ properties?: Record<string, unknown> }>;
@@ -73,62 +35,29 @@ type NativeMapPressEvent = NativeSyntheticEvent<{
 
 export function NativeMapWorkbenchSurface(props: MapSurfaceProps): React.JSX.Element {
   const {
-    activeLayer: externalActiveLayer,
-    activeMapFeatureKind,
-    activeToolMode,
-    activeToolRequestId,
-    advisoryFieldPivotPlan,
-    advisoryMachineRenderModel,
-    bottomOverlay,
-    homeView = false,
-    project,
-    result,
-    settings,
-    selectedMapFeatureId,
-    onAddMapFeature,
-    onAddSurveyPoint,
-    onCommitBoundaryDraft,
-    onCommitObstacleDraft,
-    onDeleteBoundaryVertex,
-    onDeleteMapFeatureVertex,
-    onDeleteObstacleVertex,
-    onMappingWorkflowModeChange,
-    onMoveBoundaryVertex,
-    onMoveInfrastructurePoint,
-    onMoveMapFeatureCircleRadiusHandle,
-    onMoveMapFeatureVertex,
-    onMoveObstacleVertex,
-    onPlacePivot,
-    onSelectMapFeature,
+    advisoryFieldPivotPlan, advisoryMachineRenderModel, bottomOverlay,
+    homeView = false, project, result, settings, onSelectMapFeature,
   } = props;
   const { width } = useWindowDimensions();
   const compactLayout = width < 760;
   const designMode = settings.mappingWorkflowMode === "design";
   const canEditOnMap = designMode && !homeView;
-  const callbacksRef = useRef({
-    onAddMapFeature,
-    onAddSurveyPoint,
-    onCommitBoundaryDraft,
-    onCommitObstacleDraft,
-    onDeleteBoundaryVertex,
-    onDeleteMapFeatureVertex,
-    onDeleteObstacleVertex,
-    onMoveBoundaryVertex,
-    onMoveInfrastructurePoint,
-    onMoveMapFeatureCircleRadiusHandle,
-    onMoveMapFeatureVertex,
-    onMoveObstacleVertex,
-    onPlacePivot,
-    onSelectMapFeature,
-  });
-  const [mode, setMode] = useState<DrawingMode>("pan");
-  const [activeLayer, setActiveLayer] = useState<DrawingLayerType>("field_boundary");
-  const [draftVertices, setDraftVertices] = useState<XY[]>([]);
-  const [mapFeatureKind, setMapFeatureKind] = useState<ProjectMapFeatureKind>("underground_pipeline");
+  const referenceView = useMemo(() => buildMapReferenceViewModel({
+    settings, mapPackages: project.mapPackages ?? [],
+    target: Platform.OS === "ios" ? "ios_maplibre_rn" : "android_maplibre_rn",
+    surface: "workbench",
+  }), [project.mapPackages, settings.aerialImagery, settings.onlineImagery, settings.referenceOverlay]);
+  const aerialImagery = referenceView.aerial;
+  const activeImagery = useMemo(() => rasterStyleSourceFromAerialReferenceResolution(aerialImagery), [aerialImagery]);
+  const controller = useMapInteractionController(props, { imageryEnabled: Boolean(activeImagery) });
+  const {
+    mode, draftVertices, selectedVertex, status, statusMetaText,
+    clearDraft, commitDraft, saveMapFeatureFromDraft, selectFirstBoundaryVertex,
+    selectFirstObstacleVertex, selectFirstMapFeatureVertex, selectAdjacentVertex,
+    nudgeSelectedVertex, deleteSelectedVertex, canCommitDraft, canSaveFeature,
+    canEditSelectedVertex, canDeleteSelectedVertex,
+  } = controller;
   const [runtimeError, setRuntimeError] = useState<string | null>(null);
-  const [selectedVertex, setSelectedVertex] = useState<SelectedProjectVertex | null>(null);
-  const [status, setStatus] = useState("Native imagery is reference-only until projected XY edits are committed.");
-  const mapFeatureOption = featureOptionForKind(mapFeatureKind);
   const projectionFrame = useMemo(() => {
     if (homeView) {
       return {
@@ -171,109 +100,11 @@ export function NativeMapWorkbenchSurface(props: MapSurfaceProps): React.JSX.Ele
     }
   }, [advisoryFieldPivotPlan, advisoryMachineRenderModel, draftVertices, homeView, project, result]);
   const projectionError = projectionFrame.error ?? overlayState.error;
-  const aerialImagery = useMemo(
-    () => resolveAerialReferenceImagerySource({
-      preferences: settings.aerialImagery,
-      onlineImagery: settings.onlineImagery,
-      mapPackages: project.mapPackages ?? [],
-      target: "android_maplibre_rn",
-    }),
-    [project.mapPackages, settings.aerialImagery, settings.onlineImagery],
-  );
-  const activeImagery = useMemo(
-    () => rasterStyleSourceFromAerialReferenceResolution(aerialImagery),
-    [aerialImagery],
-  );
-  const referenceOverlay = useMemo(
-    () => resolveReferenceOverlaySource({
-      allowPublicNetwork: settings.onlineImagery.enabled || aerialImagery.sourceKind === "online_provider",
-      preferences: settings.referenceOverlay,
-      mapPackages: project.mapPackages ?? [],
-      target: "android_maplibre_rn",
-    }),
-    [aerialImagery.sourceKind, project.mapPackages, settings.onlineImagery.enabled, settings.referenceOverlay],
-  );
+  const referenceOverlay = referenceView.reference;
   const workbenchStyle = useMemo(
     () => buildWorkbenchStyle(activeImagery, overlayState.featureCollection, referenceOverlay, settings.referenceOverlay),
     [activeImagery, overlayState.featureCollection, referenceOverlay, settings.referenceOverlay],
   );
-  const interactionRef = useRef<InteractionState>({
-    activeLayer,
-    featureGeometry: mapFeatureOption.geometry,
-    featureKind: mapFeatureKind,
-    imageryEnabled: Boolean(activeImagery),
-    mode,
-    projectCrs: project.projectCrs,
-    workflowMode: settings.mappingWorkflowMode,
-  });
-
-  useEffect(() => {
-    callbacksRef.current = {
-      onAddMapFeature,
-      onAddSurveyPoint,
-      onCommitBoundaryDraft,
-      onCommitObstacleDraft,
-      onDeleteBoundaryVertex,
-      onDeleteMapFeatureVertex,
-      onDeleteObstacleVertex,
-      onMoveBoundaryVertex,
-      onMoveInfrastructurePoint,
-      onMoveMapFeatureCircleRadiusHandle,
-      onMoveMapFeatureVertex,
-      onMoveObstacleVertex,
-      onPlacePivot,
-      onSelectMapFeature,
-    };
-  }, [
-    onAddMapFeature,
-    onAddSurveyPoint,
-    onCommitBoundaryDraft,
-    onCommitObstacleDraft,
-    onDeleteBoundaryVertex,
-    onDeleteMapFeatureVertex,
-    onDeleteObstacleVertex,
-    onMoveBoundaryVertex,
-    onMoveInfrastructurePoint,
-    onMoveMapFeatureCircleRadiusHandle,
-    onMoveMapFeatureVertex,
-    onMoveObstacleVertex,
-    onPlacePivot,
-    onSelectMapFeature,
-  ]);
-
-  useEffect(() => {
-    interactionRef.current = {
-      activeLayer,
-      featureGeometry: mapFeatureOption.geometry,
-      featureKind: mapFeatureKind,
-      imageryEnabled: Boolean(activeImagery),
-      mode,
-      projectCrs: project.projectCrs,
-      workflowMode: settings.mappingWorkflowMode,
-    };
-  }, [activeImagery, activeLayer, mapFeatureKind, mapFeatureOption.geometry, mode, project.projectCrs, settings.mappingWorkflowMode]);
-
-  useEffect(() => {
-    if (!canEditOnMap) return;
-    if (activeMapFeatureKind) setMapFeatureKind(activeMapFeatureKind);
-    if (activeToolMode) setTool(activeToolMode, externalActiveLayer);
-    else if (externalActiveLayer) setActiveLayer(externalActiveLayer);
-  }, [activeMapFeatureKind, activeToolMode, activeToolRequestId, canEditOnMap, externalActiveLayer]);
-
-  useEffect(() => {
-    if (homeView) {
-      clearDraft("Catalog map: open a field map or design before editing projected XY geometry.");
-      setMode("pan");
-      return;
-    }
-    if (designMode) {
-      setStatus("Design mode: native taps convert WGS84 display coordinates back to projected XY.");
-      return;
-    }
-    clearDraft("Layout mode is RTK-only; native map taps inspect and do not mutate projected XY geometry.");
-    setMode("pan");
-  }, [designMode, homeView]);
-
   if (projectionError) {
     return (
       <View style={styles.fallbackShell} testID="native-map-workbench-fallback">
@@ -283,215 +114,31 @@ export function NativeMapWorkbenchSurface(props: MapSurfaceProps): React.JSX.Ele
     );
   }
 
-  function setTool(nextMode: DrawingMode, nextLayer?: DrawingLayerType): void {
-    if ((!designMode || homeView) && nextMode !== "pan") return;
-    setMode(nextMode);
-    if (nextLayer) setActiveLayer(nextLayer);
-    if (nextMode !== "edit_vertices") setSelectedVertex(null);
-    if (nextMode !== "draw_boundary" && nextMode !== "mark_obstacle" && nextMode !== "measure") {
-      clearDraft(`${nextMode.replaceAll("_", " ")} mode selected. No draft vertices are pending.`);
-    }
-  }
-
   function handleMapPress(event: NativeMapPressEvent, closeRequested: boolean): void {
     const nativeEvent = event.nativeEvent;
     const selectedFeatureId = nativeFeatureId(nativeEvent.features);
-    const current = interactionRef.current;
+    const current = controller;
     if (homeView) {
-      setStatus("Catalog map is read-only. Open a field map or design before editing projected XY geometry.");
+      current.setStatus("Catalog map is read-only. Open a field map or design before editing projected XY geometry.");
       return;
     }
-    if (selectedFeatureId && (current.mode === "pan" || current.workflowMode === "layout")) {
-      callbacksRef.current.onSelectMapFeature?.(selectedFeatureId);
-      setStatus(`Selected map feature ${selectedFeatureId}. Project geometry is unchanged.`);
+    if (selectedFeatureId && (current.mode === "pan" || !canEditOnMap)) {
+      onSelectMapFeature?.(selectedFeatureId);
+      current.setStatus(`Selected map feature ${selectedFeatureId}. Project geometry is unchanged.`);
       return;
     }
     const [longitude, latitude] = nativeEvent.lngLat;
-    const intent = mapClickToProjectedIntent({
-      ...current,
-      lonLat: { longitude, latitude },
-    });
-    applyClickIntent(intent, closeRequested);
+    current.handleLonLat({ longitude, latitude }, closeRequested);
   }
 
-  function applyClickIntent(intent: MapClickIntent, closeRequested: boolean): void {
-    if (intent.type === "none") {
-      if (intent.reason === "layout_mode_no_mutation") setStatus("Layout mode is RTK-only; switch to Design for pointer-based geometry edits.");
-      return;
-    }
-    if (intent.type === "draft_vertex") {
-      handleDraftVertexIntent(intent.vertex, closeRequested);
-      return;
-    }
-    if (intent.type === "place_pivot") {
-      callbacksRef.current.onPlacePivot?.(intent.point, intent.wgs84);
-      setStatus(`Placed pivot at projected XY ${intent.point.x.toFixed(2)}, ${intent.point.y.toFixed(2)}.`);
-      return;
-    }
-    if (intent.type === "move_infrastructure") {
-      callbacksRef.current.onMoveInfrastructurePoint?.(intent.pointType, intent.point, intent.wgs84);
-      setStatus(`Moved ${intent.pointType.replaceAll("_", " ")} in projected XY.`);
-      return;
-    }
-    if (intent.type === "add_survey_point") {
-      callbacksRef.current.onAddSurveyPoint?.(intent.point);
-      setStatus(`Captured ${intent.point.role.replaceAll("_", " ")} survey point in projected XY.`);
-      return;
-    }
-    callbacksRef.current.onAddMapFeature?.(intent.feature);
-    setStatus(`Saved ${intent.feature.kind.replaceAll("_", " ")} point in projected XY as a map feature.`);
-  }
-
-  function commitDraft(): void {
-    commitDraftVertices(draftVertices);
-  }
-
-  function commitDraftVertices(vertices: XY[]): void {
-    if (!canEditOnMap || vertices.length < 3) return;
-    let committedStatus: string | null = null;
-    let committed = false;
-    if (mode === "draw_boundary") {
-      committed = callbacksRef.current.onCommitBoundaryDraft?.(vertices) !== false;
-      committedStatus = `Committed field boundary with ${vertices.length} projected XY vertices.`;
-    } else if (mode === "mark_obstacle") {
-      committed = callbacksRef.current.onCommitObstacleDraft?.(vertices, obstacleKindForLayer(activeLayer), confidenceForImagery(Boolean(activeImagery))) !== false;
-      committedStatus = `Committed ${obstacleKindForLayer(activeLayer)} obstacle with ${vertices.length} projected XY vertices.`;
-    }
-    if (committed && committedStatus) clearDraft(committedStatus);
-    if (!committed && committedStatus) setStatus("Draft validation failed. Fix the projected XY vertices before clearing or committing.");
-  }
-
-  function handleDraftVertexIntent(vertex: XY, closeRequested: boolean): void {
-    const intent = resolveDraftVertexIntent({
-      closeRequested,
-      currentVertices: draftVertices,
-      mode,
-      vertex,
-      vertexSnapToleranceMeters: settings.drawing.vertexSnapToleranceMeters,
-    });
-    if (intent.type === "commit") {
-      commitDraftVertices(intent.vertices);
-      return;
-    }
-    setDraftVertices((current) => [...current, intent.vertex]);
-    setStatus(`Added projected XY draft vertex ${intent.vertex.x.toFixed(2)}, ${intent.vertex.y.toFixed(2)}.`);
-  }
-
-  function saveMapFeatureFromDraft(): void {
-    if (!canEditOnMap || mode !== "measure") return;
-    const minimumVertices = featureDraftMinimumVertices(mapFeatureOption.geometry);
-    if (minimumVertices === 0 || draftVertices.length < minimumVertices) return;
-    const geometry = draftVerticesToFeatureGeometry(mapFeatureOption.geometry, draftVertices);
-    callbacksRef.current.onAddMapFeature?.({
-      name: defaultMapFeatureName(mapFeatureKind, mapFeatureOption.geometry, draftVertices.length),
-      kind: mapFeatureKind,
-      geometry,
-      confidence: confidenceForImagery(Boolean(activeImagery)),
-      notes: activeImagery ? "Traced from native imagery; verify with field survey." : undefined,
-    });
-    clearDraft(`Saved ${mapFeatureKind.replaceAll("_", " ")} feature with projected XY geometry.`);
-  }
-
-  function clearDraft(nextStatus = "Draft cleared. Committed projected XY geometry is unchanged."): void {
-    setDraftVertices([]);
-    setStatus(nextStatus);
-  }
-
-  function selectVertex(nextVertex: SelectedProjectVertex | null, fallbackStatus: string): void {
-    if (!canEditOnMap) return;
-    if (!nextVertex) {
-      setStatus(fallbackStatus);
-      return;
-    }
-    setSelectedVertex(nextVertex);
-    setMode("edit_vertices");
-    clearDraft(`Selected ${selectedProjectVertexText(project, nextVertex)} for projected XY editing.`);
-  }
-
-  function selectFirstBoundaryVertex(): void {
-    selectVertex(
-      firstBoundaryVertexSelection(project),
-      "No boundary vertices are available for editing.",
-    );
-  }
-
-  function selectFirstObstacleVertex(): void {
-    selectVertex(
-      firstObstacleVertexSelection(project),
-      "No obstacle vertices are available for editing.",
-    );
-  }
-
-  function selectFirstMapFeatureVertex(): void {
-    const selectedFeatureVertex: SelectedProjectVertex | null = selectedMapFeatureId
-      ? { layer: "map_feature", featureId: selectedMapFeatureId, vertexIndex: 0 }
-      : null;
-    selectVertex(
-      selectedFeatureVertex && selectedProjectVertexPoint(project, selectedFeatureVertex)
-        ? selectedFeatureVertex
-        : firstMapFeatureVertexSelection(project),
-      "No map feature vertices are available for editing.",
-    );
-  }
-
-  function selectAdjacentVertex(direction: -1 | 1): void {
-    selectVertex(
-      adjacentProjectVertexSelection(project, selectedVertex, direction),
-      "No project vertices are available for editing.",
-    );
-  }
-
-  function nudgeSelectedVertex(delta: XY): void {
-    if (!canEditOnMap || !selectedVertex) return;
-    const point = selectedProjectVertexPoint(project, selectedVertex);
-    if (!point) {
-      setSelectedVertex(null);
-      setStatus("Selected vertex is no longer available.");
-      return;
-    }
-    const nextPoint = { x: point.x + delta.x, y: point.y + delta.y };
-    if (selectedVertex.layer === "field_boundary") {
-      callbacksRef.current.onMoveBoundaryVertex?.(selectedVertex.vertexIndex, nextPoint);
-    } else if (selectedVertex.layer === "obstacle") {
-      callbacksRef.current.onMoveObstacleVertex?.(selectedVertex.obstacleId, selectedVertex.vertexIndex, nextPoint);
-    } else if (selectedProjectVertexIsMapFeatureCircleRadius(project, selectedVertex)) {
-      callbacksRef.current.onMoveMapFeatureCircleRadiusHandle?.(selectedVertex.featureId, nextPoint);
-    } else {
-      callbacksRef.current.onMoveMapFeatureVertex?.(selectedVertex.featureId, selectedVertex.vertexIndex, nextPoint);
-    }
-    setStatus(`Moved ${selectedProjectVertexText(project, selectedVertex)} in projected XY. Save Local to persist.`);
-  }
-
-  function deleteSelectedVertex(): void {
-    if (!canEditOnMap || !selectedVertex) return;
-    const selectedText = selectedProjectVertexText(project, selectedVertex);
-    if (!selectedProjectVertexCanDelete(project, selectedVertex)) {
-      setStatus(`${selectedText} cannot be deleted without invalidating the saved geometry.`);
-      return;
-    }
-    if (selectedVertex.layer === "field_boundary") {
-      callbacksRef.current.onDeleteBoundaryVertex?.(selectedVertex.vertexIndex);
-    } else if (selectedVertex.layer === "obstacle") {
-      callbacksRef.current.onDeleteObstacleVertex?.(selectedVertex.obstacleId, selectedVertex.vertexIndex);
-    } else {
-      callbacksRef.current.onDeleteMapFeatureVertex?.(selectedVertex.featureId, selectedVertex.vertexIndex);
-    }
-    setSelectedVertex(null);
-    setStatus(`Deleted ${selectedText} through reducer validation. Save Local to persist.`);
-  }
-
-  const canCommitDraft = canEditOnMap && draftVertices.length >= 3 && (mode === "draw_boundary" || mode === "mark_obstacle");
-  const canSaveFeature = canEditOnMap
-    && mode === "measure"
-    && mapFeatureOption.geometry !== "Point"
-    && draftVertices.length >= featureDraftMinimumVertices(mapFeatureOption.geometry);
-  const selectedVertexPoint = selectedVertex ? selectedProjectVertexPoint(project, selectedVertex) : null;
-  const canEditSelectedVertex = canEditOnMap && mode === "edit_vertices" && selectedVertexPoint !== null;
-  const canDeleteSelectedVertex = canEditSelectedVertex && selectedVertex !== null && selectedProjectVertexCanDelete(project, selectedVertex);
   const editStepMeters = Math.max(1, settings.drawing.panStepMeters / 4);
-  const selectedVertexStatus = selectedVertex ? ` · ${selectedProjectVertexText(project, selectedVertex)}` : "";
-  const statusMetaText = `${mode.replaceAll("_", " ")} · ${draftVertices.length} draft pts${selectedVertexStatus}`;
-  const imageryStatus = imageryStatusText(activeImagery, aerialImagery.reason, aerialImagery.sourceKind);
+  const imageryAttribution = [...new Set([
+    activeImagery?.attribution,
+    activeImagery?.licenseText,
+    referenceOverlay.canRender ? referenceOverlay.attribution : undefined,
+    referenceOverlay.canRender ? referenceOverlay.licenseText : undefined,
+  ].filter(Boolean))].join(" · ");
+  const imageryStatus = [referenceView.aerialSummary, imageryAttribution].filter(Boolean).join(" · ");
 
   return (
     <View style={styles.shell} testID="native-map-workbench">
@@ -572,23 +219,6 @@ export function NativeMapWorkbenchSurface(props: MapSurfaceProps): React.JSX.Ele
 function nativeFeatureId(features: Array<{ properties?: Record<string, unknown> }> | undefined): string | null {
   const id = features?.find((feature) => typeof feature.properties?.id === "string")?.properties?.id;
   return typeof id === "string" && id.length > 0 ? id : null;
-}
-
-function imageryStatusText(
-  raster: RasterImageryStyleSource | null,
-  fallbackReason: string,
-  sourceKind: ReturnType<typeof resolveAerialReferenceImagerySource>["sourceKind"],
-): string {
-  if (!raster) return fallbackReason;
-  const mode = sourceKind === "local_raster" ? "local raster package" : "connected preview only";
-  return `${raster.attribution} · ${raster.licenseText} · ${mode}`;
-}
-
-function obstacleKindForLayer(layer: DrawingLayerType): ObstacleZone["kind"] {
-  if (layer === "road" || layer === "ditch" || layer === "fence" || layer === "building" || layer === "canal" || layer === "tree" || layer === "exclusion") {
-    return layer;
-  }
-  return "exclusion";
 }
 
 function HudButton({ disabled = false, icon, label, onPress, primary = false, testID }: { disabled?: boolean; icon: React.ReactNode; label: string; onPress: () => void; primary?: boolean; testID?: string }): React.JSX.Element {

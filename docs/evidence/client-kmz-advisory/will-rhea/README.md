@@ -9,3 +9,5 @@ Files:
 - `South East Circle.kml` - preferred south-east-machine outline evidence, SHA-256 `f9689f517c922aa9edcab9748c6d95bf13048f4382393c5d23514c4218e04a48`.
 
 These files are planning evidence only. They do not mutate canonical projected `XY`, prove Google Earth rendering, certify a final design, or substitute for separate power-line or obstacle exclusion evidence.
+
+The app guided walkthrough summarizes this evidence and its missing-input blockers for training only. It is not additional authority for geometry, corner-arm kinematics, power-line exclusions, Google Earth rendering, or design certification.

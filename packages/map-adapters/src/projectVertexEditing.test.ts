@@ -7,6 +7,8 @@ import {
   firstMapFeatureVertexSelection,
   hasMapFeatureVertexSelection,
   selectedProjectVertexCanDelete,
+  selectedProjectVertexCanInsert,
+  selectedProjectVertexInsertionPoint,
   selectedProjectVertexIsMapFeatureCircleRadius,
   selectedProjectVertexPoint,
   selectedProjectVertexText,
@@ -58,6 +60,8 @@ const lineSelection: SelectedProjectVertex = { layer: "map_feature", featureId: 
 assert.deepEqual(selectedProjectVertexPoint(project, lineSelection), { x: 501000, y: 4506000 });
 assert.equal(selectedProjectVertexText(project, lineSelection), "Utility Line vertex 1 of 3");
 assert.equal(selectedProjectVertexCanDelete(project, lineSelection), true);
+assert.equal(selectedProjectVertexCanInsert(project, lineSelection), true);
+assert.deepEqual(selectedProjectVertexInsertionPoint(project, lineSelection), { x: 501050, y: 4506000 });
 assert.deepEqual(adjacentProjectVertexSelection(project, lineSelection, 1), {
   layer: "map_feature",
   featureId: "line-feature",
@@ -73,6 +77,8 @@ const pointSelection: SelectedProjectVertex = { layer: "map_feature", featureId:
 assert.deepEqual(selectedProjectVertexPoint(project, pointSelection), { x: 501050, y: 4506050 });
 assert.equal(selectedProjectVertexText(project, pointSelection), "Pump Point point 1 of 1");
 assert.equal(selectedProjectVertexCanDelete(project, pointSelection), false);
+assert.equal(selectedProjectVertexCanInsert(project, pointSelection), false);
+assert.equal(selectedProjectVertexInsertionPoint(project, pointSelection), null);
 
 const circleSelection: SelectedProjectVertex = { layer: "map_feature", featureId: "circle-feature", vertexIndex: 0 };
 assert.deepEqual(selectedProjectVertexPoint(project, circleSelection), { x: 501075, y: 4506075 });
@@ -84,6 +90,7 @@ assert.deepEqual(selectedProjectVertexPoint(project, circleRadiusSelection), { x
 assert.equal(selectedProjectVertexText(project, circleRadiusSelection), "End Gun Circle radius handle 2 of 2");
 assert.equal(selectedProjectVertexCanDelete(project, circleRadiusSelection), false);
 assert.equal(selectedProjectVertexIsMapFeatureCircleRadius(project, circleRadiusSelection), true);
+assert.equal(selectedProjectVertexCanInsert(project, circleRadiusSelection), false);
 assert.deepEqual(adjacentProjectVertexSelection(project, circleSelection, 1), circleRadiusSelection);
 assert.deepEqual(adjacentProjectVertexSelection(project, circleRadiusSelection, 1), circleSelection);
 

@@ -57,6 +57,17 @@ class PromptTriageTests(unittest.TestCase):
         routes = self.route_ids("Improve the Expo React Native UI screen and SVG map component.")
         self.assertEqual(routes[0], "cplayout_interface_developer")
 
+    def test_rtk_hardware_prompt_routes_runtime_interface_and_gis(self) -> None:
+        prompt = (
+            "Implement Android USB GNSS and Web Serial for an RTK receiver with source CRS confirmation, "
+            "then validate a GNSS field report and RTK field proof."
+        )
+        routes = self.route_ids(prompt)
+        self.assertEqual(routes[0], "cplayout_runtime_proof_gatekeeper")
+        self.assertIn("cplayout_interface_developer", routes)
+        self.assertIn("cplayout_gis_geometry_guardian", routes)
+        self.assertIn("rtk_gnss_hardware", self.hook_context(prompt))
+
     def test_right_sidebar_toolbar_ui_proof_prompt_selects_interface_route(self) -> None:
         routes = self.route_ids("Refactor right-sidebar and right-drawer toolbar UI-proof controls.")
         self.assertEqual(routes[0], "cplayout_interface_developer")
@@ -108,6 +119,9 @@ class PromptTriageTests(unittest.TestCase):
             "reviewer",
             "test",
             "check",
+            "gps",
+            "serial",
+            "receiver",
         ):
             with self.subTest(prompt=prompt):
                 self.assertEqual(self.route_ids(prompt), [])

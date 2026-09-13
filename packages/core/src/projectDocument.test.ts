@@ -66,6 +66,13 @@ assert.equal(
   parsedWillRhea.mapFeatures?.find((feature) => feature.id === "will-rhea-south-machine-field-boundary")?.properties?.canonicalGeometryMutation,
   false,
 );
+assert.equal(parsedWillRhea.machine.cornerArm, undefined);
+assert.equal(parsedWillRhea.machine.driveUnits?.lrdu?.operatorMeasuredSpeedMetersPerMinute, undefined);
+assert.equal(parsedWillRhea.mapFeatures?.some((feature) => feature.kind === "linear_move_path"), false);
+assert.equal(
+  parsedWillRhea.mapFeatures?.find((feature) => feature.id === "will-rhea-lrdu-distance")?.kind,
+  "measurement_line",
+);
 
 const parsedWithStaleCompanion = parseProjectDocument({
   documentVersion: PROJECT_DOCUMENT_VERSION,
@@ -464,6 +471,55 @@ assert.throws(
 assert.throws(
   () => parseProjectDocument({ documentVersion: "bad-version", project: sampleProject }),
   /fieldBoundary|projectCrs|Invalid input/,
+);
+
+const captureEvidence = {
+  schemaVersion: "gnss-capture-v1" as const,
+  observationId: "session-1:172814:1000",
+  sessionId: "session-1",
+  transport: "web_serial" as const,
+  receivedAt: "2026-08-09T12:00:00.000Z",
+  receivedMonotonicMs: 1000,
+  receiverObservedAt: "2026-08-09T11:59:59.500Z",
+  sourceCoordinateFrame: "EPSG:4326",
+  antennaReference: "unknown" as const,
+  sentenceTypes: ["GGA", "RMC", "GST"],
+  coherent: true,
+};
+const evidenceProject = {
+  ...sampleProject,
+  fieldBoundaryCaptureEvidence: sampleProject.fieldBoundary.map((_point, index) => index === 0 ? captureEvidence : null),
+  surveyPoints: [{
+    id: "evidence-survey-1",
+    label: "Evidence point",
+    role: "control" as const,
+    projected: sampleProject.pivotCenter,
+    wgs84: { longitude: -104.99, latitude: 40.71 },
+    observedAt: "2026-08-09T11:59:59.500Z",
+    source: "external_gnss" as const,
+    confidence: "rtk_fixed" as const,
+    captureEvidence,
+  }],
+};
+const parsedEvidenceProject = parseProjectDocument(serializeProjectDocument(evidenceProject));
+assert.equal(parsedEvidenceProject.surveyPoints[0]?.captureEvidence?.observationId, captureEvidence.observationId);
+assert.equal(parsedEvidenceProject.fieldBoundaryCaptureEvidence?.[0]?.transport, "web_serial");
+assert.throws(
+  () => parseProjectDocument({ ...evidenceProject, fieldBoundaryCaptureEvidence: [captureEvidence] }),
+  /must align with boundary vertices/,
+);
+assert.throws(
+  () => parseProjectDocument({
+    ...sampleProject,
+    mapFeatures: [{
+      id: "invalid-pipeline-point",
+      name: "Invalid pipeline",
+      kind: "underground_pipeline",
+      geometry: { type: "Point", point: sampleProject.pivotCenter },
+      confidence: "user_estimated",
+    }],
+  }),
+  /underground_pipeline requires LineString geometry/,
 );
 
 console.log("project document tests passed");

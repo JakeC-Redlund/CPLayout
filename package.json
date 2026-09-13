@@ -2,6 +2,11 @@
   "name": "cplayout",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "npm@11.17.0",
+  "engines": {
+    "node": ">=20.19 <25",
+    "npm": ">=10 <12"
+  },
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -27,7 +32,7 @@
     "verify:native-maplibre": "tsx tools/nativeMapLibreProof.ts",
     "review:android-app": "tsx tools/androidAppReview.ts",
     "typecheck": "tsc -p tsconfig.tools.json && npm run typecheck --workspaces --if-present",
-    "test": "tsx tools/referenceOverlayBuilder.test.ts && tsx tools/pngMetrics.test.ts && tsx tools/devServerManager.test.ts && tsx tools/windowsLauncherScripts.test.ts && tsx tools/generateRealPivotFixtureManifest.test.ts && tsx tools/generateClientKmzAdvisoryReport.test.ts && tsx tools/verifyImageryEvidencePacket.test.ts && tsx tools/roadmapCompletion.test.ts && tsx tools/androidAppReview.test.ts && tsx tools/cornerGpsFltInventory.test.ts && npm run test --workspaces --if-present",
+    "test": "tsx tools/referenceOverlayBuilder.test.ts && tsx tools/pngMetrics.test.ts && tsx tools/devServerManager.test.ts && tsx tools/prepareMapLibreAssets.test.ts && tsx tools/windowsLauncherScripts.test.ts && tsx tools/generateRealPivotFixtureManifest.test.ts && tsx tools/generateClientKmzAdvisoryReport.test.ts && tsx tools/verifyImageryEvidencePacket.test.ts && tsx tools/roadmapCompletion.test.ts && tsx tools/androidAppReview.test.ts && tsx tools/cornerGpsFltInventory.test.ts && npm run test --workspaces --if-present",
     "context-map:build": "python3 tools/build_cplayout_context_map.py --write",
     "context-map:check": "python3 tools/build_cplayout_context_map.py --check",
     "validate:corner-service-manuals": "python3 tools/validate_corner_service_manuals.py",
@@ -44,11 +49,11 @@
     "verify:whole-loop": "tsx tools/verify_whole_codebase_improvement_loop.ts --path docs/whole-codebase-improvement-loop-2026-06-01.md --through 100",
     "verify:roadmap": "tsx tools/roadmapCompletion.ts --full",
     "verify:roadmap:fast": "tsx tools/roadmapCompletion.ts --fast",
-    "verify:release": "npm run verify:roadmap"
+    "verify:release": "tsx tools/roadmapCompletion.ts --release"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",
-    "@types/node": "^25.9.0",
+    "@types/node": "^24.13.3",
     "tsx": "4.22.4",
     "typescript": "~5.9.2"
   },
