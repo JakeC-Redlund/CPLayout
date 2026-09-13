@@ -4,9 +4,29 @@ Review and execution date: 2026-09-12
 
 The transfer record below describes the migration checkpoint. A live refresh on 2026-09-13 reconfirmed `JakeC-Redlund`, administrator access, public visibility, `main` as default, both destination remotes, and zero local/hosted divergence before the quality packet. No transfer or repository creation remains pending. Subsequent audited development publication is covered by [mapping-rtk-quality-program.md](mapping-rtk-quality-program.md) and Git history; the original OIDs below are recovery provenance, not a claim that they remain the latest development commit.
 
+## Single-Main Development Publication
+
+The owner's subsequent **commit + push + sync** instruction explicitly authorized consolidation to one clean, current `main`, including investigation and merging of any unique development. This separately authorizes removal of already-merged branch names after preservation and live tip checks; it does not authorize repository deletion, discarded uncommitted work, force-push, history rewriting, credential exposure or paid-service changes.
+
+On 2026-09-13 the destination, active `JakeC-Redlund` account and administrator access were reverified. The repository remained public with default `main`, no branch protection/rulesets, no Actions workflows/secrets and no PRs. Those settings were inventoried, not changed. Fresh fetch and ancestry checks found:
+
+| Development branch | Preserved tip | Commits unique to the branch |
+| --- | --- | --- |
+| `codex/android-map-hud-parity` | `b3ea6919a56b176109591f945a96e7b94a90c8be` | 0 |
+| `codex/complete-roadmap-next` | `e9fddc2782a1f4ffda310447a1c50304ed4020ff` | 0 |
+| `codex/cplayout-agent-specialists` | `bb1002c8b41dff953b2930eaa784fa9b2c3c61b3` | 0 |
+
+All three tips were already ancestors of `81dee50d7594a2c082defbada63abb7e065f7869`; their development was already integrated, so no redundant merge was created. The 111-path reviewed source packet was committed as `30cd9714759c12ff13506607c2373784677f00dc` and normally pushed to `main`. After rechecking exact live tips and their ancestry, an atomic non-forced push removed the three hosted branch names, and `git branch -d` removed their local counterparts. Their commits remain in `main` and in the verified rollback bundle.
+
+The duplicate temporary remote `jake-parent` was removed. `origin` alone points to `https://github.com/JakeC-Redlund/CPLayout.git`, and local `main` tracks `origin/main`. The one-local/one-hosted-branch, matching-OID and clean-worktree checks passed at the source commit before this documentation-only follow-up. Use Git history and a fresh `git ls-remote` check for the final tip; do not confuse a recorded source-validation OID with an assertion that documentation will never advance.
+
+The complete publication recovery directory is `/home/cyber/cplayout-main-sync-20260913-uFNiVG/`, retained locally and not uploaded. It includes a verified all-ref bundle, the pre-publication index and binary diffs, all 112 original dirty/untracked file copies/hashes, branch inventory and exact-tree validation records. The unrelated scratch note is preserved at `local-notes/resume.txt` there, not committed. The two pre-existing tracked visual-review changes were separately inspected, included and validated. No ignore rule or skip-worktree flag was added to manufacture a clean status.
+
+Full source/workspace validation passed against all 477 indexed files. The existing 26-case browser checkpoint was verified source/asset-identical, not rerun as a full suite. Five high audit findings and the documented native, relay, physical GNSS and strict 3D-accuracy gates remain unresolved. Publication is not release or field qualification.
+
 ## Authorization and Destination
 
-The owner requested migration planning, an explicit permission record, and initialization of `JakeC-Redlund/CPLayout`, then instructed the agent to implement the plan. This is execution authorization for the named repository migration and ordinary fetch/push verification after live account checks. It does not authorize deletion, destructive reset, force-push, credential exposure, or paid-service changes.
+The owner requested migration planning, an explicit permission record, and initialization of `JakeC-Redlund/CPLayout`, then instructed the agent to implement the plan. This is execution authorization for the named repository migration and ordinary fetch/push verification after live account checks. That migration authorization alone did not authorize deletion, destructive reset, force-push, credential exposure, or paid-service changes. The later, narrowly scoped merged-branch cleanup authorization is recorded above.
 
 The destination is **JakeC-Redlund/CPLayout**. It is the parent development monorepo for the existing npm workspaces, not a newly invented submodule hierarchy. No `.gitmodules` or additional repository remotes were found. Other repositories require an explicit inventory and ownership check before migration; none were inferred or transferred.
 
