@@ -222,7 +222,7 @@ export const partialSweepNearRoadSampleProject = curatedSampleVariant({
 export const endGunShutoffArcSampleProject = curatedSampleVariant({
   id: "sample-end-gun-shutoff-arc",
   name: "End-Gun Shutoff Arc",
-  description: "A conflict-clear full-circle concept with a limited end-gun arc for wetting only the reviewed sector.",
+  description: "A full-circle concept with a limited end-gun arc; shed clearance still requires mechanical review.",
   pivotCenter: p(470, 520),
   waterSource: p(428, 482),
   powerSource: p(250, 690),

@@ -177,7 +177,8 @@ function makeProject(overrides: Partial<PivotProject> = {}): PivotProject {
   return {
     id: "corner-gps-map-review-test",
     name: "CornerGPSMap review test",
-    projectCrs: "LOCAL:TEST",
+    // Synthetic metre-grid arithmetic, not georeferenced field evidence.
+    projectCrs: "EPSG:32613",
     unitSystem: "metric",
     fieldBoundary: overrides.fieldBoundary ?? [
       { x: 0, y: 0 },

@@ -38,6 +38,7 @@ tools/local-ml-companion/**/*.safetensors
 *.log
 *.tmp
 *.png
+!/apps/mobile/android/app/src/main/res/drawable-*/splashscreen_logo.png
 *.zip
 *.py[cod]
 __pycache__/

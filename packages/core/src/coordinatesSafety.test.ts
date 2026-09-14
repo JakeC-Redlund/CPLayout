@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
+import proj4 from "proj4";
 
 import {
   coordinateExample,
@@ -270,6 +271,34 @@ test("direct transforms normalize accepted CRS spelling", () => {
   const xy = projectLonLatToXy(wgs84, crs);
   assert.deepEqual(projectLonLatToXy(wgs84, " epsg : 32613 "), xy);
   assert.deepEqual(projectXyToLonLat(xy, " epsg : 32613 "), projectXyToLonLat(xy, crs));
+});
+
+test("legacy feet XY input preserves numbers and label without allowing an invented WGS84 transform", () => {
+  const coordinate = projected("X 2000000, Y 123456.25 (EPSG:26741)", " epsg : 26741 ");
+  assert.deepEqual(coordinate.projected, { x: 2000000, y: 123456.25 });
+  assert.equal(coordinate.projectCrs, " epsg : 26741 ");
+  assert.deepEqual(projected(formatCoordinate(coordinate, "projected_local"), coordinate.projectCrs), coordinate);
+  assert.throws(() => projectXyToLonLat(coordinate.projected, coordinate.projectCrs), /Unsupported CRS definition/);
+});
+
+test("external proj4 registrations cannot make unsupported EPSG codes into UTM or alter supported definitions", () => {
+  const savedFeet = proj4.defs("EPSG:26741");
+  const savedUtm = proj4.defs(crs);
+  const savedWgs84 = proj4.defs("EPSG:4326");
+  try {
+    proj4.defs("EPSG:26741", "+proj=utm +zone=41 +datum=NAD27 +units=m");
+    proj4.defs(crs, "+proj=utm +zone=12 +datum=WGS84 +units=ft");
+    proj4.defs("EPSG:4326", "+proj=longlat +datum=NAD27");
+    assert.throws(() => projectLonLatToXy({ latitude: 40, longitude: -105 }, "EPSG:26741"), /Unsupported CRS definition/);
+    assert.throws(() => projectXyToLonLat({ x: 500000, y: 4400000 }, "EPSG:26741"), /Unsupported CRS definition/);
+    const xy = projectLonLatToXy({ latitude: 40, longitude: -105 }, crs);
+    assert.ok(Math.abs(xy.x - 500000) < 1e-6);
+    assert.ok(Math.abs(xy.y - 4427757.218738374) < 1e-6);
+  } finally {
+    proj4.defs("EPSG:26741", savedFeet);
+    proj4.defs(crs, savedUtm);
+    proj4.defs("EPSG:4326", savedWgs84);
+  }
 });
 
 test("LOCAL transforms fail with a clean Error and parsing reports it", () => {

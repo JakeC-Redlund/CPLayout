@@ -1,7 +1,8 @@
+import { assertMetricCalculationCrs } from "@cplayout/core";
 import type { PivotProject, XY } from "@cplayout/core";
 import { completeCalculation, type Calculation } from "./calculation";
 
-import { DEFAULT_BOUNDARY_EPSILON_SQUARE_METERS, boundsForGeometry, evaluateLayout, validateWetCoverageWithinField } from "./geometry";
+import { DEFAULT_BOUNDARY_EPSILON_SQUARE_METERS, boundsForGeometry } from "./geometry";
 import { scoreLayoutAlternative, type RankedLayoutAlternative } from "./layoutScoring";
 
 export interface PivotCenterOptimizerOptions {
@@ -55,6 +56,7 @@ export function* optimizePivotCenterSteps(
   project: PivotProject,
   options: PivotCenterOptimizerOptions = {},
 ): Calculation<PivotCenterAlternative[]> {
+  assertMetricCalculationCrs(project.projectCrs);
   const gridDivisions = Math.max(2, Math.floor(options.gridDivisions ?? DEFAULT_GRID_DIVISIONS));
   const maxAlternatives = Math.max(1, Math.floor(options.maxAlternatives ?? DEFAULT_MAX_ALTERNATIVES));
   const boundaryEpsilonSquareMeters = options.boundaryEpsilonSquareMeters ?? DEFAULT_BOUNDARY_EPSILON_SQUARE_METERS;
@@ -112,18 +114,16 @@ function buildAlternative(
     machineConstraint: 0.05,
     confidence: 0.05,
   });
-  const boundary = validateWetCoverageWithinField(candidateProject, boundaryEpsilonSquareMeters);
-  const result = evaluateLayout(candidateProject);
   const disqualificationReasons = [
     ...ranked.disqualificationReasons,
     ...(ranked.metrics.obstacleConflictCount > 0 ? ["Obstacle conflicts are hard infeasible for pivot-center alternatives."] : []),
   ];
-  const feasible = boundary.feasible && disqualificationReasons.length === 0;
+  const feasible = ranked.feasible && disqualificationReasons.length === 0;
   const scoreBreakdown = scorePivotCenterCandidateBreakdown(
     ranked,
     project.pivotCenter,
     seed.point,
-    result.metrics.irrigatedAcres,
+    ranked.metrics.irrigatedAcres,
     feasible,
   );
 

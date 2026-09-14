@@ -1213,6 +1213,19 @@ const missingEvaluation = evaluateAdvisoryCornerArm({ ...cornerProject, machine:
 assert.equal(missingEvaluation.status, "missing_config");
 assert.equal(missingEvaluation.coverageCandidate.length, 0);
 
+const previewConfig = { ...cornerProject.machine.cornerArm!, lengthMeters: 90 };
+const previewWithoutSavedConfig = evaluateAdvisoryCornerArm({ ...cornerProject, machine: { ...cornerProject.machine, cornerArm: undefined } }, previewConfig);
+const previewWithSavedConfig = evaluateAdvisoryCornerArm(cornerProject, previewConfig);
+assert.ok(previewWithoutSavedConfig.pathEnvelope.length > 0);
+assert.deepEqual(previewWithSavedConfig.pathEnvelope, previewWithoutSavedConfig.pathEnvelope);
+assert.notDeepEqual(previewWithSavedConfig.pathEnvelope, evaluation.pathEnvelope);
+const noSprayCorner = evaluateAdvisoryCornerArm({ ...cornerProject, obstacles: [{
+  id: "no-spray-field", name: "No spray", kind: "exclusion", confidence: "user_estimated",
+  polygon: cornerProject.fieldBoundary, bufferMeters: 0, hardConflict: false, noSpray: true,
+}] });
+assert.equal(noSprayCorner.estimatedAddedCoverageAcres, 0);
+assert.deepEqual(noSprayCorner.coverageCandidate, []);
+
 console.log("advisory pivot placement tests passed");
 
 function makeProject(overrides: Partial<PivotProject> = {}): PivotProject {
@@ -1220,7 +1233,8 @@ function makeProject(overrides: Partial<PivotProject> = {}): PivotProject {
   return {
     id: "advisory-placement-test",
     name: "Advisory placement test",
-    projectCrs: "LOCAL:TEST",
+    // Synthetic metre-grid arithmetic, not georeferenced field evidence.
+    projectCrs: "EPSG:32613",
     unitSystem: "metric",
     fieldBoundary: overrides.fieldBoundary ?? field,
     pivotCenter,

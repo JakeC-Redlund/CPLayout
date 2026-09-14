@@ -8,7 +8,7 @@ import type {
   PivotSweep,
   XY,
 } from "@cplayout/core";
-import { assertProjectedCrs, feetToMeters, squareMetersToAcres } from "@cplayout/core";
+import { assertMetricCalculationCrs, feetToMeters, squareMetersToAcres } from "@cplayout/core";
 
 import {
   createAnnularSector,
@@ -23,7 +23,7 @@ type ClipMultiPolygon = ClipPolygon[];
 
 export type CornerArmKinematicRotationDirection = "clockwise" | "counterclockwise";
 export type CornerArmKinematicOrientation = "leading" | "trailing";
-export type CornerArmKinematicStatus = "ready" | "blocked";
+export type CornerArmKinematicStatus = "ready" | "blocked" | "unresolved";
 export type CornerArmKinematicDiagnosticCode =
   | "missing_projected_crs"
   | "missing_pivot_center"
@@ -32,6 +32,7 @@ export type CornerArmKinematicDiagnosticCode =
   | "missing_model_spec"
   | "missing_field_boundary"
   | "missing_guidance_path"
+  | "guidance_unreachable"
   | "corner_angle_below_min"
   | "corner_angle_above_max"
   | "steering_angle_exceeded"
@@ -94,6 +95,7 @@ export interface CornerArmEndGunControlRow {
 
 export interface CornerArmKinematicResult {
   status: CornerArmKinematicStatus;
+  qualificationBlockers: string[];
   advisoryOnly: true;
   canonicalGeometryMutation: false;
   scaffoldSourceStatus: CornerArmModelCatalogEntry["sourceStatus"] | "missing";
@@ -125,7 +127,7 @@ export function evaluateCornerArmKinematics(inputs: CornerArmKinematicInputs): C
     ]);
   }
 
-  assertProjectedCrs(inputs.projectCrs);
+  assertMetricCalculationCrs(inputs.projectCrs);
   const pivotCenter = inputs.pivotCenter;
   const fieldBoundary = inputs.fieldBoundary;
   const guidancePath = inputs.guidancePath;
@@ -135,11 +137,11 @@ export function evaluateCornerArmKinematics(inputs: CornerArmKinematicInputs): C
   }
 
   const sweep = inputs.sweep ?? { mode: "full_circle" as const };
-  const angles = sampleSweepAngles(sweep, inputs.sampleAngleStepDegrees ?? DEFAULT_SAMPLE_STEP_DEGREES);
+  const angles = sampleSweepAngles(sweep, inputs.sampleAngleStepDegrees ?? DEFAULT_SAMPLE_STEP_DEGREES, inputs.rotationDirection);
   const physicalBufferMeters = Math.max(0.1, inputs.physicalBufferMeters ?? DEFAULT_PHYSICAL_BUFFER_METERS);
   const spanLengthMeters = modelSpec.spanLengthMeters;
   const overhangLengthMeters = modelSpec.overhangLengthMeters;
-  const orientationSign = inputs.orientation === "leading" ? 1 : -1;
+  const orientationSign = (inputs.orientation === "leading" ? 1 : -1) * (inputs.rotationDirection === "counterclockwise" ? 1 : -1);
   const states: CornerArmKinematicState[] = [];
   const physicalClips: ClipMultiPolygon[] = [];
   let elapsedMinutes = 0;
@@ -152,10 +154,16 @@ export function evaluateCornerArmKinematics(inputs: CornerArmKinematicInputs): C
     const deltaMinutes = (inputs.pivotCenterToLrduRadiusMeters! * deltaThetaRadians) / inputs.lrduSpeedMetersPerMinuteAt100Percent!;
     elapsedMinutes += deltaMinutes;
 
-    const lrdu = polarOffset(pivotCenter, inputs.pivotCenterToLrduRadiusMeters!, thetaDegrees);
-    const desiredGuidancePoint = nearestPointOnPolyline(polarOffset(lrdu, spanLengthMeters, thetaDegrees + orientationSign * 90), guidancePath);
-    const vectorAngle = angleDegrees(lrdu, desiredGuidancePoint);
-    const sdu = polarOffset(lrdu, spanLengthMeters, vectorAngle);
+    // The closing pose must reuse the same trigonometric angle as the opening pose.
+    const lrdu = polarOffset(pivotCenter, inputs.pivotCenterToLrduRadiusMeters!, normalizeDegrees(thetaDegrees));
+    const guidanceCandidates = circlePolylineIntersections(lrdu, spanLengthMeters, guidancePath);
+    if (guidanceCandidates.length === 0) {
+      return emptyResult(modelSpec.sourceStatus, safetyZoneMeters, [{ code: "guidance_unreachable", stateIndex: index,
+        message: `No arm-length intersection with the guidance path at ${thetaDegrees.toFixed(3)} degrees.` }], []);
+    }
+    const target = states.at(-1)?.sdu ?? polarOffset(lrdu, spanLengthMeters, thetaDegrees + orientationSign * 90);
+    const sdu = guidanceCandidates.reduce((best, candidate) => distance(candidate, target) < distance(best, target) ? candidate : best);
+    const vectorAngle = angleDegrees(lrdu, sdu);
     const overhangEndpoint = polarOffset(sdu, overhangLengthMeters, vectorAngle);
     const cornerAngleDegrees = normalizeDegrees(vectorAngle - thetaDegrees);
     const signedCornerAngle = orientationSign > 0 ? cornerAngleDegrees : normalizeDegrees(thetaDegrees - vectorAngle);
@@ -191,8 +199,8 @@ export function evaluateCornerArmKinematics(inputs: CornerArmKinematicInputs): C
       infeasibleDiagnostics: stateDiagnostics,
     });
 
-    physicalClips.push(toClipMultiPolygon([[lineSegmentBufferPolygon(lrdu, sdu, physicalBufferMeters)]]));
-    physicalClips.push(toClipMultiPolygon([[lineSegmentBufferPolygon(sdu, overhangEndpoint, physicalBufferMeters)]]));
+    // The rigid span and collinear overhang form one member, without a numerical joint at the SDU.
+    physicalClips.push(toClipMultiPolygon([[lineSegmentBufferPolygon(lrdu, overhangEndpoint, physicalBufferMeters)]]));
   }
 
   const lrduPath = states.map((state) => state.lrdu);
@@ -204,7 +212,11 @@ export function evaluateCornerArmKinematics(inputs: CornerArmKinematicInputs): C
   const endGunControlRows = buildEndGunControlRows(inputs, modelSpec, pivotCenter);
 
   return {
-    status: infeasibleDiagnostics.length === 0 ? "ready" : "blocked",
+    status: infeasibleDiagnostics.length === 0 ? "unresolved" : "blocked",
+    qualificationBlockers: [
+      "Sampled states do not establish continuous swept clearance, branch continuity, or full-cycle steering feasibility.",
+      ...(modelSpec.sourceStatus === "scaffold_only" ? ["Equipment specifications require source confirmation."] : []),
+    ],
     advisoryOnly: true,
     canonicalGeometryMutation: false,
     scaffoldSourceStatus: modelSpec.sourceStatus,
@@ -230,7 +242,7 @@ export function evaluateCornerArmKinematics(inputs: CornerArmKinematicInputs): C
 function requiredInputDiagnostics(inputs: CornerArmKinematicInputs): CornerArmKinematicDiagnostic[] {
   const diagnostics: CornerArmKinematicDiagnostic[] = [];
   try {
-    assertProjectedCrs(inputs.projectCrs);
+    assertMetricCalculationCrs(inputs.projectCrs);
   } catch (error) {
     diagnostics.push({ code: "missing_projected_crs", message: error instanceof Error ? error.message : "Projected CRS is required." });
   }
@@ -240,6 +252,12 @@ function requiredInputDiagnostics(inputs: CornerArmKinematicInputs): CornerArmKi
   if (!inputs.modelSpec) diagnostics.push({ code: "missing_model_spec", message: "A selected corner-arm model spec is required." });
   if (!inputs.fieldBoundary || inputs.fieldBoundary.length < 3) diagnostics.push({ code: "missing_field_boundary", message: "A projected-XY field boundary polygon is required." });
   if (!inputs.guidancePath || inputs.guidancePath.length < 2) diagnostics.push({ code: "missing_guidance_path", message: "A projected-XY SDU guidance path is required for extension/retraction-aware kinematics." });
+  if ([inputs.pivotCenter, ...(inputs.fieldBoundary ?? []), ...(inputs.guidancePath ?? [])].some((point) => point && (!Number.isFinite(point.x) || !Number.isFinite(point.y)))
+    || (inputs.modelSpec && (!positiveFinite(inputs.modelSpec.spanLengthMeters) || !Number.isFinite(inputs.modelSpec.overhangLengthMeters) || inputs.modelSpec.overhangLengthMeters < 0))
+    || (inputs.sampleAngleStepDegrees !== undefined && !positiveFinite(inputs.sampleAngleStepDegrees))
+    || (inputs.sweep?.mode === "partial_circle" && (inputs.sweep.direction !== inputs.rotationDirection || !Number.isFinite(inputs.sweep.startAngleDegrees) || !Number.isFinite(inputs.sweep.stopAngleDegrees)))) {
+    diagnostics.push({ code: "geometry_invalid", message: "Finite coordinates, valid dimensions and consistent sweep/rotation direction are required." });
+  }
   return diagnostics;
 }
 
@@ -265,10 +283,9 @@ function stateDiagnosticsFor(input: {
   if (maxCorner !== undefined && input.cornerAngleDegrees > maxCorner) {
     diagnostics.push({ code: "corner_angle_above_max", stateIndex: input.stateIndex, message: `Corner angle ${input.cornerAngleDegrees.toFixed(2)} degrees is above scaffold maximum ${maxCorner}.` });
   }
-  const steeringLimit = Math.max(
-    Math.abs(input.modelSpec.maxOutwardSteeringAngleDegrees ?? Number.POSITIVE_INFINITY),
-    Math.abs(input.modelSpec.maxInwardSteeringAngleDegrees ?? Number.POSITIVE_INFINITY),
-  );
+  const steeringLimit = input.steeringAngleDegrees >= 0
+    ? input.modelSpec.maxOutwardSteeringAngleDegrees ?? Number.POSITIVE_INFINITY
+    : input.modelSpec.maxInwardSteeringAngleDegrees ?? Number.POSITIVE_INFINITY;
   if (Number.isFinite(steeringLimit) && Math.abs(input.steeringAngleDegrees) > steeringLimit) {
     diagnostics.push({ code: "steering_angle_exceeded", stateIndex: input.stateIndex, message: `Steering angle ${input.steeringAngleDegrees.toFixed(2)} degrees exceeds scaffold limit ${steeringLimit}.` });
   }
@@ -329,11 +346,11 @@ function buildEndGunControlRows(
   }));
 }
 
-function sampleSweepAngles(sweep: PivotSweep, sampleAngleStepDegrees: number): number[] {
+function sampleSweepAngles(sweep: PivotSweep, sampleAngleStepDegrees: number, direction: CornerArmKinematicRotationDirection): number[] {
   const step = Math.max(1, Math.min(45, Math.abs(sampleAngleStepDegrees)));
   if (sweep.mode === "full_circle") {
     const count = Math.max(8, Math.ceil(360 / step));
-    return Array.from({ length: count }, (_value, index) => (index / count) * 360);
+    return Array.from({ length: count + 1 }, (_value, index) => (index / count) * 360 * (direction === "counterclockwise" ? 1 : -1));
   }
   const delta = sweep.direction === "counterclockwise"
     ? normalizeDegrees(sweep.stopAngleDegrees - sweep.startAngleDegrees)
@@ -342,18 +359,29 @@ function sampleSweepAngles(sweep: PivotSweep, sampleAngleStepDegrees: number): n
   return Array.from({ length: count + 1 }, (_value, index) => sweep.startAngleDegrees + (delta * index) / count);
 }
 
-function nearestPointOnPolyline(point: XY, vertices: XY[]): XY {
-  let bestPoint = vertices[0];
-  let bestDistance = Number.POSITIVE_INFINITY;
+function circlePolylineIntersections(center: XY, radius: number, vertices: XY[]): XY[] {
+  const intersections: XY[] = [];
   for (let index = 1; index < vertices.length; index += 1) {
-    const candidate = nearestPointOnSegment(point, vertices[index - 1], vertices[index]);
-    const candidateDistance = distance(point, candidate);
-    if (candidateDistance < bestDistance) {
-      bestDistance = candidateDistance;
-      bestPoint = candidate;
+    const start = vertices[index - 1];
+    const end = vertices[index];
+    const dx = end.x - start.x;
+    const dy = end.y - start.y;
+    const length = Math.hypot(dx, dy);
+    if (length === 0) continue;
+    const ux = dx / length;
+    const uy = dy / length;
+    const along = (center.x - start.x) * ux + (center.y - start.y) * uy;
+    const perpendicular = (center.x - start.x) * uy - (center.y - start.y) * ux;
+    const square = (radius - Math.abs(perpendicular)) * (radius + Math.abs(perpendicular));
+    if (square < 0) continue;
+    const offset = Math.sqrt(square);
+    for (const position of [along - offset, along + offset]) {
+      if (position < 0 || position > length) continue;
+      const candidate = { x: start.x + position * ux, y: start.y + position * uy };
+      if (!intersections.some((point) => distance(point, candidate) < 1e-9)) intersections.push(candidate);
     }
   }
-  return bestPoint;
+  return intersections;
 }
 
 function nearestPointOnSegment(point: XY, start: XY, end: XY): XY {
@@ -386,6 +414,7 @@ function emptyResult(
 ): CornerArmKinematicResult {
   return {
     status: "blocked",
+    qualificationBlockers: infeasibleDiagnostics.map((diagnostic) => diagnostic.message),
     advisoryOnly: true,
     canonicalGeometryMutation: false,
     scaffoldSourceStatus,

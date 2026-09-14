@@ -2,6 +2,8 @@
 
 Review started: 2026-09-13. Status: active, incremental verification; not a release or best-in-class certification.
 
+Current workflow/model/governance implementation and remaining Design-to-Layout packets are tracked in [mapping-workflow-review.md](mapping-workflow-review.md). The publication and performance sections below are historical checkpoints, not acceptance of subsequent changes.
+
 ## Current Publication Checkpoint
 
 The owner's later **commit + push + sync** request explicitly requires one current, clean `main` and investigation of all development branches. It supersedes the earlier performance-before-publication ordering, not the outstanding quality or release gates. Complexity: xhigh; selected reasoning: xhigh. Subagent decision: not useful for these serialized index, branch and publication operations. No new product behavior was added during publication review.

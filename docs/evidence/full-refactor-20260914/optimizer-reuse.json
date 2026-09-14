@@ -1,0 +1,390 @@
+{
+  "schema": "cplayout-optimizer-reuse-evidence-v1",
+  "verifiedAt": "2026-09-14T08:10:29.476Z",
+  "scope": "Exact input/result parity from retained V8 snapshots; operation counts from worker instrumentation, not independently re-instrumented. No wall-clock or field claim.",
+  "sourceFiles": {
+    "packages/geometry/src/pivotCenterOptimizer.ts": "b747b0d9f5b2f79d381c45b98123044da81d570728d7fc14a2b4c4ac36b5e0fb",
+    "packages/geometry/src/pivotCenterOptimizer.test.ts": "a9d5f81f0bdd692609f5592443e27714c44b23f3259d532ca182598d45ba8cd6"
+  },
+  "rawArtifacts": {
+    "/tmp/cplayout-optimizer-reuse-before.bin": "cbed98af6fc611663ff1bb3dbfa7b65daaabcc35e3c597cebab67b59da36c13f",
+    "/tmp/cplayout-optimizer-reuse-after.bin": "78574c3fa4767a4437ee0433f15758dcdcd016c2ef9a91c91f8cd22bbec68b2a",
+    "/tmp/cplayout-optimizer-reuse-before.json": "0419569dea171dd3962e4d16501b6784a73d84c96c8e17e6d2ffeaac5d733db1",
+    "/tmp/cplayout-optimizer-reuse-after.json": "79552ece2b2b98720a64ce9f02a58afd6c30b40a547b31b3b630571b0ec781d6"
+  },
+  "strictlyEqualCases": 20,
+  "totals": {
+    "optimizer": {
+      "cases": 11,
+      "before": {
+        "alternatives": 380,
+        "completed": 360,
+        "evaluateLayout": 731,
+        "boundaryClip": 720
+      },
+      "after": {
+        "alternatives": 380,
+        "completed": 360,
+        "evaluateLayout": 371,
+        "boundaryClip": 360
+      }
+    },
+    "field-plan": {
+      "cases": 9,
+      "before": {
+        "alternatives": 1352,
+        "completed": 1352,
+        "evaluateLayout": 3074,
+        "boundaryClip": 2704
+      },
+      "after": {
+        "alternatives": 1352,
+        "completed": 1352,
+        "evaluateLayout": 1722,
+        "boundaryClip": 1352
+      }
+    }
+  },
+  "cases": [
+    {
+      "kind": "optimizer",
+      "name": "valid",
+      "inputAndResultStrictlyEqual": true,
+      "before": {
+        "alternatives": 45,
+        "completed": 45,
+        "evaluateLayout": 90,
+        "boundaryClip": 90
+      },
+      "after": {
+        "alternatives": 45,
+        "completed": 45,
+        "evaluateLayout": 45,
+        "boundaryClip": 45
+      }
+    },
+    {
+      "kind": "optimizer",
+      "name": "blocked-boundary",
+      "inputAndResultStrictlyEqual": true,
+      "before": {
+        "alternatives": 45,
+        "completed": 45,
+        "evaluateLayout": 90,
+        "boundaryClip": 90
+      },
+      "after": {
+        "alternatives": 45,
+        "completed": 45,
+        "evaluateLayout": 45,
+        "boundaryClip": 45
+      }
+    },
+    {
+      "kind": "optimizer",
+      "name": "obstacles",
+      "inputAndResultStrictlyEqual": true,
+      "before": {
+        "alternatives": 45,
+        "completed": 45,
+        "evaluateLayout": 90,
+        "boundaryClip": 90
+      },
+      "after": {
+        "alternatives": 45,
+        "completed": 45,
+        "evaluateLayout": 45,
+        "boundaryClip": 45
+      }
+    },
+    {
+      "kind": "optimizer",
+      "name": "partial-end-gun",
+      "inputAndResultStrictlyEqual": true,
+      "before": {
+        "alternatives": 45,
+        "completed": 45,
+        "evaluateLayout": 90,
+        "boundaryClip": 90
+      },
+      "after": {
+        "alternatives": 45,
+        "completed": 45,
+        "evaluateLayout": 45,
+        "boundaryClip": 45
+      }
+    },
+    {
+      "kind": "optimizer",
+      "name": "invalid-geometry",
+      "inputAndResultStrictlyEqual": true,
+      "before": {
+        "alternatives": 9,
+        "completed": 0,
+        "evaluateLayout": 9,
+        "boundaryClip": 0
+      },
+      "after": {
+        "alternatives": 9,
+        "completed": 0,
+        "evaluateLayout": 9,
+        "boundaryClip": 0
+      }
+    },
+    {
+      "kind": "optimizer",
+      "name": "missing-boundary",
+      "inputAndResultStrictlyEqual": true,
+      "before": {
+        "alternatives": 2,
+        "completed": 0,
+        "evaluateLayout": 2,
+        "boundaryClip": 0
+      },
+      "after": {
+        "alternatives": 2,
+        "completed": 0,
+        "evaluateLayout": 2,
+        "boundaryClip": 0
+      }
+    },
+    {
+      "kind": "optimizer",
+      "name": "invalid-tolerance",
+      "inputAndResultStrictlyEqual": true,
+      "before": {
+        "alternatives": 9,
+        "completed": 0,
+        "evaluateLayout": 0,
+        "boundaryClip": 0
+      },
+      "after": {
+        "alternatives": 9,
+        "completed": 0,
+        "evaluateLayout": 0,
+        "boundaryClip": 0
+      }
+    },
+    {
+      "kind": "optimizer",
+      "name": "signed-zero-0",
+      "inputAndResultStrictlyEqual": true,
+      "before": {
+        "alternatives": 45,
+        "completed": 45,
+        "evaluateLayout": 90,
+        "boundaryClip": 90
+      },
+      "after": {
+        "alternatives": 45,
+        "completed": 45,
+        "evaluateLayout": 45,
+        "boundaryClip": 45
+      }
+    },
+    {
+      "kind": "optimizer",
+      "name": "signed-zero-1",
+      "inputAndResultStrictlyEqual": true,
+      "before": {
+        "alternatives": 45,
+        "completed": 45,
+        "evaluateLayout": 90,
+        "boundaryClip": 90
+      },
+      "after": {
+        "alternatives": 45,
+        "completed": 45,
+        "evaluateLayout": 45,
+        "boundaryClip": 45
+      }
+    },
+    {
+      "kind": "optimizer",
+      "name": "signed-zero-2",
+      "inputAndResultStrictlyEqual": true,
+      "before": {
+        "alternatives": 45,
+        "completed": 45,
+        "evaluateLayout": 90,
+        "boundaryClip": 90
+      },
+      "after": {
+        "alternatives": 45,
+        "completed": 45,
+        "evaluateLayout": 45,
+        "boundaryClip": 45
+      }
+    },
+    {
+      "kind": "optimizer",
+      "name": "signed-zero-3",
+      "inputAndResultStrictlyEqual": true,
+      "before": {
+        "alternatives": 45,
+        "completed": 45,
+        "evaluateLayout": 90,
+        "boundaryClip": 90
+      },
+      "after": {
+        "alternatives": 45,
+        "completed": 45,
+        "evaluateLayout": 45,
+        "boundaryClip": 45
+      }
+    },
+    {
+      "kind": "field-plan",
+      "name": "baseline",
+      "inputAndResultStrictlyEqual": true,
+      "before": {
+        "alternatives": 182,
+        "completed": 182,
+        "evaluateLayout": 410,
+        "boundaryClip": 364
+      },
+      "after": {
+        "alternatives": 182,
+        "completed": 182,
+        "evaluateLayout": 228,
+        "boundaryClip": 182
+      }
+    },
+    {
+      "kind": "field-plan",
+      "name": "multi-machine",
+      "inputAndResultStrictlyEqual": true,
+      "before": {
+        "alternatives": 182,
+        "completed": 182,
+        "evaluateLayout": 410,
+        "boundaryClip": 364
+      },
+      "after": {
+        "alternatives": 182,
+        "completed": 182,
+        "evaluateLayout": 228,
+        "boundaryClip": 182
+      }
+    },
+    {
+      "kind": "field-plan",
+      "name": "obstacles-clearance",
+      "inputAndResultStrictlyEqual": true,
+      "before": {
+        "alternatives": 182,
+        "completed": 182,
+        "evaluateLayout": 410,
+        "boundaryClip": 364
+      },
+      "after": {
+        "alternatives": 182,
+        "completed": 182,
+        "evaluateLayout": 228,
+        "boundaryClip": 182
+      }
+    },
+    {
+      "kind": "field-plan",
+      "name": "costs",
+      "inputAndResultStrictlyEqual": true,
+      "before": {
+        "alternatives": 182,
+        "completed": 182,
+        "evaluateLayout": 410,
+        "boundaryClip": 364
+      },
+      "after": {
+        "alternatives": 182,
+        "completed": 182,
+        "evaluateLayout": 228,
+        "boundaryClip": 182
+      }
+    },
+    {
+      "kind": "field-plan",
+      "name": "near-coordinate-ids",
+      "inputAndResultStrictlyEqual": true,
+      "before": {
+        "alternatives": 78,
+        "completed": 78,
+        "evaluateLayout": 203,
+        "boundaryClip": 156
+      },
+      "after": {
+        "alternatives": 78,
+        "completed": 78,
+        "evaluateLayout": 125,
+        "boundaryClip": 78
+      }
+    },
+    {
+      "kind": "field-plan",
+      "name": "changed-machine",
+      "inputAndResultStrictlyEqual": true,
+      "before": {
+        "alternatives": 182,
+        "completed": 182,
+        "evaluateLayout": 410,
+        "boundaryClip": 364
+      },
+      "after": {
+        "alternatives": 182,
+        "completed": 182,
+        "evaluateLayout": 228,
+        "boundaryClip": 182
+      }
+    },
+    {
+      "kind": "field-plan",
+      "name": "changed-boundary",
+      "inputAndResultStrictlyEqual": true,
+      "before": {
+        "alternatives": 182,
+        "completed": 182,
+        "evaluateLayout": 411,
+        "boundaryClip": 364
+      },
+      "after": {
+        "alternatives": 182,
+        "completed": 182,
+        "evaluateLayout": 229,
+        "boundaryClip": 182
+      }
+    },
+    {
+      "kind": "field-plan",
+      "name": "no-feasible",
+      "inputAndResultStrictlyEqual": true,
+      "before": {
+        "alternatives": 182,
+        "completed": 182,
+        "evaluateLayout": 410,
+        "boundaryClip": 364
+      },
+      "after": {
+        "alternatives": 182,
+        "completed": 182,
+        "evaluateLayout": 228,
+        "boundaryClip": 182
+      }
+    },
+    {
+      "kind": "field-plan",
+      "name": "no-boundary",
+      "inputAndResultStrictlyEqual": true,
+      "before": {
+        "alternatives": 0,
+        "completed": 0,
+        "evaluateLayout": 0,
+        "boundaryClip": 0
+      },
+      "after": {
+        "alternatives": 0,
+        "completed": 0,
+        "evaluateLayout": 0,
+        "boundaryClip": 0
+      }
+    }
+  ]
+}

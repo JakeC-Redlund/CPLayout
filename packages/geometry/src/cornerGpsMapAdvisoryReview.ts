@@ -1,5 +1,6 @@
 import {
   CORNER_GPS_MAP_DEFAULT_REVIEW_SETTINGS,
+  qualifyProjectCrs,
   CornerGpsMapLegacyEvidence,
   CornerGpsMapModelPreset,
   CornerGpsMapReviewSettings,
@@ -128,7 +129,10 @@ export function evaluateCornerGpsMapAdvisoryReview(
     modelPreset?.minLrduBoundaryDistanceMeters ?? 0,
   );
 
-  if (project.fieldBoundary.length < 3) {
+  const qualification = qualifyProjectCrs(project.projectCrs);
+  if (!qualification.calculation.allowed) {
+    issues.push({ severity: "blocker", code: "unqualified_metric_crs", message: `Metric planar calculations unavailable: ${qualification.calculation.blockers.join(", ")}.` });
+  } else if (project.fieldBoundary.length < 3) {
     issues.push({
       severity: "blocker",
       code: "missing_projected_boundary",
@@ -156,7 +160,7 @@ export function evaluateCornerGpsMapAdvisoryReview(
     }
   }
 
-  if (project.obstacles.length > 0) {
+  if (qualification.calculation.allowed && project.obstacles.length > 0) {
     minObstacleClearance = Math.min(...project.obstacles.map((obstacle) => {
       const radialDistance = minDistanceToRing(project.pivotCenter, obstacle.polygon);
       return Math.abs(radialDistance - machineRadius) - obstacle.bufferMeters;
@@ -169,7 +173,7 @@ export function evaluateCornerGpsMapAdvisoryReview(
         shortfallMeters: settings.safetyZoneMeters - minObstacleClearance,
       });
     }
-  } else {
+  } else if (project.obstacles.length === 0) {
     issues.push({
       severity: "info",
       code: "no_obstacle_evidence",

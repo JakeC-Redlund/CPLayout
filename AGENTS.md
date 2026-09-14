@@ -59,7 +59,7 @@
 - Native SQLite and ZIP sharing may compile without proving runtime behavior. Do not report Android/iOS persistence as production-verified until a device or emulator run completes the checklist in `docs/android-native-verification.md`.
 - Web SQLite remains research-gated because Expo SQLite web is alpha and requires WASM plus COOP/COEP headers. Browser local storage is the current web MVP backend.
 - Tile package metadata is supported in project documents and SQLite. Native PMTiles/MBTiles rendering remains deferred until a real local tile source adapter is implemented and device-verified.
-- The SVG map supports pan/zoom and draft capture state. Full saveable geometry editing is not complete until draft vertices can be committed to project field/obstacle entities with undo and validation.
+- SVG and browser map draft commits and vertex edits are reducer-backed with validation and undo. Native gesture parity, true incomplete design drafts, immutable Design-to-Layout handoff, and field qualification remain separate acceptance gates; see `docs/mapping-workflow-review.md`.
 
 ## Planning Output Rules
 

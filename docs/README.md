@@ -16,9 +16,13 @@ CPLayout is an offline-first, no-cost center-pivot planning app. Canonical proje
 - Storage, archives, native proof: `docs/android-native-verification.md`, `packages/project-store/src/index.ts`, `packages/project-store/src/projectArchive.ts`, `packages/project-store/src/projectRepository.native.ts`.
 - RTK/GNSS hardware, corrections, capture provenance, and field proof: `docs/rtk-gnss-integration-plan.md`, `docs/gnss-runtime-verification-report-template.json`, `packages/gnss/src/index.ts`, `tools/roadmapCompletion.ts`.
 - Derived GNSS 3D evidence contracts and physical/native acceptance blockers: [gnss-derived-evidence-contract.md](gnss-derived-evidence-contract.md).
+- Owner hardware, verified electrical specifications, level-shifting decisions and bench/field gates: [receiver-hardware-qualification.md](receiver-hardware-qualification.md).
 - Direct package inventory, current alignment, advisories, and upgrade gates: `docs/dependency-upgrade-plan.md`.
 - Shared mapping controller, renderer boundaries, and regression coverage: [mapping-refactor-plan.md](mapping-refactor-plan.md).
 - Agricultural mapping/RTK quality review, comparison criteria, and improvement packets: [mapping-rtk-quality-program.md](mapping-rtk-quality-program.md).
+- Current Design-to-Layout safety packet, verification and remaining implementation sequence: [mapping-workflow-review.md](mapping-workflow-review.md).
+- Active full-refactor execution queue, worker ownership, checkpoints and resumption gates: [full-refactor-execution.md](full-refactor-execution.md).
+- Next incomplete-design and atomic catalog packet, with migration/rollback and fault-injection gates: [draft-catalog-implementation.md](draft-catalog-implementation.md).
 - GitHub parent migration, authorization, recovery, and publication state: [github-migration-plan.md](github-migration-plan.md).
 - Imagery, KML/KMZ, Google Earth, ML/CV: `docs/kml-kmz-google-earth-source-ledger.md`, `packages/core/src/imageryEvidence.ts`, `docs/imagery-ml-capability-roadmap.md`.
 - Interface and visible web/native proof: `apps/mobile/App.tsx`, `packages/map-adapters/src/SvgMapSurface.tsx`, `docs/android-native-verification.md`.

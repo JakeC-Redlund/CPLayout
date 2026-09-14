@@ -3,6 +3,7 @@ import { PivotProjectSchema, withWgs84Companion } from "./projectDocument";
 import { projectDataKey } from "./projectDataComparison";
 import { validateMapPackageManifest } from "./mapTilePackages";
 import { applyManualDesignDraft, createManualDesignDraft, evaluateManualDesignReadiness, type ManualDesignDraft } from "./manualDesign";
+import { assertMetricCalculationCrs } from "./crsQualification";
 import type { ProjectSettings } from "./settings";
 import type { GnssCaptureEvidence, LonLat, MapPackageManifest, ObstacleZone, PivotMachine, PivotProject, ProjectMapFeature, ProjectMapFeatureGeometry, SourceConfidence, SurveyPoint, UnitSystem, XY } from "./types";
 
@@ -397,6 +398,7 @@ function deleteMapFeatureVertex(state: ProjectEditorState, featureId: string, ve
 }
 
 function moveMapFeatureCircleRadiusHandle(state: ProjectEditorState, featureId: string, point: XY): ProjectEditorState {
+  assertMetricCalculationCrs(state.project.projectCrs);
   const features = state.project.mapFeatures ?? [];
   const feature = features.find((candidate) => candidate.id === featureId);
   if (!feature) throw new Error(`Map feature ${featureId} was not found.`);
@@ -476,6 +478,7 @@ function deleteMapFeatureGeometryVertex(geometry: ProjectMapFeatureGeometry, ver
 }
 
 function assertMapFeatureBoundaryPolicy(project: PivotProject, feature: ProjectMapFeature): void {
+  if (feature.geometry.type === "Circle") assertMetricCalculationCrs(project.projectCrs);
   if (!isLayoutControlFeature(feature.kind)) return;
   for (const point of mapFeatureControlPoints(feature.geometry)) {
     assertPointInsideRing(point, project.fieldBoundary, `${titleCase(feature.kind)} map feature`);

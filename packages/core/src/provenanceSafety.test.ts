@@ -20,7 +20,8 @@ const point = (id = "survey-1", projected: XY = { x: 50, y: 50 }): SurveyPoint =
 });
 function project(): PivotProject {
   return {
-    id: "provenance-fixture", name: "Synthetic provenance fixture", projectCrs: "LOCAL", unitSystem: "metric",
+    // Synthetic metre-grid arithmetic; capture records below are fixtures, not field evidence.
+    id: "provenance-fixture", name: "Synthetic provenance fixture", projectCrs: "EPSG:32613", unitSystem: "metric",
     fieldBoundary: ring.map((p) => ({ ...p })), fieldBoundaryCaptureEvidence: ring.map((_p, i) => evidence(`v${i}`)),
     pivotCenter: { x: 50, y: 50 }, waterSource: { x: 40, y: 40 }, powerSource: { x: 60, y: 60 },
     infrastructureObservationRefs: { pivot_center: "survey-1" }, surveyPoints: [point()], obstacles: [], mapFeatures: [],

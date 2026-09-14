@@ -297,7 +297,7 @@ test("file menu opens curated sample designs with projected xy status", async ({
     await page.getByTestId(sample.testId).click();
     await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText(sample.title);
     await expect(page.getByText("Projected XY").first()).toBeVisible();
-    await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
+    await expect(page.getByTestId("project-save-state").getByText("Unsaved edits")).toBeVisible();
   }
   await saveScreen(page, testInfo, "file-menu-curated-samples");
 });
@@ -331,7 +331,7 @@ test("catalog blank design starts a drawable boundary workflow", async ({ page }
   }
   await expect(page.getByText(/measure .* 4 draft pts .* polygon needs 3 pts/)).toBeVisible();
   if (testInfo.project.name === "mobile-390") {
-    await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+    await expect(page.getByTestId("project-save-state")).toContainText("Unsaved edits");
     await saveScreen(page, testInfo, "catalog-blank-design-boundary-draw-mobile");
     return;
   }
@@ -548,6 +548,7 @@ test("public proof map features can select the side-panel editor without geometr
   await openCommandMenu(page, "file");
   await page.getByTestId("command-file-real-proof").click();
   await expect(page.getByTestId("workspace-screen")).toBeVisible();
+  await page.getByTestId("command-icon-save").click();
   await page.getByTestId("workspace-nav-map").click();
   await expect(page.getByTestId("browser-map-workbench")).toBeVisible();
   await expect(page.getByText("Saved")).toBeVisible();
@@ -618,6 +619,7 @@ test("help training route links into the real workflow", async ({ page }, testIn
 	    "help-module-google-earth",
 	    "help-module-imagery",
 	    "help-module-layout-validation",
+	    "help-module-rtk",
 	    "help-module-android-storage",
 	    "help-module-export",
   ]) {
@@ -625,6 +627,7 @@ test("help training route links into the real workflow", async ({ page }, testIn
   }
   await expect(page.getByText("Google Earth Pro is a local companion reference only")).toBeVisible();
   await expect(page.getByText("Training progress uses the same local walkthrough store")).toBeVisible();
+  await expect(page.getByTestId("help-module-rtk")).toContainText("independent field control");
   await expectNoHorizontalOverflow(page);
 
   await page.getByTestId("help-action-map").click();
@@ -635,6 +638,9 @@ test("help training route links into the real workflow", async ({ page }, testIn
   await page.getByTestId("workspace-nav-help").click();
   await page.getByTestId("help-action-settings").click();
   await expect(page.getByTestId("settings-view")).toBeVisible();
+  await page.getByTestId("workspace-nav-help").click();
+  await page.getByTestId("help-module-rtk-route").click();
+  await expect(page.getByTestId("survey-view")).toBeVisible();
   await page.getByTestId("workspace-nav-help").click();
   await page.getByTestId("help-module-layout-validation-route").click();
   await expect(page.getByTestId("map-view")).toBeVisible();
@@ -963,6 +969,7 @@ test("placement review applies advisory pivot candidates only after confirmation
   await page.goto("/");
   await openBaselineSample(page);
   await page.getByTestId("workspace-nav-map").click();
+  await expect(page.getByTestId("advisory-map-job-status")).toHaveText("", { timeout: 60000 });
   await expect(page.getByTestId("browser-advisory-generated-field-pivot-layer")).toContainText("Generated advisory plan");
   await expect(page.getByTestId("browser-advisory-generated-field-pivot-layer")).toContainText("review only");
   await clickHudAction(page, "design-action-calculate");
@@ -994,6 +1001,7 @@ test("generated field pivot plan saves advisory machine-zone review features aft
   await page.getByTestId("workspace-nav-map").click();
   await clickHudAction(page, "design-action-calculate");
   await expect(page.getByTestId("design-console-dialog")).toBeVisible();
+  await expect(page.getByTestId("advisory-calculation-status")).toHaveCount(0, { timeout: 60000 });
   await expect(page.getByTestId("advisory-generated-field-pivot-plan")).toContainText("Generated Field Pivot Plan");
   await expect(page.getByTestId("advisory-generated-field-pivot-plan")).toContainText("does not create saved pivots");
   await expect(page.getByTestId("advisory-generated-multi-pivot-scenario-review")).toContainText("Generated Multi-Pivot Scenario Review");
@@ -1002,6 +1010,7 @@ test("generated field pivot plan saves advisory machine-zone review features aft
 
   await page.getByTestId("save-generated-field-pivot-zones").click();
   await expect(page.getByTestId("project-save-state").getByText("Unsaved edits")).toBeVisible();
+  await expect(page.getByTestId("advisory-calculation-status")).toHaveCount(0, { timeout: 60000 });
   await expect(page.getByTestId("generated-field-pivot-zone-save-status")).toHaveText(/Review zones: [1-9]\d* current \/ 0 missing \/ 0 stale/);
 
   await page.getByTestId("design-console-calculate").click();
@@ -1020,6 +1029,7 @@ test("advisory cost review uses local assumptions without dirtying geometry", as
   await page.getByTestId("workspace-nav-map").click();
   await clickHudAction(page, "design-action-calculate");
   await expect(page.getByTestId("design-console-dialog")).toBeVisible();
+  await expect(page.getByTestId("advisory-calculation-status")).toHaveCount(0, { timeout: 60000 });
   await expect(page.getByTestId("advisory-cost-review-panel")).toContainText("Cost Review");
   await expect(page.getByTestId("advisory-cost-status")).toContainText("will not infer machine prices");
   await expect(page.getByTestId("advisory-bender-strategy-summary")).toContainText("operator-labeled projected-XY second-pivot evidence");
@@ -1039,6 +1049,7 @@ test("advisory cost review uses local assumptions without dirtying geometry", as
   await page.getByTestId("advisory-cost-fixed").fill("80000");
   await page.getByTestId("advisory-cost-per-meter").fill("700");
   await page.getByTestId("advisory-cost-per-tower").fill("3000");
+  await expect(page.getByTestId("advisory-calculation-status")).toHaveCount(0, { timeout: 60000 });
   await expect(page.getByTestId("advisory-cost-review-panel")).toContainText("Complete");
   await expect(page.getByTestId("advisory-generated-multi-pivot-scenario-review")).toContainText("cost evidence Complete");
   await expect(page.getByText("Unsaved edits")).toHaveCount(0, { timeout: 2000 });
@@ -2510,7 +2521,7 @@ test("dashboard layout warnings can inspect the map without geometry mutation", 
 
 test("dashboard recent-project empty state keeps start actions visible", async ({ page }, testInfo) => {
   await page.goto("/");
-  await openBaselineSample(page);
+  await openBaselineSample(page, false);
   const recentProjects = page.getByTestId("dashboard-recent-projects");
   await expect(recentProjects.getByText("Recent Projects")).toBeVisible();
   await expect(recentProjects.getByText("No saved browser projects yet.")).toBeVisible();
@@ -2621,28 +2632,39 @@ async function closeCommandMenu(page: Page, menuId: string): Promise<void> {
   await expect(page.getByTestId(`command-menu-${menuId}-panel`)).toBeHidden();
 }
 
-async function openBaselineSample(page: Page): Promise<void> {
+async function openBaselineSample(page: Page, persist = true): Promise<void> {
   await openCommandMenu(page, "file");
   await page.getByTestId("command-file-sample-baseline-needs-review").click();
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("North Quarter Concept Layout");
+  // These workflows compare edits against a persisted baseline, not an unsaved sample.
+  if (persist) {
+    await page.getByTestId("command-icon-save").click();
+    await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+  }
 }
 
 async function openWillRheaExample(page: Page): Promise<void> {
   await openCommandMenu(page, "file");
   await page.getByTestId("command-file-will-rhea-jason-harmelink-example").click();
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("Will Rhea / Jason Harmelink Example Map");
+  await page.getByTestId("command-icon-save").click();
+  await expect(page.getByTestId("project-save-state")).toContainText("Saved");
 }
 
 async function openFullScopeCostDemoSample(page: Page): Promise<void> {
   await openCommandMenu(page, "file");
   await page.getByTestId("command-file-sample-full-scope-multi-pivot-cost-demo").click();
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("Full-Scope Multi-Pivot Cost Demo");
+  await page.getByTestId("command-icon-save").click();
+  await expect(page.getByTestId("project-save-state")).toContainText("Saved");
 }
 
 async function openPartialSweepSample(page: Page): Promise<void> {
   await openCommandMenu(page, "file");
   await page.getByTestId("command-file-sample-partial-sweep-road-structure").click();
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("Partial Sweep Near Road And Pad");
+  await page.getByTestId("command-icon-save").click();
+  await expect(page.getByTestId("project-save-state")).toContainText("Saved");
 }
 
 async function openCatalogFromFile(page: Page): Promise<void> {

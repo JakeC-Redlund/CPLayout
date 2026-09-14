@@ -1,0 +1,213 @@
+{
+  "recordedAt": "2026-09-14T07:44:38.754Z",
+  "scope": "synthetic_request_local_layout_reuse",
+  "status": "focused_parity_and_operation_counts_pass",
+  "completePlanCount": 9,
+  "beforeOutputSha256": "8c1a9ff7b13f1fe1022eaec9557aef572f1915de374b442f99d040e13b66184c",
+  "afterOutputSha256": "8c1a9ff7b13f1fe1022eaec9557aef572f1915de374b442f99d040e13b66184c",
+  "rows": [
+    {
+      "name": "baseline",
+      "outputSha256": "677d6944de8e06d31e44a406e905da2ffd55dbe09ecf4ddeaad0be426961a77a",
+      "totalLayout": [
+        462,
+        410
+      ],
+      "plannerLayout": [
+        98,
+        46
+      ],
+      "priorCoverage": [
+        44,
+        1
+      ]
+    },
+    {
+      "name": "multi-machine",
+      "outputSha256": "46b1e04df80bda83d51adeab8810f8b65f64e1cd9445d1cecd0d04b950d33428",
+      "totalLayout": [
+        501,
+        410
+      ],
+      "plannerLayout": [
+        137,
+        46
+      ],
+      "priorCoverage": [
+        79,
+        3
+      ]
+    },
+    {
+      "name": "obstacles-clearance",
+      "outputSha256": "2a3fb5e54a9ef46340ba95dbfdba613908b71c18a90ec31253b123d566597b97",
+      "totalLayout": [
+        455,
+        410
+      ],
+      "plannerLayout": [
+        91,
+        46
+      ],
+      "priorCoverage": [
+        33,
+        3
+      ]
+    },
+    {
+      "name": "costs",
+      "outputSha256": "74e156f581598ab21cf26a0d3703d9e35aba461d19d460a5ee1e2e6f913ff09f",
+      "totalLayout": [
+        501,
+        410
+      ],
+      "plannerLayout": [
+        137,
+        46
+      ],
+      "priorCoverage": [
+        79,
+        3
+      ]
+    },
+    {
+      "name": "near-coordinate-ids",
+      "outputSha256": "4899a4e6a64534716d40a7fa261f2dde4a9e29d8eb54c45e535144913e14e4c8",
+      "totalLayout": [
+        286,
+        203
+      ],
+      "plannerLayout": [
+        130,
+        47
+      ],
+      "priorCoverage": [
+        72,
+        3
+      ]
+    },
+    {
+      "name": "changed-machine",
+      "outputSha256": "24fbb96408dd13e1f880d1fbf35809499bf6d42f2d97b7c559be91de9e8b2bf3",
+      "totalLayout": [
+        480,
+        410
+      ],
+      "plannerLayout": [
+        116,
+        46
+      ],
+      "priorCoverage": [
+        58,
+        3
+      ]
+    },
+    {
+      "name": "changed-boundary",
+      "outputSha256": "31d9e12577198ba9d95e4b43a521a7dff330e5b893bde66118b11e4c0c7b5c9b",
+      "totalLayout": [
+        482,
+        411
+      ],
+      "plannerLayout": [
+        118,
+        47
+      ],
+      "priorCoverage": [
+        60,
+        3
+      ]
+    },
+    {
+      "name": "no-feasible",
+      "outputSha256": "f15350159dc690d84236417f1030dcd5da606113e869f57560d71bbb3a92e583",
+      "totalLayout": [
+        416,
+        410
+      ],
+      "plannerLayout": [
+        52,
+        46
+      ],
+      "priorCoverage": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "no-boundary",
+      "outputSha256": "07dee63ddd37855ed1cef67054013970db92d94276d1b30cea691569a9246261",
+      "totalLayout": [
+        0,
+        0
+      ],
+      "plannerLayout": [
+        0,
+        0
+      ],
+      "priorCoverage": [
+        0,
+        0
+      ]
+    }
+  ],
+  "aggregate": {
+    "totalLayout": [
+      3583,
+      3074
+    ],
+    "plannerLayout": [
+      879,
+      370
+    ],
+    "priorCoverage": [
+      425,
+      19
+    ]
+  },
+  "signedZeroPostfixCountsAgree": true,
+  "sourceArtifacts": [
+    {
+      "path": "/tmp/cplayout-field-reuse-before.cjs",
+      "sha256": "f63af3515304e36ed7657cbfd4a923515167f3800de1b484e7b6779a2842673f"
+    },
+    {
+      "path": "/tmp/cplayout-field-reuse-after.cjs",
+      "sha256": "d670882de4814ccededd6cea9a4bfe0c365a73bd38d410e0ab51cd6bbc4d2b19"
+    },
+    {
+      "path": "/tmp/cplayout-field-reuse-before.json",
+      "sha256": "76eae7c8a4b1ab568014498e7c8a52b6d190df8c1dd188ff860907b2bc3c6e2d"
+    },
+    {
+      "path": "/tmp/cplayout-field-reuse-after.json",
+      "sha256": "f58d2da5624f80e70d04d58ebb616154704913532308882b99e58eb353e926cb"
+    },
+    {
+      "path": "/tmp/cplayout-field-reuse-comparison.json",
+      "sha256": "124f69dce90bb3fac6682f5e490c121e930c875f8d51b6e051c152c821b22115"
+    },
+    {
+      "path": "/tmp/cplayout-signed-zero-counts.json",
+      "sha256": "dd8fb1f41b64b97b5cf41df5fbec72225d5da64bd3befca13d40be98a504c2a3"
+    },
+    {
+      "path": "/tmp/cplayout-signed-zero-proof.cjs",
+      "sha256": "df2cfbecc13077f62f3e00003a8c7293fb684bcfb966efe9107644bed9734721"
+    },
+    {
+      "path": "/mnt/h/cplayout/packages/geometry/src/advisoryPivotPlacement.ts",
+      "sha256": "332e5afb46670bca13c273c0c1ba1a34f669cd344020aab83bc5c6b3c643fb30"
+    },
+    {
+      "path": "/mnt/h/cplayout/packages/geometry/src/advisoryFieldPlanReuse.test.ts",
+      "sha256": "5f8f08f96f0d51623737d288ba6cd444546da288fbd78c2bc5c2a4051f4b8976"
+    }
+  ],
+  "limits": [
+    "JSON digests alone do not distinguish signed zero; registered tests and independent strict comparison cover it.",
+    "No wall-time speedup claim.",
+    "Cache requires stable project inputs throughout the request.",
+    "No field, equipment or physical accuracy qualification."
+  ]
+}

@@ -1,5 +1,5 @@
 import { Archive, Database, Download, FolderOpen, Map, RefreshCw, Save, Trash2, Upload } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { exportScenarioGeoJson } from "@cplayout/geometry";
@@ -9,7 +9,6 @@ import {
   exportFileAsync,
   exportProjectArchiveZip,
   exportZipFileAsync,
-  importProjectArchiveZip,
   importFileAsync,
   importZipFileAsync,
   installMapPackageArchiveZipAsync,
@@ -44,7 +43,8 @@ interface ProjectFilesPanelProps {
   onApplyGoogleEarthKmlImport: (project: PivotProject) => void;
   onPreviewCornerGpsMapBpf: (bpfText: string, selectedItemIds?: string[], observedAt?: string, sourceRef?: CornerGpsMapSourceRef) => CornerGpsMapBpfImportPreview;
   onApplyCornerGpsMapBpfImport: (project: PivotProject) => void;
-  onProjectLoaded: (project: PivotProject) => void;
+  onImportProjectZip: (owner: object) => Promise<{ name: string; saved: boolean } | null>;
+  onCancelImport: (owner: object) => void;
   onSaveProject: () => void | Promise<void>;
   onOpenProject: (projectId: string) => void | Promise<void>;
   onDeleteProject: (projectId: string) => Promise<boolean>;
@@ -59,6 +59,7 @@ interface PanelStatus {
 }
 
 interface PendingKmlImport {
+  sourceProject: PivotProject;
   filename: string;
   kind: "kml" | "kmz";
   kmlText: string;
@@ -92,7 +93,8 @@ export function ProjectFilesPanel({
   onApplyGoogleEarthKmlImport,
   onPreviewCornerGpsMapBpf,
   onApplyCornerGpsMapBpfImport,
-  onProjectLoaded,
+  onImportProjectZip,
+  onCancelImport,
   onSaveProject,
   onOpenProject,
   onDeleteProject,
@@ -101,11 +103,21 @@ export function ProjectFilesPanel({
   const [status, setStatus] = useState<PanelStatus>({ tone: "info", text: "Project ZIP is the canonical project package." });
   const [pendingKmlImport, setPendingKmlImport] = useState<PendingKmlImport | null>(null);
   const [selectedKmlImportItemIds, setSelectedKmlImportItemIds] = useState<string[]>([]);
+  const appliedKmlImport = useRef<PendingKmlImport | null>(null);
   const [pendingBpfImport, setPendingBpfImport] = useState<PendingBpfImport | null>(null);
   const [selectedBpfImportItemIds, setSelectedBpfImportItemIds] = useState<string[]>([]);
   const [legacyEvidenceReview, setLegacyEvidenceReview] = useState<LegacyEvidenceReview | null>(null);
   const [geoJsonImport, setGeoJsonImport] = useState("");
   const [surveyCsvImport, setSurveyCsvImport] = useState("");
+  const importOwner = useMemo(() => ({}), [project]);
+  const active = useRef(false);
+  useEffect(() => {
+    active.current = true;
+    return () => {
+      active.current = false;
+      onCancelImport(importOwner);
+    };
+  }, [onCancelImport, importOwner]);
 
   async function exportZip(): Promise<void> {
     try {
@@ -168,22 +180,16 @@ export function ProjectFilesPanel({
 
   async function importZip(): Promise<void> {
     try {
-      const bytes = await importZipFileAsync();
-      if (!bytes) {
-        setStatus({ tone: "info", text: "No project package selected." });
-        return;
-      }
-      const imported = importProjectArchiveZip(bytes);
-      onProjectLoaded(imported);
-      const saved = await repository.saveProject(imported);
+      const imported = await onImportProjectZip(importOwner);
+      if (!active.current || !imported) return;
       setStatus({
-        tone: saved ? "success" : "warning",
-        text: saved
+        tone: imported.saved ? "success" : "warning",
+        text: imported.saved
           ? `Imported ${imported.name}. Retired legacy package files are ignored; only canonical project data is restored.`
           : `Opened ${imported.name}, but it was not saved locally. Retired legacy package files are ignored.`,
       });
     } catch (error) {
-      setStatus({ tone: "error", text: errorMessage(error) });
+      if (active.current) setStatus({ tone: "error", text: errorMessage(error) });
     }
   }
 
@@ -222,6 +228,7 @@ export function ProjectFilesPanel({
       const googleEarthFile = readGoogleEarthKmlFile(file);
       const result = onPreviewGoogleEarthKml(googleEarthFile.kmlText);
       setPendingKmlImport({
+        sourceProject: project,
         filename: googleEarthFile.filename,
         kind: googleEarthFile.kind,
         kmlText: googleEarthFile.kmlText,
@@ -319,15 +326,22 @@ export function ProjectFilesPanel({
   }
 
   function applyPendingKmlImport(): void {
-    if (!pendingKmlImport) return;
-    const selectedResult = onPreviewGoogleEarthKml(pendingKmlImport.kmlText, selectedKmlImportItemIds);
-    onApplyGoogleEarthKmlImport(selectedResult.project);
-    setStatus({
-      tone: "success",
-      text: `Applied ${pendingKmlImport.filename}. ${kmlImportSummary(selectedResult)}`,
-    });
-    setPendingKmlImport(null);
-    setSelectedKmlImportItemIds([]);
+    if (!pendingKmlImport || appliedKmlImport.current === pendingKmlImport) return;
+    if (pendingKmlImport.sourceProject !== project) {
+      setStatus({ tone: "warning", text: "The project changed after this preview. Cancel and import again before applying." });
+      return;
+    }
+    try {
+      const selectedResult = onPreviewGoogleEarthKml(pendingKmlImport.kmlText, selectedKmlImportItemIds);
+      appliedKmlImport.current = pendingKmlImport;
+      onApplyGoogleEarthKmlImport(selectedResult.project);
+      setStatus({ tone: "success", text: `Applied ${pendingKmlImport.filename}. ${kmlImportSummary(selectedResult)}` });
+      setPendingKmlImport(null);
+      setSelectedKmlImportItemIds([]);
+    } catch (error) {
+      appliedKmlImport.current = null;
+      setStatus({ tone: "error", text: errorMessage(error) });
+    }
   }
 
   function applyPendingBpfImport(): void {
@@ -367,11 +381,22 @@ export function ProjectFilesPanel({
   }
 
   function toggleKmlImportItem(itemId: string): void {
-    setSelectedKmlImportItemIds((current) =>
-      current.includes(itemId)
-        ? current.filter((candidate) => candidate !== itemId)
-        : [...current, itemId],
-    );
+    if (!pendingKmlImport) return;
+    if (pendingKmlImport.sourceProject !== project) {
+      setStatus({ tone: "warning", text: "The project changed after this preview. Cancel and import again before applying." });
+      return;
+    }
+    const selected = selectedKmlImportItemIds.includes(itemId)
+      ? selectedKmlImportItemIds.filter((candidate) => candidate !== itemId)
+      : [...selectedKmlImportItemIds, itemId];
+    try {
+      const result = onPreviewGoogleEarthKml(pendingKmlImport.kmlText, selected);
+      setSelectedKmlImportItemIds(selected);
+      setPendingKmlImport({ ...pendingKmlImport, result });
+      setStatus({ tone: "info", text: `${pendingKmlImport.filename}. ${kmlImportSummary(result)}` });
+    } catch (error) {
+      setStatus({ tone: "error", text: errorMessage(error) });
+    }
   }
 
   function toggleBpfImportItem(itemId: string): void {
@@ -484,7 +509,8 @@ export function ProjectFilesPanel({
                 return (
                   <Pressable
                     key={item.id}
-                    accessibilityRole="button"
+                    accessibilityRole="checkbox"
+                    aria-checked={selected}
                     onPress={() => toggleKmlImportItem(item.id)}
                     style={[styles.importPreviewItem, selected && styles.importPreviewItemSelected]}
                   >

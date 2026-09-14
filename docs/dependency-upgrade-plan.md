@@ -1,7 +1,27 @@
 # Dependency Inventory and Upgrade Plan
 
-Last reviewed: 2026-09-13
+Last reviewed: 2026-09-14 UTC
 Status: active package and toolchain decision record
+
+## Coherent Metro Patch: 2026-09-14
+
+The five remaining high affected package names are resolved in the installed shared checkout. Root `npm audit --json` reports **zero findings** after the reviewed patch. The earlier five names represented dependency paths to two image-size advisories, not five independent CVEs. This dated result supersedes historical counts below; it does not establish native or field acceptance.
+
+The isolated candidate at `/home/cyber/cplayout-metro-security-20260914-K1O2Fp/` updates `@expo/metro` 55.1.1 to 55.1.2, the fourteen Metro packages and `ob1` from 0.83.7 to 0.83.8, and removes `image-size` and `queue`. Exactly 18 dependency lock locations change. All 51 incoming dependency edges were independently checked; Expo 55.0.28 and React Native 0.83.10 already permit this coherent patch cohort. There is no Expo/RN major change, persistent override, new direct dependency, paid service, credential, or cloud requirement. Updated packages declare MIT, no installation scripts, and Node >=20.19.4. The root engine minimum is corrected separately to `>=20.19.4 <25`; validation used Node 24.14.1, not every permitted Node version.
+
+The rejected earlier A resolver experiment established duplicate/remaining vulnerable packages and unrelated lock churn, not an Expo/Metro API incompatibility. This retry used a fresh copy of the accepted B graph. A no-save lock-only install made no lock change. The successful isolated procedure temporarily added exact root pins for the wrapper and fourteen Metro packages with `npm install --save-exact --package-lock-only --ignore-scripts --audit=false`, then removed those temporary root declarations with `npm uninstall --package-lock-only --ignore-scripts --audit=false`. Temporarily pinning/removing the original `acorn@8.16.0` and `terser@5.48.0` removed two unrelated resolver updates. The final manifest was byte-identical to the before-state. This procedure is not permission to perform an unreviewed update or dedupe in the shared tree.
+
+Acceptance before integration:
+
+- Clean `npm ci --ignore-scripts --audit=false` installed 691 packages, followed only by the existing `node tools/patch_xcode_uuid_dependency.cjs` helper. Installed dependency-tree validation, root and production audits, aggregate `npm run validate`, and the web export passed.
+- Eighteen selected Chromium cases passed with zero skips, retries, flaky cases or failures: `maplibre-runtime.spec.ts` and `workflow-safety.spec.ts`, across desktop/tablet/mobile. Launcher URL: `http://127.0.0.1:19009`. The exported JavaScript hash `bd8c5d868ec8ce774c8f5c6a40706476387bbca05ea947be81a75e537d4e2259` matches the preceding source checkpoint byte-for-byte. Offline vector pixels, pan behavior and mobile/desktop screenshots were checked. This is selected browser acceptance of the dependency packet, not the complete suite for subsequent refactoring.
+- Independent review checked exact npm registry integrity, license/engine/lifecycle metadata, all incoming version ranges and removal of image-size. The wrapper's GitHub compare URL returned 404, so registry/package evidence is retained without claiming an independently verified wrapper source comparison.
+
+Shared installation first encountered `EACCES` while renaming Metro on the mounted filesystem. That attempt failed and is retained as such. After the backup completed and competing root checks stopped, the same bounded install succeeded: 16 changes, two removals, no additional dependency changes. `npm ls --all --json`, root audit and the new `tools/metroDependency.test.ts` passed. That test checks the installed cohort, consumer resolution and actual Expo Metro configuration. Complete integrated source/browser acceptance follows the CRS, recovery and transport changes in [full refactor execution](full-refactor-execution.md).
+
+Rollback: preserve `.cplayout-local/metro-security-before-20260914-vQ8UsS/`. Its before lock hash is `e6616c2b40c6d7d3fc67195632f2db4fc147523eaec5a8dd9f8ed7b730c46e6d`. The preferred old-package archive is `reviewed-before-packages.tar`, hash `40f08d660a61413aef7b79b9c1fc80dd26a4729a57d0d7a27f7bb92f589f44ee`, copied from the frozen prior Linux graph and version-checked. The first root archive overlapped the failed installation attempt and is not the preferred verified before-state. Restore only this reviewed dependency packet with installation/build processes stopped; do not replace unrelated dirty files with HEAD. Candidate lock hash was `b7b57d1a48a32c3ae4b857fcbb61353dbf09a2de985ea34793a31a0e6bc8b643`; after the root engine correction it is `f4dd483340ecf99c9f5f34cb02574356b47a082fe695e12163b179d049be5c1b`.
+
+Primary sources: [Metro 0.83.8 release](https://github.com/react/metro/releases/tag/v0.83.8), [exact upstream patch comparison](https://github.com/react/metro/compare/v0.83.7...v0.83.8), [image-size advisory 1](https://github.com/advisories/GHSA-w3rx-r6r6-pgpr), [image-size advisory 2](https://github.com/advisories/GHSA-5p2g-fcmc-qvqq), and exact npm registry manifests retained in `evidence/registry-footprint.json`. Metro vendors its image parsers in this patch instead of depending on image-size. No forced audit repair was used.
 
 ## Browser MapLibre Security Packet: 2026-09-13
 
@@ -115,7 +135,7 @@ The historical inventory below was derived from workspace manifests, the lockfil
 
 | Surface | Selected line | State and next gate |
 | --- | --- | --- |
-| Node.js | 24 LTS; `.nvmrc` is `24`; engine `>=20.19 <25` | Tested locally as 24.14.1. Review on each Node LTS maintenance update; repeat full validation. |
+| Node.js | 24 LTS; `.nvmrc` is `24`; engine `>=20.19.4 <25` | Tested locally as 24.14.1. Review on each Node LTS maintenance update; repeat full validation. |
 | npm | 11; package manager 11.17.0; engine `>=10 <12` | Tested locally as 11.17.0. Do not change lockfile format/toolchain during a native feature packet. |
 | TypeScript / tsx | TypeScript 5.9 line; tsx 4.22.4 | Keep within the current compiler line until all workspaces typecheck; evaluate TypeScript major separately. |
 | Node/React/GeoJSON types | `@types/node` 24 line, `@types/react` 19.2.16, `@types/geojson` 7946 line | Node types match runtime. Type-only patches require typecheck plus browser proof when JSX declarations change. |

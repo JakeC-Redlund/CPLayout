@@ -12,6 +12,8 @@ import {
   ANDROID_NATIVE_REQUIRED_MAP_PACKAGE_COLUMNS,
   ANDROID_NATIVE_REQUIRED_MIGRATIONS,
   ANDROID_NATIVE_REQUIRED_SQLITE_VERSION,
+  createAndroidNativeInProcessProof,
+  type AndroidNativeInProcessObservations,
   type AndroidNativeVerificationReport,
 } from "./nativeVerification";
 import {
@@ -24,19 +26,14 @@ import {
 import { projectRepository } from "./projectRepository.native";
 import { openProjectDatabaseAsync } from "./sqliteProjectStore";
 
-export type AndroidNativeInAppProofPayload = Pick<
-  AndroidNativeVerificationReport,
-  "generatedAt" | "sqlite" | "projectRoundTrip" | "zipRoundTrip" | "checklist"
-> & {
-  status: "pass" | "fail";
-  error?: string;
-};
+export type AndroidNativeInAppProofPayload = ReturnType<typeof createAndroidNativeInProcessProof>;
 
 const PROOF_PROJECT_ID = `cplayout-android-native-schema-v${ANDROID_NATIVE_REQUIRED_SQLITE_VERSION}-proof`;
 const PROOF_PROJECT_NAME = `CPLayout Android Native Schema v${ANDROID_NATIVE_REQUIRED_SQLITE_VERSION} Proof`;
 
 export async function runAndroidNativeProofRuntimeAsync(): Promise<AndroidNativeInAppProofPayload> {
   const generatedAt = new Date().toISOString();
+  const observations: AndroidNativeInProcessObservations = { generatedAt };
   try {
     await projectRepository.deleteProjectAsync(PROOF_PROJECT_ID);
 
@@ -49,98 +46,46 @@ export async function runAndroidNativeProofRuntimeAsync(): Promise<AndroidNative
       projectRepository.listProjectsAsync(),
       projectRepository.loadProjectAsync(project.id),
     ]);
+    observations.projectRoundTrip = {
+      backendLabel: backendInfo.backendLabel,
+      runtime: backendInfo.runtime,
+      sampleProjectSaved: projects.some((summary) => summary.id === project.id),
+      loadedProjectId: loadedProject?.id ?? "",
+      loadedProjectName: loadedProject?.name ?? "",
+      fieldBoundaryPointCount: loadedProject?.fieldBoundary.length ?? 0,
+      obstacleCount: loadedProject?.obstacles.length ?? 0,
+      surveyPointCount: loadedProject?.surveyPoints.length ?? 0,
+      settingsMatched: Boolean(loadedProject) && JSON.stringify(loadedProject?.settings ?? null) === JSON.stringify(project.settings ?? null),
+      deleteConfirmed: false,
+    };
     if (!loadedProject) throw new Error("Saved proof project could not be loaded from native SQLite.");
 
-    const sqlite = await collectSqliteProof(project.id);
+    observations.sqlite = await collectSqliteProof(project.id);
     const archiveProof = await runArchiveProof(project, generatedAt);
+    observations.zipRoundTrip = {
+      exportedFilename: archiveProof.exportedFilename,
+      exportedBytes: archiveProof.exportedBytes,
+      exportedSha256: archiveProof.exportedSha256,
+      importedProjectId: archiveProof.importedProject.id,
+      manifestJsonPresent: archiveProof.manifestJsonPresent,
+      projectJsonPresent: archiveProof.projectJsonPresent,
+      manifestProjectIdMatched: archiveProof.manifestProjectIdMatched,
+      manifestProjectCrsMatched: archiveProof.manifestProjectCrsMatched,
+      savedImportedProject: false,
+    };
 
     await projectRepository.saveProjectAsync(archiveProof.importedProject, evaluateLayout(archiveProof.importedProject));
+    observations.zipRoundTrip.savedImportedProject = true;
     await projectRepository.deleteProjectAsync(project.id);
     const activeAfterDelete = await projectRepository.listProjectsAsync();
-    const deleteConfirmed = !activeAfterDelete.some((summary) => summary.id === project.id);
+    observations.projectRoundTrip.deleteConfirmed = !activeAfterDelete.some((summary) => summary.id === project.id);
 
-    return {
-      generatedAt,
-      status: deleteConfirmed ? "pass" : "fail",
-      sqlite,
-      projectRoundTrip: {
-        backendLabel: backendInfo.backendLabel,
-        runtime: backendInfo.runtime,
-        sampleProjectSaved: projects.some((summary) => summary.id === project.id),
-        relaunchCompleted: true,
-        listAfterRelaunch: projects.some((summary) => summary.id === project.id),
-        loadedProjectId: loadedProject.id,
-        loadedProjectName: loadedProject.name,
-        fieldBoundaryPointCount: loadedProject.fieldBoundary.length,
-        obstacleCount: loadedProject.obstacles.length,
-        surveyPointCount: loadedProject.surveyPoints.length,
-        settingsMatched: JSON.stringify(loadedProject.settings ?? null) === JSON.stringify(project.settings ?? null),
-        deleteConfirmed,
-      },
-      zipRoundTrip: {
-        exportedFilename: archiveProof.exportedFilename,
-        exportedBytes: archiveProof.exportedBytes,
-        exportedSha256: archiveProof.exportedSha256,
-        importedProjectId: archiveProof.importedProject.id,
-        manifestJsonPresent: archiveProof.manifestJsonPresent,
-        projectJsonPresent: archiveProof.projectJsonPresent,
-        manifestProjectIdMatched: archiveProof.manifestProjectIdMatched,
-        manifestProjectCrsMatched: archiveProof.manifestProjectCrsMatched,
-        savedImportedProject: true,
-      },
-      checklist: {
-        cleanInstallOrUpgradePath: passedEvidence(generatedAt, "ADB collect mode launched the installed Android native proof build."),
-        backendPanel: passedEvidence(generatedAt, `Native backend reported ${backendInfo.backendLabel}, runtime ${backendInfo.runtime}, schema v${backendInfo.schemaVersion}.`),
-        saveLoadDelete: passedEvidence(generatedAt, "Proof runner saved, listed, loaded, and soft-deleted the projected-XY proof project through the native repository."),
-        zipExportImport: passedEvidence(generatedAt, "Proof runner exported and imported the project ZIP through the real archive code; OS file UI evidence is collected separately."),
-        migrationEvidence: passedEvidence(generatedAt, `SQLite PRAGMA user_version and migrations matched schema v${ANDROID_NATIVE_REQUIRED_SQLITE_VERSION}.`),
-      },
-    };
+    return createAndroidNativeInProcessProof(observations);
   } catch (error) {
     return {
-      generatedAt,
+      ...createAndroidNativeInProcessProof(observations),
       status: "fail",
       error: error instanceof Error ? error.message : String(error),
-      sqlite: {
-        schemaVersion: ANDROID_NATIVE_REQUIRED_SQLITE_VERSION,
-        pragmaUserVersion: 0,
-        schemaMigrations: [],
-        mapPackageColumns: [],
-        absentTables: [],
-        geometryRowsPopulated: false,
-      },
-      projectRoundTrip: {
-        backendLabel: "",
-        runtime: "native",
-        sampleProjectSaved: false,
-        relaunchCompleted: false,
-        listAfterRelaunch: false,
-        loadedProjectId: "",
-        loadedProjectName: "",
-        fieldBoundaryPointCount: 0,
-        obstacleCount: 0,
-        surveyPointCount: 0,
-        settingsMatched: false,
-        deleteConfirmed: false,
-      },
-      zipRoundTrip: {
-        exportedFilename: "",
-        exportedBytes: 0,
-        exportedSha256: "",
-        importedProjectId: "",
-        manifestJsonPresent: false,
-        projectJsonPresent: false,
-        manifestProjectIdMatched: false,
-        manifestProjectCrsMatched: false,
-        savedImportedProject: false,
-      },
-      checklist: {
-        cleanInstallOrUpgradePath: failedEvidence(generatedAt, "Native proof runner failed before completing clean proof evidence."),
-        backendPanel: failedEvidence(generatedAt, "Native backend evidence was not completed."),
-        saveLoadDelete: failedEvidence(generatedAt, "Native save/load/delete proof was not completed."),
-        zipExportImport: failedEvidence(generatedAt, "Native ZIP round-trip proof was not completed."),
-        migrationEvidence: failedEvidence(generatedAt, "Native SQLite migration evidence was not completed."),
-      },
     };
   }
 }
@@ -288,14 +233,6 @@ async function runArchiveProof(
     manifestProjectIdMatched: manifest.projectId === project.id,
     manifestProjectCrsMatched: manifest.projectCrs === project.projectCrs,
   };
-}
-
-function passedEvidence(observedAt: string, evidence: string): AndroidNativeVerificationReport["checklist"]["backendPanel"] {
-  return { status: "pass", observedAt, evidence };
-}
-
-function failedEvidence(observedAt: string, evidence: string): AndroidNativeVerificationReport["checklist"]["backendPanel"] {
-  return { status: "fail", observedAt, evidence };
 }
 
 function sha256Hex(data: Uint8Array): string {

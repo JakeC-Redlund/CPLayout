@@ -7,6 +7,8 @@ import type {
   XY,
 } from "./types";
 import { projectDataKey } from "./projectDataComparison";
+import { assertMetricCalculationCrs, qualifyProjectCrs } from "./crsQualification";
+import { normalizeCrsName } from "./units";
 
 export const MANUAL_DESIGN_STEPS = ["boundary", "pivot", "last_wheel", "machine_end", "review", "apply"] as const;
 
@@ -36,6 +38,7 @@ export interface ManualDesignRadiusEvidence {
 
 export interface ManualDesignDraft {
   projectId: string;
+  projectCrs: string;
   baseRevision: number;
   boundary: {
     vertices: XY[];
@@ -105,6 +108,7 @@ export function createManualDesignDraft(project: PivotProject, baseRevision: num
     ? "rtk_evidence" : pivotObservation?.source === "imported" ? "imported_evidence" : "projected_xy";
   return {
     projectId: project.id,
+    projectCrs: project.projectCrs,
     baseRevision,
     boundary: { vertices: project.fieldBoundary.map(copyPoint), source: "projected_xy", captureEvidence: project.fieldBoundaryCaptureEvidence?.map(copyCaptureEvidence) },
     pivot: {
@@ -135,6 +139,7 @@ export function buildMachinePathSummary(machine: Pick<PivotMachine, "spanLengths
 }
 
 export function evaluateManualDesignReadiness(draft: ManualDesignDraft): ManualDesignReadiness {
+  const qualification = qualifyProjectCrs(draft.projectCrs ?? "");
   const topologyIssues = validateDraftBoundary(draft.boundary?.vertices ?? []);
   const boundaryReady = Boolean(draft.boundary && topologyIssues.length === 0);
   const pivotReady = Boolean(draft.pivot && finitePoint(draft.pivot.point));
@@ -143,8 +148,11 @@ export function evaluateManualDesignReadiness(draft: ManualDesignDraft): ManualD
   const pivotContainment = boundaryReady && pivotReady && draft.boundary && draft.pivot
     ? (pointInRing(draft.pivot.point, draft.boundary.vertices) ? "inside" : "outside")
     : "not_evaluated";
-  const outsideFieldResult = exactFullCircleOutsideFieldResult(draft, boundaryReady, pivotReady, paths);
+  const outsideFieldResult: ManualDesignReadiness["outsideFieldResult"] = qualification.calculation.allowed
+    ? exactFullCircleOutsideFieldResult(draft, boundaryReady, pivotReady, paths)
+    : { status: "not_evaluated", minimumClearanceMeters: null, exact: false };
   const errors = topologyIssues.map((issue) => issue.message);
+  if (!qualification.calculation.allowed) errors.push(`Metric planar calculations unavailable: ${qualification.calculation.blockers.join(", ")}.`);
   if (!draft.boundary) errors.push("Boundary input is required.");
   if (!draft.pivot || !pivotReady) errors.push("A finite projected-XY pivot is required.");
   if (!draft.machine || !machineReady) errors.push("Positive span lengths and non-negative machine-end distances are required.");
@@ -179,7 +187,9 @@ export function evaluateManualDesignReadiness(draft: ManualDesignDraft): ManualD
 }
 
 export function applyManualDesignDraft(project: PivotProject, draft: ManualDesignDraft, currentRevision: number): PivotProject {
+  assertMetricCalculationCrs(project.projectCrs);
   if (draft.projectId !== project.id) throw new Error("Manual design draft belongs to a different project.");
+  if (normalizeCrsName(draft.projectCrs ?? "") !== normalizeCrsName(project.projectCrs)) throw new Error("Manual design draft CRS does not match the project.");
   if (draft.baseRevision !== currentRevision) throw new Error("Manual design draft is stale; reset it from the current project before applying.");
   const readiness = evaluateManualDesignReadiness(draft);
   if (!readiness.ready || !draft.boundary || !draft.pivot || !draft.machine) {

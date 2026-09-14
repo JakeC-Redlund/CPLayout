@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import sys
 import tomllib
 from pathlib import Path
@@ -518,6 +519,9 @@ SOURCE_HASH_PATHS = [
     "AGENTS.md",
     "package.json",
     ".codex/hooks.json",
+    ".codex/config.toml",
+    ".codex/hooks/cplayout_pre_tool_use.py",
+    ".codex/hooks/cplayout_stop_multi_agent.py",
     ".codex/hooks/cplayout_prompt_triage.py",
     ".codex/hooks/cplayout_subagent_start.py",
     ".codex/hooks/cplayout_route_data.json",
@@ -560,6 +564,7 @@ def _source_hashes() -> dict[str, str]:
     paths = list(SOURCE_HASH_PATHS)
     paths.extend(_load_agents().values())
     paths.extend(_skill_paths().values())
+    paths.extend(path.relative_to(ROOT).as_posix() for path in (ROOT / ".agents" / "skills").glob("*/references/*") if path.is_file())
     hashes: dict[str, str] = {}
     for relpath in sorted(set(paths)):
         path = ROOT / relpath
@@ -731,10 +736,18 @@ def _validate_context_map(data: dict[str, Any]) -> None:
         if not isinstance(weights, list) or not weights:
             raise ValueError(f"{profile_name}: weights must be a non-empty list")
         total = 0.0
+        roles: set[str] = set()
         for entry in weights:
-            if not isinstance(entry, dict) or not isinstance(entry.get("weight"), (int, float)):
+            if not isinstance(entry, dict) or type(entry.get("weight")) not in (int, float):
                 raise ValueError(f"{profile_name}: weight entries must include numeric weight")
-            total += float(entry["weight"])
+            weight = float(entry["weight"])
+            if not math.isfinite(weight) or weight < 0:
+                raise ValueError(f"{profile_name}: weights must be finite and nonnegative")
+            role = entry.get("role")
+            if not isinstance(role, str) or not role.strip() or role in roles:
+                raise ValueError(f"{profile_name}: roles must be nonempty and unique")
+            roles.add(role)
+            total += weight
         if abs(total - 1.0) > 0.0001:
             raise ValueError(f"{profile_name}: weights must sum to 1.0")
 

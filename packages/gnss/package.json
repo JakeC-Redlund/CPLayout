@@ -6,7 +6,7 @@
   "types": "src/index.ts",
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
-    "test": "tsx src/nmea.test.ts && tsx src/nmeaSafety.test.ts",
+    "test": "tsx src/nmea.test.ts && tsx src/nmeaSafety.test.ts && tsx src/transportSwitchController.test.ts",
     "validate": "npm run typecheck && npm test"
   },
   "dependencies": {

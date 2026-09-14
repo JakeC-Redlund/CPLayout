@@ -84,6 +84,7 @@ assert.equal(epoch.receiverObservedAt, "2026-05-19T17:28:14.000Z");
 assert.deepEqual(epoch.sentenceTypes, ["GGA", "RMC", "GST"]);
 assert.equal(epoch.quality.horizontalAccuracyMeters, Math.hypot(0.014, 0.019));
 const acceptedEpochGate = evaluateGnssObservationGate(epoch, {
+  projectCrs: "EPSG:32613",
   connected: true,
   nowMonotonicMs: 1500,
   sourceCoordinateFrame: "EPSG:4326",
@@ -94,10 +95,12 @@ assert.equal(acceptedEpochGate.quality.correctionAgeSeconds, 1.7);
 assert.equal(evaluateGnssObservationGate(epoch, {
   connected: true,
   nowMonotonicMs: 3101,
+  projectCrs: "EPSG:32613",
   sourceCoordinateFrame: "EPSG:4326",
 }, defaultAppSettings().gpsQuality).reasonCodes.includes("stale_observation"), true);
 assert.equal(evaluateGnssObservationGate(epoch, {
   connected: false,
+  projectCrs: "EPSG:32613",
   nowMonotonicMs: 1500,
   sourceCoordinateFrame: "EPSG:4326",
 }, defaultAppSettings().gpsQuality).reasonCodes.includes("not_connected"), true);
@@ -105,6 +108,7 @@ assert.equal(evaluateGnssObservationGate(epoch, {
   connected: true,
   nowMonotonicMs: 1500,
   sourceCoordinateFrame: "unknown",
+  projectCrs: "EPSG:32613",
 }, defaultAppSettings().gpsQuality).reasonCodes.includes("unconfirmed_source_crs"), true);
 
 const voidRmc = parseNmeaSentence(withChecksum("GPRMC,172814.0,V,4042.6142,N,10459.2715,W,0.0,0.0,190526,,,A"));
@@ -115,6 +119,7 @@ const voidEpoch = latestGnssObservationEpoch(withNmeaReceptionMetadata([replay[0
 }), "session-void");
 assert.equal(voidEpoch?.coherent, false);
 assert.equal(evaluateGnssObservationGate(voidEpoch, {
+  projectCrs: "EPSG:32613",
   connected: true,
   nowMonotonicMs: 2100,
   sourceCoordinateFrame: "EPSG:4326",

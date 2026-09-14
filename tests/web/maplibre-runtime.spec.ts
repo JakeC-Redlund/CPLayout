@@ -141,7 +141,7 @@ test("offline MapLibre worker modules render and move projected layout overlays"
   await page.mouse.move(bounds!.x + bounds!.width / 2 + 60, bounds!.y + bounds!.height / 2 + 25, { steps: 8 });
   await page.mouse.up();
   await expect(async () => expect((await canvas.screenshot()).equals(before)).toBe(false)).toPass();
-  await expect(page.getByTestId("project-save-state").getByText("Saved", { exact: true })).toBeVisible();
+  await expect(page.getByTestId("project-save-state").getByText("Unsaved edits", { exact: true })).toBeVisible();
   await canvas.screenshot({ path: testInfo.outputPath("offline-layout-after-pan.png") });
   await page.screenshot({ path: testInfo.outputPath("offline-maplibre-workspace.png") });
   expect(pageErrors).toEqual([]);

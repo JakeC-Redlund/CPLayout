@@ -84,6 +84,8 @@ import {
   type ProjectCatalogDialogMode,
 } from "./src/components/ProjectCatalogDialog";
 import { ProjectFilesPanel } from "./src/components/ProjectFilesPanel";
+import { ProjectCrsRecoveryPanel } from "./src/components/ProjectCrsRecoveryPanel";
+import { createProjectOpenRequestGuard } from "./src/projectOpenRequest";
 import { SettingsPanel } from "./src/components/SettingsPanel";
 import { DrawingToolLauncher, DrawingToolPalette, type DrawingToolPaletteModal } from "./src/components/DrawingToolPalette";
 import { useProjectRepository, type ProjectWorkspaceStatus } from "./src/hooks/useProjectRepository";
@@ -99,7 +101,7 @@ import {
 import { buildCommandMenuConfigs, isLeftNavItemDisabled } from "./src/navigation/navigationViewModels";
 import { buildProjectTreeViewModel } from "./src/navigation/projectTreeViewModel";
 import type { ClientRecord } from "@cplayout/project-store";
-import { exportFileAsync, rehydrateInstalledMapPackageManifestsAsync } from "@cplayout/project-store";
+import { exportFileAsync, importProjectArchiveZip, importZipFileAsync, rehydrateInstalledMapPackageManifestsAsync } from "@cplayout/project-store";
 import {
   COORDINATE_FORMAT_LABELS,
   ADVISORY_DRIVE_UNIT_TIRE_OPTIONS,
@@ -118,6 +120,7 @@ import {
   mergeAppSettings,
   parseCoordinateInput,
   parseAppSettings,
+  qualifyProjectCrs,
   projectXyToLonLat,
   projectSettingsFromApp,
   reduceProjectEditorState,
@@ -131,6 +134,7 @@ import {
   previewCornerGpsMapBpfImport,
   improvedCenterPivotProofProject,
   realCenterPivotProofProject,
+  sampleProject,
   sampleDesignProjects,
   willRheaJasonHarmelinkExampleProject,
   type AppSettings,
@@ -286,6 +290,23 @@ export default function App(): React.JSX.Element {
   );
 }
 
+function ProjectImportStatus({ kind }: { kind: "saving" | "saved" | "error" }): React.JSX.Element {
+  const message = kind === "saving" ? "Imported project is saving locally."
+    : kind === "saved" ? "Imported project saved locally."
+      : "Imported project was not saved locally. The unsaved copy remains open.";
+  const webProps: Record<string, unknown> = Platform.OS === "web"
+    ? { role: kind === "error" ? "alert" : "status", "aria-live": kind === "error" ? "assertive" : "polite" } : {};
+  return (
+    <View accessibilityLiveRegion={kind === "error" ? "assertive" : "polite"}
+      style={[styles.projectImportStatus, kind === "error" && styles.projectImportStatusError]}
+      testID="project-import-status" {...webProps}>
+      {kind === "error" ? <AlertTriangle size={16} color="#8d2b20" />
+        : kind === "saved" ? <CheckCircle2 size={16} color="#254234" /> : <Save size={16} color="#254234" />}
+      <Text style={styles.projectImportStatusText}>{message}</Text>
+    </View>
+  );
+}
+
 function AppContent(): React.JSX.Element {
   const [screen, setScreen] = useState<Screen>("workspace");
   const [activeView, setActiveView] = useState<WorkspaceView>("map");
@@ -293,11 +314,18 @@ function AppContent(): React.JSX.Element {
   const project = editor.project;
   const [runtimeMapPackages, setRuntimeMapPackages] = useState<MapPackageManifest[]>([]);
   const projectLoadSequenceRef = useRef(0);
+  const [projectOpenRequests] = useState(createProjectOpenRequestGuard);
+  useEffect(() => () => projectOpenRequests.invalidate(), [projectOpenRequests]);
   const runtimeProject = useMemo(() => ({
     ...project,
     mapPackages: mergeMapPackageManifests(project.mapPackages ?? [], runtimeMapPackages),
   }), [project, runtimeMapPackages]);
-  const [savedRevision, setSavedRevision] = useState(0);
+  const [savedRevision, setSavedRevision] = useState<number | null>(null);
+  const [projectImportStatus, setProjectImportStatus] = useState<{
+    generation: number;
+    kind: "saving" | "saved" | "error";
+  } | null>(null);
+  const saveQueueRef = useRef<Promise<void>>(Promise.resolve());
   const [settings, setSettings] = useState<AppSettings>(() => parseAppSettings({
     ...browserLocalSettings(defaultDevelopmentProject.settings),
     mappingWorkflowMode: "layout",
@@ -349,7 +377,18 @@ function AppContent(): React.JSX.Element {
   const [rightDrawerOpen, setRightDrawerOpen] = useState(() => desktopConsole);
   const [activeSidebarPage, setActiveSidebarPage] = useState<RightWorkflowSidebarPage>("catalog");
   const repository = useProjectRepository();
-  const result = useMemo(() => evaluateLayout(project), [project]);
+  const calculation = useMemo(() => {
+    const qualification = qualifyProjectCrs(project.projectCrs);
+    if (!qualification.calculation.allowed) {
+      return { result: null, reasons: qualification.calculation.blockers };
+    }
+    try {
+      return { result: evaluateLayout(project), reasons: [] };
+    } catch (error) {
+      return { result: null, reasons: [error instanceof Error ? error.message : String(error)] };
+    }
+  }, [project]);
+  const calculationAvailable = calculation.result !== null;
   const advisoryCostInput = useMemo(() => advisoryCostInputFromDraft(advisoryCostDraft), [advisoryCostDraft]);
   const androidNativeProofEnabled = Platform.OS === "android" && process.env.EXPO_PUBLIC_CPLAYOUT_ANDROID_NATIVE_PROOF === "1";
   const nativeMapLibreProofEnabled = Platform.OS === "android" && process.env.EXPO_PUBLIC_CPLAYOUT_NATIVE_MAPLIBRE_PROOF === "1";
@@ -379,7 +418,7 @@ function AppContent(): React.JSX.Element {
   const sidebarInlineWorkflow = !compactLayout && !nativeMapLibreProofEnabled;
   const inlineCatalogForms = sidebarInlineWorkflow && activeView === "map";
   const activeCatalogForm = Boolean(catalogDialogMode || clientProfileDialogMode || renamingProject || movingProject || deletingProject || deletingClient);
-  const warningCount = result.warnings.length + (editor.lastError ? 1 : 0);
+  const warningCount = (calculation.result?.warnings.length ?? calculation.reasons.length) + (editor.lastError ? 1 : 0);
   const powerEvidenceStatus = useMemo(() => projectPowerLineEvidenceStatus(project), [project]);
   const visibleSidebarPages = useMemo(
     () => rightWorkflowSidebarPages({
@@ -416,20 +455,20 @@ function AppContent(): React.JSX.Element {
   }), [editor.revision, project, projectGeneration]);
   const renderModelRequest = useMemo(() => ({
     projectId: project.id, generation: projectGeneration, revision: editor.revision,
-    create: () => buildAdvisoryMachineRenderModelSteps(project, { maxInstances: 2, endGunThrowMeters: 30.48 }),
+    create: () => buildAdvisoryMachineRenderModelSteps(project, { maxInstances: 2 }),
   }), [editor.revision, project, projectGeneration]);
-  const fieldPlanJob = useAdvisoryJob(fieldPlanRequest, demand.fieldPlan);
-  const multiMachineJob = useAdvisoryJob(multiMachineRequest, demand.multiMachine);
-  const renderModelJob = useAdvisoryJob(renderModelRequest, demand.renderModel);
-  const advisoryFieldPivotPlan = fieldPlanJob.status === "ready" ? fieldPlanJob.value : null;
-  const advisoryMultiMachineReview = multiMachineJob.status === "ready" ? multiMachineJob.value : null;
-  const advisoryMachineRenderModel = renderModelJob.status === "ready" ? renderModelJob.value : null;
+  const fieldPlanJob = useAdvisoryJob(fieldPlanRequest, calculationAvailable && demand.fieldPlan);
+  const multiMachineJob = useAdvisoryJob(multiMachineRequest, calculationAvailable && demand.multiMachine);
+  const renderModelJob = useAdvisoryJob(renderModelRequest, calculationAvailable && demand.renderModel);
+  const advisoryFieldPivotPlan = calculationAvailable && fieldPlanJob.status === "ready" ? fieldPlanJob.value : null;
+  const advisoryMultiMachineReview = calculationAvailable && multiMachineJob.status === "ready" ? multiMachineJob.value : null;
+  const advisoryMachineRenderModel = calculationAvailable && renderModelJob.status === "ready" ? renderModelJob.value : null;
   const advisoryError = (demand.fieldPlan && fieldPlanJob.status === "error")
     || (demand.multiMachine && multiMachineJob.status === "error")
     || (demand.renderModel && renderModelJob.status === "error");
   const advisoryStatus = advisoryError ? "Advisory calculation failed." : "Calculating advisory results...";
   const retryAdvisory = () => { fieldPlanJob.retry(); multiMachineJob.retry(); renderModelJob.retry(); };
-  const cornerArmEvaluation = useMemo(() => demand.cornerArm ? evaluateAdvisoryCornerArm(project) : null, [demand.cornerArm, project]);
+  const cornerArmEvaluation = useMemo(() => calculationAvailable && demand.cornerArm ? evaluateAdvisoryCornerArm(project) : null, [calculationAvailable, demand.cornerArm, project]);
 
   useEffect(() => {
     if (selectedMapFeatureId && !(project.mapFeatures ?? []).some((feature) => feature.id === selectedMapFeatureId)) {
@@ -441,7 +480,7 @@ function AppContent(): React.JSX.Element {
     setDesignScenarioPreview(null);
     setIdealCenterAnalysis(null);
     setPlacementCandidates(null);
-  }, [editor.revision]);
+  }, [editor.revision, project]);
 
   useEffect(() => {
     setAdvisoryCostDraft(EMPTY_ADVISORY_COST_DRAFT);
@@ -547,25 +586,67 @@ function AppContent(): React.JSX.Element {
     }
   }
 
-  function loadProject(nextProject: PivotProject, context?: Partial<typeof activeCatalogContext>): void {
+  function loadProject(nextProject: PivotProject, context?: Partial<typeof activeCatalogContext>, persisted = false): void {
+    projectOpenRequests.invalidate();
     const loadSequence = projectLoadSequenceRef.current + 1;
     projectLoadSequenceRef.current = loadSequence;
     dispatchProject({ type: "load_project", project: nextProject });
     setRuntimeMapPackages([]);
     void rehydrateRuntimeMapPackages(loadSequence, nextProject.mapPackages ?? []);
-    setSavedRevision(0);
+    setSavedRevision(persisted ? 0 : null);
+    setProjectImportStatus(null);
     setSettings((current) => browserLocalSettings(nextProject.settings, current));
     setWalkthroughProgress(loadWalkthroughProgress(nextProject.id));
     setSelectedMapFeatureId(null);
     setPendingMapFeatureDraft(null);
+    setPendingPlacementAction(null);
+    setDesignScenarioPreview(null);
+    setIdealCenterAnalysis(null);
+    setPlacementCandidates(null);
+    setDesignConsoleModal(null);
+    setGuidedMapTool(null);
+    setManualDesignCaptureRequest(null);
+    setManualDesignMapCapture(null);
     setHomeMapView(false);
     setActiveView("map");
     setWorkflowMode("design");
     setActiveSidebarPage("tools");
-    if (context) {
-      setActiveCatalogContext((current) => ({ ...current, ...context }));
-    }
+    setActiveCatalogContext({ clientId: null, projectId: null, fieldMapId: null, designId: null, ...context });
     setScreen("workspace");
+  }
+
+  function loadIndependentProject(nextProject: PivotProject): void {
+    loadProject(nextProject, { clientId: null, projectId: null, fieldMapId: null, designId: null });
+  }
+
+  async function importIndependentProjectZip(owner: object): Promise<{ name: string; saved: boolean } | null> {
+    const accepted: { value: { project: PivotProject; generation: number } | null } = { value: null };
+    await projectOpenRequests.open(async () => {
+      const bytes = await importZipFileAsync();
+      return bytes ? importProjectArchiveZip(bytes) : null;
+    }, (imported) => {
+      loadIndependentProject(imported);
+      const generation = projectLoadSequenceRef.current;
+      accepted.value = { project: imported, generation };
+      setProjectImportStatus({ generation, kind: "saving" });
+    }, owner);
+    if (!accepted.value) return null;
+    const { project: imported, generation } = accepted.value;
+    // Share normal-save ordering so an older imported copy cannot overwrite later edits.
+    const save = saveQueueRef.current.then(async () => {
+      let saved = false;
+      try {
+        saved = await repository.saveProject(imported);
+      } finally {
+        if (projectLoadSequenceRef.current === generation) {
+          if (saved) setSavedRevision(0);
+          setProjectImportStatus({ generation, kind: saved ? "saved" : "error" });
+        }
+      }
+      return saved;
+    });
+    saveQueueRef.current = save.then(() => undefined, () => undefined);
+    return { name: imported.name, saved: await save };
   }
 
   async function rehydrateRuntimeMapPackages(loadSequence: number, mapPackages: MapPackageManifest[]): Promise<void> {
@@ -593,6 +674,7 @@ function AppContent(): React.JSX.Element {
   }
 
   function openCatalogHome(): void {
+    projectOpenRequests.invalidate();
     setScreen("workspace");
     setActiveView("map");
     setHomeMapView(true);
@@ -600,37 +682,48 @@ function AppContent(): React.JSX.Element {
   }
 
   async function saveCurrentProject(): Promise<void> {
-    const saved = activeCatalogContext.designId
-      ? await repository.saveDesignProject(activeCatalogContext.designId, project, result)
-      : await repository.saveProject(project, result);
-    if (saved) setSavedRevision(editor.revision);
+    const generation = projectLoadSequenceRef.current;
+    const revision = editor.revision;
+    // Preserve write order; a delayed acknowledgment belongs only to its loaded project.
+    const save = saveQueueRef.current.then(async () => {
+      const saved = activeCatalogContext.designId
+        ? await repository.saveDesignProject(activeCatalogContext.designId, project, calculation.result ?? undefined)
+        : await repository.saveProject(project, calculation.result ?? undefined);
+      if (projectLoadSequenceRef.current === generation) {
+        if (saved) setSavedRevision(revision);
+        setProjectImportStatus((current) => current?.generation === generation
+          ? { generation, kind: saved ? "saved" : "error" } : current);
+      }
+    });
+    saveQueueRef.current = save.catch(() => undefined);
+    await save;
   }
 
   async function openSavedProject(projectId: string): Promise<void> {
-    const loaded = await repository.openProject(projectId);
-    if (!loaded) return;
-    const design = repository.catalog.designs.find((record) => record.pivotProjectId === projectId) ?? null;
-    const fieldMap = design ? repository.catalog.fieldMaps.find((record) => record.id === design.fieldMapId) ?? null : null;
-    const projectRecord = repository.catalog.projects.find((record) => record.id === (fieldMap?.projectId ?? projectId)) ?? null;
-    loadProject(loaded, {
-      clientId: projectRecord?.clientId ?? activeCatalogContext.clientId,
-      projectId: fieldMap?.projectId ?? projectId,
-      fieldMapId: fieldMap?.id ?? null,
-      designId: design?.id ?? null,
+    await projectOpenRequests.open(() => repository.openProject(projectId), (loaded) => {
+      const design = repository.catalog.designs.find((record) => record.pivotProjectId === projectId) ?? null;
+      const fieldMap = design ? repository.catalog.fieldMaps.find((record) => record.id === design.fieldMapId) ?? null : null;
+      const projectRecord = repository.catalog.projects.find((record) => record.id === (fieldMap?.projectId ?? projectId)) ?? null;
+      loadProject(loaded, {
+        clientId: projectRecord?.clientId ?? null,
+        projectId: fieldMap?.projectId ?? projectId,
+        fieldMapId: fieldMap?.id ?? null,
+        designId: design?.id ?? null,
+      }, true);
     });
   }
 
   async function openDesignProject(designId: string): Promise<void> {
-    const loaded = await repository.openDesignProject(designId);
-    if (!loaded) return;
-    const design = repository.catalog.designs.find((record) => record.id === designId) ?? null;
-    const fieldMap = design ? repository.catalog.fieldMaps.find((record) => record.id === design.fieldMapId) ?? null : null;
-    const projectRecord = fieldMap ? repository.catalog.projects.find((record) => record.id === fieldMap.projectId) ?? null : null;
-    loadProject(loaded, {
-      clientId: projectRecord?.clientId ?? activeCatalogContext.clientId,
-      projectId: fieldMap?.projectId ?? null,
-      fieldMapId: fieldMap?.id ?? null,
-      designId,
+    await projectOpenRequests.open(() => repository.openDesignProject(designId), (loaded) => {
+      const design = repository.catalog.designs.find((record) => record.id === designId) ?? null;
+      const fieldMap = design ? repository.catalog.fieldMaps.find((record) => record.id === design.fieldMapId) ?? null : null;
+      const projectRecord = fieldMap ? repository.catalog.projects.find((record) => record.id === fieldMap.projectId) ?? null : null;
+      loadProject(loaded, {
+        clientId: projectRecord?.clientId ?? null,
+        projectId: fieldMap?.projectId ?? null,
+        fieldMapId: fieldMap?.id ?? null,
+        designId,
+      }, true);
     });
   }
 
@@ -1067,11 +1160,15 @@ function AppContent(): React.JSX.Element {
 
   async function renameProjectFolder(projectId: string, name: string): Promise<void> {
     if (catalogDialogSubmitting) return;
+    const generation = projectLoadSequenceRef.current;
     setCatalogDialogSubmitting(true);
     try {
       const updatedProjectRecord = await repository.renameProject(projectId, name);
       if (!updatedProjectRecord) return;
-      if (project.id === projectId) {
+      if (project.id === projectId && projectLoadSequenceRef.current === generation) {
+        projectOpenRequests.invalidate();
+        projectLoadSequenceRef.current += 1;
+        void rehydrateRuntimeMapPackages(projectLoadSequenceRef.current, project.mapPackages ?? []);
         dispatchProject({ type: "load_project", project: { ...project, name: updatedProjectRecord.name } });
         setSavedRevision(0);
       }
@@ -1182,6 +1279,7 @@ function AppContent(): React.JSX.Element {
   }
 
   function showCatalogMap(context: Partial<typeof activeCatalogContext>, notice: string | null = null): void {
+    projectOpenRequests.invalidate();
     setScreen("workspace");
     setActiveView("map");
     setHomeMapView(true);
@@ -1206,6 +1304,36 @@ function AppContent(): React.JSX.Element {
     saveWalkthroughProgress(project.id, next);
     setWalkthroughProgress(next);
   }
+
+  const importNotice = projectImportStatus?.generation === projectGeneration
+    ? <ProjectImportStatus kind={projectImportStatus.kind} /> : null;
+
+  // All hooks stay mounted across CRS transitions; no calculated view mounts without a result.
+  if (calculation.result === null) {
+    return (
+      <SafeAreaView edges={["top", "left", "right"]} style={styles.safeArea}>
+        <StatusBar style="dark" />
+        {importNotice}
+        <ProjectCrsRecoveryPanel
+          key={`${projectGeneration}:${project.id}:${project.projectCrs}`}
+          project={project}
+          reasons={calculation.reasons}
+          dirty={isDirty}
+          canUndo={editor.past.length > 0}
+          canRedo={editor.future.length > 0}
+          onUndo={() => dispatchProject({ type: "undo" })}
+          onRedo={() => dispatchProject({ type: "redo" })}
+          onSave={saveCurrentProject}
+          storageStatus={repository.statusMessage}
+          projects={repository.projects}
+          onOpenProject={openSavedProject}
+          onProjectLoaded={loadIndependentProject}
+          onOpenSample={() => loadProjectDashboard(sampleProject, { clientId: null, projectId: null, fieldMapId: null, designId: null })}
+        />
+      </SafeAreaView>
+    );
+  }
+  const result = calculation.result;
 
   if (screen === "projects") {
     return (
@@ -1285,6 +1413,7 @@ function AppContent(): React.JSX.Element {
           onOpenProject={selectProjectCatalogOnly}
           onRenameProject={openProjectRenameForm}
           onSelectProject={(projectId) => {
+            projectOpenRequests.invalidate();
             const record = repository.catalog.projects.find((candidate) => candidate.id === projectId) ?? null;
             setActiveCatalogContext({
               clientId: record?.clientId ?? selectedClient.id,
@@ -1690,6 +1819,7 @@ function AppContent(): React.JSX.Element {
             rightDrawerOpen={rightDrawerOpen}
           />
         </WorkspaceTopToolbar>
+        {!homeMapView ? importNotice : null}
 
         <View style={[styles.workspaceShell, activeView !== "map" && compactLayout && styles.workspaceShellCompact, activeView === "map" && styles.workspaceShellConsole]} testID="workspace-shell">
           <ProjectTreeRail
@@ -1919,7 +2049,8 @@ function AppContent(): React.JSX.Element {
                 onOpenProject={openSavedProject}
                 onPreviewCornerGpsMapBpf={previewCornerGpsMapBpf}
                 onPreviewGoogleEarthKml={previewGoogleEarthKml}
-                onProjectLoaded={loadProject}
+                onImportProjectZip={importIndependentProjectZip}
+                onCancelImport={projectOpenRequests.invalidate}
                 onRefreshProjects={repository.refreshProjects}
                 onSaveProject={saveCurrentProject}
                 project={project}
@@ -4138,7 +4269,7 @@ function ManualDesignTransactionPanel({
         <View style={styles.manualDesignHeading} testID="manual-design-heading">
           <Text style={styles.mapFeatureTitle}>Guided Manual Design</Text>
         </View>
-        <Text style={stale ? styles.scenarioScoreWarn : styles.scenarioScore} testID="manual-design-readiness">{stale ? "Stale" : readiness.ready ? "Ready" : "Draft"}</Text>
+        <Text style={stale ? styles.scenarioScoreWarn : styles.scenarioScore} testID="manual-design-readiness">{stale ? "Stale" : readiness.ready ? "Can apply" : "Draft"}</Text>
       </View>
 
       <View style={styles.controlRow}>
@@ -4826,7 +4957,7 @@ function CornerArmKinematicStatusPanel({
     <View style={styles.placementReviewPanel} testID="corner-arm-kinematics-panel">
       <View style={styles.scenarioRowHeader}>
         <Text style={styles.rowTitle}>Corner-Arm Kinematics</Text>
-        <Text style={result.status === "ready" ? styles.scenarioScore : styles.scenarioScoreWarn}>{result.status === "ready" ? "Ready" : `${blockerCount} blockers`}</Text>
+        <Text style={result.status === "ready" ? styles.scenarioScore : styles.scenarioScoreWarn}>{result.status === "unresolved" ? "Unresolved" : result.status === "ready" ? "Ready" : `${blockerCount} blockers`}</Text>
       </View>
       <AdvisoryBadgeRow badges={["projected XY", "advisory", result.scaffoldSourceStatus.replaceAll("_", " "), "no controller proof"]} />
       <View style={styles.metricGrid}>
@@ -4834,7 +4965,7 @@ function CornerArmKinematicStatusPanel({
         <MetricTile label="SDU path" value={`${result.sduPath.length}`} tone={result.sduPath.length > 0 ? "neutral" : "warn"} />
         <MetricTile label="Endpoint path" value={`${result.overhangEndpointPath.length}`} tone={result.overhangEndpointPath.length > 0 ? "neutral" : "warn"} />
         <MetricTile label="Safety zone" value={formatDistance(result.safetyZoneMeters, settings.unitSystem)} tone="neutral" />
-        <MetricTile label="Physical swept" value={formatAreaFromAcres(result.sweptPhysicalEnvelopeAcres, settings.unitSystem)} tone="neutral" />
+        <MetricTile label="Sampled sweep" value={formatAreaFromAcres(result.sweptPhysicalEnvelopeAcres, settings.unitSystem)} tone="neutral" />
         <MetricTile label="Wetted/endgun" value={formatAreaFromAcres(result.wettedEndGunEnvelopeAcres, settings.unitSystem)} tone="neutral" />
       </View>
       {firstBlockers.length > 0 ? (
@@ -4866,6 +4997,9 @@ function CornerArmKinematicStatusPanel({
           ))}
         </View>
       ) : null}
+      {result.status === "unresolved" ? result.qualificationBlockers.map((blocker) => (
+        <Text key={blocker} style={styles.formError}>{blocker}</Text>
+      )) : null}
       <Text style={styles.mapFeatureMeta}>
         This panel does not save geometry, change machine settings, prove proprietary Valley kinematics, certify a design, or write project storage. Existing advisory envelopes remain fallback display evidence when required inputs are missing.
       </Text>
@@ -5819,7 +5953,7 @@ function HelpTrainingPanel({
     title: string;
   }> = [
     {
-      boundary: "Start from a saved project, a sample, or a blank design; local progress stays outside project ZIPs.",
+      boundary: "Samples and blank designs remain unsaved until a save succeeds. Local progress stays outside project ZIPs.",
       checkpoints: [],
       detail: "Use the catalog, then move into Map for layout work.",
       icon: <Home size={18} color="#254234" />,
@@ -5859,7 +5993,7 @@ function HelpTrainingPanel({
       title: "Imagery",
     },
     {
-      boundary: "Validation warnings stay in the layout workflow; Files imports and map edits are operator-selected projected XY changes.",
+      boundary: "Can apply means the manual draft can be committed, not field readiness. Corner-arm samples do not prove continuous clearance or steering feasibility.",
       checkpoints: ["cornerArmInputs", "cornerArmCalculation", "validation"],
       detail: "Inspect coverage warnings, obstacle conflicts, outside-field acres, and draft validation before export.",
       icon: <ClipboardList size={18} color="#254234" />,
@@ -5867,6 +6001,16 @@ function HelpTrainingPanel({
       routeLabel: "Inspect Map",
       testID: "help-module-layout-validation",
       title: "Layout Validation",
+    },
+    {
+      boundary: "RTK fixed and receiver RMS estimates do not prove less-than-0.10-m 3D error. Height reference, antenna offset and independent field control remain required.",
+      checkpoints: [],
+      detail: "Review the receiver capture gate before recording each survey point. PX1122R/NS-RAW hardware and relay switching remain unqualified.",
+      icon: <Satellite size={18} color="#254234" />,
+      route: "survey",
+      routeLabel: "Go to Survey",
+      testID: "help-module-rtk",
+      title: "RTK Qualification",
     },
     {
       boundary: "Android SQLite and ZIP behavior require device proof for each runtime claim; browser local storage remains the web MVP backend.",
@@ -8598,6 +8742,27 @@ const styles = StyleSheet.create({
   },
   warningList: {
     gap: 9,
+  },
+  projectImportStatus: {
+    alignItems: "flex-start",
+    backgroundColor: "#edf4eb",
+    borderBottomColor: "#c4d4c3",
+    borderBottomWidth: 1,
+    flexDirection: "row",
+    flexShrink: 0,
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  projectImportStatusError: {
+    backgroundColor: "#fff0ee",
+    borderBottomColor: "#e2aaa4",
+  },
+  projectImportStatusText: {
+    color: "#26372c",
+    flex: 1,
+    fontSize: 13,
+    lineHeight: 18,
   },
   warningItem: {
     alignItems: "flex-start",

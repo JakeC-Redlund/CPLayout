@@ -86,7 +86,8 @@ assert.ok(result.warnings.length >= 1);
 
 const fieldBoundedProject = {
   ...sampleProject,
-  projectCrs: "LOCAL:TEST",
+  // Synthetic metre-grid arithmetic, not georeferenced field evidence.
+  projectCrs: "EPSG:32613",
   fieldBoundary: square,
   pivotCenter: { x: 50, y: 50 },
   machine: {
@@ -467,7 +468,7 @@ assert.match(dualSpanCornerArmPath.warnings.join("\n"), /DualSpan/);
 
 assert.throws(
   () => evaluateLayout({ ...sampleProject, projectCrs: "EPSG:4326" }),
-  /Projected CRS required/,
+  /Metric planar calculations unavailable.*geographic_input_only/,
 );
 
 console.log("geometry tests passed");

@@ -500,11 +500,23 @@ def _selected_reasoning(matches: list[RouteMatch], route_data: RouteData) -> str
 
 
 def has_explicit_multi_agent_request(prompt: str) -> bool:
+    if has_delegation_restriction(prompt):
+        return False
     prompt_tokens = _tokens(prompt)
     return any(_has_phrase(prompt_tokens, _tokens(term)) for term in EXPLICIT_MULTI_AGENT_TERMS)
 
 
+def has_delegation_restriction(prompt: str) -> bool:
+    return bool(re.search(
+        r"\b(?:(?:do\s+not|don't|never)\s+(?:(?:use|spawn|run)\s+(?:any\s+)?(?:subagents?|sub-agents?|agents?)|delegate)|"
+        r"no\s+(?:subagents?|sub-agents?|delegation)|without\s+(?:subagents?|sub-agents?|delegation)|coordinator[- ]only)\b",
+        prompt, re.IGNORECASE,
+    ))
+
+
 def subagent_decision(prompt: str, matches: list[RouteMatch]) -> tuple[str, str]:
+    if has_delegation_restriction(prompt):
+        return "not useful", "Explicit delegation restriction takes precedence over advisory route matching."
     if has_explicit_multi_agent_request(prompt):
         return "required", "Prompt explicitly asks for multi-agent, subagent, panel, parallel-agent, or delegation work."
     if matches:
@@ -542,7 +554,7 @@ def optimized_reprompt(
         f"{opening} Start with AGENTS.md plus git status. "
         f"Route through {specialists}. Subagent decision: {decision}. "
         "Assign each subagent task-selected reasoning and a bounded no-overlap scope. "
-        "Keep hooks advisory unless installed through managed requirements. "
+        "Keep checkout guidance advisory; managed loading does not prove trusted policy inputs or complete tool coverage. "
         "Preserve offline/no-cost operation, projected/local XY canonical geometry, and evidence-only KML/KMZ/imagery boundaries."
     )
 

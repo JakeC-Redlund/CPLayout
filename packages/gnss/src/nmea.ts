@@ -2,6 +2,7 @@ import {
   GpsQualityThresholdsSchema,
   gpsFixMeetsThreshold,
   projectLonLatToXy,
+  qualifyProjectCrs,
   type AppSettings,
   type GnssCaptureEvidence,
   type GnssTransportKind,
@@ -59,10 +60,12 @@ export type GnssGateReasonCode =
   | "invalid_timing"
   | "stale_observation"
   | "unconfirmed_source_crs"
+  | "unqualified_project_crs"
   | "quality_threshold";
 
 export interface GnssGateContext {
   connected: boolean;
+  projectCrs: string;
   nowMonotonicMs: number;
   sourceCoordinateFrame: string | "unknown";
 }
@@ -311,6 +314,9 @@ export function evaluateGnssObservationGate(
   };
 
   if (context.connected !== true) addReason("not_connected", "receiver is not connected");
+  if (!gnssDestinationAllowed(context.projectCrs)) {
+    addReason("unqualified_project_crs", "receiver capture requires a supported metre-based WGS84 project projection; display-only, unreferenced and unsupported datum destinations are blocked");
+  }
   if (!observation) {
     addReason("no_observation", "no coherent GGA observation is available");
     return {
@@ -443,6 +449,9 @@ export function surveyPointFromGnssObservation(input: {
   label: string;
   role?: SurveyPoint["role"];
 }): SurveyPoint {
+  if (!gnssDestinationAllowed(input.projectCrs)) {
+    throw new Error("GNSS capture destination is not a supported metre-based WGS84 project projection.");
+  }
   const invalidObservation = observationInvalidReason(input.observation);
   if (invalidObservation) throw new Error(invalidObservation);
   if (input.sourceCoordinateFrame.trim().toUpperCase() !== "EPSG:4326") {
@@ -496,6 +505,12 @@ export function confidenceForRtkQuality(quality: RtkQuality): SourceConfidence {
   if (quality.fixType === "dgps") return "dgps";
   if (quality.fixType === "autonomous" || quality.fixType === "ppp") return "autonomous_gps";
   return "user_estimated";
+}
+
+function gnssDestinationAllowed(projectCrs: string): boolean {
+  if (typeof projectCrs !== "string") return false;
+  const qualification = qualifyProjectCrs(projectCrs);
+  return qualification.calculation.allowed && qualification.wgs84Transform === "projection_only";
 }
 
 export function nmeaChecksumValid(sentence: string): boolean {

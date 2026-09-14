@@ -48,7 +48,7 @@ test("pending advisory jobs do not prevent leaving the map", async ({ page }) =>
   await expect(page.getByTestId("advisory-map-job-status")).toContainText("Calculating");
   await page.getByTestId("workspace-nav-files").click();
   await expect(page.getByTestId("files-view")).toBeVisible();
-  await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+  await expect(page.getByTestId("project-save-state")).toContainText("Unsaved edits");
 });
 
 test("advisory overlay completion preserves the stored project", async ({ page }, testInfo) => {

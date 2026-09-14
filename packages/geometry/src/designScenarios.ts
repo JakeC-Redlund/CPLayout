@@ -1,3 +1,4 @@
+import { assertMetricCalculationCrs } from "@cplayout/core";
 import type { LayoutMetrics, PivotAngleRange, PivotProject, PivotSweep, XY } from "@cplayout/core";
 
 import { evaluateLayout } from "./geometry";
@@ -28,6 +29,7 @@ export function buildDesignScenarioPreview(
   project: PivotProject,
   options: BuildDesignScenarioPreviewOptions = {},
 ): DesignScenarioPreview[] {
+  assertMetricCalculationCrs(project.projectCrs);
   const includeOptimizedCandidates = options.includeOptimizedCandidates ?? true;
   const maxOptimizedCandidates = Math.max(0, Math.floor(options.maxOptimizedCandidates ?? 3));
   const scenarios: DesignScenarioPreview[] = [
@@ -49,18 +51,7 @@ export function buildDesignScenarioPreview(
 
   if (includeOptimizedCandidates && maxOptimizedCandidates > 0) {
     scenarios.push(...optimizePivotCenter(project, { maxAlternatives: maxOptimizedCandidates }).map((alternative, index) => ({
-      id: `optimized-pivot-${index + 1}`,
-      label: `Optimized pivot ${index + 1}`,
-      source: "deterministic_optimizer" as const,
-      project: alternative.project,
-      metrics: alternative.metrics,
-      score: alternative.score,
-      feasible: alternative.feasible,
-      rejectionReasons: alternative.disqualificationReasons,
-      warnings: [
-        ...alternative.warnings,
-        "Optimizer candidate is advisory; coordinate changes must use reducer validation.",
-      ],
+      ...scoreScenario(`optimized-pivot-${index + 1}`, `Optimized pivot ${index + 1}`, "deterministic_optimizer", alternative.project),
       pivotCenter: alternative.pivotCenter,
     })));
   }

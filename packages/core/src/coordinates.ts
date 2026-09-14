@@ -1,5 +1,6 @@
 import proj4 from "proj4";
 
+import { getSupportedUtmCrs, qualifyProjectCrs } from "./crsQualification";
 import type { LonLat, XY } from "./types";
 import { assertProjectedCrs, normalizeCrsName } from "./units";
 
@@ -32,6 +33,8 @@ export type CoordinateParseResult =
 const DECIMAL_NUMBER = String.raw`(?:\d+(?:\.\d*)?|\.\d+)`;
 const SIGNED_NUMBER = String.raw`[+-]?${DECIMAL_NUMBER}(?:[eE][+-]?\d+)?`;
 const PAIR_SEPARATOR = String.raw`(?:\s*[,;]\s*|\s+)`;
+const WGS84_DEFINITION = "+proj=longlat +datum=WGS84 +no_defs";
+const WEB_MERCATOR_DEFINITION = "+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +no_defs";
 
 export function parseCoordinateInput(input: string, format: CoordinateDisplayFormat, projectCrs: string): CoordinateParseResult {
   const trimmed = input.trim();
@@ -40,6 +43,7 @@ export function parseCoordinateInput(input: string, format: CoordinateDisplayFor
   }
 
   if (format === "projected_local") {
+    // Legacy XY input remains readable even when its CRS is ineligible for metric calculations.
     try {
       assertProjectedCrs(projectCrs);
     } catch (error) {
@@ -141,7 +145,7 @@ export function projectLonLatToXy(coordinate: LonLat, projectCrs: string): XY {
   const validated = validateLonLat(coordinate);
   if (!validated.ok) throw new Error(validated.error);
   const normalized = transformCrs(projectCrs);
-  const [x, y] = proj4("EPSG:4326", normalized, [coordinate.longitude, coordinate.latitude]);
+  const [x, y] = proj4(WGS84_DEFINITION, normalized, [coordinate.longitude, coordinate.latitude]);
   assertFinitePair(x, y, "Projection returned invalid coordinates.");
   return { x, y };
 }
@@ -149,7 +153,7 @@ export function projectLonLatToXy(coordinate: LonLat, projectCrs: string): XY {
 export function projectXyToLonLat(point: XY, projectCrs: string): LonLat {
   assertFinitePair(point.x, point.y, "Inverse projection requires finite X and Y coordinates.");
   const normalized = transformCrs(projectCrs);
-  const [longitude, latitude] = proj4(normalized, "EPSG:4326", [point.x, point.y]);
+  const [longitude, latitude] = proj4(normalized, WGS84_DEFINITION, [point.x, point.y]);
   assertFinitePair(longitude, latitude, "Inverse projection returned invalid coordinates.");
   const validated = validateLonLat({ longitude, latitude });
   if (!validated.ok) throw new Error(validated.error);
@@ -244,7 +248,15 @@ function transformCrs(projectCrs: string): string {
   if (normalized === "LOCAL" || normalized.startsWith("LOCAL:")) {
     throw new Error("WGS84 transforms are unavailable for a LOCAL project CRS.");
   }
-  return normalized;
+  const qualification = qualifyProjectCrs(normalized);
+  if (qualification.wgs84Transform === "unsupported_datum_operation") {
+    throw new Error(`WGS84 transforms for ${normalized} require a verified datum operation; none is configured.`);
+  }
+  if (qualification.wgs84Transform === "display_only") return WEB_MERCATOR_DEFINITION;
+  const utm = getSupportedUtmCrs(normalized);
+  if (utm?.datum === "WGS84") return utm.proj4Definition;
+  // Do not trust external proj4 registrations or infer a UTM zone from an unqualified EPSG code.
+  throw new Error(`Unsupported CRS definition for WGS84 transforms: ${normalized}. Stored XY must remain unchanged.`);
 }
 
 function fixedWithSign(value: number, precision: number): string {

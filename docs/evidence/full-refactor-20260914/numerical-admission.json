@@ -1,0 +1,93 @@
+{
+  "schema": "cplayout-numerical-admission-evidence-v1",
+  "verifiedAt": "2026-09-14T08:22:08.232Z",
+  "scope": "Independent read-only QA of shared project numerical admission and geometry result guards",
+  "findings": [],
+  "conclusion": "No new actionable defects found in the bounded review. Original legacy NaN/Infinity reproducers are blocked without rejecting legacy document loading or changing canonical inputs.",
+  "sourceHashes": {
+    "packages/core/src/designDraft.ts": "12a95a14082638715e9872bc94c1af14190f12933a624470a501e3a06f3780f9",
+    "packages/core/src/designDraft.test.ts": "05d8434e76d6bb276012602ef879ab24e9cbda2625cfe53a34087daaedf15c21",
+    "packages/core/src/projectCalculationSafety.ts": "16d0522d342ef3bca3b687b56bbdc78e446b036fc1311be720d81a185614a58e",
+    "packages/core/src/projectCalculationSafety.test.ts": "ac6c7aa994eb26fd1b1d866ea9214c45db5258d62b01f7746ea6e9984051ddec",
+    "packages/core/src/index.ts": "53e15bc9442dd5ab4df9aae886933815ffde002d6c161b1964728948d4709f6c",
+    "packages/geometry/src/geometry.ts": "cd4277f17651d54b583339a1ec086290fa5caa9139372fd11bb1c651b37ef835",
+    "packages/geometry/src/numericalCalculationSafety.test.ts": "5a0cc5815afe79b50235811d99ac319866dd6810e122fafcd17d1b8ea996a3d5",
+    "/tmp/cplayout-legacy-numerical-repro-20260914-review.cjs": "3bf9b49865b0c010172e2f9eed1881e9d2ea26fd7d93e46354579cdf7572a16c"
+  },
+  "rawEvidence": {
+    "path": "/tmp/cplayout-numerical-qa-postfix-cd4277f1.json",
+    "sha256": "6e8b4542149810fbc884676a9831973eab874ffe00958388201037c9a17f8783"
+  },
+  "replay": {
+    "command": "node /tmp/cplayout-legacy-numerical-repro-20260914-review.cjs --after",
+    "exitCode": 0,
+    "results": [
+      {
+        "name": "ordinary",
+        "rawDocumentAccepted": true,
+        "parsedProjectSchemaValid": true,
+        "canonicalInputsPreserved": true,
+        "recoveryDocumentRoundtrip": true,
+        "wgs84Companion": "projected",
+        "crsCalculationAllowed": true,
+        "appCalculationAvailable": true,
+        "nonfiniteCount": 0,
+        "firstNonfinite": [],
+        "outsideFieldAcres": "0",
+        "editorLastError": null,
+        "calculationError": null
+      },
+      {
+        "name": "span_1e155",
+        "rawDocumentAccepted": true,
+        "parsedProjectSchemaValid": true,
+        "canonicalInputsPreserved": true,
+        "recoveryDocumentRoundtrip": true,
+        "wgs84Companion": "projected",
+        "crsCalculationAllowed": true,
+        "appCalculationAvailable": false,
+        "nonfiniteCount": 0,
+        "firstNonfinite": [],
+        "outsideFieldAcres": null,
+        "editorLastError": null,
+        "calculationError": {
+          "name": "ProjectCalculationSafetyError",
+          "message": "Project numerical calculations unavailable: fieldBoundary.2: geometry_product_range; fieldBoundary.2: geometry_coordinate_resolution; machine: geometry_segment_budget."
+        }
+      },
+      {
+        "name": "pivot_plus_span_1e308",
+        "rawDocumentAccepted": true,
+        "parsedProjectSchemaValid": true,
+        "canonicalInputsPreserved": true,
+        "recoveryDocumentRoundtrip": true,
+        "wgs84Companion": "unavailable",
+        "crsCalculationAllowed": true,
+        "appCalculationAvailable": false,
+        "nonfiniteCount": 0,
+        "firstNonfinite": [],
+        "outsideFieldAcres": null,
+        "editorLastError": null,
+        "calculationError": {
+          "name": "ProjectCalculationSafetyError",
+          "message": "Project numerical calculations unavailable: pivotCenter: non_finite_geometry_extent; machine: geometry_segment_budget."
+        }
+      }
+    ]
+  },
+  "focusedSuites": {
+    "draft": 27,
+    "core": 14,
+    "geometry": 13,
+    "crs": 9,
+    "total": 63
+  },
+  "limits": [
+    "Magnitude and consumer-budget admission does not certify topology, conditioning, accuracy, physical design or CRS/field suitability.",
+    "Intersection-generated clipping events may still exceed the geometry engine budget; callers retain failure handling.",
+    "Shared numeric admission expects a structurally valid project; it is not a replacement schema parser.",
+    "Legacy canonical-value roundtrip is not proof of byte-for-byte raw source archive preservation.",
+    "Browser recovery UI, native/device behavior, combined validation, registration, dependency audit and typechecks were not independently rerun in this review.",
+    "Low-level coordinate-only geometry primitives and result types other than LayoutResult are not covered by the LayoutResult finite invariant."
+  ]
+}

@@ -131,9 +131,10 @@ export function BrowserRtkReceiverPanel({
 
   const gate = useMemo(() => evaluateGnssObservationGate(observation, {
     connected,
+    projectCrs: project.projectCrs,
     nowMonotonicMs,
     sourceCoordinateFrame: sourceCrsText,
-  }, settings.gpsQuality), [connected, nowMonotonicMs, observation, settings.gpsQuality, sourceCrsText]);
+  }, settings.gpsQuality), [connected, nowMonotonicMs, observation, project.projectCrs, settings.gpsQuality, sourceCrsText]);
   const quality = gate.quality ?? EMPTY_RTK_QUALITY;
   const canCapture = gate.accepted && observation !== null;
   const mapFeatureOption = MAP_FEATURE_OPTIONS.find((option) => option.kind === mapFeatureKind) ?? MAP_FEATURE_OPTIONS[0];
@@ -153,6 +154,7 @@ export function BrowserRtkReceiverPanel({
     const currentGate = evaluateGnssObservationGate(latest, {
       connected: browserSerialSessionOwner.getSnapshot().phase === "connected"
         && sessionRef.current !== null && sessionRef.current.id === latest?.sessionId,
+      projectCrs: project.projectCrs,
       nowMonotonicMs: monotonicNow(),
       sourceCoordinateFrame: sourceCrsText,
     }, settings.gpsQuality);

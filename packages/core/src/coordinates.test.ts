@@ -44,6 +44,17 @@ const roundTrip = projectXyToLonLat(xy, projectCrs);
 assert.ok(Math.abs(roundTrip.latitude - wgs84.latitude) < 0.000001);
 assert.ok(Math.abs(roundTrip.longitude - wgs84.longitude) < 0.000001);
 
+const southern = parseCoordinateInput("-40, 171", "decimal_degrees", " epsg : 32759 ");
+assert.equal(southern.ok, true);
+if (southern.ok) {
+  assert.equal(southern.coordinate.projectCrs, " epsg : 32759 ");
+  assert.ok(Math.abs(southern.coordinate.projected.x - 500000) < 1e-6);
+  assert.ok(southern.coordinate.projected.y > 5500000);
+  const inverse = projectXyToLonLat(southern.coordinate.projected, southern.coordinate.projectCrs);
+  assert.ok(Math.abs(inverse.latitude + 40) < 1e-8);
+  assert.ok(Math.abs(inverse.longitude - 171) < 1e-8);
+}
+
 const formattedDms = formatCoordinate({ projected: xy, projectCrs, wgs84 }, "degrees_minutes_seconds");
 assert.match(formattedDms, /40° 42' 36\.85" N 104° 59' 16\.29" W/);
 

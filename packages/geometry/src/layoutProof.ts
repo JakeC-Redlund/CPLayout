@@ -1,4 +1,5 @@
 import type { LayoutResult, PivotProject, XY } from "@cplayout/core";
+import { qualifyProjectCrs } from "@cplayout/core";
 
 import { endGunRadiusMeters } from "./geometry";
 
@@ -21,6 +22,10 @@ export function validateCenterPivotProofGeometry(
   result: LayoutResult,
   options: CenterPivotProofValidationOptions = {},
 ): string[] {
+  const qualification = qualifyProjectCrs(project.projectCrs);
+  if (!qualification.calculation.allowed) {
+    return [`Metric planar calculations unavailable: ${qualification.calculation.blockers.join(", ")}.`];
+  }
   const effectiveOptions = { ...DEFAULT_OPTIONS, ...options };
   const errors: string[] = [];
   const endGunRadius = endGunRadiusMeters(project.machine);

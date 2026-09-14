@@ -4,6 +4,8 @@ import { kml as kmlToGeoJson } from "@tmcw/togeojson";
 import { DOMParser, XMLSerializer } from "@xmldom/xmldom";
 
 import { projectLonLatToXy, projectXyToLonLat } from "./coordinates";
+import { assertMetricCalculationCrs, qualifyProjectCrs } from "./crsQualification";
+import { normalizeCrsName } from "./units";
 import { PivotProjectSchema } from "./projectDocument";
 import type { LayoutResult, MultiPolygonXY, ObstacleZone, PivotProject, ProjectMapFeature, ProjectMapFeatureKind, SourceConfidence, SurveyPoint, XY } from "./types";
 
@@ -575,6 +577,9 @@ export function importGoogleEarthKmlToProject(
 }
 
 export function exportProjectGoogleEarthKml(project: PivotProject, result?: LayoutResult): GoogleEarthKmlExportResult {
+  if (result || (project.mapFeatures ?? []).some((feature) => feature.geometry.type === "Circle")) {
+    assertMetricCalculationCrs(project.projectCrs);
+  }
   const warnings: string[] = [];
   const features: Feature[] = [];
 
@@ -1312,7 +1317,8 @@ function mapFeatureFromLine(
     confidence: confidenceOrDefault(readStringProperty(candidate.properties, ["confidence", "sourceConfidence"]), "imagery_digitized"),
     notes: readStringProperty(candidate.properties, ["description", "notes"]) ?? undefined,
     properties: mapFeatureProperties(candidate.properties, kind, {
-      lengthMeters: Number(lineStringLengthMeters(candidate.vertices).toFixed(3)),
+      lengthMeters: qualifyProjectCrs(project.projectCrs).calculation.allowed
+        ? Number(lineStringLengthMeters(candidate.vertices).toFixed(3)) : null,
     }),
   };
 }
@@ -1327,14 +1333,25 @@ function mapFeatureFromPolygon(
   const centerX = readProperty(candidate.properties, ["centerX", "center_x"]);
   const centerY = readProperty(candidate.properties, ["centerY", "center_y"]);
   const radiusMeters = readProperty(candidate.properties, ["radiusMeters", "radius_meters"]);
+  const sourceCrs = readStringProperty(candidate.properties, ["projectCrs", "project_crs"]);
+  // Raw circle centers belong to the exporting grid; other grids keep the transformed polygon evidence.
+  const circleGridMatches = sourceCrs !== null && sourceCrs !== undefined
+    && normalizeCrsName(sourceCrs) === normalizeCrsName(project.projectCrs)
+    && qualifyProjectCrs(project.projectCrs).calculation.allowed;
+  const finiteCircleMetadata = [centerX, centerY, radiusMeters].every((value) =>
+    (typeof value === "number" || (typeof value === "string" && value.trim().length > 0))
+    && Number.isFinite(Number(value)));
   const geometry: ProjectMapFeature["geometry"] =
-    requestedGeometry?.toLowerCase() === "circle" && Number.isFinite(Number(centerX)) && Number.isFinite(Number(centerY)) && Number.isFinite(Number(radiusMeters))
+    circleGridMatches && requestedGeometry?.toLowerCase() === "circle" && finiteCircleMetadata
       ? {
         type: "Circle",
         center: { x: Number(centerX), y: Number(centerY) },
         radiusMeters: Number(radiusMeters),
       }
-      : {
+      : kind === "end_gun_arc" ? {
+        type: "LineString",
+        vertices: candidate.ring,
+      } : {
         type: "Polygon",
         vertices: candidate.ring,
       };

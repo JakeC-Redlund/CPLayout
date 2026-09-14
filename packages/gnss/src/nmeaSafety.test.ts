@@ -18,7 +18,7 @@ const gga = "GNGGA,123519.00,3900.000000,N,10400.000000,W,4,18,0.6,1600.0,M,-20.
 const gst = "GNGST,123519.00,0.01,0.01,0.01,0.0,0.01,0.01,0.02";
 const rmc = "GNRMC,123519.00,A,3900.000000,N,10400.000000,W,0.0,0.0,130926,,,A";
 const thresholds = defaultAppSettings().gpsQuality;
-const context = { connected: true, nowMonotonicMs: 1500, sourceCoordinateFrame: "EPSG:4326" };
+const context = { connected: true, nowMonotonicMs: 1500, sourceCoordinateFrame: "EPSG:4326", projectCrs: "EPSG:32613" };
 
 function sentence(body: string): string {
   const checksum = [...body].reduce((value, character) => value ^ character.charCodeAt(0), 0);
@@ -39,6 +39,22 @@ function observation() {
   assert.ok(result);
   return result;
 }
+
+test("capture requires a metric destination with an admitted WGS84 projection", () => {
+  const epoch = observation();
+  const before = JSON.stringify(epoch);
+  for (const projectCrs of ["EPSG:26741", "LOCAL:TEST", "EPSG:3857", "EPSG:900913", "EPSG:26913", "EPSG:26713", "EPSG:26723", "", undefined]) {
+    const gate = evaluateGnssObservationGate(epoch, { ...context, projectCrs: projectCrs as string }, thresholds);
+    assert.equal(gate.accepted, false, String(projectCrs));
+    assert.ok(gate.reasonCodes.includes("unqualified_project_crs"));
+    assert.throws(() => surveyPointFromGnssObservation({
+      observation: epoch, projectCrs: projectCrs as string, sourceCoordinateFrame: "EPSG:4326",
+      transport: "replay", id: "blocked", label: "Blocked destination",
+    }), /destination|CRS|qualified/i);
+  }
+  assert.equal(evaluateGnssObservationGate(epoch, context, thresholds).accepted, true);
+  assert.equal(JSON.stringify(epoch), before);
+});
 
 test("a newer positionless or malformed GGA cannot resurrect the preceding fixed solution", () => {
   for (const invalid of [

@@ -7,6 +7,7 @@ import {
   CORNER_ARM_MINIMUM_PHYSICAL_SAFETY_ZONE_METERS,
   evaluateCornerArmKinematics,
 } from "./cornerArmKinematics";
+import { createCirclePolygon } from "./geometry";
 
 const model = {
   ...VALLEY_CORNER_ARM_SCAFFOLD_CATALOG[0],
@@ -23,8 +24,8 @@ const boundary = [
   { x: -500, y: 500 },
 ];
 const guidancePath = [
-  { x: -300, y: 120 },
-  { x: 300, y: 120 },
+  { x: -300, y: 55 },
+  { x: 300, y: 55 },
 ];
 
 const readyInput = {
@@ -75,7 +76,14 @@ assert.equal(
 assert.equal(willRheaJasonHarmelinkExampleProject.mapFeatures?.some((feature) => feature.kind === "linear_move_path"), false);
 
 const ready = evaluateCornerArmKinematics(readyInput);
-assert.equal(ready.status, "ready");
+assert.equal(ready.status, "unresolved");
+assert.ok(ready.qualificationBlockers.length > 0);
+assert.ok(ready.sduPath.every((point) => Math.abs(point.y - 55) < 1e-6));
+assert.ok(ready.sduPath.every((point, index) => Math.abs(Math.hypot(point.x - ready.lrduPath[index].x, point.y - ready.lrduPath[index].y) - model.spanLengthMeters) < 2e-6));
+const unreachable = evaluateCornerArmKinematics({ ...readyInput, guidancePath: [{ x: -300, y: 120 }, { x: 300, y: 120 }] });
+assert.equal(unreachable.status, "blocked");
+assert.ok(unreachable.infeasibleDiagnostics.some((diagnostic) => diagnostic.code === "guidance_unreachable"));
+assert.equal(unreachable.sduPath.length, 0);
 assert.equal(ready.advisoryOnly, true);
 assert.equal(ready.canonicalGeometryMutation, false);
 assert.equal(ready.scaffoldSourceStatus, "scaffold_only");
@@ -139,3 +147,33 @@ assert.ok(withWetted.wettedEndGunEnvelopeAcres > 0);
 assert.ok(withWetted.sweptPhysicalEnvelopeAcres > 0);
 assert.notEqual(withWetted.wettedEndGunEnvelopeAcres, withWetted.sweptPhysicalEnvelopeAcres);
 assert.ok(expectedDt > 0);
+
+for (const direction of ["clockwise", "counterclockwise"] as const) {
+  const guide = createCirclePolygon({ x: 0, y: 0 }, 120, 72);
+  for (const sampleAngleStepDegrees of [10, 30]) {
+    const cycle = evaluateCornerArmKinematics({ ...readyInput, rotationDirection: direction,
+      sweep: { mode: "full_circle" }, guidancePath: [...guide, guide[0]], sampleAngleStepDegrees });
+    assert.equal(cycle.lrduPath.length, 360 / sampleAngleStepDegrees + 1);
+    assert.deepEqual(cycle.lrduPath[0], cycle.lrduPath.at(-1));
+    assert.equal(Math.sign(cycle.lrduPath[1].y), direction === "clockwise" ? -1 : 1);
+    if (sampleAngleStepDegrees === 10) {
+      assert.equal(cycle.status, "unresolved", "sampled closure is not continuous physical feasibility");
+      assert.equal(cycle.infeasibleDiagnostics.length, 0);
+      assert.deepEqual(cycle.sduPath[0], cycle.sduPath.at(-1));
+    } else {
+      // Coarse nearest-intersection sampling can switch branches; it must retain its failure.
+      assert.equal(cycle.status, "blocked");
+      assert.ok(cycle.infeasibleDiagnostics.some((diagnostic) => diagnostic.code === "corner_angle_above_max"));
+      assert.notDeepEqual(cycle.sduPath[0], cycle.sduPath.at(-1));
+    }
+    const origin = { x: 500000, y: 4500000 };
+    const shifted = (point: { x: number; y: number }) => ({ x: point.x + origin.x, y: point.y + origin.y });
+    const translated = evaluateCornerArmKinematics({ ...readyInput, pivotCenter: origin, rotationDirection: direction,
+      sweep: { mode: "full_circle" }, fieldBoundary: boundary.map(shifted),
+      guidancePath: [...guide, guide[0]].map(shifted), sampleAngleStepDegrees });
+    assert.equal(translated.status, cycle.status);
+    assert.deepEqual(translated.infeasibleDiagnostics, cycle.infeasibleDiagnostics);
+    assert.equal(translated.lrduPath.length, cycle.lrduPath.length);
+    assert.ok(Math.abs(translated.sweptPhysicalEnvelopeAcres - cycle.sweptPhysicalEnvelopeAcres) < 1e-5);
+  }
+}

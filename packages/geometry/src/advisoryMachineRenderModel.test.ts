@@ -74,7 +74,8 @@ const noSpray: PivotProject["obstacles"][number] = {
 const project: PivotProject = {
   id: "advisory-render-test",
   name: "Advisory Render Test",
-  projectCrs: "LOCAL:TEST",
+  // Synthetic metre-grid arithmetic, not georeferenced field evidence.
+  projectCrs: "EPSG:32613",
   unitSystem: "us_survey_feet",
   fieldBoundary,
   pivotCenter: { x: 100, y: 90 },
@@ -97,7 +98,7 @@ const project: PivotProject = {
 };
 
 const before = JSON.stringify(project);
-const model = buildAdvisoryMachineRenderModel(project);
+const model = buildAdvisoryMachineRenderModel(project, { endGunThrowMeters: 30.48, includePublicVflexFallbackCornerArm: true });
 
 assert.equal(model.status, "ready");
 assert.equal(model.advisoryOnly, true);

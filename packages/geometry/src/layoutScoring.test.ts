@@ -4,23 +4,25 @@ import { sampleProject } from "@cplayout/core";
 import { rankLayoutAlternatives, scoreLayoutAlternative } from "./layoutScoring";
 
 const originalPivotCenter = { ...sampleProject.pivotCenter };
+const comparisonProject = { ...sampleProject, obstacles: [] };
+const comparisonConstraints = { minCoveragePercent: 0, maxOutsideFieldAcres: Number.MAX_VALUE };
 
 const lowerConfidence = scoreLayoutAlternative({
   id: "operator-draft",
-  project: sampleProject,
+  project: comparisonProject,
   confidence: 0.25,
   source: "operator",
-});
+}, comparisonConstraints);
 
 const higherConfidence = scoreLayoutAlternative({
   id: "model-review",
-  project: sampleProject,
+  project: comparisonProject,
   confidence: 0.9,
   source: "model",
-});
+}, comparisonConstraints);
 
 assert.ok(higherConfidence.score > lowerConfidence.score);
-assert.equal(higherConfidence.project, sampleProject);
+assert.equal(higherConfidence.project, comparisonProject);
 
 const outsideFieldAlternative = {
   ...sampleProject,

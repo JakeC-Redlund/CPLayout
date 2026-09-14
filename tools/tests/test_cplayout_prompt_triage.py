@@ -26,6 +26,19 @@ stop_spec.loader.exec_module(stop_hook)
 
 
 class PromptTriageTests(unittest.TestCase):
+    def test_delegation_restrictions_override_matching_topics(self) -> None:
+        for prompt in (
+            "Do not delegate. Review SQLite schema migration.",
+            "Do not use subagents. Fix a typo in the Expo UI screen.",
+            "No subagents; review projected XY CRS transforms.",
+            "Coordinator-only review of prompt triage and context maps.",
+        ):
+            with self.subTest(prompt=prompt):
+                matches = triage.match_routes(prompt)
+                self.assertTrue(matches)
+                self.assertFalse(triage.has_explicit_multi_agent_request(prompt))
+                self.assertEqual(triage.subagent_decision(prompt, matches)[0], "not useful")
+
     def route_ids(self, prompt: str) -> list[str]:
         return [match.route.route_id for match in triage.match_routes(prompt)]
 
@@ -278,7 +291,7 @@ class PromptTriageTests(unittest.TestCase):
         self.assertIn("Subagent decision: required.", reprompt)
         self.assertIn("task-selected reasoning", reprompt)
         self.assertIn("projected/local XY", reprompt)
-        self.assertIn("managed requirements", reprompt)
+        self.assertIn("managed loading does not prove trusted policy inputs or complete tool coverage", reprompt)
 
     def test_matched_specialist_prompt_requires_subagent_under_standing_policy(self) -> None:
         context = self.hook_context("Review Expo SQLite project archive persistence and ZIP schema migration.")

@@ -65,6 +65,15 @@ export function scoreLayoutAlternative(
   weights: Partial<LayoutScoreWeights> = {},
 ): RankedLayoutAlternative {
   const effectiveConstraints = { ...DEFAULT_CONSTRAINTS, ...constraints };
+  for (const [name, value] of Object.entries(effectiveConstraints)) {
+    if (name === "hardBoundary" || value === undefined) continue;
+    if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
+      throw new RangeError(`${name} must be finite and nonnegative.`);
+    }
+  }
+  if (effectiveConstraints.minCoveragePercent > 100 || !Number.isInteger(effectiveConstraints.maxObstacleConflicts)) {
+    throw new RangeError("Coverage must not exceed 100 percent and obstacle limits must be integers.");
+  }
   const effectiveWeights = normalizeWeights({ ...DEFAULT_WEIGHTS, ...weights });
   const result = evaluateLayout(alternative.project);
   const boundary = effectiveConstraints.hardBoundary
@@ -77,6 +86,15 @@ export function scoreLayoutAlternative(
     + alternative.project.machine.overhangMeters;
   const maxMachineRadius = effectiveConstraints.maxMachineRadiusMeters ?? machineRadius;
   const disqualificationReasons: string[] = [];
+
+  if (machineRadius > maxMachineRadius) disqualificationReasons.push("Machine radius exceeds the permitted maximum.");
+  if (result.metrics.outsideFieldAcres > effectiveConstraints.maxOutsideFieldAcres) disqualificationReasons.push("Outside-field acreage exceeds the permitted maximum.");
+  if (result.metrics.obstacleConflictCount > effectiveConstraints.maxObstacleConflicts) disqualificationReasons.push("Obstacle count exceeds the permitted maximum.");
+  if (result.metrics.hardMechanicalConflictCount > 0) disqualificationReasons.push("A hard obstacle intersects the mechanical sweep.");
+  if (result.metrics.coveragePercent < effectiveConstraints.minCoveragePercent) disqualificationReasons.push("Coverage is below the required minimum.");
+  if (!Number.isFinite(alternative.confidence) || alternative.confidence < 0 || alternative.confidence > 1) {
+    disqualificationReasons.push("Alternative confidence must be finite and between zero and one.");
+  }
 
   if (boundary && !boundary.feasible) {
     disqualificationReasons.push(`Wet coverage exceeds field boundary by ${boundary.outsideFieldAreaSquareMeters.toFixed(3)} square meters.`);
@@ -131,6 +149,9 @@ export function rankLayoutAlternatives(
 }
 
 function normalizeWeights(weights: LayoutScoreWeights): LayoutScoreWeights {
+  if (Object.values(weights).some((value) => !Number.isFinite(value) || value < 0)) {
+    throw new RangeError("Score weights must be finite and nonnegative.");
+  }
   const total = Object.values(weights).reduce((sum, value) => sum + Math.max(0, value), 0);
   if (total <= 0) return DEFAULT_WEIGHTS;
   return {

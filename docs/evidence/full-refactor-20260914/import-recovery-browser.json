@@ -1,0 +1,725 @@
+{
+  "schema": "cplayout-selected-browser-evidence-v1",
+  "verifiedAt": "2026-09-14T08:32:51.240Z",
+  "snapshot": "/home/cyber/cplayout-integrated-20260914-F8dZtG",
+  "scope": "51 selected browser cases; aggregate candidate failed. Predates standalone clearance correction and draft archive files.",
+  "url": "http://127.0.0.1:19012",
+  "sourceIdentity": {
+    "path": "/home/cyber/cplayout-integrated-20260914-F8dZtG/evidence/source-identity.json",
+    "sha256": "a603f59eeacd14410e5e7c5ab3fdee7213ec1dbbb7b5eb6466f44ce742cccf4a"
+  },
+  "matchedPathsAfterChecks": 515,
+  "bundle": {
+    "path": "/home/cyber/cplayout-integrated-20260914-F8dZtG/apps/mobile/dist/_expo/static/js/web/index-8466090e47dff7dbd24cae5b28749b26.js",
+    "sha256": "40b1b0edb38d53775beb9e13807571b763aebdc36c99a0b40d44ead30471b182"
+  },
+  "audit": [
+    {
+      "scope": "all",
+      "report": {
+        "path": "/home/cyber/cplayout-integrated-20260914-F8dZtG/evidence/audit-all.json",
+        "sha256": "5c71ffa1a612bcc49498f54387fdacccb07cc0096e4a181dee042fa0ada881cf"
+      },
+      "vulnerabilities": {
+        "info": 0,
+        "low": 0,
+        "moderate": 0,
+        "high": 0,
+        "critical": 0,
+        "total": 0
+      }
+    },
+    {
+      "scope": "production",
+      "report": {
+        "path": "/home/cyber/cplayout-integrated-20260914-F8dZtG/evidence/audit-production.json",
+        "sha256": "5c71ffa1a612bcc49498f54387fdacccb07cc0096e4a181dee042fa0ada881cf"
+      },
+      "vulnerabilities": {
+        "info": 0,
+        "low": 0,
+        "moderate": 0,
+        "high": 0,
+        "critical": 0,
+        "total": 0
+      }
+    }
+  ],
+  "aggregate": {
+    "status": "fail",
+    "exitCode": 1,
+    "log": {
+      "path": "/home/cyber/cplayout-integrated-20260914-F8dZtG/evidence/validate.log",
+      "sha256": "fc6575a278ec3c56d3fa1c41beee300b423d8529460080aa4db6679dc1ed2976"
+    },
+    "reason": "Blanket project numeric guard rejects supported standalone clearance solver input. Existing quality suite exposed regression."
+  },
+  "reports": [
+    {
+      "name": "import-lifecycle",
+      "report": {
+        "path": "/home/cyber/cplayout-integrated-20260914-F8dZtG/evidence/import-lifecycle.json",
+        "sha256": "be09514d594d2f2465e57e00cc7bae2c6ad4ca6ba3fc397a242cdf4c695c9a49"
+      },
+      "log": {
+        "path": "/home/cyber/cplayout-integrated-20260914-F8dZtG/evidence/import-lifecycle.log",
+        "sha256": "6313a22d21f628f9fa052466bf1800ce6d127f0de7d2fb95fb689ec3493eb297"
+      },
+      "stats": {
+        "startTime": "2026-09-14T08:25:09.247Z",
+        "duration": 77381.288,
+        "expected": 33,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "cases": [
+        {
+          "title": "late valid ZIP after catalog navigation cannot load or persist",
+          "project": "desktop",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 3000
+            }
+          ]
+        },
+        {
+          "title": "late malformed ZIP after catalog navigation cannot load or persist",
+          "project": "desktop",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 2080
+            }
+          ]
+        },
+        {
+          "title": "leaving Files for Dashboard cancels a pending project import",
+          "project": "desktop",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1604
+            }
+          ]
+        },
+        {
+          "title": "newer project picker wins and stale completion cannot persist another project",
+          "project": "desktop",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1557
+            }
+          ]
+        },
+        {
+          "title": "accepted EPSG:32613 import acknowledges persistence outside Files",
+          "project": "desktop",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 2194
+            }
+          ]
+        },
+        {
+          "title": "accepted EPSG:32613 import shows save failure and can retry",
+          "project": "desktop",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 2267
+            }
+          ]
+        },
+        {
+          "title": "accepted EPSG:26741 import acknowledges persistence outside Files",
+          "project": "desktop",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1409
+            }
+          ]
+        },
+        {
+          "title": "accepted EPSG:26741 import shows save failure and can retry",
+          "project": "desktop",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1406
+            }
+          ]
+        },
+        {
+          "title": "current malformed ZIP leaves a visible Files error without loading or saving",
+          "project": "desktop",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1531
+            }
+          ]
+        },
+        {
+          "title": "opening a saved project supersedes the old Files picker",
+          "project": "desktop",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 2633
+            }
+          ]
+        },
+        {
+          "title": "editing project data while Files remains mounted cancels its old picker",
+          "project": "desktop",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1719
+            }
+          ]
+        },
+        {
+          "title": "late valid ZIP after catalog navigation cannot load or persist",
+          "project": "tablet-768",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 2338
+            }
+          ]
+        },
+        {
+          "title": "late malformed ZIP after catalog navigation cannot load or persist",
+          "project": "tablet-768",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1894
+            }
+          ]
+        },
+        {
+          "title": "leaving Files for Dashboard cancels a pending project import",
+          "project": "tablet-768",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1561
+            }
+          ]
+        },
+        {
+          "title": "newer project picker wins and stale completion cannot persist another project",
+          "project": "tablet-768",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1488
+            }
+          ]
+        },
+        {
+          "title": "accepted EPSG:32613 import acknowledges persistence outside Files",
+          "project": "tablet-768",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 2368
+            }
+          ]
+        },
+        {
+          "title": "accepted EPSG:32613 import shows save failure and can retry",
+          "project": "tablet-768",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 2892
+            }
+          ]
+        },
+        {
+          "title": "accepted EPSG:26741 import acknowledges persistence outside Files",
+          "project": "tablet-768",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1639
+            }
+          ]
+        },
+        {
+          "title": "accepted EPSG:26741 import shows save failure and can retry",
+          "project": "tablet-768",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1805
+            }
+          ]
+        },
+        {
+          "title": "current malformed ZIP leaves a visible Files error without loading or saving",
+          "project": "tablet-768",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1515
+            }
+          ]
+        },
+        {
+          "title": "opening a saved project supersedes the old Files picker",
+          "project": "tablet-768",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 2394
+            }
+          ]
+        },
+        {
+          "title": "editing project data while Files remains mounted cancels its old picker",
+          "project": "tablet-768",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1535
+            }
+          ]
+        },
+        {
+          "title": "late valid ZIP after catalog navigation cannot load or persist",
+          "project": "mobile-390",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 3550
+            }
+          ]
+        },
+        {
+          "title": "late malformed ZIP after catalog navigation cannot load or persist",
+          "project": "mobile-390",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 2389
+            }
+          ]
+        },
+        {
+          "title": "leaving Files for Dashboard cancels a pending project import",
+          "project": "mobile-390",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1585
+            }
+          ]
+        },
+        {
+          "title": "newer project picker wins and stale completion cannot persist another project",
+          "project": "mobile-390",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1608
+            }
+          ]
+        },
+        {
+          "title": "accepted EPSG:32613 import acknowledges persistence outside Files",
+          "project": "mobile-390",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 2938
+            }
+          ]
+        },
+        {
+          "title": "accepted EPSG:32613 import shows save failure and can retry",
+          "project": "mobile-390",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 2992
+            }
+          ]
+        },
+        {
+          "title": "accepted EPSG:26741 import acknowledges persistence outside Files",
+          "project": "mobile-390",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1893
+            }
+          ]
+        },
+        {
+          "title": "accepted EPSG:26741 import shows save failure and can retry",
+          "project": "mobile-390",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1886
+            }
+          ]
+        },
+        {
+          "title": "current malformed ZIP leaves a visible Files error without loading or saving",
+          "project": "mobile-390",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1661
+            }
+          ]
+        },
+        {
+          "title": "opening a saved project supersedes the old Files picker",
+          "project": "mobile-390",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 3326
+            }
+          ]
+        },
+        {
+          "title": "editing project data while Files remains mounted cancels its old picker",
+          "project": "mobile-390",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 3783
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "crs-numerical-recovery",
+      "report": {
+        "path": "/home/cyber/cplayout-integrated-20260914-F8dZtG/evidence/crs-numerical-recovery.json",
+        "sha256": "dc7422d2020936b80408557bbec4f13c3f1f7cc9018b8843f31019c1f971b096"
+      },
+      "log": {
+        "path": "/home/cyber/cplayout-integrated-20260914-F8dZtG/evidence/crs-numerical-recovery.log",
+        "sha256": "38f1b4f7526274fcafd6b438ae126a019bea3413ad9aa3e283f6fb563f261929"
+      },
+      "stats": {
+        "startTime": "2026-09-14T08:26:51.321Z",
+        "duration": 43031.155999999995,
+        "expected": 18,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "cases": [
+        {
+          "title": "legacy numerical overflow 1e+155 stays recoverable without calculated views",
+          "project": "desktop",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 2901
+            }
+          ]
+        },
+        {
+          "title": "legacy numerical overflow 1e+308 stays recoverable without calculated views",
+          "project": "desktop",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1586
+            }
+          ]
+        },
+        {
+          "title": "EPSG:26741 opens, saves and recovers unchanged before returning to a metric project",
+          "project": "desktop",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1998
+            }
+          ]
+        },
+        {
+          "title": "LOCAL:FIELD opens, saves and recovers unchanged before returning to a metric project",
+          "project": "desktop",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1929
+            }
+          ]
+        },
+        {
+          "title": "EPSG:3857 opens, saves and recovers unchanged before returning to a metric project",
+          "project": "desktop",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 2352
+            }
+          ]
+        },
+        {
+          "title": "importing an independent blocked ZIP cannot reassign or overwrite the active saved design",
+          "project": "desktop",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 2986
+            }
+          ]
+        },
+        {
+          "title": "legacy numerical overflow 1e+155 stays recoverable without calculated views",
+          "project": "tablet-768",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1505
+            }
+          ]
+        },
+        {
+          "title": "legacy numerical overflow 1e+308 stays recoverable without calculated views",
+          "project": "tablet-768",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1451
+            }
+          ]
+        },
+        {
+          "title": "EPSG:26741 opens, saves and recovers unchanged before returning to a metric project",
+          "project": "tablet-768",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1879
+            }
+          ]
+        },
+        {
+          "title": "LOCAL:FIELD opens, saves and recovers unchanged before returning to a metric project",
+          "project": "tablet-768",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1845
+            }
+          ]
+        },
+        {
+          "title": "EPSG:3857 opens, saves and recovers unchanged before returning to a metric project",
+          "project": "tablet-768",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1831
+            }
+          ]
+        },
+        {
+          "title": "importing an independent blocked ZIP cannot reassign or overwrite the active saved design",
+          "project": "tablet-768",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 3161
+            }
+          ]
+        },
+        {
+          "title": "legacy numerical overflow 1e+155 stays recoverable without calculated views",
+          "project": "mobile-390",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1821
+            }
+          ]
+        },
+        {
+          "title": "legacy numerical overflow 1e+308 stays recoverable without calculated views",
+          "project": "mobile-390",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 2136
+            }
+          ]
+        },
+        {
+          "title": "EPSG:26741 opens, saves and recovers unchanged before returning to a metric project",
+          "project": "mobile-390",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 3260
+            }
+          ]
+        },
+        {
+          "title": "LOCAL:FIELD opens, saves and recovers unchanged before returning to a metric project",
+          "project": "mobile-390",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1923
+            }
+          ]
+        },
+        {
+          "title": "EPSG:3857 opens, saves and recovers unchanged before returning to a metric project",
+          "project": "mobile-390",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 1975
+            }
+          ]
+        },
+        {
+          "title": "importing an independent blocked ZIP cannot reassign or overwrite the active saved design",
+          "project": "mobile-390",
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "retry": 0,
+              "duration": 3130
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "screenshotsInspected": [
+    {
+      "path": "/home/cyber/cplayout-integrated-20260914-F8dZtG/evidence/import-lifecycle-results/project-import-lifecycle-a-a92d6--save-failure-and-can-retry-mobile-390/import-save-failed-EPSG-32613.png",
+      "sha256": "1fd6c4ed00319d1c1a8b665e448db75f678dcad8d70d2d067c4f283a10ddcca8"
+    },
+    {
+      "path": "/home/cyber/cplayout-integrated-20260914-F8dZtG/evidence/import-lifecycle-results/project-import-lifecycle-a-91710-s-persistence-outside-Files-desktop/import-saved-EPSG-26741.png",
+      "sha256": "5b7da5b25879929b42c44754543510817ca2178609c772472a3f81d132e0069c"
+    }
+  ],
+  "visualLimits": "Import status fits phone and desktop recovery views. Intentional offline source failure visible. Not all-interface accessibility or layout approval.",
+  "cleanup": "Both browser commands exited0. Repo-owned preview intentionally retained; existing listeners untouched."
+}

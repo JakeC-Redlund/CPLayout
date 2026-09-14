@@ -95,7 +95,7 @@ test("RTK permission granted after panel unmount closes the late port", async ({
   await expect(page.getByTestId("files-view")).toBeVisible();
   await page.evaluate(() => (window as FixtureWindow).rtkLifecycleFixture.grant());
   await expect.poll(() => page.evaluate(() => (window as FixtureWindow).rtkLifecycleFixture.closeCalls)).toBe(1);
-  await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+  await expect(page.getByTestId("project-save-state")).toContainText("Unsaved edits");
 });
 
 test("RTK late-open cleanup failure survives navigation until explicit retry", async ({ page, baseURL }) => {

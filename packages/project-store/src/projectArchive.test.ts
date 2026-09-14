@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { unzipSync } from "fflate";
 
 import { evaluateLayout, exportScenarioGeoJson, validateCenterPivotProofGeometry } from "@cplayout/geometry";
 import {
@@ -12,13 +13,43 @@ import {
   PROJECT_ARCHIVE_MAX_UNCOMPRESSED_BYTES,
   PROJECT_MANIFEST_FILENAME,
   buildProjectArchiveBundle,
+  buildProjectRecoveryArchiveBundle,
   exportProjectArchiveZip,
   importProjectArchiveZip,
   mapPackagesToCsv,
   metricsToCsv,
   surveyPointsToCsv,
 } from "./projectArchive";
-import { realCenterPivotProofProject, sampleProject, willRheaJasonHarmelinkExampleProject, type PivotProject } from "@cplayout/core";
+import { parseProjectDocument, qualifyProjectCrs, realCenterPivotProofProject, sampleProject, willRheaJasonHarmelinkExampleProject, type PivotProject } from "@cplayout/core";
+
+for (const projectCrs of ["EPSG:26741", "LOCAL:FIELD", "EPSG:3857", "EPSG:26913", " epsg : 26741 "]) {
+  const project: PivotProject = {
+    ...sampleProject,
+    projectCrs,
+    mapFeatures: [{
+      id: "recovery-circle", name: "Stored circle", kind: "end_gun_arc",
+      geometry: { type: "Circle", center: { x: 123.456789, y: -987.654321 }, radiusMeters: 12.5 },
+      confidence: "user_estimated",
+    }],
+  };
+  const original = JSON.stringify(project);
+  const recovery = buildProjectRecoveryArchiveBundle(project, "2026-09-14T00:00:00.000Z");
+  const zip = exportProjectArchiveZip(recovery);
+  assert.deepEqual(Object.keys(unzipSync(zip)).sort(), [PROJECT_MANIFEST_FILENAME, PROJECT_JSON_FILENAME].sort());
+  assert.deepEqual(recovery.manifest.files, [PROJECT_MANIFEST_FILENAME, PROJECT_JSON_FILENAME]);
+  assert.equal(recovery.manifest.projectCrs, projectCrs);
+  const reopened = importProjectArchiveZip(zip);
+  assert.deepEqual(reopened, parseProjectDocument(original));
+  assert.equal(reopened.projectCrs, projectCrs);
+  for (const key of ["fieldBoundary", "pivotCenter", "waterSource", "powerSource", "obstacles", "surveyPoints", "mapFeatures"] as const) {
+    assert.deepEqual(reopened[key], project[key], `${projectCrs}: ${key}`);
+  }
+  assert.deepEqual(importProjectArchiveZip(exportProjectArchiveZip(buildProjectRecoveryArchiveBundle(reopened))), reopened);
+  assert.equal(JSON.stringify(project), original);
+  if (projectCrs !== "EPSG:26913") assert.equal(qualifyProjectCrs(reopened.projectCrs).calculation.allowed, false);
+}
+assert.throws(() => buildProjectRecoveryArchiveBundle({ ...sampleProject, projectCrs: "EPSG:4326" }), /Projected CRS/);
+assert.throws(() => buildProjectRecoveryArchiveBundle({ ...sampleProject, pivotCenter: { x: NaN, y: 0 } }));
 
 const result = evaluateLayout(sampleProject);
 const bundle = buildProjectArchiveBundle(sampleProject, result, exportScenarioGeoJson(sampleProject, result), "2026-05-19T12:00:00.000Z");

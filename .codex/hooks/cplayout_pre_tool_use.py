@@ -69,6 +69,16 @@ def _tool_text(payload: dict[str, Any]) -> str:
     return json.dumps(tool_input, sort_keys=True) if tool_input is not None else ""
 
 
+def _shell_command(payload: dict[str, Any]) -> str | None:
+    if payload.get("tool_name") not in {"Bash", "exec_command", "functions.exec_command", "shell", "shell_command"}:
+        return None
+    tool_input = payload.get("tool_input")
+    if not isinstance(tool_input, dict):
+        return None
+    command = tool_input.get("command", tool_input.get("cmd"))
+    return command if isinstance(command, str) else None
+
+
 def _deny_reason(text: str) -> str | None:
     for pattern, reason in DENY_PATTERNS:
         if pattern.search(text):
@@ -92,7 +102,8 @@ def main() -> int:
         return 0
 
     text = _tool_text(payload)
-    reason = _deny_reason(text)
+    command = _shell_command(payload)
+    reason = _deny_reason(command) if command is not None else None
     if reason:
         print(
             json.dumps(

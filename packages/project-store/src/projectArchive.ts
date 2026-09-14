@@ -58,6 +58,32 @@ const ProjectArchiveManifestSchema = z.object({
   projectDocumentVersion: z.literal(PROJECT_DOCUMENT_VERSION),
 });
 
+/** A recovery package needs neither calculated metrics nor a WGS84 transform. */
+export function buildProjectRecoveryArchiveBundle(
+  project: PivotProject,
+  createdAt = new Date().toISOString(),
+): ProjectArchiveBundle {
+  const document = serializeProjectDocument(project);
+  const manifest: ProjectArchiveManifest = {
+    archiveVersion: PROJECT_ARCHIVE_VERSION,
+    createdAt,
+    projectId: project.id,
+    projectName: project.name,
+    projectCrs: project.projectCrs,
+    files: [PROJECT_MANIFEST_FILENAME, PROJECT_JSON_FILENAME],
+    offlineFirst: true,
+    paidServicesRequired: false,
+    projectDocumentVersion: PROJECT_DOCUMENT_VERSION,
+  };
+  return {
+    manifest,
+    files: {
+      [PROJECT_MANIFEST_FILENAME]: JSON.stringify(manifest, null, 2),
+      [PROJECT_JSON_FILENAME]: document,
+    },
+  };
+}
+
 export function buildProjectArchiveBundle(
   project: PivotProject,
   result: LayoutResult,

@@ -1,5 +1,5 @@
 import { Check, CheckSquare, Clipboard, Copy, FileDown, MapPin, MapPinned, MousePointer2, Route, Search, Square, Upload } from "lucide-react-native";
-import React, { useMemo, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Image, Pressable, StyleSheet, Text, View, type ImageSourcePropType } from "react-native";
 
 const addMenuScreenshot = require("../assets/google-earth-wizard/google-earth-pro-add-menu.png") as ImageSourcePropType;
@@ -96,12 +96,11 @@ export function GoogleEarthImportWizard(): React.JSX.Element {
   const [stepIndex, setStepIndex] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [copiedExample, setCopiedExample] = useState<string | null>(null);
+  const [copyError, setCopyError] = useState<string | null>(null);
+  const [checkedItems, setCheckedItems] = useState<number[]>([]);
+  const copyRequest = useRef(0);
   const step = WIZARD_STEPS[stepIndex];
   const progressText = `${completedSteps.length}/${WIZARD_STEPS.length}`;
-  const checklist = useMemo(() => READY_CHECKLIST.map((item, index) => ({
-    item,
-    complete: index < Math.min(completedSteps.length, READY_CHECKLIST.length),
-  })), [completedSteps.length]);
 
   function toggleStepComplete(): void {
     setCompletedSteps((current) =>
@@ -111,12 +110,18 @@ export function GoogleEarthImportWizard(): React.JSX.Element {
     );
   }
 
-  function copyExample(example: string): void {
+  async function copyExample(example: string): Promise<void> {
+    const request = ++copyRequest.current;
+    setCopiedExample(null);
+    setCopyError(null);
     const clipboard = globalThis.navigator?.clipboard;
-    if (clipboard) {
-      void clipboard.writeText(example).catch(() => undefined);
+    try {
+      if (!clipboard) throw new Error("Clipboard unavailable.");
+      await clipboard.writeText(example);
+      if (request === copyRequest.current) setCopiedExample(example);
+    } catch {
+      if (request === copyRequest.current) setCopyError("Could not copy. Select the example text instead.");
     }
-    setCopiedExample(example);
   }
 
   function goToStep(index: number): void {
@@ -177,9 +182,9 @@ export function GoogleEarthImportWizard(): React.JSX.Element {
             ))}
             <View style={styles.exampleGrid}>
               {step.examples.map((example) => (
-                <Pressable accessibilityLabel={`Copy ${example}`} key={example} onPress={() => copyExample(example)} style={styles.exampleToken}>
+                <Pressable accessibilityRole="button" accessibilityLabel={`Copy ${example}`} key={example} onPress={() => copyExample(example)} style={styles.exampleToken}>
                   <Copy size={13} color="#254234" />
-                  <Text style={styles.exampleText}>{example}</Text>
+                  <Text selectable style={styles.exampleText}>{example}</Text>
                 </Pressable>
               ))}
             </View>
@@ -194,7 +199,7 @@ export function GoogleEarthImportWizard(): React.JSX.Element {
             </Pressable>
             <Pressable accessibilityRole="button" onPress={toggleStepComplete} style={styles.doneButton} testID="google-earth-wizard-step-ready">
               {completedSteps.includes(stepIndex) ? <CheckSquare size={16} color="#ffffff" /> : <Square size={16} color="#ffffff" />}
-              <Text style={styles.doneButtonText}>Step Ready</Text>
+              <Text style={styles.doneButtonText}>Step Reviewed</Text>
             </Pressable>
             <Pressable accessibilityRole="button" disabled={stepIndex === WIZARD_STEPS.length - 1} onPress={() => goToStep(stepIndex + 1)} style={[styles.navButton, stepIndex === WIZARD_STEPS.length - 1 && styles.navButtonDisabled]} testID="google-earth-wizard-next">
               <Text style={[styles.navButtonText, stepIndex === WIZARD_STEPS.length - 1 && styles.navButtonTextDisabled]}>Next</Text>
@@ -202,12 +207,16 @@ export function GoogleEarthImportWizard(): React.JSX.Element {
           </View>
 
           <View style={styles.checklistBox}>
-            <Text style={styles.checklistTitle}>Ready To Import</Text>
-            {checklist.map((check) => (
-              <View key={check.item} style={styles.checkRow}>
-                {check.complete ? <Check size={14} color="#1f5f39" /> : <Square size={14} color="#6a766d" />}
-                <Text style={styles.checkText}>{check.item}</Text>
-              </View>
+            <Text style={styles.checklistTitle}>Import Review Checklist</Text>
+            {copyError ? <Text accessibilityRole="alert" style={styles.checkText}>{copyError}</Text> : null}
+            {READY_CHECKLIST.map((item, index) => (
+              <Pressable key={item} accessibilityRole="checkbox" accessibilityLabel={item}
+                aria-checked={checkedItems.includes(index)}
+                onPress={() => setCheckedItems((current) => current.includes(index) ? current.filter((entry) => entry !== index) : [...current, index])}
+                style={styles.checkRow}>
+                {checkedItems.includes(index) ? <Check size={14} color="#1f5f39" /> : <Square size={14} color="#6a766d" />}
+                <Text selectable style={styles.checkText}>{item}</Text>
+              </Pressable>
             ))}
           </View>
         </View>

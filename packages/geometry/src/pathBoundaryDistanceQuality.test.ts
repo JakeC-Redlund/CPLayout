@@ -7,7 +7,8 @@ import { buildAdvisoryMachineRenderModel } from "./advisoryMachineRenderModel";
 const notch: XY[] = [[0, 0], [4, 0], [4, 2.5], [1.5, 2.5], [1.5, 4], [0, 4]].map(([x, y]) => ({ x, y }));
 const quarter: PivotSweep = { mode: "partial_circle", startAngleDegrees: 0, stopAngleDegrees: 90, direction: "counterclockwise" };
 function project(ring = notch, center = { x: 1, y: 1 }, sweep = quarter): PivotProject {
-  return { ...sampleProject, projectCrs: "LOCAL:TEST", fieldBoundary: ring, pivotCenter: center,
+  // Synthetic metre-grid arithmetic, not georeferenced field evidence.
+  return { ...sampleProject, projectCrs: "EPSG:32613", fieldBoundary: ring, pivotCenter: center,
     machine: { ...sampleProject.machine, sweep }, obstacles: [], mapFeatures: [] };
 }
 

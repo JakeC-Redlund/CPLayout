@@ -6,7 +6,7 @@
   "types": "src/index.ts",
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
-    "test": "tsx src/advisoryScheduling.test.ts && tsx src/geometry.test.ts && tsx src/pathBoundaryDistanceQuality.test.ts && tsx src/advisoryMachineRenderModel.test.ts && tsx src/advisoryPivotPlacement.test.ts && tsx src/advisoryDesignReport.test.ts && tsx src/cornerArmKinematics.test.ts && tsx src/cornerGpsMapAdvisoryReview.test.ts && tsx src/designScenarios.test.ts && tsx src/layoutProof.test.ts && tsx src/layoutScoring.test.ts && tsx src/mapInteraction.test.ts && tsx src/pivotCenterOptimizer.test.ts && tsx src/sampleProjects.test.ts && tsx src/visualLayoutReview.test.ts",
+    "test": "tsx src/crsCalculationSafety.test.ts && tsx src/numericalCalculationSafety.test.ts && tsx src/workflowSafety.test.ts && tsx src/advisoryScheduling.test.ts && tsx src/advisoryFieldPlanReuse.test.ts && tsx src/geometry.test.ts && tsx src/pathBoundaryDistanceQuality.test.ts && tsx src/advisoryMachineRenderModel.test.ts && tsx src/advisoryPivotPlacement.test.ts && tsx src/advisoryDesignReport.test.ts && tsx src/cornerArmKinematics.test.ts && tsx src/cornerGpsMapAdvisoryReview.test.ts && tsx src/designScenarios.test.ts && tsx src/layoutProof.test.ts && tsx src/layoutScoring.test.ts && tsx src/mapInteraction.test.ts && tsx src/pivotCenterOptimizer.test.ts && tsx src/sampleProjects.test.ts && tsx src/visualLayoutReview.test.ts",
     "validate": "npm run typecheck && npm test"
   },
   "dependencies": {

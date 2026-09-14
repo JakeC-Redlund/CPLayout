@@ -1,0 +1,138 @@
+{
+  "schema": "cplayout-selected-browser-evidence-v1",
+  "verifiedAt": "2026-09-14T08:11:47.840Z",
+  "scope": "Selected advisory readiness family only, not full browser inventory. Snapshot predates optimizer reuse, collector fixes, stale import ownership and shared legacy numerical admission.",
+  "snapshot": "/home/cyber/cplayout-integrated-20260914-WgcDsc",
+  "url": "http://127.0.0.1:19011",
+  "bundle": {
+    "filename": "index-d9d4e67a8b4080cd824da865d25368bd.js",
+    "sha256": "48eb64cccba630d01e42f3ba548bf101f2561490c533b5587eb7972be322e698"
+  },
+  "report": {
+    "path": "/home/cyber/cplayout-integrated-20260914-WgcDsc/evidence/advisory-readiness.json",
+    "sha256": "f1315ba6db242028c77ecfccbd15f895ba6464653d874063c14bc265bd384024"
+  },
+  "log": {
+    "path": "/home/cyber/cplayout-integrated-20260914-WgcDsc/evidence/advisory-readiness.log",
+    "sha256": "92e020d46e29e835a785652334fbe34daea052d2a976219f62b33502a3552df3"
+  },
+  "stats": {
+    "startTime": "2026-09-14T07:49:52.654Z",
+    "duration": 1185904.999,
+    "expected": 9,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "cases": [
+    {
+      "title": "placement review applies advisory pivot candidates only after confirmation",
+      "project": "desktop",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration": 94160
+        }
+      ]
+    },
+    {
+      "title": "generated field pivot plan saves advisory machine-zone review features after explicit action",
+      "project": "desktop",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration": 119195
+        }
+      ]
+    },
+    {
+      "title": "advisory cost review uses local assumptions without dirtying geometry",
+      "project": "desktop",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration": 205870
+        }
+      ]
+    },
+    {
+      "title": "placement review applies advisory pivot candidates only after confirmation",
+      "project": "tablet-768",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration": 105551
+        }
+      ]
+    },
+    {
+      "title": "generated field pivot plan saves advisory machine-zone review features after explicit action",
+      "project": "tablet-768",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration": 101658
+        }
+      ]
+    },
+    {
+      "title": "advisory cost review uses local assumptions without dirtying geometry",
+      "project": "tablet-768",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration": 175682
+        }
+      ]
+    },
+    {
+      "title": "placement review applies advisory pivot candidates only after confirmation",
+      "project": "mobile-390",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration": 84189
+        }
+      ]
+    },
+    {
+      "title": "generated field pivot plan saves advisory machine-zone review features after explicit action",
+      "project": "mobile-390",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration": 101854
+        }
+      ]
+    },
+    {
+      "title": "advisory cost review uses local assumptions without dirtying geometry",
+      "project": "mobile-390",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration": 183219
+        }
+      ]
+    }
+  ],
+  "cleanup": "Browser command exited0; repository-owned preview intentionally retained. Previous listeners untouched."
+}

@@ -35,6 +35,7 @@ const ChecklistEvidenceSchema = z.object({
 export const AndroidNativeVerificationReportSchema = z.object({
   reportSchemaVersion: z.literal(ANDROID_NATIVE_REPORT_SCHEMA_VERSION),
   proofTarget: z.literal(ANDROID_NATIVE_PROOF_TARGET),
+  executionScope: z.literal("single_process").optional(),
   generatedAt: z.string(),
   status: ReportStatusSchema,
   device: z.object({
@@ -114,6 +115,70 @@ export const AndroidNativeVerificationReportSchema = z.object({
 
 export type AndroidNativeVerificationReport = z.infer<typeof AndroidNativeVerificationReportSchema>;
 export type AndroidNativeVerificationReportStatus = z.infer<typeof ReportStatusSchema>;
+
+export type AndroidNativeInProcessObservations = Pick<AndroidNativeVerificationReport, "generatedAt">
+& Partial<Pick<AndroidNativeVerificationReport, "sqlite" | "zipRoundTrip">> & {
+  projectRoundTrip?: Omit<AndroidNativeVerificationReport["projectRoundTrip"], "relaunchCompleted" | "listAfterRelaunch">;
+};
+
+export type AndroidNativeInProcessProof = Pick<
+  AndroidNativeVerificationReport,
+  "generatedAt" | "sqlite" | "projectRoundTrip" | "zipRoundTrip" | "checklist"
+> & {
+  executionScope: "single_process";
+  status: "incomplete" | "fail";
+  error?: string;
+};
+
+/** A current-process observation cannot establish a restart or a fresh/upgrade install history. */
+export function createAndroidNativeInProcessProof(input: AndroidNativeInProcessObservations): AndroidNativeInProcessProof {
+  const empty = createAndroidNativeVerificationReportTemplate({ generatedAt: input.generatedAt, packageName: "", commit: "" });
+  const sqlite = input.sqlite ?? empty.sqlite;
+  const projectRoundTrip = { ...(input.projectRoundTrip ?? empty.projectRoundTrip), relaunchCompleted: false, listAfterRelaunch: false };
+  const zipRoundTrip = input.zipRoundTrip ?? empty.zipRoundTrip;
+  const sqliteErrors = input.sqlite ? sqliteSnapshotErrors(sqlite) : [];
+  const projectErrors = input.projectRoundTrip ? projectRoundTripErrors(projectRoundTrip, false) : [];
+  const zipErrors = input.zipRoundTrip ? zipRoundTripErrors(zipRoundTrip) : [];
+  const errors = [...sqliteErrors, ...projectErrors, ...zipErrors];
+  const evidence = (
+    status: AndroidNativeVerificationReport["checklist"]["backendPanel"]["status"],
+    description: string,
+  ): AndroidNativeVerificationReport["checklist"]["backendPanel"] => ({
+    status,
+    observedAt: status === "not_run" ? "" : input.generatedAt,
+    evidence: description,
+  });
+  return {
+    generatedAt: input.generatedAt,
+    executionScope: "single_process",
+    status: errors.length > 0 ? "fail" : "incomplete",
+    ...(errors.length > 0 ? { error: `In-process native observations failed: ${errors.join("; ")}` } : {}),
+    sqlite: { ...sqlite, schemaMigrations: [...sqlite.schemaMigrations], mapPackageColumns: [...sqlite.mapPackageColumns], absentTables: [...sqlite.absentTables] },
+    projectRoundTrip,
+    zipRoundTrip: { ...zipRoundTrip },
+    checklist: {
+      cleanInstallOrUpgradePath: evidence("not_run", "Fresh-install and upgrade paths were not exercised. Launching an installed app does not establish either path."),
+      backendPanel: evidence("not_run", input.projectRoundTrip
+        ? `Backend API reported ${projectRoundTrip.backendLabel}, runtime ${projectRoundTrip.runtime}. The backend panel UI was not inspected.`
+        : "Backend API observations were not collected and the backend panel UI was not inspected."),
+      saveLoadDelete: evidence(!input.projectRoundTrip ? "not_run" : projectErrors.length > 0 ? "fail" : "pass", !input.projectRoundTrip
+        ? "Repository save/list/load/delete observations were not collected."
+        : projectErrors.length > 0
+        ? `In-process save/list/load/delete observations failed: ${projectErrors.join("; ")}`
+        : "Saved, listed, loaded, checked settings, and deleted in one process. No app restart or post-restart load/list was observed."),
+      zipExportImport: evidence(!input.zipRoundTrip ? "not_run" : zipErrors.length > 0 ? "fail" : "pass", !input.zipRoundTrip
+        ? "Archive export/import observations were not collected."
+        : zipErrors.length > 0
+        ? `In-process archive observations failed: ${zipErrors.join("; ")}`
+        : "Exported, imported, checked the archive manifest, and saved the imported project in one process. OS share-sheet and file-picker evidence is separate."),
+      migrationEvidence: evidence(sqliteErrors.length > 0 ? "fail" : "not_run", !input.sqlite
+        ? "The current SQLite snapshot and install/upgrade history were not collected."
+        : sqliteErrors.length > 0
+        ? `Current SQLite snapshot checks failed: ${sqliteErrors.join("; ")}. Install/upgrade history was not observed.`
+        : `Current SQLite snapshot matches schema v${ANDROID_NATIVE_REQUIRED_SQLITE_VERSION}. No pre-upgrade baseline, migration execution history, or clean-install initialization was observed.`),
+    },
+  };
+}
 
 export function createAndroidNativeVerificationReportTemplate(input: {
   generatedAt: string;
@@ -226,10 +291,18 @@ export function parseCompleteAndroidNativeVerificationReport(input: unknown): An
   return report;
 }
 
+export function androidNativeVerificationStatus(report: AndroidNativeVerificationReport): AndroidNativeVerificationReportStatus {
+  const checks = Object.values(report.checklist);
+  if (report.status === "fail" || checks.some((check) => check.status === "fail")) return "fail";
+  if (report.status === "blocked" || checks.some((check) => check.status === "blocked")) return "blocked";
+  return androidNativeVerificationCompletionErrors(report).length === 0 ? "pass" : "incomplete";
+}
+
 export function androidNativeVerificationCompletionErrors(report: AndroidNativeVerificationReport): string[] {
   const errors: string[] = [];
 
   if (report.status !== "pass") errors.push("status must be pass");
+  if (report.executionScope === "single_process") errors.push("single-process evidence cannot qualify restart or fresh-install/upgrade verification");
   for (const [label, value] of Object.entries({
     generatedAt: report.generatedAt,
     adbSerial: report.device.adbSerial,
@@ -242,12 +315,6 @@ export function androidNativeVerificationCompletionErrors(report: AndroidNativeV
     buildType: report.app.buildType,
     commit: report.app.commit,
     packagePath: report.app.packagePath,
-    backendLabel: report.projectRoundTrip.backendLabel,
-    runtime: report.projectRoundTrip.runtime,
-    loadedProjectId: report.projectRoundTrip.loadedProjectId,
-    loadedProjectName: report.projectRoundTrip.loadedProjectName,
-    exportedFilename: report.zipRoundTrip.exportedFilename,
-    importedProjectId: report.zipRoundTrip.importedProjectId,
     shareSheetEvidence: report.osFileUi.shareSheetEvidence,
     shareSheetScreenshotPath: report.osFileUi.shareSheetScreenshotPath,
     shareSheetXmlPath: report.osFileUi.shareSheetXmlPath,
@@ -263,38 +330,9 @@ export function androidNativeVerificationCompletionErrors(report: AndroidNativeV
     if (value.trim().length === 0) errors.push(`${label} is required`);
   }
 
-  if (report.projectRoundTrip.runtime !== "native") errors.push("runtime must be native");
-  if (!/sqlite/i.test(report.projectRoundTrip.backendLabel)) errors.push("backendLabel must identify SQLite");
-  if (report.sqlite.schemaVersion !== ANDROID_NATIVE_REQUIRED_SQLITE_VERSION) {
-    errors.push(`SQLite schemaVersion must be ${ANDROID_NATIVE_REQUIRED_SQLITE_VERSION}`);
-  }
-  if (report.sqlite.pragmaUserVersion !== ANDROID_NATIVE_REQUIRED_SQLITE_VERSION) {
-    errors.push(`PRAGMA user_version must be ${ANDROID_NATIVE_REQUIRED_SQLITE_VERSION}`);
-  }
-
-  for (const migrationId of ANDROID_NATIVE_REQUIRED_MIGRATIONS) {
-    if (!report.sqlite.schemaMigrations.includes(migrationId)) errors.push(`schema migration ${migrationId} is missing`);
-  }
-  for (const columnName of ANDROID_NATIVE_REQUIRED_MAP_PACKAGE_COLUMNS) {
-    if (!report.sqlite.mapPackageColumns.includes(columnName)) errors.push(`map_packages.${columnName} evidence is missing`);
-  }
-  for (const tableName of ANDROID_NATIVE_REQUIRED_ABSENT_TABLES) {
-    if (!report.sqlite.absentTables.includes(tableName)) errors.push(`retired table ${tableName} absence evidence is missing`);
-  }
-  if (!report.sqlite.geometryRowsPopulated) errors.push("geometry rows must be populated after save");
-
-  for (const [label, value] of Object.entries(report.projectRoundTrip)) {
-    if (typeof value === "boolean" && !value) errors.push(`projectRoundTrip.${label} must be true`);
-  }
-  if (report.projectRoundTrip.fieldBoundaryPointCount < 3) errors.push("fieldBoundaryPointCount must be at least 3");
-  if (report.projectRoundTrip.obstacleCount < 0) errors.push("obstacleCount must be nonnegative");
-  if (report.projectRoundTrip.surveyPointCount < 0) errors.push("surveyPointCount must be nonnegative");
-
-  if (report.zipRoundTrip.exportedBytes <= 0) errors.push("exportedBytes must be greater than zero");
-  if (!/^[a-fA-F0-9]{64}$/.test(report.zipRoundTrip.exportedSha256)) errors.push("exportedSha256 must be a SHA-256 hex digest");
-  for (const [label, value] of Object.entries(report.zipRoundTrip)) {
-    if (typeof value === "boolean" && !value) errors.push(`zipRoundTrip.${label} must be true`);
-  }
+  errors.push(...sqliteSnapshotErrors(report.sqlite));
+  errors.push(...projectRoundTripErrors(report.projectRoundTrip));
+  errors.push(...zipRoundTripErrors(report.zipRoundTrip));
 
   if (!report.osFileUi.shareSheetOpened) errors.push("osFileUi.shareSheetOpened must be true");
   if (!report.osFileUi.documentsPickerOpened) errors.push("osFileUi.documentsPickerOpened must be true");
@@ -306,6 +344,57 @@ export function androidNativeVerificationCompletionErrors(report: AndroidNativeV
     if (check.evidence.trim().length === 0) errors.push(`checklist.${label}.evidence is required`);
   }
 
+  return errors;
+}
+
+function sqliteSnapshotErrors(sqlite: AndroidNativeVerificationReport["sqlite"]): string[] {
+  const errors: string[] = [];
+  if (sqlite.schemaVersion !== ANDROID_NATIVE_REQUIRED_SQLITE_VERSION) {
+    errors.push(`SQLite schemaVersion must be ${ANDROID_NATIVE_REQUIRED_SQLITE_VERSION}`);
+  }
+  if (sqlite.pragmaUserVersion !== ANDROID_NATIVE_REQUIRED_SQLITE_VERSION) {
+    errors.push(`PRAGMA user_version must be ${ANDROID_NATIVE_REQUIRED_SQLITE_VERSION}`);
+  }
+
+  for (const migrationId of ANDROID_NATIVE_REQUIRED_MIGRATIONS) {
+    if (!sqlite.schemaMigrations.includes(migrationId)) errors.push(`schema migration ${migrationId} is missing`);
+  }
+  for (const columnName of ANDROID_NATIVE_REQUIRED_MAP_PACKAGE_COLUMNS) {
+    if (!sqlite.mapPackageColumns.includes(columnName)) errors.push(`map_packages.${columnName} evidence is missing`);
+  }
+  for (const tableName of ANDROID_NATIVE_REQUIRED_ABSENT_TABLES) {
+    if (!sqlite.absentTables.includes(tableName)) errors.push(`retired table ${tableName} absence evidence is missing`);
+  }
+  if (!sqlite.geometryRowsPopulated) errors.push("geometry rows must be populated after save");
+  return errors;
+}
+
+function projectRoundTripErrors(project: AndroidNativeVerificationReport["projectRoundTrip"], requireRelaunch = true): string[] {
+  const errors: string[] = [];
+  for (const label of ["backendLabel", "runtime", "loadedProjectId", "loadedProjectName"] as const) {
+    if (!project[label].trim()) errors.push(`${label} is required`);
+  }
+  if (project.runtime !== "native") errors.push("runtime must be native");
+  if (!/sqlite/i.test(project.backendLabel)) errors.push("backendLabel must identify SQLite");
+  for (const [label, value] of Object.entries(project)) {
+    if (!requireRelaunch && (label === "relaunchCompleted" || label === "listAfterRelaunch")) continue;
+    if (typeof value === "boolean" && !value) errors.push(`projectRoundTrip.${label} must be true`);
+  }
+  if (!Number.isInteger(project.fieldBoundaryPointCount) || project.fieldBoundaryPointCount < 3) errors.push("fieldBoundaryPointCount must be an integer of at least 3");
+  if (!Number.isInteger(project.obstacleCount) || project.obstacleCount < 0) errors.push("obstacleCount must be a nonnegative integer");
+  if (!Number.isInteger(project.surveyPointCount) || project.surveyPointCount < 0) errors.push("surveyPointCount must be a nonnegative integer");
+  return errors;
+}
+
+function zipRoundTripErrors(zip: AndroidNativeVerificationReport["zipRoundTrip"]): string[] {
+  const errors: string[] = [];
+  if (!zip.exportedFilename.trim()) errors.push("exportedFilename is required");
+  if (!zip.importedProjectId.trim()) errors.push("importedProjectId is required");
+  if (!Number.isInteger(zip.exportedBytes) || zip.exportedBytes <= 0) errors.push("exportedBytes must be a positive integer");
+  if (!/^[a-fA-F0-9]{64}$/.test(zip.exportedSha256)) errors.push("exportedSha256 must be a SHA-256 hex digest");
+  for (const [label, value] of Object.entries(zip)) {
+    if (typeof value === "boolean" && !value) errors.push(`zipRoundTrip.${label} must be true`);
+  }
   return errors;
 }
 

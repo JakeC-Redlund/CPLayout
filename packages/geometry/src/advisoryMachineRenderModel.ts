@@ -1,3 +1,4 @@
+import { assertMetricCalculationCrs } from "@cplayout/core";
 import * as polygonClipping from "polygon-clipping";
 
 import type {
@@ -41,7 +42,6 @@ type CompleteAdvisoryMachineInstanceBuild = AdvisoryMachineInstanceBuild & {
   instance: AdvisoryMachineRenderInstance;
 };
 
-const DEFAULT_END_GUN_THROW_METERS = 30.48;
 const DEFAULT_TOWER_SPAN_METERS = 54;
 const DEFAULT_VFLEX_WHEEL_TRACK_EXTENSION_METERS = 66;
 const DEFAULT_VFLEX_OVERHANG_EXTENSION_METERS = 25;
@@ -186,6 +186,7 @@ export function* buildAdvisoryMachineRenderModelSteps(
   project: PivotProject,
   options: AdvisoryMachineRenderOptions = {},
 ): Calculation<AdvisoryMachineRenderModel> {
+  assertMetricCalculationCrs(project.projectCrs);
   const sourceRefs = options.sourceRefs ?? DEFAULT_ADVISORY_MACHINE_RENDER_SOURCE_REFS;
   const preferredFeatures = preferredMachineOutlineFeatures(project, options);
   const maxInstances = Math.max(1, Math.floor(options.maxInstances ?? 2));
@@ -284,7 +285,7 @@ function instanceFromFeature(
       ...(sweep.mode === "partial_circle"
         ? [`${feature.name} is rendered as a part-circle because the source label or ordered outline geometry indicates partial sweep evidence.`]
         : []),
-      ...(machine.cornerArm
+      ...(machine.cornerArm?.id === "public-vflex-advisory-fallback"
         ? [`${feature.name} uses a public Valley VFlex advisory corner-arm fallback because no field-specific CornerGPSMap/FLT preset was selected.`]
         : []),
     ],
@@ -304,15 +305,15 @@ function buildRenderMachine(
   options: AdvisoryMachineRenderOptions,
 ): PivotMachine {
   const spanLengthsMeters = spanSetForRadius(radiusMeters, averageSpanLength(projectMachine) ?? DEFAULT_TOWER_SPAN_METERS);
-  const includeCornerArm = options.includePublicVflexFallbackCornerArm !== false;
+  const includeCornerArm = options.includePublicVflexFallbackCornerArm === true;
   return {
     ...projectMachine,
     id: `${projectMachine.id}-${feature.id}-advisory-render`,
     name: `${feature.name} advisory render machine`,
     spanLengthsMeters,
     overhangMeters: 0,
-    endGunThrowMeters: Math.max(0, options.endGunThrowMeters ?? DEFAULT_END_GUN_THROW_METERS),
-    endGunAngleRanges: [],
+    endGunThrowMeters: Math.max(0, options.endGunThrowMeters ?? projectMachine.endGunThrowMeters),
+    endGunAngleRanges: projectMachine.endGunAngleRanges ?? [],
     sweep,
     cornerArm: includeCornerArm ? publicVflexFallbackCornerArmConfig() : projectMachine.cornerArm,
   };
@@ -353,12 +354,18 @@ function* surfaceForInstance(
   };
   const radius = machineRadiusMeters(instance.machine);
   const standardRaw = toClipMultiPolygon([[createSectorPolygon(instance.pivotCenter, radius, instance.sweep)]]);
-  const endGunRaw = toClipMultiPolygon(createAnnularSector(
+  let endGunRaw = toClipMultiPolygon(createAnnularSector(
     instance.pivotCenter,
     radius,
     radius + Math.max(0, instance.machine.endGunThrowMeters),
     instance.sweep,
   ));
+  if (endGunRaw.length > 0 && (instance.machine.endGunAngleRanges?.length ?? 0) > 0) {
+    const ranges = toClipMultiPolygon(instance.machine.endGunAngleRanges!.map((range) => [createSectorPolygon(
+      instance.pivotCenter, radius + instance.machine.endGunThrowMeters, { mode: "partial_circle", ...range },
+    )]));
+    endGunRaw = polygonClipping.intersection(endGunRaw, ranges) as ClipMultiPolygon;
+  }
   const cornerArmPath = yield* evaluateCornerArmPathSteps(variantProject);
   yield;
   const cornerArmRaw = cornerArmPath ? toClipMultiPolygon(cornerArmPath.extensionEnvelope) : [];

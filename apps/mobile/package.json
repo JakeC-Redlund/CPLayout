@@ -10,8 +10,8 @@
     "web": "expo start --web --host localhost",
     "android": "expo run:android",
     "preexport:web": "tsx ../../tools/prepareMapLibreAssets.ts",
-    "export:web": "expo export --platform web --clear",
-    "test": "tsx src/advisory/advisoryJob.test.ts && tsx src/navigation/navigationViewModels.test.ts && tsx src/navigation/projectTreeViewModel.test.ts && tsx src/gnss/webSerialTransport.test.ts && tsx src/gnss/webSerialTransportSafety.test.ts && tsx src/gnss/webSerialSessionOwner.test.ts && tsx src/gnss/captureDraft.test.ts",
+    "export:web": "expo export --platform web --clear --max-workers 2",
+    "test": "tsx src/projectOpenRequest.test.ts && tsx src/advisory/advisoryJob.test.ts && tsx src/navigation/navigationViewModels.test.ts && tsx src/navigation/projectTreeViewModel.test.ts && tsx src/gnss/webSerialTransport.test.ts && tsx src/gnss/webSerialTransportSafety.test.ts && tsx src/gnss/webSerialSessionOwner.test.ts && tsx src/gnss/captureDraft.test.ts",
     "typecheck": "tsc --noEmit",
     "validate": "npm run typecheck"
   },

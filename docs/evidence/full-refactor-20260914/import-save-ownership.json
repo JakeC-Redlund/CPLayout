@@ -1,0 +1,30 @@
+{
+  "schema": "cplayout-import-save-ownership-evidence-v1",
+  "verifiedAt": "2026-09-14T08:22:30.318Z",
+  "scope": "Actual App functions; stubbed UI setters, picker/parser and repository; no React/storage runtime.",
+  "reviewedSourceSha256": {
+    "apps/mobile/App.tsx": "d4e928c23a26dfa6a0e0bd10e03370aa74315efc06d5d6843c46ec7b85296d83",
+    "apps/mobile/src/projectOpenRequest.ts": "8d4da513010971937676b8bd4fd8620497c5be39edc7e544f347e4392a0a5e73"
+  },
+  "exitCode": 0,
+  "observedCases": [
+    "accepted-save-acknowledges-revision-zero",
+    "returned-false-visible-and-normal-retry-updates-status",
+    "rejected-import-and-retry-do-not-poison-queue",
+    "newer-edit-remains-dirty-after-import-ack",
+    "new-generation-ignores-old-success",
+    "new-generation-ignores-old-false",
+    "new-generation-ignores-old-rejection",
+    "normal-import-edit-writes-serialize-in-order",
+    "cancelled-read-never-queues-save"
+  ],
+  "rawArtifacts": {
+    "/tmp/cplayout-mobile-import-generation-queue-results.json": "1063f4807c37974c6dd0faf60ba98f1dafab1a7ec1f2590ebb4db3ee7de56139",
+    "/tmp/cplayout-mobile-import-generation-queue-probe.cjs": "c32ad7da1f3b4c875b80c8ad1d04e5b01f57145b9bd5e03bccd60a4fb1a1e2e7"
+  },
+  "limits": [
+    "Source-function probes only; UI setters, picker/parser and repository callbacks are stubbed.",
+    "No browser, React lifecycle, native or storage runtime proof.",
+    "The 11 browser scenarios and 33 viewport cases were not executed by this reviewer."
+  ]
+}

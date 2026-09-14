@@ -1,3 +1,4 @@
+import { assertMetricCalculationCrs } from "@cplayout/core";
 import type { AdvisorySourceReference, LayoutResult, PivotProject, ProjectMapFeature, XY } from "@cplayout/core";
 
 import { buildAdvisoryGeneratedMultiPivotScenarioReview } from "./advisoryPivotPlacement";
@@ -89,6 +90,7 @@ export function auditGeneratedFieldPivotReviewZones(
   project: PivotProject,
   fieldPivotPlan: AdvisoryFieldPivotPlan,
 ): AdvisoryGeneratedReviewZoneAudit {
+  assertMetricCalculationCrs(project.projectCrs);
   const savedFeatures = (project.mapFeatures ?? []).filter(isGeneratedFieldPivotZoneFeature);
   const usedFeatureIds = new Set<string>();
   const planItems = fieldPivotPlan.candidates.map((candidate): AdvisoryGeneratedReviewZoneAuditItem => {
@@ -185,6 +187,7 @@ export function auditGeneratedFieldPivotReviewZones(
 }
 
 export function buildAdvisoryDesignReport(input: AdvisoryDesignReportInput): AdvisoryDesignReport {
+  assertMetricCalculationCrs(input.project.projectCrs);
   const generatedAt = input.generatedAt ?? new Date().toISOString();
   const readiness: AdvisoryDesignReportReadiness = input.project.fieldBoundary.length >= 3
     ? "ready_for_review"

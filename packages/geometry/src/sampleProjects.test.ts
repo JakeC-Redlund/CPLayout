@@ -102,7 +102,15 @@ assert.equal(partialSweep.metrics.outsideFieldAcres, 0);
 
 const endGunArc = evaluateLayout(endGunShutoffArcSampleProject);
 assert.equal(endGunArc.metrics.obstacleConflictCount, 0);
-assert.equal(endGunArc.metrics.hardMechanicalConflictCount, 0);
+// Shutting off spray does not remove the machine or the shed's physical clearance buffer.
+assert.equal(endGunArc.metrics.hardMechanicalConflictCount, 1);
+assert.equal(endGunArc.metrics.towerTrackConflictCount, 0);
+assert.deepEqual(endGunArc.mechanicalConflicts.map(({ obstacleId, conflictType }) => ({ obstacleId, conflictType })), [
+  { obstacleId: "building-pad", conflictType: "machine_path" },
+]);
+const shedCornerDistance = Math.hypot(501542 - endGunShutoffArcSampleProject.pivotCenter.x, 4506522 - endGunShutoffArcSampleProject.pivotCenter.y);
+assert.ok(shedCornerDistance > 198.5, "the unbuffered physical radius remains clear");
+assert.ok(shedCornerDistance < 198.5 + 8 + 12, "machine and shed clearance buffers overlap");
 assert.ok(endGunArc.metrics.endGunAcres > 1);
 assert.ok((endGunShutoffArcSampleProject.machine.endGunAngleRanges?.length ?? 0) > 0);
 

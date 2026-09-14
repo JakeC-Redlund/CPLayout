@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { DOMParser, XMLSerializer } from "@xmldom/xmldom";
 
 import { projectXyToLonLat } from "./coordinates";
 import { exportProjectGoogleEarthKml, importGoogleEarthKmlToProject } from "./projectKml";
@@ -300,6 +301,48 @@ const importedExtendedMapFeatureKml = importGoogleEarthKmlToProject(sampleProjec
 assert.equal(importedExtendedMapFeatureKml.importedMapFeatureCount, 2);
 assert.equal(importedExtendedMapFeatureKml.project.mapFeatures?.at(-2)?.geometry.type, "Polygon");
 assert.equal(importedExtendedMapFeatureKml.project.mapFeatures?.at(-1)?.geometry.type, "Circle");
+
+for (const field of ["centerX", "centerY", "radiusMeters"]) {
+  const xml = new DOMParser().parseFromString(extendedMapFeatureKml.kml, "application/xml");
+  const data = Array.from(xml.getElementsByTagName("Data")).find((element) => element.getAttribute("name") === field);
+  assert.ok(data);
+  const value = data.getElementsByTagName("value")[0];
+  assert.ok(value);
+  value.textContent = " ";
+  const imported = importGoogleEarthKmlToProject({ ...sampleProject, mapFeatures: [] }, new XMLSerializer().serializeToString(xml), {
+    selectedItemIds: ["end-gun-circle-a"],
+  });
+  assert.equal(imported.project.mapFeatures?.[0]?.geometry.type, "LineString", `Empty ${field} must not become a zero coordinate/radius.`);
+}
+
+const metricMeasurementKml = exportProjectGoogleEarthKml({
+  ...sampleProject,
+  mapFeatures: [{ id: "metric-line", name: "Measurement line", kind: "measurement_line",
+    confidence: "imagery_digitized", geometry: { type: "LineString", vertices: obstacleRing.slice(0, 2) } }],
+}).kml;
+for (const projectCrs of ["EPSG:32613", "EPSG:3857"]) {
+  const destination = { ...sampleProject, projectCrs, mapFeatures: [] };
+  const before = JSON.stringify(destination);
+  const imported = importGoogleEarthKmlToProject(destination, metricMeasurementKml, { selectedItemIds: ["metric-line"] });
+  const measured = imported.project.mapFeatures?.find((feature) => feature.id === "metric-line");
+  assert.ok(measured);
+  if (projectCrs === "EPSG:3857") assert.equal(measured.properties?.lengthMeters, null);
+  else assert.equal(typeof measured.properties?.lengthMeters, "number");
+  assert.equal(JSON.stringify(destination), before);
+}
+
+for (const projectCrs of ["EPSG:26741", "LOCAL:FIELD", "EPSG:3857"]) {
+  const destination = { ...importedExtendedMapFeatureKml.project, projectCrs };
+  assert.throws(() => exportProjectGoogleEarthKml(destination), /Metric planar calculations unavailable/);
+}
+
+for (const projectCrs of ["EPSG:32614", "EPSG:3857"]) {
+  const imported = importGoogleEarthKmlToProject({ ...sampleProject, projectCrs, mapFeatures: [] }, extendedMapFeatureKml.kml, {
+    selectedItemIds: ["end-gun-circle-a"],
+  });
+  const converted = imported.project.mapFeatures?.find((feature) => feature.id === "end-gun-circle-a");
+  assert.equal(converted?.geometry.type, "LineString", "Raw source-grid circle centers must not be reused in another grid.");
+}
 
 const renamedUtility = exportProjectGoogleEarthKml({
   ...sampleProject,

@@ -1,0 +1,140 @@
+{
+  "recordedAt": "2026-09-14T07:44:38.878Z",
+  "sourceSnapshot": "/home/cyber/cplayout-native-resources-20260914-MF2Wc5",
+  "status": "fail",
+  "executionScope": "single_process",
+  "sqlite": {
+    "schemaVersion": 11,
+    "pragmaUserVersion": 11,
+    "schemaMigrations": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+    ],
+    "mapPackageColumns": [
+      "tile_content_type",
+      "tile_scheme",
+      "tilejson_url",
+      "tile_url_templates_json",
+      "checksum_sha256",
+      "install_status",
+      "vector_overlay_json",
+      "imagery_provenance_json"
+    ],
+    "absentTables": [
+      "layout_evidence",
+      "model_recommendations",
+      "layout_decisions"
+    ],
+    "geometryRowsPopulated": true
+  },
+  "projectRoundTrip": {
+    "backendLabel": "Expo SQLite",
+    "runtime": "native",
+    "sampleProjectSaved": true,
+    "loadedProjectId": "cplayout-android-native-schema-v11-proof",
+    "loadedProjectName": "CPLayout Android Native Schema v11 Proof",
+    "fieldBoundaryPointCount": 6,
+    "obstacleCount": 2,
+    "surveyPointCount": 2,
+    "settingsMatched": true,
+    "deleteConfirmed": true,
+    "relaunchCompleted": false,
+    "listAfterRelaunch": false
+  },
+  "zipRoundTrip": {
+    "exportedFilename": "cplayout-android-native-schema-v11-proof.center-pivot.zip",
+    "exportedBytes": 24078,
+    "exportedSha256": "ccf2174d9585f9e81d61014962f5ed1d448efbfe2e0e80f324a57ba74e007227",
+    "importedProjectId": "cplayout-android-native-schema-v11-proof",
+    "manifestJsonPresent": true,
+    "projectJsonPresent": true,
+    "manifestProjectIdMatched": true,
+    "manifestProjectCrsMatched": true,
+    "savedImportedProject": true
+  },
+  "osFileUi": {
+    "shareSheetOpened": false,
+    "documentsPickerOpened": false,
+    "receivedBytesVerified": false,
+    "selectedFilenameVerified": false,
+    "reason": "Recorded ANR/onboarding blocked navigation. Host fixture filename is not selection evidence."
+  },
+  "cleanup": {
+    "at": "2026-09-14T07:42:12.360Z",
+    "device": "emulator-5570",
+    "initialFullLogcatAttempt": "timeout_not_pass",
+    "steps": [
+      {
+        "name": "bounded_logcat",
+        "status": 0
+      },
+      {
+        "name": "reverse_remove",
+        "status": 0
+      },
+      {
+        "name": "emulator_console_kill",
+        "status": 0,
+        "stdout": "OK: killing emulator, bye bye\r\nOK\r\n"
+      }
+    ],
+    "processExitVerified": true,
+    "processExitVerifiedAt": "2026-09-14T07:43:11.769Z",
+    "adbDevices": "List of devices attached\n\n",
+    "originalAvdComparison": "diff_-qr_exit_0",
+    "adbServer": "left_running_no_device_attached",
+    "originalRegistrationComparison": "cmp_exit_0",
+    "finishedAt": "2026-09-14T07:43:52.903Z"
+  },
+  "artifacts": [
+    {
+      "path": "/home/cyber/cplayout-native-proof-20260914-rMTCEq/native-runtime/android-native-verification-20260914-072834073Z.json",
+      "sha256": "340482ca205f4e9dd5b622b573aa9fbe30f9ee213d634538fdd121bb1ed03a37"
+    },
+    {
+      "path": "/home/cyber/cplayout-native-proof-20260914-rMTCEq/apk-identity.json",
+      "sha256": "2f6f241e477137ce1663f7e571fa3e34276ae92d3d746e71bce368eae3c3f8eb"
+    },
+    {
+      "path": "/home/cyber/cplayout-native-proof-20260914-rMTCEq/installed-apk-identity.json",
+      "sha256": "2675f98b8d42db4000b7300fb1fd25aefd1336f07a3f965e1a9483ff7188c4bc"
+    },
+    {
+      "path": "/home/cyber/cplayout-native-proof-20260914-rMTCEq/served-bundle-identity.json",
+      "sha256": "b7059ecd8a4c5da126e4e64cee80b6a131d70eb4347c4faa5ae5ead417210731"
+    },
+    {
+      "path": "/home/cyber/cplayout-native-proof-20260914-rMTCEq/native-cleanup.json",
+      "sha256": "3b9e8eff3041ce540f65f1a0b54f4544dff354660150425f5528fb0221eb70f4"
+    },
+    {
+      "path": "/home/cyber/cplayout-native-proof-20260914-rMTCEq/native-runtime/android-os-file-ui-failure-20260914-072834073Z.png",
+      "sha256": "8342c2e029ce069f6095a521fc8e54925120d6686e149d79cbb742f08044b3c2"
+    },
+    {
+      "path": "/home/cyber/cplayout-native-proof-20260914-rMTCEq/native-runtime/android-os-file-ui-failure-20260914-072834073Z.xml",
+      "sha256": "af2693e0d25e33fb6b7975a8fb0878e6054d9fc743e4248788a879eb8b557009"
+    },
+    {
+      "path": "/home/cyber/cplayout-native-proof-20260914-rMTCEq/native-ui-file-menu.png",
+      "sha256": "3b9101e21ad4b1013d4a36698c3da35066dbdecc1432477ed756da3635fec9b4"
+    }
+  ],
+  "unverified": [
+    "Process restart and upgrade history",
+    "OS picked bytes and exported-to-imported ZIP identity",
+    "Consumed device JavaScript bundle identity",
+    "Native MapLibre and gesture parity",
+    "Physical receiver, relay and strict less-than-0.10-m 3D accuracy"
+  ],
+  "collectorReview": "Separate repair required for broad OS classifiers, stale XML, disabled taps and host-derived selected-file fields."
+}

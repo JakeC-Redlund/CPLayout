@@ -1,3 +1,4 @@
+import { assertLayoutResultFinite, assertMetricCalculationCrs, assertProjectCalculationSafe, PROJECT_CALCULATION_NUMERIC_BUDGET } from "@cplayout/core";
 import * as polygonClipping from "polygon-clipping";
 
 import {
@@ -15,14 +16,15 @@ import {
   TowerPoint,
   XY,
 } from "@cplayout/core";
-import { assertProjectedCrs, feetToMeters, squareMetersToAcres } from "@cplayout/core";
+import { feetToMeters, squareMetersToAcres } from "@cplayout/core";
 import { Calculation, completeCalculation } from "./calculation";
 
 type ClipPosition = [number, number];
 type ClipPolygon = ClipPosition[][];
 type ClipMultiPolygon = ClipPolygon[];
 
-const DEFAULT_SEGMENTS = 288;
+const DEFAULT_SEGMENTS: number = PROJECT_CALCULATION_NUMERIC_BUDGET.defaultSegments;
+export const GEOMETRY_TOLERANCE_METERS: number = PROJECT_CALCULATION_NUMERIC_BUDGET.toleranceMeters;
 const EPSILON_AREA = 0.000001;
 export const DEFAULT_BOUNDARY_EPSILON_SQUARE_METERS = 0.01;
 
@@ -204,11 +206,18 @@ export function endGunRadiusMeters(machine: PivotMachine): number {
 
 export function polygonAreaSquareMeters(ring: XY[]): number {
   if (ring.length < 3) return 0;
+  const origin = ring[0];
   let sum = 0;
+  let compensation = 0;
+  // Local products avoid cancellation of large projected-coordinate products.
   for (let i = 0; i < ring.length; i += 1) {
     const a = ring[i];
     const b = ring[(i + 1) % ring.length];
-    sum += a.x * b.y - b.x * a.y;
+    const term = (a.x - origin.x) * (b.y - origin.y) - (b.x - origin.x) * (a.y - origin.y);
+    const corrected = term - compensation;
+    const next = sum + corrected;
+    compensation = (next - sum) - corrected;
+    sum = next;
   }
   return Math.abs(sum) / 2;
 }
@@ -247,6 +256,36 @@ export function createSectorPolygon(center: XY, radiusMeters: number, sweep: Piv
   ];
 }
 
+export function createConservativeSectorPolygon(center: XY, radiusMeters: number, sweep: PivotSweep): XY[] {
+  assertPositive(radiusMeters, "radiusMeters");
+  const segments = Math.max(DEFAULT_SEGMENTS, Math.ceil(Math.PI / Math.acos(radiusMeters / (radiusMeters + GEOMETRY_TOLERANCE_METERS))));
+  if (!Number.isSafeInteger(segments) || segments > PROJECT_CALCULATION_NUMERIC_BUDGET.maxConservativeSegments) {
+    throw new RangeError("Conservative coverage exceeds the numerical geometry budget.");
+  }
+  // Circumscribe, rather than inscribe, the true arc. Display polygons remain unchanged.
+  return createSectorPolygon(center, radiusMeters / Math.cos(Math.PI / segments), sweep, segments);
+}
+
+function mechanicalSweepClip(project: PivotProject, bufferMeters: number): ClipMultiPolygon {
+  const center = project.pivotCenter;
+  const radius = machineRadiusMeters(project.machine);
+  const sweep = project.machine.sweep;
+  let clip = toClipMultiPolygon([[createConservativeSectorPolygon(center, radius + bufferMeters, sweep)]]);
+  if (sweep.mode === "partial_circle") {
+    for (const angle of [sweep.startAngleDegrees, sweep.stopAngleDegrees]) {
+      const end = polarOffset(center, radius, angle);
+      clip = polygonClipping.union(clip,
+        toClipMultiPolygon([[lineSegmentBufferPolygon(center, end, bufferMeters)]]),
+        toClipMultiPolygon([[createConservativeSectorPolygon(end, bufferMeters, { mode: "full_circle" })]]),
+      ) as ClipMultiPolygon;
+    }
+    clip = polygonClipping.union(clip,
+      toClipMultiPolygon([[createConservativeSectorPolygon(center, bufferMeters, { mode: "full_circle" })]]),
+    ) as ClipMultiPolygon;
+  }
+  return clip;
+}
+
 export function createAnnularSector(center: XY, innerRadius: number, outerRadius: number, sweep: PivotSweep): MultiPolygonXY {
   if (outerRadius <= innerRadius) return [];
   if (innerRadius <= 0) return [[createSectorPolygon(center, outerRadius, sweep)]];
@@ -268,7 +307,8 @@ export function calculateTowerPoints(center: XY, machine: PivotMachine, angleDeg
 }
 
 export function evaluateLayout(project: PivotProject): LayoutResult {
-  assertProjectedCrs(project.projectCrs);
+  assertMetricCalculationCrs(project.projectCrs);
+  assertProjectCalculationSafe(project);
 
   const coverage = calculateWetCoverage(project);
   const field = toClipMultiPolygon([[project.fieldBoundary]]);
@@ -321,7 +361,7 @@ export function evaluateLayout(project: PivotProject): LayoutResult {
     ? project.machine.sweep.startAngleDegrees
     : 45;
 
-  return {
+  const result: LayoutResult = {
     metrics: {
       fieldAcres: squareMetersToAcres(fieldArea),
       irrigatedAcres: squareMetersToAcres(allowedArea),
@@ -346,20 +386,22 @@ export function evaluateLayout(project: PivotProject): LayoutResult {
     towers: calculateTowerPoints(project.pivotCenter, project.machine, towerAngle),
     warnings,
   };
+  assertLayoutResultFinite(result);
+  return result;
 }
 
 export function evaluateMechanicalConflicts(project: PivotProject): LayoutMechanicalConflict[] {
+  assertMetricCalculationCrs(project.projectCrs);
+  assertProjectCalculationSafe(project);
   const hardObstacles = project.obstacles.filter((obstacle) => obstacle.hardConflict);
   if (hardObstacles.length === 0) return [];
 
-  const machineRadius = machineRadiusMeters(project.machine);
-  const towerBuffer = Math.max(0.5, project.machine.towerClearanceBufferMeters);
   const machineBuffer = Math.max(0.5, project.machine.machineClearanceBufferMeters);
-  const machinePath = createBufferedPathClip(project.pivotCenter, machineRadius, machineBuffer, project.machine.sweep);
   const towerTracks = towerTrackClips(project);
   const conflicts: LayoutMechanicalConflict[] = [];
 
   for (const obstacle of hardObstacles) {
+    const machinePath = mechanicalSweepClip(project, machineBuffer + Math.max(0, obstacle.bufferMeters));
     const machinePathArea = obstacleIntersectionArea(machinePath, obstacle);
     if (machinePathArea > EPSILON_AREA) {
       conflicts.push(mechanicalConflict(obstacle, "machine_path", machinePathArea));
@@ -379,7 +421,11 @@ export function buildLayoutPathOverlays(project: PivotProject, options: LayoutPa
 }
 
 export function* buildLayoutPathOverlaysSteps(project: PivotProject, options: LayoutPathOverlayOptions = {}): Calculation<LayoutPathOverlay[]> {
-  assertProjectedCrs(project.projectCrs);
+  assertMetricCalculationCrs(project.projectCrs);
+  assertProjectCalculationSafe(project, {
+    cornerArmPreview: options.cornerArmPreview,
+    requiredBoundaryClearanceMeters: options.settings?.layoutReview.requiredBoundaryClearanceMeters,
+  });
 
   const field = toClipMultiPolygon([[project.fieldBoundary]]);
   const clipCenterlines = (segments: XY[][]): XY[][] => clipCenterlineSegmentsToField(segments, project.fieldBoundary);
@@ -505,7 +551,11 @@ export function evaluateCornerArmPath(project: PivotProject, options: LayoutPath
 }
 
 export function* evaluateCornerArmPathSteps(project: PivotProject, options: LayoutPathOverlayOptions = {}): Calculation<CornerArmPathEvaluation | null> {
-  assertProjectedCrs(project.projectCrs);
+  assertMetricCalculationCrs(project.projectCrs);
+  assertProjectCalculationSafe(project, {
+    cornerArmPreview: options.cornerArmPreview,
+    requiredBoundaryClearanceMeters: options.settings?.layoutReview.requiredBoundaryClearanceMeters,
+  });
 
   const config = project.machine.cornerArm ?? options.cornerArmPreview;
   if (!config) return null;
@@ -591,7 +641,8 @@ export function evaluateMachineBoundaryClearance(
   project: PivotProject,
   settings?: Pick<ProjectSettings, "layoutReview">,
 ): MachineBoundaryClearanceRow[] {
-  assertProjectedCrs(project.projectCrs);
+  assertMetricCalculationCrs(project.projectCrs);
+  assertProjectCalculationSafe(project, { requiredBoundaryClearanceMeters: settings?.layoutReview.requiredBoundaryClearanceMeters });
 
   const requiredBoundaryClearanceMeters = Math.max(0, settings?.layoutReview?.requiredBoundaryClearanceMeters ?? 0);
   const rows: MachineBoundaryClearanceRow[] = [];
@@ -645,9 +696,13 @@ export function validateWetCoverageWithinField(
   project: PivotProject,
   epsilonSquareMeters = DEFAULT_BOUNDARY_EPSILON_SQUARE_METERS,
 ): BoundaryConstraintResult {
-  assertProjectedCrs(project.projectCrs);
+  assertMetricCalculationCrs(project.projectCrs);
+  assertProjectCalculationSafe(project);
+  if (!Number.isFinite(epsilonSquareMeters) || epsilonSquareMeters < 0) {
+    throw new RangeError("Boundary area tolerance must be finite and nonnegative.");
+  }
 
-  const coverage = calculateWetCoverage(project);
+  const coverage = calculateWetCoverage(project, true);
   const field = toClipMultiPolygon([[project.fieldBoundary]]);
   const outsideField = polygonClipping.difference(coverage.wetRaw, field) as ClipMultiPolygon;
   const outsideFieldCoverage = fromClipMultiPolygon(outsideField);
@@ -662,7 +717,7 @@ export function validateWetCoverageWithinField(
   };
 }
 
-function calculateWetCoverage(project: PivotProject): {
+function calculateWetCoverage(project: PivotProject, conservative = false): {
   base: ClipMultiPolygon;
   endGun: MultiPolygonXY;
   endGunClip: ClipMultiPolygon;
@@ -670,8 +725,9 @@ function calculateWetCoverage(project: PivotProject): {
 } {
   const machineRadius = machineRadiusMeters(project.machine);
   const endGunRadius = endGunRadiusMeters(project.machine);
-  const base = toClipMultiPolygon([[createSectorPolygon(project.pivotCenter, machineRadius, project.machine.sweep)]]);
-  const endGunClip = createEndGunCoverageClip(project, machineRadius, endGunRadius);
+  const sector = conservative ? createConservativeSectorPolygon : createSectorPolygon;
+  const base = toClipMultiPolygon([[sector(project.pivotCenter, machineRadius, project.machine.sweep)]]);
+  const endGunClip = createEndGunCoverageClip(project, machineRadius, endGunRadius, conservative);
   const endGun = fromClipMultiPolygon(endGunClip);
   const wetRaw = endGunClip.length > 0
     ? polygonClipping.union(base, endGunClip) as ClipMultiPolygon
@@ -680,8 +736,20 @@ function calculateWetCoverage(project: PivotProject): {
   return { base, endGun, endGunClip, wetRaw };
 }
 
-function createEndGunCoverageClip(project: PivotProject, machineRadius: number, endGunRadius: number): ClipMultiPolygon {
+function createEndGunCoverageClip(project: PivotProject, machineRadius: number, endGunRadius: number, conservative = false): ClipMultiPolygon {
   if (endGunRadius <= machineRadius) return [];
+
+  if (conservative) {
+    const sweep = toClipMultiPolygon([[createConservativeSectorPolygon(project.pivotCenter, endGunRadius, project.machine.sweep)]]);
+    const ranges = project.machine.endGunAngleRanges ?? [];
+    const ranged = ranges.length === 0 ? sweep : polygonClipping.intersection(sweep, toClipMultiPolygon(ranges.map((range) => [
+      createConservativeSectorPolygon(project.pivotCenter, endGunRadius, { mode: "partial_circle", ...range }),
+    ]))) as ClipMultiPolygon;
+    // Subtracting the inner inscribed polygon keeps the result an outer bound.
+    return polygonClipping.difference(ranged,
+      toClipMultiPolygon([[createSectorPolygon(project.pivotCenter, machineRadius, project.machine.sweep)]]),
+    ) as ClipMultiPolygon;
+  }
 
   const sweepAnnulus = toClipMultiPolygon(createAnnularSector(project.pivotCenter, machineRadius, endGunRadius, project.machine.sweep));
   const ranges = (project.machine.endGunAngleRanges ?? []).filter((range) => (
@@ -705,6 +773,9 @@ function createEndGunCoverageClip(project: PivotProject, machineRadius: number, 
 }
 
 export function exportScenarioGeoJson(project: PivotProject, result: LayoutResult): object {
+  assertMetricCalculationCrs(project.projectCrs);
+  assertProjectCalculationSafe(project);
+  assertLayoutResultFinite(result);
   return {
     type: "FeatureCollection",
     properties: {
@@ -825,7 +896,7 @@ function buildWarnings(
     warnings.push(`${obstacleConflictCount} obstacle or exclusion zone intersects the modeled wet area.`);
   }
   if (hardMechanicalConflictCount > 0) {
-    warnings.push(`${hardMechanicalConflictCount} hard obstacle intersects a modeled tower track or machine path.`);
+    warnings.push(`${hardMechanicalConflictCount} hard obstacle intersects the conservative machine sweep or tower track. Physical vertical clearance remains unverified.`);
   }
   if (project.surveyPoints.some((point) => point.confidence !== "rtk_fixed")) {
     warnings.push("Some project inputs are not RTK-fixed. Keep the layout planning-grade until critical points are surveyed.");
@@ -897,7 +968,8 @@ export function evaluatePathBoundaryDistance(
   radiusMeters: number,
   options: PathBoundaryDistanceOptions = {},
 ): PathBoundaryDistanceEvaluation {
-  const toleranceMeters = options.toleranceMeters ?? 0.001;
+  assertMetricCalculationCrs(project.projectCrs);
+  const toleranceMeters = options.toleranceMeters ?? GEOMETRY_TOLERANCE_METERS;
   const maxEvaluatedPointCount = options.maxEvaluatedPointCount ?? 8193;
   if (!Number.isFinite(radiusMeters) || radiusMeters < 0) throw new RangeError("radiusMeters must be finite and nonnegative.");
   assertPositive(toleranceMeters, "toleranceMeters");
@@ -944,6 +1016,10 @@ export function evaluatePathBoundaryDistance(
     const lowerBoundMeters = (lower - numericalBudget) * scale;
     const upperBoundMeters = (upper + numericalBudget) * scale;
     const errorBoundMeters = upperBoundMeters - lowerBoundMeters;
+    if (![lowerBoundMeters, upperBoundMeters, errorBoundMeters].every(Number.isFinite)
+      || lowerBoundMeters > upperBoundMeters || errorBoundMeters < 0) {
+      throw new RangeError("Clearance evaluation exceeds finite, ordered numerical bounds.");
+    }
     const converged = errorBoundMeters <= toleranceMeters;
     return {
       minimumBoundaryDistanceMeters: lowerBoundMeters,
