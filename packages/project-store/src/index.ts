@@ -1,5 +1,6 @@
 export * from "./androidNativeProofRuntime";
 export * from "./nativeVerification";
+export * from "./designDraftArchive";
 export * from "./mapPackageArchive";
 export * from "./mapPackageArchiveInstall";
 export * from "./persistenceSchema";
@@ -10,3 +11,4 @@ export * from "./projectPersistence";
 export * from "./projectRepository";
 export * from "./projectRepositoryTypes";
 export * from "./webSqliteGate";
+export * from "./workspaceDocument";

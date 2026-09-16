@@ -1,5 +1,5 @@
-import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
-import type { UnzipFileInfo } from "fflate";
+import { strToU8, zipSync } from "fflate";
+import { readZipTextArchive } from "./zipTextArchive";
 import { z } from "zod";
 
 import {
@@ -134,30 +134,19 @@ export function exportProjectArchiveZip(bundle: ProjectArchiveBundle): Uint8Arra
 }
 
 export function importProjectArchiveZip(data: Uint8Array): PivotProject {
-  if (data.byteLength > PROJECT_ARCHIVE_MAX_COMPRESSED_BYTES) {
-    throw new Error(`Project archive compressed size exceeds ${PROJECT_ARCHIVE_MAX_COMPRESSED_BYTES} bytes.`);
-  }
-
-  const archiveState = { fileCount: 0, totalUncompressedBytes: 0 };
-  const unzipped = unzipSync(data, {
-    filter: (file) => {
-      validateProjectArchiveEntry(file, archiveState);
-      return true;
-    },
+  const files = readZipTextArchive(data, {
+    label: "Project archive", maxCompressedBytes: PROJECT_ARCHIVE_MAX_COMPRESSED_BYTES,
+    maxEntryBytes: PROJECT_ARCHIVE_MAX_ENTRY_BYTES, maxUncompressedBytes: PROJECT_ARCHIVE_MAX_UNCOMPRESSED_BYTES,
+    maxFileCount: PROJECT_ARCHIVE_MAX_FILE_COUNT,
+    allowedFilenames: new Set([...PROJECT_ARCHIVE_ALLOWED_FILENAMES, ...LEGACY_PROJECT_ARCHIVE_IGNORED_FILENAMES]),
+    requiredFilenames: [PROJECT_MANIFEST_FILENAME, PROJECT_JSON_FILENAME],
   });
-  const manifestBytes = unzipped[PROJECT_MANIFEST_FILENAME];
-  const projectBytes = unzipped[PROJECT_JSON_FILENAME];
-  if (!manifestBytes || !projectBytes) {
-    throw new Error("Project archive must contain manifest.json and project.json.");
-  }
-
-  const manifest = ProjectArchiveManifestSchema.parse(JSON.parse(strFromU8(manifestBytes)));
+  const manifest = ProjectArchiveManifestSchema.parse(JSON.parse(files.get(PROJECT_MANIFEST_FILENAME)!));
   for (const requiredFile of [PROJECT_MANIFEST_FILENAME, PROJECT_JSON_FILENAME]) {
     if (!manifest.files.includes(requiredFile)) throw new Error(`Project archive manifest must list ${requiredFile}.`);
   }
-  validateProjectArchiveManifestFiles(manifest, Object.keys(unzipped));
-
-  const project = parseProjectDocument(strFromU8(projectBytes));
+  validateProjectArchiveManifestFiles(manifest, [...files.keys()]);
+  const project = parseProjectDocument(files.get(PROJECT_JSON_FILENAME)!);
   if (manifest.projectId !== project.id) throw new Error("Project archive manifest projectId does not match project.json.");
   if (manifest.projectCrs !== project.projectCrs) throw new Error("Project archive manifest projectCrs does not match project.json.");
   return project;
@@ -267,27 +256,6 @@ const LEGACY_PROJECT_ARCHIVE_IGNORED_FILENAMES = new Set([
   "exports/layout-decisions.jsonl",
   "exports/model-recommendations.geojson",
 ]);
-
-function validateProjectArchiveEntry(
-  file: UnzipFileInfo,
-  state: { fileCount: number; totalUncompressedBytes: number },
-): void {
-  validateProjectArchivePath(file.name);
-  if (!PROJECT_ARCHIVE_ALLOWED_FILENAMES.has(file.name) && !LEGACY_PROJECT_ARCHIVE_IGNORED_FILENAMES.has(file.name)) {
-    throw new Error(`Project archive contains unsupported file: ${file.name}.`);
-  }
-  state.fileCount += 1;
-  if (state.fileCount > PROJECT_ARCHIVE_MAX_FILE_COUNT) {
-    throw new Error(`Project archive contains more than ${PROJECT_ARCHIVE_MAX_FILE_COUNT} files.`);
-  }
-  if (file.originalSize > PROJECT_ARCHIVE_MAX_ENTRY_BYTES) {
-    throw new Error(`Project archive entry ${file.name} exceeds ${PROJECT_ARCHIVE_MAX_ENTRY_BYTES} uncompressed bytes.`);
-  }
-  state.totalUncompressedBytes += file.originalSize;
-  if (state.totalUncompressedBytes > PROJECT_ARCHIVE_MAX_UNCOMPRESSED_BYTES) {
-    throw new Error(`Project archive uncompressed size exceeds ${PROJECT_ARCHIVE_MAX_UNCOMPRESSED_BYTES} bytes.`);
-  }
-}
 
 function validateProjectArchiveManifestFiles(manifest: ProjectArchiveManifest, archiveFilenames: string[]): void {
   const manifestFiles = new Set(manifest.files);

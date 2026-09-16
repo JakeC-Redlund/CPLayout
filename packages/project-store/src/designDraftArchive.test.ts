@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { strToU8, unzipSync, zipSync } from "fflate";
+import { strToU8, unzipSync, Zip, ZipDeflate, ZipPassThrough, zipSync } from "fflate";
 
 import { defaultProjectSettings, evaluateDesignDraftCompleteness, type DesignDraft } from "@cplayout/core";
 import {
@@ -180,6 +180,21 @@ function fixtureEntries(): FixtureEntry[] {
   return Object.entries(bundle().files).map(([name, contents]) => ({ name, contents }));
 }
 
+function records(bytes: Uint8Array): { end: number; central: number; local: number; dataEnd: number }[] {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const end = bytes.length - 22;
+  const result = [];
+  let central = view.getUint32(end + 16, true);
+  for (let index = 0; index < view.getUint16(end + 10, true); index++) {
+    const local = view.getUint32(central + 42, true);
+    const dataEnd = local + 30 + view.getUint16(local + 26, true) + view.getUint16(local + 28, true)
+      + view.getUint32(central + 20, true);
+    result.push({ end, central, local, dataEnd });
+    central += 46 + view.getUint16(central + 28, true) + view.getUint16(central + 30, true) + view.getUint16(central + 32, true);
+  }
+  return result;
+}
+
 test("empty and nullable inputs survive without fabricated project data or optional fields", () => {
   const imported = roundtrip(emptyDraft());
   assert.equal(imported.projectCrs, null);
@@ -228,6 +243,122 @@ test("manifest has the distinct versions, nullable CRS and exact inventory", () 
 test("crafted stored and deflated fixtures are valid before adversarial header changes", () => {
   for (const stored of [false, true]) {
     assert.deepEqual(importDesignDraftArchiveZip(craftedZip(fixtureEntries().map((entry) => ({ ...entry, stored })))), emptyDraft());
+  }
+});
+
+test("signed and unsigned descriptors, reversed directory order and ZIP comments preserve drafts", () => {
+  for (const stored of [false, true]) for (const descriptor of ["signed", "unsigned"] as const) {
+    const entries = fixtureEntries().map((entry) => ({ ...entry, stored, descriptor }));
+    const bytes = craftedZip(entries, { reverseDirectory: true, comment: "Synthetic comment" });
+    assert.deepEqual(importDesignDraftArchiveZip(bytes), emptyDraft());
+    const padded = new Uint8Array(bytes.length + 12);
+    padded.set(bytes, 7);
+    assert.deepEqual(importDesignDraftArchiveZip(padded.subarray(7, 7 + bytes.length)), emptyDraft());
+  }
+});
+
+test("actual fflate streaming ZIP writers interoperate for stored and deflated files", () => {
+  for (const stored of [false, true]) {
+    const chunks: Uint8Array[] = [];
+    const zip = new Zip((error, data) => { if (error) throw error; chunks.push(data); });
+    for (const [name, contents] of Object.entries(bundle().files)) {
+      const file = stored ? new ZipPassThrough(name) : new ZipDeflate(name);
+      zip.add(file);
+      const bytes = strToU8(contents);
+      file.push(bytes.subarray(0, 7));
+      file.push(bytes.subarray(7), true);
+    }
+    zip.end();
+    assert.deepEqual(importDesignDraftArchiveZip(new Uint8Array(Buffer.concat(chunks))), emptyDraft());
+  }
+});
+
+test("CRC rejects a changed canonical XY byte instead of silently importing another coordinate", () => {
+  const draft = completeDraft();
+  const entries = Object.entries(bundle(draft).files).map(([name, contents]) => ({ name, contents, stored: true }));
+  const bytes = craftedZip(entries);
+  assert.deepEqual(importDesignDraftArchiveZip(bytes), draft);
+  const offset = Buffer.from(bytes).indexOf("500000");
+  assert.ok(offset >= 0);
+  bytes[offset + 5] = "1".charCodeAt(0);
+  rejectUnchanged(bytes, /CRC-32 mismatch/);
+});
+
+test("consistent forged header CRCs cannot replace verification of actual stored or deflated bytes", () => {
+  for (const stored of [false, true]) {
+    const bytes = craftedZip(fixtureEntries().map((entry) => ({ ...entry, stored })));
+    const view = new DataView(bytes.buffer);
+    for (const record of records(bytes)) {
+      view.setUint32(record.local + 14, 0, true);
+      view.setUint32(record.central + 16, 0, true);
+    }
+    rejectUnchanged(bytes, /CRC-32 mismatch/);
+  }
+});
+
+test("invalid UTF-8 with valid ZIP CRCs cannot change matching names through replacement characters", () => {
+  for (const invalid of [[0xff], [0x80], [0xc0, 0xaf], [0xed, 0xa0, 0x80], [0xf4, 0x90, 0x80, 0x80]]) {
+    const entries = fixtureEntries().map((entry) => {
+      const payload = strToU8(entry.contents);
+      const offset = Buffer.from(payload).indexOf("Synthetic");
+      assert.ok(offset >= 0);
+      payload.set(invalid, offset);
+      return { ...entry, payload };
+    });
+    rejectUnchanged(craftedZip(entries), /UTF-8/);
+  }
+  const draft = emptyDraft();
+  draft.name = "Field \u00e9 \ud83c\udf3e \ufffd";
+  assert.equal(roundtrip(draft).name, draft.name);
+});
+
+test("unsupported flags, encryption, ZIP64 and alternate-name extras are rejected", () => {
+  for (const flags of [1, 16, 32, 64, 128, 0x1000, 0x2000, 0x4000, 0x8000]) {
+    rejectUnchanged(craftedZip(fixtureEntries().map((entry) => ({ ...entry, flags }))), /flags or encryption/);
+  }
+  for (const id of [0x0001, 0x0017, 0x7075, 0x9901]) {
+    rejectUnchanged(craftedZip(fixtureEntries().map((entry) => ({ ...entry, extra: { [id]: new Uint8Array(4) } }))), /unsupported ZIP extra/);
+  }
+  const entries = fixtureEntries().map((entry) => ({ ...entry, extra: { 0x5455: new Uint8Array([0]) } }));
+  assert.deepEqual(importDesignDraftArchiveZip(craftedZip(entries)), emptyDraft());
+});
+
+test("corrupt directory and local metadata fail before returning any draft", () => {
+  const mutations: Array<(view: DataView, record: ReturnType<typeof records>[number]) => void> = [
+    (view, r) => view.setUint32(r.central, 0, true),
+    (view, r) => view.setUint32(r.central + 42, 0xffffffff, true),
+    (view, r) => view.setUint16(r.central + 34, 1, true),
+    (view, r) => view.setUint32(r.central + 38, 0xa0000000, true),
+    (view, r) => view.setUint16(r.central + 6, 45, true),
+    (view, r) => view.setUint16(r.end + 4, 1, true),
+    (view, r) => view.setUint16(r.end + 8, 1, true),
+    (view, r) => view.setUint32(r.end + 12, 1, true),
+    (view, r) => view.setUint32(r.end + 16, 1, true),
+    (view, r) => view.setUint32(r.local, 0, true),
+    (view, r) => view.setUint16(r.local + 4, 45, true),
+    (view, r) => view.setUint16(r.local + 6, 1, true),
+    (view, r) => view.setUint16(r.local + 8, 0, true),
+    (view, r) => view.setUint32(r.local + 10, 0, true),
+    (view, r) => view.setUint32(r.local + 14, 0, true),
+  ];
+  for (const mutate of mutations) {
+    const bytes = craftedZip(fixtureEntries());
+    mutate(new DataView(bytes.buffer), records(bytes)[0]);
+    rejectUnchanged(bytes);
+  }
+});
+
+test("descriptor CRC and size fields must match the actual records for both encodings and methods", () => {
+  for (const stored of [false, true]) for (const descriptor of ["signed", "unsigned"] as const) {
+    for (const field of [0, 4, 8]) {
+      const bytes = craftedZip(fixtureEntries().map((entry) => ({ ...entry, stored, descriptor })));
+      const record = records(bytes)[0];
+      new DataView(bytes.buffer).setUint32(record.dataEnd + (descriptor === "signed" ? 4 : 0) + field, 1, true);
+      rejectUnchanged(bytes, /descriptor CRC or size mismatch/);
+    }
+    const bytes = craftedZip(fixtureEntries().map((entry) => ({ ...entry, stored, descriptor })));
+    new DataView(bytes.buffer).setUint32(records(bytes)[0].central + 20, 1, true);
+    rejectUnchanged(bytes, /descriptor or compressed size mismatch/);
   }
 });
 

@@ -1,6 +1,6 @@
 # Incomplete Design and Catalog Packet
 
-Reviewed 2026-09-14. Status: the core document foundation has passed focused independent review and combined source validation in the frozen `WgcDsc` snapshot, and is exported/test-registered. Storage, archive and UI integration remain queued. No storage migration is installed by this record. This is packet 1 of [the continuing refactor](full-refactor-execution.md), not a replacement goal.
+Reviewed 2026-09-16. Status: core draft, strict draft archive and pure workspace document contracts are exported/test-registered. Disk persistence, migration and UI integration remain queued. No storage migration is installed by this record. This is packet 1 of [the continuing refactor](full-refactor-execution.md), not a replacement goal.
 
 ## Verified Starting Point
 
@@ -24,6 +24,16 @@ The core foundation passed 27 focused tests and independent numerical diagnostic
 The guard is now shared with legacy project calculations in `projectCalculationSafety.ts`, and geometry consumes the same numerical budget. The initial 63 focused passes omitted the standalone clearance-quality suite; aggregate validation exposed an overly broad consumer guard. The scoped correction preserves that normalized solver's own tolerance/range contract while full-project calculations retain shared admission. Its 66-case focused repeat passes; independent correction review and aggregate acceptance remain separate. This still does not install a draft repository.
 
 A separate high-effort worker owns only `designDraftArchive.ts` and its tests: `manifest.json`/`draft.json` interchange with a distinct archive version and no calculated exports. Initial independent review blocks acceptance on CRC, strict UTF-8 and ZIP header/descriptor validation. Fixes and adversarial regressions are in progress; main owns registration, storage integration and independent acceptance. Existing project archives remain unchanged by this packet.
+
+### Resumed Source Contracts: 2026-09-16
+
+The coordinator resumed the checkpoint repair and replayed the original independent adversarial corpus: four valid archives import, all 15 former malformed-archive acceptance cases reject, and input bytes remain unchanged. The archive suite now has 27 tests, including matching CRC verification, canonical UTF-8 decoding, supported header/flag checks, signed/unsigned descriptors, stored/deflated streaming writers, reversed directory order and exact byte-view bounds. The API is now exported and its suite runs in the normal workspace test command. This is coordinator execution of retained independent repros, not a new independent review or native interoperability claim.
+
+The selected draft ZIP32 subset permits two regular stored/deflated JSON files and passive timestamp/ownership extras. Encryption, ZIP64, split disks, alternate-name extras, non-file entries and inconsistent metadata fail closed. CRC detects accidental corruption; it does not authenticate a sender. The record layout and descriptor variants were checked against [PKWARE APPNOTE 6.3.10](https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT), and the public checksum/stream API against installed fflate declarations and the [upstream fflate source](https://github.com/101arrowz/fflate), retrieved 2026-09-16. Subsequently, the container reader was extracted into `zipTextArchive.ts` for both draft and project ZIP imports, retaining separate format policies. This integration is unfinished: the latest focused run has an error-message expectation failure and full validation must be rerun. See the September 16 relocation checkpoint in [the execution record](full-refactor-execution.md).
+
+`workspaceDocument.ts` now defines strict `cplayout-workspace-v1` data with catalog relationships, discriminated draft/project design records, independent persisted revisions, unchanged project/draft document strings and deletion tombstones. Seventeen focused tests cover empty/incomplete documents, exact legacy bytes, kind/identity confusion, missing/duplicate ownership, stale saves, delete/recreate attempts, revision exhaustion and CRS relabeling. Complete drafts are not auto-promoted. Independent legacy project imports may be unowned; every draft requires its selected field map/design. Catalog design labels remain independent of the payload's name.
+
+Create/save/delete are pure detached transitions. They cannot provide cross-process atomicity by themselves: the next adapter must read the latest envelope inside a storage lock/transaction and commit exactly the returned state, acknowledging only successful persistence. No `localStorage` writer, SQLite migration, new blank-design interface or rollback restore is activated by these exports. Explicit geometry transformation, catalog migration/rename/cascade behavior, full observation/session immutability and import identity generation remain with their integration packets.
 
 ## Storage and Compatibility
 

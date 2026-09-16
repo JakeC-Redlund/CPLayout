@@ -6,7 +6,7 @@
   "types": "src/index.ts",
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
-    "test": "tsx src/nativeVerification.test.ts && tsx src/webSqliteGate.test.ts && tsx src/persistenceSchema.test.ts && tsx src/mapPackageArchive.test.ts && tsx src/projectRepository.test.ts && tsx src/projectArchive.test.ts && tsx src/projectKmlArchive.test.ts && tsx src/projectPersistence.test.ts",
+    "test": "tsx src/nativeVerification.test.ts && tsx src/webSqliteGate.test.ts && tsx src/workspaceDocument.test.ts && tsx src/designDraftArchive.test.ts && tsx src/persistenceSchema.test.ts && tsx src/mapPackageArchive.test.ts && tsx src/projectRepository.test.ts && tsx src/projectArchive.test.ts && tsx src/projectKmlArchive.test.ts && tsx src/projectPersistence.test.ts",
     "validate": "npm run typecheck && npm test"
   },
   "dependencies": {

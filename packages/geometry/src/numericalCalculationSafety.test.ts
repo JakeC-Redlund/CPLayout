@@ -219,7 +219,8 @@ test("standalone normalized clearance validates only the geometry and radius it 
   project.machine.spanLengthsMeters = [Number.MAX_VALUE, Number.MAX_VALUE];
   project.machine.overhangMeters = NaN;
   project.waterSource.x = Infinity;
-  project.obstacles = [{ id: "unused", name: "Unused", polygon: [{ x: NaN, y: 0 }], bufferMeters: Infinity }];
+  project.obstacles = [{ id: "unused", name: "Unused", kind: "exclusion", polygon: [{ x: NaN, y: 0 }],
+    bufferMeters: Infinity, hardConflict: false, noSpray: false, confidence: "user_estimated" }];
   const before = structuredClone(project);
   assert.deepEqual(geometry.evaluatePathBoundaryDistance(project, 80), expected);
   assert.throws(() => geometry.evaluateLayout(project), ProjectCalculationSafetyError);
