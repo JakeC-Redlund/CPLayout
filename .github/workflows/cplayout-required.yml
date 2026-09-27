@@ -1,0 +1,89 @@
+name: CPLayout required
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cplayout-required-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: "1"
+
+jobs:
+  source:
+    name: source
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - name: Check changed-file whitespace
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          [[ "$BASE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$HEAD_SHA" =~ ^[0-9a-f]{40}$ ]]
+          if [[ "$BASE_SHA" =~ ^0{40}$ ]]; then
+            BASE_SHA="$(git hash-object -t tree -w --stdin </dev/null)"
+          fi
+          git cat-file -e "$HEAD_SHA^{commit}"
+          git diff --check "$BASE_SHA" "$HEAD_SHA" --
+      - name: Check Expo SDK compatibility
+        run: npx expo install --check
+        working-directory: apps/mobile
+      - run: npm run context-map:check
+      - run: npm run validate:skills
+      - run: npm run validate
+      - run: npm audit --audit-level=moderate
+
+  web:
+    name: web (${{ matrix.shard }}/3)
+    needs: source
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+    env:
+      CPLAYOUT_WEB_PROOF_PORT: "19006"
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run proof:web -- --shard=${{ matrix.shard }}/3
+
+  cplayout-required:
+    name: cplayout-required
+    if: ${{ always() }}
+    needs: [source, web]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Require source and every web shard
+        env:
+          SOURCE_RESULT: ${{ needs.source.result }}
+          WEB_RESULT: ${{ needs.web.result }}
+        run: |
+          test "$SOURCE_RESULT" = success
+          test "$WEB_RESULT" = success

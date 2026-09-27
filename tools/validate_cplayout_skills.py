@@ -11,15 +11,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-QUICK_VALIDATE = (
-    Path.home()
-    / ".codex"
-    / "skills"
-    / ".system"
-    / "skill-creator"
-    / "scripts"
-    / "quick_validate.py"
-)
+SKILL_VALIDATOR = ROOT / "tools" / "validateCplayoutSkillFrontmatter.cjs"
+SKILL_VALIDATOR_TEST = ROOT / "tools" / "validateCplayoutSkillFrontmatter.test.cjs"
 
 REQUIRED_AGENT_FILES = (
     ".codex/agents/cplayout_imagery_mapper.toml",
@@ -33,6 +26,8 @@ REQUIRED_AGENT_FILES = (
 )
 
 REQUIRED_DOCS = (
+    "docs/agent-tree-protocol.md",
+    "docs/agent-tree-rollout.md",
     "docs/agent-prompt-registry.md",
     "docs/agent-source-ledger.md",
     "docs/agent-known-gaps.md",
@@ -203,12 +198,17 @@ def run(command: list[str], *, cwd: Path = ROOT) -> tuple[bool, str]:
 
 def validate_skills() -> list[str]:
     errors: list[str] = []
-    if not QUICK_VALIDATE.exists():
-        return [f"Missing skill validator: {QUICK_VALIDATE}"]
+    if not SKILL_VALIDATOR.exists() or not SKILL_VALIDATOR_TEST.exists():
+        return ["Missing repo-local skill validator or its tests"]
+
+    ok, output = run(["node", str(SKILL_VALIDATOR_TEST)])
+    print(f"[skill] validator tests: {output}")
+    if not ok:
+        errors.append(f"skill validator tests: {output}")
 
     skill_root = ROOT / ".agents" / "skills"
     for skill_md in sorted(skill_root.glob("*/SKILL.md")):
-        ok, output = run([sys.executable, str(QUICK_VALIDATE), str(skill_md.parent)])
+        ok, output = run(["node", str(SKILL_VALIDATOR), str(skill_md.parent)])
         label = skill_md.parent.relative_to(ROOT)
         print(f"[skill] {label}: {output}")
         if not ok:
@@ -456,9 +456,9 @@ def validate_context_map() -> list[str]:
     max_packs = limits.get("maxContextPacksPerHook")
     if not isinstance(max_packs, int) or max_packs != 3:
         errors.append("cplayout_context_map.json: maxContextPacksPerHook must be 3")
-    max_summary_chars = limits.get("maxEmittedPackSummaryChars")
-    if not isinstance(max_summary_chars, int) or max_summary_chars != 1200:
-        errors.append("cplayout_context_map.json: maxEmittedPackSummaryChars must be 1200")
+    max_first_reads = limits.get("maxReadFirstPathsPerPack")
+    if not isinstance(max_first_reads, int) or max_first_reads != 2:
+        errors.append("cplayout_context_map.json: maxReadFirstPathsPerPack must be 2")
     max_pack_budget = limits.get("maxContextPackTokenBudget")
     if not isinstance(max_pack_budget, int) or max_pack_budget != 1200:
         errors.append("cplayout_context_map.json: maxContextPackTokenBudget must be 1200")
@@ -572,7 +572,7 @@ def validate_context_map() -> list[str]:
     source_hashes = context_map.get("sourceHashes")
     if not isinstance(source_hashes, dict) or "AGENTS.md" not in source_hashes:
         errors.append("cplayout_context_map.json: sourceHashes must include AGENTS.md")
-    for required_hash in ("docs/README.md",):
+    for required_hash in ("docs/README.md", "docs/agent-tree-protocol.md", "docs/agent-tree-rollout.md"):
         if not isinstance(source_hashes, dict) or required_hash not in source_hashes:
             errors.append(f"cplayout_context_map.json: sourceHashes must include {required_hash}")
 

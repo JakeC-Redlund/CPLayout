@@ -2,6 +2,8 @@
 
 This registry records the repo-local specialist prompt surfaces and the session-level skill inventory that informed them. Verify the active Codex skill list in each future session before relying on this snapshot.
 
+Start with [the agent tree protocol](agent-tree-protocol.md) for coordinator/leaf ownership and the [rollout record](agent-tree-rollout.md) for phase gates. This registry is a deeper routing reference, not an unconditional first read.
+
 ## Repo-Local Skills
 
 | Skill | Purpose | Primary owner |
@@ -39,17 +41,19 @@ The 2026-09-13 workflow packet adds explicit no-delegation precedence, shell-pay
 
 The route data uses token/phrase-aware weighted positive and negative keywords. A route score is the sum of matched positive weights minus matched negative weights. Routes are emitted only when their score is at least `minScore`, then sorted by score descending, route priority ascending, and route id. Hook output is capped by `maxRoutes`, currently `3`, so broad prompts do not flood the context window with every specialist.
 
-Every route declares `agent`, `complexityBand`, coordinator `reasoningEffort`, `subagentReasoningEffort`, `spawnPolicy`, `routingReason`, and `validationExpectations`. The hook emits a coordinator contract with matched specialists, required preflight, subagent decision (`required`, `optional`, or `not useful`), coordinator complexity band, coordinator reasoning effort, task-selected subagent reasoning guidance, optimized re-prompt, and validation expectations. Route data intentionally has no global default complexity or reasoning effort; when no route or clear complexity signal matches, the hook emits `complexity analysis required before mutation`.
+Every route declares `agent`, `complexityBand`, coordinator `reasoningEffort`, `subagentReasoningEffort`, `spawnPolicy`, `routingReason`, and `validationExpectations`. The hook emits terse route IDs and selected first-read references; route metadata is guidance for task analysis, not an automatic complexity/effort setting or a command to spawn. Explicit multi-agent requests can still be recognized when no keyword route matches, and explicit no-delegation instructions take precedence. No global reasoning effort is pinned.
 
 Broad terms such as `agent`, `hook`, `layout`, and `web` are intentionally low weight. They should not route by themselves; they only help rank a route when stronger task-specific terms are also present.
 
-Token-efficiency guardrails are enforced in both hook code and validation. Prompt triage emits no more than three matched routes, context-pack hook summaries respect `maxEmittedPackSummaryChars` from `.codex/hooks/cplayout_context_map.json` (currently `1200` characters for the context-pack section), generated route and agent context refs stay within `maxContextPacksPerHook`, each pack stays within `maxContextPackTokenBudget`, and `tools/validate_cplayout_skills.py` caps the curator positive-keyword surface so governance routing cannot expand indefinitely without an explicit budget decision. Route wording changes should add or update fixture tests instead of relying on broad standalone keywords.
+Token-efficiency guardrails are checked in hook tests and validation. Prompt triage emits no more than three matched routes; generated context packs allow two first-read paths each. The hook itself targets at most 1200 UTF-8 bytes for `UserPromptSubmit` and 900 for `SubagentStart`. Curator keyword growth remains capped. These are output-size limits, not proof of actual token or cost savings; route changes need fixture recall, negative, stale-map and byte-budget checks.
+
+The 2026-09-27 local 12-prompt fixture run emitted 5,575 bytes versus the 25,973-byte baseline (78.5% lower), kept 8 matched/4 unmatched, and reduced emitted first-read references from 72 to 20. The largest prompt output was 598 bytes; nine subagent profiles peaked at 587 bytes. This is test evidence for those payloads only, not a general model-usage or live-hook claim.
 
 ## Generated Context Map
 
 `tools/build_cplayout_context_map.py` generates `.codex/hooks/cplayout_context_map.json`, `docs/agent-context-map.md`, and `docs/agent-governance-summary.md`. The map gives each route and custom agent compact context-pack ids, minimum-read paths, secondary-read paths, validation commands, expected output shape, token budgets, panel weights, and hard vetoes. The Markdown exposes pack `tokenBudget` values for human budget review. It does not include raw file content, ignored reports, local customer artifacts, secrets, absolute machine paths, or extracted PDF bodies.
 
-The prompt triage hook preserves existing route scoring, then emits at most three context packs for matched routes and trims context-pack detail before it can exceed the context-map summary budget. The subagent-start hook emits matching agent context packs when a custom CPLayout agent starts. If the context map is missing or invalid, hooks fail open and keep the ordinary coordinator or subagent boundary text.
+The prompt triage hook preserves route scoring, then selects at most three compact context-pack IDs and only task-relevant first reads. The subagent-start hook identifies the matching agent and bounded first reads. At runtime, hooks verify authority and selected first-read hashes; `npm run context-map:check` checks full-map freshness. Missing or invalid maps fail open to the durable `AGENTS.md` boundary.
 
 Run `npm run context-map:build` after changing routes, hooks, custom agents, repo-local skills, validation records, or indexed docs. Run `npm run context-map:check` or `npm run validate:skills` before reporting success; the check fails when the checked-in JSON or Markdown is stale.
 

@@ -1,0 +1,46 @@
+# Agent Tree Rollout
+
+Decision record for the 2026-09-27 governance rollout. Local facts come from the CPLayout checkout; external behavior claims are bounded by the primary sources below. The goal is a lean coordinator/leaf workflow with explicit ownership and measurable context, not a promise of superior agent performance.
+
+## Verified Starting Point
+
+- The audited pre-existing work was committed as `a69f59798826b419db17bd56404944052abb3ca5` on `main`; local and hosted `main` matched and the Git-visible worktree was clean before this branch was created. An off-repo recovery bundle, 239-file tar, patches, and hash manifest were verified and retained locally; machine-specific paths are not published here.
+- The checkpoint passed `npm run validate`, `npm run context-map:check`, `npm run validate:skills`, `npm audit --json` (zero reported vulnerabilities), diff checks, and full `CPLAYOUT_WEB_PROOF_PORT=19186 npm run proof:web` (704 pass, 10 skip). These are source/browser gates, not Android/iOS/field or release proof.
+- The root npm workspaces, `apps/mobile`, shared `packages/*`, repo skills, eight read-only specialists, prompt/subagent hooks, generated context map and disabled Stop continuation already exist. No product file relocation is needed for the requested leaf structure.
+- Baseline of 12 prompt-hook fixtures was 25,973 UTF-8 `additionalContext` bytes, 8 matched/4 unmatched, and 72 matched first-read refs. This is an output-size proxy, not measured model tokens or spend.
+
+The current local hook run keeps the same 8/4 fixture route classification and emits 5,575 bytes total (78.5% below baseline), with at most 598 bytes and two first-read refs per prompt. Fifty-seven focused prompt/context tests pass. Nine `SubagentStart` profiles stay below 900 bytes (maximum 587). On five local subprocess samples, prompt startup was 139-180 ms and subagent startup 121-139 ms after narrowing runtime hash checks; these samples are not a latency service-level guarantee. Paired model token usage, quality and cost have not been measured.
+
+One fresh, read-only `codex exec --strict-config --ephemeral --json` smoke returned the exact requested answer on this checkout. Its event stream reported 24,438 input tokens, 6,912 cached input tokens, and 170 output tokens. This single run has no paired baseline and does not expose the selected model ID or hook injection; it is not evidence of a token, cost, or managed-hook improvement.
+
+After the clean-lock SDK patch install, the governance branch passed `npm run validate`, `npm run context-map:check`, `npm run validate:skills`, Expo compatibility, `npm audit` (zero reported vulnerabilities), and full `CPLAYOUT_WEB_PROOF_PORT=19187 npm run proof:web` (704 passed, 10 skipped, 0 failed; exit 0, 27.7 minutes). The browser port was released. These are local source/browser gates; hosted PR checks and native/device behavior remain separate.
+
+## Phases And Gates
+
+| Phase | Scope and owner | Acceptance gate | Non-goal / unverified |
+| --- | --- | --- | --- |
+| 0. Preserve and sync | Coordinator audits existing dirty work, recovery bundle, exact staging, validation, ordinary commit/push and matching OIDs. | Clean `main` at the published checkpoint, recovery hashes and validation recorded above. | No native, Google Earth, field or production acceptance. |
+| 1. Compact tree contract | Coordinator updates `AGENTS.md`, this protocol, docs index, skill preflight, prompt registry, source/gap records and generated context-map inputs. | One task-selected leaf entrypoint plus `AGENTS.md`/protocol; `context-map:check` and `validate:skills` pass. | No wholesale app/package relocation or extra always-loaded instructions. |
+| 2. Advisory hooks | Hook owner trims `UserPromptSubmit` and `SubagentStart`, checks map hashes, keeps explicit delegation restrictions and Stop disabled. | Fixture recall/negative tests, whole-context byte caps, malformed/stale-map fail-open tests, fresh-session hook observation when available. | Hook output cannot set an already-running model, force a spawn or establish managed enforcement. |
+| 3. Compatible tooling | Dependency/CI owner aligns Expo SDK 55 patch versions, updates lock, adds SHA-pinned least-privilege Actions source and sharded web checks. | `CI=1 npx expo install --check`, clean `npm ci`, `npm run validate`, `npm audit`, browser proof, hosted required terminal check. | No major SDK jump, paid service, force audit fix, native runtime or device claim. |
+| 4. Integrate and review | Coordinator reconciles disjoint writers, runs independent QA, compares hook fixture bytes/routes with baseline and verifies exact source/lock/CI diff. | Local gates green; unresolved objections documented; normal branch push and PR with hosted CI observed. | Local green does not imply hosted green or branch protection. |
+| 5. Protect and observe | After hosted CI is green, require only the terminal `cplayout-required` check on `main` and test a PR merge path. Track hook bytes, route recall, input/cached/output tokens and latency when actually observable. | Hosted rule/check identity, PR result and first real fresh-session routing evidence recorded. | Byte count alone does not establish token savings; no unobserved managed hook claim. |
+| 6. Managed/runtime lanes | Separately deploy managed hook scripts/data through endpoint policy and run native/device, Google Earth and field checklists only for tasks that require them. | Target-specific restart, `/hooks`, device/report or field evidence. | These lanes are pending until their own authority and artifacts exist. |
+
+Phase 4 and later are gates, not automatically completed by source edits. If hosted checks fail or a source drifts, keep the branch reviewable and report the failure; do not weaken gates to obtain a green badge. Roll back governance through a reviewed revert or branch update, preserving the Phase 0 main checkpoint and recovery packet.
+
+After a successful PR run supplies the actual GitHub Actions check identity, protect `main` with a required PR and zero required approvals (this rollout does not mandate a human reviewer), strict/up-to-date `cplayout-required` bound to that app, and administrator enforcement. Disable force pushes and deletion; leave merge queue and linear-history requirements off because this workflow has no `merge_group` trigger and the repository permits merge commits. Read back the effective rule and verify the PR merge gate. A later independent PR is still needed for a negative enforcement test; do not claim one from this configuration write alone.
+
+## Decision And Ownership
+
+The implementation uses a lean index and on-demand leaf references because the existing workspaces already define product ownership and repeated full-hook instructions add measurable context bytes. The coordinator owns docs/integration; the hook worker owns `.codex` hook/config code and focused hook tests; the dependency/CI worker owns manifests, lock, workflow and dependency record. Each writer has exclusive paths and must accommodate shared-worktree changes. Independent QA is read-only. Hard constraints in `AGENTS.md` veto any score.
+
+Keep the tree shallow: one coordinator, bounded leaf reviews/workers, serialized integration, and independent QA for shared contracts. Use lower effort for narrow tasks and higher effort only when scope warrants. Do not add a new orchestration framework, telemetry service, product package move, managed hook deployment or native feature merely to model this process.
+
+The repo does not pin a model or reasoning effort. The coordinator chooses an available model and effort for each task and leaf after checking the active client and account; a model slug present in one CLI catalog is not a portability guarantee. The strict-config fresh-session smoke above confirms a response, but its JSON did not report model identity; model-specific inference and managed-hook loading remain separate proof gates.
+
+## Primary Sources
+
+- [Codex configuration](https://learn.chatgpt.com/docs/config-file/config-reference), [subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents), [hooks](https://learn.chatgpt.com/docs/hooks), [model catalog](https://learn.chatgpt.com/docs/models): checked 2026-09-27 for project configuration, advisory hook output, task-selected model/effort and delegation costs. The local fresh smoke did not expose model identity or prove hook injection.
+- [OpenAI multi-agent](https://developers.openai.com/api/docs/guides/agents-api/multi-agent), [prompt caching](https://developers.openai.com/api/docs/guides/prompt-caching), [usage/observability](https://developers.openai.com/api/docs/guides/agents-api/observability): support bounded handoffs and measuring actual usage rather than inferring it from bytes.
+- [Expo CLI](https://docs.expo.dev/more/expo-cli/), [Playwright CI](https://playwright.dev/docs/ci) and [sharding](https://playwright.dev/docs/test-sharding), [GitHub workflow security](https://docs.github.com/en/actions/reference/security/secure-use) and [required checks](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks): basis for compatible package and hosted gate decisions. Hosted results and branch protection must be observed separately.

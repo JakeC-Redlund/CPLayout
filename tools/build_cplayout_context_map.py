@@ -25,10 +25,9 @@ ROUTE_DATA_PATH = ROOT / ".codex" / "hooks" / "cplayout_route_data.json"
 
 LIMITS = {
     "maxContextPacksPerHook": 3,
-    "maxReadFirstPathsPerPack": 5,
+    "maxReadFirstPathsPerPack": 2,
     "maxSecondaryPathsPerPack": 5,
     "maxValidationCommandsPerPack": 5,
-    "maxEmittedPackSummaryChars": 1200,
     "maxContextPackTokenBudget": 1200,
     "maxGovernanceSummaryChars": 7000,
 }
@@ -107,6 +106,13 @@ GLOBAL_CONTEXT = [
         "tags": ["routing", "records", "subagents"],
     },
     {
+        "id": "tree_protocol",
+        "path": "docs/agent-tree-protocol.md",
+        "kind": "instructions",
+        "summary": "Coordinator/leaf handoff, selected context, decision, and proof boundaries.",
+        "tags": ["coordination", "token-efficiency", "proof"],
+    },
+    {
         "id": "governance_summary",
         "path": "docs/agent-governance-summary.md",
         "kind": "generated-entrypoint",
@@ -131,14 +137,14 @@ PACK_DEFINITIONS = [
         "triggerTerms": ["preflight", "git status", "validation", "AGENTS.md"],
         "readFirstPaths": [
             "AGENTS.md",
-            "docs/agent-governance-summary.md",
-            "package.json",
-            "docs/center-pivot-package-surface-inventory.md",
+            "docs/agent-tree-protocol.md",
         ],
         "secondaryPaths": [
             ".agents/skills/cplayout-workspace-preflight/SKILL.md",
             "docs/agent-known-gaps.md",
             "docs/dependency-upgrade-plan.md",
+            "package.json",
+            "docs/center-pivot-package-surface-inventory.md",
         ],
         "validationCommandIds": ["validate_skills", "diff_check", "audit"],
         "expectedOutput": "Complexity band, selected reasoning effort, subagent decision, dirty-tree summary, and validation gates.",
@@ -152,18 +158,15 @@ PACK_DEFINITIONS = [
         "agentIds": ["cplayout_kb_curator"],
         "triggerTerms": ["prompt triage", "managed hook", "token efficient", "subagent reasoning", "context map", "context-map", "route data", "validate_cplayout_skills"],
         "readFirstPaths": [
-            "docs/agent-governance-summary.md",
+            "docs/agent-tree-protocol.md",
             ".codex/hooks/cplayout_prompt_triage.py",
-            ".codex/hooks/cplayout_route_data.json",
-            "tools/validate_cplayout_skills.py",
-            "docs/README.md",
         ],
         "secondaryPaths": [
+            ".codex/hooks/cplayout_route_data.json",
+            "tools/validate_cplayout_skills.py",
+            "docs/agent-governance-summary.md",
             ".codex/hooks.json",
             ".codex/hooks/cplayout_subagent_start.py",
-            "docs/agent-known-gaps.md",
-            "docs/agent-source-ledger.md",
-            "docs/codex-managed-hook-deployment.md",
         ],
         "validationCommandIds": ["context_map_check", "validate_skills", "diff_check", "audit"],
         "expectedOutput": "Source-backed governance change summary, advisory-hook caveats, record updates, and test evidence.",
@@ -195,17 +198,15 @@ PACK_DEFINITIONS = [
             "Playwright",
         ],
         "readFirstPaths": [
+            ".agents/skills/cplayout-interface-development-agent/SKILL.md",
             "apps/mobile/App.tsx",
+        ],
+        "secondaryPaths": [
             "apps/mobile/src/components/CommandSurface.tsx",
             "apps/mobile/src/components/DrawingToolPalette.tsx",
             "packages/map-adapters/src/SvgMapSurface.tsx",
-            ".agents/skills/cplayout-interface-development-agent/SKILL.md",
-        ],
-        "secondaryPaths": [
             "packages/map-adapters/src/MapSurface.tsx",
             "playwright.config.ts",
-            "docs/android-native-verification.md",
-            "docs/agent-known-gaps.md",
         ],
         "validationCommandIds": ["validate_product", "proof_web", "validate_skills", "diff_check", "audit"],
         "expectedOutput": "UI file scope, right sidebar/drawer and toolbar risks, web UI-proof needs, and native proof caveats.",
@@ -240,17 +241,14 @@ PACK_DEFINITIONS = [
         ],
         "readFirstPaths": [
             "docs/rtk-gnss-integration-plan.md",
-            "packages/gnss/src/nmea.ts",
-            "packages/gnss/src/transport.ts",
-            "packages/core/src/types.ts",
-            "apps/mobile/src/gnss/webSerialTransport.ts",
+            "packages/gnss/src/index.ts",
         ],
         "secondaryPaths": [
+            "packages/gnss/src/nmea.ts",
+            "packages/gnss/src/transport.ts",
+            "apps/mobile/src/gnss/webSerialTransport.ts",
             "packages/core/src/projectReducer.ts",
-            "apps/mobile/src/components/BrowserRtkReceiverPanel.tsx",
             "docs/android-native-verification.md",
-            "docs/agent-known-gaps.md",
-            "tools/roadmapCompletion.ts",
         ],
         "validationCommandIds": ["validate_product", "proof_web", "validate_skills", "diff_check", "audit"],
         "expectedOutput": "Transport/data-flow scope, CRS authority, receiver/correction/antenna unknowns, hardware proof gates, and explicit non-claims.",
@@ -290,12 +288,12 @@ PACK_DEFINITIONS = [
             "irrigation",
         ],
         "readFirstPaths": [
-            "packages/geometry/src/index.ts",
-            "docs/design-guides/topic-index.md",
             ".agents/skills/cplayout-center-pivot-design-agent/SKILL.md",
-            "packages/geometry/src/cornerGpsMapAdvisoryReview.ts",
+            "packages/geometry/src/index.ts",
         ],
         "secondaryPaths": [
+            "docs/design-guides/topic-index.md",
+            "packages/geometry/src/cornerGpsMapAdvisoryReview.ts",
             "docs/design-guides/guides/local-precision-corner-0999428.md",
             "docs/design-guides/guides/local-vflex-corner-0998325.md",
             "docs/agent-known-gaps.md",
@@ -314,12 +312,12 @@ PACK_DEFINITIONS = [
         ],
         "triggerTerms": ["project document", "canonical geometry", "projected XY", "KML", "sample project"],
         "readFirstPaths": [
-            "packages/core/src/index.ts",
             "packages/core/src/projectDocument.ts",
-            "packages/core/src/projectKml.ts",
-            "packages/core/src/sampleProject.ts",
+            "packages/core/src/index.ts",
         ],
         "secondaryPaths": [
+            "packages/core/src/projectKml.ts",
+            "packages/core/src/sampleProject.ts",
             "packages/core/src/imageryEvidence.ts",
             "docs/agent-known-gaps.md",
         ],
@@ -335,13 +333,13 @@ PACK_DEFINITIONS = [
         "agentIds": ["cplayout_database_specialist"],
         "triggerTerms": ["SQLite", "project-store", "archive", "ZIP", "migration", "schema"],
         "readFirstPaths": [
+            ".agents/skills/cplayout-database-agent/SKILL.md",
             "packages/project-store/src/index.ts",
+        ],
+        "secondaryPaths": [
             "packages/project-store/src/projectArchive.ts",
             "packages/project-store/src/projectRepository.native.ts",
             "packages/core/src/projectDocument.ts",
-            ".agents/skills/cplayout-database-agent/SKILL.md",
-        ],
-        "secondaryPaths": [
             "docs/android-native-verification.md",
             "docs/agent-known-gaps.md",
         ],
@@ -366,18 +364,15 @@ PACK_DEFINITIONS = [
             "production-ready claim",
         ],
         "readFirstPaths": [
-            "AGENTS.md",
             ".agents/skills/cplayout-runtime-proof-gate-agent/SKILL.md",
             "docs/android-native-verification.md",
-            "docs/agent-known-gaps.md",
-            "docs/agent-source-ledger.md",
         ],
         "secondaryPaths": [
+            "docs/agent-known-gaps.md",
+            "docs/agent-source-ledger.md",
             "docs/android-native-verification-report-template.json",
             "docs/kml-kmz-google-earth-source-ledger.md",
             "packages/project-store/src/nativeVerification.ts",
-            "packages/project-store/src/projectRepository.native.ts",
-            "docs/native-map-tile-adapter-design.md",
         ],
         "validationCommandIds": ["validate_skills", "validate_product", "diff_check", "audit"],
         "expectedOutput": "Runtime proof blockers, accepted evidence, missing device/visual reports, release non-claims, and record updates.",
@@ -406,18 +401,15 @@ PACK_DEFINITIONS = [
             "MBTiles",
         ],
         "readFirstPaths": [
-            "AGENTS.md",
             ".agents/skills/cplayout-gis-geometry-guard-agent/SKILL.md",
             "packages/core/src/projectDocument.ts",
-            "docs/agent-known-gaps.md",
-            "docs/imagery-provider-tool-policy-ledger.md",
         ],
         "secondaryPaths": [
+            "docs/agent-known-gaps.md",
+            "docs/imagery-provider-tool-policy-ledger.md",
             "packages/core/src/imageryEvidence.ts",
             "packages/core/src/projectKml.ts",
             "packages/project-store/src/projectArchive.ts",
-            "docs/native-map-tile-adapter-design.md",
-            "docs/kml-kmz-google-earth-source-ledger.md",
         ],
         "validationCommandIds": ["validate_product", "validate_skills", "diff_check", "audit"],
         "expectedOutput": "Geometry authority risks, CRS/input-display separation, attribution gaps, tile adapter gates, and validation needs.",
@@ -440,18 +432,15 @@ PACK_DEFINITIONS = [
             "Playwright screenshot",
         ],
         "readFirstPaths": [
-            "AGENTS.md",
             ".agents/skills/cplayout-qa-validation-agent/SKILL.md",
             "docs/agent-known-gaps.md",
-            "docs/agent-governance-summary.md",
-            "package.json",
         ],
         "secondaryPaths": [
+            "docs/agent-governance-summary.md",
+            "package.json",
             "tools/validate_cplayout_skills.py",
             "tools/tests/test_cplayout_prompt_triage.py",
             "tools/tests/test_cplayout_context_map.py",
-            "docs/agent-source-ledger.md",
-            "docs/android-native-verification.md",
         ],
         "validationCommandIds": ["context_map_check", "validate_skills", "validate_product", "diff_check", "audit"],
         "expectedOutput": "Findings by severity, commands run or missing, stale generated files, audit status, and residual risk.",
@@ -465,13 +454,13 @@ PACK_DEFINITIONS = [
         "agentIds": ["cplayout_imagery_mapper", "cplayout_kb_curator"],
         "triggerTerms": ["Google Earth", "KML", "KMZ", "imagery", "evidence packet", "computer vision"],
         "readFirstPaths": [
-            "docs/kml-kmz-google-earth-source-ledger.md",
             ".agents/skills/cplayout-imagery-mapping-agent/SKILL.md",
+            "docs/kml-kmz-google-earth-source-ledger.md",
+        ],
+        "secondaryPaths": [
             ".agents/skills/cplayout-google-earth-imagery-analysis/SKILL.md",
             "packages/core/src/imageryEvidence.ts",
             "packages/map-adapters/src/MapLibreImageryPreview.tsx",
-        ],
-        "secondaryPaths": [
             "docs/agent-known-gaps.md",
             "tools/verifyImageryEvidencePacket.ts",
         ],
@@ -498,15 +487,14 @@ PACK_DEFINITIONS = [
         "triggerTerms": ["CornerGPSMap", "BPF", "Boundary Point File", "GGS", "VRI", "corner arm map"],
         "readFirstPaths": [
             "packages/core/src/cornerGpsMapImport.ts",
+            ".agents/skills/cplayout-center-pivot-design-agent/SKILL.md",
+        ],
+        "secondaryPaths": [
             "packages/core/src/cornerGpsMapImport.test.ts",
             "packages/geometry/src/cornerGpsMapAdvisoryReview.ts",
             "packages/map-adapters/src/mapTools.ts",
-            "docs/agent-known-gaps.md",
-        ],
-        "secondaryPaths": [
             "packages/geometry/src/cornerGpsMapAdvisoryReview.test.ts",
-            "packages/map-adapters/src/mapTools.test.ts",
-            "docs/agent-prompt-registry.md",
+            "docs/agent-known-gaps.md",
         ],
         "validationCommandIds": ["validate_product", "validate_skills", "diff_check", "audit"],
         "expectedOutput": "Source-labeled BPF evidence review, projected-XY import boundaries, and no controller-compatibility claims.",
@@ -517,6 +505,8 @@ PACK_DEFINITIONS = [
 
 SOURCE_HASH_PATHS = [
     "AGENTS.md",
+    "docs/agent-tree-protocol.md",
+    "docs/agent-tree-rollout.md",
     "package.json",
     ".codex/hooks.json",
     ".codex/config.toml",
@@ -562,11 +552,13 @@ def _skill_paths() -> dict[str, str]:
 
 def _source_hashes() -> dict[str, str]:
     paths = list(SOURCE_HASH_PATHS)
+    paths.extend(path for pack in PACK_DEFINITIONS for path in pack["readFirstPaths"])
     paths.extend(_load_agents().values())
     paths.extend(_skill_paths().values())
     paths.extend(path.relative_to(ROOT).as_posix() for path in (ROOT / ".agents" / "skills").glob("*/references/*") if path.is_file())
     hashes: dict[str, str] = {}
     for relpath in sorted(set(paths)):
+        _require_relpath(relpath)
         path = ROOT / relpath
         if path.exists():
             hashes[relpath] = _sha256(path)
@@ -639,8 +631,10 @@ def _build_context_map() -> dict[str, Any]:
 
 
 def _require_relpath(relpath: str) -> None:
-    if relpath.startswith("/") or relpath.startswith("~") or "\\" in relpath:
+    if not relpath or relpath.startswith(("/", "~")) or "\\" in relpath or ".." in Path(relpath).parts:
         raise ValueError(f"{relpath}: paths must be relative repo paths with forward slashes")
+    if not (ROOT / relpath).resolve().is_relative_to(ROOT.resolve()):
+        raise ValueError(f"{relpath}: path must resolve within the repository")
     if relpath.startswith("reports/") or relpath.startswith("tmp/"):
         raise ValueError(f"{relpath}: raw report/tmp paths are not allowed in context packs")
     generated_outputs = {
@@ -792,33 +786,6 @@ def _markdown_text(data: dict[str, Any]) -> str:
     for route_id, pack_ids in sorted(data["routeContext"].items()):
         lines.append(f"| `{route_id}` | {', '.join(f'`{pack_id}`' for pack_id in pack_ids)} |")
 
-    pack_by_id = {pack["id"]: pack for pack in data["contextPacks"]}
-    lines.extend(
-        [
-            "",
-            "## Route Read Guidance",
-            "",
-            "Use minimum-read entries before mutation. Use secondary-read entries only when the minimum set leaves a task-specific gap.",
-            "",
-            "| Route | Minimum Read | Secondary Read |",
-            "| --- | --- | --- |",
-        ]
-    )
-    for route_id, pack_ids in sorted(data["routeContext"].items()):
-        minimum: list[str] = []
-        secondary_paths: list[str] = []
-        for pack_id in pack_ids:
-            pack = pack_by_id[pack_id]
-            for path in pack["readFirstPaths"]:
-                if path not in minimum:
-                    minimum.append(path)
-            for path in pack["secondaryPaths"]:
-                if path not in secondary_paths and path not in minimum:
-                    secondary_paths.append(path)
-        min_text = "<br>".join(f"`{path}`" for path in minimum[:8])
-        secondary_text = "<br>".join(f"`{path}`" for path in secondary_paths[:8])
-        lines.append(f"| `{route_id}` | {min_text} | {secondary_text} |")
-
     lines.extend(["", "## Agent Context", "", "| Agent | Context Packs |", "| --- | --- |"])
     for agent_id, pack_ids in sorted(data["agentContext"].items()):
         lines.append(f"| `{agent_id}` | {', '.join(f'`{pack_id}`' for pack_id in pack_ids)} |")
@@ -845,14 +812,16 @@ def _governance_summary_text(data: dict[str, Any]) -> str:
         "",
         "## Active Contracts",
         "",
-        "- Start non-trivial work with `AGENTS.md`, `git status --short`, task complexity, selected reasoning effort, subagent decision, and validation gates.",
+        "- Start non-trivial work with `AGENTS.md`, `docs/agent-tree-protocol.md`, `git status --short`, task complexity, selected reasoning effort, subagent decision, and validation gates.",
         "- Preserve offline/no-cost operation, projected/local `XY` canonical geometry, and visual-only KML/KMZ style metadata.",
         "- Treat repo-local hooks and context maps as advisory until managed deployment, restart, `/hooks`, and live prompt evidence are verified.",
-        "- Spawn bounded subagents for non-trivial CPLayout work when available; otherwise record `Accepted fallback:` with the reason.",
+        "- Delegate bounded independent leaves when they add evidence or QA value; route matches alone do not mandate a spawn. Record `Accepted fallback:` when a useful leaf cannot run.",
         "- Do not claim native, SQLite, ZIP, MapLibre, Google Earth, imagery, or ML/CV runtime proof without direct checklist evidence.",
         "",
         "## Matched Records",
         "",
+        "- Coordinator/leaf handoff and claim classes: `docs/agent-tree-protocol.md`.",
+        "- Phased adoption and hosted gates: `docs/agent-tree-rollout.md`.",
         "- Prompt routing and subagent authorization: `docs/agent-prompt-registry.md`.",
         "- Detailed context packs and source hashes: `docs/agent-context-map.md` and `.codex/hooks/cplayout_context_map.json`.",
         "- Source/freshness ledger: `docs/agent-source-ledger.md`.",
@@ -872,7 +841,7 @@ def _governance_summary_text(data: dict[str, Any]) -> str:
     for command_id in ("context_map_check", "validate_skills", "validate_product", "diff_check", "audit"):
         command = validation_commands[command_id]
         lines.append(f"- `{command['command']}`: {command['purpose']}")
-    lines.extend(["", "## Token Budgets", ""])
+    lines.extend(["", "## Local Context Limits", "", "These are configured output/reference limits, not measured model tokens or cost.", ""])
     for key, value in data["limits"].items():
         lines.append(f"- `{key}`: `{value}`")
     lines.extend(["", "## Hard Vetoes", ""])

@@ -74,7 +74,7 @@ Keep these boundaries:
 
 Run the narrowest checks that prove the change:
 
-- Skill work: `python3 /home/cyber/.codex/skills/.system/skill-creator/scripts/quick_validate.py .agents/skills/cplayout-expert-agent-panels`
+- Skill work: `npm run validate:skills`
 - Docs/skill whitespace: `git diff --check`
 - TypeScript or UI changes: `npm run validate`
 - Visible UI changes: `npm run ui:test:start -- --no-open` for local static-export checks plus Playwright screenshot from the exact printed URL when available; use `npm run proof:web` for deterministic browser proof

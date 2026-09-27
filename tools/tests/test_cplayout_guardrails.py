@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import subprocess
 import sys
+import tomllib
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -16,6 +17,11 @@ spec.loader.exec_module(builder)
 
 
 class GuardrailTests(unittest.TestCase):
+    def test_project_config_does_not_pin_a_model_or_reasoning_effort(self) -> None:
+        config = tomllib.loads((ROOT / ".codex/config.toml").read_text(encoding="utf-8"))
+        self.assertNotIn("model", config)
+        self.assertNotIn("model_reasoning_effort", config)
+
     def hook(self, tool: str, tool_input: object) -> dict:
         result = subprocess.run(
             [sys.executable, str(ROOT / ".codex/hooks/cplayout_pre_tool_use.py")],
