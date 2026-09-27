@@ -11,15 +11,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-QUICK_VALIDATE = (
-    Path.home()
-    / ".codex"
-    / "skills"
-    / ".system"
-    / "skill-creator"
-    / "scripts"
-    / "quick_validate.py"
-)
+SKILL_VALIDATOR = ROOT / "tools" / "validateCplayoutSkillFrontmatter.cjs"
+SKILL_VALIDATOR_TEST = ROOT / "tools" / "validateCplayoutSkillFrontmatter.test.cjs"
 
 REQUIRED_AGENT_FILES = (
     ".codex/agents/cplayout_imagery_mapper.toml",
@@ -205,12 +198,17 @@ def run(command: list[str], *, cwd: Path = ROOT) -> tuple[bool, str]:
 
 def validate_skills() -> list[str]:
     errors: list[str] = []
-    if not QUICK_VALIDATE.exists():
-        return [f"Missing skill validator: {QUICK_VALIDATE}"]
+    if not SKILL_VALIDATOR.exists() or not SKILL_VALIDATOR_TEST.exists():
+        return ["Missing repo-local skill validator or its tests"]
+
+    ok, output = run(["node", str(SKILL_VALIDATOR_TEST)])
+    print(f"[skill] validator tests: {output}")
+    if not ok:
+        errors.append(f"skill validator tests: {output}")
 
     skill_root = ROOT / ".agents" / "skills"
     for skill_md in sorted(skill_root.glob("*/SKILL.md")):
-        ok, output = run([sys.executable, str(QUICK_VALIDATE), str(skill_md.parent)])
+        ok, output = run(["node", str(SKILL_VALIDATOR), str(skill_md.parent)])
         label = skill_md.parent.relative_to(ROOT)
         print(f"[skill] {label}: {output}")
         if not ok:

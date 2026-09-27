@@ -56,7 +56,8 @@
     "@playwright/test": "^1.60.0",
     "@types/node": "^24.13.3",
     "tsx": "4.22.4",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "yaml": "2.9.0"
   },
   "overrides": {
     "xcode": {

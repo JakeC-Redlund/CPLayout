@@ -47,6 +47,6 @@ Use this checklist as a review lens, not as automatic truth:
 
 ## Validation
 
-- Validate this skill with `/home/cyber/.codex/skills/.system/skill-creator/scripts/quick_validate.py .agents/skills/cplayout-google-earth-imagery-analysis`.
+- Validate this skill with `npm run validate:skills`.
 - Validate the script with `python3 .agents/skills/cplayout-google-earth-imagery-analysis/scripts/inventory_ge_artifacts.py --help` and at least one representative local artifact.
 - Run `git diff --check` and `npm audit` after skill/doc edits. Run `npm run validate` only when TypeScript, UI, package config, or runtime code changes.
