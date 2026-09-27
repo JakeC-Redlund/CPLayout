@@ -13,7 +13,7 @@ Direct user no-mutation instructions win over this workflow. For read-only tasks
 
 ## Quick Start
 
-1. Re-read `AGENTS.md`, then run `git status --short` and preserve pre-existing changes.
+1. Re-read `AGENTS.md` and `docs/agent-tree-protocol.md`, then run `git status --short` and preserve pre-existing changes.
 2. Load repo-local skills that match the task:
    - `.agents/skills/cplayout-workspace-preflight/` for repository and validation gates.
    - `.agents/skills/cplayout-planning-review/` for bounded, source-backed plans.
@@ -22,7 +22,7 @@ Direct user no-mutation instructions win over this workflow. For read-only tasks
 5. Close local knowledge gaps first, then research current external facts from official or primary sources.
    - For CPLayout Google Earth/KML loops, re-check the Google KML Reference, Google shared-style tutorial, OGC KML page, and the repo source ledger before changing import/export behavior.
 6. Use `references/prompt-triage.md` when the prompt needs specialist routing, new agent surfaces, hooks, skills, source ledgers, or knowledge-record updates.
-7. Use bounded subagents for non-trivial matched CPLayout panel work under the owner's standing authorization when the current runtime exposes subagent tools. If tools are unavailable or parallel work is not useful, record `Accepted fallback:` with the reason.
+7. Select bounded subagents when independent evidence, review, or disjoint implementation is useful under the owner's standing authorization. A hook match alone is not a spawn decision. If a useful leaf cannot run, record `Accepted fallback:` with the reason.
 8. Synthesize the panel result into the next concrete action, implement only when mutation is allowed, validate, and record durable findings when appropriate.
 
 For the detailed sequence, read `references/panel-lifecycle.md`.
@@ -45,7 +45,7 @@ For role prompts and delegation rules, read `references/agent-prompts.md`.
 
 ## Subagent Boundary
 
-Treat non-trivial matched CPLayout panel, review, implementation, validation, and knowledge-curation work as standing authorization to spawn bounded subagents when the runtime permits it and parallel work is useful. Do not spawn agents for broad, vague work.
+Treat non-trivial CPLayout panel, review, implementation, validation, and knowledge-curation work as standing authorization to spawn bounded subagents when the runtime permits it and independent scope adds value. Decompose broad work at the coordinator before spawning.
 
 Use built-in agents for generic exploration and implementation:
 

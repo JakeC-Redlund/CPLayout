@@ -5,13 +5,14 @@ CPLayout is an offline-first, no-cost center-pivot planning app. Canonical proje
 ## Required First Reads
 
 - `AGENTS.md`: durable repository rules, preflight, reasoning policy, subagent policy, and validation gates.
-- `docs/agent-governance-summary.md`: generated compact governance entrypoint.
-- `docs/agent-context-map.md`: generated context packs, route read guidance, source hashes, and token budgets.
-- `docs/agent-prompt-registry.md`: prompt routing, specialist scope, and hook surfaces.
+- `docs/agent-tree-protocol.md`: coordinator/leaf handoff, first-read selection, decision and proof boundaries.
+
+Use `docs/agent-context-map.md` as a task-specific index, not an unconditional third read. Open the matching leaf skill or module first; use `docs/agent-prompt-registry.md` and generated governance records only for routing/governance work.
 
 ## Task-Specific Docs
 
 - Governance, hooks, skills, managed policy: `docs/agent-prompt-registry.md`, `docs/agent-source-ledger.md`, `docs/agent-known-gaps.md`, `docs/codex-managed-hook-deployment.md`.
+- Phased tree rollout, Git checkpoint and CI gates: `docs/agent-tree-rollout.md`.
 - Local UI testing server launcher and Windows Desktop shortcut: `docs/local-ui-testing-server-launch.md`.
 - Storage, archives, native proof: `docs/android-native-verification.md`, `packages/project-store/src/index.ts`, `packages/project-store/src/projectArchive.ts`, `packages/project-store/src/projectRepository.native.ts`.
 - RTK/GNSS hardware, corrections, capture provenance, and field proof: `docs/rtk-gnss-integration-plan.md`, `docs/gnss-runtime-verification-report-template.json`, `packages/gnss/src/index.ts`, `tools/roadmapCompletion.ts`.

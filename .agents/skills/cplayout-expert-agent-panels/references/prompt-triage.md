@@ -14,7 +14,7 @@ Use this reference when a prompt asks for specialist routing, agent panels, sour
 
 ## Decision Rules
 
-- Start non-trivial work with `AGENTS.md` and `git status --short`.
+- Start non-trivial work with `AGENTS.md`, `docs/agent-tree-protocol.md`, and `git status --short`.
 - Prefer local repo evidence before memory and external research.
 - Use current official or primary sources for package, platform, Codex, Google Earth, database, and engineering claims.
 - Keep project-local hooks advisory. They add routing context but do not enforce policy or prove behavior unless installed through managed `requirements.toml` and verified after restart.
@@ -25,16 +25,7 @@ Use this reference when a prompt asks for specialist routing, agent panels, sour
 
 ## Coordinator Contract
 
-The `UserPromptSubmit` hook should emit a compact contract for non-trivial prompts:
-
-- matched specialist routes with route id, configured agent, score, coordinator complexity band, coordinator reasoning effort, task-selected subagent reasoning guidance, spawn policy, and routing reason,
-- required preflight: re-read `AGENTS.md`, run `git status --short`, and preserve unrelated dirty work,
-- auditable subagent decision: `required`, `optional`, or `not useful`, with a short reason,
-- coordinator complexity band and coordinator reasoning effort from route metadata when a route matches,
-- per-subagent effort selected from each delegated task, not inherited automatically from the coordinator route band,
-- no hidden global fallback: if no route or clear complexity signal exists, emit `complexity analysis required before mutation`,
-- optimized re-prompt that preserves CPLayout no-cost/offline-first, projected/local `XY`, and evidence-only KML/KMZ/imagery boundaries,
-- validation expectations merged from base hook checks and matched routes.
+The `UserPromptSubmit` hook should emit at most three advisory route IDs, a task-selected first-read reference, and a compact reminder to apply `AGENTS.md`/the tree protocol. The whole `additionalContext` should remain within its tested byte cap. It must not repeat the prompt, concatenate route paragraphs, or pretend to change an active model setting. Match results guide the coordinator's own complexity/effort/subagent decision; each delegated leaf gets a separate task-selected effort and bounded ownership packet. No route is a normal outcome, not permission to skip preflight. Explicit multi-agent requests still need a decision, while explicit no-delegation instructions win.
 
 Route matching should be token/phrase-aware rather than raw substring matching so broad words such as `agent`, `hook`, `layout`, or `web` do not match inside unrelated words or route by themselves.
 
@@ -47,9 +38,9 @@ Complexity bands:
 
 Subagent decision rules:
 
-- `required`: the user explicitly asks for multi-agent, subagent, panel, parallel-agent, delegation, or specialist-team work, or the prompt is non-trivial CPLayout work with matched specialist routes under the owner's standing authorization.
-- `optional`: a trivial or narrow prompt matched a specialist but the coordinator can show that spawning would not add useful independent evidence.
-- `not useful`: no specialist route matched and coordinator-only preflight is enough.
+- `required`: the user explicitly asks for delegation or independent scopes/QA materially reduce risk under the owner's standing authorization.
+- `optional`: a bounded independent task might help, but the coordinator can continue and compare its cost with the expected evidence value.
+- `not useful`: a trivial/coupled task has no useful independent leaf, or the user explicitly restricts delegation.
 
 ## Stop Hook
 

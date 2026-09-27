@@ -1,16 +1,20 @@
 from __future__ import annotations
 
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 import subprocess
 import sys
+import tempfile
 import unittest
 
 
 ROOT = Path(__file__).resolve().parents[2]
 HOOK_PATH = ROOT / ".codex" / "hooks" / "cplayout_prompt_triage.py"
 STOP_HOOK_PATH = ROOT / ".codex" / "hooks" / "cplayout_stop_multi_agent.py"
+SUBAGENT_HOOK_PATH = ROOT / ".codex" / "hooks" / "cplayout_subagent_start.py"
+CONTEXT_MAP_PATH = ROOT / ".codex" / "hooks" / "cplayout_context_map.json"
 
 spec = importlib.util.spec_from_file_location("cplayout_prompt_triage", HOOK_PATH)
 assert spec is not None and spec.loader is not None
@@ -79,7 +83,7 @@ class PromptTriageTests(unittest.TestCase):
         self.assertEqual(routes[0], "cplayout_runtime_proof_gatekeeper")
         self.assertIn("cplayout_interface_developer", routes)
         self.assertIn("cplayout_gis_geometry_guardian", routes)
-        self.assertIn("rtk_gnss_hardware", self.hook_context(prompt))
+        self.assertIn("cplayout_runtime_proof_gatekeeper", self.hook_context(prompt))
 
     def test_right_sidebar_toolbar_ui_proof_prompt_selects_interface_route(self) -> None:
         routes = self.route_ids("Refactor right-sidebar and right-drawer toolbar UI-proof controls.")
@@ -205,62 +209,24 @@ class PromptTriageTests(unittest.TestCase):
         routes = self.route_ids("Token efficient subagent reasoning with advisory hooks and xhigh coordinator route band.")
         self.assertEqual(routes[0], "cplayout_kb_curator")
 
-    def test_governance_prompt_context_pack_summary_stays_bounded(self) -> None:
-        context = self.hook_context(
-            "Use prompt triage, route data, governance keywords, and token efficient subagent reasoning."
-        )
-        start = context.index("- Context packs")
-        end = context.index("- Validation expectations")
-        pack_summary = context[start:end].strip()
-        self.assertLessEqual(len(pack_summary), 1200)
-        self.assertIn("workspace_preflight", pack_summary)
-        self.assertIn("governance_hooks_skills", pack_summary)
-
-    def test_context_pack_lines_obey_custom_summary_budget(self) -> None:
-        route_data = triage.load_route_data()
-        curator = next(route for route in route_data.routes if route.route_id == "cplayout_kb_curator")
+    def test_governance_prompt_emits_only_two_read_refs(self) -> None:
         context_map = {
-            "schemaVersion": 1,
-            "limits": {"maxContextPacksPerHook": 3, "maxEmittedPackSummaryChars": 180},
-            "validationCommands": {
-                "validate_skills": {
-                    "command": "npm run validate:skills && python3 -m unittest discover -s tools/tests",
-                },
+            "sourceHashes": {
+                path: hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
+                for path in ("AGENTS.md", ".codex/hooks/cplayout_prompt_triage.py")
             },
             "contextPacks": [
-                {
-                    "id": "workspace_preflight",
-                    "purpose": "Load a deliberately long CPLayout preflight context pack summary for test coverage.",
-                    "readFirstPaths": [
-                        "AGENTS.md",
-                        "package.json",
-                        "docs/center-pivot-package-surface-inventory.md",
-                    ],
-                    "validationCommandIds": ["validate_skills"],
-                    "triggerTerms": ["prompt triage"],
-                },
-                {
-                    "id": "governance_hooks_skills",
-                    "purpose": "Review and update prompt triage, route data, hooks, custom agents, skills, and records.",
-                    "readFirstPaths": [
-                        ".codex/hooks/cplayout_prompt_triage.py",
-                        ".codex/hooks/cplayout_route_data.json",
-                        "tools/validate_cplayout_skills.py",
-                    ],
-                    "validationCommandIds": ["validate_skills"],
-                    "triggerTerms": ["prompt triage"],
-                },
+                {"id": "workspace_preflight", "readFirstPaths": ["AGENTS.md", "docs/agent-tree-protocol.md"]},
+                {"id": "governance_hooks_skills", "readFirstPaths": [".codex/hooks/cplayout_prompt_triage.py", "docs/README.md"]},
             ],
             "routeContext": {"cplayout_kb_curator": ["workspace_preflight", "governance_hooks_skills"]},
         }
-        lines = triage._context_pack_lines(  # noqa: SLF001 - hook budget contract test.
-            "prompt triage",
-            [triage.RouteMatch(route=curator, score=99)],
-            context_map,
-        )
-        text = "\n".join(lines)
-        self.assertLessEqual(len(text), 180)
-        self.assertIn("omitted", text)
+        prompt = "Use prompt triage, route data, and governance keywords."
+        context = triage._context(prompt, triage.match_routes(prompt), False, context_map)
+        self.assertIn("Context packs: workspace_preflight, governance_hooks_skills.", context)
+        self.assertIn("Read first: AGENTS.md; .codex/hooks/cplayout_prompt_triage.py.", context)
+        self.assertNotIn("docs/README.md", context)
+        self.assertLessEqual(len(context.encode("utf-8")), 1200)
 
     def test_route_metadata_is_loaded(self) -> None:
         route_data = triage.load_route_data()
@@ -275,28 +241,32 @@ class PromptTriageTests(unittest.TestCase):
         self.assertTrue(curator.routing_reason)
         self.assertTrue(curator.validation_expectations)
 
-    def test_coordinator_contract_includes_complexity_and_reprompt(self) -> None:
-        context = self.hook_context("Implement multi-agent managed hook enforcement with prompt triage.")
-        self.assertIn("CPLayout coordinator contract:", context)
-        self.assertIn("Complexity: xhigh; coordinator reasoning: xhigh; subagent reasoning: task-selected", context)
-        self.assertIn("Subagents: required.", context)
-        self.assertIn("Optimized re-prompt:", context)
-        self.assertIn("cplayout_kb_curator", context)
-        self.assertIn("subagent task_selected", context)
+    def test_advisory_context_is_route_first_without_reprompt(self) -> None:
+        context = self.hook_context("Use multi-agent expert panels to review managed hook enforcement with prompt triage.")
+        self.assertTrue(context.startswith("CPLayout advisory routes: cplayout_kb_curator."))
+        self.assertIn("Route bands: xhigh/xhigh; confirm from task scope.", context)
+        self.assertIn("Subagent decision: required", context)
+        self.assertNotIn("Optimized re-prompt", context)
+        self.assertIn("Hooks are advisory, not enforcement.", context)
 
-    def test_optimized_reprompt_text_carries_subagent_decision(self) -> None:
-        prompt = "Use multi-agent managed hooks for CPLayout route classification."
-        reprompt = triage.optimized_reprompt(prompt, triage.match_routes(prompt))
-        self.assertIn("coordinator reasoning", reprompt)
-        self.assertIn("Subagent decision: required.", reprompt)
-        self.assertIn("task-selected reasoning", reprompt)
-        self.assertIn("projected/local XY", reprompt)
-        self.assertIn("managed loading does not prove trusted policy inputs or complete tool coverage", reprompt)
+    def test_explicit_multi_agent_without_route_still_requires_decision(self) -> None:
+        prompt = "Please use parallel agents for a typography review."
+        self.assertEqual(self.route_ids(prompt), [])
+        self.assertIn("Subagent decision: required", self.hook_context(prompt))
 
-    def test_matched_specialist_prompt_requires_subagent_under_standing_policy(self) -> None:
+    def test_quoted_no_delegation_does_not_override_request(self) -> None:
+        prompt = 'Use multi-agent expert panels; the example string says "do not delegate".'
+        self.assertFalse(triage.has_delegation_restriction(prompt))
+        self.assertIn("Subagent decision: required", self.hook_context(prompt))
+
+    def test_subagent_topic_word_is_not_delegation_request(self) -> None:
+        prompt = "Improve token efficient subagent reasoning, prompt triage, and context map hooks."
+        self.assertFalse(triage.has_explicit_multi_agent_request(prompt))
+        self.assertIn("Subagent decision: optional", self.hook_context(prompt))
+
+    def test_matched_specialist_route_does_not_automatically_require_subagent(self) -> None:
         context = self.hook_context("Review Expo SQLite project archive persistence and ZIP schema migration.")
-        self.assertIn("Subagents: required.", context)
-        self.assertIn("Standing CPLayout owner preference", context)
+        self.assertIn("Subagent decision: optional", context)
         self.assertIn("cplayout_database_specialist", context)
 
     def test_malformed_payload_still_returns_shape_warning(self) -> None:
@@ -312,13 +282,101 @@ class PromptTriageTests(unittest.TestCase):
         self.assertEqual(output["hookEventName"], "UserPromptSubmit")
         self.assertIn("Hook input shape was incomplete or non-JSON", output["additionalContext"])
 
-    def test_no_match_prompt_gets_coordinator_only_contract(self) -> None:
+    def test_no_match_prompt_gets_coordinator_only_advisory(self) -> None:
         context = self.hook_context("Format this sentence with no CPLayout domain change.")
-        self.assertIn("Routes: none; complexity analysis required before mutation.", context)
-        self.assertIn("Complexity: complexity analysis required before mutation", context)
-        self.assertIn("coordinator reasoning: select reasoning effort after task complexity analysis", context)
-        self.assertIn("Subagents: not useful.", context)
-        self.assertIn("Perform complexity analysis before mutation", context)
+        self.assertIn("CPLayout advisory routes: none.", context)
+        self.assertIn("Subagent decision: not useful", context)
+        self.assertNotIn("Route bands:", context)
+
+    def test_twelve_prompt_route_oracle_and_context_budget(self) -> None:
+        cases = (
+            ("Implement Google Earth Pro KML imagery visual fidelity proof.", ["cplayout_imagery_mapper"]),
+            ("Review Expo SQLite project archive persistence and ZIP schema migration.", ["cplayout_database_specialist", "cplayout_interface_developer"]),
+            ("Review Android verification native proof release gate and production-ready claim.", ["cplayout_runtime_proof_gatekeeper"]),
+            ("Preserve projected XY CRS boundary WGS84 display coordinate transform.", ["cplayout_gis_geometry_guardian"]),
+            ("Improve Expo React Native HUD map workspace screen.", ["cplayout_interface_developer"]),
+            ("Improve map visual elements for wheel tracks, end-of-machine indicators, and bottom HUD.", ["cplayout_interface_developer", "cplayout_center_pivot_designer"]),
+            ("Score center pivot corner arm irrigation layout around obstacles.", ["cplayout_center_pivot_designer"]),
+            ("Use multi-agent expert panels to review Expo SQLite project archive persistence, Google Earth imagery, and Android verification native proof release gate.", ["cplayout_database_specialist", "cplayout_runtime_proof_gatekeeper", "cplayout_imagery_mapper"]),
+            ("Format this sentence.", []),
+            ("What is the time?", []),
+            ("Explain why this sentence reads oddly.", []),
+            ('The log says "do not delegate"; review the wording.', []),
+        )
+        context_map = json.loads(CONTEXT_MAP_PATH.read_text(encoding="utf-8"))
+        total_bytes = 0
+        total_refs = 0
+        matched = 0
+        for prompt, expected in cases:
+            with self.subTest(prompt=prompt):
+                matches = triage.match_routes(prompt)
+                self.assertEqual([match.route.route_id for match in matches], expected)
+                matched += bool(matches)
+                context = triage._context(prompt, matches, False, context_map)
+                encoded_bytes = len(context.encode("utf-8"))
+                self.assertLessEqual(encoded_bytes, 1200)
+                self.assertNotIn("Optimized re-prompt", context)
+                self.assertLessEqual(len(expected), 3)
+                read_line = next(line for line in context.splitlines() if line.startswith("Read first: "))
+                refs = read_line.removeprefix("Read first: ").removesuffix(".").split("; ")
+                self.assertLessEqual(len(refs), 2)
+                self.assertEqual(refs[0], "AGENTS.md")
+                total_bytes += encoded_bytes
+                total_refs += len(refs)
+        self.assertEqual(matched, 8)
+        self.assertLess(total_bytes, 8000)
+        self.assertLessEqual(total_refs, 24)
+
+    def test_context_map_hash_mismatch_discards_map_refs(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            hashes = {}
+            for relative in triage.AUTHORITY_PATHS:
+                source = root / relative
+                source.parent.mkdir(parents=True, exist_ok=True)
+                source.write_text("current instructions", encoding="utf-8")
+                hashes[relative] = hashlib.sha256(source.read_bytes()).hexdigest()
+            hook_dir = root / ".codex" / "hooks"
+            hook_dir.mkdir(parents=True, exist_ok=True)
+            context_map_path = hook_dir / "cplayout_context_map.json"
+            context_map = {
+                "schemaVersion": 1,
+                "contextPacks": [],
+                "routeContext": {},
+                "sourceHashes": hashes,
+            }
+            context_map_path.write_text(json.dumps(context_map), encoding="utf-8")
+            self.assertIsNotNone(triage.load_context_map(context_map_path))
+            for relative in ("AGENTS.md", "docs/agent-tree-protocol.md", ".codex/config.toml", ".codex/hooks/cplayout_route_data.json"):
+                with self.subTest(relative=relative):
+                    source = root / relative
+                    source.write_text("changed instructions", encoding="utf-8")
+                    self.assertIsNone(triage.load_context_map(context_map_path))
+                    source.write_text("current instructions", encoding="utf-8")
+            context_map.pop("sourceHashes")
+            context_map_path.write_text(json.dumps(context_map), encoding="utf-8")
+            self.assertIsNone(triage.load_context_map(context_map_path))
+
+    def test_subagent_context_budget_and_unknown_profile_scope(self) -> None:
+        for agent_type in ("cplayout_database_specialist", "worker"):
+            with self.subTest(agent_type=agent_type):
+                result = subprocess.run(
+                    [sys.executable, str(SUBAGENT_HOOK_PATH)],
+                    input=json.dumps({"hook_event_name": "SubagentStart", "agent_type": agent_type}),
+                    text=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    check=True,
+                )
+                output = json.loads(result.stdout)["hookSpecificOutput"]
+                self.assertEqual(output["hookEventName"], "SubagentStart")
+                context = output["additionalContext"]
+                self.assertLessEqual(len(context.encode("utf-8")), 900)
+                self.assertIn("Read first: AGENTS.md", context)
+                self.assertIn("Hooks are advisory", context)
+                if agent_type == "worker":
+                    self.assertIn("coordinator-assigned scope", context)
+                    self.assertNotIn("stay read-only", context)
 
     def stop_hook_output(self, payload: dict[str, object]) -> str:
         result = subprocess.run(

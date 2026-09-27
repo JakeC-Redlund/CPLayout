@@ -1,6 +1,6 @@
 #:schema https://developers.openai.com/codex/config-schema.json
 
-model = "gpt-5.5"
+model = "gpt-6-sol"
 # Reasoning effort is intentionally selected per task in AGENTS.md instead of
 # pinned as a project-wide default.
 
@@ -9,8 +9,7 @@ multi_agent = true
 hooks = true
 
 [agents]
-max_threads = 6
-max_depth = 1
+max_concurrent_threads_per_session = 6
 
 [agents.cplayout_imagery_mapper]
 description = "Read-only specialist for Google Earth imagery evidence, field-boundary CV review, and pivot-layout imagery mapping."

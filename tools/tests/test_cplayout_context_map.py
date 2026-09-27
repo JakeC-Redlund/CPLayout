@@ -10,6 +10,8 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 CONTEXT_MAP_PATH = ROOT / ".codex" / "hooks" / "cplayout_context_map.json"
+CONTEXT_DOC_PATH = ROOT / "docs" / "agent-context-map.md"
+BUILDER_PATH = ROOT / "tools" / "build_cplayout_context_map.py"
 TRIAGE_PATH = ROOT / ".codex" / "hooks" / "cplayout_prompt_triage.py"
 SUBAGENT_START_PATH = ROOT / ".codex" / "hooks" / "cplayout_subagent_start.py"
 
@@ -18,6 +20,11 @@ assert spec is not None and spec.loader is not None
 triage = importlib.util.module_from_spec(spec)
 sys.modules["cplayout_prompt_triage_context_tests"] = triage
 spec.loader.exec_module(triage)
+
+builder_spec = importlib.util.spec_from_file_location("cplayout_context_map_builder_tests", BUILDER_PATH)
+assert builder_spec is not None and builder_spec.loader is not None
+builder = importlib.util.module_from_spec(builder_spec)
+builder_spec.loader.exec_module(builder)
 
 
 class ContextMapTests(unittest.TestCase):
@@ -73,12 +80,23 @@ class ContextMapTests(unittest.TestCase):
 
     def test_context_pack_paths_exist_and_avoid_raw_artifacts(self) -> None:
         for pack in self.context_map["contextPacks"]:
+            self.assertLessEqual(len(pack["readFirstPaths"]), 2, pack["id"])
+            for relpath in pack["readFirstPaths"]:
+                self.assertIn(relpath, self.context_map["sourceHashes"], relpath)
             for field in ("readFirstPaths", "secondaryPaths"):
                 for relpath in pack[field]:
                     with self.subTest(pack=pack["id"], field=field, relpath=relpath):
                         self.assertFalse(relpath.startswith(("/", "~", "reports/", "tmp/")))
                         self.assertNotIn("\\", relpath)
                         self.assertTrue((ROOT / relpath).exists(), relpath)
+
+    def test_context_paths_cannot_escape_repo(self) -> None:
+        for relpath in ("../outside", "docs/../AGENTS.md", "/tmp/outside", "~/outside"):
+            with self.subTest(relpath=relpath), self.assertRaises(ValueError):
+                builder._require_relpath(relpath)
+
+    def test_generated_doc_does_not_union_leaf_first_reads(self) -> None:
+        self.assertNotIn("## Route Read Guidance", CONTEXT_DOC_PATH.read_text(encoding="utf-8"))
 
     def test_context_pack_selection_is_capped_and_starts_with_preflight(self) -> None:
         prompt = "Use Google Earth imagery, Expo SQLite, center pivot UI, and managed hook registry."
@@ -90,7 +108,7 @@ class ContextMapTests(unittest.TestCase):
         context = self.hook_context("Improve token efficient subagent reasoning, prompt triage, and context map hooks.")
         self.assertIn("Context packs", context)
         self.assertIn("governance_hooks_skills", context)
-        self.assertIn(".codex/hooks/cplayout_prompt_triage.py", context)
+        self.assertIn("docs/agent-tree-protocol.md", context)
         self.assertNotIn("cornergpsmap_bpf", context)
 
     def test_bpf_prompt_selects_cornergpsmap_pack(self) -> None:
@@ -105,7 +123,7 @@ class ContextMapTests(unittest.TestCase):
 
         right_sidebar_context = self.hook_context("Refactor right-drawer toolbar UI-proof controls.")
         self.assertIn("interface_ui", right_sidebar_context)
-        self.assertIn("right drawer/sidebar", right_sidebar_context)
+        self.assertIn(".agents/skills/cplayout-interface-development-agent/SKILL.md", right_sidebar_context)
 
         db_context = self.hook_context("Review SQLite project archive ZIP schema migration.")
         self.assertIn("storage_archive_native", db_context)
@@ -119,11 +137,11 @@ class ContextMapTests(unittest.TestCase):
     def test_runtime_gis_and_qa_prompts_select_focused_packs(self) -> None:
         runtime_context = self.hook_context("Review native proof release gate and Android verification.")
         self.assertIn("runtime_proof_gates", runtime_context)
-        self.assertIn("docs/android-native-verification.md", runtime_context)
+        self.assertIn(".agents/skills/cplayout-runtime-proof-gate-agent/SKILL.md", runtime_context)
 
         gis_context = self.hook_context("Preserve projected XY CRS boundary WGS84 display and map package attribution.")
         self.assertIn("gis_geometry_guardrails", gis_context)
-        self.assertIn("packages/core/src/projectDocument.ts", gis_context)
+        self.assertIn(".agents/skills/cplayout-gis-geometry-guard-agent/SKILL.md", gis_context)
         self.assertNotIn("imagery_kml_evidence", gis_context)
 
         qa_context = self.hook_context("Review validation triage acceptance gate test gap and audit finding.")
@@ -139,8 +157,9 @@ class ContextMapTests(unittest.TestCase):
             "Improve token efficient subagent reasoning and prompt triage.",
             {"schemaVersion": 1},
         )
-        self.assertIn("CPLayout coordinator contract:", context)
+        self.assertIn("CPLayout advisory routes:", context)
         self.assertNotIn("Context packs", context)
+        self.assertIn("Read first: AGENTS.md.", context)
 
     def test_subagent_start_includes_agent_context_packs(self) -> None:
         result = subprocess.run(
@@ -155,7 +174,8 @@ class ContextMapTests(unittest.TestCase):
         context = json.loads(result.stdout)["hookSpecificOutput"]["additionalContext"]
         self.assertIn("Context packs:", context)
         self.assertIn("governance_hooks_skills", context)
-        self.assertIn("No-overlap boundary: stay read-only", context)
+        self.assertIn("preserve other work and keep assigned scopes separate", context)
+        self.assertLessEqual(len(context.encode("utf-8")), 900)
 
 
 if __name__ == "__main__":

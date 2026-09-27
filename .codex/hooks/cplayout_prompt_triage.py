@@ -9,6 +9,7 @@ workspace evidence remain authoritative.
 from __future__ import annotations
 
 import json
+import hashlib
 import re
 import sys
 from dataclasses import dataclass
@@ -52,24 +53,23 @@ COMPLEXITY_ORDER = {"low": 0, "medium": 1, "high": 2, "xhigh": 3}
 REASONING_EFFORTS = frozenset(("minimal", "low", "medium", "high", "xhigh"))
 SUBAGENT_REASONING_EFFORTS = frozenset(("task_selected",))
 SPAWN_POLICIES = frozenset(("required", "optional", "not_useful"))
-EXPLICIT_MULTI_AGENT_TERMS = (
-    "multi-agent",
-    "multi agent",
-    "subagent",
-    "subagents",
-    "expert panel",
-    "expert panels",
-    "expert-agent panel",
-    "expert-agent panels",
-    "agent panel",
-    "agent panels",
-    "parallel agent",
-    "parallel agents",
-    "spawn agent",
-    "spawn agents",
-    "specialist team",
-    "specialist teams",
-    "delegate to agents",
+EXPLICIT_MULTI_AGENT_RE = re.compile(
+    r"\b(?:use|spawn|run|start|assign|ask|convene|launch|coordinate(?: with)?)\s+"
+    r"(?:(?:an?|the|some|multiple|several|bounded|read-only)\s+)*"
+    r"(?:multi[- ]agent(?:\s+(?:expert\s+)?panels?)?|sub[- ]?agents?|"
+    r"expert(?:[- ]agent)?\s+panels?|agent\s+panels?|parallel\s+agents?|specialist\s+teams?|agents?)\b"
+    r"|\bdelegate\s+(?:this|the\s+task|work)?\s*to\s+(?:sub[- ]?agents?|agents?|an?\s+expert\s+panel)\b",
+    re.IGNORECASE,
+)
+PROMPT_CONTEXT_MAX_BYTES = 1200
+QUOTE_RE = re.compile(r'(?s)```.*?```|`[^`]*`|"[^"\n]*"|(?<!\w)\'[^\'\n]*\'(?!\w)')
+AUTHORITY_PATHS = (
+    "AGENTS.md",
+    "docs/agent-tree-protocol.md",
+    ".codex/config.toml",
+    ".codex/hooks/cplayout_prompt_triage.py",
+    ".codex/hooks/cplayout_route_data.json",
+    "tools/build_cplayout_context_map.py",
 )
 
 
@@ -222,6 +222,20 @@ def load_route_data(path: Path | None = None) -> RouteData:
     )
 
 
+def _source_hash_matches(context_map: dict[str, object], relative: str, root: Path) -> bool:
+    hashes = context_map.get("sourceHashes")
+    expected = hashes.get(relative) if isinstance(hashes, dict) else None
+    if not isinstance(expected, str) or not re.fullmatch(r"[0-9a-f]{64}", expected):
+        return False
+    source = (root / relative).resolve()
+    if not source.is_relative_to(root) or not source.is_file():
+        return False
+    try:
+        return hashlib.sha256(source.read_bytes()).hexdigest() == expected
+    except OSError:
+        return False
+
+
 def load_context_map(path: Path | None = None) -> dict[str, object] | None:
     """Load compact advisory context-map metadata.
 
@@ -242,6 +256,12 @@ def load_context_map(path: Path | None = None) -> dict[str, object] | None:
     if not isinstance(raw_data.get("contextPacks"), list):
         return None
     if not isinstance(raw_data.get("routeContext"), dict):
+        return None
+    source_hashes = raw_data.get("sourceHashes")
+    if not isinstance(source_hashes, dict) or not source_hashes:
+        return None
+    root = context_path.resolve().parents[2]
+    if not all(_source_hash_matches(raw_data, relative, root) for relative in AUTHORITY_PATHS):
         return None
     return raw_data
 
@@ -343,46 +363,6 @@ def _max_context_packs(context_map: dict[str, object]) -> int:
     return 3
 
 
-def _max_emitted_pack_summary_chars(context_map: dict[str, object]) -> int:
-    limits = context_map.get("limits")
-    if isinstance(limits, dict):
-        value = limits.get("maxEmittedPackSummaryChars")
-        if isinstance(value, int) and value > 0:
-            return value
-    return 1200
-
-
-def _joined_line_chars(lines: list[str]) -> int:
-    return sum(len(line) for line in lines) + max(len(lines) - 1, 0)
-
-
-def _fit_line_to_limit(line: str, limit: int) -> str:
-    if len(line) <= limit:
-        return line
-    if limit <= 3:
-        return line[:limit]
-    return line[: limit - 3] + "..."
-
-
-def _limit_lines(lines: list[str], limit: int) -> list[str]:
-    if limit <= 0 or _joined_line_chars(lines) <= limit:
-        return lines
-
-    kept: list[str] = []
-    omitted_line = f"  - Additional context pack details omitted to keep hook output under {limit} chars."
-    for line in lines:
-        if _joined_line_chars([*kept, line]) <= limit:
-            kept.append(line)
-            continue
-        break
-
-    while kept and _joined_line_chars([*kept, omitted_line]) > limit:
-        kept.pop()
-    if _joined_line_chars([*kept, omitted_line]) <= limit:
-        return [*kept, omitted_line]
-    return [_fit_line_to_limit(omitted_line, limit)]
-
-
 def _pack_trigger_score(prompt_tokens: tuple[str, ...], pack: dict[str, object]) -> int:
     terms = pack.get("triggerTerms")
     if not isinstance(terms, list):
@@ -446,40 +426,6 @@ def context_packs_for_matches(
     return [packs_by_id[pack_id] for pack_id in selected_ids[: _max_context_packs(context_map)]]
 
 
-def _context_pack_lines(prompt: str, matches: list[RouteMatch], context_map: dict[str, object] | None = None) -> list[str]:
-    context_map = load_context_map() if context_map is None else context_map
-    packs = context_packs_for_matches(prompt, matches, context_map)
-    if not packs:
-        return []
-    validation_commands = context_map.get("validationCommands") if isinstance(context_map, dict) else {}
-    if not isinstance(validation_commands, dict):
-        validation_commands = {}
-
-    lines = [f"- Context packs (advisory refs; max {len(packs)} emitted):"]
-    for pack in packs:
-        pack_id = pack.get("id")
-        purpose = pack.get("purpose")
-        read_first = pack.get("readFirstPaths")
-        command_ids = pack.get("validationCommandIds")
-        if not isinstance(pack_id, str) or not isinstance(purpose, str):
-            continue
-        read_first_text = ""
-        if isinstance(read_first, list):
-            read_first_text = "; ".join(path for path in read_first if isinstance(path, str))
-        command_texts: list[str] = []
-        if isinstance(command_ids, list):
-            for command_id in command_ids:
-                command_entry = validation_commands.get(command_id) if isinstance(command_id, str) else None
-                if isinstance(command_entry, dict) and isinstance(command_entry.get("command"), str):
-                    command_texts.append(command_entry["command"])
-        lines.append(f"  - {pack_id}: {purpose}")
-        if read_first_text:
-            lines.append(f"    read first: {read_first_text}")
-        if command_texts:
-            lines.append(f"    validation: {'; '.join(command_texts)}")
-    return _limit_lines(lines, _max_emitted_pack_summary_chars(context_map))
-
-
 def _selected_complexity(matches: list[RouteMatch], route_data: RouteData) -> str:
     if not matches:
         return route_data.unmatched_complexity
@@ -502,15 +448,14 @@ def _selected_reasoning(matches: list[RouteMatch], route_data: RouteData) -> str
 def has_explicit_multi_agent_request(prompt: str) -> bool:
     if has_delegation_restriction(prompt):
         return False
-    prompt_tokens = _tokens(prompt)
-    return any(_has_phrase(prompt_tokens, _tokens(term)) for term in EXPLICIT_MULTI_AGENT_TERMS)
+    return bool(EXPLICIT_MULTI_AGENT_RE.search(QUOTE_RE.sub(" ", prompt)))
 
 
 def has_delegation_restriction(prompt: str) -> bool:
     return bool(re.search(
         r"\b(?:(?:do\s+not|don't|never)\s+(?:(?:use|spawn|run)\s+(?:any\s+)?(?:subagents?|sub-agents?|agents?)|delegate)|"
         r"no\s+(?:subagents?|sub-agents?|delegation)|without\s+(?:subagents?|sub-agents?|delegation)|coordinator[- ]only)\b",
-        prompt, re.IGNORECASE,
+        QUOTE_RE.sub(" ", prompt), re.IGNORECASE,
     ))
 
 
@@ -521,42 +466,10 @@ def subagent_decision(prompt: str, matches: list[RouteMatch]) -> tuple[str, str]
         return "required", "Prompt explicitly asks for multi-agent, subagent, panel, parallel-agent, or delegation work."
     if matches:
         return (
-            "required",
-            "Standing CPLayout owner preference authorizes bounded subagents for non-trivial matched specialist work.",
+            "optional",
+            "Route matching is advisory; decide from task complexity and independent scopes.",
         )
     return "not useful", "No specialist route matched; use coordinator preflight and narrow source-backed judgment."
-
-
-def _validation_expectations(route_data: RouteData, matches: list[RouteMatch]) -> list[str]:
-    expectations = list(route_data.base_validation_expectations)
-    for match in matches:
-        for expectation in match.route.validation_expectations:
-            if expectation not in expectations:
-                expectations.append(expectation)
-    return expectations[:5]
-
-
-def optimized_reprompt(
-    prompt: str,
-    matches: list[RouteMatch],
-    route_data: RouteData | None = None,
-) -> str:
-    route_data = load_route_data() if route_data is None else route_data
-    complexity = _selected_complexity(matches, route_data)
-    reasoning = _selected_reasoning(matches, route_data)
-    decision, _reason = subagent_decision(prompt, matches)
-    specialists = ", ".join(match.route.agent for match in matches) if matches else "coordinator only"
-    if matches:
-        opening = f"Use {reasoning} coordinator reasoning (route band {complexity})."
-    else:
-        opening = "Perform complexity analysis before mutation; select reasoning effort from task scope."
-    return (
-        f"{opening} Start with AGENTS.md plus git status. "
-        f"Route through {specialists}. Subagent decision: {decision}. "
-        "Assign each subagent task-selected reasoning and a bounded no-overlap scope. "
-        "Keep checkout guidance advisory; managed loading does not prove trusted policy inputs or complete tool coverage. "
-        "Preserve offline/no-cost operation, projected/local XY canonical geometry, and evidence-only KML/KMZ/imagery boundaries."
-    )
 
 
 def _context(
@@ -566,37 +479,42 @@ def _context(
     context_map: dict[str, object] | None = None,
 ) -> str:
     route_data = load_route_data()
-    complexity = _selected_complexity(matches, route_data)
-    reasoning = _selected_reasoning(matches, route_data)
-    decision, decision_reason = subagent_decision(prompt, matches)
-    validation = _validation_expectations(route_data, matches)
-    lines = [
-        "CPLayout coordinator contract:",
-        "- Preflight: AGENTS.md plus git status --short; preserve unrelated dirty work.",
-        "- Hooks: advisory context only, not enforcement or runtime proof.",
-        f"- Complexity: {complexity}; coordinator reasoning: {reasoning}; subagent reasoning: task-selected per delegated scope.",
-        f"- Subagents: {decision}. {decision_reason}",
-    ]
+    decision, _reason = subagent_decision(prompt, matches)
+    route_ids = ", ".join(match.route.route_id for match in matches[:3]) or "none"
+    lines = [f"CPLayout advisory routes: {route_ids}."]
     if matches:
-        lines.append(f"- Matched specialists (max {route_data.max_routes}):")
-        for match in matches:
-            route = match.route
-            lines.append(
-                "  - "
-                f"{route.route_id} -> {route.agent} "
-                f"(score {match.score}; coordinator {route.complexity_band}/{route.reasoning_effort}; "
-                f"subagent {route.subagent_reasoning_effort}; "
-                f"{route.spawn_policy}): {route.routing_reason}"
-            )
-        lines.extend(_context_pack_lines(prompt, matches, context_map))
-    else:
-        lines.append("- Routes: none; complexity analysis required before mutation.")
-    lines.append(f"- Validation expectations (max {len(validation)}):")
-    lines.extend(f"  - {expectation}" for expectation in validation)
-    lines.append(f"- Optimized re-prompt: {optimized_reprompt(prompt, matches, route_data)}")
+        lines.append(f"Route bands: {_selected_complexity(matches, route_data)}/{_selected_reasoning(matches, route_data)}; confirm from task scope.")
+    lines.append(f"Subagent decision: {decision}; coordinator assigns bounded scope and task-selected effort.")
+    if has_delegation_restriction(prompt):
+        lines.append("Explicit no-delegation request takes precedence.")
+    context_map = load_context_map() if context_map is None else context_map
+    packs = context_packs_for_matches(prompt, matches, context_map)
+    if packs:
+        pack_ids = [pack["id"] for pack in packs if isinstance(pack.get("id"), str)][:3]
+        lines.append(f"Context packs: {', '.join(pack_ids)}.")
+    context_root = _context_map_path().resolve().parents[2] if _context_map_path() is not None else Path(__file__).resolve().parents[2]
+    leaf_path = next(
+        (
+            path
+            for pack in packs
+            if pack.get("id") != "workspace_preflight"
+            for path in (pack.get("readFirstPaths") if isinstance(pack.get("readFirstPaths"), list) else [])
+            if isinstance(path, str) and path != "AGENTS.md" and isinstance(context_map, dict)
+            and _source_hash_matches(context_map, path, context_root)
+        ),
+        None,
+    )
+    read_refs = "AGENTS.md" + (f"; {leaf_path}" if leaf_path else "")
+    lines.append(f"Read first: {read_refs}.")
+    lines.append("Inspect git status --short.")
+    lines.append("Keep offline/no-cost, projected/local XY canonical, and KML/KMZ styling visual-only; require direct runtime proof.")
+    lines.append("Hooks are advisory, not enforcement.")
     if shape_unknown:
-        lines.append("- Hook input shape was incomplete or non-JSON; verify prompt scope before mutation.")
-    return "\n".join(lines)
+        lines.append("Hook input shape was incomplete or non-JSON; verify prompt scope.")
+    output = "\n".join(lines)
+    if len(output.encode("utf-8")) > PROMPT_CONTEXT_MAX_BYTES:
+        return "CPLayout advisory: inspect AGENTS.md and git status --short; hooks are advisory, not enforcement."
+    return output
 
 
 def main() -> int:

@@ -9,7 +9,7 @@ Use this skill before non-trivial CPLayout edits.
 
 ## Steps
 
-1. Re-read `AGENTS.md` and any task-specific docs named by the user.
+1. Re-read `AGENTS.md` and `docs/agent-tree-protocol.md`, then any task-specific docs named by the user. Use `docs/agent-context-map.md` only to choose a matching leaf entrypoint.
 2. Run `git status --short` and treat existing changes as user or prior-agent work unless proven otherwise.
 3. Confirm current package paths before editing: mobile code lives in `apps/mobile/`; shared logic lives in `packages/core/`, `packages/geometry/`, `packages/gnss/`, `packages/map-adapters/`, and `packages/project-store/`.
 4. Preserve the offline-first/no-cost boundary: no paid maps, cloud backend, hidden keys, or trial-only SDKs.

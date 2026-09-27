@@ -6,14 +6,16 @@ This is the compact first-read entrypoint for agent governance. It is advisory d
 
 ## Active Contracts
 
-- Start non-trivial work with `AGENTS.md`, `git status --short`, task complexity, selected reasoning effort, subagent decision, and validation gates.
+- Start non-trivial work with `AGENTS.md`, `docs/agent-tree-protocol.md`, `git status --short`, task complexity, selected reasoning effort, subagent decision, and validation gates.
 - Preserve offline/no-cost operation, projected/local `XY` canonical geometry, and visual-only KML/KMZ style metadata.
 - Treat repo-local hooks and context maps as advisory until managed deployment, restart, `/hooks`, and live prompt evidence are verified.
-- Spawn bounded subagents for non-trivial CPLayout work when available; otherwise record `Accepted fallback:` with the reason.
+- Delegate bounded independent leaves when they add evidence or QA value; route matches alone do not mandate a spawn. Record `Accepted fallback:` when a useful leaf cannot run.
 - Do not claim native, SQLite, ZIP, MapLibre, Google Earth, imagery, or ML/CV runtime proof without direct checklist evidence.
 
 ## Matched Records
 
+- Coordinator/leaf handoff and claim classes: `docs/agent-tree-protocol.md`.
+- Phased adoption and hosted gates: `docs/agent-tree-rollout.md`.
 - Prompt routing and subagent authorization: `docs/agent-prompt-registry.md`.
 - Detailed context packs and source hashes: `docs/agent-context-map.md` and `.codex/hooks/cplayout_context_map.json`.
 - Source/freshness ledger: `docs/agent-source-ledger.md`.
@@ -35,13 +37,14 @@ This is the compact first-read entrypoint for agent governance. It is advisory d
 - `git diff --check`: Catch whitespace errors before committing.
 - `npm audit`: Report npm dependency advisories without applying force fixes.
 
-## Token Budgets
+## Local Context Limits
+
+These are configured output/reference limits, not measured model tokens or cost.
 
 - `maxContextPacksPerHook`: `3`
-- `maxReadFirstPathsPerPack`: `5`
+- `maxReadFirstPathsPerPack`: `2`
 - `maxSecondaryPathsPerPack`: `5`
 - `maxValidationCommandsPerPack`: `5`
-- `maxEmittedPackSummaryChars`: `1200`
 - `maxContextPackTokenBudget`: `1200`
 - `maxGovernanceSummaryChars`: `7000`
 
