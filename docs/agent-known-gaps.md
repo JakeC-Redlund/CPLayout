@@ -22,7 +22,7 @@ Use this section for agent routing, managed hooks, generated context maps, route
 
 The [tree protocol](agent-tree-protocol.md) and [phased rollout](agent-tree-rollout.md) are process contracts, not autonomous policy enforcement. The pre-existing dirty work was reviewed, source/browser validated, committed, pushed and synced at `a69f597` before this governance branch. Hosted governance CI, a fresh trusted session, managed endpoint installation and measured token/cost effects remain separate acceptance gates.
 
-The 12-fixture local hook comparison reduced emitted UTF-8 bytes from 25,973 to 5,575 while retaining its 8/4 route classification; 57 focused tests pass. This is a deterministic local output comparison, not actual token, latency, quality, cost, fresh-session or managed-endpoint proof. The current `gpt-6-sol` default is source/catalog-backed but still needs a fresh-session inference smoke check.
+The 12-fixture local hook comparison reduced emitted UTF-8 bytes from 25,973 to 5,575 while retaining its 8/4 route classification; focused hook tests pass. This is a deterministic local output comparison, not actual token, latency, quality, cost, fresh-session or managed-endpoint proof. The repo does not pin a model; each task must use one available to its active client/account, and model-specific inference remains unverified by the earlier smoke.
 
 | Gap | Impact | Current mitigation |
 | --- | --- | --- |

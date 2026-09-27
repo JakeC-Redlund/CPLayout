@@ -53,12 +53,29 @@ COMPLEXITY_ORDER = {"low": 0, "medium": 1, "high": 2, "xhigh": 3}
 REASONING_EFFORTS = frozenset(("minimal", "low", "medium", "high", "xhigh"))
 SUBAGENT_REASONING_EFFORTS = frozenset(("task_selected",))
 SPAWN_POLICIES = frozenset(("required", "optional", "not_useful"))
+DELEGATION_QUALIFIER_PATTERN = (
+    r"(?:(?:an?|the|some|any|multiple|several|bounded|read-only|parallel|specialist|expert|"
+    r"other|additional|more|one|two|three|four|five|six|seven|eight|nine|ten|\d+)\s+){0,4}"
+)
 EXPLICIT_MULTI_AGENT_RE = re.compile(
     r"\b(?:use|spawn|run|start|assign|ask|convene|launch|coordinate(?: with)?)\s+"
-    r"(?:(?:an?|the|some|multiple|several|bounded|read-only)\s+)*"
-    r"(?:multi[- ]agent(?:\s+(?:expert\s+)?panels?)?|sub[- ]?agents?|"
+    + DELEGATION_QUALIFIER_PATTERN
+    + r"(?:multi[- ]agent(?:\s+(?:expert\s+)?panels?)?|sub[- ]?agents?|"
     r"expert(?:[- ]agent)?\s+panels?|agent\s+panels?|parallel\s+agents?|specialist\s+teams?|agents?)\b"
     r"|\bdelegate\s+(?:this|the\s+task|work)?\s*to\s+(?:sub[- ]?agents?|agents?|an?\s+expert\s+panel)\b",
+    re.IGNORECASE,
+)
+DELEGATION_TARGET_PATTERN = (
+    r"(?:sub[- ]?agents?|agents?|delegation|multi[- ]agent(?:\s+(?:expert\s+)?panels?)?|"
+    r"expert(?:[- ]agent)?\s+panels?|specialist\s+teams?)"
+)
+DELEGATION_TARGET_END = r"(?![\w-])(?=\s*(?:[.,;:!?)]|$|(?:to|for|on|in|with|during|when|while|as|because|and|but|or)\b))"
+DELEGATION_TARGET_END_RE = re.compile(DELEGATION_TARGET_END, re.IGNORECASE)
+DELEGATION_RESTRICTION_RE = re.compile(
+    r"\b(?:(?:do\s+not|don't|never)\s+(?:(?:use|spawn|run|start|assign|ask|convene|launch|"
+    r"coordinate(?: with)?)\s+" + DELEGATION_QUALIFIER_PATTERN + DELEGATION_TARGET_PATTERN + DELEGATION_TARGET_END + r"|delegate\b)|"
+    r"(?:no|without)\s+(?:using\s+)?" + DELEGATION_QUALIFIER_PATTERN + DELEGATION_TARGET_PATTERN + DELEGATION_TARGET_END + r"|"
+    r"coordinator[- ]only|single[- ]agent[- ]only)\b",
     re.IGNORECASE,
 )
 PROMPT_CONTEXT_MAX_BYTES = 1200
@@ -448,15 +465,15 @@ def _selected_reasoning(matches: list[RouteMatch], route_data: RouteData) -> str
 def has_explicit_multi_agent_request(prompt: str) -> bool:
     if has_delegation_restriction(prompt):
         return False
-    return bool(EXPLICIT_MULTI_AGENT_RE.search(QUOTE_RE.sub(" ", prompt)))
+    unquoted = QUOTE_RE.sub(" ", prompt)
+    return any(
+        DELEGATION_TARGET_END_RE.match(unquoted, match.end())
+        for match in EXPLICIT_MULTI_AGENT_RE.finditer(unquoted)
+    )
 
 
 def has_delegation_restriction(prompt: str) -> bool:
-    return bool(re.search(
-        r"\b(?:(?:do\s+not|don't|never)\s+(?:(?:use|spawn|run)\s+(?:any\s+)?(?:subagents?|sub-agents?|agents?)|delegate)|"
-        r"no\s+(?:subagents?|sub-agents?|delegation)|without\s+(?:subagents?|sub-agents?|delegation)|coordinator[- ]only)\b",
-        QUOTE_RE.sub(" ", prompt), re.IGNORECASE,
-    ))
+    return bool(DELEGATION_RESTRICTION_RE.search(QUOTE_RE.sub(" ", prompt)))
 
 
 def subagent_decision(prompt: str, matches: list[RouteMatch]) -> tuple[str, str]:

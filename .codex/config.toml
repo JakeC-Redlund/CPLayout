@@ -1,8 +1,7 @@
 #:schema https://developers.openai.com/codex/config-schema.json
 
-model = "gpt-6-sol"
-# Reasoning effort is intentionally selected per task in AGENTS.md instead of
-# pinned as a project-wide default.
+# Model and reasoning effort are selected per task/session in AGENTS.md instead
+# of pinned to a project-wide default that may be unavailable to another client.
 
 [features]
 multi_agent = true

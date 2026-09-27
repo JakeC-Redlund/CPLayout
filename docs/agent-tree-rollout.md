@@ -37,7 +37,7 @@ The implementation uses a lean index and on-demand leaf references because the e
 
 Keep the tree shallow: one coordinator, bounded leaf reviews/workers, serialized integration, and independent QA for shared contracts. Use lower effort for narrow tasks and higher effort only when scope warrants. Do not add a new orchestration framework, telemetry service, product package move, managed hook deployment or native feature merely to model this process.
 
-The repo default is now `gpt-6-sol`, based on the current Codex model guidance and the installed CLI catalog; project-wide reasoning effort remains unset. The strict-config fresh-session smoke above confirms a response, but its JSON did not report model identity; model-specific inference and managed-hook loading remain separate proof gates.
+The repo does not pin a model or reasoning effort. The coordinator chooses an available model and effort for each task and leaf after checking the active client and account; a model slug present in one CLI catalog is not a portability guarantee. The strict-config fresh-session smoke above confirms a response, but its JSON did not report model identity; model-specific inference and managed-hook loading remain separate proof gates.
 
 ## Primary Sources
 

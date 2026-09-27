@@ -34,8 +34,19 @@ class PromptTriageTests(unittest.TestCase):
         for prompt in (
             "Do not delegate. Review SQLite schema migration.",
             "Do not use subagents. Fix a typo in the Expo UI screen.",
+            "Do not use multiple agents. Review SQLite schema migration.",
+            "Do not use read-only agents. Review SQLite schema migration.",
+            "Do not use any specialist agents. Review SQLite schema migration.",
+            "Do not use two agents. Review SQLite schema migration.",
+            "Do not coordinate with agents. Review SQLite schema migration.",
+            "Don't use multiple agents. Review SQLite schema migration.",
+            "Never run parallel agents. Review SQLite schema migration.",
             "No subagents; review projected XY CRS transforms.",
+            "No agents; review projected XY CRS transforms.",
+            "Without using subagents, review projected XY CRS transforms.",
+            "Without using additional specialist agents, review projected XY CRS transforms.",
             "Coordinator-only review of prompt triage and context maps.",
+            "Single-agent-only review of prompt triage and context maps.",
         ):
             with self.subTest(prompt=prompt):
                 matches = triage.match_routes(prompt)
@@ -253,6 +264,51 @@ class PromptTriageTests(unittest.TestCase):
         prompt = "Please use parallel agents for a typography review."
         self.assertEqual(self.route_ids(prompt), [])
         self.assertIn("Subagent decision: required", self.hook_context(prompt))
+
+    def test_positive_qualified_agent_requests_remain_required(self) -> None:
+        for prompt in (
+            "Use multiple agents to review SQLite schema migration.",
+            "Use read-only agents to review SQLite schema migration.",
+            "Use two agents to review SQLite schema migration.",
+            "Use additional specialist agents to review SQLite schema migration.",
+            "Coordinate with agents to review SQLite schema migration.",
+            "Run parallel agents to review SQLite schema migration.",
+        ):
+            with self.subTest(prompt=prompt):
+                self.assertFalse(triage.has_delegation_restriction(prompt))
+                self.assertEqual(triage.subagent_decision(prompt, triage.match_routes(prompt))[0], "required")
+
+    def test_explicit_numbered_agent_requests_without_route_are_required(self) -> None:
+        for prompt in (
+            "Spawn one agent to review this typography.",
+            "Use 2 agents to review this typography.",
+            "Assign three subagents to review this typography.",
+        ):
+            with self.subTest(prompt=prompt):
+                self.assertEqual(self.route_ids(prompt), [])
+                self.assertEqual(triage.subagent_decision(prompt, [])[0], "required")
+
+    def test_unrelated_agent_words_do_not_override_explicit_request(self) -> None:
+        for prompt in (
+            "Do not use the agents table. Use multiple agents to review SQLite schema migration.",
+            "Do not use the word agents in the report. Use multiple agents to review SQLite schema migration.",
+            "Do not use the agent API. Use multiple agents to review SQLite schema migration.",
+            "Never use agent-specific tooling; use multiple agents to review SQLite schema migration.",
+            "Do not use agent-authored docs; use multiple agents to review SQLite schema migration.",
+        ):
+            with self.subTest(prompt=prompt):
+                self.assertFalse(triage.has_delegation_restriction(prompt))
+                self.assertEqual(triage.subagent_decision(prompt, triage.match_routes(prompt))[0], "required")
+
+    def test_agent_named_data_is_not_a_delegation_request(self) -> None:
+        for prompt in (
+            "Use the agents table to review SQLite schema migration.",
+            "Use the agent API to review SQLite schema migration.",
+            "Use agent-authored docs to review SQLite schema migration.",
+        ):
+            with self.subTest(prompt=prompt):
+                self.assertFalse(triage.has_explicit_multi_agent_request(prompt))
+                self.assertEqual(triage.subagent_decision(prompt, triage.match_routes(prompt))[0], "optional")
 
     def test_quoted_no_delegation_does_not_override_request(self) -> None:
         prompt = 'Use multi-agent expert panels; the example string says "do not delegate".'
