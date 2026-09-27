@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { readWorkspace, workspaceStorageBytes } from "./workspace-fixtures";
 
 test.beforeEach(async ({ page }) => {
   await page.route("**/*", (route) => {
@@ -57,13 +58,13 @@ test("advisory overlay completion preserves the stored project", async ({ page }
   await page.getByTestId("command-file-sample-baseline-needs-review").click();
   await page.getByTestId("workspace-nav-files").click();
   await page.getByTestId("files-action-save-local").click();
-  await expect.poll(() => page.evaluate(() => localStorage.getItem("center-pivot-layout-projects-v1"))).not.toBeNull();
+  await expect.poll(async () => (await readWorkspace(page)).projectDocuments.length).toBe(1);
   await page.getByTestId("workspace-nav-map").click();
   await expect(page.getByTestId("advisory-map-job-status")).toContainText("Calculating");
-  const before = await page.evaluate(() => localStorage.getItem("center-pivot-layout-projects-v1"));
-  expect(before).toContain("North Quarter Concept Layout");
+  const before = await workspaceStorageBytes(page);
+  expect((await readWorkspace(page)).projectDocuments[0].summary.name).toBe("North Quarter Concept Layout");
   await expect(page.getByTestId("advisory-map-job-status")).toHaveText("", { timeout: 60000 });
-  expect(await page.evaluate(() => localStorage.getItem("center-pivot-layout-projects-v1"))).toBe(before);
+  expect(await workspaceStorageBytes(page)).toEqual(before);
   await expect(page.getByTestId("project-save-state")).toContainText("Saved");
   await expect(page.locator(".maplibregl-canvas").first()).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("advisory-overlays-complete.png") });

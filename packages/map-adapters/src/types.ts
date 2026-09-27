@@ -2,9 +2,30 @@ import type { ReactNode } from "react";
 import type { AppSettings, InfrastructurePoint, LayoutResult, LonLat, ManualDesignRadiusRole, MappingWorkflowMode, ObstacleZone, PivotProject, ProjectMapFeature, ProjectMapFeatureKind, SourceConfidence, SurveyPoint, XY } from "@cplayout/core";
 import type { AdvisoryFieldPivotPlan, AdvisoryMachineRenderModel, DrawingLayerType, DrawingMode } from "@cplayout/geometry";
 import type { PendingMapFeatureDraft, UtilityFeatureGeometry } from "./mapTools";
+import type { ProjectMutationResult } from "@cplayout/core";
+
+export type MapMutationOutcome = ProjectMutationResult | boolean | void;
+
+export interface MapDraftOwner {
+  projectId: string;
+  projectCrs: string;
+  projectGeneration: number;
+  draftId: number;
+}
+
+export type MapDraftHandoffResult = { ok: true; owner: MapDraftOwner } | { ok: false; error: string };
+
+export interface MapDraftPurposeReceipt {
+  owner: MapDraftOwner;
+  sequence: number;
+  outcome: "committed" | "rejected" | "cancelled";
+  message: string;
+}
 
 export interface MapSurfaceProps {
   project: PivotProject;
+  projectGeneration?: number;
+  draftPurposeReceipt?: MapDraftPurposeReceipt | null;
   result: LayoutResult;
   settings: AppSettings;
   activeToolMode?: DrawingMode;
@@ -24,21 +45,21 @@ export interface MapSurfaceProps {
   onMappingWorkflowModeChange?: (mode: MappingWorkflowMode) => void;
   onCommitBoundaryDraft?: (vertices: XY[]) => boolean | void;
   onCommitObstacleDraft?: (vertices: XY[], kind: ObstacleZone["kind"], confidence?: SourceConfidence) => boolean | void;
-  onMoveBoundaryVertex?: (vertexIndex: number, point: XY) => void;
-  onInsertBoundaryVertex?: (afterVertexIndex: number, point: XY) => void;
-  onDeleteBoundaryVertex?: (vertexIndex: number) => void;
-  onMoveObstacleVertex?: (obstacleId: string, vertexIndex: number, point: XY) => void;
-  onInsertObstacleVertex?: (obstacleId: string, afterVertexIndex: number, point: XY) => void;
-  onDeleteObstacleVertex?: (obstacleId: string, vertexIndex: number) => void;
-  onMoveMapFeatureVertex?: (featureId: string, vertexIndex: number, point: XY) => void;
-  onInsertMapFeatureVertex?: (featureId: string, afterVertexIndex: number, point: XY) => void;
-  onDeleteMapFeatureVertex?: (featureId: string, vertexIndex: number) => void;
-  onMoveMapFeatureCircleRadiusHandle?: (featureId: string, point: XY) => void;
-  onPlacePivot?: (point: XY, wgs84?: LonLat) => void;
-  onMoveInfrastructurePoint?: (pointType: InfrastructurePoint, point: XY, wgs84?: LonLat) => void;
-  onAddSurveyPoint?: (point: Omit<SurveyPoint, "id" | "observedAt"> & { id?: string; observedAt?: string }) => void;
+  onMoveBoundaryVertex?: (vertexIndex: number, point: XY) => MapMutationOutcome;
+  onInsertBoundaryVertex?: (afterVertexIndex: number, point: XY) => MapMutationOutcome;
+  onDeleteBoundaryVertex?: (vertexIndex: number) => MapMutationOutcome;
+  onMoveObstacleVertex?: (obstacleId: string, vertexIndex: number, point: XY) => MapMutationOutcome;
+  onInsertObstacleVertex?: (obstacleId: string, afterVertexIndex: number, point: XY) => MapMutationOutcome;
+  onDeleteObstacleVertex?: (obstacleId: string, vertexIndex: number) => MapMutationOutcome;
+  onMoveMapFeatureVertex?: (featureId: string, vertexIndex: number, point: XY) => MapMutationOutcome;
+  onInsertMapFeatureVertex?: (featureId: string, afterVertexIndex: number, point: XY) => MapMutationOutcome;
+  onDeleteMapFeatureVertex?: (featureId: string, vertexIndex: number) => MapMutationOutcome;
+  onMoveMapFeatureCircleRadiusHandle?: (featureId: string, point: XY) => MapMutationOutcome;
+  onPlacePivot?: (point: XY, wgs84?: LonLat) => MapMutationOutcome;
+  onMoveInfrastructurePoint?: (pointType: InfrastructurePoint, point: XY, wgs84?: LonLat) => MapMutationOutcome;
+  onAddSurveyPoint?: (point: Omit<SurveyPoint, "id" | "observedAt"> & { id?: string; observedAt?: string }) => MapMutationOutcome;
   onAddMapFeature?: (feature: Omit<ProjectMapFeature, "id"> & { id?: string }) => void;
-  onCreateMapFeatureDraft?: (draft: PendingMapFeatureDraft) => void;
+  onCreateMapFeatureDraft?: (draft: PendingMapFeatureDraft) => MapDraftHandoffResult | void;
   onSelectMapFeature?: (featureId: string | null) => void;
   onManualDesignCapture?: (capture: ManualDesignMapCapture) => void;
 }

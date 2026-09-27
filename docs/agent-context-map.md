@@ -117,11 +117,11 @@ Use minimum-read entries before mutation. Use secondary-read entries only when t
 - `.codex/hooks/cplayout_stop_multi_agent.py`: `d9a079f447da909cafe61321b0b070f49c761c828818cde07ace63a7081312f8`
 - `.codex/hooks/cplayout_subagent_start.py`: `2c54b41069c7cc68a380788735a4d5c7b1209ea83e24c4f5a0ea614645fac8a5`
 - `AGENTS.md`: `a75aa6b27ee9da63660d54253412b01906d08778484222634376fc7ecdd1f7f9`
-- `docs/README.md`: `8971b34071adf9237273ff1e1488d2531394e7ca350548678d435a760030fbd4`
+- `docs/README.md`: `0d52b39468a1dc784b04005904e2aa444382e3d681166c16c3c326f2acb014ee`
 - `docs/agent-known-gaps.md`: `c3c54ce6a20c13f99d2e29514ab1e07012279a3dfb51f73ddd7f16d87f9f33e7`
 - `docs/agent-prompt-registry.md`: `de845be71f7a8d6d1b66c2949e5c7a571aa8b6ded64f5bad2885c26162fc7b05`
 - `docs/agent-source-ledger.md`: `8b007395865db2bcb1211ec1201e9e52d2cd25eaecf378932c483343e1704291`
 - `docs/codex-managed-hook-deployment.md`: `75a3ef85b723b66de5284feee9e3630d52f347a202414da5809474fea2ff5318`
-- `package.json`: `026025d789587a3297297e31ff4220b00d4d9753688f97ea4c037df487306aa7`
+- `package.json`: `40bfa39352852b294e1753855f379e484f76e16fa56a53b64920ebbe4c3a104d`
 - `tools/build_cplayout_context_map.py`: `a78ca864862dfa3237b519a66297aaaf578c8dfa9d493707a3c4c9626d1c046d`
 - `tools/validate_cplayout_skills.py`: `4673563ed896cfeca5ad123280a90294a981516b346bcee57bded4b6707004a7`

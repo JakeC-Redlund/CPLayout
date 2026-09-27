@@ -1,4 +1,6 @@
-import type { LayoutResult, PivotProject } from "@cplayout/core";
+import type { DesignDraft, LayoutResult, PivotProject } from "@cplayout/core";
+import type { WorkspaceDesignRecord, WorkspaceDocument } from "./workspaceDocument";
+import type { WorkspaceCommand, WorkspaceCommandValue } from "./workspaceCommands";
 
 export interface ClientRecord {
   id: string;
@@ -137,7 +139,26 @@ export interface ProjectRepositoryBackendInfo {
   notes: string[];
 }
 
+export type WorkspaceDesignCatalog = WorkspaceDocument["catalog"];
+type OpenedDesignContext = {
+  workspaceRevision: number;
+  document: string;
+  context: { clientId: string; projectId: string; fieldMapId: string; designId: string };
+};
+export type WorkspaceDesignRead =
+  | { kind: "not_found"; workspaceRevision: number }
+  | (OpenedDesignContext & { kind: "draft"; design: Extract<WorkspaceDesignRecord, { kind: "draft" }>; draft: DesignDraft })
+  | (OpenedDesignContext & { kind: "project"; design: Extract<WorkspaceDesignRecord, { kind: "project" }>; project: PivotProject });
+
+export interface VersionedWorkspaceRepository {
+  readAsync(): Promise<WorkspaceDocument>;
+  readDesignAsync(designId: string): Promise<WorkspaceDesignRead>;
+  executeAsync(expectedRevision: number, command: WorkspaceCommand): Promise<{ workspace: WorkspaceDocument; value: WorkspaceCommandValue }>;
+  exportRecoveryAsync(): Promise<string>;
+}
+
 export interface ProjectRepository {
+  versionedWorkspace?: VersionedWorkspaceRepository;
   listProjectsAsync(): Promise<ProjectSummary[]>;
   listProjectCatalogAsync(): Promise<ProjectCatalog>;
   saveProjectAsync(project: PivotProject, result?: LayoutResult): Promise<void>;

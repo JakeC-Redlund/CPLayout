@@ -1,8 +1,9 @@
 import { expect, test, type FileChooser, type Page } from "@playwright/test";
+import { strToU8, zipSync } from "fflate";
 import { sampleProject } from "../../packages/core/src/index";
 import { buildProjectRecoveryArchiveBundle, exportProjectArchiveZip } from "../../packages/project-store/src/projectArchive";
+import { readWorkspace, workspaceKey, workspaceStorageBytes } from "./workspace-fixtures";
 
-const projectsKey = "center-pivot-layout-projects-v1";
 type FileReadWindow = Window & { completedCplayoutFileReads?: number };
 
 test.beforeEach(async ({ page, baseURL }) => {
@@ -54,7 +55,7 @@ for (const malformed of [false, true]) {
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
     await files(page);
-    const before = await page.evaluate((key) => localStorage.getItem(key), projectsKey);
+    const before = await workspaceStorageBytes(page);
     const chooser = await picker(page);
     await page.getByTestId("command-menu-file").click();
     await page.getByTestId("command-file-catalog").click();
@@ -64,7 +65,7 @@ for (const malformed of [false, true]) {
       : fixture("stale-catalog-import"));
     await expect(page.getByTestId("workspace-breadcrumb-current")).toHaveText("CPLayout / Project Catalog");
     await expect(page.getByTestId("crs-recovery-panel")).toHaveCount(0);
-    expect(await page.evaluate((key) => localStorage.getItem(key), projectsKey)).toBe(before);
+    expect(await workspaceStorageBytes(page)).toEqual(before);
     expect(errors).toEqual([]);
     await page.screenshot({ path: testInfo.outputPath(`late-${malformed ? "malformed" : "valid"}-zip-cancelled.png`) });
   });
@@ -72,14 +73,14 @@ for (const malformed of [false, true]) {
 
 test("leaving Files for Dashboard cancels a pending project import", async ({ page }) => {
   await files(page);
-  const before = await page.evaluate((key) => localStorage.getItem(key), projectsKey);
+  const before = await workspaceStorageBytes(page);
   const chooser = await picker(page);
   await page.getByTestId("workspace-nav-dashboard").click();
   await expect(page.getByTestId("files-action-import-zip")).toHaveCount(0);
   await selectFile(page, chooser, fixture("stale-dashboard-import"));
   await expect(page.getByTestId("workspace-breadcrumb-current")).toHaveText("CPLayout / North Quarter Concept Layout");
   await expect(page.getByTestId("crs-recovery-panel")).toHaveCount(0);
-  expect(await page.evaluate((key) => localStorage.getItem(key), projectsKey)).toBe(before);
+  expect(await workspaceStorageBytes(page)).toEqual(before);
 });
 
 test("newer project picker wins and stale completion cannot persist another project", async ({ page }) => {
@@ -88,10 +89,12 @@ test("newer project picker wins and stale completion cannot persist another proj
   const second = await picker(page);
   await selectFile(page, second, fixture("latest-picker-import"));
   await expect(page.getByTestId("crs-recovery-project-name")).toHaveText("latest-picker-import");
-  await expect.poll(() => page.evaluate((key) => Boolean(JSON.parse(localStorage.getItem(key) ?? "{}")["latest-picker-import"]), projectsKey)).toBe(true);
+  await expect.poll(() => readWorkspace(page).then(workspace => workspace.projectDocuments.some(entry => entry.summary.id === "latest-picker-import"))).toBe(true);
+  const beforeStaleCompletion = await workspaceStorageBytes(page);
   await selectFile(page, first, fixture("obsolete-picker-import"));
   await expect(page.getByTestId("crs-recovery-project-name")).toHaveText("latest-picker-import");
-  expect(await page.evaluate((key) => Boolean(JSON.parse(localStorage.getItem(key) ?? "{}")["obsolete-picker-import"]), projectsKey)).toBe(false);
+  expect(await readWorkspace(page).then(workspace => workspace.projectDocuments.some(entry => entry.summary.id === "obsolete-picker-import"))).toBe(false);
+  expect(await workspaceStorageBytes(page)).toEqual(beforeStaleCompletion);
 });
 
 for (const crs of ["EPSG:32613", "EPSG:26741"]) {
@@ -100,12 +103,22 @@ for (const crs of ["EPSG:32613", "EPSG:26741"]) {
     await selectFile(page, await picker(page), fixture("saved-import", crs));
     await expect(page.getByTestId("project-import-status")).toHaveText("Imported project saved locally.");
     await expect(page.getByTestId("project-save-state")).toHaveText("Saved");
-    expect(await page.evaluate((key) => Boolean(JSON.parse(localStorage.getItem(key) ?? "{}")["saved-import"]), projectsKey)).toBe(true);
+    expect(await readWorkspace(page).then(workspace => workspace.projectDocuments.some(entry => entry.summary.id === "saved-import"))).toBe(true);
+    const imported = await readWorkspace(page);
+    const originalKeys = (await workspaceStorageBytes(page)).slice(1);
+    expect(imported.catalog).toEqual({ clients: [], projects: [], fieldMaps: [], designs: [] });
+    await page.getByTestId(crs === "EPSG:26741" ? "crs-recovery-save" : "command-icon-save").click();
+    await expect.poll(async () => (await readWorkspace(page)).revision).toBe(imported.revision + 1);
+    await expect(page.getByTestId("project-save-state")).toHaveText("Saved");
+    expect((await readWorkspace(page)).projectDocuments.map(entry => entry.document)).toEqual(imported.projectDocuments.map(entry => entry.document));
+    expect((await workspaceStorageBytes(page)).slice(1)).toEqual(originalKeys);
     await page.screenshot({ path: testInfo.outputPath(`import-saved-${crs.replace(":", "-")}.png`) });
   });
 
   test(`accepted ${crs} import shows save failure and can retry`, async ({ page }, testInfo) => {
     await files(page);
+    const before = await workspaceStorageBytes(page);
+    expect((await readWorkspace(page)).projectDocuments).toEqual([]);
     await page.evaluate((key) => {
       const set = Storage.prototype.setItem;
       (window as Window & { allowProjectWrites?: () => void }).allowProjectWrites = () => { Storage.prototype.setItem = set; };
@@ -113,17 +126,17 @@ for (const crs of ["EPSG:32613", "EPSG:26741"]) {
         if (name === key) throw new DOMException("Storage full in test", "QuotaExceededError");
         set.call(this, name, value);
       };
-    }, projectsKey);
+    }, workspaceKey);
     await selectFile(page, await picker(page), fixture("unsaved-import", crs));
     await expect(page.getByTestId("project-import-status")).toContainText("was not saved locally");
     await expect(page.getByTestId("project-save-state")).toHaveText("Unsaved edits");
-    expect(await page.evaluate((key) => localStorage.getItem(key), projectsKey)).toBeNull();
+    expect(await workspaceStorageBytes(page)).toEqual(before);
     await page.screenshot({ path: testInfo.outputPath(`import-save-failed-${crs.replace(":", "-")}.png`) });
     await page.evaluate(() => (window as Window & { allowProjectWrites?: () => void }).allowProjectWrites!());
     await page.getByTestId(crs === "EPSG:26741" ? "crs-recovery-save" : "command-icon-save").click();
     await expect(page.getByTestId("project-save-state")).toHaveText("Saved");
     await expect(page.getByTestId("project-import-status")).toHaveText("Imported project saved locally.");
-    expect(await page.evaluate((key) => Boolean(JSON.parse(localStorage.getItem(key) ?? "{}")["unsaved-import"]), projectsKey)).toBe(true);
+    expect(await readWorkspace(page).then(workspace => workspace.projectDocuments.some(entry => entry.summary.id === "unsaved-import"))).toBe(true);
   });
 }
 
@@ -131,11 +144,43 @@ test("current malformed ZIP leaves a visible Files error without loading or savi
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await files(page);
+  const before = await workspaceStorageBytes(page);
+  expect((await readWorkspace(page)).projectDocuments).toEqual([]);
   await selectFile(page, await picker(page), { name: "malformed.zip", mimeType: "application/zip", buffer: Buffer.from("not a ZIP") });
   await expect(page.getByTestId("files-status")).toContainText("invalid zip data");
   await expect(page.getByTestId("files-status")).not.toContainText("Project ZIP is the canonical project package.");
   await expect(page.getByTestId("workspace-breadcrumb-current")).toHaveText("CPLayout / North Quarter Concept Layout");
-  expect(await page.evaluate((key) => localStorage.getItem(key), projectsKey)).toBeNull();
+  expect(await workspaceStorageBytes(page)).toEqual(before);
+  expect(errors).toEqual([]);
+});
+
+test("corrupt project coordinates fail CRC without replacing saved data and a valid retry succeeds", async ({ page }, testInfo) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await files(page);
+  await page.getByTestId("files-action-save-local").click();
+  await expect(page.getByTestId("project-save-state")).toHaveText("Saved");
+  const storedData = () => workspaceStorageBytes(page);
+  const before = await storedData();
+  const project = { ...structuredClone(sampleProject), id: "crc-recovery-import", name: "CRC recovery import", projectCrs: "EPSG:26741" };
+  project.fieldBoundary[0].x = 123456;
+  const archive = buildProjectRecoveryArchiveBundle(project);
+  const validBytes = Buffer.from(zipSync(Object.fromEntries(Object.entries(archive.files).map(([name, contents]) => [name, strToU8(contents)])), { level: 0 }));
+  const corruptBytes = Buffer.from(validBytes);
+  const offset = corruptBytes.indexOf("123456");
+  expect(offset).toBeGreaterThanOrEqual(0);
+  corruptBytes[offset + 5] = "7".charCodeAt(0);
+  await selectFile(page, await picker(page), { name: "corrupt-coordinate.zip", mimeType: "application/zip", buffer: corruptBytes });
+  await expect(page.getByTestId("files-status")).toContainText("CRC-32 mismatch: project.json");
+  await expect(page.getByTestId("workspace-breadcrumb-current")).toHaveText("CPLayout / North Quarter Concept Layout");
+  await expect(page.getByTestId("project-save-state")).toHaveText("Saved");
+  expect(await storedData()).toEqual(before);
+  await page.screenshot({ path: testInfo.outputPath("corrupt-coordinate-rejected.png") });
+  await selectFile(page, await picker(page), { name: "valid-coordinate.zip", mimeType: "application/zip", buffer: validBytes });
+  await expect(page.getByTestId("crs-recovery-project-name")).toHaveText(project.name);
+  await expect(page.getByTestId("project-import-status")).toHaveText("Imported project saved locally.");
+  const stored = (await readWorkspace(page)).projectDocuments.find(entry => entry.summary.id === "crc-recovery-import")!.document;
+  expect(JSON.parse(stored).project.fieldBoundary[0].x).toBe(123456);
   expect(errors).toEqual([]);
 });
 
@@ -143,14 +188,14 @@ test("opening a saved project supersedes the old Files picker", async ({ page })
   await files(page);
   await page.getByTestId("files-action-save-local").click();
   await expect(page.getByTestId("project-save-state")).toHaveText("Saved");
-  const before = await page.evaluate((key) => localStorage.getItem(key), projectsKey);
+  const before = await workspaceStorageBytes(page);
   const chooser = await picker(page);
   await page.getByLabel("Open North Quarter Concept Layout", { exact: true }).click();
   await expect(page.getByTestId("files-action-import-zip")).toHaveCount(0);
   await selectFile(page, chooser, fixture("superseded-import"));
   await expect(page.getByTestId("workspace-breadcrumb-current")).toHaveText("CPLayout / North Quarter Concept Layout");
   await expect(page.getByTestId("project-save-state")).toHaveText("Saved");
-  expect(await page.evaluate((key) => localStorage.getItem(key), projectsKey)).toBe(before);
+  expect(await workspaceStorageBytes(page)).toEqual(before);
 });
 
 test("editing project data while Files remains mounted cancels its old picker", async ({ page }) => {
@@ -164,8 +209,7 @@ test("editing project data while Files remains mounted cancels its old picker", 
   await expect(page.getByTestId("workspace-breadcrumb-current")).toHaveText("CPLayout / North Quarter Concept Layout");
   await page.getByTestId("files-action-save-local").click();
   await expect(page.getByTestId("project-save-state")).toHaveText("Saved");
-  const documents = await page.evaluate((key) => Object.values(JSON.parse(localStorage.getItem(key) ?? "{}"))
-    .map((entry) => (entry as { document: string }).document), projectsKey);
+  const documents = (await readWorkspace(page)).projectDocuments.map(entry => entry.document);
   expect(documents).toHaveLength(1);
   expect(documents[0]).toContain("import-lifecycle-point");
   expect(documents[0]).not.toContain("pre-edit-import");

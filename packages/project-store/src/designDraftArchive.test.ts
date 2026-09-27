@@ -49,6 +49,12 @@ function bundle(draft = emptyDraft()): DesignDraftArchiveBundle {
   return buildDesignDraftArchiveBundle(draft, createdAt);
 }
 
+test("draft exporter uses a single header time even if the clock advances", context => {
+  let tick = Date.parse(createdAt);
+  context.mock.method(Date, "now", () => (tick += 4000));
+  roundtrip();
+});
+
 function rawZip(files: Record<string, string>): Uint8Array {
   return zipSync(Object.fromEntries(Object.entries(files).map(([name, text]) => [name, strToU8(text)])));
 }
@@ -60,7 +66,7 @@ function rejectUnchanged(bytes: Uint8Array, pattern?: RegExp): void {
   assert.deepEqual(bytes, snapshot);
 }
 
-function roundtrip(draft: DesignDraft): DesignDraft {
+function roundtrip(draft: DesignDraft = emptyDraft()): DesignDraft {
   const snapshot = structuredClone(draft);
   const archive = bundle(draft);
   const archiveSnapshot = structuredClone(archive);
@@ -257,12 +263,16 @@ test("signed and unsigned descriptors, reversed directory order and ZIP comments
   }
 });
 
-test("actual fflate streaming ZIP writers interoperate for stored and deflated files", () => {
+test("actual fflate streaming ZIP writers interoperate for stored and deflated files", context => {
+  let tick = Date.UTC(2026, 8, 25, 12);
+  context.mock.method(Date, "now", () => (tick += 4000));
   for (const stored of [false, true]) {
     const chunks: Uint8Array[] = [];
     const zip = new Zip((error, data) => { if (error) throw error; chunks.push(data); });
+    const mtime = new Date(Date.now());
     for (const [name, contents] of Object.entries(bundle().files)) {
       const file = stored ? new ZipPassThrough(name) : new ZipDeflate(name);
+      file.mtime = mtime;
       zip.add(file);
       const bytes = strToU8(contents);
       file.push(bytes.subarray(0, 7));
@@ -377,6 +387,26 @@ test("rejects malformed manifest, unknown versions, kind and identity confusion"
   rejectUnchanged(rawZip({ ...complete.files, "manifest.json": JSON.stringify({ ...complete.manifest, projectCrs: null }) }), /projectCrs/);
 });
 
+test("rejects duplicate and escaped-equivalent JSON members on import and export", () => {
+  const archive = bundle();
+  for (const key of ['"draftId"', '"draft\\u0049d"']) {
+    const manifest = `{${key}:"ambiguous",${archive.files["manifest.json"].slice(1)}`;
+    rejectUnchanged(rawZip({ ...archive.files, "manifest.json": manifest }), /Duplicate JSON/);
+    assert.throws(() => exportDesignDraftArchiveZip({
+      ...archive, files: { ...archive.files, "manifest.json": manifest },
+    }), /Duplicate JSON/);
+  }
+  const envelope = JSON.parse(archive.files["draft.json"]);
+  const draftBody = JSON.stringify(envelope.draft);
+  for (const key of ['"fieldBoundary"', '"fieldBound\\u0061ry"']) {
+    const document = `{"documentVersion":"${envelope.documentVersion}","draft":{${key}:[{"x":7,"y":8}],${draftBody.slice(1)}}`;
+    rejectUnchanged(rawZip({ ...archive.files, "draft.json": document }), /Duplicate JSON/);
+    assert.throws(() => exportDesignDraftArchiveZip({
+      ...archive, files: { ...archive.files, "draft.json": document },
+    }), /Duplicate JSON/);
+  }
+});
+
 test("rejects bare payloads, project envelopes and unsupported draft documents", () => {
   const archive = bundle();
   for (const payload of [emptyDraft(), { documentVersion: "design-draft-v2", draft: emptyDraft() },
@@ -409,7 +439,7 @@ test("duplicate central-directory entries fail before any expansion", () => {
 test("rejects traversal, backslashes, absolute paths and unexpected entries", () => {
   for (const name of ["../draft.json", "/draft.json", "C:/draft.json", "C:\\draft.json", "folder\\draft.json",
     "./draft.json", "folder/../draft.json", "folder//draft.json", "folder/", "project.json", "exports/metrics.csv", "__proto__"]) {
-    rejectUnchanged(craftedZip([{ name, contents: "{}" }, fixtureEntries()[0]]), /unsafe path|unexpected file/);
+    rejectUnchanged(craftedZip([{ name, contents: "{}" }, fixtureEntries()[0]]), /unsafe path|unsupported file/);
   }
 });
 

@@ -1,0 +1,248 @@
+{
+  "recordedAt": "2026-09-17T01:29:51.032Z",
+  "checkpoint": "ec050f60bf515b5c4cbd40c3180615b5056e28b3",
+  "scope": "Coordinator source and synthetic host validation; not independent QA, native device or field qualification",
+  "sourceFreeze": "2026-09-17T01:15:50.490Z",
+  "sourceCount": 527,
+  "aggregateValidation": {
+    "checkedAt": "2026-09-17T01:23:23.070Z",
+    "count": 527,
+    "mismatches": [],
+    "validateExitCode": 0
+  },
+  "web": {
+    "createdAt": "2026-09-17T01:21:27.969Z",
+    "url": "http://127.0.0.1:19013",
+    "bundles": [
+      {
+        "file": "index-13eb3a9d460f3890c3c6c6bca843c9a0.js",
+        "sha256": "5b2bfc8813ce160fbe511167d004e533aecaf321ccdc5457193a86ba18a08364"
+      }
+    ]
+  },
+  "focusedBrowser": {
+    "stats": {
+      "startTime": "2026-09-17T01:21:18.896Z",
+      "duration": 106569.799,
+      "expected": 19,
+      "skipped": 2,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "workers": 1,
+    "retries": 0,
+    "skipBoundary": "Two explicit mobile drag skips; some existing compact edit cases return after screenshots and are not gesture proof"
+  },
+  "previousFullBrowser": {
+    "stats": {
+      "startTime": "2026-09-17T00:58:24.890Z",
+      "duration": 592780.1969999999,
+      "expected": 46,
+      "skipped": 376,
+      "unexpected": 1,
+      "flaky": 0
+    },
+    "notRun": 376,
+    "failure": "Selected boundary vertex handle intercepted by bottom editing controls"
+  },
+  "hostSqlite": {
+    "node": "v24.14.1",
+    "scope": "Synthetic host SQLite fixtures, not Expo/device proof; opaque snapshots test SQL byte retention, not project validity",
+    "rows": [
+      {
+        "case": "upgrade-0",
+        "passed": true,
+        "sqliteVersion": "3.51.2",
+        "snapshotPreserved": false
+      },
+      {
+        "case": "upgrade-8",
+        "passed": true,
+        "sqliteVersion": "3.51.2",
+        "snapshotPreserved": true
+      },
+      {
+        "case": "upgrade-10",
+        "passed": true,
+        "sqliteVersion": "3.51.2",
+        "snapshotPreserved": true
+      },
+      {
+        "case": "upgrade-11",
+        "passed": true,
+        "sqliteVersion": "3.51.2",
+        "snapshotPreserved": true
+      },
+      {
+        "case": "future-schema",
+        "passed": true,
+        "byteIdentical": true,
+        "sha256": "e09075c4735044a2887d9e5cd8bf8dc029e606f06ce3d0ea22dce6eb664ff18f",
+        "calls": [
+          "PRAGMA user_version;"
+        ]
+      },
+      {
+        "case": "rollback-and-retry",
+        "passed": true,
+        "schemaRestored": true,
+        "snapshotPreserved": true
+      }
+    ]
+  },
+  "openLegacyStorageDefects": {
+    "observedAt": "2026-09-17T01:27:41.187Z",
+    "scope": "Synthetic in-memory reproduction of legacy adapter defects; no real browser or user data touched; not acceptance",
+    "observations": [
+      {
+        "case": "corrupt-project-string-save",
+        "observed": "save resolves and overwrites the corrupt source string"
+      },
+      {
+        "case": "catalog-write-failure",
+        "observed": "save rejects after project payload is already committed without its catalog"
+      },
+      {
+        "case": "missing-design-save",
+        "observed": "save resolves and persists a payload although the selected design does not exist"
+      },
+      {
+        "case": "design-identity-mismatch",
+        "observed": "save resolves and relinks an existing design to a different payload identity"
+      }
+    ]
+  },
+  "audit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "productionAudit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "artifacts": [
+    {
+      "file": "validate-map-viewport-pass.log",
+      "sha256": "df08fb079256c512db5532998d782156dd561f62991dbf35302cacb9298b3b12"
+    },
+    {
+      "file": "source-identity-map-viewport.json",
+      "sha256": "915be3419d7a4155e9d879940ebe77d0e6f1df9e27b700bfb558ab52a6c1dd6b"
+    },
+    {
+      "file": "map-viewport-validation-source-check.json",
+      "sha256": "bb66f841a23aa89b5c32e6da27f060800d3bbbaa3f47395822c1a02131bff968"
+    },
+    {
+      "file": "map-viewport-focused.json",
+      "sha256": "d37b7ed70a8f727b5bb155e5e4df87cce223cdc678597c264fc629b3362f8fea"
+    },
+    {
+      "file": "full-browser.json",
+      "sha256": "c29c98204809aed9693ea91ec3eac6cdbb859150d01ca62af87d8e81d0ccc75e"
+    },
+    {
+      "file": "map-viewport-web-bundles.json",
+      "sha256": "c66f10d13fd6d69f8520bcd3c052673cdca2c977ebe5d7bc42cf6416309b8f8c"
+    },
+    {
+      "file": "host-sqlite-M08ytu/result.json",
+      "sha256": "0757f057738f08422e13f176f2262fc2c1ae20f31f8a541a61444087fbd425fe"
+    },
+    {
+      "file": "legacy-storage-repro.json",
+      "sha256": "5fe4aba9ee026694aeedcc69bf7eb756c129b889856e9f3dc1e04e4d69a7a82b"
+    },
+    {
+      "file": "legacy-storage-repro.ts",
+      "sha256": "262f71d055699e6b7c80b5225bad23b5a871ea7309eb9d08cd741325b433f858"
+    },
+    {
+      "file": "served-map-viewport-bundles.json",
+      "sha256": "9d045c3cef4ce0d4905c79a8270dd04508a0d56f0eb4abec7f8c4b7cd387d074"
+    },
+    {
+      "file": "kmz-integrity-repro.ts",
+      "sha256": "bedbdc8adcc3f998002777288b39ce2f73cce2b941fe092786bdf4017080c739"
+    },
+    {
+      "file": "kmz-integrity-repro.json",
+      "sha256": "54d0a7c837117befe9bc044f51328f62819629c20009197c3958ee0edb970d99"
+    },
+    {
+      "file": "audit-closeout.json",
+      "sha256": "5c71ffa1a612bcc49498f54387fdacccb07cc0096e4a181dee042fa0ada881cf"
+    },
+    {
+      "file": "audit-production-closeout.json",
+      "sha256": "5c71ffa1a612bcc49498f54387fdacccb07cc0096e4a181dee042fa0ada881cf"
+    },
+    {
+      "file": "governance-postflight.log",
+      "sha256": "1612888a8ef7a80b685f1f56a8f27897776ba6b091acf086a22b09fcd50b81f8"
+    },
+    {
+      "file": "context-postflight.log",
+      "sha256": "cf0524310319d026dded2161af9395c1def74041048b20861fdcee87b1502123"
+    }
+  ],
+  "fullRefactorAccepted": false,
+  "nativeRuntimeAccepted": false,
+  "physical3dAccuracyAccepted": false,
+  "servedWebBundle": {
+    "observedAt": "2026-09-17T01:30:31.082Z",
+    "scope": "Host fetch verifies launcher URL HTML reference and served JS bytes; not device-consumed native bundle evidence",
+    "results": [
+      {
+        "url": "http://127.0.0.1:19013/_expo/static/js/web/index-13eb3a9d460f3890c3c6c6bca843c9a0.js",
+        "bytes": 5177101,
+        "sha256": "5b2bfc8813ce160fbe511167d004e533aecaf321ccdc5457193a86ba18a08364",
+        "matched": true
+      }
+    ]
+  },
+  "openKmzExtractionDefects": {
+    "observedAt": "2026-09-17T01:39:00.128Z",
+    "scope": "Synthetic in-memory KMZ extraction only; no geometry commit, user file or Google Earth process",
+    "observations": [
+      {
+        "case": "kmz-coordinate-stale-crc",
+        "observed": "readGoogleEarthKmlFile returns changed longitude text instead of rejecting the stale checksum"
+      },
+      {
+        "case": "kmz-invalid-utf8-valid-crc",
+        "observed": "readGoogleEarthKmlFile returns replacement text instead of rejecting invalid UTF-8"
+      }
+    ]
+  },
+  "closeout": {
+    "recordedAt": "2026-09-17T02:05:01.383Z",
+    "audit": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "productionAudit": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "governanceExitCode": 0,
+    "contextMapExitCode": 0,
+    "whitespaceCheckExitCode": 0
+  }
+}

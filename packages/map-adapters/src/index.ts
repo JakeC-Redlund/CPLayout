@@ -1,4 +1,5 @@
 export * from "./MapSurface";
+export * from "./DesignDraftMapSurface";
 export * from "./mapClickIntent";
 export * from "./mapInteractionController";
 export * from "./mapTools";

@@ -3,6 +3,33 @@ import { test } from "node:test";
 
 import { WebSerialGnssTransport, type WebSerialPortLike } from "./webSerialTransport";
 
+test("separate connections retain distinct session IDs even with identical clocks and new adapters", async () => {
+  const clock = { nowIso: () => "2026-09-17T00:00:00.000Z", monotonicMs: () => 1000 };
+  const ids = new Set<string>();
+  for (let index = 0; index < 8; index += 1) {
+    const port: WebSerialPortLike = { readable: null, open: async () => undefined, close: async () => undefined };
+    const transport = new WebSerialGnssTransport({ requestPort: async () => port }, clock);
+    for (let reconnect = 0; reconnect < 2; reconnect += 1) {
+      const session = await transport.open({ baudRate: 115200 });
+      assert.match(session.id, /^web-serial-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+      assert.equal(ids.has(session.id), false);
+      ids.add(session.id);
+      await session.close();
+    }
+  }
+});
+
+test("session identity allocation failure occurs before serial permission or port ownership", async context => {
+  let requests = 0;
+  context.mock.method(globalThis.crypto, "randomUUID", () => { throw new Error("Synthetic randomness unavailable"); });
+  const transport = new WebSerialGnssTransport({ requestPort: async () => {
+    requests += 1;
+    return { readable: null, open: async () => undefined, close: async () => undefined };
+  } });
+  await assert.rejects(transport.open({ baudRate: 115200 }), /randomness unavailable/);
+  assert.equal(requests, 0);
+});
+
 function deferred<T = void>() {
   let resolve!: (value: T | PromiseLike<T>) => void;
   let reject!: (reason: unknown) => void;

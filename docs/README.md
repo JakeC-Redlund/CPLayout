@@ -19,6 +19,7 @@ CPLayout is an offline-first, no-cost center-pivot planning app. Canonical proje
 - Owner hardware, verified electrical specifications, level-shifting decisions and bench/field gates: [receiver-hardware-qualification.md](receiver-hardware-qualification.md).
 - Direct package inventory, current alignment, advisories, and upgrade gates: `docs/dependency-upgrade-plan.md`.
 - Shared mapping controller, renderer boundaries, and regression coverage: [mapping-refactor-plan.md](mapping-refactor-plan.md).
+- Polygon, Line and Point drawing, measurements, research and safety boundaries: [drawing-tools-refactor.md](drawing-tools-refactor.md).
 - Agricultural mapping/RTK quality review, comparison criteria, and improvement packets: [mapping-rtk-quality-program.md](mapping-rtk-quality-program.md).
 - Current Design-to-Layout safety packet, verification and remaining implementation sequence: [mapping-workflow-review.md](mapping-workflow-review.md).
 - Active full-refactor execution queue, worker ownership, checkpoints and resumption gates: [full-refactor-execution.md](full-refactor-execution.md).

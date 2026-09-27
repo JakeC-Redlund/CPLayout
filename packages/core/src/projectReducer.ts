@@ -478,6 +478,7 @@ function deleteMapFeatureGeometryVertex(geometry: ProjectMapFeatureGeometry, ver
 }
 
 function assertMapFeatureBoundaryPolicy(project: PivotProject, feature: ProjectMapFeature): void {
+  if (feature.geometry.type === "Polygon") validatedRing(feature.geometry.vertices, "Map feature polygon");
   if (feature.geometry.type === "Circle") assertMetricCalculationCrs(project.projectCrs);
   if (!isLayoutControlFeature(feature.kind)) return;
   for (const point of mapFeatureControlPoints(feature.geometry)) {
@@ -809,9 +810,11 @@ function assertNoDuplicateVertices(ring: XY[], label: string): void {
 }
 
 function signedArea(ring: XY[]): number {
+  const origin = ring[0];
+  if (!origin) return 0;
   return ring.reduce((area, point, index) => {
     const next = ring[(index + 1) % ring.length];
-    return area + point.x * next.y - next.x * point.y;
+    return area + (point.x - origin.x) * (next.y - origin.y) - (next.x - origin.x) * (point.y - origin.y);
   }, 0) / 2;
 }
 

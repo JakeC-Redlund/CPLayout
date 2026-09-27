@@ -2,6 +2,7 @@ import { parseDesignDraftDocument, parseProjectDocument, PROJECT_DOCUMENT_VERSIO
 import { z } from "zod";
 
 import type { CatalogProjectRecord, ClientRecord, DesignRecord, FieldMapRecord, ProjectSummary } from "./projectRepositoryTypes";
+import { parseStrictJson } from "./strictJson";
 
 export const WORKSPACE_DOCUMENT_VERSION = "cplayout-workspace-v1";
 
@@ -70,7 +71,7 @@ export function emptyWorkspaceDocument(): WorkspaceDocument {
 
 export function parseWorkspaceDocument(document: string): WorkspaceDocument {
   try {
-    const value: unknown = JSON.parse(document);
+    const value = parseStrictJson(document);
     if (value !== null && typeof value === "object" && "workspaceVersion" in value
       && value.workspaceVersion !== WORKSPACE_DOCUMENT_VERSION) fail("unsupported_version", "Workspace version is unsupported; preserve the original data for recovery.");
     return validateWorkspaceDocument(value);
@@ -87,6 +88,7 @@ export function serializeWorkspaceDocument(workspace: WorkspaceDocument): string
 /** Validates and detaches the envelope; payload strings are never normalized or regenerated. */
 export function validateWorkspaceDocument(input: unknown): WorkspaceDocument {
   try {
+    rejectPrototypeMetadata(input);
     const workspace = WorkspaceSchema.parse(input);
     const { catalog } = workspace;
     const clients = unique(catalog.clients, "client");
@@ -105,7 +107,7 @@ export function validateWorkspaceDocument(input: unknown): WorkspaceDocument {
     }
     for (const entry of workspace.draftDocuments) {
       if (projectDocuments.has(entry.id)) fail("conflict", "A payload identity cannot select both draft and project documents.");
-      if (parseDesignDraftDocument(entry.document).id !== entry.id) fail("identity_mismatch", "Draft identity differs from its stored document.");
+      if (readStoredDraft(entry.document).id !== entry.id) fail("identity_mismatch", "Draft identity differs from its stored document.");
     }
     const owned = new Set<string>();
     for (const design of catalog.designs) {
@@ -138,6 +140,16 @@ export function validateWorkspaceDocument(input: unknown): WorkspaceDocument {
   }
 }
 
+function rejectPrototypeMetadata(value: unknown): void {
+  if (value === null || typeof value !== "object") return;
+  for (const key of Object.keys(value)) {
+    if (key === "prototype" || Object.hasOwn(Object.prototype, key)) {
+      fail("invalid_document", "Workspace metadata contains an unsupported object-prototype key.");
+    }
+    rejectPrototypeMetadata((value as Record<string, unknown>)[key]);
+  }
+}
+
 const CreateSchema = z.object({ design: DesignSchema, document: z.string() }).strict();
 const SaveSchema = z.object({ designId: id, expectedRevision: revision, document: z.string(), updatedAt: timestamp }).strict();
 const DeleteSchema = z.object({ designId: id, expectedRevision: revision, deletedAt: timestamp }).strict();
@@ -165,7 +177,7 @@ export function saveWorkspaceDesign(workspace: WorkspaceDocument, input: z.input
   const save = parseMutation(SaveSchema, input);
   const design = existingDesign(next, save.designId, save.expectedRevision);
   const previous = design.kind === "draft"
-    ? parseDesignDraftDocument(next.draftDocuments.find((entry) => entry.id === design.draftId)!.document)
+    ? readStoredDraft(next.draftDocuments.find((entry) => entry.id === design.draftId)!.document)
     : readStoredProject(next.projectDocuments.find((entry) => entry.summary.id === design.pivotProjectId)!.document);
   const supplied = readPayload(design, save.document);
   // A label-only save cannot reinterpret existing XY. Explicit transformation is a separate workflow.
@@ -195,6 +207,7 @@ export function deleteWorkspaceDesign(workspace: WorkspaceDocument, input: z.inp
 }
 
 function parseMutation<S extends z.ZodType>(schema: S, input: unknown): z.output<S> {
+  rejectPrototypeMetadata(input);
   const parsed = schema.safeParse(input);
   if (!parsed.success) fail("invalid_document", "Invalid workspace mutation arguments.");
   return parsed.data;
@@ -202,7 +215,7 @@ function parseMutation<S extends z.ZodType>(schema: S, input: unknown): z.output
 
 function readPayload(design: WorkspaceDesignRecord, document: string) {
   try {
-    const payload = design.kind === "draft" ? parseDesignDraftDocument(document) : readStoredProject(document);
+    const payload = design.kind === "draft" ? readStoredDraft(document) : readStoredProject(document);
     if (payload.id !== designPayloadId(design)) fail("identity_mismatch", "A save cannot replace the selected document identity.");
     return payload;
   } catch (error) {
@@ -233,8 +246,12 @@ function hasCoordinates(payload: ReturnType<typeof readPayload>): boolean {
     || (payload.mapFeatures?.length ?? 0) > 0;
 }
 
+function readStoredDraft(document: string) {
+  return parseDesignDraftDocument(parseStrictJson(document));
+}
+
 function readStoredProject(document: string) {
-  const raw: unknown = JSON.parse(document);
+  const raw = parseStrictJson(document);
   // Legacy bare projects remain readable, but a declared future version cannot fall back to that path.
   if (raw !== null && typeof raw === "object" && "documentVersion" in raw
     && raw.documentVersion !== PROJECT_DOCUMENT_VERSION) fail("unsupported_version", "Stored project document version is unsupported.");

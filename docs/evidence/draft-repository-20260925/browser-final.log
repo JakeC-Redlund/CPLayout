@@ -1,0 +1,59 @@
+
+Running 30 tests using 2 workers
+
+(node:72142) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:72143) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:72142) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:72143) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [desktop] › tests/web/workspace-drafts.spec.ts:47:5 › draft repository persists missing inputs across tabs and reloads with revision and deletion protection (1.4s)
+  ✓   1 [desktop] › tests/web/workspace-activation.spec.ts:63:5 › a catalog form keeps its original revision and typed values across a conflicting refresh (2.4s)
+(node:72453) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:72453) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 [desktop] › tests/web/workspace-activation.spec.ts:83:5 › active repository preserves legacy inputs and rejects a stale save from another live tab (4.0s)
+  ✓   5 [desktop] › tests/web/workspace-activation.spec.ts:110:5 › corrupt migration data remains recoverable from catalog home without parsing it (1.3s)
+  ✓   4 [tablet-768] › tests/web/workspace-activation.spec.ts:63:5 › a catalog form keeps its original revision and typed values across a conflicting refresh (3.2s)
+  ✓   6 [desktop] › tests/web/workspace-activation.spec.ts:129:5 › missing Web Locks blocks persistence while keeping explicitly best-effort recovery available (1.5s)
+  ✓   8 [desktop] › tests/web/workspace-activation.spec.ts:144:5 › an imported project autosave and queued Save consume the same editor session receipts (2.2s)
+  ✓   7 [tablet-768] › tests/web/workspace-activation.spec.ts:83:5 › active repository preserves legacy inputs and rejects a stale save from another live tab (4.5s)
+  ✓   9 [desktop] › tests/web/workspace-activation.spec.ts:175:5 › create-only import collision cannot overwrite an existing stored identity (2.1s)
+  ✓  10 [tablet-768] › tests/web/workspace-activation.spec.ts:110:5 › corrupt migration data remains recoverable from catalog home without parsing it (1.0s)
+  ✓  11 [desktop] › tests/web/workspace-activation.spec.ts:190:5 › a pending saved-project open cannot replace edits made while its read waits (1.7s)
+  ✓  12 [tablet-768] › tests/web/workspace-activation.spec.ts:129:5 › missing Web Locks blocks persistence while keeping explicitly best-effort recovery available (1.5s)
+  ✓  14 [tablet-768] › tests/web/workspace-activation.spec.ts:144:5 › an imported project autosave and queued Save consume the same editor session receipts (2.2s)
+  ✓  13 [desktop] › tests/web/workspace-activation.spec.ts:231:5 › editing a loaded legacy project cannot erase unsupported stored fields (2.3s)
+  ✓  16 [desktop] › tests/web/workspace-activation.spec.ts:254:5 › a failed client write keeps the form and typed values available for retry (1.5s)
+  ✓  15 [tablet-768] › tests/web/workspace-activation.spec.ts:175:5 › create-only import collision cannot overwrite an existing stored identity (1.9s)
+(node:73263) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:73263) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  17 [tablet-768] › tests/web/workspace-activation.spec.ts:190:5 › a pending saved-project open cannot replace edits made while its read waits (1.4s)
+  ✓  18 [tablet-768] › tests/web/workspace-activation.spec.ts:231:5 › editing a loaded legacy project cannot erase unsupported stored fields (2.1s)
+  ✓  19 [tablet-768] › tests/web/workspace-drafts.spec.ts:47:5 › draft repository persists missing inputs across tabs and reloads with revision and deletion protection (1.3s)
+  ✓  20 [tablet-768] › tests/web/workspace-activation.spec.ts:254:5 › a failed client write keeps the form and typed values available for retry (1.4s)
+(node:73567) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:73567) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:73609) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:73609) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  22 [mobile-390] › tests/web/workspace-drafts.spec.ts:47:5 › draft repository persists missing inputs across tabs and reloads with revision and deletion protection (1.3s)
+  ✓  21 [mobile-390] › tests/web/workspace-activation.spec.ts:63:5 › a catalog form keeps its original revision and typed values across a conflicting refresh (2.6s)
+  ✓  23 [mobile-390] › tests/web/workspace-activation.spec.ts:83:5 › active repository preserves legacy inputs and rejects a stale save from another live tab (4.0s)
+  ✓  24 [mobile-390] › tests/web/workspace-activation.spec.ts:110:5 › corrupt migration data remains recoverable from catalog home without parsing it (1.2s)
+  ✓  25 [mobile-390] › tests/web/workspace-activation.spec.ts:129:5 › missing Web Locks blocks persistence while keeping explicitly best-effort recovery available (1.5s)
+  ✓  26 [mobile-390] › tests/web/workspace-activation.spec.ts:144:5 › an imported project autosave and queued Save consume the same editor session receipts (2.1s)
+  ✓  27 [mobile-390] › tests/web/workspace-activation.spec.ts:175:5 › create-only import collision cannot overwrite an existing stored identity (1.9s)
+  ✓  28 [mobile-390] › tests/web/workspace-activation.spec.ts:190:5 › a pending saved-project open cannot replace edits made while its read waits (1.6s)
+  ✓  29 [mobile-390] › tests/web/workspace-activation.spec.ts:231:5 › editing a loaded legacy project cannot erase unsupported stored fields (2.3s)
+  ✓  30 [mobile-390] › tests/web/workspace-activation.spec.ts:254:5 › a failed client write keeps the form and typed values available for retry (1.6s)
+
+  30 passed (48.5s)

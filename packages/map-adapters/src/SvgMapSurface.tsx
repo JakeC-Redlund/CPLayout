@@ -3,20 +3,24 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUp,
+  ChevronDown,
   Crosshair,
   Fence,
   Hand,
+  Layers,
   LocateFixed,
   Minus,
   PencilLine,
   Plus,
-  RefreshCcw,
+  Scan,
   Ruler,
   Satellite,
   UtilityPole,
+  Undo2,
+  X,
 } from "lucide-react-native";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { PanResponder, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions, type GestureResponderEvent } from "react-native";
+import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { Modal, PanResponder, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions, type GestureResponderEvent, type ViewStyle } from "react-native";
 import Svg, { Circle, G, Image as SvgImage, Line, Path, Rect, Text as SvgText } from "react-native-svg";
 
 import { buildLayoutPathOverlays, boundsForGeometry, createCirclePolygon, planOnlineImageryTiles, ringsToSvgPath, supportsSvgOnlineImageryOverlay } from "@cplayout/geometry";
@@ -41,6 +45,7 @@ import { XY } from "@cplayout/core";
 import { MapLibreImageryPreview } from "./MapLibreImageryPreview";
 import {
   UTILITY_FEATURE_OPTIONS,
+  draftMeasurementText,
 } from "./mapTools";
 import {
   hasMapFeatureVertexSelection,
@@ -49,6 +54,9 @@ import {
 } from "./projectVertexEditing";
 import type { MapSurfaceProps } from "./types";
 import { useMapInteractionController } from "./useMapInteractionController";
+import { finitePointBounds, fitProjectedBounds, viewportForScreen } from "./mapFit";
+import { trackMapPointers } from "./mapPointerGuard";
+import { anchoredPixelBox, createSvgSymbolScale, MAP_LABEL_FONT_PIXELS, placeMapLabels, visibleCircleLabelPoint, visiblePathLabelPoint, type MapLabelCandidate, type PixelBox } from "./svgMapLabels";
 
 type MapPalette = ReturnType<typeof paletteForMapStyle>;
 type SvgSymbolScale = ReturnType<typeof createSvgSymbolScale>;
@@ -61,6 +69,11 @@ const CATALOG_HOME_BOUNDS = {
   maxY: 72,
 };
 
+const overlayAnchors = {
+  zoom: { top: 12, right: 12 }, pan: { top: 174, right: 12 }, legend: { top: 12, left: 12 },
+  notices: { top: 12, left: 12 }, bottom: { bottom: 8, left: 12 }, draft: { bottom: 84, left: 12 },
+};
+
 export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
   const {
     advisoryFieldPivotPlan, advisoryMachineRenderModel, bottomOverlay,
@@ -68,10 +81,12 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
     selectedMapFeatureId, webGlRenderingDisabled = false,
     onMappingWorkflowModeChange, onSelectMapFeature,
   } = props;
-  const { width: windowWidth } = useWindowDimensions();
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const compactLayout = windowWidth < 760;
   const catalogHomeView = homeView === true;
   const externalHudLayout = controlLayout === "externalHud";
+  const shortLandscape = externalHudLayout && windowWidth > windowHeight && windowHeight < 500;
+  const externalCompactToolbar = externalHudLayout && (compactLayout || shortLandscape);
   const designMode = settings.mappingWorkflowMode === "design" && !catalogHomeView;
   const showProjectGeometry = !catalogHomeView;
   const mapFeatures = project.mapFeatures ?? [];
@@ -135,7 +150,15 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
   const [viewport, setViewport] = useState(initialViewport);
   const [mapPixelWidth, setMapPixelWidth] = useState(900);
   const [mapPixelHeight, setMapPixelHeight] = useState(440);
+  const effectiveViewport = useMemo(() => viewportForScreen(viewport,
+    { width: mapPixelWidth, height: mapPixelHeight }) ?? viewport,
+  [viewport, mapPixelWidth, mapPixelHeight]);
+  const fieldBounds = useMemo(() => finitePointBounds(project.fieldBoundary), [project.fieldBoundary]);
+  const fitObstructions = useRef({ top: 0, draftTop: Infinity, bottom: 0, panWidth: 140 });
+  const [labelObstructions, setLabelObstructions] = useState<Record<string, PixelBox>>({});
+  const externalDraftBottom = bottomOverlay ? (labelObstructions.bottom?.height ?? 0) + 16 : 8;
   const [localSelectedMapFeatureId, setLocalSelectedMapFeatureId] = useState<string | null>(null);
+  const [legendOpen, setLegendOpen] = useState(false);
   const activeSelectedMapFeatureId = selectedMapFeatureId === undefined ? localSelectedMapFeatureId : selectedMapFeatureId;
   const controller = useMapInteractionController(
     { ...props, selectedMapFeatureId: activeSelectedMapFeatureId },
@@ -149,13 +172,17 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
     insertAfterSelectedVertex, canDeleteSelectedVertex, canInsertSelectedVertex,
   } = controller;
   const mapState = {
-    viewport, mode: controller.mode, activeLayer: controller.activeLayer,
+    viewport: effectiveViewport, mode: controller.mode, activeLayer: controller.activeLayer,
     draftVertices: controller.draftVertices,
   };
   const [lastSnap, setLastSnap] = useState<{ point: XY; kind: "vertex" | "feature" } | null>(null);
   const lastSvgPressAt = useRef(0);
   const suppressTapUntil = useRef(0);
   const pressStartPoint = useRef<{ x: number; y: number } | null>(null);
+  const gestureAllowed = useRef(true);
+  const panAllowed = useRef(false);
+  const surfaceRef = useRef<View | null>(null);
+  const pointerTracking = useRef<ReturnType<typeof trackMapPointers> | null>(null);
   const palette = paletteForMapStyle(settings.mapStyle);
   const viewWidth = visibleWidthMeters(mapState.viewport);
   const viewHeight = visibleHeightMeters(mapState.viewport);
@@ -165,6 +192,38 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
   const minY = -mapState.viewport.center.y - viewHeight / 2;
   const maxY = -mapState.viewport.center.y + viewHeight / 2;
   const fieldPath = showProjectGeometry ? ringsToSvgPath([[project.fieldBoundary]]) : "";
+  const labels: MapLabelCandidate[] = [
+    ...([
+      ["pivot", "Pivot", project.pivotCenter, palette.pivot],
+      ["water", "Water", project.waterSource, palette.water],
+      ["power", "Power", project.powerSource, palette.power],
+    ] as const).map(([id, text, point, color]) => ({ id, text, point, color, priority: 70 })),
+    ...visibleMapFeatures.map(feature => ({ id: `feature-${feature.id}`, featureId: feature.id,
+      text: feature.name || shortMapFeatureLabel(feature.kind),
+      caption: feature.geometry.type === "Point" ? shortMapFeatureLabel(feature.kind) : undefined,
+      point: mapFeatureLabelPoint(feature, mapState.viewport),
+      color: colorForMapFeature(feature.kind, palette), priority: activeSelectedMapFeatureId === feature.id ? 100 : 50 })),
+    ...project.surveyPoints.map(point => ({ id: `survey-${point.id}`, text: shortSurveyLabel(point.role),
+      point: point.projected, color: palette.survey, priority: 20 })),
+    ...result.towers.map(tower => ({ id: `tower-${tower.towerIndex}`, text: `T${tower.towerIndex}`,
+      point: tower.point, color: palette.fieldStroke, priority: 10 })),
+    ...layoutPathOverlays.filter(overlay => overlay.centerlineSegments.some(segment => segment.length > 1)).map(overlay => ({
+      id: `path-${overlay.kind}-${overlay.towerIndex ?? "machine"}`, text: layoutPathLabel(overlay),
+      point: overlay.centerlineSegments.map(segment => visiblePathLabelPoint(segment, mapState.viewport)).find(point => point !== null)
+        ?? { x: NaN, y: NaN },
+      color: layoutPathLabelColor(overlay.kind, palette), priority: 15,
+    })),
+    ...mapState.draftVertices.map((point, index) => ({ id: `draft-${index}`, text: String(index + 1), point,
+      color: palette.draft, priority: 110 })),
+    ...(lastSnap ? [{ id: "snap", text: `Snap ${lastSnap.kind}`, point: lastSnap.point, color: palette.snap, priority: 120 }] : []),
+    ...(advisoryFieldPivotPlanVisible && advisoryFieldPivotPlan ? advisoryFieldPivotPlan.candidates.map(candidate => ({
+      id: `generated-${candidate.id}`, text: `G${candidate.sequence}`, point: candidate.pivotCenter,
+      color: palette.advisoryStroke, priority: 60,
+    })) : []),
+    ...(advisoryMachineRenderVisible && advisoryMachineRenderModel ? advisoryMachineRenderModel.instances.map((instance, index) => ({
+      id: `advisory-${instance.id}`, text: `A${index + 1}`, point: instance.pivotCenter, color: palette.machinePath, priority: 60,
+    })) : []),
+  ];
   const imageryPlan = useMemo(
     () => !catalogHomeView && settings.onlineImagery.enabled
       ? planOnlineImageryTiles({
@@ -198,13 +257,17 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
 
   const panResponder = useMemo(
     () => PanResponder.create({
-      onMoveShouldSetPanResponder: (_event, gesture) => Math.abs(gesture.dx) + Math.abs(gesture.dy) > 6,
+      onStartShouldSetPanResponderCapture: (event) => { startMapTouch(event); return false; },
+      onMoveShouldSetPanResponder: (_event, gesture) => gestureAllowed.current && Math.abs(gesture.dx) + Math.abs(gesture.dy) > 6,
       onPanResponderGrant: () => {
+        panAllowed.current = gestureAllowed.current;
         suppressTapUntil.current = Infinity;
       },
-      onPanResponderTerminate: () => { suppressTapUntil.current = Date.now() + 350; },
+      onPanResponderTerminate: () => { panAllowed.current = false; suppressTapUntil.current = Date.now() + 350; },
       onPanResponderRelease: (_event, gesture) => {
         suppressTapUntil.current = Date.now() + 350;
+        if (!panAllowed.current) return;
+        panAllowed.current = false;
         dispatch({
           type: "pan_screen",
           dxPixels: gesture.dx,
@@ -217,8 +280,9 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
     [designMode, mapPixelHeight, mapPixelWidth, mapState.mode, mapState.viewport, selectedVertex],
   );
   const panHandlers = panResponder.panHandlers;
+  // react-native-svg maps onPress to the DOM click handler on web.
   const svgInteractionProps = Platform.OS === "web"
-    ? { onClick: addDraftVertexFromWebClick, onDoubleClick: closeDraftFromWebDoubleClick, onPress: addDraftVertexFromPress }
+    ? { onPress: (event: GestureResponderEvent) => addDraftVertexFromWebClick(event as unknown as Parameters<typeof addDraftVertexFromWebClick>[0]), onDoubleClick: closeDraftFromWebDoubleClick }
     : { onPress: addDraftVertexFromPress };
   const mapClickLayerProps = Platform.OS === "web" ? { onClick: addDraftVertexFromWebClick, onDoubleClick: closeDraftFromWebDoubleClick } : {};
   const canCommitCurrentDraft = controller.canCommitDraft;
@@ -226,20 +290,113 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
     && activeFeatureGeometry === "Point"
     && Boolean(props.activeMapFeatureKind ? props.onAddMapFeature : props.onCreateMapFeatureDraft));
   const mapClickLayerActive = designMode && mapState.mode !== "pan" && mapState.mode !== "edit_vertices";
-  useEffect(() => {
+  useLayoutEffect(() => {
+    cancelMapGesture();
     setViewport(initialViewport);
     setLocalSelectedMapFeatureId(null);
-  }, [project.id, project.projectCrs, catalogHomeView]);
+  }, [project.id, project.projectCrs, props.projectGeneration, catalogHomeView]);
+  useLayoutEffect(cancelMapGesture, [mapPixelWidth, mapPixelHeight]);
+  useLayoutEffect(() => {
+    if (Platform.OS !== "web" || typeof ResizeObserver === "undefined") return;
+    const svg = (surfaceRef.current as unknown as Element | null)?.querySelector("svg");
+    if (!svg) return;
+    // RN layout events can round CSS pixels; use the rendered SVG for camera aspect.
+    const measure = () => {
+      const rect = svg.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        setMapPixelWidth(rect.width);
+        setMapPixelHeight(rect.height);
+      }
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(svg);
+    return () => observer.disconnect();
+  }, []);
+  useLayoutEffect(() => {
+    if (Platform.OS !== "web" || !surfaceRef.current) return;
+    const tracking = trackMapPointers(surfaceRef.current as unknown as Element,
+      allowed => {
+        gestureAllowed.current = allowed;
+        if (!allowed) { panAllowed.current = false; pressStartPoint.current = null; }
+      });
+    pointerTracking.current = tracking;
+    return () => { tracking.dispose(); pointerTracking.current = null; };
+  }, []);
+
+  function cancelMapGesture(): void {
+    gestureAllowed.current = false;
+    panAllowed.current = false;
+    pressStartPoint.current = null;
+    pointerTracking.current?.cancel();
+  }
+
+  function startMapTouch(event: GestureResponderEvent): void {
+    if (Platform.OS === "web") return;
+    if (event.nativeEvent.touches.length === 1) gestureAllowed.current = true;
+    else cancelMapGesture();
+  }
+
+  function fitField(): void {
+    if (catalogHomeView || !fieldBounds) return;
+    const obstruction = fitObstructions.current;
+    const topVisible = !deferMapNotices && (imageryPlan || referenceOverlayNotice || externalHudLayout);
+    const insets = {
+      top: Math.max(deferMapNotices ? 68 : 12, topVisible ? obstruction.top + 8 : 0),
+      right: deferMapNotices ? 20 : obstruction.panWidth + 20,
+      bottom: Math.max(20, bottomOverlay && !externalCompactToolbar ? obstruction.bottom + 16 : 0,
+        deferMapNotices ? 0 : mapPixelHeight - obstruction.draftTop + 8),
+      left: 20,
+    };
+    if (Platform.OS === "web") {
+      const surface = surfaceRef.current as unknown as Element | null;
+      const svg = surface?.querySelector("svg");
+      if (svg) {
+        const frame = svg.getBoundingClientRect();
+        const obstructionRect = (testId: string) => surface?.querySelector(`[data-testid="${testId}"]`)?.getBoundingClientRect();
+        const reserveTop = (testId: string) => {
+          const rect = obstructionRect(testId);
+          if (rect && rect.bottom > frame.top && rect.top < frame.bottom)
+            insets.top = Math.max(insets.top, rect.bottom - frame.top + 8);
+        };
+        const reserveBottom = (testId: string) => {
+          const rect = obstructionRect(testId);
+          if (rect && rect.bottom > frame.top && rect.top < frame.bottom)
+            insets.bottom = Math.max(insets.bottom, frame.bottom - rect.top + 8);
+        };
+        reserveTop("svg-map-top-overlay-stack");
+        const zoom = obstructionRect("svg-map-zoom-controls");
+        if (zoom && zoom.width > zoom.height) reserveTop("svg-map-zoom-controls");
+        else if (zoom) insets.right = Math.max(insets.right, zoom.width + 20);
+        reserveTop("svg-map-compact-legend");
+        reserveBottom("svg-map-draft-hud");
+        reserveBottom("svg-map-bottom-overlay");
+      }
+    }
+    const margin = Math.max(0, Math.min(24, (mapPixelWidth - insets.left - insets.right) / 8,
+      (mapPixelHeight - insets.top - insets.bottom) / 8));
+    const fitted = fitProjectedBounds(fieldBounds, { width: mapPixelWidth, height: mapPixelHeight }, insets, margin);
+    if (!fitted) return;
+    cancelMapGesture();
+    setViewport(fitted);
+  }
 
   function dispatch(action: DrawingMapAction): void {
     switch (action.type) {
       case "pan":
+        cancelMapGesture();
         setViewport((current) => panViewport(current, action.delta));
         break;
       case "pan_screen":
-        setViewport((current) => panViewportByScreenDelta(current, action.dxPixels, action.dyPixels, action.screenWidthPixels, action.screenHeightPixels));
+        setViewport((current) => {
+          const effective = viewportForScreen(current, { width: action.screenWidthPixels, height: action.screenHeightPixels });
+          if (!effective) return current;
+          const moved = panViewportByScreenDelta(effective, action.dxPixels, action.dyPixels, action.screenWidthPixels, action.screenHeightPixels);
+          return { ...current, center: moved.center };
+        });
         break;
       case "zoom":
+        cancelMapGesture();
         setViewport((current) => zoomViewport(current, action.factor));
         break;
       case "set_mode":
@@ -261,6 +418,7 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
   }
 
   function addDraftVertexFromPress(event: GestureResponderEvent): void {
+    if (!gestureAllowed.current) return;
     if (Date.now() < suppressTapUntil.current) return;
     if ("detail" in event.nativeEvent && typeof event.nativeEvent.detail === "number" && event.nativeEvent.detail > 1) return;
     if (!Number.isFinite(event.nativeEvent.locationX) || !Number.isFinite(event.nativeEvent.locationY)) return;
@@ -269,6 +427,7 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
   }
 
   function startPressGesture(event: GestureResponderEvent): void {
+    if (!gestureAllowed.current) return;
     pressStartPoint.current = { x: event.nativeEvent.locationX, y: event.nativeEvent.locationY };
   }
 
@@ -288,44 +447,50 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
     addDraftVertexFromPress(event);
   }
 
-  function addDraftVertexFromWebClick(event: { nativeEvent?: { offsetX?: number; offsetY?: number; detail?: number }; currentTarget?: { getBoundingClientRect?: () => { left: number; top: number } }; clientX?: number; clientY?: number; detail?: number }): void {
+  function addDraftVertexFromWebClick(event: { nativeEvent?: { clientX?: number; clientY?: number; offsetX?: number; offsetY?: number; detail?: number }; currentTarget?: { getBoundingClientRect?: () => { left: number; top: number } }; clientX?: number; clientY?: number; detail?: number }): void {
+    if (!gestureAllowed.current) return;
     if (Date.now() < suppressTapUntil.current) return;
     if ((event.nativeEvent?.detail ?? event.detail ?? 0) > 1) return;
     if (Date.now() - lastSvgPressAt.current < 80) return;
     const bounds = event.currentTarget?.getBoundingClientRect?.();
-    const xPixels = event.nativeEvent?.offsetX ?? (bounds ? (event.clientX ?? 0) - bounds.left : 0);
-    const yPixels = event.nativeEvent?.offsetY ?? (bounds ? (event.clientY ?? 0) - bounds.top : 0);
+    const xPixels = bounds ? (event.clientX ?? event.nativeEvent?.clientX ?? NaN) - bounds.left : event.nativeEvent?.offsetX ?? NaN;
+    const yPixels = bounds ? (event.clientY ?? event.nativeEvent?.clientY ?? NaN) - bounds.top : event.nativeEvent?.offsetY ?? NaN;
     addDraftVertexAtScreenPoint(xPixels, yPixels);
   }
 
-  function closeDraftFromWebDoubleClick(event: { preventDefault?: () => void; stopPropagation?: () => void; nativeEvent?: { offsetX?: number; offsetY?: number }; currentTarget?: { getBoundingClientRect?: () => { left: number; top: number } }; clientX?: number; clientY?: number }): void {
+  function closeDraftFromWebDoubleClick(event: { preventDefault?: () => void; stopPropagation?: () => void; nativeEvent?: { clientX?: number; clientY?: number; offsetX?: number; offsetY?: number }; currentTarget?: { getBoundingClientRect?: () => { left: number; top: number } }; clientX?: number; clientY?: number }): void {
     event.preventDefault?.();
     event.stopPropagation?.();
-    if (!designMode) return;
+    if (!designMode || !gestureAllowed.current || Date.now() < suppressTapUntil.current) return;
     const bounds = event.currentTarget?.getBoundingClientRect?.();
-    const xPixels = event.nativeEvent?.offsetX ?? (bounds ? (event.clientX ?? 0) - bounds.left : 0);
-    const yPixels = event.nativeEvent?.offsetY ?? (bounds ? (event.clientY ?? 0) - bounds.top : 0);
+    const xPixels = bounds ? (event.clientX ?? event.nativeEvent?.clientX ?? NaN) - bounds.left : event.nativeEvent?.offsetX ?? NaN;
+    const yPixels = bounds ? (event.clientY ?? event.nativeEvent?.clientY ?? NaN) - bounds.top : event.nativeEvent?.offsetY ?? NaN;
     if (!Number.isFinite(xPixels) || !Number.isFinite(yPixels)) return;
-    const rawVertex = screenPointToWorld(
-      mapState.viewport,
-      { xPixels, yPixels },
-      { widthPixels: mapPixelWidth, heightPixels: mapPixelHeight },
-    );
+    const rawVertex = worldPointAtScreen(xPixels, yPixels);
+    if (!rawVertex) return;
     const vertex = snapWorldPoint(rawVertex);
     handleDraftVertexIntent(vertex, true);
+  }
+
+  function worldPointAtScreen(xPixels: number, yPixels: number): XY | null {
+    if (Platform.OS === "web") {
+      // SVG engines can round large projected viewBox values. Follow the rendered transform.
+      const svg = (surfaceRef.current as unknown as Element | null)?.querySelector("svg");
+      const matrix = svg?.getScreenCTM();
+      if (!svg || !matrix) return null;
+      const bounds = svg.getBoundingClientRect();
+      const point = new DOMPoint(bounds.left + xPixels, bounds.top + yPixels).matrixTransform(matrix.inverse());
+      return Number.isFinite(point.x) && Number.isFinite(point.y) ? { x: point.x, y: -point.y } : null;
+    }
+    return screenPointToWorld(mapState.viewport, { xPixels, yPixels },
+      { widthPixels: mapPixelWidth, heightPixels: mapPixelHeight });
   }
 
   function addDraftVertexAtScreenPoint(xPixels: number, yPixels: number): void {
     if (!designMode) return;
     if (!Number.isFinite(xPixels) || !Number.isFinite(yPixels)) return;
-    const rawVertex = screenPointToWorld(
-      mapState.viewport,
-      { xPixels, yPixels },
-      {
-        widthPixels: mapPixelWidth,
-        heightPixels: mapPixelHeight,
-      },
-    );
+    const rawVertex = worldPointAtScreen(xPixels, yPixels);
+    if (!rawVertex) return;
     const vertex = snapWorldPoint(rawVertex);
     if (mapState.mode === "edit_vertices") {
       controller.moveSelectedVertexToPoint(vertex);
@@ -383,7 +548,33 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
     dispatch({ type: "select_feature", featureId: nextId });
   }
 
-  const deferMapNotices = externalHudLayout && (compactLayout || mapPixelWidth < 560);
+  const shortInspectView = externalHudLayout && windowHeight < 500 && mapState.mode === "pan" && mapState.draftVertices.length === 0;
+  const shortLandscapeDraftHud = shortLandscape && designMode && !shortInspectView;
+  const deferMapNotices = externalHudLayout && (compactLayout || shortLandscape || mapPixelWidth < 560 || shortInspectView);
+  const visibleLabelObstructions = Object.entries(labelObstructions).filter(([id]) => id === "zoom"
+    || (id === "legend" && deferMapNotices && !catalogHomeView)
+    || (id === "pan" && !deferMapNotices)
+    || (id === "draft" && !deferMapNotices)
+    || (id === "notices" && !deferMapNotices && (imageryPlan || referenceOverlayNotice || (!catalogHomeView && externalHudLayout)))
+    || (id === "bottom" && Boolean(bottomOverlay) && !externalCompactToolbar)).map(([id, rect]) => anchoredPixelBox(rect,
+      { width: mapPixelWidth, height: mapPixelHeight },
+      id === "draft" && externalHudLayout ? { left: 12, bottom: externalDraftBottom }
+        : overlayAnchors[id as keyof typeof overlayAnchors] ?? {}));
+  const placedLabels = catalogHomeView ? [] : placeMapLabels(labels, mapState.viewport,
+    { width: mapPixelWidth, height: mapPixelHeight }, [
+      ...project.fieldBoundary,
+      ...project.obstacles.flatMap(obstacle => [...obstacle.polygon, centroid(obstacle.polygon)]),
+      ...visibleMapFeatures.flatMap(feature => feature.geometry.type === "Point" ? [feature.geometry.point]
+        : feature.geometry.type === "Circle" ? [feature.geometry.center,
+          { x: feature.geometry.center.x + feature.geometry.radiusMeters, y: feature.geometry.center.y }] : feature.geometry.vertices),
+    ], visibleLabelObstructions);
+  function recordLabelObstruction(id: string, rect: PixelBox): void {
+    setLabelObstructions(previous => {
+      const old = previous[id];
+      return old && old.x === rect.x && old.y === rect.y && old.width === rect.width && old.height === rect.height
+        ? previous : { ...previous, [id]: { x: rect.x, y: rect.y, width: rect.width, height: rect.height } };
+    });
+  }
   const draftCommands = (
     <>
           <Pressable accessibilityRole="button" accessibilityLabel="Add draft vertex at view center" disabled={!designMode} onPress={addDraftVertexAtViewCenter} style={[styles.clearDraftButton, !designMode && styles.disabledDraftButton]}>
@@ -414,15 +605,17 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
               </Pressable>
             </>
           ) : null}
-          <Pressable accessibilityRole="button" accessibilityLabel="Commit draft geometry" disabled={!canCommitCurrentDraft} onPress={commitDraft} style={[styles.clearDraftButton, canCommitCurrentDraft && styles.commitDraftButton, !canCommitCurrentDraft && styles.disabledDraftButton]}>
-            <Text style={[styles.clearDraftText, canCommitCurrentDraft && styles.commitDraftText]}>{mapState.mode === "measure" ? "Measure Only" : "Commit"}</Text>
-          </Pressable>
-          <Pressable accessibilityRole="button" accessibilityLabel="Save utility map feature" disabled={!canSaveCurrentMapFeature} onPress={saveMapFeatureFromHud} style={[styles.clearDraftButton, canSaveCurrentMapFeature && styles.commitDraftButton, !canSaveCurrentMapFeature && styles.disabledDraftButton]}>
-            <Text style={[styles.clearDraftText, canSaveCurrentMapFeature && styles.commitDraftText]}>{activeFeatureGeometry === "Point" ? "Use Center Point" : "Choose Purpose"}</Text>
-          </Pressable>
-          <Pressable accessibilityRole="button" accessibilityLabel="Delete selected vertex" disabled={!canDeleteSelectedVertex} onPress={deleteSelectedVertex} style={[styles.clearDraftButton, !canDeleteSelectedVertex && styles.disabledDraftButton]}>
+          {mapState.mode !== "measure" ? <Pressable accessibilityRole="button" accessibilityLabel="Commit draft geometry" disabled={!canCommitCurrentDraft} onPress={commitDraft} style={[styles.clearDraftButton, canCommitCurrentDraft && styles.commitDraftButton, !canCommitCurrentDraft && styles.disabledDraftButton]}>
+            <Text style={[styles.clearDraftText, canCommitCurrentDraft && styles.commitDraftText]}>Commit</Text>
+          </Pressable> : null}
+          {mapState.mode === "measure" ? <Pressable accessibilityRole="button" accessibilityLabel="Save utility map feature" disabled={!canSaveCurrentMapFeature} onPress={saveMapFeatureFromHud} style={[styles.clearDraftButton, canSaveCurrentMapFeature && styles.commitDraftButton, !canSaveCurrentMapFeature && styles.disabledDraftButton]}>
+            <Text style={[styles.clearDraftText, canSaveCurrentMapFeature && styles.commitDraftText]}>{activeFeatureGeometry === "Point" ? "Use Center Point" : "Finish"}</Text>
+          </Pressable> : null}
+          {mapState.mode === "edit_vertices" ? <Pressable accessibilityRole="button" accessibilityLabel="Delete selected vertex" disabled={!canDeleteSelectedVertex} onPress={deleteSelectedVertex} style={[styles.clearDraftButton, !canDeleteSelectedVertex && styles.disabledDraftButton]}>
             <Text style={styles.clearDraftText}>Delete Vertex</Text>
-          </Pressable>
+          </Pressable> : <Pressable accessibilityRole="button" accessibilityLabel="Remove last draft vertex" disabled={!controller.canUndoDraftVertex} onPress={controller.undoDraftVertex} style={[styles.clearDraftButton, !controller.canUndoDraftVertex && styles.disabledDraftButton]} testID="svg-action-undo-draft" {...(Platform.OS === "web" ? { title: "Remove last draft vertex" } : {})}>
+            <Undo2 size={17} color="#173428" />
+          </Pressable>}
           <Pressable accessibilityRole="button" accessibilityLabel="Clear draft vertices" onPress={() => dispatch({ type: "clear_draft" })} style={styles.clearDraftButton}>
             <Text style={styles.clearDraftText}>Clear</Text>
           </Pressable>
@@ -430,40 +623,50 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
   );
   const draftHud = (
     <View
-      style={[styles.draftHud, externalHudLayout && !deferMapNotices && styles.draftHudExternal, deferMapNotices && styles.draftHudCompact]}
+      style={[styles.draftHud, externalHudLayout && !deferMapNotices && [styles.draftHudExternal, { bottom: externalDraftBottom }],
+        deferMapNotices && !shortLandscapeDraftHud && styles.draftHudCompact,
+        shortLandscapeDraftHud && styles.draftHudShortLandscape]}
       testID="svg-map-draft-hud"
+      onLayout={(event) => { fitObstructions.current.draftTop = event.nativeEvent.layout.y; recordLabelObstruction("draft", event.nativeEvent.layout); }}
     >
-      <Text style={styles.draftHudText}>
+      <Text numberOfLines={shortLandscapeDraftHud ? 1 : undefined}
+        style={[styles.draftHudText, shortLandscapeDraftHud && styles.draftHudTextShortLandscape]}>
         {designMode
-          ? `${mapState.activeLayer.replaceAll("_", " ")} \u00b7 ${mapState.draftVertices.length} pts${measureText(mapState.draftVertices)}${selectedVertex ? ` \u00b7 ${selectedProjectVertexText(project, selectedVertex)}` : ""}`
+          ? `${mapState.mode === "measure" ? activeFeatureGeometry.replace("String", "") : mapState.activeLayer.replaceAll("_", " ")} \u00b7 ${mapState.draftVertices.length} pts${selectedVertex ? ` \u00b7 ${selectedProjectVertexText(project, selectedVertex)}` : ""}`
           : catalogHomeView ? "Catalog view \u00b7 open a saved design to edit projected XY geometry" : "Layout \u00b7 RTK-only mutation \u00b7 pointer editing controls hidden"}
       </Text>
+      {designMode && mapState.draftVertices.length > 1 ? <Text numberOfLines={shortLandscapeDraftHud ? 1 : undefined}
+        style={[styles.draftHudText, shortLandscapeDraftHud && styles.draftHudTextShortLandscape]} testID="svg-map-draft-measurement">{draftMeasurementText(mapState.mode === "measure" ? activeFeatureGeometry : "Polygon", mapState.draftVertices, project.projectCrs, settings.unitSystem)}</Text> : null}
       {deferMapNotices ? (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.draftCommandScroller} contentContainerStyle={styles.draftCommandRow}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Reset view" onPress={() => setViewport(initialViewport)} style={styles.clearDraftButton}>
-            <RefreshCcw size={16} color="#254234" />
-          </Pressable>
-          {designMode ? draftCommands : null}
-        </ScrollView>
+        <View style={shortLandscapeDraftHud ? styles.draftCommandSlotShortLandscape : styles.draftCommandSlotCompact}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}
+            style={[styles.draftCommandScroller, shortLandscapeDraftHud && styles.draftCommandScrollerShortLandscape]}
+            contentContainerStyle={styles.draftCommandRow} testID="svg-draft-command-scroller">
+            {designMode ? draftCommands : null}
+          </ScrollView>
+        </View>
       ) : designMode ? draftCommands : null}
     </View>
   );
 
   return (
-    <View style={[styles.shell, compactLayout && styles.shellCompact]}>
-      <View style={styles.headerRow}>
-        <View>
-          <Text style={styles.title}>Map Workspace</Text>
+    <View style={[styles.shell, compactLayout && styles.shellCompact, webShellClip]} testID="svg-map-shell">
+      <View style={[styles.headerRow, deferMapNotices && styles.headerRowCompact,
+        shortLandscape && styles.headerRowShortLandscape]}>
+        <View style={deferMapNotices ? styles.compactHeaderTitle : undefined}>
+          {!deferMapNotices ? <Text style={styles.title}>Map Workspace</Text> : null}
           <Text style={styles.subtitle}>
             {catalogHomeView
-              ? "North America project catalog · no project geometry loaded"
-              : `${project.projectCrs} · ${workflowModeLabel(settings.mappingWorkflowMode)} · ${mapState.mode.replaceAll("_", " ")} · zoom ${mapState.viewport.zoomLevel.toFixed(2)}x`}
+              ? deferMapNotices ? "Catalog" : "North America project catalog · no project geometry loaded"
+              : deferMapNotices ? project.projectCrs : `${project.projectCrs} · ${workflowModeLabel(settings.mappingWorkflowMode)} · ${mapState.mode.replaceAll("_", " ")} · zoom ${mapState.viewport.zoomLevel.toFixed(2)}x`}
           </Text>
         </View>
         <WorkflowSegmentedControl
           mode={settings.mappingWorkflowMode}
           onChange={(mode) => onMappingWorkflowModeChange?.(mode)}
+          short={shortLandscape}
         />
+        {shortLandscapeDraftHud ? draftHud : null}
         {!externalHudLayout ? (
           <View style={[styles.modeRow, compactLayout && styles.modeRowCompact]}>
             <ToolButton active={mapState.mode === "pan"} icon={<Hand size={18} />} label="Pan" onPress={() => setToolMode("pan")} />
@@ -481,11 +684,16 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
         ) : null}
       </View>
 
+      <Text accessibilityLiveRegion="polite" style={[styles.actionStatus, (shortInspectView || shortLandscape) && styles.shortInspectStatus]} testID="svg-map-action-status">
+        {controller.status}
+      </Text>
       <View
         accessibilityLabel="Layout map drawing surface"
         style={[styles.mapSurface, { backgroundColor: palette.background }]}
         testID="layout-map-drawing-surface"
+        ref={surfaceRef}
         onLayout={(event) => {
+          if (Platform.OS === "web" && typeof ResizeObserver !== "undefined") return;
           setMapPixelWidth(Math.max(1, event.nativeEvent.layout.width));
           setMapPixelHeight(Math.max(1, event.nativeEvent.layout.height));
         }}
@@ -524,12 +732,12 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
             <>
               {canonicalMachineLayersVisible ? <Path d={ringsToSvgPath(result.allowedCoverage)} fill={palette.allowed} opacity={0.54} /> : null}
               {advisoryFieldPivotPlanVisible && advisoryFieldPivotPlan ? (
-                <AdvisoryFieldPivotOverlay palette={palette} plan={advisoryFieldPivotPlan} />
+                <AdvisoryFieldPivotOverlay palette={palette} plan={advisoryFieldPivotPlan} scale={symbolScale} />
               ) : null}
               {advisoryMachineRenderVisible && advisoryMachineRenderModel ? (
-                <AdvisoryMachineRenderOverlay model={advisoryMachineRenderModel} palette={palette} />
+                <AdvisoryMachineRenderOverlay model={advisoryMachineRenderModel} palette={palette} scale={symbolScale} />
               ) : null}
-              <LayoutPathOverlayLayer overlays={layoutPathOverlays} palette={palette} pivotCenter={project.pivotCenter} />
+              <LayoutPathOverlayLayer overlays={layoutPathOverlays} palette={palette} />
               <Path d={fieldPath} fill="none" stroke={palette.fieldStroke} strokeWidth={7} strokeLinejoin="round" />
               <Path d={ringsToSvgPath(result.obstacles)} fill={palette.obstacle} opacity={0.78} stroke={palette.obstacleStroke} strokeWidth={3} />
               <EditableRing
@@ -542,7 +750,9 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
               />
               {project.obstacles.map((obstacle) => (
                 <React.Fragment key={obstacle.id}>
-                  <ObstacleSymbol obstacle={obstacle} color={palette.obstacleStroke} />
+                  <G transform={`translate(${centroid(obstacle.polygon).x}, ${-centroid(obstacle.polygon).y}) scale(${symbolScale.px(0.45)})`}>
+                    <ObstacleSymbol obstacle={obstacle} color={palette.obstacleStroke} />
+                  </G>
                   <EditableRing
                     color={palette.obstacleStroke}
                     layerLabel={`${obstacle.name} obstacle`}
@@ -573,11 +783,11 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
                   ) : null}
                 </React.Fragment>
               ))}
-              <DraftVertices vertices={mapState.draftVertices} color={palette.draft} scale={symbolScale} />
-              {lastSnap ? <SnapMarker point={lastSnap.point} color={palette.snap} label={lastSnap.kind} scale={symbolScale} /> : null}
-              <InfrastructureSymbol point={project.pivotCenter} color={palette.pivot} kind="pivot_center" label="Pivot" scale={symbolScale} />
-              <InfrastructureSymbol point={project.waterSource} color={palette.water} kind="water_source" label="Water" scale={symbolScale} />
-              <InfrastructureSymbol point={project.powerSource} color={palette.power} kind="power_source" label="Power" scale={symbolScale} />
+              <DraftVertices vertices={mapState.draftVertices} color={palette.draft} scale={symbolScale} polygon={mapState.mode !== "measure" || activeFeatureGeometry === "Polygon"} />
+              {lastSnap ? <SnapMarker point={lastSnap.point} color={palette.snap} scale={symbolScale} /> : null}
+              <InfrastructureSymbol point={project.pivotCenter} color={palette.pivot} kind="pivot_center" scale={symbolScale} />
+              <InfrastructureSymbol point={project.waterSource} color={palette.water} kind="water_source" scale={symbolScale} />
+              <InfrastructureSymbol point={project.powerSource} color={palette.power} kind="power_source" scale={symbolScale} />
               {project.surveyPoints.map((point) => (
                 <SurveyPointSymbol key={point.id} point={point} color={palette.survey} scale={symbolScale} />
               ))}
@@ -592,12 +802,19 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
                     strokeDasharray="7 8"
                     strokeWidth={1.8}
                   />
-                  <Circle cx={tower.point.x} cy={-tower.point.y} r={symbolScale.px(8)} fill={palette.markerFill} stroke={palette.fieldStroke} strokeWidth={symbolScale.stroke(4)} />
-                  <SvgText x={tower.point.x + symbolScale.px(12)} y={-tower.point.y - symbolScale.px(10)} fill={palette.fieldStroke} fontSize={symbolScale.font(24)} fontWeight="700">
-                    T{tower.towerIndex}
-                  </SvgText>
+                  <Circle cx={tower.point.x} cy={-tower.point.y} r={symbolScale.px(3)} fill={palette.markerFill} stroke={palette.fieldStroke} strokeWidth={symbolScale.stroke(1.5)} />
                 </React.Fragment>
               ))}
+              <G testID="svg-map-labels">
+                {placedLabels.map(label => <G key={label.id} accessibilityLabel={label.text}
+                  {...svgElementInteractionProps(() => { if (label.featureId) selectMapFeature(label.featureId); })}>
+                  <Rect x={label.svgX - symbolScale.px(3)} y={label.svgY - symbolScale.px(13)}
+                    width={symbolScale.px(label.box.width - 2)} height={symbolScale.px(20)}
+                    fill={palette.markerFill} opacity={0.9} rx={symbolScale.px(2)} />
+                  <SvgText x={label.svgX} y={label.svgY} fill={label.color} fontSize={symbolScale.font(MAP_LABEL_FONT_PIXELS)}
+                    fontFamily="monospace" fontWeight="600" testID={`svg-map-label-${label.id}`}>{label.displayText}</SvgText>
+                </G>)}
+              </G>
             </>
           )}
         </Svg>
@@ -614,13 +831,19 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
           />
         ) : null}
 
-        <View style={[styles.zoomControls, deferMapNotices && styles.zoomControlsCompact]} testID="svg-map-zoom-controls">
-          <IconControl icon={<Plus size={22} />} label="Zoom in" onPress={() => dispatch({ type: "zoom", factor: settings.drawing.zoomStepFactor })} />
-          <IconControl icon={<Minus size={22} />} label="Zoom out" onPress={() => dispatch({ type: "zoom", factor: 1 / settings.drawing.zoomStepFactor })} />
-          {!deferMapNotices ? <IconControl icon={<RefreshCcw size={20} />} label="Reset view" onPress={() => setViewport(initialViewport)} /> : null}
+        <View style={[styles.zoomControls, deferMapNotices && styles.zoomControlsCompact]} testID="svg-map-zoom-controls"
+          onLayout={event => recordLabelObstruction("zoom", event.nativeEvent.layout)}>
+          <IconControl icon={<Plus size={22} />} label="Zoom in" tooltipPlacement={deferMapNotices ? "below" : "left"} onPress={() => dispatch({ type: "zoom", factor: settings.drawing.zoomStepFactor })} />
+          <IconControl icon={<Minus size={22} />} label="Zoom out" tooltipPlacement={deferMapNotices ? "below" : "left"} onPress={() => dispatch({ type: "zoom", factor: 1 / settings.drawing.zoomStepFactor })} />
+          <IconControl icon={<Scan size={20} />} label="Fit field" tooltipPlacement={deferMapNotices ? "below" : "left"} disabled={catalogHomeView || !fieldBounds} onPress={fitField} testID="svg-map-fit-field" />
         </View>
+        {deferMapNotices && !catalogHomeView ? <View style={styles.compactLegendControl}
+          onLayout={event => recordLabelObstruction("legend", event.nativeEvent.layout)}>
+          <IconControl icon={<Layers size={20} />} label="Map legend" tooltipPlacement="belowStart" onPress={() => setLegendOpen(true)} testID="svg-map-legend-open" />
+        </View> : null}
 
-        {!deferMapNotices ? <View style={styles.panControls}>
+        {!deferMapNotices ? <View style={styles.panControls}
+          onLayout={(event) => { fitObstructions.current.panWidth = event.nativeEvent.layout.width; recordLabelObstruction("pan", event.nativeEvent.layout); }}>
           <IconControl icon={<ArrowUp size={20} />} label="Pan north" onPress={() => dispatch({ type: "pan", delta: { x: 0, y: settings.drawing.panStepMeters } })} />
           <View style={styles.panMiddle}>
             <IconControl icon={<ArrowLeft size={20} />} label="Pan west" onPress={() => dispatch({ type: "pan", delta: { x: -settings.drawing.panStepMeters, y: 0 } })} />
@@ -629,8 +852,9 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
           <IconControl icon={<ArrowDown size={20} />} label="Pan south" onPress={() => dispatch({ type: "pan", delta: { x: 0, y: -settings.drawing.panStepMeters } })} />
         </View> : null}
         {!deferMapNotices ? draftHud : null}
-        {(!deferMapNotices && (imageryPlan || referenceOverlayNotice)) || (!catalogHomeView && externalHudLayout) ? (
-          <View pointerEvents="none" style={[styles.topOverlayStack, deferMapNotices && styles.topOverlayStackCompact]} testID="svg-map-top-overlay-stack">
+        {!deferMapNotices && (imageryPlan || referenceOverlayNotice || (!catalogHomeView && externalHudLayout)) ? (
+          <View pointerEvents="none" style={styles.topOverlayStack} testID="svg-map-top-overlay-stack"
+            onLayout={(event) => { const { y, height } = event.nativeEvent.layout; fitObstructions.current.top = y + height; recordLabelObstruction("notices", event.nativeEvent.layout); }}>
             {!catalogHomeView && externalHudLayout ? (
               <View style={styles.compactLegendBadge} testID="svg-map-compact-legend">
                 <LegendSwatch color="#6cb6df" label="Wet" />
@@ -643,18 +867,22 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
             {!deferMapNotices ? <SvgMapNotices imageryPlan={imageryPlan} referenceOverlayNotice={referenceOverlayNotice} /> : null}
           </View>
         ) : null}
-        {bottomOverlay ? (
-          <View pointerEvents="box-none" style={styles.bottomOverlaySlot}>
+        {bottomOverlay && !externalCompactToolbar ? (
+          <View pointerEvents="box-none" style={styles.bottomOverlaySlot} testID="svg-map-bottom-overlay"
+            onLayout={(event) => { fitObstructions.current.bottom = event.nativeEvent.layout.height; recordLabelObstruction("bottom", event.nativeEvent.layout); }}>
             {bottomOverlay}
           </View>
         ) : null}
       </View>
 
-      {deferMapNotices ? draftHud : null}
+      {deferMapNotices && !shortInspectView && !shortLandscapeDraftHud && !shortLandscape ? draftHud : null}
+      {bottomOverlay && externalCompactToolbar ? (
+        <View style={styles.compactToolbarSlot} testID="svg-map-bottom-overlay">{bottomOverlay}</View>
+      ) : null}
 
-      {deferMapNotices && (imageryPlan || referenceOverlayNotice) ? (
-        <View pointerEvents="none" style={styles.compactMapNoticeBand}>
-          <SvgMapNotices imageryPlan={imageryPlan} referenceOverlayNotice={referenceOverlayNotice} />
+      {deferMapNotices && !shortLandscape && !shortInspectView && (imageryPlan || referenceOverlayNotice) ? (
+        <View style={styles.compactMapNoticeBand}>
+          <SvgMapNotices compact imageryPlan={imageryPlan} referenceOverlayNotice={referenceOverlayNotice} />
         </View>
       ) : null}
 
@@ -699,41 +927,64 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
       ) : null}
 
       {!catalogHomeView && !externalHudLayout ? (
-        <View style={styles.legend}>
-          <LegendSwatch color="#6cb6df" label="Allowed wet area" />
-          <LegendSwatch color="#63c7cf" label="End gun" />
-          <LegendSwatch color={palette.wheelTrack} label="Tower / LRDU path" />
-          <LegendSwatch color={palette.machinePath} label="Machine-end path" />
-          <LegendSwatch color={palette.endGun} label="End-gun reach" />
-          <LegendSwatch color={palette.cornerArmTrack} label="Configured corner-arm preview" />
-          <LegendSwatch color="#e68b58" label="Outside field" />
-          <LegendSwatch color={palette.advisory} label="Generated advisory plan" />
-          <LegendSwatch color="#c64f43" label="Obstacle/no-spray" />
-          <LegendSwatch color={palette.survey} label="Survey/object point" />
-          <LegendSwatch color={palette.utility} label="Utility map feature" />
-        </View>
+        <FullMapLegend palette={palette} />
       ) : null}
+      <Modal transparent visible={legendOpen} onRequestClose={() => setLegendOpen(false)} animationType="fade">
+        <View style={styles.noticeBackdrop}>
+          <View accessibilityViewIsModal style={styles.noticeDialog} testID="svg-map-legend-dialog">
+            <View style={styles.noticeDialogHeader}>
+              <Text style={styles.noticeDialogTitle}>Map Legend</Text>
+              <Pressable accessibilityRole="button" accessibilityLabel="Close map legend" onPress={() => setLegendOpen(false)} style={styles.noticeClose}>
+                <X size={20} color="#26392f" />
+              </Pressable>
+            </View>
+            <ScrollView contentContainerStyle={styles.noticeDialogBody}>
+              <FullMapLegend palette={palette} />
+              {shortInspectView || shortLandscape ? <SvgMapNotices imageryPlan={imageryPlan} referenceOverlayNotice={referenceOverlayNotice} /> : null}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
 
 export const LayoutMap = SvgMapSurface;
 
+function FullMapLegend({ palette }: { palette: MapPalette }): React.JSX.Element {
+  return <View style={styles.legend}>
+    <LegendSwatch color="#6cb6df" label="Allowed wet area" />
+    <LegendSwatch color="#63c7cf" label="End gun" />
+    <LegendSwatch color={palette.wheelTrack} label="Tower / LRDU path" />
+    <LegendSwatch color={palette.machinePath} label="Machine-end path" />
+    <LegendSwatch color={palette.endGun} label="End-gun reach" />
+    <LegendSwatch color={palette.cornerArmTrack} label="Configured corner-arm preview" />
+    <LegendSwatch color="#e68b58" label="Outside field" />
+    <LegendSwatch color={palette.advisory} label="Generated advisory plan" />
+    <LegendSwatch color="#c64f43" label="Obstacle/no-spray" />
+    <LegendSwatch color={palette.survey} label="Survey/object point" />
+    <LegendSwatch color={palette.utility} label="Utility map feature" />
+  </View>;
+}
+
 function SvgMapNotices({
+  compact = false,
   imageryPlan,
   referenceOverlayNotice,
 }: {
+  compact?: boolean;
   imageryPlan: ReturnType<typeof planOnlineImageryTiles> | null;
   referenceOverlayNotice: ReturnType<typeof buildMapReferenceViewModel>["reference"] | null;
 }): React.JSX.Element {
-  return (
-    <View style={styles.mapNoticeStack} testID="svg-map-status-notices">
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const details = (
+    <View style={styles.mapNoticeStack} testID={compact ? "svg-map-layer-status-details" : "svg-map-status-notices"}>
       {imageryPlan ? (
         <View style={styles.imageryBadge}>
           <Text style={styles.imageryBadgeText}>
             {imageryPlan.error ? `Imagery unavailable: ${imageryPlan.error}` : `${imageryPlan.provider.name} · z${imageryPlan.tiles[0]?.z ?? "-"} · ${imageryPlan.tiles.length} tiles${imageryPlan.capped ? " capped" : ""}`}
           </Text>
-          <Text numberOfLines={2} style={styles.imageryBadgeSubtext}>
+          <Text style={styles.imageryBadgeSubtext}>
             {imageryPlan.provider.attribution} · {imageryPlan.provider.licenseText}
           </Text>
         </View>
@@ -741,25 +992,38 @@ function SvgMapNotices({
       {referenceOverlayNotice ? (
         <View style={styles.referenceOverlayBadge} testID="svg-reference-overlay-unavailable">
           <Text style={styles.imageryBadgeText}>Reference overlays unavailable</Text>
-          <Text numberOfLines={2} style={styles.imageryBadgeSubtext}>{referenceOverlayNotice.reason}</Text>
+          <Text style={styles.imageryBadgeSubtext}>{referenceOverlayNotice.reason}</Text>
         </View>
       ) : null}
     </View>
   );
-}
-
-function createSvgSymbolScale(viewport: DrawingMapState["viewport"], renderedPixelWidth: number): {
-  px: (screenPixels: number) => number;
-  stroke: (screenPixels: number) => number;
-  font: (screenPixels: number) => number;
-} {
-  const worldUnitsPerPixel = visibleWidthMeters(viewport) / Math.max(1, renderedPixelWidth);
-  const px = (screenPixels: number) => Math.max(0.5, screenPixels * worldUnitsPerPixel);
-  return {
-    px,
-    stroke: (screenPixels) => Math.max(0.35, px(screenPixels)),
-    font: (screenPixels) => Math.max(1, px(screenPixels)),
-  };
+  if (!compact) return details;
+  const summary = [imageryPlan ? imageryPlan.error ? "Imagery unavailable" : "Imagery active" : null,
+    referenceOverlayNotice ? "References unavailable" : null].filter(Boolean).join(" / ");
+  return <View testID="svg-map-status-notices">
+    <Pressable accessibilityRole="button" accessibilityLabel="Open map layer status" onPress={() => setDetailsOpen(true)}
+      style={styles.compactNoticeButton} testID="svg-map-layer-status-open">
+      <Satellite size={18} color="#405448" />
+      <Text style={styles.compactNoticeSummary}>{summary}</Text>
+      <ChevronDown size={18} color="#405448" />
+    </Pressable>
+    {imageryPlan && !imageryPlan.error ? <Text style={styles.imageryBadgeSubtext}>
+      {imageryPlan.provider.attribution} · {imageryPlan.provider.licenseText}
+    </Text> : null}
+    <Modal transparent visible={detailsOpen} onRequestClose={() => setDetailsOpen(false)} animationType="fade">
+      <View style={styles.noticeBackdrop}>
+        <View accessibilityViewIsModal style={styles.noticeDialog} testID="svg-map-layer-status-dialog">
+          <View style={styles.noticeDialogHeader}>
+            <Text style={styles.noticeDialogTitle}>Map Layer Status</Text>
+            <Pressable accessibilityRole="button" accessibilityLabel="Close map layer status" onPress={() => setDetailsOpen(false)} style={styles.noticeClose}>
+              <X size={20} color="#26392f" />
+            </Pressable>
+          </View>
+          <ScrollView contentContainerStyle={styles.noticeDialogBody}>{details}</ScrollView>
+        </View>
+      </View>
+    </Modal>
+  </View>;
 }
 
 function shouldShowEditableMapFeatureHandles(
@@ -789,12 +1053,6 @@ function mapFeatureRings(feature: ProjectMapFeature): XY[][] {
   if (feature.geometry.type === "LineString") return [feature.geometry.vertices];
   if (feature.geometry.type === "Polygon") return [feature.geometry.vertices];
   return [createCirclePolygon(feature.geometry.center, feature.geometry.radiusMeters, 72)];
-}
-
-function measureText(vertices: XY[]): string {
-  if (vertices.length < 2) return "";
-  const distance = vertices.slice(1).reduce((sum, vertex, index) => sum + Math.hypot(vertex.x - vertices[index].x, vertex.y - vertices[index].y), 0);
-  return ` · ${distance.toFixed(1)} m`;
 }
 
 function Grid({ minX, maxX, minY, maxY, stroke }: { minX: number; maxX: number; minY: number; maxY: number; stroke: string }): React.JSX.Element {
@@ -842,10 +1100,11 @@ function MapBackground({ minX, maxX, minY, maxY, styleName }: { minX: number; ma
   return <>{blocks}</>;
 }
 
-function InfrastructureSymbol({ color, kind, label, point, scale }: { color: string; kind: InfrastructurePoint; label: string; point: XY; scale: SvgSymbolScale }): React.JSX.Element {
-  const y = -point.y;
+function InfrastructureSymbol({ color, kind, point: anchor, scale: displayScale }: { color: string; kind: InfrastructurePoint; point: XY; scale: SvgSymbolScale }): React.JSX.Element {
+  const point = { x: 0, y: 0 }, y = 0;
+  const scale = { px: (value: number) => value, stroke: (value: number) => value };
   return (
-    <>
+    <G transform={`translate(${anchor.x}, ${-anchor.y}) scale(${displayScale.px(0.45)})`} testID={`svg-map-symbol-${kind}`}>
       {kind === "pivot_center" ? (
         <>
           <Circle cx={point.x} cy={y} r={scale.px(18)} fill="#fffef8" stroke={color} strokeWidth={scale.stroke(5)} />
@@ -860,10 +1119,7 @@ function InfrastructureSymbol({ color, kind, label, point, scale }: { color: str
       {kind === "power_source" ? (
         <Path d={`M ${point.x - scale.px(5)} ${y - scale.px(25)} L ${point.x + scale.px(18)} ${y - scale.px(25)} L ${point.x + scale.px(4)} ${y - scale.px(3)} L ${point.x + scale.px(20)} ${y - scale.px(3)} L ${point.x - scale.px(9)} ${y + scale.px(26)} L ${point.x - scale.px(1)} ${y + scale.px(5)} L ${point.x - scale.px(19)} ${y + scale.px(5)} Z`} fill="#fffef8" stroke={color} strokeWidth={scale.stroke(5)} />
       ) : null}
-      <SvgText x={point.x + scale.px(28)} y={y + scale.px(8)} fill={color} fontSize={scale.font(27)} fontWeight="800">
-        {label}
-      </SvgText>
-    </>
+    </G>
   );
 }
 
@@ -873,17 +1129,13 @@ function SurveyPointSymbol({ color, point, scale }: { color: string; point: Surv
   if (point.role === "note") {
     return (
       <>
-        <Rect x={x - scale.px(13)} y={y - scale.px(13)} width={scale.px(26)} height={scale.px(26)} rx={scale.px(4)} fill="#fffef8" stroke={color} strokeWidth={scale.stroke(4)} />
-        <SvgText x={x + scale.px(18)} y={y + scale.px(7)} fill={color} fontSize={scale.font(20)} fontWeight="900">Note</SvgText>
+        <Rect x={x - scale.px(5)} y={y - scale.px(5)} width={scale.px(10)} height={scale.px(10)} rx={scale.px(2)} fill="#fffef8" stroke={color} strokeWidth={scale.stroke(1.5)} />
       </>
     );
   }
   return (
     <>
-      <Circle cx={x} cy={y} r={scale.px(10)} fill="#fffef8" stroke={color} strokeWidth={scale.stroke(4)} />
-      <SvgText x={x + scale.px(14)} y={y + scale.px(6)} fill={color} fontSize={scale.font(18)} fontWeight="900">
-        {shortSurveyLabel(point.role)}
-      </SvgText>
+      <Circle cx={x} cy={y} r={scale.px(4)} fill="#fffef8" stroke={color} strokeWidth={scale.stroke(1.5)} />
     </>
   );
 }
@@ -891,9 +1143,11 @@ function SurveyPointSymbol({ color, point, scale }: { color: string; point: Surv
 function AdvisoryFieldPivotOverlay({
   palette,
   plan,
+  scale,
 }: {
   palette: MapPalette;
   plan: AdvisoryFieldPivotPlan;
+  scale: SvgSymbolScale;
 }): React.JSX.Element {
   const coveragePath = ringsToSvgPath(plan.modeledCoverageUnion);
   return (
@@ -926,11 +1180,8 @@ function AdvisoryFieldPivotOverlay({
                 strokeWidth={3}
               />
             ) : null}
-            <Circle cx={candidate.pivotCenter.x} cy={-candidate.pivotCenter.y} r={15} fill="#fffef8" stroke={palette.advisoryStroke} strokeWidth={5} />
-            <Circle cx={candidate.pivotCenter.x} cy={-candidate.pivotCenter.y} r={5} fill={palette.advisoryStroke} />
-            <SvgText x={candidate.pivotCenter.x + 18} y={-candidate.pivotCenter.y - 16} fill={palette.advisoryStroke} fontSize={22} fontWeight="900">
-              G{candidate.sequence}
-            </SvgText>
+            <Circle cx={candidate.pivotCenter.x} cy={-candidate.pivotCenter.y} r={scale.px(7)} fill="#fffef8" stroke={palette.advisoryStroke} strokeWidth={scale.stroke(2)} />
+            <Circle cx={candidate.pivotCenter.x} cy={-candidate.pivotCenter.y} r={scale.px(2)} fill={palette.advisoryStroke} />
           </React.Fragment>
         );
       })}
@@ -941,9 +1192,11 @@ function AdvisoryFieldPivotOverlay({
 function AdvisoryMachineRenderOverlay({
   model,
   palette,
+  scale,
 }: {
   model: AdvisoryMachineRenderModel;
   palette: MapPalette;
+  scale: SvgSymbolScale;
 }): React.JSX.Element | null {
   if (model.surfaces.length === 0) return null;
   return (
@@ -951,13 +1204,10 @@ function AdvisoryMachineRenderOverlay({
       {model.surfaces.map((surface) => (
         <AdvisoryMachineSurfaceOverlay key={surface.instanceId} palette={palette} surface={surface} />
       ))}
-      {model.instances.map((instance, index) => (
+      {model.instances.map((instance) => (
         <React.Fragment key={instance.id}>
-          <Circle cx={instance.pivotCenter.x} cy={-instance.pivotCenter.y} r={13} fill="#fffef8" stroke={palette.machinePath} strokeWidth={5} />
-          <Circle cx={instance.pivotCenter.x} cy={-instance.pivotCenter.y} r={4.5} fill={palette.machinePath} />
-          <SvgText x={instance.pivotCenter.x + 16} y={-instance.pivotCenter.y - 14} fill={palette.machinePath} fontSize={19} fontWeight="900">
-            A{index + 1}
-          </SvgText>
+          <Circle cx={instance.pivotCenter.x} cy={-instance.pivotCenter.y} r={scale.px(6)} fill="#fffef8" stroke={palette.machinePath} strokeWidth={scale.stroke(2)} />
+          <Circle cx={instance.pivotCenter.x} cy={-instance.pivotCenter.y} r={scale.px(2)} fill={palette.machinePath} />
         </React.Fragment>
       ))}
       {model.conflicts.map((conflict) => {
@@ -1058,13 +1308,12 @@ function lineSvgPath(vertices: XY[]): string {
   return `M ${vertices.map((vertex) => `${vertex.x} ${-vertex.y}`).join(" L ")}`;
 }
 
-function LayoutPathOverlayLayer({ overlays, palette, pivotCenter }: { overlays: LayoutPathOverlay[]; palette: MapPalette; pivotCenter: XY }): React.JSX.Element | null {
+function LayoutPathOverlayLayer({ overlays, palette }: { overlays: LayoutPathOverlay[]; palette: MapPalette }): React.JSX.Element | null {
   if (overlays.length === 0) return null;
   return (
     <G accessibilityLabel="Wheel track and end of machine path overlays" testID="svg-layout-path-overlays">
       {overlays.map((overlay) => {
         const key = `${overlay.kind}-${overlay.towerIndex ?? "machine"}`;
-        const labelPoint = polarLabelPoint(pivotCenter, overlay.radiusMeters, layoutPathLabelAngle(overlay.kind));
         const centerlinePaths = overlay.centerlineSegments.map(lineSvgPath).filter(Boolean);
         return (
           <G key={key} accessibilityLabel={overlay.label} testID={`svg-machine-path-${overlay.machinePathRoles.join("-")}-${overlay.towerIndex ?? "path"}`}>
@@ -1084,17 +1333,6 @@ function LayoutPathOverlayLayer({ overlays, palette, pivotCenter }: { overlays: 
                 />
               </React.Fragment>
             ))}
-            {centerlinePaths.length > 0 ? (
-              <SvgText
-                x={labelPoint.x}
-                y={-labelPoint.y}
-                fill={layoutPathLabelColor(overlay.kind, palette)}
-                fontSize={overlay.kind === "wheel_track" ? 13 : 15}
-                fontWeight="900"
-              >
-                {layoutPathLabel(overlay)}
-              </SvgText>
-            ) : null}
           </G>
         );
       })}
@@ -1130,14 +1368,6 @@ function layoutPathCenterlineWidth(overlay: LayoutPathOverlay): number {
   return 2.6;
 }
 
-function layoutPathLabelAngle(kind: LayoutPathOverlay["kind"]): number {
-  if (kind === "wheel_track") return 225;
-  if (kind === "end_of_machine") return 315;
-  if (kind === "end_gun_reach") return 20;
-  if (kind === "corner_arm_wheel_track") return 250;
-  return 290;
-}
-
 function layoutPathLabelColor(kind: LayoutPathOverlay["kind"], palette: MapPalette): string {
   if (kind === "wheel_track") return palette.wheelTrack;
   if (kind === "end_of_machine") return palette.machinePath;
@@ -1146,18 +1376,8 @@ function layoutPathLabelColor(kind: LayoutPathOverlay["kind"], palette: MapPalet
   return palette.cornerArmReach;
 }
 
-function polarLabelPoint(center: XY, radiusMeters: number, angleDegrees: number): XY {
-  const radians = (angleDegrees * Math.PI) / 180;
-  return {
-    x: center.x + Math.cos(radians) * radiusMeters,
-    y: center.y + Math.sin(radians) * radiusMeters,
-  };
-}
-
 function ObstacleSymbol({ color, obstacle }: { color: string; obstacle: ObstacleZone }): React.JSX.Element {
-  const center = centroid(obstacle.polygon);
-  const x = center.x;
-  const y = -center.y;
+  const x = 0, y = 0;
   if (obstacle.kind === "road") {
     return (
       <>
@@ -1197,6 +1417,13 @@ function ObstacleSymbol({ color, obstacle }: { color: string; obstacle: Obstacle
   );
 }
 
+function mapFeatureLabelPoint(feature: ProjectMapFeature, viewport: DrawingMapState["viewport"]): XY {
+  const geometry = feature.geometry;
+  if (geometry.type === "Point") return geometry.point;
+  if (geometry.type === "Circle") return visibleCircleLabelPoint(geometry.center, geometry.radiusMeters, viewport) ?? { x: NaN, y: NaN };
+  return visiblePathLabelPoint(geometry.vertices, viewport, geometry.type === "Polygon") ?? { x: NaN, y: NaN };
+}
+
 function MapFeatureSymbol({
   feature,
   onSelect,
@@ -1216,7 +1443,6 @@ function MapFeatureSymbol({
     const vertices = feature.geometry.vertices;
     if (vertices.length < 2) return <></>;
     const path = `M ${vertices.map((vertex) => `${vertex.x} ${-vertex.y}`).join(" L ")}`;
-    const mid = vertices[Math.floor(vertices.length / 2)];
     return (
       <>
         <Path
@@ -1229,9 +1455,6 @@ function MapFeatureSymbol({
           strokeWidth={strokeWidth}
           {...svgElementInteractionProps(onSelect)}
         />
-        <SvgText x={mid.x + scale.px(12)} y={-mid.y - scale.px(10)} fill={color} fontSize={scale.font(18)} fontWeight="900">
-          {feature.name}
-        </SvgText>
       </>
     );
   }
@@ -1239,7 +1462,6 @@ function MapFeatureSymbol({
     const vertices = feature.geometry.vertices;
     if (vertices.length < 3) return <></>;
     const path = ringsToSvgPath([[vertices]]);
-    const mid = centroid(vertices);
     return (
       <>
         <Path
@@ -1252,9 +1474,6 @@ function MapFeatureSymbol({
           strokeWidth={strokeWidth}
           {...svgElementInteractionProps(onSelect)}
         />
-        <SvgText x={mid.x + scale.px(12)} y={-mid.y - scale.px(10)} fill={color} fontSize={scale.font(18)} fontWeight="900">
-          {feature.name}
-        </SvgText>
       </>
     );
   }
@@ -1275,9 +1494,6 @@ function MapFeatureSymbol({
           {...svgElementInteractionProps(onSelect)}
         />
         <Circle cx={point.x} cy={y} fill="#fffef8" r={scale.px(selected ? 10 : 7)} stroke={color} strokeWidth={scale.stroke(4)} />
-        <SvgText x={point.x + feature.geometry.radiusMeters + scale.px(10)} y={y + scale.px(6)} fill={color} fontSize={scale.font(18)} fontWeight="900">
-          {feature.name}
-        </SvgText>
       </>
     );
   }
@@ -1294,9 +1510,6 @@ function MapFeatureSymbol({
         strokeWidth={scale.stroke(4)}
         {...svgElementInteractionProps(onSelect)}
       />
-      <SvgText x={point.x + scale.px(15)} y={y + scale.px(6)} fill={color} fontSize={scale.font(18)} fontWeight="900">
-        {shortMapFeatureLabel(feature.kind)}
-      </SvgText>
     </>
   );
 }
@@ -1395,18 +1608,16 @@ function centroid(vertices: XY[]): XY {
   return { x: sum.x / Math.max(1, vertices.length), y: sum.y / Math.max(1, vertices.length) };
 }
 
-function DraftVertices({ vertices, color, scale }: { vertices: XY[]; color: string; scale: SvgSymbolScale }): React.JSX.Element {
+function DraftVertices({ vertices, color, scale, polygon }: { vertices: XY[]; color: string; scale: SvgSymbolScale; polygon: boolean }): React.JSX.Element {
   if (vertices.length === 0) return <></>;
-  const path = vertices.length >= 2 ? `M ${vertices.map((vertex) => `${vertex.x} ${-vertex.y}`).join(" L ")}` : "";
+  const closed = polygon && vertices.length >= 3;
+  const path = vertices.length >= 2 ? `M ${vertices.map((vertex) => `${vertex.x} ${-vertex.y}`).join(" L ")}${closed ? " Z" : ""}` : "";
   return (
     <>
-      {path ? <Path d={path} fill="none" stroke={color} strokeDasharray="10 8" strokeWidth={scale.stroke(5)} /> : null}
+      {path ? <Path d={path} fill={closed ? color : "none"} fillOpacity={0.16} stroke={color} strokeDasharray="10 8" strokeWidth={scale.stroke(5)} testID="svg-draft-preview" /> : null}
       {vertices.map((vertex, index) => (
         <React.Fragment key={`${vertex.x}-${vertex.y}-${index}`}>
-          <Circle cx={vertex.x} cy={-vertex.y} r={scale.px(10)} fill="#ffffff" stroke={color} strokeWidth={scale.stroke(5)} />
-          <SvgText x={vertex.x + scale.px(12)} y={-vertex.y - scale.px(10)} fill={color} fontSize={scale.font(22)} fontWeight="900">
-            {index + 1}
-          </SvgText>
+          <Circle cx={vertex.x} cy={-vertex.y} r={scale.px(5)} fill="#ffffff" stroke={color} strokeWidth={scale.stroke(2)} />
         </React.Fragment>
       ))}
     </>
@@ -1490,7 +1701,7 @@ function EditableRing({
 function svgElementInteractionProps(onActivate: () => void): object {
   if (Platform.OS === "web") {
     return {
-      onClick: (event: { stopPropagation?: () => void }) => {
+      onPress: (event: { stopPropagation?: () => void }) => {
         event.stopPropagation?.();
         onActivate();
       },
@@ -1499,18 +1710,15 @@ function svgElementInteractionProps(onActivate: () => void): object {
   return { onPress: onActivate };
 }
 
-function SnapMarker({ point, color, label, scale }: { point: XY; color: string; label: string; scale: SvgSymbolScale }): React.JSX.Element {
+function SnapMarker({ point, color, scale }: { point: XY; color: string; scale: SvgSymbolScale }): React.JSX.Element {
   return (
     <>
-      <Circle cx={point.x} cy={-point.y} r={scale.px(16)} fill="none" stroke={color} strokeDasharray="6 5" strokeWidth={scale.stroke(4)} />
-      <SvgText x={point.x + scale.px(18)} y={-point.y - scale.px(14)} fill={color} fontSize={scale.font(20)} fontWeight="900">
-        Snap {label}
-      </SvgText>
+      <Circle cx={point.x} cy={-point.y} r={scale.px(9)} fill="none" stroke={color} strokeDasharray={`${scale.px(3)} ${scale.px(2)}`} strokeWidth={scale.stroke(2)} />
     </>
   );
 }
 
-function WorkflowSegmentedControl({ mode, onChange }: { mode: MappingWorkflowMode; onChange: (mode: MappingWorkflowMode) => void }): React.JSX.Element {
+function WorkflowSegmentedControl({ mode, onChange, short = false }: { mode: MappingWorkflowMode; onChange: (mode: MappingWorkflowMode) => void; short?: boolean }): React.JSX.Element {
   return (
     <View accessibilityLabel="Mapping workflow mode" style={styles.workflowSegment}>
       {(["design", "layout"] as const).map((option) => {
@@ -1521,7 +1729,8 @@ function WorkflowSegmentedControl({ mode, onChange }: { mode: MappingWorkflowMod
             accessibilityState={{ selected: active }}
             key={option}
             onPress={() => onChange(option)}
-            style={[styles.workflowSegmentButton, active && styles.workflowSegmentButtonActive]}
+            style={[styles.workflowSegmentButton, short && styles.workflowSegmentButtonShortLandscape,
+              active && styles.workflowSegmentButtonActive]}
             testID={`workflow-${option}-mode`}
           >
             <Text style={[styles.workflowSegmentText, active && styles.workflowSegmentTextActive]}>{workflowModeLabel(option)}</Text>
@@ -1545,10 +1754,14 @@ function ToolButton({ active, disabled = false, icon, label, onPress }: { active
   );
 }
 
-function IconControl({ icon, label, onPress }: { icon: React.ReactNode; label: string; onPress: () => void }): React.JSX.Element {
+function IconControl({ icon, label, onPress, disabled = false, testID, tooltipPlacement = "left" }: { icon: React.ReactNode; label: string; onPress: () => void; disabled?: boolean; testID?: string; tooltipPlacement?: "left" | "below" | "belowStart" }): React.JSX.Element {
+  const [hovered, setHovered] = useState(false);
   return (
-    <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={styles.iconControl}>
+    <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled }} disabled={disabled}
+      onHoverIn={() => setHovered(true)} onHoverOut={() => setHovered(false)} onFocus={() => setHovered(true)} onBlur={() => setHovered(false)}
+      onPress={onPress} style={[styles.iconControl, disabled && styles.disabledDraftButton]} testID={testID}>
       {icon}
+      {hovered ? <View pointerEvents="none" style={[styles.controlTooltip, tooltipPlacement === "below" && styles.controlTooltipBelow, tooltipPlacement === "belowStart" && styles.controlTooltipBelowStart]}><Text style={styles.controlTooltipText}>{label}</Text></View> : null}
     </Pressable>
   );
 }
@@ -1775,6 +1988,9 @@ function paletteForMapStyle(style: MapStyle): {
   };
 }
 
+// React Native's ViewStyle omits CSS overflow: clip; web needs it to prevent focus scrolling the outer map shell.
+const webShellClip = Platform.OS === "web" ? ({ overflow: "clip" } as unknown as ViewStyle) : undefined;
+
 const styles = StyleSheet.create({
   shell: {
     backgroundColor: "#fbfcf8",
@@ -1807,11 +2023,23 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "800",
   },
+  headerRowCompact: { paddingHorizontal: 8, paddingVertical: 6, gap: 6 },
+  headerRowShortLandscape: { paddingVertical: 0 },
+  compactHeaderTitle: { flex: 1, minWidth: 0 },
   subtitle: {
     color: "#607067",
     fontSize: 12,
     fontWeight: "600",
   },
+  actionStatus: {
+    color: "#26392f",
+    fontSize: 12,
+    lineHeight: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    flexShrink: 0,
+  },
+  shortInspectStatus: { height: 0, paddingVertical: 0, overflow: "hidden" },
   svg: {
     flex: 1,
     width: "100%",
@@ -1838,12 +2066,17 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   bottomOverlaySlot: {
-    bottom: 8,
-    left: 12,
+    ...overlayAnchors.bottom,
     maxWidth: "100%",
     position: "absolute",
     right: 12,
     zIndex: 3,
+  },
+  compactToolbarSlot: {
+    flexShrink: 0,
+    paddingHorizontal: 8,
+    paddingBottom: 8,
+    width: "100%",
   },
   modeRow: {
     flexDirection: "row",
@@ -1869,6 +2102,10 @@ const styles = StyleSheet.create({
     minHeight: 48,
     paddingHorizontal: 12,
     paddingVertical: 8,
+  },
+  workflowSegmentButtonShortLandscape: {
+    minHeight: 44,
+    paddingVertical: 4,
   },
   workflowSegmentButtonActive: {
     backgroundColor: "#254234",
@@ -1913,20 +2150,19 @@ const styles = StyleSheet.create({
     color: "#5f6f64",
   },
   zoomControls: {
+    ...overlayAnchors.zoom,
     gap: 8,
     position: "absolute",
-    right: 12,
-    top: 12,
-    zIndex: 2,
+    zIndex: 3,
   },
   panControls: {
+    ...overlayAnchors.pan,
     alignItems: "center",
     gap: 6,
     position: "absolute",
-    right: 12,
-    top: 174,
-    zIndex: 2,
+    zIndex: 3,
   },
+  compactLegendControl: { position: "absolute", ...overlayAnchors.legend, zIndex: 3 },
   zoomControlsCompact: {
     flexDirection: "row",
     gap: 6,
@@ -1936,16 +2172,15 @@ const styles = StyleSheet.create({
     gap: 44,
   },
   draftHud: {
+    ...overlayAnchors.draft,
     alignItems: "center",
     backgroundColor: "#fffef8",
     borderColor: "#b9c5b6",
     borderRadius: 8,
     borderWidth: 1,
-    bottom: 84,
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8,
-    left: 12,
     minHeight: 44,
     paddingHorizontal: 10,
     paddingVertical: 8,
@@ -1954,7 +2189,6 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   draftHudExternal: {
-    bottom: 70,
     maxHeight: 70,
     overflow: "hidden",
   },
@@ -1970,10 +2204,42 @@ const styles = StyleSheet.create({
     position: "relative",
     right: 0,
   },
+  draftHudShortLandscape: {
+    alignItems: "center",
+    bottom: 0,
+    flex: 2,
+    flexDirection: "row",
+    height: 44,
+    left: 0,
+    maxHeight: 44,
+    minWidth: 0,
+    overflow: "hidden",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    position: "relative",
+    right: 0,
+  },
+  draftHudTextShortLandscape: {
+    flexShrink: 1,
+    maxWidth: 140,
+  },
   draftCommandScroller: {
     flexGrow: 0,
     flexShrink: 0,
     height: 40,
+    width: "100%",
+  },
+  draftCommandSlotShortLandscape: {
+    flex: 1,
+    minWidth: 0,
+  },
+  draftCommandSlotCompact: {
+    maxWidth: "100%",
+    minWidth: 0,
+    width: "100%",
+  },
+  draftCommandScrollerShortLandscape: {
+    height: 38,
     width: "100%",
   },
   draftCommandRow: {
@@ -2006,22 +2272,26 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     padding: 8,
   },
+  compactNoticeButton: { flexDirection: "row", alignItems: "center", gap: 8, minHeight: 44 },
+  compactNoticeSummary: { flex: 1, color: "#26392f", fontSize: 12, lineHeight: 16 },
+  noticeBackdrop: { flex: 1, justifyContent: "center", alignItems: "center", padding: 16, backgroundColor: "rgba(19,33,27,0.58)" },
+  noticeDialog: { width: "100%", maxWidth: 480, maxHeight: "80%", backgroundColor: "#fbfcf8", borderRadius: 8, overflow: "hidden" },
+  noticeDialogHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8, paddingLeft: 16 },
+  noticeDialogTitle: { flex: 1, color: "#26392f", fontSize: 16, fontWeight: "700" },
+  noticeClose: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
+  noticeDialogBody: { padding: 12, gap: 8 },
   topOverlayStack: {
+    ...overlayAnchors.notices,
     gap: 6,
-    left: 12,
     maxWidth: 560,
     position: "absolute",
     right: 76,
-    top: 12,
     zIndex: 2,
   },
   imageryBadgeText: {
     color: "#26392f",
     fontSize: 12,
     fontWeight: "900",
-  },
-  topOverlayStackCompact: {
-    right: 126,
   },
   imageryBadgeSubtext: {
     color: "#405448",
@@ -2068,6 +2338,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 48,
   },
+  controlTooltip: { position: "absolute", top: 8, right: 52, minWidth: 90, padding: 6, backgroundColor: "#26392f", borderRadius: 4, zIndex: 10 },
+  controlTooltipBelow: { top: 54, right: 0 },
+  controlTooltipBelowStart: { top: 54, right: "auto", left: 0 },
+  controlTooltipText: { color: "#ffffff", fontSize: 12 },
   layerRow: {
     borderTopColor: "#dde3da",
     borderTopWidth: 1,

@@ -7,6 +7,7 @@ import { join } from "node:path";
 import {
   type ServerState,
   classifyPort,
+  checkStaticHealth,
   getManagerPaths,
   readStateFile,
   selectPort,
@@ -49,7 +50,7 @@ async function main(): Promise<void> {
         "content-type": "application/json",
         "x-cplayout-static-server": "serveStaticWeb",
       });
-      response.end(JSON.stringify({ app: "cplayout", ok: true }));
+      response.end(JSON.stringify({ app: "cplayout", server: "serveStaticWeb", root: join(repoRoot, "apps/mobile/dist"), port: 19184, ok: true }));
       return;
     }
     response.writeHead(404).end();
@@ -60,6 +61,24 @@ async function main(): Promise<void> {
     assert.equal(compatible.kind, "likelyCplayoutNoState");
   } finally {
     await close(cplayoutServer);
+  }
+
+  for (const [name, identity] of [
+    ["another checkout", { app: "cplayout", server: "serveStaticWeb", root: "/another/checkout/dist", port: 19185, ok: true }],
+    ["another port", { app: "cplayout", server: "serveStaticWeb", root: join(repoRoot, "apps/mobile/dist"), port: 19006, ok: true }],
+    ["missing server", { app: "cplayout", root: join(repoRoot, "apps/mobile/dist"), port: 19185, ok: true }],
+  ] as const) {
+    const impostor = createServer((_request, response) => {
+      response.writeHead(200, { "x-cplayout-static-server": "serveStaticWeb" });
+      response.end(JSON.stringify(identity));
+    });
+    await listen(impostor, 19185);
+    try {
+      assert.equal((await checkStaticHealth(19185, repoRoot)).ok, false, name);
+      assert.equal((await classifyPort("ui-test", 19185, repoRoot)).kind, "occupiedUnknown", name);
+    } finally {
+      await close(impostor);
+    }
   }
 
   assert.equal(readStateFile(statePathFor("ui-test", 19999, repoRoot)), null);

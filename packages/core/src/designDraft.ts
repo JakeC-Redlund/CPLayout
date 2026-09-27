@@ -5,6 +5,8 @@ import { evaluateManualDesignReadiness } from "./manualDesign";
 import { MapPackageManifestSchema } from "./mapTilePackages";
 import { evaluateProjectCalculationSafety, isBoundaryWithinCalculationBudget } from "./projectCalculationSafety";
 import { projectDataKey } from "./projectDataComparison";
+import { gnssV2CaptureConflicts } from "./gnssEvidence";
+import { snapshotJsonValue } from "./jsonDataSnapshot";
 import { PivotProjectSchema } from "./projectDocument";
 import { ProjectSettingsSchema } from "./settings";
 import type { GnssCaptureEvidence, PivotProject, XY } from "./types";
@@ -182,7 +184,8 @@ function validateDesignDraft(input: unknown): DesignDraft {
   const checkCapture = (point: XY, evidence: GnssCaptureEvidence | null | undefined) => {
     if (!evidence) return;
     const previous = captures.get(evidence.observationId);
-    if (previous && (!samePoint(previous.point, point) || projectDataKey(previous.evidence) !== projectDataKey(evidence))) {
+    const compareLegacy = previous && (previous.evidence.schemaVersion === "gnss-capture-v1" || evidence.schemaVersion === "gnss-capture-v1");
+    if (compareLegacy && (!samePoint(previous.point, point) || projectDataKey(previous.evidence) !== projectDataKey(evidence))) {
       throw new Error(`captureEvidence: Conflicting observation ${evidence.observationId}; explicit repair is required.`);
     }
     captures.set(evidence.observationId, { point, evidence });
@@ -195,6 +198,8 @@ function validateDesignDraft(input: unknown): DesignDraft {
       : feature.geometry.type === "Circle" ? [feature.geometry.center] : feature.geometry.vertices;
     vertices.forEach((point, index) => checkCapture(point, feature.vertexCaptureEvidence?.[index]));
   });
+  const conflict = gnssV2CaptureConflicts(draft)[0];
+  if (conflict) throw new Error(`${conflict.path.join(".")}: ${conflict.message}`);
   return draft;
 }
 
@@ -239,49 +244,6 @@ function errorBlockers(error: unknown): DesignDraftBlocker[] {
     return error.issues.map((issue) => ({ path: issue.path.join("."), code: issue.code, message: issue.message }));
   }
   return [{ path: "", code: "invalid_draft", message: error instanceof Error ? error.message : String(error) }];
-}
-
-function snapshotJsonValue(value: unknown, path = "draft", ancestors = new Set<object>()): unknown {
-  if (value === null || typeof value === "string" || typeof value === "boolean") return value;
-  if (typeof value === "number" && Number.isFinite(value)) return value;
-  if (typeof value !== "object" || value === null) throw new Error(`${path}: Expected finite, serializable JSON data.`);
-  if (ancestors.has(value)) throw new Error(`${path}: Cyclic data is not serializable.`);
-  const isArray = Array.isArray(value);
-  const prototype = Object.getPrototypeOf(value);
-  if (isArray ? prototype !== Array.prototype : prototype !== Object.prototype && prototype !== null) {
-    throw new Error(`${path}: Expected a plain JSON object.`);
-  }
-  for (let inherited = prototype; inherited !== null; inherited = Object.getPrototypeOf(inherited)) {
-    if (Object.getOwnPropertyDescriptor(inherited, "toJSON")) throw new Error(`${path}: Inherited JSON hooks are not supported.`);
-  }
-  const descriptors = Object.getOwnPropertyDescriptors(value);
-  if (Object.getOwnPropertySymbols(descriptors).length > 0) throw new Error(`${path}: Symbol properties are not serializable.`);
-  for (const [key, descriptor] of Object.entries(descriptors)) {
-    if (isArray && key === "length") continue;
-    if (!descriptor.enumerable || !Object.hasOwn(descriptor, "value")) throw new Error(`${path}.${key}: Expected an enumerable JSON data property; accessors are not supported.`);
-  }
-  if (isArray) {
-    const length: number = descriptors.length.value;
-    if (Object.keys(descriptors).length !== length + 1) throw new Error(`${path}: Expected a dense JSON array without extra properties.`);
-    for (let index = 0; index < length; index += 1) {
-      if (!Object.hasOwn(descriptors, index)) throw new Error(`${path}: Sparse arrays are not supported.`);
-    }
-  }
-  ancestors.add(value);
-  try {
-    if (isArray) {
-      const snapshot: unknown[] = [];
-      for (let index = 0; index < descriptors.length.value; index += 1) {
-        snapshot.push(snapshotJsonValue(descriptors[index].value, `${path}.${index}`, ancestors));
-      }
-      return snapshot;
-    }
-    return Object.fromEntries(Object.entries(descriptors).map(([key, descriptor]) => [
-      key, descriptor.value === undefined ? undefined : snapshotJsonValue(descriptor.value, `${path}.${key}`, ancestors),
-    ]));
-  } finally {
-    ancestors.delete(value);
-  }
 }
 
 function assertSameFields(input: unknown, parsed: unknown, path = "draft"): void {

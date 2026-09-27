@@ -9,9 +9,8 @@
     "preweb": "tsx ../../tools/prepareMapLibreAssets.ts",
     "web": "expo start --web --host localhost",
     "android": "expo run:android",
-    "preexport:web": "tsx ../../tools/prepareMapLibreAssets.ts",
-    "export:web": "expo export --platform web --clear --max-workers 2",
-    "test": "tsx src/projectOpenRequest.test.ts && tsx src/advisory/advisoryJob.test.ts && tsx src/navigation/navigationViewModels.test.ts && tsx src/navigation/projectTreeViewModel.test.ts && tsx src/gnss/webSerialTransport.test.ts && tsx src/gnss/webSerialTransportSafety.test.ts && tsx src/gnss/webSerialSessionOwner.test.ts && tsx src/gnss/captureDraft.test.ts",
+    "export:web": "tsx ../../tools/webBuildLease.ts workspace-export",
+    "test": "tsx src/newDesignDraft.test.ts && tsx src/components/designDraftInputValues.test.ts && tsx src/hooks/useProjectRepository.test.ts && tsx src/projectOpenRequest.test.ts && tsx src/pendingMapDraft.test.ts && tsx src/projectEditorDispatch.test.ts && tsx src/editorSaveCoordinator.test.ts && tsx src/advisory/advisoryJob.test.ts && tsx src/navigation/navigationViewModels.test.ts && tsx src/navigation/projectTreeViewModel.test.ts && tsx src/gnss/webSerialTransport.test.ts && tsx src/gnss/webSerialTransportSafety.test.ts && tsx src/gnss/webSerialSessionOwner.test.ts && tsx src/gnss/captureDraft.test.ts",
     "typecheck": "tsc --noEmit",
     "validate": "npm run typecheck"
   },

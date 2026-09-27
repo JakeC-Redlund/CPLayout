@@ -1,7 +1,11 @@
 # Dependency Inventory and Upgrade Plan
 
-Last reviewed: 2026-09-14 UTC
+Last reviewed: 2026-09-26 UTC
 Status: active package and toolchain decision record
+
+## Audit Refresh: 2026-09-26
+
+During draft-editor integration, `npm audit --json --ignore-scripts --fetch-retries=0 --fetch-timeout=30000` exits 0 with zero findings at every severity and 735 dependency entries. Lockfile SHA-256 remains `16205a29da1aa9d5c8c050fa84c0906396a07767341b62d3a710971df6e08a03`. This verifies the current advisory result, not absence of all security defects or native compatibility. No installation, upgrade, forced fix or lockfile mutation was performed in this continuation. The historical five-high objective is retained as history; it is not the current audit count. Raw coordinator result: `/tmp/cplayout-draft-audit-current.json`.
 
 ## Coherent Metro Patch: 2026-09-14
 
@@ -199,3 +203,12 @@ Quarterly and before releases:
 - No physical RTK receiver, correction stream, or GNSS native module was package-validated in this pass.
 - `npm outdated` versions are availability signals, not compatibility or upgrade approval.
 - Historical audit counts are not current closure evidence; use the latest dated audit and exact dependency paths before accepting a package packet.
+
+## Duplicate-JSON Guard Packet: 2026-09-17
+
+- Decision: add exactly `jsonc-parser@3.3.1` to `@cplayout/project-store`. Review found that native `JSON.parse` silently discards earlier duplicate members, including escaped-equivalent keys, during workspace migration. The visitor supplies decoded property names before materialization, allowing rejection without a hand-written JSON grammar.
+- Primary evidence: [versioned manifest](https://raw.githubusercontent.com/microsoft/node-jsonc-parser/v3.3.1/package.json), [MIT license](https://raw.githubusercontent.com/microsoft/node-jsonc-parser/v3.3.1/LICENSE.md), and [versioned visitor API](https://raw.githubusercontent.com/microsoft/node-jsonc-parser/v3.3.1/src/main.ts), retrieved 2026-09-17 UTC. This version ships UMD and ESM JavaScript, declares no runtime dependencies, and needs no native module, key, paid service or cloud endpoint. Native Expo runtime compatibility remains unverified until device proof; web bundling and tests are acceptance gates, not substitutes.
+- Install: `npm install --workspace @cplayout/project-store --save-exact jsonc-parser@3.3.1`. No SDK or MapLibre major change is part of this packet.
+- Configure strict JSON: comments, trailing commas and empty content disabled; reject every visitor error and repeated decoded key. Return native `JSON.parse` output only after the visitor succeeds. Preserve original payload/backup strings.
+- Validation: focused migration/envelope tests, project-store typecheck, aggregate `npm run validate`, browser Web Locks harness, Expo web export, `npm audit`, and lockfile diff review. Record actual outcomes in `docs/full-refactor-execution.md`.
+- Rollback: remove this packet's manifest entry and strict-parser imports/helper as a reviewed unit, regenerate the lockfile with npm, and rerun those gates. Do not reset unrelated dirty work or activate the new store while this guard is absent.

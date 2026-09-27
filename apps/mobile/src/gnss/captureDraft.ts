@@ -1,4 +1,17 @@
-import type { GnssCaptureEvidence, PivotProject, SourceConfidence, XY } from "@cplayout/core";
+import type { AppSettings, GnssCaptureEvidence, PivotProject, SourceConfidence, XY } from "@cplayout/core";
+
+export function captureThresholdsForWorkflow(settings: Pick<AppSettings, "mappingWorkflowMode" | "gpsQuality">): AppSettings["gpsQuality"] {
+  return settings.mappingWorkflowMode === "layout"
+    ? { ...settings.gpsQuality, minimumFixType: "rtk_fixed" }
+    : settings.gpsQuality;
+}
+
+export function canCommitCapturedDraft(mode: AppSettings["mappingWorkflowMode"], liveGateAccepted: boolean, vertices: CapturedDraftVertex[]): boolean {
+  if (mode === "design") return true;
+  return liveGateAccepted && vertices.length > 0 && vertices.every(({ confidence, evidence }) =>
+    confidence === "rtk_fixed" && evidence.schemaVersion === "gnss-capture-v2"
+    && evidence.transport !== "replay" && evidence.qualityScreen.receiverQuality.fixType === "rtk_fixed");
+}
 
 export interface CapturedDraftVertex {
   projected: XY;

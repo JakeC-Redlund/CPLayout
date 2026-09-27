@@ -1,9 +1,10 @@
 import { existsSync, mkdirSync, openSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { createServer, request as httpRequest } from "node:http";
-import { execFileSync, spawn, spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { basename, dirname, join, resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { WEB_BUILD_LEASE_TOKEN, runWebBuildCommand, withWebBuildLease } from "./webBuildLease";
 
 export type ServerMode = "ui-test" | "dev-web";
 export type PortClassification =
@@ -144,7 +145,7 @@ export async function isPortFree(port: number): Promise<boolean> {
   });
 }
 
-export async function checkStaticHealth(port: number): Promise<HealthCheck> {
+export async function checkStaticHealth(port: number, repoRoot = REPO_ROOT): Promise<HealthCheck> {
   return new Promise((resolveResult) => {
     const req = httpRequest(
       {
@@ -162,11 +163,26 @@ export async function checkStaticHealth(port: number): Promise<HealthCheck> {
         });
         res.on("end", () => {
           const header = res.headers[STATIC_HEALTH_HEADER];
+          let reportedOk = false;
+          let reason: string | undefined;
+          try {
+            const reported = JSON.parse(body) as {
+              ok?: unknown; app?: unknown; server?: unknown; root?: unknown; port?: unknown; missing?: unknown;
+            };
+            reportedOk = reported.ok === true && reported.app === "cplayout" &&
+              reported.server === "serveStaticWeb" && reported.root === resolve(repoRoot, "apps/mobile/dist") &&
+              reported.port === port;
+            if (!reportedOk && Array.isArray(reported.missing)) reason = `missing export files: ${reported.missing.join(", ")}`;
+            else if (!reportedOk) reason = "static health identity or export did not match this checkout and port";
+          } catch {
+            reason = "invalid static health response";
+          }
           resolveResult({
-            ok: res.statusCode === 200 && header === STATIC_HEALTH_VALUE,
+            ok: res.statusCode === 200 && header === STATIC_HEALTH_VALUE && reportedOk,
             statusCode: res.statusCode,
             header,
             body,
+            reason,
           });
         });
       },
@@ -199,7 +215,7 @@ export async function classifyPort(mode: ServerMode, port: number, repoRoot = RE
     return { kind: "free", port };
   }
 
-  const health = await checkStaticHealth(port);
+  const health = await checkStaticHealth(port, repoRoot);
   if (state) {
     if (processMatchesState(state) && (mode === "dev-web" || health.ok)) {
       return { kind: "ownedHealthy", port, state, health };
@@ -262,7 +278,7 @@ async function start(options: StartOptions): Promise<void> {
   }
 
   if (mode === "ui-test") {
-    if (!options.reuseExport) runExportWeb();
+    if (!options.reuseExport) await runExportWeb();
     await startStaticServer(classified.port, options.openBrowser);
     return;
   }
@@ -285,6 +301,11 @@ async function startStaticServer(port: number, openBrowser: boolean): Promise<vo
   console.log(`Started CPLayout UI test server at ${url}`);
   console.log(`Health: ${health.ok ? "healthy" : `unhealthy (${health.reason ?? health.statusCode ?? "unknown"})`}`);
   console.log(`Log: ${logPath}`);
+  if (!health.ok) {
+    stopOwnedState(state);
+    rmSync(statePathFor("ui-test", port), { force: true });
+    throw new Error(`Static UI test server did not become healthy: ${health.reason ?? health.statusCode ?? "unknown"}`);
+  }
   if (openBrowser) openUrl(url);
 }
 
@@ -369,9 +390,11 @@ function stop(): void {
   }
 }
 
-function runExportWeb(): void {
+async function runExportWeb(): Promise<void> {
+  const token = process.env[WEB_BUILD_LEASE_TOKEN];
+  if (!token) throw new Error("UI export requires the active web build lease token.");
   console.log("Exporting CPLayout web app before starting static UI test server...");
-  execFileSync("npm", ["run", "export:web"], { cwd: REPO_ROOT, stdio: "inherit" });
+  await runWebBuildCommand("npm", ["run", "export:web"], token);
 }
 
 function openUrl(url: string): void {
@@ -429,7 +452,19 @@ function parseArgs(argv: string[]): { command: string; options: StartOptions } {
 
 async function main(): Promise<void> {
   const { command, options } = parseArgs(process.argv.slice(2));
-  if (command === "start" || command === "dev-web-smart") await start(options);
+  if (command === "start") {
+    await withWebBuildLease("ui:test:start", async (token) => {
+      const previous = process.env[WEB_BUILD_LEASE_TOKEN];
+      process.env[WEB_BUILD_LEASE_TOKEN] = token;
+      try {
+        await start(options);
+      } finally {
+        if (previous === undefined) delete process.env[WEB_BUILD_LEASE_TOKEN];
+        else process.env[WEB_BUILD_LEASE_TOKEN] = previous;
+      }
+    }, "");
+  }
+  else if (command === "dev-web-smart") await start(options);
   else if (command === "status") await status();
   else if (command === "stop") stop();
   else throw new Error(`Unknown dev server manager command: ${command}`);

@@ -1,0 +1,49 @@
+
+> cplayout@0.1.0 export:web
+> npm run export:web -w @cplayout/mobile
+
+
+> @cplayout/mobile@0.1.0 preexport:web
+> tsx ../../tools/prepareMapLibreAssets.ts
+
+Prepared local MapLibre 6.9.0 worker, shared module and license.
+
+> @cplayout/mobile@0.1.0 export:web
+> expo export --platform web --clear --max-workers 2
+
+Expo Autolinking module resolution enabled
+Starting Metro Bundler
+
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+Web apps/mobile/index.ts ░░░░░░░░░░░░░░░░  0.0% (0/1)
+| (node:70705) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+Web apps/mobile/index.ts ░░░░░░░░░░░░░░░░  1.0% (1/1)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 82.1% (111/127)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 98.6% (143/144)
+| (node:70705) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (144/144)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (194/287)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% ( 195/2000)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% ( 516/2039)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (1117/2039)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (1786/2039)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2086/2158)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2234/2274)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2293/2293)
+Web Bundled 45312ms apps/mobile/index.ts (2293 modules)
+
+› Assets (2):
+src/assets/google-earth-wizard/google-earth-pro-add-menu.bac99d540981c762a14137d401cd0d4b.png (21KB)
+src/assets/google-earth-wizard/google-earth-pro-main-window.60e9b38e1b0ce05d881e93978f0540c6.png (4.6MB)
+
+› web bundles (2):
+_expo/static/css/maplibre-gl-9ee142d85ebe8fc90c36b0bed2634e4f.css (83KB)
+_expo/static/js/web/index-4e8c936091e796a6abb0183279b2c599.js (5.3MB)
+
+› Files (2):
+index.html (1.4KB)
+metadata.json (49B)
+
+Exported: dist

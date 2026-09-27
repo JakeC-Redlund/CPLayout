@@ -12,3 +12,6 @@ export * from "./projectRepository";
 export * from "./projectRepositoryTypes";
 export * from "./webSqliteGate";
 export * from "./workspaceDocument";
+export * from "./workspaceCommands";
+export { readWorkspaceDesign, workspaceBackendInfo, workspaceDesignCatalog, workspaceProjectCatalog } from "./versionedProjectRepository";
+export { createCatalogId } from "./projectCatalog";

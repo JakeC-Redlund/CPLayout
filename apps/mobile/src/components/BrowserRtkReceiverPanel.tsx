@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useRef, useState, useSyncExternalStore } fro
 import { Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 import {
+  GnssReferenceDeclarationSchema,
   type AppSettings,
   type GnssCaptureEvidence,
   type ObstacleZone,
@@ -16,21 +17,21 @@ import {
 } from "@cplayout/core";
 import {
   EMPTY_RTK_QUALITY,
-  captureEvidenceFromObservation,
-  createNmeaStreamAccumulator,
-  evaluateGnssObservationGate,
+  captureGnssObservation,
+  ReceiverStreamDecoder,
+  evaluateGnssCaptureGate,
   latestGnssObservationEpoch,
-  parseNmeaStreamChunk,
-  surveyPointFromGnssObservation,
-  withNmeaReceptionMetadata,
+  parseNmeaSentence,
   type GnssObservationEpoch,
   type GnssSession,
+  type GnssCaptureContext,
   type ParsedNmeaSample,
 } from "@cplayout/gnss";
 
 import { WebSerialGnssTransport, type WebSerialLike } from "../gnss/webSerialTransport";
 import { browserSerialSessionOwner } from "../gnss/webSerialSessionOwner";
-import { captureDraftMatchesProject, capturedDraftConfidence, type CapturedDraftVertex } from "../gnss/captureDraft";
+import { canCommitCapturedDraft, captureThresholdsForWorkflow, captureDraftMatchesProject, capturedDraftConfidence, type CapturedDraftVertex } from "../gnss/captureDraft";
+import { EMPTY_GNSS_REFERENCE_FORM, GnssReferenceForm } from "./GnssReferenceForm";
 
 export interface BrowserRtkReceiverStatus {
   connected: boolean;
@@ -107,6 +108,15 @@ export function BrowserRtkReceiverPanel({
   const serialSupported = Boolean(serial);
   const [baudRateText, setBaudRateText] = useState("115200");
   const [sourceCrsText, setSourceCrsText] = useState("unknown");
+  const [referenceForm, setReferenceForm] = useState(EMPTY_GNSS_REFERENCE_FORM);
+  const sessionReferenceRef = useRef<GnssCaptureContext["sessionReference"]>(null);
+  const parsedReference = useMemo(() => GnssReferenceDeclarationSchema.safeParse({
+    ...referenceForm,
+    schemaVersion: "gnss-reference-declaration-v1",
+    provenance: "operator_declared",
+    referenceFrame: "WGS84",
+    antennaHeightMeters: referenceForm.antennaHeightMeters.trim() === "" ? NaN : Number(referenceForm.antennaHeightMeters),
+  }), [referenceForm]);
   const [connected, setConnected] = useState(false);
   const ownership = useSyncExternalStore(browserSerialSessionOwner.subscribe, browserSerialSessionOwner.getSnapshot, browserSerialSessionOwner.getSnapshot);
   const connectionPending = ownership.phase === "opening";
@@ -129,18 +139,21 @@ export function BrowserRtkReceiverPanel({
   const runIdRef = useRef(0);
   const mountedRef = useRef(true);
 
-  const gate = useMemo(() => evaluateGnssObservationGate(observation, {
+  const captureThresholds = useMemo(() => captureThresholdsForWorkflow(settings), [settings.mappingWorkflowMode, settings.gpsQuality]);
+  const gate = useMemo(() => evaluateGnssCaptureGate(observation, {
     connected,
     projectCrs: project.projectCrs,
     nowMonotonicMs,
     sourceCoordinateFrame: sourceCrsText,
-  }, settings.gpsQuality), [connected, nowMonotonicMs, observation, project.projectCrs, settings.gpsQuality, sourceCrsText]);
+    sessionReference: sessionReferenceRef.current,
+  }, captureThresholds), [connected, nowMonotonicMs, observation, project.projectCrs, captureThresholds, sourceCrsText]);
   const quality = gate.quality ?? EMPTY_RTK_QUALITY;
   const canCapture = gate.accepted && observation !== null;
   const mapFeatureOption = MAP_FEATURE_OPTIONS.find((option) => option.kind === mapFeatureKind) ?? MAP_FEATURE_OPTIONS[0];
   const canSaveMapFeature = mapFeatureOption.geometry === "Point"
     ? canCapture
-    : mapFeatureDraft.length >= (mapFeatureOption.geometry === "Polygon" ? 3 : 2);
+    : mapFeatureDraft.length >= (mapFeatureOption.geometry === "Polygon" ? 3 : 2)
+      && canCommitCapturedDraft(settings.mappingWorkflowMode, canCapture, mapFeatureDraft);
   const mapFeatureGeometryLabel = mapFeatureOption.geometry === "LineString" ? "Line" : mapFeatureOption.geometry;
 
   function updateObservation(next: GnssObservationEpoch | null): void {
@@ -149,20 +162,22 @@ export function BrowserRtkReceiverPanel({
     setObservation(next);
   }
 
-  function captureObservationNow(): GnssObservationEpoch | null {
+  function captureObservationNow(): { observation: GnssObservationEpoch; context: GnssCaptureContext } | null {
     const latest = observationRef.current;
-    const currentGate = evaluateGnssObservationGate(latest, {
+    const context: GnssCaptureContext = {
       connected: browserSerialSessionOwner.getSnapshot().phase === "connected"
         && sessionRef.current !== null && sessionRef.current.id === latest?.sessionId,
       projectCrs: project.projectCrs,
       nowMonotonicMs: monotonicNow(),
       sourceCoordinateFrame: sourceCrsText,
-    }, settings.gpsQuality);
+      sessionReference: sessionReferenceRef.current,
+    };
+    const currentGate = evaluateGnssCaptureGate(latest, context, captureThresholds);
     if (!latest || !currentGate.accepted) {
       setStatus("RTK gate is closed; capture was blocked.");
       return null;
     }
-    return { ...latest, quality: currentGate.quality };
+    return { observation: latest, context };
   }
 
   useEffect(() => {
@@ -221,6 +236,8 @@ export function BrowserRtkReceiverPanel({
       return;
     }
     const runId = ++runIdRef.current;
+    const declaration = parsedReference.success ? parsedReference.data : null;
+    sessionReferenceRef.current = null;
     try {
       const session = await browserSerialSessionOwner.open(new WebSerialGnssTransport(serial), { baudRate });
       if (!mountedRef.current || runIdRef.current !== runId) {
@@ -228,6 +245,7 @@ export function BrowserRtkReceiverPanel({
         return;
       }
       sessionRef.current = session;
+      sessionReferenceRef.current = declaration ? { sessionId: session.id, declaration } : null;
       samplesRef.current = [];
       lastEpochRef.current = null;
       updateObservation(null);
@@ -243,6 +261,7 @@ export function BrowserRtkReceiverPanel({
 
   async function disconnect(): Promise<void> {
     runIdRef.current += 1;
+    sessionReferenceRef.current = null;
     const session = browserSerialSessionOwner.getSnapshot().session;
     setConnected(false);
     samplesRef.current = [];
@@ -267,8 +286,7 @@ export function BrowserRtkReceiverPanel({
   }
 
   async function readNmeaLoop(session: GnssSession, runId: number): Promise<void> {
-    const decoder = new TextDecoder();
-    let accumulator = createNmeaStreamAccumulator();
+    const decoder = new ReceiverStreamDecoder();
     try {
       for await (const event of session.events()) {
         if (runIdRef.current !== runId) return;
@@ -286,14 +304,22 @@ export function BrowserRtkReceiverPanel({
           setStatus(event.reason === "eof" ? "Receiver stream ended." : "Receiver disconnected.");
           return;
         }
-        const parsed = parseNmeaStreamChunk(accumulator, decoder.decode(event.bytes, { stream: true }));
-        accumulator = parsed.accumulator;
-        if (parsed.lines.length > 0) setSentenceCount((current) => current + parsed.lines.length);
-        if (parsed.samples.length > 0) {
-          const stamped = withNmeaReceptionMetadata(parsed.samples, {
-            receivedAt: event.receivedAt,
-            receivedMonotonicMs: event.receivedMonotonicMs,
-          });
+        const parsed = decoder.push(event.bytes, event);
+        if (parsed.invalidated || parsed.mode !== "nmea") {
+          samplesRef.current = [];
+          updateObservation(null);
+        }
+        if (parsed.mode !== "nmea") {
+          setStatus(parsed.issue ?? "Receiver stream unavailable for collection.");
+          continue;
+        }
+        if (parsed.nmea.length > 0) setSentenceCount((current) => current + parsed.nmea.length);
+        const stamped = parsed.nmea.flatMap(({ sentence, ...reception }) => {
+          const sample = parseNmeaSentence(sentence);
+          // Proprietary diagnostics must not evict or repair collection observations.
+          return sample && ["GGA", "GST", "RMC"].includes(sample.sentenceType) ? [{ ...sample, ...reception }] : [];
+        });
+        if (stamped.length > 0) {
           setNowMonotonicMs(event.receivedMonotonicMs);
           const next = [...samplesRef.current, ...stamped].slice(-120);
           samplesRef.current = next;
@@ -318,10 +344,9 @@ export function BrowserRtkReceiverPanel({
     const captureObservation = captureObservationNow();
     if (!captureObservation) return;
     try {
-      const point = surveyPointFromGnssObservation({
-        observation: captureObservation,
-        projectCrs: project.projectCrs,
-        sourceCoordinateFrame: sourceCrsText,
+      const point = captureGnssObservation({
+        ...captureObservation,
+        thresholds: captureThresholds,
         transport: "web_serial",
         id: `rtk-${Date.now().toString(36)}-${project.surveyPoints.length + 1}`,
         label: `${surveyRole.replaceAll("_", " ")} RTK ${project.surveyPoints.length + 1}`,
@@ -356,7 +381,7 @@ export function BrowserRtkReceiverPanel({
   }
 
   function commitBoundary(): void {
-    if (boundaryDraft.length < 3 || !validateDraftScope(boundaryDraft)) return;
+    if (boundaryDraft.length < 3 || !validateDraftScope(boundaryDraft) || !authorizeDraftCommit(boundaryDraft)) return;
     const result = onCommitBoundaryDraft(
       boundaryDraft.map((vertex) => vertex.projected),
       boundaryDraft.map((vertex) => vertex.evidence),
@@ -370,7 +395,7 @@ export function BrowserRtkReceiverPanel({
   }
 
   function commitObstacle(): void {
-    if (obstacleDraft.length < 3 || !validateDraftScope(obstacleDraft)) return;
+    if (obstacleDraft.length < 3 || !validateDraftScope(obstacleDraft) || !authorizeDraftCommit(obstacleDraft)) return;
     const result = onCommitObstacleDraft(
       obstacleDraft.map((vertex) => vertex.projected),
       obstacleKind,
@@ -403,7 +428,7 @@ export function BrowserRtkReceiverPanel({
       return;
     }
     const minimumVertices = mapFeatureOption.geometry === "Polygon" ? 3 : 2;
-    if (mapFeatureDraft.length < minimumVertices || !validateDraftScope(mapFeatureDraft)) return;
+    if (mapFeatureDraft.length < minimumVertices || !validateDraftScope(mapFeatureDraft) || !authorizeDraftCommit(mapFeatureDraft)) return;
     const result = onAddMapFeature({
       name: `${mapFeatureOption.label} RTK`,
       kind: mapFeatureOption.kind,
@@ -426,12 +451,11 @@ export function BrowserRtkReceiverPanel({
     const captureObservation = captureObservationNow();
     if (!captureObservation) return null;
     try {
-      const surveyPoint = surveyPointFromGnssObservation({
-        observation: captureObservation,
-        projectCrs: project.projectCrs,
-        sourceCoordinateFrame: sourceCrsText,
+      const surveyPoint = captureGnssObservation({
+        ...captureObservation,
+        thresholds: captureThresholds,
         transport: "web_serial",
-        id: `prepared-${captureObservation.id}`,
+        id: `prepared-${captureObservation.observation.id}`,
         label: "Prepared RTK vertex",
       });
       return {
@@ -439,16 +463,21 @@ export function BrowserRtkReceiverPanel({
         projectCrs: project.projectCrs,
         confidence: surveyPoint.confidence,
         projected: surveyPoint.projected,
-        evidence: surveyPoint.captureEvidence ?? captureEvidenceFromObservation({
-          observation: captureObservation,
-          transport: "web_serial",
-          sourceCoordinateFrame: sourceCrsText,
-        }),
+        evidence: surveyPoint.captureEvidence,
       };
     } catch (error) {
       setStatus(errorMessage(error, "Could not project the latest RTK fix."));
       return null;
     }
+  }
+
+  function authorizeDraftCommit(vertices: PreparedCapturedVertex[]): boolean {
+    if (settings.mappingWorkflowMode === "design") return true;
+    // Recheck the live session and monotonic age at the mutation boundary, not just at render time.
+    if (!captureObservationNow()) return false;
+    if (canCommitCapturedDraft(settings.mappingWorkflowMode, true, vertices)) return true;
+    setStatus("Layout requires RTK-fixed hardware evidence for every captured vertex.");
+    return false;
   }
 
   function validateDraftScope(vertices: PreparedCapturedVertex[]): boolean {
@@ -466,7 +495,7 @@ export function BrowserRtkReceiverPanel({
         </View>
         <View style={[styles.gateBadge, gate.accepted ? styles.gateBadgeAccepted : styles.gateBadgeBlocked]} testID="rtk-gate-badge">
           {gate.accepted ? <CheckCircle2 size={16} color="#1f5f39" /> : <CircleAlert size={16} color="#8b1e18" />}
-          <Text style={[styles.gateText, gate.accepted ? styles.gateTextAccepted : styles.gateTextBlocked]}>{gate.accepted ? "Gate accepted" : "Gate closed"}</Text>
+          <Text style={[styles.gateText, gate.accepted ? styles.gateTextAccepted : styles.gateTextBlocked]}>{gate.accepted ? "Collection eligible" : "Gate closed"}</Text>
         </View>
       </View>
 
@@ -481,6 +510,7 @@ export function BrowserRtkReceiverPanel({
         />
         <TextInput
           accessibilityLabel="Receiver source CRS"
+          editable={!connected && !connectionPending && !closePending && !cleanupFailed}
           autoCapitalize="characters"
           onChangeText={setSourceCrsText}
           placeholder="EPSG:4326"
@@ -495,6 +525,10 @@ export function BrowserRtkReceiverPanel({
         />
       </View>
 
+      <GnssReferenceForm value={referenceForm} onChange={setReferenceForm} valid={parsedReference.success}
+        errors={parsedReference.success ? {} : Object.fromEntries(parsedReference.error.issues.map(issue => [issue.path[0],
+          issue.path[0] === "coordinateEpochUtc" ? "UTC timestamp required: YYYY-MM-DDTHH:mm:ss.sssZ." : issue.message]))}
+        disabled={connected || connectionPending || closePending || cleanupFailed} />
       <Text style={styles.statusText} testID="rtk-status">{status}</Text>
       <View style={styles.metricsGrid}>
         <RtkMetric label="Fix" value={quality.fixType} />
@@ -503,12 +537,18 @@ export function BrowserRtkReceiverPanel({
         <RtkMetric label="VDOP" value={formatNullable(quality.vdop)} />
         <RtkMetric label="PDOP" value={formatNullable(quality.pdop)} />
         <RtkMetric label="Correction age" value={quality.correctionAgeSeconds === null ? "unknown" : `${quality.correctionAgeSeconds}s`} />
-        <RtkMetric label="Horizontal RMS" value={quality.horizontalAccuracyMeters === null ? "unknown" : `${quality.horizontalAccuracyMeters.toFixed(3)} m`} />
+        <RtkMetric label="Horizontal uncertainty" value={quality.horizontalAccuracyMeters === null ? "unknown" : `${quality.horizontalAccuracyMeters.toFixed(3)} m`} />
+        <RtkMetric label="Height standard uncertainty" value={quality.verticalAccuracyMeters === null ? "unknown" : `${quality.verticalAccuracyMeters.toFixed(3)} m`} />
+        <RtkMetric label="3D standard uncertainty" value={gate.positionStandardUncertaintyMeters === null ? "unknown" : `${gate.positionStandardUncertaintyMeters.toFixed(3)} m`} />
+        <RtkMetric label="3D field accuracy" value="Unverified" />
         <RtkMetric label="Observation age" value={gate.observationAgeSeconds === null ? "unknown" : `${gate.observationAgeSeconds.toFixed(1)}s`} />
         <RtkMetric label="Receiver time" value={observation?.receiverObservedAt ?? "unavailable"} />
         <RtkMetric label="NMEA lines" value={`${sentenceCount}`} />
       </View>
-      {!gate.accepted ? <Text style={styles.gateReasons} testID="rtk-gate-reasons">{gate.reasons.slice(0, 4).join("; ") || "Waiting for accepted NMEA quality."}</Text> : null}
+      {!gate.accepted ? <Text style={styles.gateReasons} testID="rtk-gate-reasons">{[
+        connected && gate.reasonCodes.includes("session_reference") ? "Disconnect to edit reference declaration." : null,
+        ...gate.reasons,
+      ].filter(Boolean).slice(0, 4).join("; ") || "Waiting for accepted NMEA quality."}</Text> : null}
 
       <View style={styles.captureBlock}>
         <Text style={styles.groupTitle}>Survey Point</Text>
@@ -524,7 +564,7 @@ export function BrowserRtkReceiverPanel({
         <Text style={styles.groupTitle}>Ordered Rings</Text>
         <View style={styles.actionRow}>
           <PanelButton disabled={!canCapture} label={`Add Boundary (${boundaryDraft.length})`} onPress={addBoundaryVertex} />
-          <PanelButton disabled={boundaryDraft.length < 3} label="Commit Boundary" primary onPress={commitBoundary} />
+          <PanelButton disabled={boundaryDraft.length < 3 || !canCommitCapturedDraft(settings.mappingWorkflowMode, canCapture, boundaryDraft)} label="Commit Boundary" primary onPress={commitBoundary} />
           <PanelButton disabled={boundaryDraft.length === 0} label="Clear Boundary" onPress={() => setBoundaryDraft([])} />
         </View>
         <View style={styles.choiceRow}>
@@ -534,7 +574,7 @@ export function BrowserRtkReceiverPanel({
         </View>
         <View style={styles.actionRow}>
           <PanelButton disabled={!canCapture} label={`Add Obstacle (${obstacleDraft.length})`} onPress={addObstacleVertex} />
-          <PanelButton disabled={obstacleDraft.length < 3} label="Commit Obstacle" primary onPress={commitObstacle} />
+          <PanelButton disabled={obstacleDraft.length < 3 || !canCommitCapturedDraft(settings.mappingWorkflowMode, canCapture, obstacleDraft)} label="Commit Obstacle" primary onPress={commitObstacle} />
           <PanelButton disabled={obstacleDraft.length === 0} label="Clear Obstacle" onPress={() => setObstacleDraft([])} />
         </View>
       </View>

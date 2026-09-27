@@ -1,0 +1,38 @@
+{
+  "recordedAt": "2026-09-25T22:00:13.286Z",
+  "head": "ec050f60bf515b5c4cbd40c3180615b5056e28b3",
+  "headUnchanged": true,
+  "sourcePaths": 316,
+  "changed": [],
+  "added": [],
+  "build": {
+    "path": "/_expo/static/js/web/index-4e8c936091e796a6abb0183279b2c599.js",
+    "bytes": 5292807,
+    "localSha256": "95ae9ebee6f38a63e0aba410f16e1bcf4f0b4c5c5e1bb6c5610d85b5fabc7a97",
+    "servedSha256": "95ae9ebee6f38a63e0aba410f16e1bcf4f0b4c5c5e1bb6c5610d85b5fabc7a97"
+  },
+  "browser": {
+    "startTime": "2026-09-25T21:55:41.768Z",
+    "duration": 48511.633,
+    "expected": 30,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0,
+    "cases": 30,
+    "errors": [],
+    "nonpassing": [],
+    "retries": 0,
+    "perProject": {
+      "desktop": 10,
+      "tablet-768": 10,
+      "mobile-390": 10
+    }
+  },
+  "hashes": {
+    "source.json": "eeaad3716803189642875c54aa7856f346c145ae9c400e12e1719756a0aba8ea",
+    "validate.log": "2ec08feb676a95d9f0d5ee179533173d87319fd2c26acae90bb74ee806f89491",
+    "export.log": "30c59c6f9864655a33c48b6c9d27954305431a53bd7a85bfaccda39f0e3d7672",
+    "browser-final.json": "d4d0a1c37046414b282aa6f1b019cb6d0331dfe55ebd5c96149eb53e7d2753a2",
+    "audit.json": "260151f9cf274aadf97d02826dd280b5c6288552a64dc17632091e1473763a4b"
+  }
+}

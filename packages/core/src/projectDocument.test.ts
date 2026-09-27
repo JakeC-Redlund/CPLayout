@@ -522,4 +522,20 @@ assert.throws(
   /underground_pipeline requires LineString geometry/,
 );
 
+const measurementArea = {
+  id: "measurement-area", name: "Measurement area", kind: "measurement_area" as const,
+  geometry: { type: "Polygon" as const, vertices: sampleProject.fieldBoundary.slice(0, 4) },
+  confidence: "user_estimated" as const,
+};
+const measurementAreaProject = { ...sampleProject, mapFeatures: [measurementArea] };
+assert.deepEqual(parseProjectDocument(serializeProjectDocument(measurementAreaProject)).mapFeatures, [measurementArea]);
+for (const geometry of [
+  { type: "Point", point: sampleProject.pivotCenter },
+  { type: "LineString", vertices: sampleProject.fieldBoundary.slice(0, 2) },
+  { type: "Circle", center: sampleProject.pivotCenter, radiusMeters: 10 },
+]) {
+  assert.throws(() => parseProjectDocument({ ...sampleProject, mapFeatures: [{ ...measurementArea, geometry }] }),
+    /measurement_area requires Polygon geometry/);
+}
+
 console.log("project document tests passed");

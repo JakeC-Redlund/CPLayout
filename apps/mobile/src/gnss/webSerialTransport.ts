@@ -37,9 +37,12 @@ export class WebSerialGnssTransport implements GnssTransport {
     if (!Number.isInteger(baudRate) || (baudRate ?? 0) <= 0) {
       throw new Error("Web Serial GNSS requires a positive integer baud rate.");
     }
+    // Reception clocks measure age, not identity across reconnects or page lifetimes.
+    // Allocate before requesting hardware so unavailable secure randomness cannot leak a port.
+    const sessionId = `web-serial-${globalThis.crypto.randomUUID()}`;
     const port = await this.serial.requestPort();
     await port.open({ baudRate: baudRate! });
-    return new WebSerialGnssSession(port, `web-serial-${this.clock.monotonicMs().toFixed(3)}`, this.clock);
+    return new WebSerialGnssSession(port, sessionId, this.clock);
   }
 }
 

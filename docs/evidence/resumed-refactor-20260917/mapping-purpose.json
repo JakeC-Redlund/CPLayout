@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "cplayout-mapping-purpose-evidence-v1",
+  "recordedAt": "2026-09-17T10:59:48.777Z",
+  "head": "ec050f60bf515b5c4cbd40c3180615b5056e28b3",
+  "branch": "main",
+  "worktree": "dirty, preserved; no publication",
+  "rawEvidenceDirectory": "/home/cyber/cplayout-map-purpose-pRFVYR/",
+  "postflight": "postflight.json",
+  "postflightSha256": "250911486534ac2c1fb08e62109b8b48dc43f2c728547908293f5a9fc1c87b18",
+  "scope": [
+    "transient pending-draft ownership and originating-scope checks",
+    "guarded purpose commit, rejection, retry and cancellation feedback",
+    "single-reduction synchronous editor dispatch with unchanged canonical reducer",
+    "phone inspector-open palette suppression and error scroll recovery"
+  ],
+  "source": {
+    "manifest": "source-qualified.json",
+    "manifestSha256": "ce9112a8c743062f892b61bc54f9d70630e9189c1ebff6a8d7962a862064de43",
+    "selectedPaths": 305,
+    "scope": "Nonignored apps/packages/tools/tests TS TSX JS CJS MJS JSON plus root package/build configs, AGENTS and generated hook context",
+    "changed": [],
+    "added": [],
+    "missing": [],
+    "headUnchanged": true,
+    "documentationOutsideManifest": true
+  },
+  "validation": {
+    "sourceCommand": "npm run validate",
+    "sourceLog": "validate-qualified.log",
+    "sourceExit": 0,
+    "sourceLogSha256": "4debda20e3b09f74c17e892ab99f7eee1a873173663bf516fc6529b027f6a489",
+    "exportCommand": "npm exec --workspace=@cplayout/mobile -- expo export --platform web --max-workers 2",
+    "exportLog": "export-qualified.log",
+    "exportExit": 0,
+    "exportLogSha256": "1f2d74c4002b75cd88c56be58d36b086e8655a4cb1d6fb47a8e75b36949dd4c3",
+    "focusedTests": { "pendingDraft": 30, "controller": 43, "editorDispatch": 3 },
+    "skills": "passed",
+    "contextMap": "passed",
+    "diffCheck": "passed",
+    "fullAuditFindings": 0,
+    "productionAuditFindings": 0,
+    "auditReports": ["audit-closeout.json", "audit-production-closeout.json"]
+  },
+  "browser": {
+    "command": "CPLAYOUT_WEB_PROOF_PORT=19014 PLAYWRIGHT_JSON_OUTPUT_NAME=/home/cyber/cplayout-map-purpose-pRFVYR/browser-full.json npx playwright test --workers=2 --retries=0 --max-failures=3 --reporter=line,json --output=/home/cyber/cplayout-map-purpose-pRFVYR/browser-full-results",
+    "report": "browser-full.json",
+    "reportSha256": "658c94d27d05789fc85899e55aaaf450f1298b4802eadf2dece875d2e6ff8ee0",
+    "exit": 0,
+    "passed": 558,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "retries": 0,
+    "runnerErrors": [],
+    "durationSeconds": 2058.050817,
+    "perViewport": { "desktop": 186, "tablet-768": 186, "mobile-390": 186 },
+    "oneCleanRun": true,
+    "fullInventory": true,
+    "fullProductApproval": false,
+    "smokeReport": "smoke-qualified.json",
+    "smokePassed": 6
+  },
+  "build": {
+    "bundle": "index-a2ae08733bcc1e6ad84a6c9eb5377a0b.js",
+    "bytes": 5267967,
+    "localSha256": "b8eb5c7d918e0c4d1cdafa452dd3838ef63f0770cabdc72d422f3a6405bc2dce",
+    "servedSha256": "b8eb5c7d918e0c4d1cdafa452dd3838ef63f0770cabdc72d422f3a6405bc2dce",
+    "previewUrl": "http://127.0.0.1:19014",
+    "launcherOwned": true,
+    "previewIntentionallyRetained": true,
+    "unrelatedPort19013Untouched": true
+  },
+  "review": {
+    "complexity": "high",
+    "reasoningEffort": "high",
+    "subagentDecision": "required",
+    "ownership": "two disjoint pure-logic workers, coordinator App/UI/evidence writer, bounded read-only lifecycle reviewer",
+    "finalSourceFinding": "No remaining blocker within reviewed scope; no independent runtime or full-product approval",
+    "visualInspection": "Current-build desktop/tablet/phone rejection and phone footprint screenshots: complete feedback, credit clear of zoom, error scrolled into view",
+    "visualArtifacts": [
+      "smoke-qualified-results/browser-workflow-pending-m-58c58-tion-without-stale-feedback-desktop/pending-purpose-rejected.png",
+      "smoke-qualified-results/browser-workflow-pending-m-58c58-tion-without-stale-feedback-tablet-768/pending-purpose-rejected.png",
+      "smoke-qualified-results/browser-workflow-pending-m-58c58-tion-without-stale-feedback-mobile-390/pending-purpose-rejected.png",
+      "smoke-qualified-results/browser-workflow-design-co-7f4ad-ner-footprint-utility-tools-mobile-390/design-console-feature-kind-tools.png"
+    ],
+    "broaderErgonomicAcceptance": false
+  },
+  "retainedAttempts": [
+    { "report": "smoke-initial.json", "passed": 3, "failed": 3, "reason": "same-tool stale cancellation feedback and phone inspector error above retained scroll position" },
+    { "report": "smoke-scroll.json", "passed": 6, "reason": "superseded by subsequent origin, consecutive-point and synchronous-dispatch safety corrections" },
+    { "log": "typecheck-initial.log", "reason": "incorrectly capitalized test geometry literals and an unreachable narrowing branch; corrected" },
+    { "log": "typecheck-dispatch.log", "reason": "ordinary button callbacks required void or Promise<void>; compatible void wrapper restored" },
+    { "log": "export-owned.log", "reason": "deliberately superseded after typecheck failure; not acceptance" }
+  ],
+  "unverified": [
+    "generalized camera persistence across edits, undo and layer changes",
+    "true incomplete mapping drafts and immutable Design-to-Layout targets",
+    "broader label density and compact-interface ergonomics",
+    "native device rendering, persistence and sharing",
+    "receiver/relay operation and independently measured maximum 3D position error below 0.10 m"
+  ]
+}

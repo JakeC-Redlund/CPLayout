@@ -38,7 +38,7 @@ import {
   WifiOff,
   Wrench,
 } from "lucide-react-native";
-import React, { useEffect, useMemo, useReducer, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Linking,
   Modal,
@@ -63,8 +63,12 @@ import {
   MapSurface,
   defaultMapFeatureName,
   draftVerticesToFeatureGeometry,
+  draftMeasurementText,
   featureOptionsForGeometry,
   type PendingMapFeatureDraft,
+  type MapDraftOwner,
+  type MapDraftHandoffResult,
+  type MapDraftPurposeReceipt,
   type ManualDesignMapCapture,
   type ManualDesignMapCaptureRole,
   type UtilityFeatureGeometry,
@@ -84,11 +88,19 @@ import {
   type ProjectCatalogDialogMode,
 } from "./src/components/ProjectCatalogDialog";
 import { ProjectFilesPanel } from "./src/components/ProjectFilesPanel";
+import { ProjectCopyButton } from "./src/components/ProjectCopyButton";
 import { ProjectCrsRecoveryPanel } from "./src/components/ProjectCrsRecoveryPanel";
+import { WorkspaceStorageNotice } from "./src/components/WorkspaceStorageNotice";
 import { createProjectOpenRequestGuard } from "./src/projectOpenRequest";
+import { dispatchProjectEditorAction } from "./src/projectEditorDispatch";
+import { type EditorSavePayload, type EditorSaveSession, type EditorSaveTarget } from "./src/editorSaveCoordinator";
+import { useEditorSaveCoordinator } from "./src/hooks/useEditorSaveCoordinator";
+import { DesignDraftWorkspace } from "./src/components/DesignDraftWorkspace";
+import { newDesignDraft } from "./src/newDesignDraft";
+import { createPendingMapDraftSession, type PendingMapDraftState } from "./src/pendingMapDraft";
 import { SettingsPanel } from "./src/components/SettingsPanel";
 import { DrawingToolLauncher, DrawingToolPalette, type DrawingToolPaletteModal } from "./src/components/DrawingToolPalette";
-import { useProjectRepository, type ProjectWorkspaceStatus } from "./src/hooks/useProjectRepository";
+import { useProjectRepository, type ProjectWorkspaceStatus, type PersistenceRevision, type OpenedDraft } from "./src/hooks/useProjectRepository";
 import {
   parseCplayoutLeftNavMenuXml,
   type CplayoutLeftNavCatalogActionDefinition,
@@ -101,7 +113,7 @@ import {
 import { buildCommandMenuConfigs, isLeftNavItemDisabled } from "./src/navigation/navigationViewModels";
 import { buildProjectTreeViewModel } from "./src/navigation/projectTreeViewModel";
 import type { ClientRecord } from "@cplayout/project-store";
-import { exportFileAsync, importProjectArchiveZip, importZipFileAsync, rehydrateInstalledMapPackageManifestsAsync } from "@cplayout/project-store";
+import { createCatalogId, exportFileAsync, importProjectArchiveZip, importZipFileAsync, parseWorkspaceCommand, projectRepository, rehydrateInstalledMapPackageManifestsAsync, type CopyProjectCommand, type ProjectCatalog } from "@cplayout/project-store";
 import {
   COORDINATE_FORMAT_LABELS,
   ADVISORY_DRIVE_UNIT_TIRE_OPTIONS,
@@ -112,7 +124,6 @@ import {
   createManualDesignDraft,
   createProjectEditorState,
   evaluateManualDesignReadiness,
-  evaluateProjectEditorAction,
   coordinateExample,
   defaultProjectSettings,
   formatCoordinate,
@@ -123,7 +134,6 @@ import {
   qualifyProjectCrs,
   projectXyToLonLat,
   projectSettingsFromApp,
-  reduceProjectEditorState,
   buildMapReferenceViewModel,
   importGoogleEarthKmlToProject,
   importProjectedGeoJsonToProject,
@@ -145,6 +155,7 @@ import {
   type CornerGpsMapModelPreset,
   type AdvisoryDriveUnitConfig,
   type LonLat,
+  type LayoutResult,
   type ManualDesignDraft,
   type ManualDesignInputSource,
   type ManualDesignStep,
@@ -243,49 +254,18 @@ const DEFAULT_CORNER_ARM_LENGTH_METERS = 91;
 const DEFAULT_CORNER_ARM_WHEEL_TRACK_LENGTH_METERS = 66;
 const DEFAULT_CORNER_ARM_OVERHANG_LENGTH_METERS = 25;
 
-function createBlankDesignProject(settings: AppSettings): PivotProject {
-  const timestamp = new Date().toISOString();
-  const compactTimestamp = timestamp.replace(/[^0-9]/g, "").slice(0, 14);
-  const origin = { x: 501000, y: 4506200 };
-  const fieldBoundary = [
-    { x: origin.x, y: origin.y },
-    { x: origin.x + 400, y: origin.y },
-    { x: origin.x + 400, y: origin.y + 400 },
-    { x: origin.x, y: origin.y + 400 },
-  ];
-
-  return {
-    id: `blank-design-${compactTimestamp}`,
-    name: "Blank Field Design",
-    projectCrs: "EPSG:32613",
-    unitSystem: settings.unitSystem,
-    settings: defaultProjectSettings(),
-    fieldBoundary,
-    pivotCenter: { x: origin.x + 200, y: origin.y + 200 },
-    waterSource: { x: origin.x + 160, y: origin.y + 160 },
-    powerSource: { x: origin.x + 40, y: origin.y + 360 },
-    machine: {
-      id: "blank-design-machine",
-      name: "Blank concept pivot",
-      spanLengthsMeters: [55, 55, 55],
-      overhangMeters: 15,
-      endGunThrowMeters: 0,
-      endGunAngleRanges: [],
-      towerClearanceBufferMeters: 5,
-      machineClearanceBufferMeters: 8,
-      sweep: { mode: "full_circle" },
-    },
-    obstacles: [],
-    surveyPoints: [],
-    mapPackages: [],
-    mapFeatures: [],
-  };
-}
-
 export default function App(): React.JSX.Element {
+  const [draft, setDraft] = useState<OpenedDraft | null>(null);
+  const [pendingDraft, setPendingDraft] = useState<{ onConfirm: () => void; onCancel: () => void } | null>(null);
   return (
     <SafeAreaProvider>
-      <AppContent />
+      {draft ? <DesignDraftWorkspace key={draft.context.designId} initial={draft} onClose={() => setDraft(null)} />
+        : <AppContent onOpenDraft={setDraft} onRequestDiscard={(onConfirm, onCancel) => setPendingDraft({ onConfirm, onCancel })} />}
+      <ConfirmActionDialog visible={pendingDraft !== null} title="Leave unsaved project?"
+        message="Changes since the last save will be discarded when you open the draft."
+        confirmLabel="Discard changes" testID="project-to-draft-discard"
+        onCancel={() => { pendingDraft?.onCancel(); setPendingDraft(null); }}
+        onConfirm={() => { const proceed = pendingDraft?.onConfirm; setPendingDraft(null); proceed?.(); }} />
     </SafeAreaProvider>
   );
 }
@@ -307,14 +287,28 @@ function ProjectImportStatus({ kind }: { kind: "saving" | "saved" | "error" }): 
   );
 }
 
-function AppContent(): React.JSX.Element {
+function AppContent({ onOpenDraft, onRequestDiscard }: {
+  onOpenDraft: (draft: OpenedDraft) => void;
+  onRequestDiscard: (onConfirm: () => void, onCancel: () => void) => void;
+}): React.JSX.Element {
   const [screen, setScreen] = useState<Screen>("workspace");
   const [activeView, setActiveView] = useState<WorkspaceView>("map");
-  const [editor, dispatchProject] = useReducer(reduceProjectEditorState, defaultDevelopmentProject, createProjectEditorState);
+  const [editor, setEditor] = useState(() => createProjectEditorState(defaultDevelopmentProject));
+  const editorRef = useRef(editor);
   const project = editor.project;
   const [runtimeMapPackages, setRuntimeMapPackages] = useState<MapPackageManifest[]>([]);
   const projectLoadSequenceRef = useRef(0);
+  const { saveCoordinator, saveSessionRef: projectSaveSessionRef, saveOwnerMountedRef } = useEditorSaveCoordinator({
+    kind: "project", payloadId: defaultDevelopmentProject.id, designId: null,
+    workspaceRevision: projectRepository.versionedWorkspace ? null : undefined,
+  });
+  const projectSaveSession = projectSaveSessionRef.current;
   const [projectOpenRequests] = useState(createProjectOpenRequestGuard);
+  const dispatchProjectTransaction = (action: ProjectEditorAction): ProjectMutationResult => {
+    if (action.type !== "load_project") projectOpenRequests.invalidate();
+    return dispatchProjectEditorAction(editorRef, action, setEditor);
+  };
+  const dispatchProject = (action: ProjectEditorAction): void => { dispatchProjectTransaction(action); };
   useEffect(() => () => projectOpenRequests.invalidate(), [projectOpenRequests]);
   const runtimeProject = useMemo(() => ({
     ...project,
@@ -325,7 +319,6 @@ function AppContent(): React.JSX.Element {
     generation: number;
     kind: "saving" | "saved" | "error";
   } | null>(null);
-  const saveQueueRef = useRef<Promise<void>>(Promise.resolve());
   const [settings, setSettings] = useState<AppSettings>(() => parseAppSettings({
     ...browserLocalSettings(defaultDevelopmentProject.settings),
     mappingWorkflowMode: "layout",
@@ -338,7 +331,9 @@ function AppContent(): React.JSX.Element {
   const [placementCandidates, setPlacementCandidates] = useState<PivotPlacementCandidate[] | null>(null);
   const [advisoryCostDraft, setAdvisoryCostDraft] = useState<AdvisoryCostDraft>(EMPTY_ADVISORY_COST_DRAFT);
   const [pendingPlacementAction, setPendingPlacementAction] = useState<PendingPlacementAction | null>(null);
-  const [pendingMapFeatureDraft, setPendingMapFeatureDraft] = useState<PendingMapFeatureDraft | null>(null);
+  const [pendingMapDraftState, setPendingMapDraftState] = useState<PendingMapDraftState | null>(null);
+  const pendingMapFeatureDraft = pendingMapDraftState?.draft ?? null;
+  const [draftPurposeReceipt, setDraftPurposeReceipt] = useState<MapDraftPurposeReceipt | null>(null);
   const [guidedMapTool, setGuidedMapTool] = useState<{
     activeLayer: DrawingLayerType;
     draftGeometry?: UtilityFeatureGeometry;
@@ -350,6 +345,30 @@ function AppContent(): React.JSX.Element {
   const [manualDesignMapCapture, setManualDesignMapCapture] = useState<(ManualDesignMapCapture & { sequence: number }) | null>(null);
   const [designConsoleModal, setDesignConsoleModal] = useState<DesignConsoleModal>(null);
   const [homeMapView, setHomeMapView] = useState(true);
+  const pendingMapScopeRef = useRef({
+    projectId: project.id, projectCrs: project.projectCrs,
+    projectGeneration: projectLoadSequenceRef.current,
+    editable: settings.mappingWorkflowMode === "design" && !homeMapView,
+  });
+  pendingMapScopeRef.current = {
+    projectId: project.id, projectCrs: project.projectCrs,
+    projectGeneration: projectLoadSequenceRef.current,
+    editable: settings.mappingWorkflowMode === "design" && !homeMapView,
+  };
+  const [pendingMapDraftSession] = useState(() => createPendingMapDraftSession(() => ({
+    ...pendingMapScopeRef.current,
+    projectId: editorRef.current.project.id,
+    projectCrs: editorRef.current.project.projectCrs,
+    projectGeneration: projectLoadSequenceRef.current,
+  })));
+  useEffect(() => {
+    const scope = pendingMapScopeRef.current;
+    const current = pendingMapDraftState;
+    if (current && (!scope.editable || current.owner.projectId !== scope.projectId
+      || current.owner.projectCrs !== scope.projectCrs || current.owner.projectGeneration !== scope.projectGeneration)) {
+      invalidatePendingMapDraft();
+    }
+  }, [project.id, project.projectCrs, projectLoadSequenceRef.current, settings.mappingWorkflowMode, homeMapView, pendingMapDraftSession, pendingMapDraftState]);
   const [activeCatalogContext, setActiveCatalogContext] = useState<{
     clientId: string | null;
     projectId: string | null;
@@ -372,11 +391,16 @@ function AppContent(): React.JSX.Element {
   const tabletConsole = windowWidth >= 700 && windowWidth < 1180;
   const desktopConsole = Platform.OS === "web" && windowWidth >= 1180;
   const landscapeConsole = windowWidth > windowHeight;
+  const shortLandscapeMap = activeView === "map" && landscapeConsole && windowHeight < 500;
   const safeBottomGutter = Math.max(insets.bottom, Platform.OS === "android" ? 24 : 0) + 10;
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(() => desktopConsole);
   const [rightDrawerOpen, setRightDrawerOpen] = useState(() => desktopConsole);
   const [activeSidebarPage, setActiveSidebarPage] = useState<RightWorkflowSidebarPage>("catalog");
   const repository = useProjectRepository();
+  const catalogFormRef = useRef<{
+    revision: number | null; catalog: ProjectCatalog; projects: ProjectWorkspaceStatus["projects"]; context: typeof activeCatalogContext; clientDefaultName: string;
+  } | null>(null);
+  const formCatalog = catalogFormRef.current?.catalog ?? repository.catalog;
   const calculation = useMemo(() => {
     const qualification = qualifyProjectCrs(project.projectCrs);
     if (!qualification.calculation.allowed) {
@@ -401,19 +425,20 @@ function AppContent(): React.JSX.Element {
     ? repository.catalog.clients.find((client) => client.id === activeCatalogContext.clientId) ?? null
     : null;
   const editingClient = editingClientId
-    ? repository.catalog.clients.find((client) => client.id === editingClientId) ?? null
+    ? formCatalog.clients.find((client) => client.id === editingClientId) ?? null
     : null;
   const renamingProject = renamingProjectId
-    ? repository.catalog.projects.find((record) => record.id === renamingProjectId) ?? null
+    ? formCatalog.projects.find((record) => record.id === renamingProjectId) ?? null
     : null;
   const movingProject = movingProjectId
-    ? repository.catalog.projects.find((record) => record.id === movingProjectId) ?? null
+    ? formCatalog.projects.find((record) => record.id === movingProjectId) ?? null
     : null;
   const deletingProject = deletingProjectId
-    ? repository.catalog.projects.find((record) => record.id === deletingProjectId) ?? null
+    ? formCatalog.projects.find((record) => record.id === deletingProjectId)
+      ?? catalogFormRef.current?.projects.find((record) => record.id === deletingProjectId) ?? null
     : null;
   const deletingClient = deletingClientId
-    ? repository.catalog.clients.find((client) => client.id === deletingClientId) ?? null
+    ? formCatalog.clients.find((client) => client.id === deletingClientId) ?? null
     : null;
   const sidebarInlineWorkflow = !compactLayout && !nativeMapLibreProofEnabled;
   const inlineCatalogForms = sidebarInlineWorkflow && activeView === "map";
@@ -436,8 +461,6 @@ function AppContent(): React.JSX.Element {
   const effectiveSidebarPage = visibleSidebarPages.some((page) => page.id === requestedSidebarPage)
     ? requestedSidebarPage
     : (visibleSidebarPages[0]?.id ?? "overview");
-  const sidebarGeometryToolsVisible = sidebarInlineWorkflow
-    || (compactLayout && !nativeMapLibreProofEnabled && !homeMapView && rightDrawerOpen && effectiveSidebarPage === "tools");
   const demand = advisoryDemand({ homeView: homeMapView, view: activeView, modal: designConsoleModal, sidebar: effectiveSidebarPage, sidebarOpen: rightDrawerOpen });
   const projectGeneration = projectLoadSequenceRef.current;
   const fieldPlanRequest = useMemo(() => ({
@@ -533,12 +556,6 @@ function AppContent(): React.JSX.Element {
     return dispatchProjectTransaction(action).ok;
   }
 
-  function dispatchProjectTransaction(action: ProjectEditorAction): ProjectMutationResult {
-    const result = evaluateProjectEditorAction(editor, action);
-    dispatchProject(action);
-    return result;
-  }
-
   function calculateDesignScenarios(): void {
     const analysis = analyzeIdealPivotCenter(project, {
       maxCandidates: 4,
@@ -578,18 +595,27 @@ function AppContent(): React.JSX.Element {
   }
 
   function setWorkflowMode(mappingWorkflowMode: AppSettings["mappingWorkflowMode"]): void {
+    if (mappingWorkflowMode !== "design") pendingMapScopeRef.current = { ...pendingMapScopeRef.current, editable: false };
     setSettings((current) => parseAppSettings({ ...current, mappingWorkflowMode }));
     if (mappingWorkflowMode !== "design") {
       setGuidedMapTool(null);
       setDesignConsoleModal(null);
-      setPendingMapFeatureDraft(null);
+      invalidatePendingMapDraft();
     }
   }
 
-  function loadProject(nextProject: PivotProject, context?: Partial<typeof activeCatalogContext>, persisted = false): void {
+  function loadProject(nextProject: PivotProject, context?: Partial<typeof activeCatalogContext>, persisted = false, persistenceRevision: PersistenceRevision = null): void {
+    invalidateCatalogForm();
+    repository.clearProjectError();
     projectOpenRequests.invalidate();
     const loadSequence = projectLoadSequenceRef.current + 1;
     projectLoadSequenceRef.current = loadSequence;
+    pendingMapScopeRef.current = { projectId: nextProject.id, projectCrs: nextProject.projectCrs,
+      projectGeneration: loadSequence, editable: false };
+    projectSaveSessionRef.current = saveCoordinator.open({
+      kind: "project", payloadId: nextProject.id, designId: context?.designId ?? null,
+      workspaceRevision: projectRepository.versionedWorkspace ? persistenceRevision : undefined,
+    });
     dispatchProject({ type: "load_project", project: nextProject });
     setRuntimeMapPackages([]);
     void rehydrateRuntimeMapPackages(loadSequence, nextProject.mapPackages ?? []);
@@ -598,7 +624,7 @@ function AppContent(): React.JSX.Element {
     setSettings((current) => browserLocalSettings(nextProject.settings, current));
     setWalkthroughProgress(loadWalkthroughProgress(nextProject.id));
     setSelectedMapFeatureId(null);
-    setPendingMapFeatureDraft(null);
+    invalidatePendingMapDraft();
     setPendingPlacementAction(null);
     setDesignScenarioPreview(null);
     setIdealCenterAnalysis(null);
@@ -619,34 +645,39 @@ function AppContent(): React.JSX.Element {
     loadProject(nextProject, { clientId: null, projectId: null, fieldMapId: null, designId: null });
   }
 
-  async function importIndependentProjectZip(owner: object): Promise<{ name: string; saved: boolean } | null> {
-    const accepted: { value: { project: PivotProject; generation: number } | null } = { value: null };
+  async function importIndependentProjectZip(owner: object, asCopy = false): Promise<{ name: string; saved: boolean } | null> {
+    const accepted: { value: { project: PivotProject; generation: number; session: EditorSaveSession } | null } = { value: null };
     await projectOpenRequests.open(async () => {
+      if (asCopy && !repository.canCopyProject) throw new Error("Import Copy requires revision-checked local storage.");
       const bytes = await importZipFileAsync();
-      return bytes ? importProjectArchiveZip(bytes) : null;
+      if (!bytes) return null;
+      const imported = importProjectArchiveZip(bytes);
+      return asCopy ? { ...imported, id: `project-copy-${globalThis.crypto.randomUUID()}` } : imported;
     }, (imported) => {
       loadIndependentProject(imported);
       const generation = projectLoadSequenceRef.current;
-      accepted.value = { project: imported, generation };
+      accepted.value = { project: editorRef.current.project, generation, session: projectSaveSessionRef.current };
       setProjectImportStatus({ generation, kind: "saving" });
     }, owner);
     if (!accepted.value) return null;
-    const { project: imported, generation } = accepted.value;
-    // Share normal-save ordering so an older imported copy cannot overwrite later edits.
-    const save = saveQueueRef.current.then(async () => {
-      let saved = false;
-      try {
-        saved = await repository.saveProject(imported);
-      } finally {
-        if (projectLoadSequenceRef.current === generation) {
-          if (saved) setSavedRevision(0);
-          setProjectImportStatus({ generation, kind: saved ? "saved" : "error" });
-        }
+    const { project: imported, generation, session } = accepted.value;
+    const feedbackCurrent = projectOpenRequests.completionIsCurrent();
+    let saved = false;
+    try {
+      const outcome = await saveCoordinator.save({
+        session, payload: { kind: "project", project: imported }, editorRevision: 0,
+        feedbackIsCurrent: () => saveOwnerMountedRef.current && feedbackCurrent(), write: writeProjectSnapshot,
+      });
+      saved = outcome.saved;
+    } catch (error) {
+      if (saveOwnerMountedRef.current && saveCoordinator.isCurrent(session) && feedbackCurrent()) repository.reportError(error);
+    } finally {
+      if (saveOwnerMountedRef.current && saveCoordinator.isCurrent(session)) {
+        if (saved) setSavedRevision(0);
+        setProjectImportStatus({ generation, kind: saved ? "saved" : "error" });
       }
-      return saved;
-    });
-    saveQueueRef.current = save.then(() => undefined, () => undefined);
-    return { name: imported.name, saved: await save };
+    }
+    return { name: imported.name, saved };
   }
 
   async function rehydrateRuntimeMapPackages(loadSequence: number, mapPackages: MapPackageManifest[]): Promise<void> {
@@ -665,15 +696,17 @@ function AppContent(): React.JSX.Element {
   }
 
   function startBlankDesign(): void {
-    loadProject(createBlankDesignProject(settings), {
-      clientId: null,
-      projectId: null,
-      fieldMapId: null,
-      designId: null,
-    });
+    if (!activeCatalogContext.fieldMapId) {
+      showCatalogMap(activeCatalogContext, "Select or create a field map before adding a design.");
+      return;
+    }
+    openCatalogDialog("design");
   }
 
   function openCatalogHome(): void {
+    invalidateCatalogForm();
+    pendingMapScopeRef.current = { ...pendingMapScopeRef.current, editable: false };
+    invalidatePendingMapDraft();
     projectOpenRequests.invalidate();
     setScreen("workspace");
     setActiveView("map");
@@ -682,49 +715,65 @@ function AppContent(): React.JSX.Element {
   }
 
   async function saveCurrentProject(): Promise<void> {
+    if (!saveOwnerMountedRef.current || !saveCoordinator.isCurrent(projectSaveSession)) return;
     const generation = projectLoadSequenceRef.current;
-    const revision = editor.revision;
-    // Preserve write order; a delayed acknowledgment belongs only to its loaded project.
-    const save = saveQueueRef.current.then(async () => {
-      const saved = activeCatalogContext.designId
-        ? await repository.saveDesignProject(activeCatalogContext.designId, project, calculation.result ?? undefined)
-        : await repository.saveProject(project, calculation.result ?? undefined);
-      if (projectLoadSequenceRef.current === generation) {
-        if (saved) setSavedRevision(revision);
+    const currentEditor = editorRef.current;
+    const feedbackCurrent = projectOpenRequests.completionIsCurrent();
+    try {
+      const outcome = await saveCoordinator.save({
+        session: projectSaveSession, payload: { kind: "project", project: currentEditor.project },
+        editorRevision: currentEditor.revision, feedbackIsCurrent: () => saveOwnerMountedRef.current && feedbackCurrent(),
+        write: (payload, target, owner) => writeProjectSnapshot(payload, target, owner,
+          currentEditor === editor ? calculation.result ?? undefined : undefined),
+      });
+      const saved = outcome.saved;
+      if (saveOwnerMountedRef.current && saveCoordinator.isCurrent(projectSaveSession)) {
+        if (saved) setSavedRevision(outcome.editorRevision);
         setProjectImportStatus((current) => current?.generation === generation
           ? { generation, kind: saved ? "saved" : "error" } : current);
       }
+    } catch (error) {
+      if (saveOwnerMountedRef.current && saveCoordinator.isCurrent(projectSaveSession) && feedbackCurrent()) repository.reportError(error);
+    }
+  }
+
+  function writeProjectSnapshot(payload: EditorSavePayload, target: EditorSaveTarget, owner: { isCurrent(): boolean }, result?: LayoutResult) {
+    if (payload.kind !== "project" || target.kind !== "project") throw new Error("This editor cannot save a draft through the project writer.");
+    return target.designId
+      ? repository.saveDesignProject(target.designId, payload.project, result, target.workspaceRevision, owner)
+      : repository.saveProject(payload.project, result, target.workspaceRevision, owner);
+  }
+
+  async function saveProjectCopy(command: CopyProjectCommand, expectedRevision: number): Promise<PivotProject> {
+    const captured = parseWorkspaceCommand(command) as CopyProjectCommand;
+    const receipt = await saveCoordinator.copyProject({
+      session: projectSaveSession, sourceId: captured.source.id, sourceStored: captured.sourceStored,
+      expectedRevision, write: () => repository.copyProject(captured, expectedRevision),
     });
-    saveQueueRef.current = save.catch(() => undefined);
-    await save;
+    return receipt.project;
   }
 
   async function openSavedProject(projectId: string): Promise<void> {
-    await projectOpenRequests.open(() => repository.openProject(projectId), (loaded) => {
-      const design = repository.catalog.designs.find((record) => record.pivotProjectId === projectId) ?? null;
-      const fieldMap = design ? repository.catalog.fieldMaps.find((record) => record.id === design.fieldMapId) ?? null : null;
-      const projectRecord = repository.catalog.projects.find((record) => record.id === (fieldMap?.projectId ?? projectId)) ?? null;
-      loadProject(loaded, {
-        clientId: projectRecord?.clientId ?? null,
-        projectId: fieldMap?.projectId ?? projectId,
-        fieldMapId: fieldMap?.id ?? null,
-        designId: design?.id ?? null,
-      }, true);
-    });
+    try {
+      await projectOpenRequests.open(() => repository.openProject(projectId), (loaded) => {
+        loadProject(loaded.project, loaded.context, true, loaded.persistenceRevision);
+      });
+    } catch (error) { repository.reportError(error); }
   }
 
   async function openDesignProject(designId: string): Promise<void> {
-    await projectOpenRequests.open(() => repository.openDesignProject(designId), (loaded) => {
-      const design = repository.catalog.designs.find((record) => record.id === designId) ?? null;
-      const fieldMap = design ? repository.catalog.fieldMaps.find((record) => record.id === design.fieldMapId) ?? null : null;
-      const projectRecord = fieldMap ? repository.catalog.projects.find((record) => record.id === fieldMap.projectId) ?? null : null;
-      loadProject(loaded, {
-        clientId: projectRecord?.clientId ?? null,
-        projectId: fieldMap?.projectId ?? null,
-        fieldMapId: fieldMap?.id ?? null,
-        designId,
-      }, true);
-    });
+    try {
+      await projectOpenRequests.open(() => repository.openDesignProject(designId), (loaded) => {
+        if (loaded.kind === "draft") {
+          if (saveOwnerMountedRef.current) {
+            if (hasUnsavedProjectWork()) onRequestDiscard(() => onOpenDraft(loaded), restoreRetainedProjectView);
+            else onOpenDraft(loaded);
+          }
+        } else {
+          loadProject(loaded.project, loaded.context, true, loaded.persistenceRevision);
+        }
+      });
+    } catch (error) { repository.reportError(error); }
   }
 
   function importProjectedGeoJson(geoJson: string): string {
@@ -776,56 +825,62 @@ function AppContent(): React.JSX.Element {
     return mutation;
   }
 
-  function createPendingMapFeatureDraft(draft: PendingMapFeatureDraft): void {
-    setPendingMapFeatureDraft(draft);
-    setSelectedMapFeatureId(null);
+  function invalidatePendingMapDraft(): void {
+    pendingMapDraftSession.invalidate();
+    setPendingMapDraftState(null);
+    setDraftPurposeReceipt(null);
+  }
+
+  function createPendingMapFeatureDraft(draft: PendingMapFeatureDraft): MapDraftHandoffResult {
+    const result = pendingMapDraftSession.begin(draft, {
+      projectId: project.id, projectCrs: project.projectCrs, projectGeneration,
+      editable: settings.mappingWorkflowMode === "design" && !homeMapView,
+    });
+    if (!result.ok) return result;
+    setPendingMapDraftState(pendingMapDraftSession.getSnapshot());
+    setDraftPurposeReceipt(null);
     setDesignConsoleModal(null);
     setActiveSidebarPage("purpose");
     setRightDrawerOpen(true);
+    return result;
   }
 
-  function cancelPendingMapFeatureDraft(): void {
-    setPendingMapFeatureDraft(null);
+  function cancelPendingMapFeatureDraft(owner: MapDraftOwner): void {
+    const receipt = pendingMapDraftSession.cancel(owner);
+    if (!receipt) return;
+    setPendingMapDraftState(pendingMapDraftSession.getSnapshot());
+    setDraftPurposeReceipt(receipt);
     setActiveSidebarPage("tools");
   }
 
-  function savePendingMapFeatureDraft(option: MapDraftPurposeOption): void {
-    if (!pendingMapFeatureDraft) return;
-    if (option.geometry !== pendingMapFeatureDraft.geometryType) return;
-    if (option.purposeType === "field_boundary") {
-      if (dispatchProjectWithResult({ type: "commit_boundary_draft", vertices: pendingMapFeatureDraft.vertices })) {
-        setPendingMapFeatureDraft(null);
-        setActiveSidebarPage("tools");
+  function savePendingMapFeatureDraft(owner: MapDraftOwner, option: MapDraftPurposeOption): void {
+    let featureId: string | null = null;
+    const receipt = pendingMapDraftSession.save(owner, (draft) => {
+      if (option.geometry !== draft.geometryType) return { ok: false, error: "This purpose does not match the captured geometry." };
+      if (option.purposeType === "field_boundary") {
+        return dispatchProjectTransaction({ type: "commit_boundary_draft", vertices: draft.vertices });
       }
-      return;
-    }
-    if (option.purposeType === "obstacle") {
-      if (dispatchProjectWithResult({
-        type: "commit_obstacle_draft",
-        vertices: pendingMapFeatureDraft.vertices,
+      if (option.purposeType === "obstacle") {
+        return dispatchProjectTransaction({ type: "commit_obstacle_draft", vertices: draft.vertices,
+          kind: option.kind, confidence: draft.sourceConfidence });
+      }
+      featureId = `map-feature-${Date.now().toString(36)}-${(project.mapFeatures ?? []).length + 1}`;
+      const feature: ProjectMapFeature = {
+        id: featureId,
+        name: defaultMapFeatureName(option.kind, draft.geometryType, draft.vertices.length),
         kind: option.kind,
-        confidence: pendingMapFeatureDraft.sourceConfidence,
-      })) {
-        setPendingMapFeatureDraft(null);
-        setActiveSidebarPage("tools");
-      }
-      return;
-    }
-    const geometry = draftVerticesToFeatureGeometry(pendingMapFeatureDraft.geometryType, pendingMapFeatureDraft.vertices);
-    const id = `map-feature-${Date.now().toString(36)}-${(project.mapFeatures ?? []).length + 1}`;
-    const feature: ProjectMapFeature = {
-      id,
-      name: defaultMapFeatureName(option.kind, pendingMapFeatureDraft.geometryType, pendingMapFeatureDraft.vertices.length),
-      kind: option.kind,
-      geometry,
-      confidence: pendingMapFeatureDraft.sourceConfidence,
-      notes: pendingMapFeatureDraft.notes,
-    };
-    if (dispatchProjectWithResult({ type: "add_map_feature", feature })) {
-      setPendingMapFeatureDraft(null);
-      setSelectedMapFeatureId(id);
-      setActiveSidebarPage("feature");
-    }
+        geometry: draftVerticesToFeatureGeometry(draft.geometryType, draft.vertices),
+        confidence: draft.sourceConfidence,
+        notes: draft.notes,
+      };
+      return dispatchProjectTransaction({ type: "add_map_feature", feature });
+    }, `${option.label} committed in projected XY. Save Local to persist.`);
+    if (!receipt) return;
+    setPendingMapDraftState(pendingMapDraftSession.getSnapshot());
+    setDraftPurposeReceipt(receipt);
+    if (receipt.outcome !== "committed") return;
+    if (featureId) setSelectedMapFeatureId(featureId);
+    setActiveSidebarPage(featureId ? "feature" : "tools");
   }
 
   function saveGeneratedFieldPivotReviewZones(plan: AdvisoryFieldPivotPlan): void {
@@ -852,8 +907,9 @@ function AppContent(): React.JSX.Element {
   }
 
   function activateGuidedMapTool(mode: DrawingMode, activeLayer: DrawingLayerType, featureKind?: ProjectMapFeatureKind, draftGeometry?: UtilityFeatureGeometry): void {
+    invalidatePendingMapDraft();
     setManualDesignCaptureRequest(null);
-    setWorkflowMode("design");
+    if (mode !== "pan") setWorkflowMode("design");
     setGuidedMapTool((current) => ({
       activeLayer,
       draftGeometry,
@@ -883,13 +939,12 @@ function AppContent(): React.JSX.Element {
     activateGuidedMapTool(mode, activeLayer, featureKind);
     setSelectedMapFeatureId(null);
     setDesignConsoleModal(null);
-    if (sidebarInlineWorkflow) setActiveSidebarPage("tools");
+    if (sidebarInlineWorkflow && mode !== "pan") setActiveSidebarPage("tools");
     setActiveView("map");
   }
 
   function activatePrimitiveMapTool(geometry: UtilityFeatureGeometry): void {
     activateGuidedMapTool("measure", "control_point", undefined, geometry);
-    setPendingMapFeatureDraft(null);
     setSelectedMapFeatureId(null);
     setDesignConsoleModal(null);
     if (sidebarInlineWorkflow) setActiveSidebarPage("tools");
@@ -936,6 +991,7 @@ function AppContent(): React.JSX.Element {
   }
 
   function openCatalogDialog(mode: ProjectCatalogDialogMode): void {
+    if (catalogDialogSubmitting) return;
     if (mode === "client") {
       openClientCreateDialog();
       return;
@@ -944,12 +1000,14 @@ function AppContent(): React.JSX.Element {
       routeToClientSelection();
       return;
     }
+    if (!beginCatalogForm()) return;
     setCatalogDialogDefaultName(defaultCatalogDialogName(mode));
     setCatalogDialogMode(mode);
     openCatalogFormSidebar();
   }
 
   function openClientCreateDialog(): void {
+    if (!beginCatalogForm()) return;
     setCatalogNotice(null);
     setEditingClientId(null);
     setClientProfileDialogMode("create");
@@ -957,10 +1015,21 @@ function AppContent(): React.JSX.Element {
   }
 
   function openClientEditDialog(clientId: string): void {
+    if (!beginCatalogForm()) return;
     setCatalogNotice(null);
     setEditingClientId(clientId);
     setClientProfileDialogMode("edit");
     openCatalogFormSidebar();
+  }
+
+  function beginCatalogForm(): boolean {
+    if (catalogDialogSubmitting) return false;
+    projectOpenRequests.invalidate();
+    invalidateCatalogForm();
+    repository.clearCatalogError();
+    catalogFormRef.current = { revision: repository.catalogRevision, catalog: repository.catalog, projects: repository.projects,
+      context: { ...activeCatalogContext }, clientDefaultName: `Client ${repository.catalog.clients.length + 1}` };
+    return true;
   }
 
   function openCatalogFormSidebar(): void {
@@ -971,40 +1040,56 @@ function AppContent(): React.JSX.Element {
   }
 
   function openProjectRenameForm(projectId: string): void {
+    if (!beginCatalogForm()) return;
     setRenamingProjectId(projectId);
     openCatalogFormSidebar();
   }
 
   function openProjectMoveForm(projectId: string): void {
+    if (!beginCatalogForm()) return;
     setMovingProjectId(projectId);
     openCatalogFormSidebar();
   }
 
   function openProjectDeleteForm(projectId: string): void {
+    if (!beginCatalogForm()) return;
     setDeletingProjectId(projectId);
     openCatalogFormSidebar();
   }
 
   function openClientDeleteForm(clientId: string): void {
+    if (!beginCatalogForm()) return;
     setDeletingClientId(clientId);
     openCatalogFormSidebar();
   }
 
   function closeInlineCatalogForm(): void {
+    catalogFormRef.current = null;
     setActiveSidebarPage(homeMapView ? "catalog" : (settings.mappingWorkflowMode === "layout" ? "rtk" : "tools"));
+  }
+
+  function invalidateCatalogForm(): void {
+    catalogFormRef.current = null;
+    setCatalogDialogMode(null);
+    setClientProfileDialogMode(null);
+    setEditingClientId(null);
+    setRenamingProjectId(null);
+    setMovingProjectId(null);
+    setDeletingProjectId(null);
+    setDeletingClientId(null);
+    setCatalogDialogSubmitting(false);
   }
 
   async function submitCatalogDialog(name: string): Promise<void> {
     if (!catalogDialogMode || catalogDialogSubmitting) return;
+    const session = catalogFormRef.current;
     setCatalogDialogSubmitting(true);
     try {
       if (catalogDialogMode === "project") await createProjectFolder(name);
       if (catalogDialogMode === "fieldMap") await createFieldMapForProject(name);
       if (catalogDialogMode === "design") await createDesignForFieldMap(name);
-      setCatalogDialogMode(null);
-      closeInlineCatalogForm();
     } finally {
-      setCatalogDialogSubmitting(false);
+      if (catalogFormRef.current === session) setCatalogDialogSubmitting(false);
     }
   }
 
@@ -1023,31 +1108,34 @@ function AppContent(): React.JSX.Element {
       return `Field Map ${siblingCount + 1}`;
     }
     const fieldMapId = activeCatalogContext.fieldMapId;
-    const siblingCount = repository.catalog.designs.filter((record) => record.fieldMapId === fieldMapId).length;
+    const siblingCount = (repository.designCatalog?.designs ?? repository.catalog.designs).filter((record) => record.fieldMapId === fieldMapId).length;
     return `Design ${siblingCount + 1}`;
   }
 
   function catalogDialogContextPreview(mode: ProjectCatalogDialogMode): string {
+    const context = catalogFormRef.current?.context ?? activeCatalogContext;
+    const catalog = catalogFormRef.current?.catalog ?? repository.catalog;
     if (mode === "client") return "Saved under: Project Catalog";
     if (mode === "project") {
-      return selectedClient ? `Saved under: ${selectedClient.displayName}` : "Select a client folder before creating a project.";
+      const client = catalog.clients.find(item => item.id === context.clientId);
+      return client ? `Saved under: ${client.displayName}` : "Select a client folder before creating a project.";
     }
     if (mode === "fieldMap") {
-      const projectRecord = activeCatalogContext.projectId
-        ? repository.catalog.projects.find((record) => record.id === activeCatalogContext.projectId) ?? null
+      const projectRecord = context.projectId
+        ? catalog.projects.find((record) => record.id === context.projectId) ?? null
         : null;
-      return formatCatalogPath(projectRecord ? catalogPathForProject(projectRecord.id) : []);
+      return formatCatalogPath(projectRecord ? catalogPathForProject(projectRecord.id, catalog) : []);
     }
-    const fieldMap = activeCatalogContext.fieldMapId
-      ? repository.catalog.fieldMaps.find((record) => record.id === activeCatalogContext.fieldMapId) ?? null
+    const fieldMap = context.fieldMapId
+      ? catalog.fieldMaps.find((record) => record.id === context.fieldMapId) ?? null
       : null;
-    return formatCatalogPath(fieldMap ? [...catalogPathForProject(fieldMap.projectId), fieldMap.name] : []);
+    return formatCatalogPath(fieldMap ? [...catalogPathForProject(fieldMap.projectId, catalog), fieldMap.name] : []);
   }
 
-  function catalogPathForProject(projectId: string): string[] {
-    const projectRecord = repository.catalog.projects.find((record) => record.id === projectId) ?? null;
+  function catalogPathForProject(projectId: string, catalog = repository.catalog): string[] {
+    const projectRecord = catalog.projects.find((record) => record.id === projectId) ?? null;
     const client = projectRecord
-      ? repository.catalog.clients.find((record) => record.id === projectRecord.clientId) ?? null
+      ? catalog.clients.find((record) => record.id === projectRecord.clientId) ?? null
       : null;
     return [client?.displayName, projectRecord?.name].filter((part): part is string => Boolean(part));
   }
@@ -1058,22 +1146,25 @@ function AppContent(): React.JSX.Element {
 
   async function submitClientProfile(value: ClientProfileDialogValue): Promise<void> {
     if (!clientProfileDialogMode || catalogDialogSubmitting) return;
+    const session = catalogFormRef.current;
+    if (!session) return;
     setCatalogDialogSubmitting(true);
     try {
       if (clientProfileDialogMode === "create") {
-        const client = await repository.createClient(value);
-        if (client) {
+        const client = await repository.createClient(value, session.revision);
+        if (client && catalogFormRef.current === session) {
           showCatalogMap({ clientId: client.id, projectId: null, fieldMapId: null, designId: null });
         }
       } else if (editingClientId) {
-        const client = await repository.updateClient({ id: editingClientId, ...value });
-        if (client) setCatalogNotice(null);
+        const client = await repository.updateClient({ id: editingClientId, ...value }, session.revision);
+        if (client && catalogFormRef.current === session) {
+          setCatalogNotice(null);
+          invalidateCatalogForm();
+          closeInlineCatalogForm();
+        }
       }
-      setClientProfileDialogMode(null);
-      setEditingClientId(null);
-      closeInlineCatalogForm();
     } finally {
-      setCatalogDialogSubmitting(false);
+      if (catalogFormRef.current === session) setCatalogDialogSubmitting(false);
     }
   }
 
@@ -1085,9 +1176,11 @@ function AppContent(): React.JSX.Element {
   }
 
   async function createProjectFolder(name: string): Promise<void> {
+    const session = catalogFormRef.current;
+    if (!session) return;
     const trimmedName = name.trim();
     if (!trimmedName) return;
-    const client = selectedClient;
+    const client = session.catalog.clients.find(record => record.id === session.context.clientId);
     if (!client) {
       routeToClientSelection();
       return;
@@ -1099,12 +1192,12 @@ function AppContent(): React.JSX.Element {
       clientId: client.id,
       projectId,
       projectName: trimmedName,
-      projectCrs: project.projectCrs,
+      projectCrs: "",
       unitSystem: settings.unitSystem,
       fieldMapId,
       fieldMapName: "Primary Field Map",
-    });
-    if (created) {
+    }, session.revision);
+    if (created && catalogFormRef.current === session) {
       showCatalogMap({
         clientId: client.id,
         projectId: created.projectRecord.id,
@@ -1115,14 +1208,17 @@ function AppContent(): React.JSX.Element {
   }
 
   async function createFieldMapForProject(name: string, projectId = activeCatalogContext.projectId): Promise<void> {
+    const session = catalogFormRef.current;
+    if (!session) return;
+    projectId = session.context.projectId;
     const fieldName = name.trim();
     if (!fieldName) return;
-    const projectRecord = projectId ? repository.catalog.projects.find((record) => record.id === projectId) ?? null : null;
+    const projectRecord = projectId ? session.catalog.projects.find((record) => record.id === projectId) ?? null : null;
     if (!projectRecord) return;
     const createdAt = new Date().toISOString();
     const fieldMapId = `${projectRecord.id}:field-map:${createdAt.replace(/[^0-9]/g, "").slice(0, 14)}`;
-    const fieldMap = await repository.createFieldMapRecord({ id: fieldMapId, projectId: projectRecord.id, name: fieldName });
-    if (fieldMap) {
+    const fieldMap = await repository.createFieldMapRecord({ id: fieldMapId, projectId: projectRecord.id, name: fieldName }, session.revision);
+    if (fieldMap && catalogFormRef.current === session) {
       showCatalogMap({
         clientId: projectRecord.clientId,
         projectId: projectRecord.id,
@@ -1133,26 +1229,80 @@ function AppContent(): React.JSX.Element {
   }
 
   async function createDesignForFieldMap(name: string, fieldMapId = activeCatalogContext.fieldMapId): Promise<void> {
+    const session = catalogFormRef.current;
+    if (!session) return;
     const designName = name.trim();
     if (!designName) return;
-    const fieldMap = fieldMapId ? repository.catalog.fieldMaps.find((record) => record.id === fieldMapId) ?? null : null;
+    fieldMapId = session.context.fieldMapId;
+    const fieldMap = fieldMapId ? session.catalog.fieldMaps.find((record) => record.id === fieldMapId) ?? null : null;
     if (!fieldMap) return;
-    const projectRecord = repository.catalog.projects.find((record) => record.id === fieldMap.projectId) ?? null;
-    if (!projectRecord) return;
-    showCatalogMap(
-      {
-        clientId: projectRecord.clientId,
-        projectId: projectRecord.id,
-        fieldMapId: fieldMap.id,
-        designId: null,
-      },
-      `Design creation for ${designName} starts after a map is imported or the real design initialization workflow is implemented.`,
-    );
+    const folderUnits = session.catalog.projects.find((record) => record.id === fieldMap.projectId)?.unitSystem;
+    if (folderUnits !== "metric" && folderUnits !== "us_survey_feet") {
+      repository.reportError(new Error("The selected project has no valid unit system. Repair its catalog record before creating a design draft."));
+      return;
+    }
+    if (!repository.canSaveDraft) {
+      repository.reportError(new Error("Draft saving is not available on this storage backend yet."));
+      return;
+    }
+    if (session.revision === null) return;
+    const hidCatalogDialog = hasUnsavedProjectWork();
+    if (hidCatalogDialog) {
+      setCatalogDialogDefaultName(designName);
+      setCatalogDialogMode(null);
+      const confirmed = await new Promise<boolean>(resolve => onRequestDiscard(() => resolve(true), () => {
+        restoreRetainedProjectView();
+        resolve(false);
+      }));
+      if (!confirmed) return;
+    }
+    if (!saveOwnerMountedRef.current || catalogFormRef.current !== session) return;
+    const departureIsCurrent = projectOpenRequests.completionIsCurrent();
+    const source = saveCoordinator.receipt(projectSaveSessionRef.current);
+    try {
+      const created = await saveCoordinator.writeAlongsideProject({
+        session: projectSaveSessionRef.current, sourceId: source.payloadId,
+        sourceStored: typeof source.workspaceRevision === "number", expectedRevision: session.revision,
+        write: () => repository.createDesignDraft({ fieldMapId: fieldMap.id,
+          draft: newDesignDraft(createCatalogId("draft"), designName, folderUnits) }, session.revision,
+        { isCurrent: () => saveOwnerMountedRef.current && catalogFormRef.current === session }),
+      });
+      if (created && saveOwnerMountedRef.current && catalogFormRef.current === session) {
+        invalidateCatalogForm();
+        if (departureIsCurrent()) onOpenDraft(created);
+        else restoreRetainedProjectView();
+      }
+    } catch (error) {
+      if (saveOwnerMountedRef.current && catalogFormRef.current === session) repository.reportError(error);
+    } finally {
+      if (hidCatalogDialog && saveOwnerMountedRef.current && catalogFormRef.current === session) setCatalogDialogMode("design");
+    }
+  }
+
+  function hasUnsavedProjectWork(): boolean {
+    return (projectLoadSequenceRef.current > 0 || editorRef.current.revision > 0)
+      && editorRef.current.revision !== savedRevision;
+  }
+
+  function restoreRetainedProjectView(): void {
+    if (!saveOwnerMountedRef.current) return;
+    projectOpenRequests.invalidate();
+    invalidateCatalogForm();
+    const target = saveCoordinator.receipt(projectSaveSessionRef.current);
+    const design = repository.catalog.designs.find(item => item.id === target.designId);
+    const field = repository.catalog.fieldMaps.find(item => item.id === design?.fieldMapId);
+    const folder = repository.catalog.projects.find(item => item.id === field?.projectId);
+    setActiveCatalogContext({ clientId: folder?.clientId ?? null, projectId: folder?.id ?? null,
+      fieldMapId: field?.id ?? null, designId: design?.id ?? null });
+    setHomeMapView(false);
+    setActiveView("map");
+    setActiveSidebarPage(settings.mappingWorkflowMode === "layout" ? "rtk" : "tools");
   }
 
   async function openFieldMap(fieldMapId: string): Promise<void> {
-    const design = repository.catalog.designs.find((record) => record.fieldMapId === fieldMapId && record.isActive)
-      ?? repository.catalog.designs.find((record) => record.fieldMapId === fieldMapId)
+    const designs = repository.designCatalog?.designs ?? repository.catalog.designs;
+    const design = designs.find((record) => record.fieldMapId === fieldMapId && record.isActive)
+      ?? designs.find((record) => record.fieldMapId === fieldMapId)
       ?? null;
     if (design) await openDesignProject(design.id);
     else selectFieldMapCatalogOnly(fieldMapId);
@@ -1160,48 +1310,44 @@ function AppContent(): React.JSX.Element {
 
   async function renameProjectFolder(projectId: string, name: string): Promise<void> {
     if (catalogDialogSubmitting) return;
-    const generation = projectLoadSequenceRef.current;
+    const session = catalogFormRef.current;
+    if (!session) return;
     setCatalogDialogSubmitting(true);
     try {
-      const updatedProjectRecord = await repository.renameProject(projectId, name);
-      if (!updatedProjectRecord) return;
-      if (project.id === projectId && projectLoadSequenceRef.current === generation) {
-        projectOpenRequests.invalidate();
-        projectLoadSequenceRef.current += 1;
-        void rehydrateRuntimeMapPackages(projectLoadSequenceRef.current, project.mapPackages ?? []);
-        dispatchProject({ type: "load_project", project: { ...project, name: updatedProjectRecord.name } });
-        setSavedRevision(0);
-      }
+      const updatedProjectRecord = await repository.renameProject(projectId, name, session.revision);
+      if (!updatedProjectRecord || catalogFormRef.current !== session) return;
       setRenamingProjectId(null);
       closeInlineCatalogForm();
     } finally {
-      setCatalogDialogSubmitting(false);
+      if (catalogFormRef.current === session || catalogFormRef.current === null) setCatalogDialogSubmitting(false);
     }
   }
 
   async function moveProjectFolder(projectId: string, clientId: string): Promise<void> {
     if (catalogDialogSubmitting) return;
+    const session = catalogFormRef.current;
+    if (!session) return;
     setCatalogDialogSubmitting(true);
     try {
-      const moved = await repository.moveProjectToClient(projectId, clientId);
-      if (!moved) return;
-      if (activeCatalogContext.projectId === projectId) {
-        setActiveCatalogContext((current) => ({ ...current, clientId }));
-      }
+      const moved = await repository.moveProjectToClient(projectId, clientId, session.revision);
+      if (!moved || catalogFormRef.current !== session) return;
+      setActiveCatalogContext((current) => current.projectId === projectId ? { ...current, clientId } : current);
       setMovingProjectId(null);
       closeInlineCatalogForm();
     } finally {
-      setCatalogDialogSubmitting(false);
+      if (catalogFormRef.current === session || catalogFormRef.current === null) setCatalogDialogSubmitting(false);
     }
   }
 
   async function confirmDeleteProject(): Promise<void> {
     if (!deletingProjectId || catalogDialogSubmitting) return;
+    const session = catalogFormRef.current;
+    if (!session) return;
     const projectId = deletingProjectId;
     setCatalogDialogSubmitting(true);
     try {
-      const deleted = await repository.deleteProject(projectId);
-      if (deleted) {
+      const deleted = await repository.deleteProject(projectId, session.revision);
+      if (deleted && catalogFormRef.current === session) {
         if (activeCatalogContext.projectId === projectId || project.id === projectId) {
           showCatalogMap({ clientId: activeCatalogContext.clientId, projectId: null, fieldMapId: null, designId: null });
         }
@@ -1209,17 +1355,19 @@ function AppContent(): React.JSX.Element {
         closeInlineCatalogForm();
       }
     } finally {
-      setCatalogDialogSubmitting(false);
+      if (catalogFormRef.current === session || catalogFormRef.current === null) setCatalogDialogSubmitting(false);
     }
   }
 
   async function confirmDeleteClient(): Promise<void> {
     if (!deletingClientId || catalogDialogSubmitting) return;
+    const session = catalogFormRef.current;
+    if (!session) return;
     const clientId = deletingClientId;
     setCatalogDialogSubmitting(true);
     try {
-      const deleted = await repository.deleteClient(clientId);
-      if (deleted) {
+      const deleted = await repository.deleteClient(clientId, session.revision);
+      if (deleted && catalogFormRef.current === session) {
         if (activeCatalogContext.clientId === clientId) {
           setActiveCatalogContext({ clientId: null, projectId: null, fieldMapId: null, designId: null });
         }
@@ -1227,7 +1375,7 @@ function AppContent(): React.JSX.Element {
         closeInlineCatalogForm();
       }
     } finally {
-      setCatalogDialogSubmitting(false);
+      if (catalogFormRef.current === session || catalogFormRef.current === null) setCatalogDialogSubmitting(false);
     }
   }
 
@@ -1262,7 +1410,7 @@ function AppContent(): React.JSX.Element {
   }
 
   function selectDesignCatalogOnly(designId: string): void {
-    const design = repository.catalog.designs.find((record) => record.id === designId) ?? null;
+    const design = (repository.designCatalog?.designs ?? repository.catalog.designs).find((record) => record.id === designId) ?? null;
     const fieldMap = design ? repository.catalog.fieldMaps.find((record) => record.id === design.fieldMapId) ?? null : null;
     const projectRecord = fieldMap
       ? repository.catalog.projects.find((record) => record.id === fieldMap.projectId) ?? null
@@ -1279,6 +1427,7 @@ function AppContent(): React.JSX.Element {
   }
 
   function showCatalogMap(context: Partial<typeof activeCatalogContext>, notice: string | null = null): void {
+    invalidateCatalogForm();
     projectOpenRequests.invalidate();
     setScreen("workspace");
     setActiveView("map");
@@ -1307,12 +1456,14 @@ function AppContent(): React.JSX.Element {
 
   const importNotice = projectImportStatus?.generation === projectGeneration
     ? <ProjectImportStatus kind={projectImportStatus.kind} /> : null;
+  const storageNotice = <WorkspaceStorageNotice repository={repository} />;
 
   // All hooks stay mounted across CRS transitions; no calculated view mounts without a result.
   if (calculation.result === null) {
     return (
       <SafeAreaView edges={["top", "left", "right"]} style={styles.safeArea}>
         <StatusBar style="dark" />
+        {activeCatalogForm ? null : storageNotice}
         {importNotice}
         <ProjectCrsRecoveryPanel
           key={`${projectGeneration}:${project.id}:${project.projectCrs}`}
@@ -1324,6 +1475,7 @@ function AppContent(): React.JSX.Element {
           onUndo={() => dispatchProject({ type: "undo" })}
           onRedo={() => dispatchProject({ type: "redo" })}
           onSave={saveCurrentProject}
+          copyAction={<ProjectCopyButton project={project} sourceStored={typeof saveCoordinator.receipt(projectSaveSession).workspaceRevision === "number"} repository={repository} onCopy={saveProjectCopy} />}
           storageStatus={repository.statusMessage}
           projects={repository.projects}
           onOpenProject={openSavedProject}
@@ -1340,6 +1492,7 @@ function AppContent(): React.JSX.Element {
       <SafeAreaView edges={["top", "left", "right"]} style={styles.safeArea} testID="launcher-screen">
         <AndroidNativeProofRunner enabled={androidNativeProofEnabled} />
         <StatusBar style="dark" />
+        {activeCatalogForm ? null : storageNotice}
         <View style={[styles.app, { paddingBottom: safeBottomGutter }]}>
           <View style={styles.topBar}>
             <View>
@@ -1476,11 +1629,12 @@ function AppContent(): React.JSX.Element {
             activeModal={designConsoleModal}
             activeTool={guidedMapTool}
             onActivateTool={activateDesignConsoleTool}
+            onActivatePrimitive={activatePrimitiveMapTool}
             onCalculate={calculateAndOpenPanel}
             onOpenModal={openDesignConsolePanel}
             onToggleLayers={toggleLayersPanel}
             settings={settings}
-            showGeometryTools={sidebarGeometryToolsVisible}
+            showGeometryTools={false}
             variant="sidebar"
           />
           {settings.mappingWorkflowMode === "design" ? (
@@ -1517,11 +1671,12 @@ function AppContent(): React.JSX.Element {
     if (page === "purpose") {
       return (
         <>
-          <Text style={styles.sectionTitle}>Purpose</Text>
           <PendingDraftPurposePanel
             draft={pendingMapFeatureDraft}
-            onCancel={cancelPendingMapFeatureDraft}
-            onSave={savePendingMapFeatureDraft}
+            projectCrs={project.projectCrs}
+            error={pendingMapDraftState?.error ?? null}
+            onCancel={() => { if (pendingMapDraftState) cancelPendingMapFeatureDraft(pendingMapDraftState.owner); }}
+            onSave={(option) => { if (pendingMapDraftState) savePendingMapFeatureDraft(pendingMapDraftState.owner, option); }}
             unitSystem={settings.unitSystem}
           />
         </>
@@ -1673,6 +1828,7 @@ function AppContent(): React.JSX.Element {
     if (catalogDialogMode) {
       return (
         <CatalogItemForm
+          feedback={storageNotice}
           contextPreview={catalogDialogContextPreview(catalogDialogMode)}
           defaultName={catalogDialogDefaultName}
           embedded
@@ -1686,7 +1842,8 @@ function AppContent(): React.JSX.Element {
     if (clientProfileDialogMode) {
       return (
         <ClientProfileForm
-          defaultDisplayName={`Client ${repository.catalog.clients.length + 1}`}
+          feedback={storageNotice}
+          defaultDisplayName={catalogFormRef.current?.clientDefaultName ?? "New client"}
           embedded
           initialClient={clientProfileDialogMode === "edit" ? editingClient : null}
           mode={clientProfileDialogMode}
@@ -1699,11 +1856,12 @@ function AppContent(): React.JSX.Element {
     if (renamingProject) {
       return (
         <CatalogItemForm
+          feedback={storageNotice}
           contextPreview={formatCatalogPath(catalogPathForProject(renamingProject.id))}
           createButtonLabel="Rename"
           defaultName={renamingProject.name}
           embedded
-          helper="Rename updates the local project document and catalog row without changing projected XY geometry."
+          helper="Project folder name"
           mode="project"
           onCancel={() => {
             if (!catalogDialogSubmitting) {
@@ -1720,8 +1878,9 @@ function AppContent(): React.JSX.Element {
     if (movingProject) {
       return (
         <MoveProjectForm
+          feedback={storageNotice}
           currentClientId={movingProject.clientId}
-          clients={repository.catalog.clients}
+          clients={formCatalog.clients}
           embedded
           onCancel={() => {
             if (!catalogDialogSubmitting) {
@@ -1738,6 +1897,7 @@ function AppContent(): React.JSX.Element {
     if (deletingProject) {
       return (
         <ConfirmActionPanel
+          feedback={storageNotice}
           confirmLabel="Delete Project"
           embedded
           message={`Delete ${deletingProject.name} and its contained field maps/designs from the local catalog. Project ZIP archives are not changed.`}
@@ -1757,6 +1917,7 @@ function AppContent(): React.JSX.Element {
     if (deletingClient) {
       return (
         <ConfirmActionPanel
+          feedback={storageNotice}
           confirmLabel="Delete Client"
           embedded
           message={`Delete the empty client folder ${deletingClient.displayName}. This is blocked automatically if any projects remain inside it.`}
@@ -1786,7 +1947,7 @@ function AppContent(): React.JSX.Element {
       <AndroidNativeProofRunner enabled={androidNativeProofEnabled} />
       <StatusBar style="dark" />
       <View style={[styles.app, { paddingBottom: safeBottomGutter }]}>
-        <WorkspaceTopToolbar compact={compactLayout} currentLabel={homeMapView ? "Project Catalog" : project.name}>
+        <WorkspaceTopToolbar compact={compactLayout} short={shortLandscapeMap} currentLabel={homeMapView ? "Project Catalog" : project.name}>
           <WorkspaceCommandSurface
             activeView={activeView}
             canRedo={editor.future.length > 0}
@@ -1819,6 +1980,7 @@ function AppContent(): React.JSX.Element {
             rightDrawerOpen={rightDrawerOpen}
           />
         </WorkspaceTopToolbar>
+        {activeCatalogForm ? null : storageNotice}
         {!homeMapView ? importNotice : null}
 
         <View style={[styles.workspaceShell, activeView !== "map" && compactLayout && styles.workspaceShellCompact, activeView === "map" && styles.workspaceShellConsole]} testID="workspace-shell">
@@ -1826,6 +1988,7 @@ function AppContent(): React.JSX.Element {
             activeContext={activeCatalogContext}
             activeView={activeView}
             catalog={repository.catalog}
+            designCatalog={repository.designCatalog}
             compact={compactLayout}
             consoleMode={activeView === "map"}
             drawerOpen={activeView === "map" ? leftDrawerOpen : true}
@@ -1892,7 +2055,7 @@ function AppContent(): React.JSX.Element {
           ))}
 
           {activeView === "map" && (
-            <WorkspaceConsoleShell compact={compactLayout} rightDrawerOpen={nativeMapLibreProofEnabled ? false : rightDrawerOpen} testID="map-view">
+            <WorkspaceConsoleShell compact={compactLayout} short={shortLandscapeMap} rightDrawerOpen={nativeMapLibreProofEnabled ? false : rightDrawerOpen} testID="map-view">
               <View style={styles.mapConsoleFrame}>
                 <AdvisoryCalculationStatus
                   message={!homeMapView && (advisoryError || !advisoryFieldPivotPlan || !advisoryMachineRenderModel) ? advisoryStatus : ""}
@@ -1909,19 +2072,26 @@ function AppContent(): React.JSX.Element {
                   advisoryFieldPivotPlan={!homeMapView ? advisoryFieldPivotPlan ?? undefined : undefined}
                   advisoryMachineRenderModel={!homeMapView ? advisoryMachineRenderModel ?? undefined : undefined}
                   controlLayout="externalHud"
-                  bottomOverlay={!homeMapView && !nativeMapLibreProofEnabled && !sidebarGeometryToolsVisible ? (
+                  bottomOverlay={!homeMapView && !nativeMapLibreProofEnabled ? (
                     <DesignActionHud
                       activeModal={designConsoleModal}
                       activeTool={guidedMapTool}
                       onActivateTool={activateDesignConsoleTool}
+                      onActivatePrimitive={activatePrimitiveMapTool}
                       onCalculate={calculateAndOpenPanel}
                       onOpenModal={openDesignConsolePanel}
                       onToggleLayers={toggleLayersPanel}
+                      onOpenReceiver={() => {
+                        setActiveSidebarPage("rtk");
+                        setRightDrawerOpen(true);
+                      }}
                       settings={settings}
                     />
                   ) : null}
                   homeView={homeMapView}
                   project={runtimeProject}
+                  projectGeneration={projectLoadSequenceRef.current}
+                  draftPurposeReceipt={draftPurposeReceipt}
                   result={result}
                   settings={settings}
                   selectedMapFeatureId={selectedMapFeatureId}
@@ -1930,19 +2100,19 @@ function AppContent(): React.JSX.Element {
                   onMappingWorkflowModeChange={setWorkflowMode}
                   onCommitBoundaryDraft={(vertices) => dispatchProjectWithResult({ type: "commit_boundary_draft", vertices })}
                   onCommitObstacleDraft={(vertices, kind, confidence) => dispatchProjectWithResult({ type: "commit_obstacle_draft", vertices, kind, confidence })}
-                  onMoveBoundaryVertex={(vertexIndex, point) => dispatchProject({ type: "move_boundary_vertex", vertexIndex, point })}
-                  onInsertBoundaryVertex={(afterVertexIndex, point) => dispatchProject({ type: "insert_boundary_vertex", afterVertexIndex, point })}
-                  onDeleteBoundaryVertex={(vertexIndex) => dispatchProject({ type: "delete_boundary_vertex", vertexIndex })}
-                  onMoveObstacleVertex={(obstacleId, vertexIndex, point) => dispatchProject({ type: "move_obstacle_vertex", obstacleId, vertexIndex, point })}
-                  onInsertObstacleVertex={(obstacleId, afterVertexIndex, point) => dispatchProject({ type: "insert_obstacle_vertex", obstacleId, afterVertexIndex, point })}
-                  onDeleteObstacleVertex={(obstacleId, vertexIndex) => dispatchProject({ type: "delete_obstacle_vertex", obstacleId, vertexIndex })}
-                  onMoveMapFeatureVertex={(featureId, vertexIndex, point) => dispatchProject({ type: "move_map_feature_vertex", featureId, vertexIndex, point })}
-                  onInsertMapFeatureVertex={(featureId, afterVertexIndex, point) => dispatchProject({ type: "insert_map_feature_vertex", featureId, afterVertexIndex, point })}
-                  onDeleteMapFeatureVertex={(featureId, vertexIndex) => dispatchProject({ type: "delete_map_feature_vertex", featureId, vertexIndex })}
-                  onMoveMapFeatureCircleRadiusHandle={(featureId, point) => dispatchProject({ type: "move_map_feature_circle_radius_handle", featureId, point })}
-                  onPlacePivot={(point, wgs84) => dispatchProject({ type: "place_pivot", point, wgs84 })}
-                  onMoveInfrastructurePoint={(pointType, point, wgs84) => dispatchProject({ type: "move_infrastructure", pointType, point, wgs84 })}
-                  onAddSurveyPoint={(point) => dispatchProject({ type: "add_survey_point", point })}
+                  onMoveBoundaryVertex={(vertexIndex, point) => dispatchProjectTransaction({ type: "move_boundary_vertex", vertexIndex, point })}
+                  onInsertBoundaryVertex={(afterVertexIndex, point) => dispatchProjectTransaction({ type: "insert_boundary_vertex", afterVertexIndex, point })}
+                  onDeleteBoundaryVertex={(vertexIndex) => dispatchProjectTransaction({ type: "delete_boundary_vertex", vertexIndex })}
+                  onMoveObstacleVertex={(obstacleId, vertexIndex, point) => dispatchProjectTransaction({ type: "move_obstacle_vertex", obstacleId, vertexIndex, point })}
+                  onInsertObstacleVertex={(obstacleId, afterVertexIndex, point) => dispatchProjectTransaction({ type: "insert_obstacle_vertex", obstacleId, afterVertexIndex, point })}
+                  onDeleteObstacleVertex={(obstacleId, vertexIndex) => dispatchProjectTransaction({ type: "delete_obstacle_vertex", obstacleId, vertexIndex })}
+                  onMoveMapFeatureVertex={(featureId, vertexIndex, point) => dispatchProjectTransaction({ type: "move_map_feature_vertex", featureId, vertexIndex, point })}
+                  onInsertMapFeatureVertex={(featureId, afterVertexIndex, point) => dispatchProjectTransaction({ type: "insert_map_feature_vertex", afterVertexIndex, featureId, point })}
+                  onDeleteMapFeatureVertex={(featureId, vertexIndex) => dispatchProjectTransaction({ type: "delete_map_feature_vertex", featureId, vertexIndex })}
+                  onMoveMapFeatureCircleRadiusHandle={(featureId, point) => dispatchProjectTransaction({ type: "move_map_feature_circle_radius_handle", featureId, point })}
+                  onPlacePivot={(point, wgs84) => dispatchProjectTransaction({ type: "place_pivot", point, wgs84 })}
+                  onMoveInfrastructurePoint={(pointType, point, wgs84) => dispatchProjectTransaction({ type: "move_infrastructure", pointType, point, wgs84 })}
+                  onAddSurveyPoint={(point) => dispatchProjectTransaction({ type: "add_survey_point", point })}
                   onAddMapFeature={addMapFeature}
                   onCreateMapFeatureDraft={createPendingMapFeatureDraft}
                   onSelectMapFeature={setSelectedMapFeatureId}
@@ -1952,6 +2122,7 @@ function AppContent(): React.JSX.Element {
               {nativeMapLibreProofEnabled ? null : (
                 <RightWorkflowSidebar
                   activePage={effectiveSidebarPage}
+                  purposeRejectionSequence={draftPurposeReceipt?.outcome === "rejected" ? draftPurposeReceipt.sequence : null}
                   compact={compactLayout}
                   onToggle={() => setRightDrawerOpen((open) => !open)}
                   open={rightDrawerOpen}
@@ -2037,10 +2208,11 @@ function AppContent(): React.JSX.Element {
             <Section title="Files and GIS Exchange" icon={<ClipboardList size={20} color="#254234" />} testID="files-view">
               <ProjectFilesPanel
                 dirty={isDirty}
+                sourceStored={typeof saveCoordinator.receipt(projectSaveSession).workspaceRevision === "number"}
                 onApplyCornerGpsMapBpfImport={applyCornerGpsMapBpfImport}
                 onApplyGoogleEarthKmlImport={applyGoogleEarthKmlImport}
                 onDeleteProject={(projectId) => {
-                  setDeletingProjectId(projectId);
+                  openProjectDeleteForm(projectId);
                   return Promise.resolve(false);
                 }}
                 onImportProjectedGeoJson={importProjectedGeoJson}
@@ -2053,6 +2225,7 @@ function AppContent(): React.JSX.Element {
                 onCancelImport={projectOpenRequests.invalidate}
                 onRefreshProjects={repository.refreshProjects}
                 onSaveProject={saveCurrentProject}
+                onSaveProjectCopy={saveProjectCopy}
                 project={project}
                 repository={repository}
                 result={result}
@@ -2075,10 +2248,11 @@ function AppContent(): React.JSX.Element {
           <WorkspaceBottomStatusBar
             backendLabel={repository.backendLabel}
             dirty={isDirty}
-            gpsGateLabel={`${fixTypeLabel(settings.gpsQuality.minimumFixType)} gate`}
+            gpsGateLabel={`${fixTypeLabel(settings.mappingWorkflowMode === "layout" ? "rtk_fixed" : settings.gpsQuality.minimumFixType)} gate`}
             homeMapView={homeMapView}
             powerEvidenceStatus={powerEvidenceStatus}
             rtkStatus={rtkReceiverStatus}
+            short={shortLandscapeMap}
             warningCount={warningCount}
           />
         </View>
@@ -2122,6 +2296,7 @@ function AppContent(): React.JSX.Element {
       ) : null}
       {catalogDialogMode && !inlineCatalogForms ? (
         <ProjectCatalogDialog
+          feedback={storageNotice}
           contextPreview={catalogDialogContextPreview(catalogDialogMode)}
           defaultName={catalogDialogDefaultName}
           mode={catalogDialogMode}
@@ -2133,7 +2308,8 @@ function AppContent(): React.JSX.Element {
       ) : null}
       {clientProfileDialogMode && !inlineCatalogForms ? (
         <ClientProfileDialog
-          defaultDisplayName={`Client ${repository.catalog.clients.length + 1}`}
+          feedback={storageNotice}
+          defaultDisplayName={catalogFormRef.current?.clientDefaultName ?? "New client"}
           initialClient={clientProfileDialogMode === "edit" ? editingClient : null}
           mode={clientProfileDialogMode}
           onCancel={closeClientProfileDialog}
@@ -2144,10 +2320,11 @@ function AppContent(): React.JSX.Element {
       ) : null}
       {renamingProject && !inlineCatalogForms ? (
         <ProjectCatalogDialog
+          feedback={storageNotice}
           contextPreview={formatCatalogPath(catalogPathForProject(renamingProject.id))}
           createButtonLabel="Rename"
           defaultName={renamingProject.name}
-          helper="Rename updates the local project document and catalog row without changing projected XY geometry."
+          helper="Project folder name"
           mode="project"
           onCancel={() => {
             if (!catalogDialogSubmitting) {
@@ -2163,8 +2340,9 @@ function AppContent(): React.JSX.Element {
       ) : null}
       {movingProject && !inlineCatalogForms ? (
         <MoveProjectDialog
+          feedback={storageNotice}
           currentClientId={movingProject.clientId}
-          clients={repository.catalog.clients}
+          clients={formCatalog.clients}
           onCancel={() => {
             if (!catalogDialogSubmitting) {
               setMovingProjectId(null);
@@ -2179,6 +2357,7 @@ function AppContent(): React.JSX.Element {
       ) : null}
       {deletingProject && !inlineCatalogForms ? (
         <ConfirmActionDialog
+          feedback={storageNotice}
           confirmLabel="Delete Project"
           message={`Delete ${deletingProject.name} and its contained field maps/designs from the local catalog. Project ZIP archives are not changed.`}
           onCancel={() => {
@@ -2196,6 +2375,7 @@ function AppContent(): React.JSX.Element {
       ) : null}
       {deletingClient && !inlineCatalogForms ? (
         <ConfirmActionDialog
+          feedback={storageNotice}
           confirmLabel="Delete Client"
           message={`Delete the empty client folder ${deletingClient.displayName}. This is blocked automatically if any projects remain inside it.`}
           onCancel={() => {
@@ -2249,10 +2429,12 @@ function WorkspaceTopToolbar({
   children,
   compact,
   currentLabel,
+  short,
 }: {
   children: React.ReactNode;
   compact: boolean;
   currentLabel: string;
+  short: boolean;
 }): React.JSX.Element {
   const commandSurface = compact ? (
     <ScrollView
@@ -2268,7 +2450,8 @@ function WorkspaceTopToolbar({
   );
 
   return (
-    <View style={[styles.workspaceTopToolbar, compact && styles.workspaceTopToolbarCompact]} testID="workspace-top-toolbar">
+    <View style={[styles.workspaceTopToolbar, compact && styles.workspaceTopToolbarCompact,
+      short && styles.workspaceTopToolbarShortLandscape]} testID="workspace-top-toolbar">
       <View style={[styles.workspaceBreadcrumb, compact && styles.workspaceBreadcrumbCompact]} testID="workspace-breadcrumb">
         <Text numberOfLines={1} style={styles.workspaceBreadcrumbText} testID="workspace-breadcrumb-current">
           <Text style={styles.workspaceBreadcrumbRoot}>CPLayout</Text>
@@ -2287,6 +2470,7 @@ function WorkspaceBottomStatusBar({
   homeMapView,
   powerEvidenceStatus,
   rtkStatus,
+  short,
   warningCount,
 }: {
   backendLabel: string;
@@ -2295,6 +2479,7 @@ function WorkspaceBottomStatusBar({
   homeMapView: boolean;
   powerEvidenceStatus: ReturnType<typeof projectPowerLineEvidenceStatus>;
   rtkStatus: BrowserRtkReceiverStatus | null;
+  short: boolean;
   warningCount: number;
 }): React.JSX.Element {
   const liveRtkLabel = formatLiveRtkStatus(rtkStatus);
@@ -2302,8 +2487,9 @@ function WorkspaceBottomStatusBar({
     ? "#254234"
     : "#7a4a00";
   return (
-    <View style={styles.workspaceBottomStatusBar} testID="workspace-bottom-status-bar">
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.bottomStatusScroll} contentContainerStyle={styles.bottomStatusContent}>
+    <View style={[styles.workspaceBottomStatusBar, short && styles.workspaceBottomStatusBarShortLandscape]} testID="workspace-bottom-status-bar">
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.bottomStatusScroll}
+        contentContainerStyle={[styles.bottomStatusContent, short && styles.bottomStatusContentShortLandscape]}>
         {homeMapView ? (
           <>
             <BottomStatusChip icon={<ClipboardList size={12} color="#254234" />} label="Catalog ready" testID="catalog-save-state" />
@@ -2479,17 +2665,21 @@ function DesignActionHud({
   activeModal,
   activeTool,
   onActivateTool,
+  onActivatePrimitive,
   onCalculate,
   onOpenModal,
   onToggleLayers,
+  onOpenReceiver,
   settings,
 }: {
   activeModal: DesignConsoleModal;
   activeTool: { activeLayer: DrawingLayerType; featureKind?: ProjectMapFeatureKind; mode: DrawingMode; requestId: number } | null;
   onActivateTool: (mode: DrawingMode, activeLayer: DrawingLayerType, featureKind?: ProjectMapFeatureKind) => void;
+  onActivatePrimitive: (geometry: UtilityFeatureGeometry) => void;
   onCalculate: () => void;
   onOpenModal: (modal: DesignConsoleModal) => void;
   onToggleLayers: () => void;
+  onOpenReceiver: () => void;
   settings: AppSettings;
 }): React.JSX.Element {
   return (
@@ -2497,9 +2687,11 @@ function DesignActionHud({
       activeModal={activeModal}
       activeTool={activeTool}
       onActivateTool={onActivateTool}
+      onActivatePrimitive={onActivatePrimitive}
       onCalculate={onCalculate}
       onOpenModal={onOpenModal}
       onToggleLayers={onToggleLayers}
+      onOpenReceiver={onOpenReceiver}
       settings={settings}
     />
   );
@@ -2751,6 +2943,7 @@ function MachineToolSheet({
     <View style={styles.machineForm}>
       <MachineSettingsForm machine={machine} onChange={onChange} unitSystem={unitSystem} />
       <View style={styles.consoleChoiceGrid}>
+        <ConsoleChoiceButton label="Pivot GPS Entry" meta="Pivot center coordinates" onPress={() => onOpenModal("pivot")} />
         <ConsoleChoiceButton label="End Gun Settings" meta="Set throw distance and optional shutoff angle ranges." onPress={() => onOpenModal("endGun")} />
         <ConsoleChoiceButton label="Corner Arm Advisory" meta="Review and save advisory corner-arm evidence settings." onPress={() => onOpenModal("cornerArm")} />
       </View>
@@ -5519,7 +5712,7 @@ function CatalogHomePanel({
       </View>
       <View style={styles.warningItem}>
         <MapPinned size={17} color="#9a4c1c" />
-        <Text style={styles.warningText}>Use Start Blank Design or open a saved design from the tree to enable drawing. Catalog maps are navigation-only.</Text>
+        <Text style={styles.warningText}>Select a field map and start a design, or open a saved design. Catalog maps are navigation-only.</Text>
       </View>
     </>
   );
@@ -5953,7 +6146,7 @@ function HelpTrainingPanel({
     title: string;
   }> = [
     {
-      boundary: "Samples and blank designs remain unsaved until a save succeeds. Local progress stays outside project ZIPs.",
+      boundary: "Samples remain unsaved until Save succeeds. New designs create saved empty drafts under the selected field map; later edits require Save draft. Open a catalog item with its folder icon. Drafts require explicit CRS and geometry inputs, and cannot start Layout. Local progress stays outside project ZIPs.",
       checkpoints: [],
       detail: "Use the catalog, then move into Map for layout work.",
       icon: <Home size={18} color="#254234" />,
@@ -5963,7 +6156,7 @@ function HelpTrainingPanel({
       title: "Start",
     },
     {
-      boundary: "Polygon, Path, Placemark, and Ruler labels map to CPLayout projected-XY tools; viewport pan/zoom state is separate.",
+      boundary: "Polygon, Line, and Point capture projected XY, not qualified RTK observations. Finish opens purpose selection; Clear discards the unfinished drawing. Remove last vertex corrects a draft without undoing project edits. XY length, area and perimeter are planar previews, not surveyed 3D or ground measurements. Fit field preserves geometry and drafts; compact SVG Map legend opens the color key.",
       checkpoints: ["boundary", "obstacles", "pivot"],
       detail: "Trace field polygons, obstacle polygons, utility paths, placemarks, and measurement marks in Design mode.",
       icon: <Pentagon size={18} color="#254234" />,
@@ -6287,15 +6480,18 @@ function WorkspaceConsoleShell({
   children,
   compact,
   rightDrawerOpen,
+  short,
   testID,
 }: {
   children: React.ReactNode;
   compact: boolean;
   rightDrawerOpen: boolean;
+  short: boolean;
   testID?: string;
 }): React.JSX.Element {
   return (
-    <View style={[styles.consoleShell, compact && styles.consoleShellCompact, !rightDrawerOpen && styles.consoleShellRightCollapsed]} testID={testID}>
+    <View style={[styles.consoleShell, compact && styles.consoleShellCompact,
+      short && styles.consoleShellShortLandscape, !rightDrawerOpen && styles.consoleShellRightCollapsed]} testID={testID}>
       {children}
     </View>
   );
@@ -6346,6 +6542,7 @@ function rightWorkflowSidebarPages({
 
 function RightWorkflowSidebar({
   activePage,
+  purposeRejectionSequence,
   children,
   compact,
   onPageChange,
@@ -6354,6 +6551,7 @@ function RightWorkflowSidebar({
   pages,
 }: {
   activePage: RightWorkflowSidebarPage;
+  purposeRejectionSequence: number | null;
   children: React.ReactNode;
   compact: boolean;
   onPageChange: (page: RightWorkflowSidebarPage) => void;
@@ -6361,11 +6559,48 @@ function RightWorkflowSidebar({
   open: boolean;
   pages: RightWorkflowSidebarTab[];
 }): React.JSX.Element {
+  const scrollRef = useRef<ScrollView>(null);
+  const tabScrollRef = useRef<ScrollView>(null);
+  const tabPositions = useRef<Partial<Record<RightWorkflowSidebarPage, number>>>({});
+  function revealActiveTab(page: RightWorkflowSidebarPage): void {
+    const x = tabPositions.current[page];
+    if (compact && open && x !== undefined) {
+      tabScrollRef.current?.scrollTo({ x: Math.max(0, x - 10), animated: false });
+    }
+  }
+  useEffect(() => {
+    if (open && activePage === "purpose" && purposeRejectionSequence !== null) {
+      scrollRef.current?.scrollTo({ y: 0, animated: false });
+    }
+  }, [activePage, open, purposeRejectionSequence]);
+  useEffect(() => {
+    revealActiveTab(activePage);
+  }, [activePage, compact, open]);
   const activePageLabel = pages.find((page) => page.id === activePage)?.shortLabel ?? "MAP";
+  const tabs = pages.map((page) => (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected: activePage === page.id }}
+      aria-selected={activePage === page.id}
+      key={page.id}
+      onLayout={(event) => {
+        tabPositions.current[page.id] = event.nativeEvent.layout.x;
+        if (page.id === activePage) revealActiveTab(page.id);
+      }}
+      onPress={() => onPageChange(page.id)}
+      style={[styles.inspectorTab, activePage === page.id && styles.inspectorTabActive]}
+      testID={`workflow-sidebar-tab-${page.id}`}
+    >
+      <Text style={[styles.inspectorTabText, activePage === page.id && styles.inspectorTabTextActive]}>
+        {page.count && page.count > 0 ? `${page.label} ${page.count}` : page.label}
+      </Text>
+    </Pressable>
+  ));
   return (
     <View style={[
       styles.inspectorDrawer,
       compact && styles.inspectorDrawerCompact,
+      compact && open && styles.inspectorDrawerCompactOpen,
       !open && styles.inspectorDrawerCollapsed,
       compact && !open && styles.inspectorDrawerCollapsedCompact,
     ]} testID="right-workflow-sidebar">
@@ -6387,24 +6622,14 @@ function RightWorkflowSidebar({
       ) : null}
       {open ? (
         <View style={styles.inspectorDrawerBody} testID="inspector-drawer">
-          <View style={styles.inspectorTabs} testID="workflow-sidebar-tabs">
-            {pages.map((page) => (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityState={{ selected: activePage === page.id }}
-                aria-selected={activePage === page.id}
-                key={page.id}
-                onPress={() => onPageChange(page.id)}
-                style={[styles.inspectorTab, activePage === page.id && styles.inspectorTabActive]}
-                testID={`workflow-sidebar-tab-${page.id}`}
-              >
-                <Text style={[styles.inspectorTabText, activePage === page.id && styles.inspectorTabTextActive]}>
-                  {page.count && page.count > 0 ? `${page.label} ${page.count}` : page.label}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-          <ScrollView style={styles.inspectorScroll} contentContainerStyle={styles.inspectorContent} testID="inspector-scroll">
+          {compact ? (
+            <ScrollView horizontal ref={tabScrollRef} showsHorizontalScrollIndicator={false} style={styles.inspectorTabScroll}
+              onContentSizeChange={() => revealActiveTab(activePage)}
+              contentContainerStyle={[styles.inspectorTabs, styles.inspectorTabsCompact]} testID="workflow-sidebar-tabs">
+              {tabs}
+            </ScrollView>
+          ) : <View style={styles.inspectorTabs} testID="workflow-sidebar-tabs">{tabs}</View>}
+          <ScrollView ref={scrollRef} style={styles.inspectorScroll} contentContainerStyle={styles.inspectorContent} testID="inspector-scroll">
             {children}
           </ScrollView>
         </View>
@@ -6417,6 +6642,7 @@ function ProjectTreeRail({
   activeContext,
   activeView,
   catalog,
+  designCatalog,
   compact,
   consoleMode,
   drawerOpen,
@@ -6445,6 +6671,7 @@ function ProjectTreeRail({
   };
   activeView: WorkspaceView;
   catalog: ProjectWorkspaceStatus["catalog"];
+  designCatalog: ProjectWorkspaceStatus["designCatalog"];
   compact: boolean;
   consoleMode: boolean;
   drawerOpen: boolean;
@@ -6465,7 +6692,7 @@ function ProjectTreeRail({
   onSelectProject: (projectId: string) => void;
   onToggleDrawer: () => void;
 }): React.JSX.Element {
-  const tree = buildProjectTreeViewModel(catalog, activeContext);
+  const tree = buildProjectTreeViewModel(designCatalog ?? catalog, activeContext);
   const navCollapsed = consoleMode && !drawerOpen;
   const primaryRailItems = menuDefinition.railItems.filter((item) => item.section === "primary");
   const secondaryRailItems = menuDefinition.railItems.filter((item) => item.section === "secondary");
@@ -6638,7 +6865,8 @@ function ProjectTreeRail({
                                   onSelect={() => onSelectFieldMap(fieldMap.id)}
                                   testID={`catalog-field-map-${fieldMap.id}`}
                                 />
-                                {fieldMap.designs.length > 0 ? <Text style={styles.projectTreeSectionLabel}>Design Files</Text> : null}
+                                {fieldMap.designs.length > 0
+                                  ? <Text style={styles.projectTreeSectionLabel}>Design Files</Text> : null}
                                 {fieldMap.designs.map((design) => (
                                 <ProjectTreeNode
                                   active={activeContext.designId === design.id}
@@ -6696,34 +6924,36 @@ function ProjectTreeNode({
   onSelect: () => void;
   testID: string;
 }): React.JSX.Element {
+  const [openHovered, setOpenHovered] = useState(false);
   return (
-    <Pressable
-      accessibilityLabel={label}
-      accessibilityRole="button"
-      accessibilityState={{ selected: active }}
-      aria-selected={active}
-      onPress={onSelect}
-      style={[styles.projectTreeNode, active && styles.projectTreeNodeActive, { paddingLeft: 8 + depth * 12 }]}
-      testID={testID}
-      {...webDoubleClickProps(onOpen)}
-    >
-      {icon}
-      <View style={styles.projectTreeNodeText}>
-        <Text style={[styles.projectTreeNodeLabel, active && styles.projectTreeNodeLabelActive]} numberOfLines={1}>{label}</Text>
-        <Text style={styles.projectTreeNodeMeta} numberOfLines={1}>{meta}</Text>
-      </View>
-    </Pressable>
+    <View style={styles.projectTreeNodeRow}>
+      <Pressable
+        accessibilityLabel={label}
+        accessibilityRole="button"
+        accessibilityState={{ selected: active }}
+        aria-selected={active}
+        onPress={(event) => {
+          const detail = Platform.OS === "web" ? (event.nativeEvent as unknown as { detail?: number }).detail : undefined;
+          if (detail === 2) void onOpen();
+          else onSelect();
+        }}
+        style={[styles.projectTreeNode, styles.projectTreeNodeSelect, active && styles.projectTreeNodeActive, { paddingLeft: 8 + depth * 12 }]}
+        testID={testID}
+      >
+        {icon}
+        <View style={styles.projectTreeNodeText}>
+          <Text style={[styles.projectTreeNodeLabel, active && styles.projectTreeNodeLabelActive]} numberOfLines={1}>{label}</Text>
+          <Text style={styles.projectTreeNodeMeta} numberOfLines={1}>{meta}</Text>
+        </View>
+      </Pressable>
+      <Pressable accessibilityRole="button" accessibilityLabel={`Open ${["client", "project folder", "field map", "design"][depth]} ${label} in project tree`} testID={`${testID}-open`}
+        onPress={() => void onOpen()} onHoverIn={() => setOpenHovered(true)} onHoverOut={() => setOpenHovered(false)}
+        style={styles.projectTreeNodeOpen}>
+        <FolderOpen size={17} color="#e5f0e8" />
+        {openHovered && <View pointerEvents="none" style={styles.projectTreeOpenTooltip}><Text style={styles.projectTreeNodeLabel}>Open</Text></View>}
+      </Pressable>
+    </View>
   );
-}
-
-function webDoubleClickProps(onDoubleClick: () => void | Promise<void>): Record<string, unknown> {
-  if (Platform.OS !== "web") return {};
-  return {
-    onDoubleClick: (event: React.MouseEvent) => {
-      event.preventDefault();
-      void onDoubleClick();
-    },
-  };
 }
 
 function RailButton({ active, collapsed = false, icon, label, onPress, testID }: { active: boolean; collapsed?: boolean; icon: React.ReactNode; label: string; onPress: () => void; testID?: string }): React.JSX.Element {
@@ -6769,11 +6999,15 @@ function SmallActionButton({
 
 function PendingDraftPurposePanel({
   draft,
+  projectCrs,
+  error,
   onCancel,
   onSave,
   unitSystem,
 }: {
   draft: PendingMapFeatureDraft | null;
+  projectCrs: string;
+  error: string | null;
   onCancel: () => void;
   onSave: (option: MapDraftPurposeOption) => void;
   unitSystem: PivotProject["unitSystem"];
@@ -6788,10 +7022,11 @@ function PendingDraftPurposePanel({
   }
   const options = draftPurposeOptions(draft.geometryType);
   return (
-    <View style={styles.mapFeatureEditor} testID="pending-draft-purpose-panel">
+    <View style={styles.pendingDraftPurposePanel} testID="pending-draft-purpose-panel">
+      {error ? <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.formError} testID="pending-draft-error">{error}</Text> : null}
       <View>
         <Text style={styles.mapFeatureTitle}>What did you draw?</Text>
-        <Text style={styles.mapFeatureMeta}>{draftGeometrySummary(draft, unitSystem)}</Text>
+        <Text style={styles.mapFeatureMeta}>{draftGeometrySummary(draft, unitSystem, projectCrs)}</Text>
         {draft.notes ? <Text style={styles.mapFeatureMeta}>{draft.notes}</Text> : null}
       </View>
       <View style={styles.consoleChoiceGrid}>
@@ -6820,9 +7055,10 @@ function draftPurposeOptions(geometry: UtilityFeatureGeometry): MapDraftPurposeO
   if (geometry !== "Polygon") return mapFeatureOptions;
   return [
     { purposeType: "field_boundary", kind: "field_boundary", label: "Field Boundary", geometry: "Polygon", meta: "Replace the active projected-XY field boundary through reducer validation." },
+    { purposeType: "map_feature", kind: "measurement_area", label: "Measurement Area", geometry: "Polygon", meta: mapFeaturePurposeMeta("measurement_area") },
     { purposeType: "map_feature", kind: "planning_boundary", label: "Planning Boundary", geometry: "Polygon", meta: mapFeaturePurposeMeta("planning_boundary") },
     { purposeType: "map_feature", kind: "machine_zone", label: "Machine Zone", geometry: "Polygon", meta: mapFeaturePurposeMeta("machine_zone") },
-    { purposeType: "obstacle", kind: "exclusion", label: "Obstacle / No-Spray", geometry: "Polygon", meta: "Commit a no-spray obstacle polygon with projected-XY vertices." },
+    { purposeType: "obstacle", kind: "exclusion", label: "Keep-Out / No-Spray", geometry: "Polygon", meta: "Excluded area" },
     { purposeType: "obstacle", kind: "building", label: "Building", geometry: "Polygon", meta: "Commit a building obstacle footprint for layout review." },
     { purposeType: "map_feature", kind: "corner_swing_limit", label: "Corner-Arm Footprint", geometry: "Polygon", meta: mapFeaturePurposeMeta("corner_swing_limit") },
   ];
@@ -6830,6 +7066,7 @@ function draftPurposeOptions(geometry: UtilityFeatureGeometry): MapDraftPurposeO
 
 function mapFeaturePurposeMeta(kind: ProjectMapFeatureKind): string {
   switch (kind) {
+    case "measurement_area": return "Area measurement; does not constrain irrigation coverage.";
     case "pump_location":
       return "Site utility evidence point; not hydraulic certification.";
     case "well_location":
@@ -6871,17 +7108,8 @@ function mapFeaturePurposeMeta(kind: ProjectMapFeatureKind): string {
   }
 }
 
-function draftGeometrySummary(draft: PendingMapFeatureDraft, unitSystem: PivotProject["unitSystem"]): string {
-  if (draft.geometryType === "Point") return "Point · 1 projected XY vertex";
-  if (draft.geometryType === "LineString") return `Line · ${draft.vertices.length} vertices · ${formatDistance(polylineLengthMeters(draft.vertices), unitSystem)}`;
-  if (draft.geometryType === "Polygon") return `Polygon · ${draft.vertices.length} vertices`;
-  const [center, radiusPoint] = draft.vertices;
-  const radiusMeters = center && radiusPoint ? Math.hypot(radiusPoint.x - center.x, radiusPoint.y - center.y) : 0;
-  return `Circle · ${formatDistance(radiusMeters, unitSystem)} radius`;
-}
-
-function polylineLengthMeters(vertices: XY[]): number {
-  return vertices.slice(1).reduce((sum, vertex, index) => sum + Math.hypot(vertex.x - vertices[index].x, vertex.y - vertices[index].y), 0);
+function draftGeometrySummary(draft: PendingMapFeatureDraft, unitSystem: PivotProject["unitSystem"], projectCrs: string): string {
+  return `${draft.geometryType.replace("String", "")} · ${draft.vertices.length} projected XY vertices ${draftMeasurementText(draft.geometryType, draft.vertices, projectCrs, unitSystem)}`.trim();
 }
 
 function MapFeatureEditor({
@@ -7358,6 +7586,10 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingHorizontal: 10,
   },
+  workspaceTopToolbarShortLandscape: {
+    height: 44,
+    paddingVertical: 0,
+  },
   workspaceBreadcrumb: {
     flex: 1,
     minWidth: 0,
@@ -7552,6 +7784,10 @@ const styles = StyleSheet.create({
     paddingTop: 5,
     textTransform: "uppercase",
   },
+  projectTreeNodeRow: { flexDirection: "row", alignItems: "center" },
+  projectTreeNodeSelect: { flex: 1, minWidth: 0 },
+  projectTreeNodeOpen: { width: 36, height: 42, alignItems: "center", justifyContent: "center", position: "relative" },
+  projectTreeOpenTooltip: { position: "absolute", bottom: "100%", right: 0, padding: 6, backgroundColor: "#243c32", borderRadius: 4, zIndex: 20 },
   projectTreeNode: {
     alignItems: "center",
     borderColor: "transparent",
@@ -7706,6 +7942,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     zIndex: 12,
   },
+  workspaceBottomStatusBarShortLandscape: {
+    height: 26,
+  },
   bottomStatusScroll: {
     flex: 1,
     minWidth: 0,
@@ -7715,6 +7954,9 @@ const styles = StyleSheet.create({
     gap: 6,
     minHeight: 33,
     paddingRight: 8,
+  },
+  bottomStatusContentShortLandscape: {
+    minHeight: 25,
   },
   bottomStatusChip: {
     alignItems: "center",
@@ -7796,6 +8038,10 @@ const styles = StyleSheet.create({
     gap: 8,
     padding: 8,
   },
+  consoleShellShortLandscape: {
+    gap: 4,
+    padding: 2,
+  },
   consoleShellRightCollapsed: {
     gap: 8,
   },
@@ -7849,8 +8095,17 @@ const styles = StyleSheet.create({
   },
   inspectorDrawerCompact: {
     flexDirection: "column",
-    height: "36%",
     width: "100%",
+  },
+  inspectorDrawerCompactOpen: {
+    bottom: 8,
+    height: "42%",
+    left: 8,
+    maxHeight: 320,
+    position: "absolute",
+    right: 8,
+    width: "auto",
+    zIndex: 10,
   },
   inspectorDrawerCollapsedCompact: {
     height: 52,
@@ -7899,6 +8154,13 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 6,
     padding: 10,
+  },
+  inspectorTabScroll: {
+    flexGrow: 0,
+    flexShrink: 0,
+  },
+  inspectorTabsCompact: {
+    flexWrap: "nowrap",
   },
   inspectorTab: {
     backgroundColor: "#eef4ef",
@@ -8218,6 +8480,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 10,
     padding: 12,
+  },
+  pendingDraftPurposePanel: {
+    gap: 10,
   },
   consoleModalBackdrop: {
     alignItems: "center",

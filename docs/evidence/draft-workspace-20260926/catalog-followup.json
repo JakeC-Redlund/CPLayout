@@ -1,0 +1,879 @@
+{
+  "config": {
+    "configFile": "/mnt/h/cplayout/playwright.config.ts",
+    "rootDir": "/mnt/h/cplayout/tests/web",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 3,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/tmp/cplayout-draft-catalog-followup",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/mnt/h/cplayout/tests/web",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/tmp/cplayout-draft-catalog-followup",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "tablet-768",
+        "name": "tablet-768",
+        "testDir": "/mnt/h/cplayout/tests/web",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/tmp/cplayout-draft-catalog-followup",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-390",
+        "name": "mobile-390",
+        "testDir": "/mnt/h/cplayout/tests/web",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npx tsx tools/serveStaticWeb.ts apps/mobile/dist 19006",
+      "reuseExistingServer": true,
+      "timeout": 120000,
+      "url": "http://127.0.0.1:19006/__cplayout_static_health"
+    }
+  },
+  "suites": [
+    {
+      "title": "browser-workflow.spec.ts",
+      "file": "browser-workflow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "catalog blank design starts empty and requires explicit coordinates before drawing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5108,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:47:33.910Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "31dbe23a2b97ff677fcb-3d4a2298a3a741ab824b",
+          "file": "browser-workflow.spec.ts",
+          "line": 320,
+          "column": 5
+        },
+        {
+          "title": "map-first catalog tree creates client projects and field maps without hidden sample designs",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7938,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:47:39.226Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "31dbe23a2b97ff677fcb-ae9c89f1cfa7791cc6b5",
+          "file": "browser-workflow.spec.ts",
+          "line": 378,
+          "column": 5
+        },
+        {
+          "title": "client detail manages profile and contained project lifecycle",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5252,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:47:47.179Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "31dbe23a2b97ff677fcb-3625f5243130a0862b55",
+          "file": "browser-workflow.spec.ts",
+          "line": 497,
+          "column": 5
+        },
+        {
+          "title": "catalog blank design starts empty and requires explicit coordinates before drawing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5175,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:48:08.161Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "31dbe23a2b97ff677fcb-30a2081c9295b85c462a",
+          "file": "browser-workflow.spec.ts",
+          "line": 320,
+          "column": 5
+        },
+        {
+          "title": "map-first catalog tree creates client projects and field maps without hidden sample designs",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8789,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:48:13.538Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "31dbe23a2b97ff677fcb-2d70fcf13a3e15753e42",
+          "file": "browser-workflow.spec.ts",
+          "line": 378,
+          "column": 5
+        },
+        {
+          "title": "client detail manages profile and contained project lifecycle",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4809,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:48:22.344Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "31dbe23a2b97ff677fcb-e710bf1f07184728be73",
+          "file": "browser-workflow.spec.ts",
+          "line": 497,
+          "column": 5
+        },
+        {
+          "title": "catalog blank design starts empty and requires explicit coordinates before drawing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5245,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:48:41.570Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "31dbe23a2b97ff677fcb-2d345c1dd55c2b9e75bd",
+          "file": "browser-workflow.spec.ts",
+          "line": 320,
+          "column": 5
+        },
+        {
+          "title": "map-first catalog tree creates client projects and field maps without hidden sample designs",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8396,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:48:47.039Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "31dbe23a2b97ff677fcb-938439136cfaf8ac7245",
+          "file": "browser-workflow.spec.ts",
+          "line": 378,
+          "column": 5
+        },
+        {
+          "title": "client detail manages profile and contained project lifecycle",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4464,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:48:55.449Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "31dbe23a2b97ff677fcb-9bf7f8d41829474849f3",
+          "file": "browser-workflow.spec.ts",
+          "line": 497,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "design-draft-editor.spec.ts",
+      "file": "design-draft-editor.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "late desktop draft creation failures cannot report on a newer editor",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2591,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:47:52.682Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-23f9e638143e39da818c",
+          "file": "design-draft-editor.spec.ts",
+          "line": 385,
+          "column": 5
+        },
+        {
+          "title": "late desktop draft creation failures cannot report on a newer editor",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Navigation during a pending inline form is desktop-specific.",
+                  "location": {
+                    "file": "/mnt/h/cplayout/tests/web/design-draft-editor.spec.ts",
+                    "line": 386,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 104,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:48:27.416Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Navigation during a pending inline form is desktop-specific.",
+                      "location": {
+                        "file": "/mnt/h/cplayout/tests/web/design-draft-editor.spec.ts",
+                        "line": 386,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-7a70698f31030e623515",
+          "file": "design-draft-editor.spec.ts",
+          "line": 385,
+          "column": 5
+        },
+        {
+          "title": "late desktop draft creation failures cannot report on a newer editor",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Navigation during a pending inline form is desktop-specific.",
+                  "location": {
+                    "file": "/mnt/h/cplayout/tests/web/design-draft-editor.spec.ts",
+                    "line": 386,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 162,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:49:00.160Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Navigation during a pending inline form is desktop-specific.",
+                      "location": {
+                        "file": "/mnt/h/cplayout/tests/web/design-draft-editor.spec.ts",
+                        "line": 386,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-ab87f38c9dad20d2760d",
+          "file": "design-draft-editor.spec.ts",
+          "line": 385,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "draft-unit-and-saved-items.spec.ts",
+      "file": "draft-unit-and-saved-items.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "new design starts with the selected folder's stored units",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2224,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:47:55.308Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9f7400921003d95e74e5-20a14e595ee57151aeed",
+          "file": "draft-unit-and-saved-items.spec.ts",
+          "line": 65,
+          "column": 5
+        },
+        {
+          "title": "invalid folder units cannot silently inherit the open editor's units",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2391,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:47:57.542Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9f7400921003d95e74e5-7262bd25bb02bf86d3d3",
+          "file": "draft-unit-and-saved-items.spec.ts",
+          "line": 78,
+          "column": 5
+        },
+        {
+          "title": "saved features and keep-outs can be deleted, undone, saved, and reopened",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3956,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:47:59.945Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9f7400921003d95e74e5-0e4e23aeba2defc43b74",
+          "file": "draft-unit-and-saved-items.spec.ts",
+          "line": 86,
+          "column": 5
+        },
+        {
+          "title": "new design starts with the selected folder's stored units",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2505,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:48:27.565Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9f7400921003d95e74e5-102e8eea323f9b52296a",
+          "file": "draft-unit-and-saved-items.spec.ts",
+          "line": 65,
+          "column": 5
+        },
+        {
+          "title": "invalid folder units cannot silently inherit the open editor's units",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2340,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:48:30.081Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9f7400921003d95e74e5-1b1f11f430c8d842ae47",
+          "file": "draft-unit-and-saved-items.spec.ts",
+          "line": 78,
+          "column": 5
+        },
+        {
+          "title": "saved features and keep-outs can be deleted, undone, saved, and reopened",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4492,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:48:32.431Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9f7400921003d95e74e5-163e25c7d734d090ac66",
+          "file": "draft-unit-and-saved-items.spec.ts",
+          "line": 86,
+          "column": 5
+        },
+        {
+          "title": "new design starts with the selected folder's stored units",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2200,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:49:00.352Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9f7400921003d95e74e5-a3c5434cc7854de92a97",
+          "file": "draft-unit-and-saved-items.spec.ts",
+          "line": 65,
+          "column": 5
+        },
+        {
+          "title": "invalid folder units cannot silently inherit the open editor's units",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2290,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:49:02.563Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9f7400921003d95e74e5-ae110120cc1c7acb0fda",
+          "file": "draft-unit-and-saved-items.spec.ts",
+          "line": 78,
+          "column": 5
+        },
+        {
+          "title": "saved features and keep-outs can be deleted, undone, saved, and reopened",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4170,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:49:04.867Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9f7400921003d95e74e5-5cd50008d3d832e56130",
+          "file": "draft-unit-and-saved-items.spec.ts",
+          "line": 86,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-26T23:47:27.045Z",
+    "duration": 99735.889,
+    "expected": 19,
+    "skipped": 2,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

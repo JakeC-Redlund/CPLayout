@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { unzipSync } from "fflate";
+import test from "node:test";
+import { strToU8, unzipSync, Zip, ZipDeflate, ZipPassThrough, zipSync } from "fflate";
 
 import { evaluateLayout, exportScenarioGeoJson, validateCenterPivotProofGeometry } from "@cplayout/geometry";
 import {
@@ -19,8 +20,10 @@ import {
   mapPackagesToCsv,
   metricsToCsv,
   surveyPointsToCsv,
+  type ProjectArchiveBundle,
 } from "./projectArchive";
-import { parseProjectDocument, qualifyProjectCrs, realCenterPivotProofProject, sampleProject, willRheaJasonHarmelinkExampleProject, type PivotProject } from "@cplayout/core";
+import { defaultAppSettings, GnssCaptureEvidenceV2Schema, parseProjectDocument, qualifyProjectCrs, realCenterPivotProofProject, sampleProject, willRheaJasonHarmelinkExampleProject, type PivotProject } from "@cplayout/core";
+import { assertNoStrippedFields, parseEditableProjectDocument } from "./projectDocumentEditing";
 
 for (const projectCrs of ["EPSG:26741", "LOCAL:FIELD", "EPSG:3857", "EPSG:26913", " epsg : 26741 "]) {
   const project: PivotProject = {
@@ -53,6 +56,13 @@ assert.throws(() => buildProjectRecoveryArchiveBundle({ ...sampleProject, pivotC
 
 const result = evaluateLayout(sampleProject);
 const bundle = buildProjectArchiveBundle(sampleProject, result, exportScenarioGeoJson(sampleProject, result), "2026-05-19T12:00:00.000Z");
+
+test("project exporter uses a single header time even if the clock advances", context => {
+  let tick = Date.parse("2026-09-16T00:00:00Z");
+  context.mock.method(Date, "now", () => (tick += 4000));
+  const recovery = buildProjectRecoveryArchiveBundle(sampleProject);
+  assert.deepEqual(importProjectArchiveZip(exportProjectArchiveZip(recovery)), parseProjectDocument(JSON.stringify(sampleProject)));
+});
 
 assert.ok(bundle.files[PROJECT_MANIFEST_FILENAME].includes("center-pivot-project-archive-v1"));
 assert.ok(bundle.files[PROJECT_JSON_FILENAME].includes(sampleProject.id));
@@ -98,6 +108,37 @@ const evidenceArchiveBundle = buildProjectArchiveBundle(
 );
 const evidenceArchiveRoundTrip = importProjectArchiveZip(exportProjectArchiveZip(evidenceArchiveBundle));
 assert.equal(evidenceArchiveRoundTrip.surveyPoints[0]?.captureEvidence?.observationId, archiveCaptureEvidence.observationId);
+
+test("project ZIP retains v2 declared references and raw quality without promoting physical qualification", () => {
+  const captureEvidence = GnssCaptureEvidenceV2Schema.parse({
+    ...archiveCaptureEvidence, schemaVersion: "gnss-capture-v2", antennaReference: "arp",
+    receiverObservedAt: "2026-08-09T12:00:00.000Z", sentenceTypes: ["GGA", "GST", "RMC"],
+    height: { meters: 1600, type: "orthometric", geoidSeparationMeters: -20 },
+    referenceDeclaration: {
+      schemaVersion: "gnss-reference-declaration-v1", provenance: "operator_declared",
+      receiverModel: "Synthetic receiver", receiverFirmware: "Synthetic firmware", referenceFrame: "WGS84",
+      realization: "Synthetic realization", coordinateEpochUtc: "2026-01-01T00:00:00.000Z",
+      verticalDatum: "Synthetic datum", geoidModel: "Synthetic geoid", antennaModel: "Synthetic antenna",
+      antennaReference: "arp", reportedPoint: "Synthetic ARP", targetPoint: "Synthetic ARP",
+      antennaHeightMeters: 1.8, offsetTreatment: "none_reported_point",
+    },
+    qualityScreen: {
+      policy: "cplayout-nmea-collection-v2", uncertaintySource: "nmea_gst_component_standard_deviations",
+      thresholds: defaultAppSettings().gpsQuality, evaluatedMonotonicMs: 1500, physicalQualification: "unverified",
+      receiverQuality: { fixType: "rtk_fixed", satellites: 18, hdop: 0.6, vdop: null, pdop: null,
+        horizontalAccuracyMeters: 0.014, verticalAccuracyMeters: 0.02, correctionAgeSeconds: 0.5, nmeaQualityCode: 4 },
+    },
+  });
+  const project: PivotProject = { ...evidenceArchiveProject, surveyPoints: [{
+    ...evidenceArchiveProject.surveyPoints[0], captureEvidence,
+    rtk: { ...captureEvidence.qualityScreen.receiverQuality, correctionAgeSeconds: 1 },
+  }] };
+  const before = JSON.stringify(project);
+  const reopened = importProjectArchiveZip(exportProjectArchiveZip(buildProjectRecoveryArchiveBundle(project)));
+  assert.deepEqual(reopened.surveyPoints, project.surveyPoints);
+  assert.equal(JSON.stringify(project), before);
+  assert.equal(reopened.surveyPoints[0].captureEvidence?.schemaVersion, "gnss-capture-v2");
+});
 
 const localOnlyDraftProject = {
   ...sampleProject,
@@ -426,7 +467,7 @@ assert.equal(imported.projectCrs, "EPSG:32613");
 assert.equal(imported.fieldBoundary.length, sampleProject.fieldBoundary.length);
 assert.equal(imported.machine.spanLengthsMeters.length, sampleProject.machine.spanLengthsMeters.length);
 
-const legacyReviewArchiveBundle = {
+const legacyReviewArchiveBundle: ProjectArchiveBundle = {
   ...bundle,
   manifest: {
     ...bundle.manifest,
@@ -581,3 +622,222 @@ assert.throws(
 );
 
 console.log("project archive tests passed");
+
+function archiveBytes(files: Record<string, string>, stored: boolean): Uint8Array {
+  return zipSync(Object.fromEntries(Object.entries(files).map(([name, text]) => [name, strToU8(text)])), { level: stored ? 0 : 6 });
+}
+
+// Walk directory records in these generated ZIP32 fixtures, never search compressed data for signatures.
+function archiveRecords(bytes: Uint8Array) {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const end = bytes.length - 22;
+  assert.equal(view.getUint32(end, true), 0x06054b50);
+  let central = view.getUint32(end + 16, true);
+  const records = [];
+  for (let index = 0; index < view.getUint16(end + 10, true); index++) {
+    assert.equal(view.getUint32(central, true), 0x02014b50);
+    const local = view.getUint32(central + 42, true);
+    assert.equal(view.getUint32(local, true), 0x04034b50);
+    const nameLength = view.getUint16(central + 28, true);
+    const name = Buffer.from(bytes.subarray(central + 46, central + 46 + nameLength)).toString("utf8");
+    const dataStart = local + 30 + view.getUint16(local + 26, true) + view.getUint16(local + 28, true);
+    records.push({ name, local, central, dataStart });
+    central += 46 + nameLength + view.getUint16(central + 30, true) + view.getUint16(central + 32, true);
+  }
+  return records;
+}
+
+function rejectsArchiveUnchanged(bytes: Uint8Array, message: RegExp): void {
+  const before = bytes.slice();
+  assert.throws(() => importProjectArchiveZip(bytes), message);
+  assert.deepEqual(bytes, before);
+}
+
+test("editable archive admission rejects unknown wrapper, project and deeply nested fields without changing bytes", () => {
+  const recovery = buildProjectRecoveryArchiveBundle(evidenceArchiveProject);
+  for (const mutate of [
+    (raw: any) => { raw.futureWrapper = { retained: true }; },
+    (raw: any) => { raw.project.futureProject = { retained: true }; },
+    (raw: any) => { raw.project.machine.futureMachine = { retained: true }; },
+    (raw: any) => { raw.project.fieldBoundary[0].futureCoordinate = true; },
+    (raw: any) => { raw.project.surveyPoints[0].captureEvidence.futureEvidence = true; },
+    (raw: any) => { raw.project.wgs84Companion.futureCompanion = true; },
+  ]) {
+    const raw = JSON.parse(recovery.files[PROJECT_JSON_FILENAME]);
+    mutate(raw);
+    const document = JSON.stringify(raw);
+    // Legacy reading remains available; only editable admission refuses lossy normalization.
+    assert.doesNotThrow(() => parseProjectDocument(document));
+    assert.throws(() => parseEditableProjectDocument(document), /unsupported fields/);
+    for (const stored of [false, true]) {
+      rejectsArchiveUnchanged(archiveBytes({ ...recovery.files, [PROJECT_JSON_FILENAME]: document }, stored), /unsupported fields/);
+    }
+  }
+});
+
+test("editable archive admission rejects duplicate keys and explicit future versions before normalization", () => {
+  const recovery = buildProjectRecoveryArchiveBundle(sampleProject);
+  const project = JSON.stringify(sampleProject);
+  const documents: Array<[string, RegExp]> = [
+    [`{"documentVersion":"pivot-project-v1","project":${project},"project":${project}}`, /Duplicate JSON/],
+    [`{"documentVersion":"pivot-project-v1","project":${project},"pro\\u006aect":${project}}`, /Duplicate JSON/],
+    ['{"project":{"pivotCenter":{"x":1,"x":2,"y":3}}}', /Duplicate JSON/],
+    [JSON.stringify({ documentVersion: "pivot-project-v99", project: sampleProject }), /version is unsupported/],
+    [JSON.stringify({ ...sampleProject, documentVersion: "pivot-project-v99" }), /version is unsupported/],
+    [JSON.stringify({ ...sampleProject, documentVersion: null }), /version is unsupported/],
+  ];
+  for (const [document, error] of documents) {
+    assert.throws(() => parseEditableProjectDocument(document), error);
+    rejectsArchiveUnchanged(archiveBytes({ ...recovery.files, [PROJECT_JSON_FILENAME]: document }, true), error);
+  }
+});
+
+test("archive manifest rejects repeated and escaped duplicate identities before schema admission", () => {
+  const recovery = buildProjectRecoveryArchiveBundle(sampleProject);
+  const manifest = recovery.files[PROJECT_MANIFEST_FILENAME];
+  for (const key of ["projectId", "project\\u0049d"]) {
+    const duplicate = `{${JSON.stringify(key).replace("\\\\u", "\\u")}:"ambiguous",${manifest.slice(1)}`;
+    for (const stored of [false, true]) {
+      rejectsArchiveUnchanged(archiveBytes({ ...recovery.files, [PROJECT_MANIFEST_FILENAME]: duplicate }, stored), /Duplicate JSON/);
+    }
+  }
+  const extended = JSON.stringify({ ...JSON.parse(manifest), producerNote: "Passive manifest metadata" });
+  assert.deepEqual(importProjectArchiveZip(archiveBytes({ ...recovery.files, [PROJECT_MANIFEST_FILENAME]: extended }, true)),
+    parseProjectDocument(recovery.files[PROJECT_JSON_FILENAME]));
+});
+
+test("editable archive admission preserves legacy bare projects, v1 evidence and schema defaults", () => {
+  const recovery = buildProjectRecoveryArchiveBundle(evidenceArchiveProject);
+  const bare = JSON.parse(recovery.files[PROJECT_JSON_FILENAME]).project;
+  delete bare.mapFeatures;
+  delete bare.wgs84Companion;
+  for (const source of [bare, { documentVersion: "pivot-project-v1", project: bare }]) {
+    const document = JSON.stringify(source);
+    const original = structuredClone(source);
+    const parsed = parseEditableProjectDocument(document);
+    assert.deepEqual(parsed, parseProjectDocument(document));
+    assert.deepEqual(parsed.mapFeatures, []);
+    assert.deepEqual(parsed.surveyPoints, evidenceArchiveProject.surveyPoints);
+    for (const stored of [false, true]) {
+      const bytes = archiveBytes({ ...recovery.files, [PROJECT_JSON_FILENAME]: document }, stored);
+      const before = bytes.slice();
+      assert.deepEqual(importProjectArchiveZip(bytes), parsed);
+      assert.deepEqual(bytes, before);
+    }
+    parsed.surveyPoints[0].captureEvidence!.sentenceTypes.push("SYNTHETIC");
+    assert.deepEqual(source, original);
+    assert.equal(JSON.stringify(source), document);
+  }
+});
+
+test("editable admission compares known companion fields before deriving them", () => {
+  const source = { ...sampleProject, wgs84Companion: {
+    status: "unavailable", source: "derived_from_project_xy", coordinateSystem: "decimal_degrees",
+    projectCrs: sampleProject.projectCrs, error: "Synthetic old transform failure",
+  } };
+  const document = JSON.stringify(source);
+  assert.deepEqual(parseEditableProjectDocument(document), parseProjectDocument(document));
+});
+
+test("editable parser and field-retention checks do not invoke input hooks or accessors", () => {
+  let calls = 0;
+  const unsafe = { toString() { calls++; throw new Error("Hook executed"); }, toJSON() { calls++; throw new Error("Hook executed"); } };
+  assert.throws(() => parseEditableProjectDocument(unsafe as unknown as string), /JSON document string/);
+  const getter = Object.defineProperty({}, "name", { enumerable: true, get() { calls++; throw new Error("Getter executed"); } });
+  assert.throws(() => assertNoStrippedFields(getter, { name: "Synthetic" }), /discarded/);
+  assert.throws(() => assertNoStrippedFields({ name: "Synthetic" }, getter), /discarded/);
+  const cyclic: Record<string, unknown> = {};
+  cyclic.self = cyclic;
+  assert.throws(() => assertNoStrippedFields(cyclic, cyclic), /discarded/);
+  assert.equal(calls, 0);
+});
+
+test("project recovery rejects a changed XY byte with stale CRC instead of importing changed geometry", () => {
+  const project = structuredClone(sampleProject);
+  project.fieldBoundary[0].x = 123456;
+  const recovery = buildProjectRecoveryArchiveBundle(project);
+  const bytes = archiveBytes(recovery.files, true);
+  assert.deepEqual(importProjectArchiveZip(bytes), parseProjectDocument(recovery.files[PROJECT_JSON_FILENAME]));
+  const record = archiveRecords(bytes).find((entry) => entry.name === PROJECT_JSON_FILENAME)!;
+  const offset = Buffer.from(bytes).indexOf("123456", record.dataStart);
+  assert.ok(offset >= record.dataStart);
+  bytes[offset + 5] = "7".charCodeAt(0);
+  rejectsArchiveUnchanged(bytes, /CRC-32 mismatch: project\.json/);
+});
+
+test("project import checks actual CRC for every required, export and ignored legacy entry", () => {
+  for (const stored of [false, true]) {
+    const original = archiveBytes(legacyReviewArchiveBundle.files, stored);
+    assert.deepEqual(importProjectArchiveZip(original), imported);
+    for (const record of archiveRecords(original)) {
+      const bytes = original.slice();
+      const view = new DataView(bytes.buffer);
+      const forgedCrc = (view.getUint32(record.central + 16, true) ^ 1) >>> 0;
+      view.setUint32(record.central + 16, forgedCrc, true);
+      view.setUint32(record.local + 14, forgedCrc, true);
+      rejectsArchiveUnchanged(bytes, /CRC-32 mismatch/);
+    }
+  }
+});
+
+test("project import rejects lossy UTF-8 even when its ZIP checksums are valid", () => {
+  const project = { ...sampleProject, name: "Synthetic UTF8 control" };
+  const recovery = buildProjectRecoveryArchiveBundle(project);
+  for (const stored of [false, true]) {
+    assert.equal(importProjectArchiveZip(archiveBytes(recovery.files, stored)).name, project.name);
+    for (const invalid of [[0xff], [0x80], [0xc0, 0xaf], [0xed, 0xa0, 0x80], [0xf4, 0x90, 0x80, 0x80]]) {
+      const entries = Object.fromEntries(Object.entries(recovery.files).map(([name, contents]) => {
+        const payload = strToU8(contents);
+        const offset = Buffer.from(payload).indexOf("Synthetic");
+        assert.ok(offset >= 0);
+        payload.set(invalid, offset);
+        return [name, payload];
+      }));
+      rejectsArchiveUnchanged(zipSync(entries, { level: stored ? 0 : 6 }), /invalid UTF-8/);
+    }
+  }
+});
+
+test("project import rejects encrypted flags and inconsistent local metadata", () => {
+  for (const stored of [false, true]) {
+    const original = archiveBytes(bundle.files, stored);
+    assert.deepEqual(importProjectArchiveZip(original), imported);
+    const record = archiveRecords(original).find((entry) => entry.name === PROJECT_JSON_FILENAME)!;
+    const encrypted = original.slice();
+    const view = new DataView(encrypted.buffer);
+    view.setUint16(record.central + 8, view.getUint16(record.central + 8, true) | 1, true);
+    view.setUint16(record.local + 6, view.getUint16(record.local + 6, true) | 1, true);
+    rejectsArchiveUnchanged(encrypted, /flags or encryption/);
+    const inconsistent = original.slice();
+    new DataView(inconsistent.buffer).setUint16(record.local + 6, 1, true);
+    rejectsArchiveUnchanged(inconsistent, /local metadata mismatch/);
+  }
+});
+
+test("streamed project and recovery archives preserve geometry and exact byte-view bounds", context => {
+  let tick = Date.UTC(2026, 8, 25, 12);
+  context.mock.method(Date, "now", () => (tick += 4000));
+  for (const archive of [bundle, buildProjectRecoveryArchiveBundle(sampleProject), legacyReviewArchiveBundle]) {
+    for (const stored of [false, true]) {
+      const chunks: Uint8Array[] = [];
+      const zip = new Zip((error, data) => { if (error) throw error; chunks.push(data); });
+      const mtime = new Date(Date.now());
+      for (const [name, contents] of Object.entries(archive.files)) {
+        const file = stored ? new ZipPassThrough(name) : new ZipDeflate(name);
+        file.mtime = mtime;
+        zip.add(file);
+        const data = strToU8(contents);
+        file.push(data.subarray(0, 13));
+        file.push(data.subarray(13), true);
+      }
+      zip.end();
+      const bytes = new Uint8Array(Buffer.concat(chunks));
+      const padded = new Uint8Array(bytes.length + 11);
+      padded.set(bytes, 5);
+      const exactView = padded.subarray(5, 5 + bytes.length);
+      const before = padded.slice();
+      assert.deepEqual(importProjectArchiveZip(exactView), parseProjectDocument(archive.files[PROJECT_JSON_FILENAME]));
+      assert.deepEqual(padded, before);
+    }
+  }
+});

@@ -1,0 +1,183 @@
+{
+  "config": {
+    "configFile": "/mnt/h/cplayout/playwright.config.ts",
+    "rootDir": "/mnt/h/cplayout/tests/web",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/tmp/cplayout-draft-tooltip-before",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/mnt/h/cplayout/tests/web",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/tmp/cplayout-draft-tooltip-before",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "tablet-768",
+        "name": "tablet-768",
+        "testDir": "/mnt/h/cplayout/tests/web",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/tmp/cplayout-draft-tooltip-before",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-390",
+        "name": "mobile-390",
+        "testDir": "/mnt/h/cplayout/tests/web",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npx tsx tools/serveStaticWeb.ts apps/mobile/dist 19006",
+      "reuseExistingServer": true,
+      "timeout": 120000,
+      "url": "http://127.0.0.1:19006/__cplayout_static_health"
+    }
+  },
+  "suites": [
+    {
+      "title": "design-draft-editor.spec.ts",
+      "file": "design-draft-editor.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "draft map captures polygons lines and points while camera changes preserve saved geometry",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 3102,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m1314\u001b[39m\nReceived:    \u001b[31m1355\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m1314\u001b[39m\nReceived:    \u001b[31m1355\u001b[39m\n    at /mnt/h/cplayout/tests/web/design-draft-editor.spec.ts:470:43",
+                    "location": {
+                      "file": "/mnt/h/cplayout/tests/web/design-draft-editor.spec.ts",
+                      "column": 43,
+                      "line": 470
+                    },
+                    "snippet": "  468 |   const cameraBox = (await page.getByTestId(\"design-draft-camera-controls\").boundingBox())!;\n  469 |   expect(tooltipBox.x).toBeGreaterThanOrEqual(0);\n> 470 |   expect(tooltipBox.x + tooltipBox.width).toBeLessThanOrEqual(cameraBox.x);\n      |                                           ^\n  471 |   await expect(page.getByTestId(\"draft-save-state\")).toContainText(\"Saved\");\n  472 |   expect(await readWorkspace(page)).toEqual(saved);\n  473 |   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/mnt/h/cplayout/tests/web/design-draft-editor.spec.ts",
+                        "column": 43,
+                        "line": 470
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m1314\u001b[39m\nReceived:    \u001b[31m1355\u001b[39m\n\n  468 |   const cameraBox = (await page.getByTestId(\"design-draft-camera-controls\").boundingBox())!;\n  469 |   expect(tooltipBox.x).toBeGreaterThanOrEqual(0);\n> 470 |   expect(tooltipBox.x + tooltipBox.width).toBeLessThanOrEqual(cameraBox.x);\n      |                                           ^\n  471 |   await expect(page.getByTestId(\"draft-save-state\")).toContainText(\"Saved\");\n  472 |   expect(await readWorkspace(page)).toEqual(saved);\n  473 |   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);\n    at /mnt/h/cplayout/tests/web/design-draft-editor.spec.ts:470:43"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:52:51.451Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/tmp/cplayout-draft-tooltip-before/design-draft-editor-draft--94b48-ges-preserve-saved-geometry-desktop/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/cplayout-draft-tooltip-before/design-draft-editor-draft--94b48-ges-preserve-saved-geometry-desktop/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/tmp/cplayout-draft-tooltip-before/design-draft-editor-draft--94b48-ges-preserve-saved-geometry-desktop/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/mnt/h/cplayout/tests/web/design-draft-editor.spec.ts",
+                    "column": 43,
+                    "line": 470
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-22156ffa044dbc760322",
+          "file": "design-draft-editor.spec.ts",
+          "line": 438,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-26T23:52:45.344Z",
+    "duration": 9596.668,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

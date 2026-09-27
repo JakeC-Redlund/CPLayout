@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { readWorkspace, workspaceStorageBytes } from "./workspace-fixtures";
 
 test("retained demo boundary evidence is not claimed as the active field after replacement", async ({ page, baseURL }, testInfo) => {
   await page.route("**/*", (route) => new URL(route.request().url()).origin === new URL(baseURL!).origin
@@ -40,7 +41,7 @@ test("manual pivot input consumes the complete coordinate without changing saved
   await page.getByTestId("command-file-sample-baseline-needs-review").click();
   await page.getByTestId("workspace-nav-files").click();
   await page.getByTestId("files-action-save-local").click();
-  await expect.poll(() => page.evaluate(() => localStorage.getItem("center-pivot-layout-projects-v1"))).not.toBeNull();
+  await expect.poll(async () => (await readWorkspace(page)).projectDocuments.length).toBe(1);
   await page.getByTestId("workspace-nav-map").click();
   const openInspector = page.getByRole("button", { name: /Open (map inspector|right workflow sidebar)/ });
   if (await openInspector.first().isVisible()) await openInspector.first().click();
@@ -48,21 +49,21 @@ test("manual pivot input consumes the complete coordinate without changing saved
   const transaction = page.getByTestId("manual-design-transaction");
   await transaction.getByRole("button", { name: "Pivot", exact: true }).click();
   await expect(page.getByTestId("project-save-state")).toContainText("Saved");
-  const original = await page.evaluate(() => localStorage.getItem("center-pivot-layout-projects-v1"));
-  expect(original).not.toBeNull();
+  const original = await workspaceStorageBytes(page);
+  expect((await readWorkspace(page)).projectDocuments).toHaveLength(1);
   const coordinate = transaction.getByTestId("pivot-gps-input");
   for (const invalid of ["39,-104 garbage", "-39 N,-104", "39,-104,0"]) {
     await coordinate.fill(invalid);
     await transaction.getByRole("button", { name: "Apply GPS", exact: true }).click();
     await expect(transaction.getByText(/Enter exactly one latitude|Coordinate sign conflicts/)).toBeVisible();
-    expect(await page.evaluate(() => localStorage.getItem("center-pivot-layout-projects-v1"))).toBe(original);
+    expect(await workspaceStorageBytes(page)).toEqual(original);
     await expect(page.getByTestId("project-save-state")).toContainText("Saved");
   }
   await coordinate.fill("3.9e1,-1.04e2");
   await transaction.getByRole("button", { name: "Apply GPS", exact: true }).click();
   await expect(page.getByTestId("manual-design-status")).toContainText("Projected pivot staged");
   await expect(coordinate).toHaveValue("39.0000000, -104.0000000");
-  expect(await page.evaluate(() => localStorage.getItem("center-pivot-layout-projects-v1"))).toBe(original);
+  expect(await workspaceStorageBytes(page)).toEqual(original);
   const heading = page.getByTestId("manual-design-heading");
   await heading.scrollIntoViewIfNeeded();
   const headingBox = await heading.boundingBox();

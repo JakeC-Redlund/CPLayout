@@ -432,4 +432,32 @@ assert.doesNotMatch(exportedImprovedProofLayout.kml, /<href>https?:\/\//);
 const importedImprovedProofLayout = importGoogleEarthKmlToProject(sampleProject, exportedImprovedProofLayout.kml);
 assert.equal(importedImprovedProofLayout.importedObstacleCount, improvedCenterPivotProofProject.obstacles.length);
 
+const measurementAreaFeature = {
+  id: "measurement-area", name: "Measurement area", kind: "measurement_area" as const,
+  geometry: { type: "Polygon" as const, vertices: boundaryRing }, confidence: "user_estimated" as const,
+};
+const measurementAreaExport = exportProjectGoogleEarthKml({ ...sampleProject, mapFeatures: [measurementAreaFeature] });
+assert.match(measurementAreaExport.kml, /<value>measurement_area<\/value>/);
+const measurementAreaImport = importGoogleEarthKmlToProject(sampleProject, measurementAreaExport.kml,
+  { selectedItemIds: [measurementAreaFeature.id] });
+assert.equal(measurementAreaImport.importedBoundary, false);
+assert.equal(measurementAreaImport.importedObstacleCount, 0);
+assert.equal(measurementAreaImport.importedMapFeatureCount, 1);
+assert.deepEqual(measurementAreaImport.project.fieldBoundary, sampleProject.fieldBoundary);
+assert.deepEqual(measurementAreaImport.project.obstacles, sampleProject.obstacles);
+const restoredMeasurementArea = measurementAreaImport.project.mapFeatures?.find((feature) => feature.id === measurementAreaFeature.id);
+assert.equal(restoredMeasurementArea?.kind, "measurement_area");
+assert.equal(restoredMeasurementArea?.name, "Measurement area");
+assert.equal(restoredMeasurementArea?.confidence, "user_estimated");
+assert.equal(restoredMeasurementArea?.geometry.type, "Polygon");
+if (restoredMeasurementArea?.geometry.type !== "Polygon") throw new Error("Expected a measurement-area polygon.");
+assert.equal(restoredMeasurementArea.geometry.vertices.length, boundaryRing.length);
+restoredMeasurementArea.geometry.vertices.forEach((point, index) => {
+  assert.ok(Math.abs(point.x - boundaryRing[index].x) < 0.01);
+  assert.ok(Math.abs(point.y - boundaryRing[index].y) < 0.01);
+});
+const measurementAreaItem = measurementAreaImport.items.find((item) => item.id === measurementAreaFeature.id);
+assert.equal(measurementAreaItem?.featureKind, "measurement_area");
+assert.equal(measurementAreaItem?.classification, "map_feature");
+
 console.log("project KML tests passed");

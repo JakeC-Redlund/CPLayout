@@ -20,6 +20,7 @@ interface Props {
   onUndo: () => void;
   onRedo: () => void;
   onSave: () => Promise<void>;
+  copyAction?: React.ReactNode;
   storageStatus: string;
   projects: ProjectSummary[];
   onOpenProject: (id: string) => Promise<void>;
@@ -113,6 +114,7 @@ export function ProjectCrsRecoveryPanel(props: Props): React.JSX.Element {
       </View>
       <View style={styles.toolbar}>
         <RecoveryAction label="Save project" icon={<Save size={18} color="#254234" />} disabled={busy} onPress={() => void perform(props.onSave)} testID="crs-recovery-save" />
+        {props.copyAction}
         <RecoveryAction label="Recovery ZIP" icon={<Download size={18} color="#254234" />} disabled={busy} onPress={() => void perform(exportRecovery)} testID="crs-recovery-export" />
         <RecoveryAction label="Import ZIP" icon={<Upload size={18} color="#254234" />} disabled={busy} onPress={() => void importArchive()} testID="crs-recovery-import" />
         <RecoveryAction label="Undo" icon={<Undo2 size={18} color="#254234" />} disabled={busy || !props.canUndo} onPress={() => navigate(props.onUndo)} testID="crs-recovery-undo" />

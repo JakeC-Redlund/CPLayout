@@ -86,7 +86,7 @@ export const DEFAULT_LEFT_NAV_MENU_XML = `<?xml version="1.0" encoding="UTF-8"?>
     <menu id="file" label="File" icon="folder-open" testID="command-menu-file">
       <item id="catalog" label="Catalog home" description="Return to the local project catalog map." action="open_catalog" icon="home" testID="command-file-catalog"/>
       <slot id="sample-designs" source="sample_designs"/>
-      <item id="blank" label="Start Blank Design" description="Create an unsaved projected-XY concept layout." action="start_blank_design" icon="wrench" testID="command-file-blank-design"/>
+      <item id="blank" label="Start Blank Design" description="Create an empty design draft under the selected field map." action="start_blank_design" icon="wrench" testID="command-file-blank-design"/>
       <item id="files" label="Files / GIS Exchange" description="Open ZIP, GeoJSON, KML/KMZ, CSV, and map package tools." action="open_files" icon="download" testID="command-file-files"/>
     </menu>
     <menu id="inspect" label="Inspect" icon="clipboard-list" testID="command-menu-inspect">

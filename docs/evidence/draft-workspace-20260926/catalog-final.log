@@ -1,0 +1,37 @@
+
+Running 9 tests using 1 worker
+
+[1A[2K(node:222969) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:222969) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/9] [desktop] › tests/web/browser-workflow.spec.ts:320:5 › catalog blank design starts empty and requires explicit coordinates before drawing
+[1A[2K[2/9] [desktop] › tests/web/browser-workflow.spec.ts:378:5 › map-first catalog tree creates client projects and field maps without hidden sample designs
+[1A[2K[3/9] [desktop] › tests/web/browser-workflow.spec.ts:497:5 › client detail manages profile and contained project lifecycle
+[1A[2K(node:224035) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:224035) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[4/9] [tablet-768] › tests/web/browser-workflow.spec.ts:320:5 › catalog blank design starts empty and requires explicit coordinates before drawing
+[1A[2K[5/9] [tablet-768] › tests/web/browser-workflow.spec.ts:378:5 › map-first catalog tree creates client projects and field maps without hidden sample designs
+[1A[2K[6/9] [tablet-768] › tests/web/browser-workflow.spec.ts:497:5 › client detail manages profile and contained project lifecycle
+[1A[2K(node:224960) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:224960) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[7/9] [mobile-390] › tests/web/browser-workflow.spec.ts:320:5 › catalog blank design starts empty and requires explicit coordinates before drawing
+[1A[2K[8/9] [mobile-390] › tests/web/browser-workflow.spec.ts:378:5 › map-first catalog tree creates client projects and field maps without hidden sample designs
+[1A[2K[9/9] [mobile-390] › tests/web/browser-workflow.spec.ts:497:5 › client detail manages profile and contained project lifecycle
+[1A[2K  9 passed (1.4m)

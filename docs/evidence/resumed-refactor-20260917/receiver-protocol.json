@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "cplayout-receiver-protocol-evidence-v1",
+  "recordedAt": "2026-09-17T05:26:11.529Z",
+  "head": "ec050f60bf515b5c4cbd40c3180615b5056e28b3",
+  "worktree": "dirty, preserved; no publication",
+  "rawEvidenceDirectory": "/home/cyber/cplayout-receiver-protocol-Rc6VT90x/",
+  "postflightSha256": "27358ac42d585530438eac8f35be1781b1cc2c6db3ced2c6efe0fbcdc6870ef7",
+  "source": {
+    "manifest": "source-final.json",
+    "manifestSha256": "9fc951466d0e9251fc1521d2cb6540713bc65da8692c6b984eff6138343b63aa",
+    "selectedPaths": 296,
+    "scope": "Nonignored source/test/tool TS, TSX, JS, CJS and JSON plus root package/build configs, AGENTS and generated hook context index",
+    "changedAtPostflight": [],
+    "addedAtPostflight": [],
+    "documentationUpdatesAfterFreeze": true
+  },
+  "validation": {
+    "fullSourceCommand": "npm run validate",
+    "fullSourceExit": 0,
+    "fullSourceLogSha256": "f42673d37c50d059312e5f53d24b7d72fcdfe6bacb5b1634069d643b1551fbbf",
+    "exportExit": 0,
+    "newFocusedTests": { "framing": 14, "px1122r": 10, "nsRaw": 13, "inspectionCli": 6 },
+    "skills": "passed after generated context refresh",
+    "contextMap": "passed after generated context refresh",
+    "diffCheck": "passed",
+    "fullAuditFindings": 0,
+    "productionAuditFindings": 0
+  },
+  "browser": {
+    "report": "browser-final.json",
+    "reportSha256": "1154265ec91adbb660d0a0973327ba881e26ee0faea0cc6e43ddd77b7830f42f",
+    "selection": "rtk-lifecycle.spec.ts and browser-workflow.spec.ts, grep RTK|rtk|survey|guided manual design",
+    "fullInventory": false,
+    "passed": 96,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "retries": 0,
+    "perViewport": { "desktop": 32, "tablet-768": 32, "mobile-390": 32 },
+    "durationSeconds": 192.957278,
+    "visibleWarningRegionsInspected": ["desktop", "tablet-768", "mobile-390"],
+    "horizontalOverflowAssertions": "passed",
+    "wholePanelErgonomicsProved": false
+  },
+  "build": {
+    "bundle": "index-0b5c667bdbe0925ee1c5e95922d1e85d.js",
+    "bytes": 5248548,
+    "localAndServedSha256": "390f3c9ed3ec574ba3ae0f3336ae1b9dbf090c6da10ffb181fc953b2ea9a4ad1",
+    "postflightMatch": true,
+    "preview": "http://127.0.0.1:19014",
+    "launcherOwnedPreviewRetained": true
+  },
+  "review": {
+    "subagentDecision": "required",
+    "scopes": ["PX1122R decoder worker", "NS-RAW source and decoder worker", "read-only framing and CLI reviewer", "cross-review and independent literal-byte fixture"],
+    "closedFindings": ["binary text injection", "partial-frame freshness", "post-binary corruption accounting", "truncated proprietary identity", "unsupported header classification", "outside-cwd CLI entrypoint", "byte-buffer retention through metadata extras"],
+    "preliminaryPassesAcceptFinalCandidate": false,
+    "knownUiFollowups": ["no-observation warning incorrectly also reports declaration mismatch", "compact navigation and clipped full-panel screenshots"]
+  },
+  "boundaries": {
+    "physicalQualification": "unverified",
+    "nativeTransport": "unverified",
+    "receiverFirmwareOutput": "unverified",
+    "esp8266AssemblyNetlist": "unverified",
+    "rawEpochAssociation": "not implemented",
+    "rtkSolverIntegration": "not implemented",
+    "hardwareCommandsIssued": false,
+    "newPackagesInstalled": false,
+    "gitPublished": false,
+    "fullRefactorComplete": false
+  }
+}

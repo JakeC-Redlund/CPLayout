@@ -1,0 +1,51 @@
+
+> cplayout@0.1.0 export:web
+> tsx tools/webBuildLease.ts export
+
+
+> @cplayout/mobile@0.1.0 export:web
+> tsx ../../tools/webBuildLease.ts workspace-export
+
+Prepared local MapLibre 6.9.0 worker, shared module and license.
+Expo Autolinking module resolution enabled
+Starting Metro Bundler
+
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+Web apps/mobile/index.ts ░░░░░░░░░░░░░░░░  0.0% (0/1)
+| (node:214347) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+Web apps/mobile/index.ts ░░░░░░░░░░░░░░░░  1.0% (1/1)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 70.7% ( 86/103)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 98.6% (143/144)
+| (node:214347) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (144/144)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (173/230)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% ( 174/1943)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% ( 404/2037)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% ( 723/2037)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (1072/2037)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (1421/2037)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (1751/2037)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (1968/2049)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2035/2075)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2107/2190)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2168/2283)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2302/2304)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2303/2304)
+Web apps/mobile/index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2304/2304)
+Web Bundled 79164ms apps/mobile/index.ts (2304 modules)
+
+› Assets (2):
+src/assets/google-earth-wizard/google-earth-pro-add-menu.bac99d540981c762a14137d401cd0d4b.png (21KB)
+src/assets/google-earth-wizard/google-earth-pro-main-window.60e9b38e1b0ce05d881e93978f0540c6.png (4.6MB)
+
+› web bundles (2):
+_expo/static/css/maplibre-gl-9ee142d85ebe8fc90c36b0bed2634e4f.css (83KB)
+_expo/static/js/web/index-4a9f6538b0f4bc2160404ed72697f621.js (5.4MB)
+
+› Files (2):
+index.html (1.4KB)
+metadata.json (49B)
+
+Exported: dist

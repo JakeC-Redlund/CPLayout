@@ -1,11 +1,12 @@
 import { strToU8, zipSync } from "fflate";
 import { readZipTextArchive } from "./zipTextArchive";
+import { parseEditableProjectDocument } from "./projectDocumentEditing";
+import { parseStrictJson } from "./strictJson";
 import { z } from "zod";
 
 import {
   exportProjectGoogleEarthKml,
   exportProjectMapXml,
-  parseProjectDocument,
   PROJECT_DOCUMENT_VERSION,
   serializeProjectDocument,
 } from "@cplayout/core";
@@ -130,7 +131,8 @@ export function exportProjectArchiveZip(bundle: ProjectArchiveBundle): Uint8Arra
   const files = Object.fromEntries(
     Object.entries(bundle.files).map(([path, contents]) => [path, strToU8(contents)]),
   );
-  return zipSync(files);
+  // fflate otherwise reads the clock independently for local and central headers.
+  return zipSync(files, { mtime: new Date(Date.now()) });
 }
 
 export function importProjectArchiveZip(data: Uint8Array): PivotProject {
@@ -141,12 +143,12 @@ export function importProjectArchiveZip(data: Uint8Array): PivotProject {
     allowedFilenames: new Set([...PROJECT_ARCHIVE_ALLOWED_FILENAMES, ...LEGACY_PROJECT_ARCHIVE_IGNORED_FILENAMES]),
     requiredFilenames: [PROJECT_MANIFEST_FILENAME, PROJECT_JSON_FILENAME],
   });
-  const manifest = ProjectArchiveManifestSchema.parse(JSON.parse(files.get(PROJECT_MANIFEST_FILENAME)!));
+  const manifest = ProjectArchiveManifestSchema.parse(parseStrictJson(files.get(PROJECT_MANIFEST_FILENAME)!));
   for (const requiredFile of [PROJECT_MANIFEST_FILENAME, PROJECT_JSON_FILENAME]) {
     if (!manifest.files.includes(requiredFile)) throw new Error(`Project archive manifest must list ${requiredFile}.`);
   }
   validateProjectArchiveManifestFiles(manifest, [...files.keys()]);
-  const project = parseProjectDocument(files.get(PROJECT_JSON_FILENAME)!);
+  const project = parseEditableProjectDocument(files.get(PROJECT_JSON_FILENAME)!);
   if (manifest.projectId !== project.id) throw new Error("Project archive manifest projectId does not match project.json.");
   if (manifest.projectCrs !== project.projectCrs) throw new Error("Project archive manifest projectCrs does not match project.json.");
   return project;

@@ -1,5 +1,6 @@
 import { strToU8, zipSync } from "fflate";
 import { readZipTextArchive } from "./zipTextArchive";
+import { parseStrictJson } from "./strictJson";
 import { z } from "zod";
 
 import {
@@ -66,12 +67,12 @@ export function buildDesignDraftArchiveBundle(
 export function exportDesignDraftArchiveZip(bundle: DesignDraftArchiveBundle): Uint8Array {
   const validated = BundleSchema.parse(bundle);
   const files = encodeFiles(validated.files);
-  const manifest = ManifestSchema.parse(JSON.parse(validated.files[DESIGN_DRAFT_MANIFEST_FILENAME]));
+  const manifest = ManifestSchema.parse(parseStrictJson(validated.files[DESIGN_DRAFT_MANIFEST_FILENAME]));
   if (JSON.stringify(manifest) !== JSON.stringify(validated.manifest)) {
     throw new Error("Draft archive bundle manifest does not match manifest.json.");
   }
   validateDraftIdentity(manifest, validated.files[DESIGN_DRAFT_JSON_FILENAME]);
-  const bytes = zipSync(files);
+  const bytes = zipSync(files, { mtime: new Date(Date.now()) });
   validateCompressedSize(bytes.byteLength);
   return bytes;
 }
@@ -83,12 +84,12 @@ export function importDesignDraftArchiveZip(bytes: Uint8Array): DesignDraft {
     maxEntryBytes: DESIGN_DRAFT_ARCHIVE_MAX_ENTRY_BYTES, maxUncompressedBytes: DESIGN_DRAFT_ARCHIVE_MAX_UNCOMPRESSED_BYTES,
     maxFileCount: DESIGN_DRAFT_ARCHIVE_MAX_FILE_COUNT, allowedFilenames: new Set(filenames), requiredFilenames: filenames,
   });
-  const manifest = ManifestSchema.parse(JSON.parse(extracted.get(DESIGN_DRAFT_MANIFEST_FILENAME)!));
+  const manifest = ManifestSchema.parse(parseStrictJson(extracted.get(DESIGN_DRAFT_MANIFEST_FILENAME)!));
   return validateDraftIdentity(manifest, extracted.get(DESIGN_DRAFT_JSON_FILENAME)!);
 }
 
 function validateDraftIdentity(manifest: DesignDraftArchiveManifest, document: string): DesignDraft {
-  const draft = parseDesignDraftDocument(document);
+  const draft = parseDesignDraftDocument(parseStrictJson(document));
   for (const [key, actual] of [["draftId", draft.id], ["draftName", draft.name], ["projectCrs", draft.projectCrs]] as const) {
     if (manifest[key] !== actual) throw new Error(`Draft archive manifest ${key} does not match draft.json.`);
   }

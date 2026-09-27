@@ -1,4 +1,5 @@
 import type { ProjectSettings, ReferenceOverlaySchema } from "./settings";
+import type { GnssCaptureEvidenceV2 } from "./gnssEvidence";
 
 export type UnitSystem = "metric" | "us_survey_feet";
 
@@ -70,7 +71,7 @@ export type GnssTransportKind =
   | "local_tcp"
   | "replay";
 
-export interface GnssCaptureEvidence {
+export interface GnssCaptureEvidenceV1 {
   schemaVersion: "gnss-capture-v1";
   observationId: string;
   sessionId: string;
@@ -90,6 +91,8 @@ export interface GnssCaptureEvidence {
   coherent: boolean;
   rawRecordHashes?: string[];
 }
+
+export type GnssCaptureEvidence = GnssCaptureEvidenceV1 | GnssCaptureEvidenceV2;
 
 export interface SurveyPoint {
   id: string;
@@ -287,6 +290,7 @@ export type ProjectMapFeatureKind =
   | "machine_zone"
   | "linear_move_path"
   | "measurement_line"
+  | "measurement_area"
   | "end_gun_mark"
   | "end_gun_arc"
   | "corner_swing_limit";

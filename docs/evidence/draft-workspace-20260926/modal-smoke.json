@@ -1,0 +1,1617 @@
+{
+  "config": {
+    "configFile": "/mnt/h/cplayout/playwright.config.ts",
+    "rootDir": "/mnt/h/cplayout/tests/web",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 3,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/tmp/cplayout-draft-modal-smoke",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/mnt/h/cplayout/tests/web",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/tmp/cplayout-draft-modal-smoke",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "tablet-768",
+        "name": "tablet-768",
+        "testDir": "/mnt/h/cplayout/tests/web",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/tmp/cplayout-draft-modal-smoke",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-390",
+        "name": "mobile-390",
+        "testDir": "/mnt/h/cplayout/tests/web",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npx tsx tools/serveStaticWeb.ts apps/mobile/dist 19006",
+      "reuseExistingServer": true,
+      "timeout": 120000,
+      "url": "http://127.0.0.1:19006/__cplayout_static_health"
+    }
+  },
+  "suites": [
+    {
+      "title": "design-draft-editor.spec.ts",
+      "file": "design-draft-editor.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "catalog Open supports Enter and Space without changing stored geometry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2292,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:42:53.295Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-921cfe60a3b0a52e73ba",
+          "file": "design-draft-editor.spec.ts",
+          "line": 78,
+          "column": 5
+        },
+        {
+          "title": "draft App opens missing data, saves two vertices, undoes and reopens without a sample project",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3111,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:42:55.738Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-9d582764aa25c96c7650",
+          "file": "design-draft-editor.spec.ts",
+          "line": 94,
+          "column": 5
+        },
+        {
+          "title": "draft stale tab keeps its edits and cannot overwrite a newer save",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3676,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:42:58.867Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-3ea31000f6399ec897d9",
+          "file": "design-draft-editor.spec.ts",
+          "line": 125,
+          "column": 5
+        },
+        {
+          "title": "pending invalid inputs block save and leaving requires an explicit discard",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1975,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:43:02.562Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-d61e2635e81c7075b0e4",
+          "file": "design-draft-editor.spec.ts",
+          "line": 146,
+          "column": 5
+        },
+        {
+          "title": "an in-flight draft save keeps its snapshot and leaves newer drawing inputs unsaved",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1790,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:43:05.377Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-7b6840fa90b659913dca",
+          "file": "design-draft-editor.spec.ts",
+          "line": 174,
+          "column": 5
+        },
+        {
+          "title": "draft ZIP exports supplied incomplete geometry without complete-project outputs",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1561,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:43:07.177Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-fbd2d27d0436f97daf54",
+          "file": "design-draft-editor.spec.ts",
+          "line": 206,
+          "column": 5
+        },
+        {
+          "title": "calculations require complete supplied inputs and never promote a draft to Layout",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2289,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:43:08.749Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-dcfb3c8530f3d10b077a",
+          "file": "design-draft-editor.spec.ts",
+          "line": 220,
+          "column": 5
+        },
+        {
+          "title": "opening a draft cannot silently discard a complete project's unsaved edits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3910,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:43:11.050Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-76b5e4c699d84d53f040",
+          "file": "design-draft-editor.spec.ts",
+          "line": 238,
+          "column": 5
+        },
+        {
+          "title": "canceling new draft creation preserves a saved project's revision and subsequent save",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4402,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:43:14.970Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-4d4d3841b0b662b9455c",
+          "file": "design-draft-editor.spec.ts",
+          "line": 268,
+          "column": 5
+        },
+        {
+          "title": "failed confirmed draft creation restores its name and leaves storage unchanged for retry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3114,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:43:19.385Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-2e9a5d5a9e209dcab6f1",
+          "file": "design-draft-editor.spec.ts",
+          "line": 302,
+          "column": 5
+        },
+        {
+          "title": "Undo during desktop draft creation retains the edited project and its next save",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5022,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:43:22.511Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-739f54c06f23109ed5b0",
+          "file": "design-draft-editor.spec.ts",
+          "line": 339,
+          "column": 5
+        },
+        {
+          "title": "late desktop draft creation failures cannot report on a newer editor",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1851,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:43:27.541Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-23f9e638143e39da818c",
+          "file": "design-draft-editor.spec.ts",
+          "line": 385,
+          "column": 5
+        },
+        {
+          "title": "draft map captures polygons lines and points while camera changes preserve saved geometry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3926,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:43:29.400Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-22156ffa044dbc760322",
+          "file": "design-draft-editor.spec.ts",
+          "line": 427,
+          "column": 5
+        },
+        {
+          "title": "a newer create form supersedes an older draft open waiting for storage",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2120,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:43:33.335Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-7556a16d921c3a9a17e9",
+          "file": "design-draft-editor.spec.ts",
+          "line": 459,
+          "column": 5
+        },
+        {
+          "title": "catalog Open supports Enter and Space without changing stored geometry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2977,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:43:39.738Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-5c5e0a1a987ed1e9e996",
+          "file": "design-draft-editor.spec.ts",
+          "line": 78,
+          "column": 5
+        },
+        {
+          "title": "draft App opens missing data, saves two vertices, undoes and reopens without a sample project",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4231,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:43:42.900Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-983a13646ae690b5fdd8",
+          "file": "design-draft-editor.spec.ts",
+          "line": 94,
+          "column": 5
+        },
+        {
+          "title": "draft stale tab keeps its edits and cannot overwrite a newer save",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4486,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:43:47.144Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-8228b430f67fa116ccc7",
+          "file": "design-draft-editor.spec.ts",
+          "line": 125,
+          "column": 5
+        },
+        {
+          "title": "pending invalid inputs block save and leaving requires an explicit discard",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2216,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:43:51.642Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-ca95f2e700a19cd7e201",
+          "file": "design-draft-editor.spec.ts",
+          "line": 146,
+          "column": 5
+        },
+        {
+          "title": "an in-flight draft save keeps its snapshot and leaves newer drawing inputs unsaved",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2833,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:43:53.868Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-e7d00ae8886e9f4721a4",
+          "file": "design-draft-editor.spec.ts",
+          "line": 174,
+          "column": 5
+        },
+        {
+          "title": "draft ZIP exports supplied incomplete geometry without complete-project outputs",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2112,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:43:56.710Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-94de73c0fc13293318a1",
+          "file": "design-draft-editor.spec.ts",
+          "line": 206,
+          "column": 5
+        },
+        {
+          "title": "calculations require complete supplied inputs and never promote a draft to Layout",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3031,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:43:58.839Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-0f478ebd3a5b923763e5",
+          "file": "design-draft-editor.spec.ts",
+          "line": 220,
+          "column": 5
+        },
+        {
+          "title": "opening a draft cannot silently discard a complete project's unsaved edits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4919,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:44:01.881Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-c5bea9415189039f12f5",
+          "file": "design-draft-editor.spec.ts",
+          "line": 238,
+          "column": 5
+        },
+        {
+          "title": "canceling new draft creation preserves a saved project's revision and subsequent save",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4673,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:44:06.811Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-d472fc22d876a5ee0a42",
+          "file": "design-draft-editor.spec.ts",
+          "line": 268,
+          "column": 5
+        },
+        {
+          "title": "failed confirmed draft creation restores its name and leaves storage unchanged for retry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3471,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:44:12.287Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-b868c27f8ecfe0a467cb",
+          "file": "design-draft-editor.spec.ts",
+          "line": 302,
+          "column": 5
+        },
+        {
+          "title": "Undo during desktop draft creation retains the edited project and its next save",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "This race uses the desktop inline form; compact forms are modal.",
+                  "location": {
+                    "file": "/mnt/h/cplayout/tests/web/design-draft-editor.spec.ts",
+                    "line": 340,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 111,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:44:15.773Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "This race uses the desktop inline form; compact forms are modal.",
+                      "location": {
+                        "file": "/mnt/h/cplayout/tests/web/design-draft-editor.spec.ts",
+                        "line": 340,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-e28435e65866c29466a5",
+          "file": "design-draft-editor.spec.ts",
+          "line": 339,
+          "column": 5
+        },
+        {
+          "title": "late desktop draft creation failures cannot report on a newer editor",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Navigation during a pending inline form is desktop-specific.",
+                  "location": {
+                    "file": "/mnt/h/cplayout/tests/web/design-draft-editor.spec.ts",
+                    "line": 386,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 98,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:44:15.898Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Navigation during a pending inline form is desktop-specific.",
+                      "location": {
+                        "file": "/mnt/h/cplayout/tests/web/design-draft-editor.spec.ts",
+                        "line": 386,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-7a70698f31030e623515",
+          "file": "design-draft-editor.spec.ts",
+          "line": 385,
+          "column": 5
+        },
+        {
+          "title": "draft map captures polygons lines and points while camera changes preserve saved geometry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3462,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:44:16.006Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-86690c147693a7d60c49",
+          "file": "design-draft-editor.spec.ts",
+          "line": 427,
+          "column": 5
+        },
+        {
+          "title": "a newer create form supersedes an older draft open waiting for storage",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2340,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:44:19.481Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-c75f666a51e9aa3537a2",
+          "file": "design-draft-editor.spec.ts",
+          "line": 459,
+          "column": 5
+        },
+        {
+          "title": "catalog Open supports Enter and Space without changing stored geometry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3046,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:44:26.802Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-fd3236a30b9b497272be",
+          "file": "design-draft-editor.spec.ts",
+          "line": 78,
+          "column": 5
+        },
+        {
+          "title": "draft App opens missing data, saves two vertices, undoes and reopens without a sample project",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4482,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:44:30.126Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-51d7dc53b5a45a926d8b",
+          "file": "design-draft-editor.spec.ts",
+          "line": 94,
+          "column": 5
+        },
+        {
+          "title": "draft stale tab keeps its edits and cannot overwrite a newer save",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4593,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:44:34.624Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-c634e69a1b6cf4c395b6",
+          "file": "design-draft-editor.spec.ts",
+          "line": 125,
+          "column": 5
+        },
+        {
+          "title": "pending invalid inputs block save and leaving requires an explicit discard",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2609,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:44:39.232Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-22efd3e9be4843060102",
+          "file": "design-draft-editor.spec.ts",
+          "line": 146,
+          "column": 5
+        },
+        {
+          "title": "an in-flight draft save keeps its snapshot and leaves newer drawing inputs unsaved",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2436,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:44:41.856Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-24841edf0f1643fb5a7f",
+          "file": "design-draft-editor.spec.ts",
+          "line": 174,
+          "column": 5
+        },
+        {
+          "title": "draft ZIP exports supplied incomplete geometry without complete-project outputs",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2458,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:44:45.098Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-45043b509ab912b233d8",
+          "file": "design-draft-editor.spec.ts",
+          "line": 206,
+          "column": 5
+        },
+        {
+          "title": "calculations require complete supplied inputs and never promote a draft to Layout",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3391,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:44:47.573Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-0f16414da26abef9bef5",
+          "file": "design-draft-editor.spec.ts",
+          "line": 220,
+          "column": 5
+        },
+        {
+          "title": "opening a draft cannot silently discard a complete project's unsaved edits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4213,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:44:50.984Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-2d019f1be3729a7f894b",
+          "file": "design-draft-editor.spec.ts",
+          "line": 238,
+          "column": 5
+        },
+        {
+          "title": "canceling new draft creation preserves a saved project's revision and subsequent save",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4057,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:44:55.210Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-fb86f3d468f19d3a8557",
+          "file": "design-draft-editor.spec.ts",
+          "line": 268,
+          "column": 5
+        },
+        {
+          "title": "failed confirmed draft creation restores its name and leaves storage unchanged for retry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2905,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:44:59.280Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-e10d06d3cfcd6f2f451c",
+          "file": "design-draft-editor.spec.ts",
+          "line": 302,
+          "column": 5
+        },
+        {
+          "title": "Undo during desktop draft creation retains the edited project and its next save",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "This race uses the desktop inline form; compact forms are modal.",
+                  "location": {
+                    "file": "/mnt/h/cplayout/tests/web/design-draft-editor.spec.ts",
+                    "line": 340,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 133,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:45:02.196Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "This race uses the desktop inline form; compact forms are modal.",
+                      "location": {
+                        "file": "/mnt/h/cplayout/tests/web/design-draft-editor.spec.ts",
+                        "line": 340,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-40344e5014298fc32913",
+          "file": "design-draft-editor.spec.ts",
+          "line": 339,
+          "column": 5
+        },
+        {
+          "title": "late desktop draft creation failures cannot report on a newer editor",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Navigation during a pending inline form is desktop-specific.",
+                  "location": {
+                    "file": "/mnt/h/cplayout/tests/web/design-draft-editor.spec.ts",
+                    "line": 386,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 158,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:45:02.339Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Navigation during a pending inline form is desktop-specific.",
+                      "location": {
+                        "file": "/mnt/h/cplayout/tests/web/design-draft-editor.spec.ts",
+                        "line": 386,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-ab87f38c9dad20d2760d",
+          "file": "design-draft-editor.spec.ts",
+          "line": 385,
+          "column": 5
+        },
+        {
+          "title": "draft map captures polygons lines and points while camera changes preserve saved geometry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3269,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:45:02.507Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-5bf33b0655da6e0475ad",
+          "file": "design-draft-editor.spec.ts",
+          "line": 427,
+          "column": 5
+        },
+        {
+          "title": "a newer create form supersedes an older draft open waiting for storage",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1834,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:45:05.786Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-cf8837dc844a60d7b239",
+          "file": "design-draft-editor.spec.ts",
+          "line": 459,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-26T23:42:48.216Z",
+    "duration": 136311.916,
+    "expected": 38,
+    "skipped": 4,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

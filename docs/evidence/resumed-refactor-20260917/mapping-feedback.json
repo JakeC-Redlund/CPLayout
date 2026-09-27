@@ -1,0 +1,95 @@
+{
+  "schemaVersion": "cplayout-mapping-feedback-evidence-v1",
+  "recordedAt": "2026-09-17T06:37:17.545Z",
+  "head": "ec050f60bf515b5c4cbd40c3180615b5056e28b3",
+  "worktree": "dirty, preserved; no publication",
+  "rawEvidenceDirectory": "/home/cyber/cplayout-mapping-feedback-DQOsvR0z/",
+  "postflightSha256": "10eaa5379511c473c62f4ef4c9266c602e7cc1cc6a07c3f6cd2df792cf5f307a",
+  "source": {
+    "manifest": "source-mapping-final.json",
+    "manifestSha256": "d2ae5f2477e3bd02d42efd334cb2bda26b2366c464968670768f6b607c70f63f",
+    "selectedPaths": 299,
+    "scope": "Nonignored apps/packages/tools/tests TS TSX JS CJS MJS JSON plus root package/build configs, AGENTS and generated hook context",
+    "changedAtPostflight": [],
+    "addedAtPostflight": [],
+    "documentationUpdatesOutsideManifest": true
+  },
+  "validation": {
+    "fullSourceCommand": "npm run validate",
+    "fullSourceLog": "validate-mapping-final.log",
+    "fullSourceExit": 0,
+    "fullSourceLogSha256": "815f94ba38d04332b956d458cc221b9e4a9f583fd0d907b27a65ceec27110468",
+    "exportLog": "export-phone-final.log",
+    "exportExit": 0,
+    "controllerTestsPassed": 27,
+    "mapAdapterAndMobileTypechecks": "passed",
+    "skills": "passed",
+    "contextMap": "passed",
+    "diffCheck": "passed",
+    "fullAuditFindings": 0,
+    "productionAuditFindings": 0
+  },
+  "browser": {
+    "fullInventory": false,
+    "selectionsOverlap": false,
+    "reports": [
+      {
+        "file": "browser-mapping-final.json",
+        "sha256": "ca66e5b4a34cd013db92a1bd6d42cfa6a129f03e514667e8fa2b58640cd4ccd8",
+        "passed": 122,
+        "skipped": 1,
+        "durationSeconds": 536.442191
+      },
+      {
+        "file": "browser-gesture-final.json",
+        "sha256": "48ace9a03719e6a00cda78ea5c902834f618821a2f7f370b190d703b5a6516d2",
+        "passed": 4,
+        "skipped": 2,
+        "durationSeconds": 41.353612
+      }
+    ],
+    "combined": { "passed": 126, "skipped": 3, "failed": 0, "flaky": 0, "retries": 0 },
+    "perViewport": {
+      "desktop": { "passed": 43, "skipped": 0 },
+      "tablet-768": { "passed": 43, "skipped": 0 },
+      "mobile-390": { "passed": 40, "skipped": 3 }
+    },
+    "explicitPhoneSkips": [
+      "MapLibre rejected boundary nudge: compact vertex action controls unavailable",
+      "Cancelled browser vertex drag: compact drag controls unavailable",
+      "Browser boundary handle visibility: compact drag controls unavailable"
+    ],
+    "existingScreenshotOnlyPhoneCasesProveGestureParity": false,
+    "copyCasesIncluded": 36,
+    "inspectedScreenshots": ["SVG rejection at desktop and phone", "compact layer dialog at tablet and phone", "final desktop MapLibre rejection"],
+    "preliminarySmokeCountedAgain": false
+  },
+  "build": {
+    "bundle": "index-86a7aa5407685946fb91e385322cb00f.js",
+    "bytes": 5258325,
+    "localAndServedSha256": "68d9867b80bed76e861a3a205b7d7e2d8d535e10d28ebd8d546c434ad9cca385",
+    "postflightMatch": true,
+    "preview": "http://127.0.0.1:19014",
+    "launcherOwnedPreviewRetained": true
+  },
+  "review": {
+    "complexity": "high",
+    "selectedReasoning": "high",
+    "subagentDecision": "not useful for serialized final mapping acceptance",
+    "independentMappingReviewClaimed": false,
+    "closedFindings": ["rejected edits falsely reporting success", "selection changing after rejected insert/delete", "missing SVG action feedback", "phone SVG zoom/tool-dock overlap"],
+    "retainedFailedAttempts": ["browser-smoke.log: one pass, one failure", "browser-corrected-smoke.log: seven passes, one failure, one explicit skip"],
+    "terminatedSupersededAggregates": ["validate.log", "validate-accepted.log"],
+    "terminatedExit": 143,
+    "knownFollowups": ["compact MapLibre vertex parity", "compact machine/infrastructure label crowding", "true incomplete field mapping", "imagery/reference alignment coverage", "immutable Layout targets", "copy folder-only collision, overlapping copy/save and same-ID reopen browser cases"]
+  },
+  "boundaries": {
+    "canonicalProjectedGeometryPolicyChanged": false,
+    "newPackagesInstalledInMappingPacket": false,
+    "nativeRuntime": "unverified",
+    "physical3dQualification": "unverified",
+    "hardwareCommandsIssued": false,
+    "gitPublished": false,
+    "fullRefactorComplete": false
+  }
+}

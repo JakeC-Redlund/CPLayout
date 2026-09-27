@@ -1,0 +1,153 @@
+{
+  "recordedAt": "2026-09-17T02:02:22.634Z",
+  "command": "CPLAYOUT_WEB_PROOF_PORT=19013 npm run test:web:e2e -- --workers=1 --retries=0 --max-failures=1 --reporter=list,json",
+  "exitCode": 0,
+  "stats": {
+    "startTime": "2026-09-17T01:23:32.684Z",
+    "duration": 2151086.701,
+    "expected": 424,
+    "skipped": 2,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "inventory": 426,
+  "projects": {
+    "desktop": {
+      "passed": 142
+    },
+    "tablet-768": {
+      "passed": 142
+    },
+    "mobile-390": {
+      "passed": 140,
+      "skipped": 2
+    }
+  },
+  "explicitSkips": [
+    {
+      "title": "cancelled browser vertex drag preserves saved geometry",
+      "project": "mobile-390",
+      "status": "skipped",
+      "durationMs": 94
+    },
+    {
+      "title": "browser boundary vertex selection keeps handles clear of the editing dock without changing saved data",
+      "project": "mobile-390",
+      "status": "skipped",
+      "durationMs": 95
+    }
+  ],
+  "slowestPassedCases": [
+    {
+      "title": "advisory cost review uses local assumptions without dirtying geometry",
+      "project": "tablet-768",
+      "status": "passed",
+      "durationMs": 85486
+    },
+    {
+      "title": "advisory cost review uses local assumptions without dirtying geometry",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 83656
+    },
+    {
+      "title": "full-scope demo compares cost versus acres across advisory strategies",
+      "project": "tablet-768",
+      "status": "passed",
+      "durationMs": 76228
+    },
+    {
+      "title": "full-scope demo compares cost versus acres across advisory strategies",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 74470
+    },
+    {
+      "title": "partial-sweep sample exposes advisory sweep efficiency comparison",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 74171
+    },
+    {
+      "title": "advisory cost review uses local assumptions without dirtying geometry",
+      "project": "mobile-390",
+      "status": "passed",
+      "durationMs": 67677
+    },
+    {
+      "title": "full-scope demo compares cost versus acres across advisory strategies",
+      "project": "mobile-390",
+      "status": "passed",
+      "durationMs": 60484
+    },
+    {
+      "title": "partial-sweep sample exposes advisory sweep efficiency comparison",
+      "project": "mobile-390",
+      "status": "passed",
+      "durationMs": 56823
+    },
+    {
+      "title": "generated field pivot plan saves advisory machine-zone review features after explicit action",
+      "project": "tablet-768",
+      "status": "passed",
+      "durationMs": 50846
+    },
+    {
+      "title": "partial-sweep sample exposes advisory sweep efficiency comparison",
+      "project": "tablet-768",
+      "status": "passed",
+      "durationMs": 48201
+    },
+    {
+      "title": "generated field pivot plan saves advisory machine-zone review features after explicit action",
+      "project": "mobile-390",
+      "status": "passed",
+      "durationMs": 48118
+    },
+    {
+      "title": "placement review applies advisory pivot candidates only after confirmation",
+      "project": "tablet-768",
+      "status": "passed",
+      "durationMs": 46476
+    }
+  ],
+  "timingScope": "Whole browser cases, not isolated solver benchmarks or a speedup comparison",
+  "sourceFreeze": "2026-09-17T01:15:50.490Z",
+  "recordedPaths": 527,
+  "changedDocumentation": [
+    "docs/draft-catalog-implementation.md",
+    "docs/full-refactor-execution.md"
+  ],
+  "addedDocumentation": [
+    "docs/evidence/resumed-refactor-20260917/README.md",
+    "docs/evidence/resumed-refactor-20260917/validation.json"
+  ],
+  "runtimeDifferences": [],
+  "runtimeAndTestSourcesMatched": true,
+  "served": [
+    {
+      "url": "http://127.0.0.1:19013/_expo/static/js/web/index-13eb3a9d460f3890c3c6c6bca843c9a0.js",
+      "sha256": "5b2bfc8813ce160fbe511167d004e533aecaf321ccdc5457193a86ba18a08364",
+      "byteLength": 5177101
+    }
+  ],
+  "artifacts": [
+    {
+      "file": "map-viewport-full-browser.json",
+      "sha256": "b7607f7bbf500886b1479cc526c3ab2592e438be4ca26ccce10f69883624c73d"
+    },
+    {
+      "file": "map-viewport-full-browser.log",
+      "sha256": "a816e4a63c8deadc104bf2c6bb66a563df667e41d55843268fbb70fc58b44764"
+    }
+  ],
+  "limitations": [
+    "Phone browser emulation is not Android/iOS device proof.",
+    "Compact edit cases that return after screenshots are not drag parity.",
+    "Known KMZ and legacy storage counterexamples remain open despite the current suite result.",
+    "No physical receiver, electrical or less-than-0.10-m 3D qualification."
+  ],
+  "fullRefactorAccepted": false,
+  "nativeRuntimeAccepted": false,
+  "physical3dAccuracyAccepted": false
+}

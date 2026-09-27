@@ -1,0 +1,825 @@
+{
+  "config": {
+    "configFile": "/mnt/h/cplayout/playwright.config.ts",
+    "rootDir": "/mnt/h/cplayout/tests/web",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 3,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/tmp/cplayout-draft-review-followup",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/mnt/h/cplayout/tests/web",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/tmp/cplayout-draft-review-followup",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "tablet-768",
+        "name": "tablet-768",
+        "testDir": "/mnt/h/cplayout/tests/web",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/tmp/cplayout-draft-review-followup",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-390",
+        "name": "mobile-390",
+        "testDir": "/mnt/h/cplayout/tests/web",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npx tsx tools/serveStaticWeb.ts apps/mobile/dist 19006",
+      "reuseExistingServer": true,
+      "timeout": 120000,
+      "url": "http://127.0.0.1:19006/__cplayout_static_health"
+    }
+  },
+  "suites": [
+    {
+      "title": "browser-workflow.spec.ts",
+      "file": "browser-workflow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "catalog blank design starts empty and requires explicit coordinates before drawing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4735,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:45:47.703Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "31dbe23a2b97ff677fcb-3d4a2298a3a741ab824b",
+          "file": "browser-workflow.spec.ts",
+          "line": 320,
+          "column": 5
+        },
+        {
+          "title": "map-first catalog tree creates client projects and field maps without hidden sample designs",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2808,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Adams Farms' })\nExpected: visible\nError: strict mode violation: getByRole('button', { name: 'Adams Farms' }) resolved to 2 elements:\n    1) <button tabindex=\"0\" role=\"button\" type=\"button\" aria-selected=\"true\" aria-label=\"Adams Farms\" data-testid=\"catalog-client-client-20260926t23455-ln8vqr\" class=\"css-g5y9jx r-1loqt21 r-1otgn73 r-1awozwy r-1xfd6ze r-rs99b7 r-18u37iz r-1ey881g r-5prp13 r-1yd117h r-1pyaxff r-13awgt0 r-bcqeeo r-c8wilo r-92z1mq\">…</button> aka getByTestId('catalog-client-client-20260926t23455-ln8vqr')\n    2) <button tabindex=\"0\" role=\"button\" type=\"button\" aria-label=\"Open client Adams Farms in project tree\" data-testid=\"catalog-client-client-20260926t23455-ln8vqr-open\" class=\"css-g5y9jx r-1loqt21 r-1otgn73 r-1awozwy r-ur6pnr r-1777fci r-bnwqim r-1acpoxo\">…</button> aka getByTestId('catalog-client-client-20260926t23455-ln8vqr-open')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Adams Farms' })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Adams Farms' })\nExpected: visible\nError: strict mode violation: getByRole('button', { name: 'Adams Farms' }) resolved to 2 elements:\n    1) <button tabindex=\"0\" role=\"button\" type=\"button\" aria-selected=\"true\" aria-label=\"Adams Farms\" data-testid=\"catalog-client-client-20260926t23455-ln8vqr\" class=\"css-g5y9jx r-1loqt21 r-1otgn73 r-1awozwy r-1xfd6ze r-rs99b7 r-18u37iz r-1ey881g r-5prp13 r-1yd117h r-1pyaxff r-13awgt0 r-bcqeeo r-c8wilo r-92z1mq\">…</button> aka getByTestId('catalog-client-client-20260926t23455-ln8vqr')\n    2) <button tabindex=\"0\" role=\"button\" type=\"button\" aria-label=\"Open client Adams Farms in project tree\" data-testid=\"catalog-client-client-20260926t23455-ln8vqr-open\" class=\"css-g5y9jx r-1loqt21 r-1otgn73 r-1awozwy r-ur6pnr r-1777fci r-bnwqim r-1acpoxo\">…</button> aka getByTestId('catalog-client-client-20260926t23455-ln8vqr-open')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Adams Farms' })\u001b[22m\n\n    at /mnt/h/cplayout/tests/web/browser-workflow.spec.ts:403:67",
+                    "location": {
+                      "file": "/mnt/h/cplayout/tests/web/browser-workflow.spec.ts",
+                      "column": 67,
+                      "line": 403
+                    },
+                    "snippet": "  401 |\n  402 |   await createClientFolder(page, \"Adams Farms\");\n> 403 |   await expect(page.getByRole(\"button\", { name: \"Adams Farms\" })).toBeVisible();\n      |                                                                   ^\n  404 |   await openProjectTreeActionOverflow(page);\n  405 |   await expect(page.getByTestId(\"project-tree-action-project\")).toBeEnabled();\n  406 |   await closeProjectTreeActionOverflow(page);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/mnt/h/cplayout/tests/web/browser-workflow.spec.ts",
+                        "column": 67,
+                        "line": 403
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Adams Farms' })\nExpected: visible\nError: strict mode violation: getByRole('button', { name: 'Adams Farms' }) resolved to 2 elements:\n    1) <button tabindex=\"0\" role=\"button\" type=\"button\" aria-selected=\"true\" aria-label=\"Adams Farms\" data-testid=\"catalog-client-client-20260926t23455-ln8vqr\" class=\"css-g5y9jx r-1loqt21 r-1otgn73 r-1awozwy r-1xfd6ze r-rs99b7 r-18u37iz r-1ey881g r-5prp13 r-1yd117h r-1pyaxff r-13awgt0 r-bcqeeo r-c8wilo r-92z1mq\">…</button> aka getByTestId('catalog-client-client-20260926t23455-ln8vqr')\n    2) <button tabindex=\"0\" role=\"button\" type=\"button\" aria-label=\"Open client Adams Farms in project tree\" data-testid=\"catalog-client-client-20260926t23455-ln8vqr-open\" class=\"css-g5y9jx r-1loqt21 r-1otgn73 r-1awozwy r-ur6pnr r-1777fci r-bnwqim r-1acpoxo\">…</button> aka getByTestId('catalog-client-client-20260926t23455-ln8vqr-open')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Adams Farms' })\u001b[22m\n\n\n  401 |\n  402 |   await createClientFolder(page, \"Adams Farms\");\n> 403 |   await expect(page.getByRole(\"button\", { name: \"Adams Farms\" })).toBeVisible();\n      |                                                                   ^\n  404 |   await openProjectTreeActionOverflow(page);\n  405 |   await expect(page.getByTestId(\"project-tree-action-project\")).toBeEnabled();\n  406 |   await closeProjectTreeActionOverflow(page);\n    at /mnt/h/cplayout/tests/web/browser-workflow.spec.ts:403:67"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:45:53.402Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/tmp/cplayout-draft-review-followup/browser-workflow-map-first-d80cd-thout-hidden-sample-designs-desktop/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/cplayout-draft-review-followup/browser-workflow-map-first-d80cd-thout-hidden-sample-designs-desktop/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/tmp/cplayout-draft-review-followup/browser-workflow-map-first-d80cd-thout-hidden-sample-designs-desktop/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/mnt/h/cplayout/tests/web/browser-workflow.spec.ts",
+                    "column": 67,
+                    "line": 403
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "31dbe23a2b97ff677fcb-ae9c89f1cfa7791cc6b5",
+          "file": "browser-workflow.spec.ts",
+          "line": 378,
+          "column": 5
+        },
+        {
+          "title": "catalog blank design starts empty and requires explicit coordinates before drawing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4332,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:46:12.135Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "31dbe23a2b97ff677fcb-30a2081c9295b85c462a",
+          "file": "browser-workflow.spec.ts",
+          "line": 320,
+          "column": 5
+        },
+        {
+          "title": "map-first catalog tree creates client projects and field maps without hidden sample designs",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 3234,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Adams Farms' })\nExpected: visible\nError: strict mode violation: getByRole('button', { name: 'Adams Farms' }) resolved to 2 elements:\n    1) <button tabindex=\"0\" role=\"button\" type=\"button\" aria-selected=\"true\" aria-label=\"Adams Farms\" data-testid=\"catalog-client-client-20260926t23461-l23vrj\" class=\"css-g5y9jx r-1loqt21 r-1otgn73 r-1awozwy r-1xfd6ze r-rs99b7 r-18u37iz r-1ey881g r-5prp13 r-1yd117h r-1pyaxff r-13awgt0 r-bcqeeo r-c8wilo r-92z1mq\">…</button> aka getByTestId('catalog-client-client-20260926t23461-l23vrj')\n    2) <button tabindex=\"0\" role=\"button\" type=\"button\" aria-label=\"Open client Adams Farms in project tree\" data-testid=\"catalog-client-client-20260926t23461-l23vrj-open\" class=\"css-g5y9jx r-1loqt21 r-1otgn73 r-1awozwy r-ur6pnr r-1777fci r-bnwqim r-1acpoxo\">…</button> aka getByTestId('catalog-client-client-20260926t23461-l23vrj-open')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Adams Farms' })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Adams Farms' })\nExpected: visible\nError: strict mode violation: getByRole('button', { name: 'Adams Farms' }) resolved to 2 elements:\n    1) <button tabindex=\"0\" role=\"button\" type=\"button\" aria-selected=\"true\" aria-label=\"Adams Farms\" data-testid=\"catalog-client-client-20260926t23461-l23vrj\" class=\"css-g5y9jx r-1loqt21 r-1otgn73 r-1awozwy r-1xfd6ze r-rs99b7 r-18u37iz r-1ey881g r-5prp13 r-1yd117h r-1pyaxff r-13awgt0 r-bcqeeo r-c8wilo r-92z1mq\">…</button> aka getByTestId('catalog-client-client-20260926t23461-l23vrj')\n    2) <button tabindex=\"0\" role=\"button\" type=\"button\" aria-label=\"Open client Adams Farms in project tree\" data-testid=\"catalog-client-client-20260926t23461-l23vrj-open\" class=\"css-g5y9jx r-1loqt21 r-1otgn73 r-1awozwy r-ur6pnr r-1777fci r-bnwqim r-1acpoxo\">…</button> aka getByTestId('catalog-client-client-20260926t23461-l23vrj-open')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Adams Farms' })\u001b[22m\n\n    at /mnt/h/cplayout/tests/web/browser-workflow.spec.ts:403:67",
+                    "location": {
+                      "file": "/mnt/h/cplayout/tests/web/browser-workflow.spec.ts",
+                      "column": 67,
+                      "line": 403
+                    },
+                    "snippet": "  401 |\n  402 |   await createClientFolder(page, \"Adams Farms\");\n> 403 |   await expect(page.getByRole(\"button\", { name: \"Adams Farms\" })).toBeVisible();\n      |                                                                   ^\n  404 |   await openProjectTreeActionOverflow(page);\n  405 |   await expect(page.getByTestId(\"project-tree-action-project\")).toBeEnabled();\n  406 |   await closeProjectTreeActionOverflow(page);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/mnt/h/cplayout/tests/web/browser-workflow.spec.ts",
+                        "column": 67,
+                        "line": 403
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Adams Farms' })\nExpected: visible\nError: strict mode violation: getByRole('button', { name: 'Adams Farms' }) resolved to 2 elements:\n    1) <button tabindex=\"0\" role=\"button\" type=\"button\" aria-selected=\"true\" aria-label=\"Adams Farms\" data-testid=\"catalog-client-client-20260926t23461-l23vrj\" class=\"css-g5y9jx r-1loqt21 r-1otgn73 r-1awozwy r-1xfd6ze r-rs99b7 r-18u37iz r-1ey881g r-5prp13 r-1yd117h r-1pyaxff r-13awgt0 r-bcqeeo r-c8wilo r-92z1mq\">…</button> aka getByTestId('catalog-client-client-20260926t23461-l23vrj')\n    2) <button tabindex=\"0\" role=\"button\" type=\"button\" aria-label=\"Open client Adams Farms in project tree\" data-testid=\"catalog-client-client-20260926t23461-l23vrj-open\" class=\"css-g5y9jx r-1loqt21 r-1otgn73 r-1awozwy r-ur6pnr r-1777fci r-bnwqim r-1acpoxo\">…</button> aka getByTestId('catalog-client-client-20260926t23461-l23vrj-open')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Adams Farms' })\u001b[22m\n\n\n  401 |\n  402 |   await createClientFolder(page, \"Adams Farms\");\n> 403 |   await expect(page.getByRole(\"button\", { name: \"Adams Farms\" })).toBeVisible();\n      |                                                                   ^\n  404 |   await openProjectTreeActionOverflow(page);\n  405 |   await expect(page.getByTestId(\"project-tree-action-project\")).toBeEnabled();\n  406 |   await closeProjectTreeActionOverflow(page);\n    at /mnt/h/cplayout/tests/web/browser-workflow.spec.ts:403:67"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:46:16.625Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/tmp/cplayout-draft-review-followup/browser-workflow-map-first-d80cd-thout-hidden-sample-designs-tablet-768/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/cplayout-draft-review-followup/browser-workflow-map-first-d80cd-thout-hidden-sample-designs-tablet-768/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/tmp/cplayout-draft-review-followup/browser-workflow-map-first-d80cd-thout-hidden-sample-designs-tablet-768/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/mnt/h/cplayout/tests/web/browser-workflow.spec.ts",
+                    "column": 67,
+                    "line": 403
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "31dbe23a2b97ff677fcb-2d70fcf13a3e15753e42",
+          "file": "browser-workflow.spec.ts",
+          "line": 378,
+          "column": 5
+        },
+        {
+          "title": "catalog blank design starts empty and requires explicit coordinates before drawing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4774,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:46:35.084Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "31dbe23a2b97ff677fcb-2d345c1dd55c2b9e75bd",
+          "file": "browser-workflow.spec.ts",
+          "line": 320,
+          "column": 5
+        },
+        {
+          "title": "map-first catalog tree creates client projects and field maps without hidden sample designs",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2949,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Adams Farms' })\nExpected: visible\nError: strict mode violation: getByRole('button', { name: 'Adams Farms' }) resolved to 2 elements:\n    1) <button tabindex=\"0\" role=\"button\" type=\"button\" aria-selected=\"true\" aria-label=\"Adams Farms\" data-testid=\"catalog-client-client-20260926t23464-inc4t9\" class=\"css-g5y9jx r-1loqt21 r-1otgn73 r-1awozwy r-1xfd6ze r-rs99b7 r-18u37iz r-1ey881g r-5prp13 r-1yd117h r-1pyaxff r-13awgt0 r-bcqeeo r-c8wilo r-92z1mq\">…</button> aka getByTestId('catalog-client-client-20260926t23464-inc4t9')\n    2) <button tabindex=\"0\" role=\"button\" type=\"button\" aria-label=\"Open client Adams Farms in project tree\" data-testid=\"catalog-client-client-20260926t23464-inc4t9-open\" class=\"css-g5y9jx r-1loqt21 r-1otgn73 r-1awozwy r-ur6pnr r-1777fci r-bnwqim r-1acpoxo\">…</button> aka getByTestId('catalog-client-client-20260926t23464-inc4t9-open')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Adams Farms' })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Adams Farms' })\nExpected: visible\nError: strict mode violation: getByRole('button', { name: 'Adams Farms' }) resolved to 2 elements:\n    1) <button tabindex=\"0\" role=\"button\" type=\"button\" aria-selected=\"true\" aria-label=\"Adams Farms\" data-testid=\"catalog-client-client-20260926t23464-inc4t9\" class=\"css-g5y9jx r-1loqt21 r-1otgn73 r-1awozwy r-1xfd6ze r-rs99b7 r-18u37iz r-1ey881g r-5prp13 r-1yd117h r-1pyaxff r-13awgt0 r-bcqeeo r-c8wilo r-92z1mq\">…</button> aka getByTestId('catalog-client-client-20260926t23464-inc4t9')\n    2) <button tabindex=\"0\" role=\"button\" type=\"button\" aria-label=\"Open client Adams Farms in project tree\" data-testid=\"catalog-client-client-20260926t23464-inc4t9-open\" class=\"css-g5y9jx r-1loqt21 r-1otgn73 r-1awozwy r-ur6pnr r-1777fci r-bnwqim r-1acpoxo\">…</button> aka getByTestId('catalog-client-client-20260926t23464-inc4t9-open')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Adams Farms' })\u001b[22m\n\n    at /mnt/h/cplayout/tests/web/browser-workflow.spec.ts:403:67",
+                    "location": {
+                      "file": "/mnt/h/cplayout/tests/web/browser-workflow.spec.ts",
+                      "column": 67,
+                      "line": 403
+                    },
+                    "snippet": "  401 |\n  402 |   await createClientFolder(page, \"Adams Farms\");\n> 403 |   await expect(page.getByRole(\"button\", { name: \"Adams Farms\" })).toBeVisible();\n      |                                                                   ^\n  404 |   await openProjectTreeActionOverflow(page);\n  405 |   await expect(page.getByTestId(\"project-tree-action-project\")).toBeEnabled();\n  406 |   await closeProjectTreeActionOverflow(page);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/mnt/h/cplayout/tests/web/browser-workflow.spec.ts",
+                        "column": 67,
+                        "line": 403
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Adams Farms' })\nExpected: visible\nError: strict mode violation: getByRole('button', { name: 'Adams Farms' }) resolved to 2 elements:\n    1) <button tabindex=\"0\" role=\"button\" type=\"button\" aria-selected=\"true\" aria-label=\"Adams Farms\" data-testid=\"catalog-client-client-20260926t23464-inc4t9\" class=\"css-g5y9jx r-1loqt21 r-1otgn73 r-1awozwy r-1xfd6ze r-rs99b7 r-18u37iz r-1ey881g r-5prp13 r-1yd117h r-1pyaxff r-13awgt0 r-bcqeeo r-c8wilo r-92z1mq\">…</button> aka getByTestId('catalog-client-client-20260926t23464-inc4t9')\n    2) <button tabindex=\"0\" role=\"button\" type=\"button\" aria-label=\"Open client Adams Farms in project tree\" data-testid=\"catalog-client-client-20260926t23464-inc4t9-open\" class=\"css-g5y9jx r-1loqt21 r-1otgn73 r-1awozwy r-ur6pnr r-1777fci r-bnwqim r-1acpoxo\">…</button> aka getByTestId('catalog-client-client-20260926t23464-inc4t9-open')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Adams Farms' })\u001b[22m\n\n\n  401 |\n  402 |   await createClientFolder(page, \"Adams Farms\");\n> 403 |   await expect(page.getByRole(\"button\", { name: \"Adams Farms\" })).toBeVisible();\n      |                                                                   ^\n  404 |   await openProjectTreeActionOverflow(page);\n  405 |   await expect(page.getByTestId(\"project-tree-action-project\")).toBeEnabled();\n  406 |   await closeProjectTreeActionOverflow(page);\n    at /mnt/h/cplayout/tests/web/browser-workflow.spec.ts:403:67"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:46:40.028Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/tmp/cplayout-draft-review-followup/browser-workflow-map-first-d80cd-thout-hidden-sample-designs-mobile-390/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/cplayout-draft-review-followup/browser-workflow-map-first-d80cd-thout-hidden-sample-designs-mobile-390/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/tmp/cplayout-draft-review-followup/browser-workflow-map-first-d80cd-thout-hidden-sample-designs-mobile-390/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/mnt/h/cplayout/tests/web/browser-workflow.spec.ts",
+                    "column": 67,
+                    "line": 403
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "31dbe23a2b97ff677fcb-938439136cfaf8ac7245",
+          "file": "browser-workflow.spec.ts",
+          "line": 378,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "design-draft-editor.spec.ts",
+      "file": "design-draft-editor.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "late desktop draft creation failures cannot report on a newer editor",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2460,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:45:59.923Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-23f9e638143e39da818c",
+          "file": "design-draft-editor.spec.ts",
+          "line": 385,
+          "column": 5
+        },
+        {
+          "title": "late desktop draft creation failures cannot report on a newer editor",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Navigation during a pending inline form is desktop-specific.",
+                  "location": {
+                    "file": "/mnt/h/cplayout/tests/web/design-draft-editor.spec.ts",
+                    "line": 386,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 142,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:46:24.345Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Navigation during a pending inline form is desktop-specific.",
+                      "location": {
+                        "file": "/mnt/h/cplayout/tests/web/design-draft-editor.spec.ts",
+                        "line": 386,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-7a70698f31030e623515",
+          "file": "design-draft-editor.spec.ts",
+          "line": 385,
+          "column": 5
+        },
+        {
+          "title": "late desktop draft creation failures cannot report on a newer editor",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "0515cae5be45946b3dd1-ab87f38c9dad20d2760d",
+          "file": "design-draft-editor.spec.ts",
+          "line": 385,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "draft-unit-and-saved-items.spec.ts",
+      "file": "draft-unit-and-saved-items.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "new design starts with the selected folder's stored units",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1937,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:46:02.570Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9f7400921003d95e74e5-20a14e595ee57151aeed",
+          "file": "draft-unit-and-saved-items.spec.ts",
+          "line": 65,
+          "column": 5
+        },
+        {
+          "title": "invalid folder units cannot silently inherit the open editor's units",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1887,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:46:04.515Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9f7400921003d95e74e5-7262bd25bb02bf86d3d3",
+          "file": "draft-unit-and-saved-items.spec.ts",
+          "line": 78,
+          "column": 5
+        },
+        {
+          "title": "saved features and keep-outs can be deleted, undone, saved, and reopened",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2685,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:46:06.410Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9f7400921003d95e74e5-0e4e23aeba2defc43b74",
+          "file": "draft-unit-and-saved-items.spec.ts",
+          "line": 86,
+          "column": 5
+        },
+        {
+          "title": "new design starts with the selected folder's stored units",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2085,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:46:24.676Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9f7400921003d95e74e5-102e8eea323f9b52296a",
+          "file": "draft-unit-and-saved-items.spec.ts",
+          "line": 65,
+          "column": 5
+        },
+        {
+          "title": "invalid folder units cannot silently inherit the open editor's units",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1958,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:46:26.770Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9f7400921003d95e74e5-1b1f11f430c8d842ae47",
+          "file": "draft-unit-and-saved-items.spec.ts",
+          "line": 78,
+          "column": 5
+        },
+        {
+          "title": "saved features and keep-outs can be deleted, undone, saved, and reopened",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3414,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-26T23:46:28.736Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9f7400921003d95e74e5-163e25c7d734d090ac66",
+          "file": "draft-unit-and-saved-items.spec.ts",
+          "line": 86,
+          "column": 5
+        },
+        {
+          "title": "new design starts with the selected folder's stored units",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "9f7400921003d95e74e5-a3c5434cc7854de92a97",
+          "file": "draft-unit-and-saved-items.spec.ts",
+          "line": 65,
+          "column": 5
+        },
+        {
+          "title": "invalid folder units cannot silently inherit the open editor's units",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "9f7400921003d95e74e5-ae110120cc1c7acb0fda",
+          "file": "draft-unit-and-saved-items.spec.ts",
+          "line": 78,
+          "column": 5
+        },
+        {
+          "title": "saved features and keep-outs can be deleted, undone, saved, and reopened",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "9f7400921003d95e74e5-5cd50008d3d832e56130",
+          "file": "draft-unit-and-saved-items.spec.ts",
+          "line": 86,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "message": "\u001b[31mTesting stopped early after 3 maximum allowed failures.\u001b[39m"
+    }
+  ],
+  "stats": {
+    "startTime": "2026-09-26T23:45:41.612Z",
+    "duration": 60070.947,
+    "expected": 10,
+    "skipped": 5,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

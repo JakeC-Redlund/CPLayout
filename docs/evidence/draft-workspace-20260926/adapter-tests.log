@@ -1,0 +1,221 @@
+
+> @cplayout/map-adapters@0.1.0 test
+> tsx src/mapOverlayGeoJson.test.ts && tsx src/referenceOverlayStyle.test.ts && tsx src/mapAttribution.test.ts && tsx src/browserMapInteraction.test.ts && tsx src/projectVertexEditing.test.ts && tsx src/mapTools.test.ts && tsx src/mapInteractionController.test.ts && tsx src/mapViewport.test.ts && tsx src/mapCameraSession.test.ts && tsx src/mapFit.test.ts && tsx src/mapPointerGuard.test.ts && tsx src/vertexDragSession.test.ts && tsx src/svgMapLabels.test.ts && tsx src/designDraftMap.test.ts
+
+map overlay GeoJSON tests passed
+reference overlay style tests passed
+map attribution tests passed
+map click intent tests passed
+project vertex editing tests passed
+map tool catalog tests passed
+✔ draft undo preserves project and only changes unfinished vertices (6.837532ms)
+✔ invalid polygon stays editable and cannot enter any purpose until repaired (1.025614ms)
+✔ generic polygons close at first vertex or double-click exactly once (0.665699ms)
+✔ draft undo updates staged manual boundary without committing project (0.302058ms)
+✔ accepted handoff receipts update status only once and honor notify false (0.750419ms)
+✔ rejected receipts retain owner for retry and reject duplicate or out-of-order sequences (0.540939ms)
+✔ an explicit same-tool request clears retired purpose feedback without discarding a newer draft (0.486302ms)
+✔ clearing a retired receipt does not overwrite newer local feedback (0.205831ms)
+✔ receipt identity must match every owner field without consuming a valid retry (0.4275ms)
+✔ rejected handoffs retain each primitive and its reason, then accept a retry (0.765617ms)
+✔ stale accepted handoff owners retain vertices and cannot receive status (0.516527ms)
+✔ legacy void staging and remounts cannot acquire receipt ownership (0.296556ms)
+✔ new drawing, tool, selection and clear commands permanently retire receipt eligibility (1.196301ms)
+✔ input context changes retire receipts even when receipt arrives with the change (1.921931ms)
+✔ a new point click retires its previous owner when staging is unavailable or rejected (0.417837ms)
+✔ same-ID project generation reload discards draft and selection through pure reconciliation (0.409795ms)
+✔ same-render committed receipt survives selection of its newly added feature only (0.942817ms)
+✔ manual request role changes and nonzero generations scope receipt ownership (0.215796ms)
+✔ a new accepted draft rejects old receipts and copies its owner (0.17451ms)
+✔ synchronous handoff context changes cannot restore an obsolete owner or clear new work (0.185625ms)
+✔ pure reconciliation and unchanged input/request updates preserve drafts (0.249666ms)
+✔ actual mode, layer, kind, geometry and typed/generic changes clear drafts (0.327735ms)
+✔ project, CRS and manual request changes discard scoped state (0.271993ms)
+✔ layout and catalog gate every mutation path, clear drafts and selection (0.696179ms)
+✔ stable callbacks use latest props and draft state exactly once (0.262207ms)
+✔ rejected or absent commits retain draft; existing void callbacks succeed (0.213805ms)
+✔ two vertices plus explicit close retain the third vertex on rejection (0.128383ms)
+✔ browser click/click/dblclick sequence retains three distinct vertices (0.339511ms)
+✔ duplicate filtering uses tiny XY epsilon and preserves nearby distinct vertices (0.362277ms)
+✔ trailing explicit close after first-point closure cannot start a phantom draft (0.316576ms)
+✔ double-clicking the second vertex cannot commit a degenerate triangle (0.194068ms)
+✔ finite projected XY and optional WGS84 guard all click/edit paths (0.250812ms)
+✔ longitude click intents use current state and ignore edit-mode background clicks (0.728075ms)
+✔ manual boundary and all point roles stage without canonical callbacks (0.387765ms)
+✔ generic primitives honor geometry override and stage only with a callback (0.418021ms)
+✔ typed features save directly, with point close events suppressed (0.376557ms)
+✔ runtime false from typed feature save retains draft and status until successful retry (0.219767ms)
+✔ runtime false from generic staging retains draft and status until successful retry (0.26051ms)
+✔ structured mutation rejection retains typed and generic drafts until ok true (0.535115ms)
+✔ manual callbacks run once outside state updates and snapshots are stable (0.181857ms)
+✔ selection validates indices and disappears when project entities disappear (0.410114ms)
+✔ vertex commands route boundary, obstacle, feature and circle radius callbacks (1.043748ms)
+✔ missing edit callbacks disable commands and preserve selection (0.142716ms)
+✔ rejected vertex commands retain their selected boundary, obstacle, feature or radius handle (1.008019ms)
+✔ rejected pivot, infrastructure and survey clicks cannot report a successful placement (0.341175ms)
+✔ real reducer rejection preserves geometry and history, followed by a valid edit and undo (9.769724ms)
+✔ obstacle commits, infrastructure and survey preserve routing and provenance (0.405592ms)
+ℹ tests 47
+ℹ suites 0
+ℹ pass 47
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 53.533003
+✔ an already visible handle leaves the camera unchanged (0.885719ms)
+✔ a handle behind the measured bottom dock pans up by only the required pixels (1.092558ms)
+✔ camera offsets place every outside edge inside the usable screen rectangle (0.300458ms)
+✔ subpixel projection noise does not repeatedly pan the camera (0.128984ms)
+✔ empty or fully covered viewports and invalid measurements cannot produce a camera command (0.231045ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11.027637
+✔ equal identities reuse the token and latest camera snapshot (1.595786ms)
+✔ projectId transitions clear the snapshot and A -> B -> A never revives a token (0.280726ms)
+✔ projectCrs transitions clear the snapshot and A -> B -> A never revives a token (0.212252ms)
+✔ projectGeneration transitions clear the snapshot and A -> B -> A never revives a token (0.107342ms)
+✔ homeView transitions clear the snapshot and A -> B -> A never revives a token (0.154634ms)
+✔ projectionAvailable transitions clear the snapshot and A -> B -> A never revives a token (0.102373ms)
+✔ an unavailable projection frame invalidates A even without remembering a camera (0.132351ms)
+✔ identity inputs are copied before caller mutation (0.209374ms)
+✔ remember and every restore isolate the object and nested center tuple (0.267791ms)
+✔ nonfinite longitude=NaN rejects without overwriting a valid snapshot (0.179013ms)
+✔ nonfinite longitude=Infinity rejects without overwriting a valid snapshot (0.083126ms)
+✔ nonfinite longitude=-Infinity rejects without overwriting a valid snapshot (0.132743ms)
+✔ nonfinite latitude=NaN rejects without overwriting a valid snapshot (0.079317ms)
+✔ nonfinite latitude=Infinity rejects without overwriting a valid snapshot (0.076661ms)
+✔ nonfinite latitude=-Infinity rejects without overwriting a valid snapshot (0.043401ms)
+✔ nonfinite zoom=NaN rejects without overwriting a valid snapshot (0.054104ms)
+✔ nonfinite zoom=Infinity rejects without overwriting a valid snapshot (0.073377ms)
+✔ nonfinite zoom=-Infinity rejects without overwriting a valid snapshot (0.057576ms)
+✔ nonfinite bearing=NaN rejects without overwriting a valid snapshot (0.079968ms)
+✔ nonfinite bearing=Infinity rejects without overwriting a valid snapshot (0.030063ms)
+✔ nonfinite bearing=-Infinity rejects without overwriting a valid snapshot (0.032575ms)
+✔ nonfinite pitch=NaN rejects without overwriting a valid snapshot (0.048077ms)
+✔ nonfinite pitch=Infinity rejects without overwriting a valid snapshot (0.027362ms)
+✔ nonfinite pitch=-Infinity rejects without overwriting a valid snapshot (0.044629ms)
+✔ all finite values round-trip without clamping or wrapping (0.124095ms)
+✔ disposal before or after a project transition cannot leak the previous camera (0.152749ms)
+✔ multiple style reconstructions within one frame retain the disposal camera (0.131339ms)
+✔ tokens from another session cannot read or overwrite the current camera (0.077788ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 13.903819
+✔ finitePointBounds rejects empty or nonfinite input and never mutates points (1.440463ms)
+✔ finitePointBounds handles large point collections without argument spreading (27.871653ms)
+✔ fit preserves aspect and contains corners across portrait, landscape, and asymmetric HUDs (0.952387ms)
+✔ fit supports points and horizontal or vertical lines using display-only minimum spans (0.39524ms)
+✔ translation changes only the fitted center and inputs stay unchanged (0.285984ms)
+✔ fit rejects nonfinite, reversed, negative, and obstructed inputs (0.365755ms)
+✔ fit rejects overflow and uses stable midpoint arithmetic (0.268485ms)
+✔ viewportForScreen expands only the required base axis, preserving center and zoom (0.335195ms)
+✔ viewportForScreen is idempotent and does not crop across fractional aspect ratios (0.674146ms)
+✔ viewportForScreen rejects invalid dimensions, center, zoom and derived overflow or underflow (0.331832ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 43.348717
+✔ a fresh primary drawing gesture permits its following click after owner release (2.181949ms)
+✔ Fit cancellation survives the held owner's later release and the next real gesture works (0.152428ms)
+✔ cancel retains all held contacts so another primary cannot revive permission (0.11082ms)
+✔ both secondary contacts and another device's primary cancel the whole gesture in either release order (0.189018ms)
+✔ a mixed-device primary arriving after Fit stays blocked until both contacts drain (0.157876ms)
+✔ a canceled touch cannot authorize a compatibility click without a new physical begin (0.163822ms)
+✔ an outside or HUD begin never arms and blocks an inside gesture while still held (0.097574ms)
+✔ an outside contact arriving during an armed drawing gesture cancels it (0.072588ms)
+✔ nonprimary and nonzero-button starts stay tracked even though they cannot arm (0.182383ms)
+✔ duplicate begin for the held owner cancels instead of resetting permission (0.175775ms)
+✔ foreign or canceled ends retire permission without draining the held owner (0.141448ms)
+✔ clear drains every held contact for blur or disposal and never arms a click (0.090294ms)
+✔ cancel after owner release retires its pending click; separate guards remain independent (0.100351ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11.118299
+✔ idle move, release, and cancellation do nothing (1.274109ms)
+✔ only an idle primary pointer with button zero and primary bit can begin (0.46656ms)
+✔ repeated starts cannot replace ownership or reset the starting point (0.351767ms)
+✔ foreign moves, releases, and cancellation cannot affect the owner (0.196699ms)
+✔ primary-button chords may begin and move; other button releases are ignored (0.238736ms)
+✔ losing the primary bit cancels and a late release cannot commit (0.27088ms)
+✔ threshold is inclusive from the original start and preview continues after crossing (0.183198ms)
+✔ threshold uses Euclidean displacement and supports a custom value (0.139683ms)
+✔ preview activation resets for the next session after commit or cancellation (0.225974ms)
+✔ tap and sub-threshold releases cancel without committing geometry (0.263749ms)
+✔ release can cross the threshold without any preceding move (0.149898ms)
+✔ release coordinates take precedence over the last preview (0.092219ms)
+✔ returning inside the threshold keeps preview current but release cancels (0.336808ms)
+✔ explicit owner or unconditional cancellation happens once and permits a new session (0.156876ms)
+✔ nonfinite clientX=NaN fails closed at begin, move, and finish (0.156517ms)
+✔ nonfinite clientX=Infinity fails closed at begin, move, and finish (0.074454ms)
+✔ nonfinite clientX=-Infinity fails closed at begin, move, and finish (0.067695ms)
+✔ nonfinite clientY=NaN fails closed at begin, move, and finish (0.15945ms)
+✔ nonfinite clientY=Infinity fails closed at begin, move, and finish (0.115568ms)
+✔ nonfinite clientY=-Infinity fails closed at begin, move, and finish (0.106301ms)
+✔ touch-like primary pointer accepts button -1 movement and commits its release (0.121264ms)
+✔ preview retains ownership and may explicitly cancel the session (0.255118ms)
+✔ terminal callbacks see cleared state and can begin a new session safely (0.296823ms)
+✔ throwing terminal callbacks cannot leave the old session active (0.368033ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14.889298
+✔ SVG marker screen dimensions stay constant through deep zoom (0.985611ms)
+✔ crowded labels use deterministic priority and never overlap or change anchors (7.84575ms)
+✔ offscreen or invalid anchors and invalid viewports cannot produce labels (0.176159ms)
+✔ edit handles reserve space even when they do not have their own label (0.302268ms)
+✔ long and multiline names retain their original text with a bounded display name (0.174394ms)
+✔ pixel placement maps back to projected SVG coordinates at large offsets (0.176046ms)
+✔ visible line anchor clips long segments even with both endpoints offscreen (0.314349ms)
+✔ concave polygon labels anchor on the visible perimeter instead of an exterior vertex average (0.219955ms)
+✔ controls reserve space independently of geographic features (0.272111ms)
+✔ short point captions preserve the full accessible name (0.238902ms)
+✔ circle caption anchors stay on visible arcs without changing the radius (0.667167ms)
+✔ absolute overlay reservations follow resized viewports even when the overlay size does not change (0.173565ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 21.260548
+✔ drawing requires an explicit supported projected or local XY frame (1.323756ms)
+✔ empty and one/two vertex bounds use only supplied geometry (8.616733ms)
+✔ all purposes produce reducer-admitted manual actions without capture evidence (19.127626ms)
+✔ a far outside measurement area leaves every sample layout metric unchanged (69.353946ms)
+✔ capture validation rejects invalid complete polygons but permits incomplete boundaries (1.068521ms)
+✔ capture action owns its coordinates and rejected edits do not count as acceptance (1.561422ms)
+✔ camera includes supplied infrastructure, obstacles and circle extents without touching a draft (0.621812ms)
+✔ web CTM and native screen projection agree after non-square resize, zoom and pan (0.422995ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 111.371136

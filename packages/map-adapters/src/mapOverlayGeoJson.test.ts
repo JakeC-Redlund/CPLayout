@@ -12,6 +12,21 @@ const beforeProjectGeometry = JSON.stringify({
 });
 const result = evaluateLayout(sampleProject);
 const featureCollection = projectLayoutToWgs84FeatureCollection(sampleProject, result);
+const draftVertices = sampleProject.fieldBoundary.slice(0, 3);
+const draftBefore = JSON.stringify(draftVertices);
+const polygonDraft = projectLayoutToWgs84FeatureCollection(sampleProject, result, draftVertices, undefined, undefined, "Polygon");
+const preview = polygonDraft.features.find(feature => feature.properties.layerType === "draft_polygon");
+assert.equal(preview?.geometry.type, "MultiPolygon");
+if (preview?.geometry.type === "MultiPolygon") {
+  const ring = preview.geometry.coordinates[0][0];
+  assert.equal(ring.length, 4);
+  assert.deepEqual(ring[0], ring.at(-1));
+}
+assert.equal(polygonDraft.features.filter(feature => feature.properties.layerType === "draft_vertices" && feature.geometry.type === "Point").length, 3);
+const lineDraft = projectLayoutToWgs84FeatureCollection(sampleProject, result, draftVertices, undefined, undefined, "LineString");
+assert.equal(lineDraft.features.some(feature => feature.properties.layerType === "draft_polygon"), false);
+assert.equal(lineDraft.features.find(feature => feature.properties.layerType === "draft_vertices" && feature.geometry.type === "LineString")?.geometry.type, "LineString");
+assert.equal(JSON.stringify(draftVertices), draftBefore);
 const advisoryFieldPivotPlan = planAdvisoryFieldPivots(sampleProject, {
   gridDivisions: 6,
   maxMachines: 3,

@@ -1,0 +1,110 @@
+{
+  "schemaVersion": "cplayout-mapping-camera-evidence-v1",
+  "recordedAt": "2026-09-17T12:00:20.905Z",
+  "head": "ec050f60bf515b5c4cbd40c3180615b5056e28b3",
+  "branch": "main",
+  "worktree": "dirty, preserved; no publication",
+  "rawEvidenceDirectory": "/home/cyber/cplayout-map-camera-OdWrMQ/",
+  "postflight": "postflight.json",
+  "postflightSha256": "41c8402cb54401d98a33f254254fe44b579266e0ed67f85d2a7fa1f8eec25d2c",
+  "scope": [
+    "project-frame camera ownership and same-frame style restoration",
+    "current instance-owned source updates and map interaction callbacks",
+    "selection-owned drag cancellation and explicit reveal behavior",
+    "owned resize handling without retrieving deliberately offscreen selections"
+  ],
+  "source": {
+    "manifest": "source-qualified.json",
+    "manifestSha256": "13ea580f3e6739473fcba122f3a3027f3eead09b0be4ea445ba97163cbda125e",
+    "validatedManifest": "source-validated.json",
+    "validatedManifestSha256": "1d59d7f3aaf281ff4ebe6cf6365851dc7cd3a8a0fa16298db2353d4cbe19d2ab",
+    "selectedPaths": 308,
+    "changedAfterFinalFreeze": [],
+    "addedAfterFinalFreeze": [],
+    "missingAfterFinalFreeze": [],
+    "changesAfterSourceValidation": ["tests/web/browser-workflow.spec.ts"],
+    "changeExplanation": "Nine added lines in one browser test body establish a zoomed-out fixture and assert unchanged camera after each vertex selection. Root/workspace typecheck and unit-test scopes exclude tests/web. Runtime source and exported bundle are unchanged; the final browser run covers the corrected test.",
+    "headUnchanged": true,
+    "documentationOutsideManifest": true
+  },
+  "validation": {
+    "sourceCommand": "npm run validate",
+    "sourceLog": "validate-qualified.log",
+    "sourceExit": 0,
+    "sourceLogSha256": "0873965ca7f8d74fc916fc7a6e6cf2f22c1771968115a6dea05641afb3e6f42e",
+    "exportCommand": "npm exec --workspace=@cplayout/mobile -- expo export --platform web --max-workers 2",
+    "exportLog": "export-initial.log",
+    "exportExit": 0,
+    "exportLogSha256": "49f3e3c8063d1013b1a9f74378d6d91a96b72054543c24a8fc9db6aeb44025c2",
+    "cameraHelperTests": 28,
+    "adapterTests": "passed",
+    "skills": "passed",
+    "contextMap": "passed",
+    "diffCheck": "passed",
+    "fullAuditFindings": 0,
+    "productionAuditFindings": 0,
+    "auditReports": ["audit-closeout.json", "audit-production-closeout.json"]
+  },
+  "browser": {
+    "command": "CPLAYOUT_WEB_PROOF_PORT=19014 PLAYWRIGHT_JSON_OUTPUT_NAME=/home/cyber/cplayout-map-camera-OdWrMQ/browser-final.json npx playwright test tests/web/map-camera.spec.ts tests/web/maplibre-runtime.spec.ts tests/web/maplibre-recovery.spec.ts tests/web/crs-recovery.spec.ts tests/web/browser-workflow.spec.ts --grep 'map-camera.spec.ts|maplibre-runtime.spec.ts|maplibre-recovery.spec.ts|crs-recovery.spec.ts|browser map|browser vertex|browser boundary|browser utility|browser rejected|browser camera|pending map purpose|design console selects|layout mode keeps|guided manual design|public proof map|a second finger|MapLibre rejected' --workers=2 --retries=0 --max-failures=3 --reporter=line,json --output=/home/cyber/cplayout-map-camera-OdWrMQ/browser-final-results",
+    "report": "browser-final.json",
+    "reportSha256": "9d4655d7cb140c0fd1c71ce8ef05c75deba985174372774bdae934723a48a196",
+    "exit": 0,
+    "passed": 147,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "retries": 0,
+    "runnerErrors": [],
+    "durationSeconds": 686.248329,
+    "perViewport": { "desktop": 49, "tablet-768": 49, "mobile-390": 49 },
+    "oneCleanRun": true,
+    "fullInventory": false,
+    "fullProductApproval": false,
+    "coverageCaveat": "The existing public-proof feature selection case returns after a screenshot on phone. Its reported pass does not establish phone feature picking. Large-shrink cases use 1366x900 then 390x844 in each project."
+  },
+  "build": {
+    "bundle": "index-6ff88640cb4cd9df25e72465deb4f012.js",
+    "bytes": 5270821,
+    "localSha256": "f9b922a8be90be6d9974ebc5da0d13dbe366c879b9d5a4310018790fbdddcfbb",
+    "servedSha256": "f9b922a8be90be6d9974ebc5da0d13dbe366c879b9d5a4310018790fbdddcfbb",
+    "previewUrl": "http://127.0.0.1:19014",
+    "launcherOwned": true,
+    "previewIntentionallyRetained": true,
+    "unrelatedPort19013Untouched": true
+  },
+  "review": {
+    "complexity": "high",
+    "reasoningEffort": "high",
+    "subagentDecision": "required",
+    "ownership": "Disjoint helper/browser-test worker, coordinator renderer/evidence writer, high-effort read-only lifecycle reviewer and medium-effort read-only fixture QA reviewer",
+    "sourceFinding": "No remaining bounded source blocker after frame activation, callback ownership and resize corrections; independent runtime certification not claimed",
+    "visualInspection": "Final desktop pending-raster geometry, tablet style replacement, phone rejection and large-shrink selection screenshots show rendered geometry where expected, readable feedback and visible selected handle/zoom controls",
+    "visualArtifacts": [
+      "browser-final-results/maplibre-runtime-loaded-ma-15c26-ter-requests-remain-pending-desktop/pending-raster-current-geometry.png",
+      "browser-final-results/map-camera-same-frame-imag-297c8-ly-panned-and-zoomed-camera-tablet-768/style-replacement.png",
+      "browser-final-results/map-camera-rejected-duplic-c0efb-mera-selection-and-saved-XY-mobile-390/rejected-edit.png",
+      "browser-final-results/map-camera-large-viewport--4e90c-n-offscreen-selection-alone-mobile-390/large-shrink-visible-selection.png"
+    ]
+  },
+  "retainedAttempts": [
+    { "directory": "before/all-viewports", "workerReportedPassed": 6, "workerReportedFailed": 9, "reason": "Six prior-build edit/style camera regressions and three reopened-sample save-ID fixture failures" },
+    { "report": "smoke-initial.json", "passed": 25, "failed": 2, "reason": "Zoom-in setup did not create uncached raster requests on desktop/tablet" },
+    { "report": "smoke-corrected.json", "passed": 6, "failed": 0, "reason": "Corrected delayed-raster setup and large-shrink smoke; not additional unique acceptance cases" },
+    { "report": "browser-qualified.json", "passed": 143, "failed": 1, "reason": "Tablet rejection fixture assumed explicit selection could not reveal an offscreen vertex; retained failed run despite its qualified filename" },
+    { "report": "fixture-corrected.json", "passed": 6, "failed": 0, "reason": "Zoomed-out rejection fixture and camera-control checks; final repeat also adds per-selection camera assertions" }
+  ],
+  "unverified": [
+    "Complete current browser inventory and full product acceptance",
+    "Nonzero bearing/pitch restoration and same-mounted-surface CRS change/undo in a browser",
+    "Style descriptor-field changes, equal-value package rehydration and immediate post-mutation picking as dedicated browser cases",
+    "Phone public-proof feature picking beyond its existing screenshot-only path",
+    "Native Android/iOS MapLibre, tile archives, storage and sharing runtime",
+    "Physical receiver/relay operation and less-than-0.10-m maximum 3D field error"
+  ],
+  "nextMappingWork": [
+    "Explicit fit-to-field control without geometry mutation or late drag commits",
+    "Remaining camera transition and picking browser coverage",
+    "Incomplete design drafts and immutable Design-to-Layout targets"
+  ]
+}

@@ -1,0 +1,56 @@
+
+> cplayout@0.1.0 validate:skills
+> python3 tools/validate_cplayout_skills.py
+
+[file] .codex/agents/cplayout_imagery_mapper.toml: ok
+[file] .codex/agents/cplayout_interface_developer.toml: ok
+[file] .codex/agents/cplayout_center_pivot_designer.toml: ok
+[file] .codex/agents/cplayout_database_specialist.toml: ok
+[file] .codex/agents/cplayout_kb_curator.toml: ok
+[file] .codex/agents/cplayout_runtime_proof_gatekeeper.toml: ok
+[file] .codex/agents/cplayout_gis_geometry_guardian.toml: ok
+[file] .codex/agents/cplayout_qa_validation_reviewer.toml: ok
+[file] docs/agent-prompt-registry.md: ok
+[file] docs/agent-source-ledger.md: ok
+[file] docs/agent-known-gaps.md: ok
+[file] docs/agent-governance-summary.md: ok
+[file] docs/agent-context-map.md: ok
+[file] docs/README.md: ok
+[file] docs/codex-managed-hook-deployment.md: ok
+[file] docs/examples/cplayout-managed-requirements.toml: ok
+[file] .codex/hooks/cplayout_context_map.json: ok
+[file] .agents/skills/cplayout-expert-agent-panels/references/prompt-triage.md: ok
+[skill] .agents/skills/cplayout-center-pivot-design-agent: Skill is valid!
+[skill] .agents/skills/cplayout-database-agent: Skill is valid!
+[skill] .agents/skills/cplayout-expert-agent-panels: Skill is valid!
+[skill] .agents/skills/cplayout-gis-geometry-guard-agent: Skill is valid!
+[skill] .agents/skills/cplayout-google-earth-imagery-analysis: Skill is valid!
+[skill] .agents/skills/cplayout-imagery-mapping-agent: Skill is valid!
+[skill] .agents/skills/cplayout-interface-development-agent: Skill is valid!
+[skill] .agents/skills/cplayout-planning-review: Skill is valid!
+[skill] .agents/skills/cplayout-qa-validation-agent: Skill is valid!
+[skill] .agents/skills/cplayout-runtime-proof-gate-agent: Skill is valid!
+[skill] .agents/skills/cplayout-workspace-preflight: Skill is valid!
+[toml] .codex/agents/cplayout_center_pivot_designer.toml: ok
+[toml] .codex/agents/cplayout_database_specialist.toml: ok
+[toml] .codex/agents/cplayout_gis_geometry_guardian.toml: ok
+[toml] .codex/agents/cplayout_imagery_mapper.toml: ok
+[toml] .codex/agents/cplayout_interface_developer.toml: ok
+[toml] .codex/agents/cplayout_kb_curator.toml: ok
+[toml] .codex/agents/cplayout_qa_validation_reviewer.toml: ok
+[toml] .codex/agents/cplayout_runtime_proof_gatekeeper.toml: ok
+[toml] .codex/config.toml: ok
+[toml] docs/examples/cplayout-managed-requirements.toml: ok
+[hook] cplayout_route_data.json: ok
+[context] context-map freshness: ok
+[context] cplayout_context_map.json: ok
+[hook] UserPromptSubmit sample: ok
+[hook] SubagentStart sample: ok
+[hook] PreToolUse advisory sample: ok
+[hook] PreToolUse deny sample: ok
+[hook] Stop disabled compatibility sample: ok
+[test] tools/tests/test_cplayout_*.py: ok
+[helper] inventory_ge_artifacts.py --help: ok
+[gitignore] reports/cornergps-flt-inventory/: ok
+
+CPLayout skill and agent validation passed.

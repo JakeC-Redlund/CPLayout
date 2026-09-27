@@ -1,4 +1,6 @@
-import type { ProjectMapFeature, ProjectMapFeatureKind, SourceConfidence, XY } from "@cplayout/core";
+import type { ProjectMapFeature, ProjectMapFeatureKind, SourceConfidence, UnitSystem, XY } from "@cplayout/core";
+import { formatDistance, qualifyProjectCrs, squareMetersToAcres, validateDraftBoundary } from "@cplayout/core";
+import { polygonAreaSquareMeters } from "@cplayout/geometry";
 import type { DrawingLayerType, DrawingMode } from "@cplayout/geometry";
 
 export type UtilityFeatureGeometry = ProjectMapFeature["geometry"]["type"];
@@ -21,6 +23,7 @@ export type MapToolCatalogItem = {
   testID: string;
   action:
     | { type: "activate"; mode: DrawingMode; layer: DrawingLayerType; featureKind?: ProjectMapFeatureKind }
+    | { type: "draw"; geometry: UtilityFeatureGeometry }
     | { type: "open_panel"; panel: MapToolPanelId };
 };
 
@@ -45,25 +48,25 @@ export const MAP_TOOL_CATALOG: MapToolCatalogItem[] = [
     id: "point",
     label: "Point",
     shortLabel: "Point",
-    statusLabel: "Point tools",
+    statusLabel: "Draw point",
     testID: "map-tool-point",
-    action: { type: "open_panel", panel: "point" },
+    action: { type: "draw", geometry: "Point" },
   },
   {
     id: "line",
     label: "Line",
     shortLabel: "Line",
-    statusLabel: "Line tools",
+    statusLabel: "Draw line",
     testID: "map-tool-line",
-    action: { type: "open_panel", panel: "line" },
+    action: { type: "draw", geometry: "LineString" },
   },
   {
     id: "polygon",
-    label: "Area",
-    shortLabel: "Area",
-    statusLabel: "Area tools",
+    label: "Polygon",
+    shortLabel: "Polygon",
+    statusLabel: "Draw polygon",
     testID: "map-tool-polygon",
-    action: { type: "open_panel", panel: "polygon" },
+    action: { type: "draw", geometry: "Polygon" },
   },
   {
     id: "circle",
@@ -81,11 +84,34 @@ export interface UtilityFeatureOption {
   geometry: UtilityFeatureGeometry;
 }
 
+/** Preview only: project-plane measurements never qualify survey or ground accuracy. */
+export function draftMeasurementText(
+  geometry: UtilityFeatureGeometry,
+  vertices: XY[],
+  projectCrs: string,
+  unitSystem: UnitSystem,
+): string {
+  if (!vertices.length || geometry === "Point") return "";
+  if (!qualifyProjectCrs(projectCrs).calculation.allowed) return "Measurement unavailable: unqualified CRS";
+  if (vertices.some(({ x, y }) => !Number.isFinite(x) || !Number.isFinite(y))) return "Measurement unavailable: invalid coordinates";
+  if (vertices.length < 2) return "";
+  const length = vertices.slice(1).reduce((sum, point, index) => sum + Math.hypot(point.x - vertices[index].x, point.y - vertices[index].y), 0);
+  if (geometry === "LineString") return `XY length ${formatDistance(length, unitSystem)}`;
+  if (geometry === "Circle") return `XY radius ${formatDistance(Math.hypot(vertices[1].x - vertices[0].x, vertices[1].y - vertices[0].y), unitSystem)}`;
+  if (vertices.length < 3) return `XY length ${formatDistance(length, unitSystem)}`;
+  if (validateDraftBoundary(vertices).length) return "Area unavailable: polygon needs a simple, nonzero ring";
+  const perimeter = length + Math.hypot(vertices[0].x - vertices.at(-1)!.x, vertices[0].y - vertices.at(-1)!.y);
+  const area = polygonAreaSquareMeters(vertices);
+  const areaText = unitSystem === "metric" ? `${area.toFixed(2)} sq m` : `${squareMetersToAcres(area).toFixed(4)} ac`;
+  return `XY area ${areaText}; perimeter ${formatDistance(perimeter, unitSystem)}`;
+}
+
 export const UTILITY_FEATURE_OPTIONS: UtilityFeatureOption[] = [
   { kind: "underground_pipeline", label: "Pipeline", geometry: "LineString" },
   { kind: "underground_wire", label: "Underground Wire", geometry: "LineString" },
   { kind: "linear_move_path", label: "Linear Move Path", geometry: "LineString" },
   { kind: "measurement_line", label: "Measurement Line", geometry: "LineString" },
+  { kind: "measurement_area", label: "Measurement Area", geometry: "Polygon" },
   { kind: "power_line", label: "Power Line", geometry: "LineString" },
   { kind: "fence", label: "Fence", geometry: "LineString" },
   { kind: "access_lane", label: "Access Lane", geometry: "LineString" },

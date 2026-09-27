@@ -1,10 +1,40 @@
 # Mapping Workflow Review and Implementation
 
+Current drawing work: [Standard drawing tools](drawing-tools-refactor.md) records the Polygon/Line/Point implementation, research, validation scope and remaining proof boundaries.
+
 Review: 2026-09-13 America/Denver; verification completed on 2026-09-14 UTC.
 Baseline: `eda1ada05c03ef2244b8bbc4e3b6fb8380051389`, `main`.
 Status: first safety/workflow packet implemented; acceptance results below. The full Design-to-Layout program is not complete.
 
 Continuation: [full-refactor-execution.md](full-refactor-execution.md) tracks the active next pass, including dependency remediation, CRS qualification and the newly specified hardware. The preceding packet and its evidence remain historical, immutable acceptance scope.
+
+## Mapping Focus: September 17
+
+The owner redirected the current pass to mapping. Preserve completed and in-progress storage/receiver work, but prioritize drawing and editing reliability, touch/compact controls, imagery/reference alignment and the Design-to-Layout workflow. Do not expand receiver or relay work in this pass.
+
+Complexity and selected reasoning: high for a bounded shared-controller/App correction. Subagent decision: not useful under the current coordinator-only contract. No independent review is claimed for this mapping change. Preflight preserves the existing dirty worktree. Validation: focused controller/reducer regressions, map-adapter/mobile typechecks, full source validation, exact-export SVG/MapLibre browser tests and screenshots, audit and documentation checks.
+
+Direct reproduction showed rejected vertex edits reporting success: an insert advanced selection and a delete cleared it despite callbacks returning false. The shared controller now checks boolean or structured mutation results for boundary/obstacle/feature/radius edits and pivot/infrastructure/survey placement. App supplies reducer evaluation results. Rejection keeps geometry, history and selected vertex unchanged and reports the reason; the operator can correct the selected geometry without starting over. Existing void callbacks remain supported for adapter compatibility, so unknown external callbacks must adopt result reporting to receive this guarantee.
+
+The first browser smoke passed MapLibre but exposed an additional SVG defect: the renderer never displayed controller status. SVG now presents action feedback in normal flow below its header, outside the height-limited editing dock. The next phone check exposed zoom/tool-dock overlap after that added row. Compact SVG now keeps unavailable layer details in a separately opened Map Layer Status dialog, retaining a short status summary and always-visible attribution for displayed imagery. Opening/closing the dialog must preserve camera, selected vertex, unsaved edits and stored bytes.
+
+For mapping recovery: a rejected move/insert/delete leaves the selected geometry available to correct; accepted edits retain ordinary undo behavior. On compact SVG, open Map Layer Status for full imagery/reference reasons and close it to return to editing. These controls do not enable unsupported tiles or repair coordinates.
+
+This correction changes no CRS, persisted schema, vertex validation rule or camera behavior. Browser coverage and native runtime acceptance remain distinct. Compact MapLibre vertex interaction was outside this earlier correction's acceptance and is covered by the subsequent touch packet below; incomplete-design editing and immutable Layout snapshots remain open. Validation results belong in the current execution record, not the historical packet below.
+
+### Next Mapping Work
+
+The subsequent [touch-editing packet](mapping-touch-editing.md) implements compact browser actions and owned-pointer drag handling. Its current validation status is in the execution log; the preceding mapping-feedback record remains evidence for its own earlier build.
+
+The next [field-fit packet](mapping-field-fit.md) adds explicit committed-boundary framing to browser/SVG, corrects SVG display/click alignment, and compacts narrow headers. It preserves the camera-persistence contract for ordinary edits. Its source/browser evidence is separate from the historical camera packet; native behavior, label decluttering, incomplete drafts, and immutable Layout targets remain open.
+
+1. **Responsive feedback and map space:** the touch packet covers actual phone select, nudge, insert, drag/cancel, delete and undo interactions. Its historical 546-case pass did not detect tablet text clipping. The [panel followup](mapping-touch-editing.md#panel-feedback-and-map-sources-followup) reproduces that clipping, uses measured panel width and uncapped feedback, and adds full provider credit with accessible source details. Text-fragment containment, enlarged text, dialog focus/Escape and resize/cancel tests replace visibility-only confidence. That followup still showed credit/zoom overlap with the phone inspector open. The [pending-purpose packet](mapping-touch-editing.md#pending-purpose-ownership) suppresses the duplicate floating palette in that state and verifies both zoom buttons remain clear, without hiding credit or feedback. Its exact-build results are recorded in the execution log. Label decluttering and broader map-space ergonomics remain open; native touch proof remains separate.
+2. **Purpose outcomes and camera persistence:** the [pending-purpose packet](mapping-touch-editing.md#pending-purpose-ownership) adds local rejection feedback, guarded retry/cancel and transient ownership, preserving the field-containment rule for layout-control features. The [camera packet](mapping-touch-editing.md#camera-persistence-packet) separates geometry updates from camera framing and scopes source/selection callbacks to the active map. Current acceptance and remaining coverage are recorded in the execution log. Ordinary edits, undo and layer changes must preserve pan/zoom, while a different project, same-ID reopen or CRS change must initialize the appropriate frame. Test marker reveal behavior and stale map callbacks independently from geometry admission.
+3. **Incomplete field mapping:** activate existing core draft contracts through a draft-aware catalog/editor without inventing a rectangle, pivot or machine. Reuse the shared interaction controller for staged XY input, keep missing values visible, and block calculated/installation outputs until explicit completion. Coordinate `App.tsx`, core draft/reducer, project-store and adapters in a separate schema/storage-reviewed packet.
+4. **Imagery and reference alignment:** test viewport/project changes, CRS admission, layer visibility, offline errors and attribution independently from geometry commits. Never infer a surveyed boundary or corrected elevation from rendered imagery. Keep each imported/traced candidate reviewable before reducer admission.
+5. **Immutable Layout targets:** retain an exact design revision and target identities when starting Layout. Design edits must invalidate or explicitly supersede that target set. Finish compatible persistence/archive contracts and stale-target tests before calling this handoff complete.
+
+Acceptance remains `npm run validate`, exact-build selected mapping tests/screenshots followed by the complete browser inventory for release, `npm audit`, governance checks where affected and `git diff --check`. Hardware transport/relay expansion stays outside this mapping-first sequence. Preserve the current uncommitted work; publication is a separate audited operation.
 
 ## Scope and Decision Record
 

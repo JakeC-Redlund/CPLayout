@@ -1,4 +1,5 @@
 import type { InfrastructurePoint, LonLat, ObstacleZone, ProjectMapFeatureKind, SurveyPoint, XY } from "@cplayout/core";
+import { validateDraftBoundary } from "@cplayout/core";
 import { resolveDraftVertexIntent, type DrawingLayerType, type DrawingMode } from "@cplayout/geometry";
 
 import { confidenceForImagery, mapClickToProjectedIntent, type MapClickIntent } from "./mapClickIntent";
@@ -16,7 +17,7 @@ import {
   selectedProjectVertexText,
   type SelectedProjectVertex,
 } from "./projectVertexEditing";
-import type { MapSurfaceProps } from "./types";
+import type { MapDraftOwner, MapMutationOutcome, MapSurfaceProps } from "./types";
 
 export interface MapInteractionOptions {
   imageryEnabled: boolean;
@@ -35,6 +36,7 @@ export interface MapInteractionState {
 export interface MapInteractionSnapshot extends MapInteractionState {
   canCommitDraft: boolean;
   canSaveFeature: boolean;
+  canUndoDraftVertex: boolean;
   canEditSelectedVertex: boolean;
   canDeleteSelectedVertex: boolean;
   canInsertSelectedVertex: boolean;
@@ -46,6 +48,7 @@ export interface MapInteractionMethods {
   setActiveLayer(layer: DrawingLayerType): void;
   setMapFeatureKind(kind: ProjectMapFeatureKind): void;
   clearDraft(status?: string): void;
+  undoDraftVertex(): void;
   setStatus(text: string): void;
   handleLonLat(lonLat: LonLat, closeRequested?: boolean): void;
   handleProjectedPoint(point: XY, closeRequested?: boolean, wgs84?: LonLat): void;
@@ -115,12 +118,28 @@ function resetDraft(state: MapInteractionState, status: string): MapInteractionS
   return { ...state, draftVertices: EMPTY_DRAFT, selectedVertex: null, status };
 }
 
+function projectContextChanged(previous: MapSurfaceProps, props: MapSurfaceProps): boolean {
+  return previous.project.id !== props.project.id || previous.project.projectCrs !== props.project.projectCrs
+    || previous.projectGeneration !== props.projectGeneration;
+}
+
+function sameDraftOwner(a: MapDraftOwner, b: MapDraftOwner): boolean {
+  return a.projectId === b.projectId && a.projectCrs === b.projectCrs
+    && a.projectGeneration === b.projectGeneration && a.draftId === b.draftId;
+}
+
+function ownerMatchesProject(owner: MapDraftOwner, props: MapSurfaceProps): boolean {
+  return owner.projectId === props.project.id && owner.projectCrs === props.project.projectCrs
+    && owner.projectGeneration === (props.projectGeneration ?? 0)
+    && Number.isSafeInteger(owner.draftId) && owner.draftId >= 0;
+}
+
 export function reconcileMapInteractionState(
   state: MapInteractionState,
   previous: MapSurfaceProps,
   props: MapSurfaceProps,
 ): MapInteractionState {
-  const projectChanged = previous.project.id !== props.project.id || previous.project.projectCrs !== props.project.projectCrs;
+  const projectChanged = projectContextChanged(previous, props);
   const manualChanged = previous.manualDesignCaptureRequest?.requestId !== props.manualDesignCaptureRequest?.requestId
     || previous.manualDesignCaptureRequest?.role !== props.manualDesignCaptureRequest?.role;
   const workflowChanged = canEdit(previous) !== canEdit(props) || Boolean(previous.homeView) !== Boolean(props.homeView);
@@ -145,11 +164,15 @@ export function reconcileMapInteractionState(
     || Boolean(previous.activeMapFeatureKind) !== Boolean(props.activeMapFeatureKind)) {
     next = resetDraft(next, `${next.mode.replaceAll("_", " ")} mode selected. No draft vertices are pending.`);
   }
+  if (commandChanged && previous.draftPurposeReceipt && state.status === previous.draftPurposeReceipt.message
+    && !props.draftPurposeReceipt && next.draftVertices.length === 0) {
+    next = { ...next, status: `${next.mode.replaceAll("_", " ")} mode selected. No draft vertices are pending.` };
+  }
   if (next.selectedVertex && !validSelection(props, next.selectedVertex)) next = { ...next, selectedVertex: null };
   return next;
 }
 
-function editCallback(props: MapSurfaceProps, selected: SelectedProjectVertex): ((point: XY) => void) | undefined {
+function editCallback(props: MapSurfaceProps, selected: SelectedProjectVertex): ((point: XY) => MapMutationOutcome) | undefined {
   if (selected.layer === "field_boundary") {
     const callback = props.onMoveBoundaryVertex;
     return callback ? (point) => callback(selected.vertexIndex, point) : undefined;
@@ -166,7 +189,7 @@ function editCallback(props: MapSurfaceProps, selected: SelectedProjectVertex): 
   return callback ? (point) => callback(selected.featureId, selected.vertexIndex, point) : undefined;
 }
 
-function insertCallback(props: MapSurfaceProps, selected: SelectedProjectVertex): ((point: XY) => void) | undefined {
+function insertCallback(props: MapSurfaceProps, selected: SelectedProjectVertex): ((point: XY) => MapMutationOutcome) | undefined {
   if (selected.layer === "field_boundary") {
     const callback = props.onInsertBoundaryVertex;
     return callback ? (point) => callback(selected.vertexIndex, point) : undefined;
@@ -179,7 +202,7 @@ function insertCallback(props: MapSurfaceProps, selected: SelectedProjectVertex)
   return callback ? (point) => callback(selected.featureId, selected.vertexIndex, point) : undefined;
 }
 
-function deleteCallback(props: MapSurfaceProps, selected: SelectedProjectVertex): (() => void) | undefined {
+function deleteCallback(props: MapSurfaceProps, selected: SelectedProjectVertex): (() => MapMutationOutcome) | undefined {
   if (selected.layer === "field_boundary") {
     const callback = props.onDeleteBoundaryVertex;
     return callback ? () => callback(selected.vertexIndex) : undefined;
@@ -205,7 +228,7 @@ function featureCallbackAvailable(props: MapSurfaceProps): boolean {
 
 function utilitySaveHint(state: MapInteractionState): string {
   if (state.mode !== "measure") return "";
-  if (state.activeFeatureGeometry === "Point") return " \u00b7 point saves on map click";
+  if (state.activeFeatureGeometry === "Point") return " \u00b7 capture point, then choose purpose";
   if (state.activeFeatureGeometry === "Circle") return " \u00b7 circle needs center + radius";
   if (state.activeFeatureGeometry === "Polygon") return " \u00b7 polygon needs 3 pts";
   return " \u00b7 line needs 2 pts";
@@ -217,6 +240,8 @@ export function selectMapInteractionState(state: MapInteractionState, props: Map
   const editingVertex = editing && state.mode === "edit_vertices" && selected !== null;
   return {
     ...state,
+    canUndoDraftVertex: editing && state.draftVertices.length > 0
+      && (state.mode === "measure" || state.mode === "draw_boundary" || state.mode === "mark_obstacle"),
     canCommitDraft: editing && state.draftVertices.length >= 3 && commitCallbackAvailable(state, props),
     canSaveFeature: editing && state.mode === "measure" && state.activeFeatureGeometry !== "Point"
       && state.draftVertices.length >= featureDraftMinimumVertices(state.activeFeatureGeometry) && featureCallbackAvailable(props),
@@ -280,6 +305,23 @@ export function createMapInteractionController(initialProps: MapSurfaceProps, in
   let state = createMapInteractionState(props);
   let snapshot = selectMapInteractionState(state, props);
   const listeners = new Set<() => void>();
+  let eligibleDraft: { owner: MapDraftOwner; sequence: number } | null = null;
+  let interactionGeneration = 0;
+
+  function retireDraftOwner(): void {
+    eligibleDraft = null;
+    interactionGeneration++;
+  }
+
+  function applyPurposeReceipt(next: MapInteractionState): MapInteractionState {
+    const receipt = props.draftPurposeReceipt;
+    if (!eligibleDraft || !receipt || !canEdit(props) || !ownerMatchesProject(eligibleDraft.owner, props)
+      || !sameDraftOwner(eligibleDraft.owner, receipt.owner)
+      || !Number.isSafeInteger(receipt.sequence) || receipt.sequence < 0 || receipt.sequence <= eligibleDraft.sequence) return next;
+    eligibleDraft.sequence = receipt.sequence;
+    if (receipt.outcome !== "rejected") retireDraftOwner();
+    return { ...next, status: receipt.message };
+  }
 
   function publish(next: MapInteractionState, notify = true): void {
     state = next;
@@ -294,6 +336,7 @@ export function createMapInteractionController(initialProps: MapSurfaceProps, in
   }
 
   function clearDraft(status = CLEARED_STATUS): void {
+    retireDraftOwner();
     publish({ ...state, draftVertices: EMPTY_DRAFT, status });
   }
 
@@ -307,8 +350,17 @@ export function createMapInteractionController(initialProps: MapSurfaceProps, in
     setStatus("This map action is unavailable. Draft and project geometry are unchanged.");
   }
 
+  function editRejected(outcome: MapMutationOutcome): boolean {
+    if (!callbackRejected(outcome)) return false;
+    const reason = typeof outcome === "object" && outcome !== null && !outcome.ok
+      ? outcome.error : "Project validation failed.";
+    setStatus(`Map edit rejected: ${reason} Project geometry is unchanged.`);
+    return true;
+  }
+
   function setTool(mode: DrawingMode, layer = state.activeLayer): void {
     if (!canEdit(props) && mode !== "pan") return;
+    retireDraftOwner();
     if (mode === state.mode && layer === state.activeLayer) return;
     publish(resetDraft({ ...state, mode, activeLayer: layer }, `${mode.replaceAll("_", " ")} mode selected. No draft vertices are pending.`));
   }
@@ -343,8 +395,17 @@ export function createMapInteractionController(initialProps: MapSurfaceProps, in
     const lastVertex = state.draftVertices.at(-1);
     const repeatsLastVertex = lastVertex
       && Math.hypot(vertex.x - lastVertex.x, vertex.y - lastVertex.y) <= CONSECUTIVE_VERTEX_EPSILON;
+    if (state.mode === "measure" && state.activeFeatureGeometry === "Polygon") {
+      const intent = resolveDraftVertexIntent({ currentVertices: state.draftVertices, mode: "draw_boundary", vertex,
+        closeRequested, vertexSnapToleranceMeters: props.settings.drawing.vertexSnapToleranceMeters });
+      if (intent.type === "commit") {
+        saveFeature(intent.vertices, "Polygon");
+        return;
+      }
+    }
     // Browser double-clicks emit two clicks before close; retain the close command, not a duplicate vertex.
     if (repeatsLastVertex && (!closeRequested || state.mode === "measure" || state.draftVertices.length < 3)) return;
+    retireDraftOwner();
     const intent = resolveDraftVertexIntent({
       currentVertices: state.draftVertices, mode: state.mode, vertex: { ...vertex }, closeRequested,
       vertexSnapToleranceMeters: props.settings.drawing.vertexSnapToleranceMeters,
@@ -364,15 +425,42 @@ export function createMapInteractionController(initialProps: MapSurfaceProps, in
   function saveFeature(vertices: XY[], geometryType: UtilityFeatureGeometry): void {
     if (!requireEditing() || state.mode !== "measure" || !vertices.every(finitePoint)) return;
     if (vertices.length < (geometryType === "Point" ? 1 : featureDraftMinimumVertices(geometryType))) return;
+    if (geometryType === "Polygon") {
+      const issues = validateDraftBoundary(vertices);
+      if (issues.length) {
+        publish({ ...state, draftVertices: cloneVertices(vertices), status: `Polygon invalid: ${issues[0].message} Remove the last vertex or clear the draft.` });
+        return;
+      }
+    }
     if (!featureCallbackAvailable(props)) return missingCallback();
     const confidence = confidenceForImagery(options.imageryEnabled);
     const notes = options.imageryEnabled ? "Traced from imagery; verify with field survey." : undefined;
     if (!props.activeMapFeatureKind) {
-      const accepted: unknown = props.onCreateMapFeatureDraft!({ geometryType, vertices: cloneVertices(vertices), sourceConfidence: confidence, notes });
+      retireDraftOwner();
+      const handoffGeneration = interactionGeneration;
+      const previousReceipt = props.draftPurposeReceipt;
+      const accepted = props.onCreateMapFeatureDraft!({ geometryType, vertices: cloneVertices(vertices), sourceConfidence: confidence, notes });
+      // A callback may synchronously change the active interaction or load another project.
+      if (handoffGeneration !== interactionGeneration) return;
+      if (accepted && !accepted.ok) {
+        publish({ ...state, draftVertices: cloneVertices(vertices), status: `Draft handoff rejected: ${accepted.error}` });
+        return;
+      }
       if (callbackRejected(accepted)) return;
-      clearDraft(geometryType === "Point"
+      if (accepted && !ownerMatchesProject(accepted.owner, props)) {
+        publish({ ...state, draftVertices: cloneVertices(vertices), status: "Draft handoff rejected: owner does not match the active project." });
+        return;
+      }
+      if (accepted) {
+        eligibleDraft = {
+          owner: { ...accepted.owner },
+          sequence: previousReceipt && sameDraftOwner(previousReceipt.owner, accepted.owner)
+            && Number.isSafeInteger(previousReceipt.sequence) ? previousReceipt.sequence : -1,
+        };
+      }
+      publish(applyPurposeReceipt({ ...state, draftVertices: EMPTY_DRAFT, status: geometryType === "Point"
         ? "Point captured in projected XY. Choose its purpose before saving project geometry."
-        : `Captured ${geometryType.replace("String", "")} draft in projected XY. Choose its purpose before saving.`);
+        : `Captured ${geometryType.replace("String", "")} draft in projected XY. Choose its purpose before saving.` }));
     } else {
       const accepted: unknown = props.onAddMapFeature!({
         name: defaultMapFeatureName(state.mapFeatureKind, geometryType, vertices.length), kind: state.mapFeatureKind,
@@ -397,11 +485,11 @@ export function createMapInteractionController(initialProps: MapSurfaceProps, in
         props.onManualDesignCapture({ ...capture, point: { ...intent.point }, wgs84: intent.wgs84 });
       } else if (intent.type === "place_pivot") {
         if (!props.onPlacePivot) return missingCallback();
-        props.onPlacePivot({ ...intent.point }, intent.wgs84);
+        if (editRejected(props.onPlacePivot({ ...intent.point }, intent.wgs84))) return;
         setStatus(`Placed pivot at projected XY ${intent.point.x.toFixed(2)}, ${intent.point.y.toFixed(2)}.`);
       } else {
         if (!props.onMoveInfrastructurePoint) return missingCallback();
-        props.onMoveInfrastructurePoint(intent.pointType, { ...intent.point }, intent.wgs84);
+        if (editRejected(props.onMoveInfrastructurePoint(intent.pointType, { ...intent.point }, intent.wgs84))) return;
         setStatus(`Moved ${intent.pointType.replaceAll("_", " ")} in projected XY.`);
       }
       return;
@@ -409,15 +497,19 @@ export function createMapInteractionController(initialProps: MapSurfaceProps, in
     if (intent.type === "add_survey_point") {
       if (!finitePoint(intent.point.projected)) return;
       if (!props.onAddSurveyPoint) return missingCallback();
-      props.onAddSurveyPoint(intent.point);
+      if (editRejected(props.onAddSurveyPoint(intent.point))) return;
       setStatus(`Captured ${intent.point.role.replaceAll("_", " ")} survey point in projected XY.`);
       return;
     }
-    if (intent.feature.geometry.type === "Point") saveFeature([intent.feature.geometry.point], "Point");
+    if (intent.feature.geometry.type === "Point") {
+      retireDraftOwner();
+      saveFeature([intent.feature.geometry.point], "Point");
+    }
   }
 
   function selectVertex(vertex: SelectedProjectVertex | null, fallbackStatus = "No project vertices are available for editing."): void {
     if (!requireEditing()) return;
+    retireDraftOwner();
     if (!validSelection(props, vertex)) {
       publish({ ...state, selectedVertex: null, status: fallbackStatus });
       return;
@@ -428,7 +520,7 @@ export function createMapInteractionController(initialProps: MapSurfaceProps, in
   function moveSelectedVertexToPoint(point: XY): void {
     if (!requireEditing() || !finitePoint(point) || !snapshot.canEditSelectedVertex || !state.selectedVertex) return;
     const movedVertexText = selectedProjectVertexText(props.project, state.selectedVertex);
-    editCallback(props, state.selectedVertex)?.({ ...point });
+    if (editRejected(editCallback(props, state.selectedVertex)?.({ ...point }))) return;
     setStatus(`Moved ${movedVertexText} in projected XY. Save Local to persist.`);
   }
 
@@ -436,10 +528,22 @@ export function createMapInteractionController(initialProps: MapSurfaceProps, in
     setTool,
     setActiveLayer: (layer) => setTool(state.mode, layer),
     setMapFeatureKind(kind) {
-      if (!canEdit(props) || kind === state.mapFeatureKind) return;
+      if (!canEdit(props)) return;
+      retireDraftOwner();
+      if (kind === state.mapFeatureKind) return;
       publish(resetDraft({ ...state, mapFeatureKind: kind, activeFeatureGeometry: props.activeDraftGeometry ?? featureOptionForKind(kind).geometry }, "Map feature tool selected. No draft vertices are pending."));
     },
     clearDraft,
+    undoDraftVertex() {
+      if (!snapshot.canUndoDraftVertex) return;
+      retireDraftOwner();
+      const vertices = state.draftVertices.slice(0, -1);
+      publish({ ...state, draftVertices: vertices, status: "Last draft vertex removed. Project geometry is unchanged." });
+      const capture = props.manualDesignCaptureRequest;
+      if (state.mode === "draw_boundary" && capture?.role === "boundary") {
+        props.onManualDesignCapture?.({ ...capture, vertices: cloneVertices(vertices) });
+      }
+    },
     setStatus,
     handleLonLat(lonLat, closeRequested = false) {
       if (!requireEditing() || !finiteLonLat(lonLat) || state.mode === "pan" || state.mode === "edit_vertices") return;
@@ -486,12 +590,12 @@ export function createMapInteractionController(initialProps: MapSurfaceProps, in
       const selected = state.selectedVertex;
       const point = selectedProjectVertexInsertionPoint(props.project, selected);
       if (!finitePoint(point)) return;
-      insertCallback(props, selected)?.(point);
+      if (editRejected(insertCallback(props, selected)?.(point))) return;
       publish({ ...state, selectedVertex: { ...selected, vertexIndex: selected.vertexIndex + 1 }, status: "Inserted a projected XY vertex at the selected segment midpoint. Drag the handle or nudge it to refine the position." });
     },
     deleteSelectedVertex() {
       if (!requireEditing() || !snapshot.canDeleteSelectedVertex || !state.selectedVertex) return;
-      deleteCallback(props, state.selectedVertex)?.();
+      if (editRejected(deleteCallback(props, state.selectedVertex)?.())) return;
       publish({ ...state, selectedVertex: null, status: "Deleted selected projected XY vertex." });
     },
   };
@@ -504,10 +608,28 @@ export function createMapInteractionController(initialProps: MapSurfaceProps, in
       return () => { listeners.delete(listener); };
     },
     updateInputs(nextProps, nextOptions, notify = true) {
+      const receipt = nextProps.draftPurposeReceipt;
+      // App may atomically commit, select the new feature, and deliver its guarded receipt.
+      const selectedNewlyCommittedFeature = receipt?.outcome === "committed" && eligibleDraft
+        && sameDraftOwner(eligibleDraft.owner, receipt.owner)
+        && Number.isSafeInteger(receipt.sequence) && receipt.sequence > eligibleDraft.sequence
+        && nextProps.selectedMapFeatureId
+        && !props.project.mapFeatures?.some((feature) => feature.id === nextProps.selectedMapFeatureId)
+        && nextProps.project.mapFeatures?.some((feature) => feature.id === nextProps.selectedMapFeatureId);
+      if (projectContextChanged(props, nextProps)
+        || props.manualDesignCaptureRequest?.requestId !== nextProps.manualDesignCaptureRequest?.requestId
+        || props.manualDesignCaptureRequest?.role !== nextProps.manualDesignCaptureRequest?.role
+        || props.settings.mappingWorkflowMode !== nextProps.settings.mappingWorkflowMode
+        || Boolean(props.homeView) !== Boolean(nextProps.homeView)
+        || props.activeToolRequestId !== nextProps.activeToolRequestId
+        || props.activeToolMode !== nextProps.activeToolMode || props.activeLayer !== nextProps.activeLayer
+        || props.activeMapFeatureKind !== nextProps.activeMapFeatureKind
+        || props.activeDraftGeometry !== nextProps.activeDraftGeometry
+        || (props.selectedMapFeatureId !== nextProps.selectedMapFeatureId && !selectedNewlyCommittedFeature)) retireDraftOwner();
       const next = reconcileMapInteractionState(state, props, nextProps);
       props = nextProps;
       options = nextOptions;
-      publish(next, notify);
+      publish(applyPurposeReceipt(next), notify);
     },
   };
 }

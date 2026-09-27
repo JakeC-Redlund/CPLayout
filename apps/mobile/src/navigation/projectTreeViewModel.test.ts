@@ -68,3 +68,12 @@ const fullCatalogTree = buildProjectTreeViewModel(catalog, {
 });
 assert.equal(fullCatalogTree.activeProjectLabel, "Project Catalog");
 assert.equal(fullCatalogTree.clients[0]?.projects[0]?.showChildren, true);
+
+const mixedTree = buildProjectTreeViewModel({ ...catalog, designs: [
+  ...catalog.designs.map(design => ({ ...design, kind: "project" as const, revision: 0 })),
+  { id: "incomplete", kind: "draft", draftId: "draft-data", revision: 0, fieldMapId: "map-north",
+    name: "Incomplete", isActive: true, createdAt: now, updatedAt: now },
+] }, { clientId: null, projectId: null, fieldMapId: null, designId: null });
+assert.equal(mixedTree.clients[0].projects[0].meta, "2 map files - 4 design files");
+assert.equal(mixedTree.clients[0].projects[0].fieldMaps[0].meta, "3 design files");
+assert.equal(mixedTree.clients[0].projects[0].fieldMaps[0].designs.find(design => design.id === "incomplete")?.meta, "saved draft");

@@ -28,6 +28,7 @@ const MAP_FEATURE_KINDS = [
   "machine_zone",
   "linear_move_path",
   "measurement_line",
+  "measurement_area",
   "end_gun_mark",
   "end_gun_arc",
   "corner_swing_limit",

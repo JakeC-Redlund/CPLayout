@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { defaultAppSettings, projectXyToLonLat, sampleProject, type ProjectMutationResult, type XY } from "@cplayout/core";
+import { createProjectEditorState, defaultAppSettings, projectXyToLonLat, reduceProjectEditorState, sampleProject, type ProjectMutationResult, type XY } from "@cplayout/core";
 import { evaluateLayout } from "@cplayout/geometry";
 
 import { createMapInteractionController, createMapInteractionState, reconcileMapInteractionState, type MapInteractionController } from "./mapInteractionController";
-import type { MapSurfaceProps } from "./types";
+import type { MapDraftHandoffResult, MapDraftOwner, MapDraftPurposeReceipt, MapSurfaceProps } from "./types";
 
 const result = evaluateLayout(sampleProject);
 const triangle = [{ x: 100, y: 100 }, { x: 300, y: 100 }, { x: 200, y: 300 }];
@@ -24,6 +24,336 @@ function makeProps(overrides: Partial<MapSurfaceProps> = {}): MapSurfaceProps {
 function draw(controller: MapInteractionController, vertices = triangle): void {
   vertices.forEach((vertex) => controller.methods.handleProjectedPoint(vertex));
 }
+
+test("draft undo preserves project and only changes unfinished vertices", () => {
+  const props = makeProps({ activeToolMode: "measure", activeDraftGeometry: "Polygon", onCreateMapFeatureDraft: () => undefined });
+  const before = JSON.stringify(props.project);
+  const controller = createMapInteractionController(props, options);
+  draw(controller);
+  assert.equal(controller.getSnapshot().canSaveFeature, true);
+  controller.methods.undoDraftVertex();
+  assert.deepEqual(controller.getSnapshot().draftVertices, triangle.slice(0, 2));
+  assert.equal(controller.getSnapshot().canSaveFeature, false);
+  controller.methods.undoDraftVertex();
+  controller.methods.undoDraftVertex();
+  controller.methods.undoDraftVertex();
+  assert.equal(controller.getSnapshot().canUndoDraftVertex, false);
+  assert.equal(JSON.stringify(props.project), before);
+  controller.updateInputs({ ...props, settings: { ...props.settings, mappingWorkflowMode: "layout" } }, options);
+  controller.methods.undoDraftVertex();
+  assert.equal(controller.getSnapshot().canUndoDraftVertex, false);
+});
+
+test("invalid polygon stays editable and cannot enter any purpose until repaired", () => {
+  let handoffs = 0;
+  const controller = createMapInteractionController(makeProps({ activeToolMode: "measure", activeDraftGeometry: "Polygon", onCreateMapFeatureDraft: () => { handoffs++; } }), options);
+  draw(controller, [{ x: 100, y: 100 }, { x: 300, y: 100 }, { x: 500, y: 100 }]);
+  controller.methods.saveMapFeatureFromDraft();
+  assert.equal(handoffs, 0);
+  assert.equal(controller.getSnapshot().draftVertices.length, 3);
+  assert.match(controller.getSnapshot().status, /Polygon invalid/);
+  controller.methods.undoDraftVertex();
+  controller.methods.handleProjectedPoint(triangle[2]);
+  controller.methods.saveMapFeatureFromDraft();
+  assert.equal(handoffs, 1);
+});
+
+test("generic polygons close at first vertex or double-click exactly once", () => {
+  for (const doubleClick of [false, true]) {
+    const captures: XY[][] = [];
+    const controller = createMapInteractionController(makeProps({ activeToolMode: "measure", activeDraftGeometry: "Polygon", onCreateMapFeatureDraft: (draft) => { captures.push(draft.vertices); } }), options);
+    draw(controller);
+    controller.methods.handleProjectedPoint(doubleClick ? triangle[2] : triangle[0], doubleClick);
+    controller.methods.handleProjectedPoint(triangle[2], true);
+    assert.deepEqual(captures, [triangle]);
+    assert.deepEqual(controller.getSnapshot().draftVertices, []);
+  }
+});
+
+test("draft undo updates staged manual boundary without committing project", () => {
+  const captures: XY[][] = [];
+  const controller = createMapInteractionController(makeProps({ activeToolMode: "draw_boundary", manualDesignCaptureRequest: { role: "boundary", requestId: 1 }, onManualDesignCapture: (capture) => { if (capture.vertices) captures.push(capture.vertices); } }), options);
+  draw(controller);
+  controller.methods.undoDraftVertex();
+  assert.deepEqual(captures.at(-1), triangle.slice(0, 2));
+});
+
+function draftOwner(overrides: Partial<MapDraftOwner> = {}): MapDraftOwner {
+  return { projectId: sampleProject.id, projectCrs: sampleProject.projectCrs, projectGeneration: 0, draftId: 1, ...overrides };
+}
+
+function purposeReceipt(overrides: Partial<MapDraftPurposeReceipt> = {}): MapDraftPurposeReceipt {
+  return { owner: draftOwner(), sequence: 1, outcome: "committed", message: "Purpose saved.", ...overrides };
+}
+
+function stagedController(overrides: Partial<MapSurfaceProps> = {}) {
+  const props = makeProps({ activeToolMode: "measure", activeDraftGeometry: "Polygon",
+    onCreateMapFeatureDraft: () => ({ ok: true, owner: draftOwner() }), ...overrides });
+  const controller = createMapInteractionController(props, options);
+  draw(controller);
+  controller.methods.saveMapFeatureFromDraft();
+  return { controller, props };
+}
+
+test("accepted handoff receipts update status only once and honor notify false", () => {
+  for (const outcome of ["committed", "cancelled"] as const) {
+    let mutations = 0;
+    const { controller, props } = stagedController({ onAddMapFeature: () => { mutations++; } });
+    assert.equal(controller.getSnapshot().draftVertices.length, 0);
+    const before = controller.getSnapshot();
+    let notifications = 0;
+    controller.subscribe(() => { notifications++; });
+    const receipt = purposeReceipt({ outcome, message: `${outcome} purpose` });
+    controller.updateInputs({ ...props, draftPurposeReceipt: receipt }, options, false);
+    assert.deepEqual(controller.getSnapshot(), { ...before, status: receipt.message });
+    assert.equal(notifications, 0);
+    const applied = controller.getSnapshot();
+    controller.updateInputs({ ...props, draftPurposeReceipt: { ...receipt } }, options);
+    controller.updateInputs({ ...props, draftPurposeReceipt: { ...receipt, sequence: 2, message: "late" } }, options);
+    assert.equal(controller.getSnapshot(), applied);
+    assert.equal(notifications, 0);
+    assert.equal(mutations, 0);
+  }
+});
+
+test("rejected receipts retain owner for retry and reject duplicate or out-of-order sequences", () => {
+  const { controller, props } = stagedController();
+  const rejected = purposeReceipt({ outcome: "rejected", sequence: 4, message: "Purpose validation failed." });
+  controller.updateInputs({ ...props, draftPurposeReceipt: rejected }, options);
+  assert.equal(controller.getSnapshot().status, rejected.message);
+  controller.methods.setStatus("Local status");
+  const before = controller.getSnapshot();
+  for (const sequence of [4, 3, 0, -1, 1.5, NaN, Infinity]) {
+    controller.updateInputs({ ...props, draftPurposeReceipt: purposeReceipt({ sequence }) }, options);
+    assert.equal(controller.getSnapshot(), before);
+  }
+  controller.updateInputs({ ...props, draftPurposeReceipt: purposeReceipt({ sequence: 5 }) }, options);
+  assert.equal(controller.getSnapshot().status, "Purpose saved.");
+});
+
+test("an explicit same-tool request clears retired purpose feedback without discarding a newer draft", () => {
+  for (const hasNewVertices of [false, true]) {
+    const { controller, props } = stagedController({ activeToolRequestId: 1 });
+    const completed = { ...props, draftPurposeReceipt: purposeReceipt({ outcome: "cancelled", message: "Map draft cancelled." }) };
+    controller.updateInputs(completed, options);
+    if (hasNewVertices) draw(controller, triangle.slice(0, 1));
+    const before = controller.getSnapshot();
+    controller.updateInputs({ ...props, activeToolRequestId: 2, draftPurposeReceipt: null }, options);
+    assert.deepEqual(controller.getSnapshot().draftVertices, before.draftVertices);
+    assert.equal(controller.getSnapshot().selectedVertex, before.selectedVertex);
+    assert.equal(controller.getSnapshot().status, hasNewVertices ? before.status : "measure mode selected. No draft vertices are pending.");
+  }
+});
+
+test("clearing a retired receipt does not overwrite newer local feedback", () => {
+  const { controller, props } = stagedController({ activeToolRequestId: 1 });
+  controller.updateInputs({ ...props, draftPurposeReceipt: purposeReceipt() }, options);
+  controller.methods.setStatus("Current interaction feedback");
+  controller.updateInputs({ ...props, activeToolRequestId: 2, draftPurposeReceipt: null }, options);
+  assert.equal(controller.getSnapshot().status, "Current interaction feedback");
+});
+
+test("receipt identity must match every owner field without consuming a valid retry", () => {
+  const { controller, props } = stagedController();
+  const before = controller.getSnapshot();
+  for (const owner of [draftOwner({ projectId: "other" }), draftOwner({ projectCrs: "LOCAL:other" }),
+    draftOwner({ projectGeneration: 1 }), draftOwner({ draftId: 2 })]) {
+    controller.updateInputs({ ...props, draftPurposeReceipt: purposeReceipt({ owner, sequence: 99 }) }, options);
+    assert.equal(controller.getSnapshot(), before);
+  }
+  controller.updateInputs({ ...props, draftPurposeReceipt: purposeReceipt() }, options);
+  assert.equal(controller.getSnapshot().status, "Purpose saved.");
+});
+
+test("rejected handoffs retain each primitive and its reason, then accept a retry", () => {
+  for (const activeDraftGeometry of ["Point", "LineString", "Polygon", "Circle"] as const) {
+    let accepted: MapDraftHandoffResult = { ok: false, error: "Purpose staging unavailable." };
+    const props = makeProps({ activeToolMode: "measure", activeDraftGeometry,
+      onCreateMapFeatureDraft: (draft) => { draft.vertices[0].x = -999; return accepted; } });
+    const controller = createMapInteractionController(props, options);
+    const vertices = triangle.slice(0, activeDraftGeometry === "Point" ? 1 : activeDraftGeometry === "Polygon" ? 3 : 2);
+    draw(controller, vertices);
+    controller.methods.saveMapFeatureFromDraft();
+    assert.deepEqual(controller.getSnapshot().draftVertices, vertices);
+    assert.match(controller.getSnapshot().status, /Purpose staging unavailable/);
+    const rejected = controller.getSnapshot();
+    controller.updateInputs({ ...props, draftPurposeReceipt: purposeReceipt() }, options);
+    assert.equal(controller.getSnapshot(), rejected);
+    accepted = { ok: true, owner: draftOwner({ draftId: 2 }) };
+    if (activeDraftGeometry === "Point") draw(controller, vertices);
+    else controller.methods.saveMapFeatureFromDraft();
+    assert.equal(controller.getSnapshot().draftVertices.length, 0);
+    controller.updateInputs({ ...props, draftPurposeReceipt: purposeReceipt({ owner: accepted.owner }) }, options);
+    assert.equal(controller.getSnapshot().status, "Purpose saved.");
+  }
+});
+
+test("stale accepted handoff owners retain vertices and cannot receive status", () => {
+  for (const owner of [draftOwner({ projectId: "other" }), draftOwner({ projectCrs: "LOCAL:other" }),
+    draftOwner({ projectGeneration: 1 }), draftOwner({ draftId: NaN })]) {
+    const { controller, props } = stagedController({ onCreateMapFeatureDraft: () => ({ ok: true, owner }) });
+    assert.deepEqual(controller.getSnapshot().draftVertices, triangle);
+    assert.match(controller.getSnapshot().status, /owner does not match/);
+    const before = controller.getSnapshot();
+    controller.updateInputs({ ...props, draftPurposeReceipt: purposeReceipt({ owner }) }, options);
+    assert.equal(controller.getSnapshot(), before);
+  }
+});
+
+test("legacy void staging and remounts cannot acquire receipt ownership", () => {
+  const receipt = purposeReceipt();
+  const { controller, props } = stagedController({ onCreateMapFeatureDraft: () => undefined });
+  assert.equal(controller.getSnapshot().draftVertices.length, 0);
+  const before = controller.getSnapshot();
+  controller.updateInputs({ ...props, draftPurposeReceipt: receipt }, options);
+  assert.equal(controller.getSnapshot(), before);
+  const remounted = createMapInteractionController({ ...props, draftPurposeReceipt: receipt }, options);
+  const initial = remounted.getSnapshot();
+  remounted.updateInputs({ ...props, draftPurposeReceipt: { ...receipt, sequence: 2 } }, options);
+  assert.equal(remounted.getSnapshot(), initial);
+  const staged = stagedController({ draftPurposeReceipt: purposeReceipt({ sequence: 8 }) });
+  const stagedBefore = staged.controller.getSnapshot();
+  staged.controller.updateInputs(staged.props, options);
+  assert.equal(staged.controller.getSnapshot(), stagedBefore);
+  staged.controller.updateInputs({ ...staged.props, draftPurposeReceipt: purposeReceipt({ sequence: 9 }) }, options);
+  assert.equal(staged.controller.getSnapshot().status, "Purpose saved.");
+});
+
+test("new drawing, tool, selection and clear commands permanently retire receipt eligibility", () => {
+  const commands: Array<(controller: MapInteractionController) => void> = [
+    (controller) => draw(controller, triangle.slice(0, 1)),
+    (controller) => controller.methods.setTool("pan"),
+    (controller) => controller.methods.setTool("measure"),
+    (controller) => controller.methods.setActiveLayer("ditch"),
+    (controller) => controller.methods.setMapFeatureKind("road"),
+    (controller) => controller.methods.selectFirstBoundaryVertex(),
+    (controller) => controller.methods.selectVertex(null),
+    (controller) => controller.methods.clearDraft(),
+  ];
+  for (const command of commands) {
+    const { controller, props } = stagedController();
+    command(controller);
+    const before = controller.getSnapshot();
+    controller.updateInputs({ ...props, draftPurposeReceipt: purposeReceipt() }, options);
+    assert.equal(controller.getSnapshot(), before);
+  }
+});
+
+test("input context changes retire receipts even when receipt arrives with the change", () => {
+  const changes: Array<(props: MapSurfaceProps) => MapSurfaceProps> = [
+    (props) => ({ ...props, project: { ...props.project, id: "other" } }),
+    (props) => ({ ...props, project: { ...props.project, projectCrs: "LOCAL:other" } }),
+    (props) => ({ ...props, projectGeneration: 1 }),
+    (props) => ({ ...props, manualDesignCaptureRequest: { requestId: 1, role: "boundary" } }),
+    (props) => ({ ...props, settings: { ...props.settings, mappingWorkflowMode: "layout" } }),
+    (props) => ({ ...props, homeView: true }),
+    (props) => ({ ...props, activeToolMode: "pan" }),
+    (props) => ({ ...props, activeToolRequestId: 1 }),
+    (props) => ({ ...props, activeLayer: "ditch" }),
+    (props) => ({ ...props, activeMapFeatureKind: "road" }),
+    (props) => ({ ...props, activeDraftGeometry: "Circle" }),
+    (props) => ({ ...props, selectedMapFeatureId: "selected" }),
+  ];
+  for (const change of changes) {
+    const { controller, props } = stagedController();
+    const updated = change(props);
+    controller.updateInputs({ ...updated, draftPurposeReceipt: purposeReceipt() }, options);
+    assert.notEqual(controller.getSnapshot().status, "Purpose saved.");
+    controller.updateInputs(props, options);
+    const before = controller.getSnapshot();
+    controller.updateInputs({ ...props, draftPurposeReceipt: purposeReceipt({ sequence: 2 }) }, options);
+    assert.equal(controller.getSnapshot(), before);
+  }
+});
+
+test("a new point click retires its previous owner when staging is unavailable or rejected", () => {
+  for (const onCreateMapFeatureDraft of [undefined, () => ({ ok: false as const, error: "Unavailable" })]) {
+    const { controller, props } = stagedController({ activeDraftGeometry: "Point" });
+    const updated = { ...props, onCreateMapFeatureDraft };
+    controller.updateInputs(updated, options);
+    controller.methods.handleProjectedPoint(triangle[0]);
+    const before = controller.getSnapshot();
+    controller.updateInputs({ ...updated, draftPurposeReceipt: purposeReceipt() }, options);
+    assert.equal(controller.getSnapshot(), before);
+  }
+});
+
+test("same-ID project generation reload discards draft and selection through pure reconciliation", () => {
+  const props = makeProps({ projectGeneration: 4, activeToolMode: "measure" });
+  const state = { ...createMapInteractionState(props), draftVertices: triangle,
+    selectedVertex: { layer: "field_boundary" as const, vertexIndex: 0 } };
+  const next = reconcileMapInteractionState(state, props, { ...props, projectGeneration: 5 });
+  assert.equal(next.mode, "pan");
+  assert.deepEqual(next.draftVertices, []);
+  assert.equal(next.selectedVertex, null);
+  assert.deepEqual(state.draftVertices, triangle);
+});
+
+test("same-render committed receipt survives selection of its newly added feature only", () => {
+  for (const scenario of ["new", "existing", "missing", "rejected", "wrong-owner"] as const) {
+    const feature = { id: "saved-feature", name: "Saved feature", kind: "planning_boundary" as const,
+      confidence: "user_estimated" as const, geometry: { type: "Polygon" as const, vertices: triangle } };
+    const { controller, props } = stagedController({
+      project: { ...makeProps().project, mapFeatures: scenario === "existing" ? [feature] : [] },
+    });
+    const receipt = purposeReceipt({ outcome: scenario === "rejected" ? "rejected" : "committed",
+      owner: draftOwner({ draftId: scenario === "wrong-owner" ? 2 : 1 }) });
+    const nextProps = { ...props, selectedMapFeatureId: feature.id, draftPurposeReceipt: receipt,
+      project: { ...props.project, mapFeatures: scenario === "missing" ? [] : [feature] } };
+    const projectBefore = structuredClone(nextProps.project);
+    const before = controller.getSnapshot();
+    controller.updateInputs(nextProps, options);
+    assert.equal(controller.getSnapshot().status === receipt.message, scenario === "new");
+    assert.equal(controller.getSnapshot().selectedVertex, before.selectedVertex);
+    assert.equal(controller.getSnapshot().draftVertices, before.draftVertices);
+    assert.deepEqual(nextProps.project, projectBefore);
+  }
+});
+
+test("manual request role changes and nonzero generations scope receipt ownership", () => {
+  const owner = draftOwner({ projectGeneration: 7 });
+  const { controller, props } = stagedController({ projectGeneration: 7,
+    manualDesignCaptureRequest: { requestId: 2, role: "boundary" },
+    onCreateMapFeatureDraft: () => ({ ok: true, owner }) });
+  controller.updateInputs({ ...props, draftPurposeReceipt: purposeReceipt({ owner, outcome: "rejected" }) }, options);
+  assert.equal(controller.getSnapshot().status, "Purpose saved.");
+  const updated = { ...props, manualDesignCaptureRequest: { requestId: 2, role: "pivot" as const } };
+  controller.updateInputs(updated, options);
+  const before = controller.getSnapshot();
+  controller.updateInputs({ ...updated, draftPurposeReceipt: purposeReceipt({ owner, sequence: 2 }) }, options);
+  assert.equal(controller.getSnapshot(), before);
+});
+
+test("a new accepted draft rejects old receipts and copies its owner", () => {
+  const owner = draftOwner();
+  const { controller, props } = stagedController({ onCreateMapFeatureDraft: () => ({ ok: true, owner }) });
+  owner.draftId = 2;
+  draw(controller);
+  controller.methods.saveMapFeatureFromDraft();
+  const before = controller.getSnapshot();
+  controller.updateInputs({ ...props, draftPurposeReceipt: purposeReceipt() }, options);
+  assert.equal(controller.getSnapshot(), before);
+  owner.draftId = 3;
+  controller.updateInputs({ ...props, draftPurposeReceipt: purposeReceipt({ owner: draftOwner({ draftId: 2 }) }) }, options);
+  assert.equal(controller.getSnapshot().status, "Purpose saved.");
+});
+
+test("synchronous handoff context changes cannot restore an obsolete owner or clear new work", () => {
+  let controller: MapInteractionController;
+  const props = makeProps({ activeToolMode: "measure", activeDraftGeometry: "Polygon",
+    onCreateMapFeatureDraft: () => {
+      controller.methods.clearDraft();
+      draw(controller, triangle.slice(0, 1));
+      return { ok: true, owner: draftOwner() };
+    } });
+  controller = createMapInteractionController(props, options);
+  draw(controller);
+  controller.methods.saveMapFeatureFromDraft();
+  assert.deepEqual(controller.getSnapshot().draftVertices, triangle.slice(0, 1));
+  const before = controller.getSnapshot();
+  controller.updateInputs({ ...props, draftPurposeReceipt: purposeReceipt() }, options);
+  assert.equal(controller.getSnapshot(), before);
+});
 
 test("pure reconciliation and unchanged input/request updates preserve drafts", () => {
   const props = makeProps({ activeToolMode: "draw_boundary", activeToolRequestId: 1 });
@@ -199,11 +529,6 @@ test("browser click/click/dblclick sequence retains three distinct vertices", ()
     controller.methods.handleProjectedPoint(triangle[2], false);
     assert.deepEqual(controller.getSnapshot().draftVertices, triangle);
     controller.methods.handleProjectedPoint(triangle[2], true);
-    if (mode === "measure") {
-      assert.equal(received.length, 0);
-      assert.deepEqual(controller.getSnapshot().draftVertices, triangle);
-      controller.methods.saveMapFeatureFromDraft();
-    }
     assert.deepEqual(received, [triangle]);
     assert.equal(controller.getSnapshot().draftVertices.length, 0);
   }
@@ -393,7 +718,7 @@ test("runtime false from generic staging retains draft and status until successf
   let calls = 0;
   let props = makeProps({
     activeToolMode: "measure", activeDraftGeometry: "Polygon",
-    onCreateMapFeatureDraft: () => { calls += 1; return false; },
+    onCreateMapFeatureDraft: (() => { calls += 1; return false; }) as unknown as MapSurfaceProps["onCreateMapFeatureDraft"],
   });
   const controller = createMapInteractionController(props, options);
   draw(controller);
@@ -417,13 +742,20 @@ test("structured mutation rejection retains typed and generic drafts until ok tr
     const controller = createMapInteractionController(makeProps({
       activeToolMode: "measure", activeDraftGeometry: "Polygon",
       activeMapFeatureKind: typed ? "planning_boundary" : undefined,
-      onAddMapFeature: callback, onCreateMapFeatureDraft: callback,
+      onAddMapFeature: callback, onCreateMapFeatureDraft: () => {
+        const outcome = callback();
+        return outcome.ok ? { ok: true, owner: draftOwner() } : outcome;
+      },
     }), options);
     draw(controller);
     const before = controller.getSnapshot();
     controller.methods.saveMapFeatureFromDraft();
     assert.equal(calls, 1);
-    assert.equal(controller.getSnapshot(), before);
+    if (typed) assert.equal(controller.getSnapshot(), before);
+    else {
+      assert.deepEqual(controller.getSnapshot().draftVertices, before.draftVertices);
+      assert.match(controller.getSnapshot().status, /Rejected geometry/);
+    }
     mutation = { ok: true, revision: 1 };
     controller.methods.saveMapFeatureFromDraft();
     assert.equal(calls, 2);
@@ -535,6 +867,95 @@ test("missing edit callbacks disable commands and preserve selection", () => {
   controller.methods.insertAfterSelectedVertex();
   controller.methods.deleteSelectedVertex();
   assert.equal(controller.getSnapshot().selectedVertex, selected);
+});
+
+test("rejected vertex commands retain their selected boundary, obstacle, feature or radius handle", () => {
+  for (const rejected of [false, { ok: false, error: "Synthetic invalid geometry." }] as const) {
+    let calls = 0;
+    const reject = () => { calls++; return rejected; };
+    const props = makeProps({
+      project: { ...sampleProject, fieldBoundary: square,
+        obstacles: [{ id: "obstacle", name: "Obstacle", kind: "exclusion", polygon: square, bufferMeters: 0, hardConflict: true, noSpray: true, confidence: "user_estimated" }],
+        mapFeatures: [
+          { id: "polygon", name: "Polygon", kind: "planning_boundary", confidence: "user_estimated", geometry: { type: "Polygon", vertices: square } },
+          { id: "circle", name: "Circle", kind: "end_gun_arc", confidence: "user_estimated", geometry: { type: "Circle", center: triangle[0], radiusMeters: 20 } },
+        ],
+      },
+      onMoveBoundaryVertex: reject, onInsertBoundaryVertex: reject, onDeleteBoundaryVertex: reject,
+      onMoveObstacleVertex: reject, onInsertObstacleVertex: reject, onDeleteObstacleVertex: reject,
+      onMoveMapFeatureVertex: reject, onInsertMapFeatureVertex: reject, onDeleteMapFeatureVertex: reject,
+      onMoveMapFeatureCircleRadiusHandle: reject,
+    });
+    const original = structuredClone(props.project);
+    const controller = createMapInteractionController(props, options);
+    for (const selection of [
+      { layer: "field_boundary", vertexIndex: 0 },
+      { layer: "obstacle", obstacleId: "obstacle", vertexIndex: 0 },
+      { layer: "map_feature", featureId: "polygon", vertexIndex: 0 },
+    ] as const) {
+      controller.methods.selectVertex(selection);
+      for (const command of [() => controller.methods.nudgeSelectedVertex({ x: 1, y: 0 }),
+        controller.methods.insertAfterSelectedVertex, controller.methods.deleteSelectedVertex]) {
+        const before = calls;
+        command();
+        assert.equal(calls, before + 1);
+        assert.deepEqual(controller.getSnapshot().selectedVertex, selection);
+        assert.match(controller.getSnapshot().status, /^Map edit rejected:/);
+        assert.match(controller.getSnapshot().status, /Project geometry is unchanged\./);
+        if (rejected !== false) assert.match(controller.getSnapshot().status, /Synthetic invalid geometry/);
+      }
+    }
+    const radius = { layer: "map_feature", featureId: "circle", vertexIndex: 1 } as const;
+    controller.methods.selectVertex(radius);
+    controller.methods.moveSelectedVertexToPoint(triangle[0]);
+    assert.deepEqual(controller.getSnapshot().selectedVertex, radius);
+    assert.match(controller.getSnapshot().status, /^Map edit rejected:/);
+    assert.equal(calls, 10);
+    assert.deepEqual(props.project, original);
+  }
+});
+
+test("rejected pivot, infrastructure and survey clicks cannot report a successful placement", () => {
+  for (const rejected of [false, { ok: false, error: "Synthetic point rejected." }] as const) {
+    const events: string[] = [];
+    const controller = createMapInteractionController(makeProps({
+      onPlacePivot: () => { events.push("pivot"); return rejected; },
+      onMoveInfrastructurePoint: () => { events.push("water"); return rejected; },
+      onAddSurveyPoint: () => { events.push("survey"); return rejected; },
+    }), options);
+    for (const [mode, layer] of [["place_pivot", "pivot_center"], ["place_pivot", "water_source"], ["capture_point", "control_point"]] as const) {
+      controller.methods.setTool(mode, layer);
+      controller.methods.handleProjectedPoint(triangle[0]);
+      assert.match(controller.getSnapshot().status, /^Map edit rejected:/);
+    }
+    assert.deepEqual(events, ["pivot", "water", "survey"]);
+  }
+});
+
+test("real reducer rejection preserves geometry and history, followed by a valid edit and undo", () => {
+  let editor = createProjectEditorState(makeProps().project);
+  const before = editor;
+  const props = () => makeProps({ project: editor.project, onMoveBoundaryVertex: (vertexIndex, point) => {
+    editor = reduceProjectEditorState(editor, { type: "move_boundary_vertex", vertexIndex, point });
+    return editor.lastError ? { ok: false, error: editor.lastError } : { ok: true, revision: editor.revision };
+  } });
+  const controller = createMapInteractionController(props(), options);
+  controller.methods.selectFirstBoundaryVertex();
+  controller.methods.moveSelectedVertexToPoint(square[1]);
+  controller.updateInputs(props(), options);
+  assert.deepEqual(editor.project, before.project);
+  assert.deepEqual(editor.past, before.past);
+  assert.deepEqual(editor.future, before.future);
+  assert.equal(editor.revision, before.revision);
+  assert.deepEqual(controller.getSnapshot().selectedVertex, { layer: "field_boundary", vertexIndex: 0 });
+  assert.match(controller.getSnapshot().status, /^Map edit rejected:.*duplicate/i);
+  controller.methods.nudgeSelectedVertex({ x: 1, y: 0 });
+  controller.updateInputs(props(), options);
+  assert.equal(editor.revision, before.revision + 1);
+  assert.equal(editor.project.fieldBoundary[0].x, before.project.fieldBoundary[0].x + 1);
+  assert.match(controller.getSnapshot().status, /^Moved boundary/);
+  editor = reduceProjectEditorState(editor, { type: "undo" });
+  assert.deepEqual(editor.project, before.project);
 });
 
 test("obstacle commits, infrastructure and survey preserve routing and provenance", () => {

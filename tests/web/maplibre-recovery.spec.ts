@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { readWorkspace, workspaceStorageBytes } from "./workspace-fixtures";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
@@ -32,18 +33,18 @@ for (const asset of ["maplibre-gl-worker.mjs", "maplibre-gl-shared.mjs"]) {
       await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("North Quarter Concept Layout");
       await page.getByTestId("workspace-nav-files").click();
       await page.getByTestId("files-action-save-local").click();
-      await expect.poll(() => page.evaluate(() => localStorage.getItem("center-pivot-layout-projects-v1"))).not.toBeNull();
+      await expect.poll(async () => (await readWorkspace(page)).projectDocuments.length).toBe(1);
       await page.getByTestId("workspace-nav-map").click();
       await expect.poll(() => intercepted).toBeGreaterThan(0);
       await expect(page.getByTestId("project-save-state").getByText("Saved", { exact: true })).toBeVisible();
-      const stored = await page.evaluate(() => localStorage.getItem("center-pivot-layout-projects-v1"));
-      expect(stored).not.toBeNull();
+      const stored = await workspaceStorageBytes(page);
+      expect((await readWorkspace(page)).projectDocuments).toHaveLength(1);
       await page.getByTestId("browser-map-use-svg").click();
       await expect(page.getByTestId("browser-map-renderer-fallback")).toBeVisible();
       await expect(page.getByTestId("layout-map-svg")).toBeVisible();
       await expect(page.locator(".maplibregl-canvas")).toHaveCount(0);
       expect(await page.getByTestId("layout-map-svg").locator("path").count()).toBeGreaterThan(0);
-      expect(await page.evaluate(() => localStorage.getItem("center-pivot-layout-projects-v1"))).toBe(stored);
+      expect(await workspaceStorageBytes(page)).toEqual(stored);
       expect(pageErrors).toEqual([]);
     });
   }

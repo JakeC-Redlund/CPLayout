@@ -285,7 +285,7 @@ function exactFullCircleOutsideFieldResult(
   };
 }
 
-function validateDraftBoundary(vertices: XY[]): ManualDesignTopologyIssue[] {
+export function validateDraftBoundary(vertices: XY[]): ManualDesignTopologyIssue[] {
   if (vertices.length < 3) return [issue("too_few_vertices", "Boundary needs at least three vertices before apply.")];
   if (vertices.some((point) => !finitePoint(point))) return [issue("non_finite_coordinate", "Boundary contains a non-finite coordinate.")];
   const seen = new Set<string>();
@@ -374,12 +374,7 @@ function samePoint(left: XY, right: XY): boolean {
 }
 
 function copyCaptureEvidence(evidence: GnssCaptureEvidence | null): GnssCaptureEvidence | null {
-  return evidence ? {
-    ...evidence,
-    sentenceTypes: [...evidence.sentenceTypes],
-    ...(evidence.rawRecordHashes ? { rawRecordHashes: [...evidence.rawRecordHashes] } : {}),
-    ...(evidence.height ? { height: { ...evidence.height } } : {}),
-  } : null;
+  return evidence ? JSON.parse(JSON.stringify(evidence)) as GnssCaptureEvidence : null;
 }
 
 function copyMachine(machine: PivotMachine): PivotMachine {
@@ -433,9 +428,11 @@ function pointOnSegment(point: XY, start: XY, end: XY): boolean {
 }
 
 function signedArea(ring: XY[]): number {
+  const origin = ring[0];
+  if (!origin) return 0;
   return ring.reduce((area, point, index) => {
     const next = ring[(index + 1) % ring.length];
-    return area + point.x * next.y - next.x * point.y;
+    return area + (point.x - origin.x) * (next.y - origin.y) - (next.x - origin.x) * (point.y - origin.y);
   }, 0) / 2;
 }
 

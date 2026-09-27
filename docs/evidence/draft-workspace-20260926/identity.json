@@ -1,0 +1,156 @@
+{
+  "recordedAt": "2026-09-27T00:04:22.236Z",
+  "head": "ec050f60bf515b5c4cbd40c3180615b5056e28b3",
+  "headUnchanged": true,
+  "sourcePaths": 293,
+  "sourceScope": "Listed apps/packages/browser-test/root-configuration files; excludes concurrent tooling/governance and docs",
+  "changed": [],
+  "build": {
+    "path": "/_expo/static/js/web/index-4a9f6538b0f4bc2160404ed72697f621.js",
+    "bytes": 5351110,
+    "localSha256": "03d15877a1676380426ae1fd0f7bdd0f0f36253e1c52278d0cc69db68a905fbf",
+    "servedSha256": "03d15877a1676380426ae1fd0f7bdd0f0f36253e1c52278d0cc69db68a905fbf",
+    "postflightLocalSha256": "03d15877a1676380426ae1fd0f7bdd0f0f36253e1c52278d0cc69db68a905fbf",
+    "postflightServedSha256": "03d15877a1676380426ae1fd0f7bdd0f0f36253e1c52278d0cc69db68a905fbf"
+  },
+  "browser": {
+    "startTime": "2026-09-26T23:56:25.973Z",
+    "duration": 285102.152,
+    "expected": 161,
+    "skipped": 4,
+    "unexpected": 0,
+    "flaky": 0,
+    "errors": [],
+    "retries": 0,
+    "perProject": {
+      "desktop": {
+        "passed": 55,
+        "skipped": 0
+      },
+      "tablet-768": {
+        "passed": 53,
+        "skipped": 2
+      },
+      "mobile-390": {
+        "passed": 53,
+        "skipped": 2
+      }
+    },
+    "skippedCases": [
+      {
+        "title": "Undo during desktop draft creation retains the edited project and its next save",
+        "project": "tablet-768",
+        "annotations": [
+          {
+            "type": "skip",
+            "description": "This race uses the desktop inline form; compact forms are modal.",
+            "location": {
+              "file": "/mnt/h/cplayout/tests/web/design-draft-editor.spec.ts",
+              "line": 340,
+              "column": 8
+            }
+          }
+        ]
+      },
+      {
+        "title": "late desktop draft creation failures cannot report on a newer editor",
+        "project": "tablet-768",
+        "annotations": [
+          {
+            "type": "skip",
+            "description": "Navigation during a pending inline form is desktop-specific.",
+            "location": {
+              "file": "/mnt/h/cplayout/tests/web/design-draft-editor.spec.ts",
+              "line": 386,
+              "column": 8
+            }
+          }
+        ]
+      },
+      {
+        "title": "Undo during desktop draft creation retains the edited project and its next save",
+        "project": "mobile-390",
+        "annotations": [
+          {
+            "type": "skip",
+            "description": "This race uses the desktop inline form; compact forms are modal.",
+            "location": {
+              "file": "/mnt/h/cplayout/tests/web/design-draft-editor.spec.ts",
+              "line": 340,
+              "column": 8
+            }
+          }
+        ]
+      },
+      {
+        "title": "late desktop draft creation failures cannot report on a newer editor",
+        "project": "mobile-390",
+        "annotations": [
+          {
+            "type": "skip",
+            "description": "Navigation during a pending inline form is desktop-specific.",
+            "location": {
+              "file": "/mnt/h/cplayout/tests/web/design-draft-editor.spec.ts",
+              "line": 386,
+              "column": 8
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "catalog": {
+    "startTime": "2026-09-26T23:58:46.478Z",
+    "duration": 86131.102,
+    "expected": 9,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0,
+    "errors": [],
+    "retries": 0,
+    "perProject": {
+      "desktop": {
+        "passed": 3,
+        "skipped": 0
+      },
+      "tablet-768": {
+        "passed": 3,
+        "skipped": 0
+      },
+      "mobile-390": {
+        "passed": 3,
+        "skipped": 0
+      }
+    },
+    "skippedCases": []
+  },
+  "aggregate": {
+    "exitCode": 0,
+    "frozenFinal": false,
+    "reason": "Overlapped concurrent tooling edits and final tooltip change; publication coordinator owns later frozen aggregate"
+  },
+  "syntheticEvidence": true,
+  "hardwareProof": false,
+  "hashes": {
+    "README.md": "a3669489120581e116b613654e48c56da4e15d4d3cbde882fd6afe319dd0e09d",
+    "adapter-tests.log": "8534aa9fcbf9878fa22172f8ba2581d719e0ff66044f929862229614d20fcf8d",
+    "adapter-typecheck.log": "6d0bb5341fd7e287819266a62c299fd6ede4dccd9d016af0a0eb18982895a39f",
+    "audit.json": "260151f9cf274aadf97d02826dd280b5c6288552a64dc17632091e1473763a4b",
+    "browser-final.json": "e0695a69b0b6a8144bfa995c8b8513b3730528682bb1b359b7cb8a65dbea6d84",
+    "browser-final.log": "60b104f300af5cf98a56ef92b52e19b1df327c58a238defa8ad17e339e196d3e",
+    "catalog-before.json": "caf3e54eb98e2ab22a83776e1cdd908e4fe53d585b285f9ae138db1108147b24",
+    "catalog-final.json": "86fafaf047e63ef3158d51b011685774637a243510494f46aa15fe30c8e0517d",
+    "catalog-final.log": "33919666066efca147912fb00e1fbb03f7a22770d4bcad4f8aa48d8ba00b0ba2",
+    "catalog-followup.json": "a5de002300ff3cdd9f38dd5cd2ea8808b40be4fdedd1c87a65034d3a96b0c630",
+    "desktop-drawing.png": "4c9759e497e5edde4bd09515750cfec23936812652d0fabee7827a7cef20cdff",
+    "export.log": "91c0309412074e9a833f749987d1fa37b64550054cb75f7545a658c819fd2609",
+    "modal-smoke.json": "601fb368ffc832076307632e7da29c0c60f9ab6944ec3ff3a11dff60beab4369",
+    "phone-drawing.png": "d3378cbb860e10ca6a2faeb6177d9dd81de14213ddb388a6532312d01a499798",
+    "phone-invalid-crs.png": "f35aa66de5cff45f1da526592590a5b9987822123eee557d0237256d82beedf7",
+    "source.json": "bc2b3c8739037046e9e3586d062b2e8ec5f940c952e687cbd021d8923bd3434f",
+    "tablet-drawing.png": "ad29271c3f6827e4e2b31725c6e1468defc326945dda6dfdadc26c22c050a1a6",
+    "tooltip-before.json": "555547ada1fda340082ec8edabf2ec917c97024bff0b9185ea80e428e70ee670",
+    "tooltip-before.png": "f55dc4db57c349d25f0ed38af8674d785effdcb00274f679e50c666526a9195e",
+    "validate-intermediate.log": "a3e3d19839a8a8d0b6af8ea793a0cfc7056676c5bed99550d5bf281dd0941e3b"
+  }
+}

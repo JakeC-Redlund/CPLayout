@@ -233,4 +233,16 @@ assert.throws(
   /Unsupported CPLayout XML version/,
 );
 
+const measurementAreaProject: PivotProject = {
+  ...sampleProject,
+  mapFeatures: [{ id: "measurement-area", name: "Measurement area", kind: "measurement_area",
+    geometry: { type: "Polygon", vertices: sampleProject.fieldBoundary.slice(0, 4) },
+    confidence: "user_estimated", notes: "Area reference only.", properties: { designPurpose: "area" } }],
+};
+const measurementAreaXml = exportProjectMapXml(measurementAreaProject);
+assert.match(measurementAreaXml, /kind="measurement_area"/);
+const restoredMeasurementArea = importProjectMapXmlToProject(measurementAreaXml).project;
+assert.deepEqual(restoredMeasurementArea.mapFeatures, measurementAreaProject.mapFeatures);
+assert.deepEqual(restoredMeasurementArea.fieldBoundary, measurementAreaProject.fieldBoundary);
+
 console.log("project XML tests passed");

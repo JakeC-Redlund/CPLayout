@@ -1,0 +1,44 @@
+
+Running 27 tests using 2 workers
+
+(node:60933) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:60932) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:60932) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:60933) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [tablet-768] › tests/web/map-fit.spec.ts:281:7 › svg: standard drawing tools measure, undo, cancel and save polygon line point purposes (30.5s)
+  ✓   1 [desktop] › tests/web/map-fit.spec.ts:281:7 › svg: standard drawing tools measure, undo, cancel and save polygon line point purposes (31.1s)
+  ✓   3 [tablet-768] › tests/web/map-fit.spec.ts:363:7 › svg: Fit field preserves selection, saved bytes and undo; repeats and works in Layout (27.1s)
+  ✓   4 [desktop] › tests/web/map-fit.spec.ts:363:7 › svg: Fit field preserves selection, saved bytes and undo; repeats and works in Layout (27.9s)
+  ✓   5 [tablet-768] › tests/web/map-fit.spec.ts:420:7 › svg: Fit uses the current imported boundary and excludes remote infrastructure and staged draft (18.5s)
+  ✓   6 [desktop] › tests/web/map-fit.spec.ts:420:7 › svg: Fit uses the current imported boundary and excludes remote infrastructure and staged draft (19.2s)
+  ✓   7 [tablet-768] › tests/web/map-fit.spec.ts:466:5 › SVG aspect and corner click XY survive Fit and resize; held release cannot add a draft vertex (11.8s)
+  ✓   8 [desktop] › tests/web/map-fit.spec.ts:466:5 › SVG aspect and corner click XY survive Fit and resize; held release cannot add a draft vertex (13.0s)
+  ✓   9 [tablet-768] › tests/web/map-fit.spec.ts:567:7 › svg: Fit retires held touch and mixed-input clicks, then accepts a fresh gesture (10.5s)
+  ✓  10 [desktop] › tests/web/map-fit.spec.ts:567:7 › svg: Fit retires held touch and mixed-input clicks, then accepts a fresh gesture (10.5s)
+  ✓  11 [tablet-768] › tests/web/map-fit.spec.ts:604:5 › SVG Fit cancels a held vertex click before shape selection and accepts the next fresh click (10.0s)
+  ✓  12 [desktop] › tests/web/map-fit.spec.ts:604:5 › SVG Fit cancels a held vertex click before shape selection and accepts the next fresh click (10.6s)
+  ✓  13 [tablet-768] › tests/web/map-fit.spec.ts:650:5 › SVG vertex clicks select without mutation and background placement follows the rendered XY (10.5s)
+  ✓  14 [desktop] › tests/web/map-fit.spec.ts:650:5 › SVG vertex clicks select without mutation and background placement follows the rendered XY (12.2s)
+  ✓  15 [tablet-768] › tests/web/map-fit.spec.ts:682:5 › SVG labels stay separated and screen-sized through zoom and resize without changing geometry (10.7s)
+  ✓  16 [desktop] › tests/web/map-fit.spec.ts:682:5 › SVG labels stay separated and screen-sized through zoom and resize without changing geometry (11.4s)
+  ✓  17 [tablet-768] › tests/web/map-fit.spec.ts:751:5 › SVG label presses select their feature without moving the selected boundary vertex (18.3s)
+(node:63019) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:63019) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  18 [desktop] › tests/web/map-fit.spec.ts:751:5 › SVG label presses select their feature without moving the selected boundary vertex (18.2s)
+  ✓  19 [mobile-390] › tests/web/map-fit.spec.ts:281:7 › svg: standard drawing tools measure, undo, cancel and save polygon line point purposes (31.4s)
+  ✓  20 [mobile-390] › tests/web/map-fit.spec.ts:363:7 › svg: Fit field preserves selection, saved bytes and undo; repeats and works in Layout (23.8s)
+  ✓  21 [mobile-390] › tests/web/map-fit.spec.ts:420:7 › svg: Fit uses the current imported boundary and excludes remote infrastructure and staged draft (21.0s)
+  ✓  22 [mobile-390] › tests/web/map-fit.spec.ts:466:5 › SVG aspect and corner click XY survive Fit and resize; held release cannot add a draft vertex (10.6s)
+  ✓  23 [mobile-390] › tests/web/map-fit.spec.ts:567:7 › svg: Fit retires held touch and mixed-input clicks, then accepts a fresh gesture (9.4s)
+  ✓  24 [mobile-390] › tests/web/map-fit.spec.ts:604:5 › SVG Fit cancels a held vertex click before shape selection and accepts the next fresh click (9.9s)
+  ✓  25 [mobile-390] › tests/web/map-fit.spec.ts:650:5 › SVG vertex clicks select without mutation and background placement follows the rendered XY (10.5s)
+  ✓  26 [mobile-390] › tests/web/map-fit.spec.ts:682:5 › SVG labels stay separated and screen-sized through zoom and resize without changing geometry (10.6s)
+  ✓  27 [mobile-390] › tests/web/map-fit.spec.ts:751:5 › SVG label presses select their feature without moving the selected boundary vertex (16.9s)
+
+  27 passed (5.0m)

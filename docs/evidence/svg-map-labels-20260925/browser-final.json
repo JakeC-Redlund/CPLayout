@@ -1,0 +1,1102 @@
+{
+  "config": {
+    "configFile": "/mnt/h/cplayout/playwright.config.ts",
+    "rootDir": "/mnt/h/cplayout/tests/web",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/tmp/cplayout-svg-labels-20260925-K3f9rE/browser-final-after-dock-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/mnt/h/cplayout/tests/web",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/tmp/cplayout-svg-labels-20260925-K3f9rE/browser-final-after-dock-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "tablet-768",
+        "name": "tablet-768",
+        "testDir": "/mnt/h/cplayout/tests/web",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/tmp/cplayout-svg-labels-20260925-K3f9rE/browser-final-after-dock-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "mobile-390",
+        "name": "mobile-390",
+        "testDir": "/mnt/h/cplayout/tests/web",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 2,
+    "webServer": {
+      "command": "npx tsx tools/serveStaticWeb.ts apps/mobile/dist 19014",
+      "reuseExistingServer": true,
+      "timeout": 120000,
+      "url": "http://127.0.0.1:19014"
+    }
+  },
+  "suites": [
+    {
+      "title": "map-fit.spec.ts",
+      "file": "map-fit.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "svg: standard drawing tools measure, undo, cancel and save polygon line point purposes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 360000,
+              "annotations": [
+                {
+                  "type": "slow",
+                  "location": {
+                    "file": "/mnt/h/cplayout/tests/web/map-fit.spec.ts",
+                    "line": 282,
+                    "column": 10
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 31109,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:34:41.151Z",
+                  "annotations": [
+                    {
+                      "type": "slow",
+                      "location": {
+                        "file": "/mnt/h/cplayout/tests/web/map-fit.spec.ts",
+                        "line": 282,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-9dc5c35c672a044d2cd9",
+          "file": "map-fit.spec.ts",
+          "line": 281,
+          "column": 7
+        },
+        {
+          "title": "svg: Fit field preserves selection, saved bytes and undo; repeats and works in Layout",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 27950,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:35:13.156Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-d11542034e3239813e96",
+          "file": "map-fit.spec.ts",
+          "line": 363,
+          "column": 7
+        },
+        {
+          "title": "svg: Fit uses the current imported boundary and excludes remote infrastructure and staged draft",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 19161,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:35:41.944Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-c3e6e3b51413e4ae4866",
+          "file": "map-fit.spec.ts",
+          "line": 420,
+          "column": 7
+        },
+        {
+          "title": "SVG aspect and corner click XY survive Fit and resize; held release cannot add a draft vertex",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12975,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:36:01.913Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "svg-transform.json",
+                      "contentType": "application/json",
+                      "body": "eyJhdHRyaWJ1dGUiOiI1MDA0MDcuODgyNjI5MTA4IC00NTA3ODAzLjM4MDI4MTY5IDI1MjkuNDgzNTY4MDc1MTE3IDIxODAuODQ1MDcwNDIyNTM1IiwicGFyc2VkIjp7IngiOjUwMDQwNy44NzUsInkiOi00NTA3ODAzLjUsIndpZHRoIjoyNTI5LjQ4MzY0MjU3ODEyNSwiaGVpZ2h0IjoyMTgwLjg0NDk3MDcwMzEyNX0sInJlY3QiOnsieCI6MzAzLCJ5IjoyNTcsIndpZHRoIjo2ODIsImhlaWdodCI6NTg4LCJ0b3AiOjI1NywicmlnaHQiOjk4NSwiYm90dG9tIjo4NDUsImxlZnQiOjMwM30sIm1hdHJpeCI6e319"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-8a3d57c48d53260ef1d0",
+          "file": "map-fit.spec.ts",
+          "line": 466,
+          "column": 5
+        },
+        {
+          "title": "svg: Fit retires held touch and mixed-input clicks, then accepts a fresh gesture",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10534,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:36:14.898Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-b12f535e81354320a15e",
+          "file": "map-fit.spec.ts",
+          "line": 567,
+          "column": 7
+        },
+        {
+          "title": "SVG Fit cancels a held vertex click before shape selection and accepts the next fresh click",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10627,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:36:25.444Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-af90434a2c9ed2a30233",
+          "file": "map-fit.spec.ts",
+          "line": 604,
+          "column": 5
+        },
+        {
+          "title": "SVG vertex clicks select without mutation and background placement follows the rendered XY",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12246,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:36:36.912Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-405a7f0ffd74be2b5ccf",
+          "file": "map-fit.spec.ts",
+          "line": 650,
+          "column": 5
+        },
+        {
+          "title": "SVG labels stay separated and screen-sized through zoom and resize without changing geometry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11436,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:36:49.165Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-5a17f21abc6ceb85ac37",
+          "file": "map-fit.spec.ts",
+          "line": 682,
+          "column": 5
+        },
+        {
+          "title": "SVG label presses select their feature without moving the selected boundary vertex",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 18209,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:37:00.609Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-94ba06713186a90ada82",
+          "file": "map-fit.spec.ts",
+          "line": 751,
+          "column": 5
+        },
+        {
+          "title": "svg: standard drawing tools measure, undo, cancel and save polygon line point purposes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 360000,
+              "annotations": [
+                {
+                  "type": "slow",
+                  "location": {
+                    "file": "/mnt/h/cplayout/tests/web/map-fit.spec.ts",
+                    "line": 282,
+                    "column": 10
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 30542,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:34:41.151Z",
+                  "annotations": [
+                    {
+                      "type": "slow",
+                      "location": {
+                        "file": "/mnt/h/cplayout/tests/web/map-fit.spec.ts",
+                        "line": 282,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-ed4c66794c61c6a0e783",
+          "file": "map-fit.spec.ts",
+          "line": 281,
+          "column": 7
+        },
+        {
+          "title": "svg: Fit field preserves selection, saved bytes and undo; repeats and works in Layout",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 27141,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:35:12.590Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-f5429dd2cb9e7c20fdec",
+          "file": "map-fit.spec.ts",
+          "line": 363,
+          "column": 7
+        },
+        {
+          "title": "svg: Fit uses the current imported boundary and excludes remote infrastructure and staged draft",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 18485,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:35:40.565Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-bd8709da20ce199654a3",
+          "file": "map-fit.spec.ts",
+          "line": 420,
+          "column": 7
+        },
+        {
+          "title": "SVG aspect and corner click XY survive Fit and resize; held release cannot add a draft vertex",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 11846,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:35:59.057Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "svg-transform.json",
+                      "contentType": "application/json",
+                      "body": "eyJhdHRyaWJ1dGUiOiI1MDA3OTMuMTc4NTcxNDI4NiAtNDUwNzU2Mi40MTA3MTQyODUgMTIzOS42NDI4NTcxNDI4NTcgMTc2NC4xMDcxNDI4NTcxNDMiLCJwYXJzZWQiOnsieCI6NTAwNzkzLjE4NzUsInkiOi00NTA3NTYyLjUsIndpZHRoIjoxMjM5LjY0MjgyMjI2NTYyNSwiaGVpZ2h0IjoxNzY0LjEwNzE3NzczNDM3NX0sInJlY3QiOnsieCI6NzUsInkiOjI2MSwid2lkdGgiOjMxMiwiaGVpZ2h0Ijo0NDQsInRvcCI6MjYxLCJyaWdodCI6Mzg3LCJib3R0b20iOjcwNSwibGVmdCI6NzV9LCJtYXRyaXgiOnt9fQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-0a9c5676d075a0eee001",
+          "file": "map-fit.spec.ts",
+          "line": 466,
+          "column": 5
+        },
+        {
+          "title": "svg: Fit retires held touch and mixed-input clicks, then accepts a fresh gesture",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 10530,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:36:11.710Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-38d0707d89b98a59e993",
+          "file": "map-fit.spec.ts",
+          "line": 567,
+          "column": 7
+        },
+        {
+          "title": "SVG Fit cancels a held vertex click before shape selection and accepts the next fresh click",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 9974,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:36:22.248Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-1de5804f9c34989f81b8",
+          "file": "map-fit.spec.ts",
+          "line": 604,
+          "column": 5
+        },
+        {
+          "title": "SVG vertex clicks select without mutation and background placement follows the rendered XY",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 10538,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:36:33.060Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-0643232ee8407ca604d7",
+          "file": "map-fit.spec.ts",
+          "line": 650,
+          "column": 5
+        },
+        {
+          "title": "SVG labels stay separated and screen-sized through zoom and resize without changing geometry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 10680,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:36:43.607Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-5777249d2cd54220a731",
+          "file": "map-fit.spec.ts",
+          "line": 682,
+          "column": 5
+        },
+        {
+          "title": "SVG label presses select their feature without moving the selected boundary vertex",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 18273,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:36:54.295Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-490e8174bddb2a88d215",
+          "file": "map-fit.spec.ts",
+          "line": 751,
+          "column": 5
+        },
+        {
+          "title": "svg: standard drawing tools measure, undo, cancel and save polygon line point purposes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 360000,
+              "annotations": [
+                {
+                  "type": "slow",
+                  "location": {
+                    "file": "/mnt/h/cplayout/tests/web/map-fit.spec.ts",
+                    "line": 282,
+                    "column": 10
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 31409,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:37:15.503Z",
+                  "annotations": [
+                    {
+                      "type": "slow",
+                      "location": {
+                        "file": "/mnt/h/cplayout/tests/web/map-fit.spec.ts",
+                        "line": 282,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-f15039176261275592bf",
+          "file": "map-fit.spec.ts",
+          "line": 281,
+          "column": 7
+        },
+        {
+          "title": "svg: Fit field preserves selection, saved bytes and undo; repeats and works in Layout",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 23822,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:37:47.926Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-bdf7a84d0ec31013f55b",
+          "file": "map-fit.spec.ts",
+          "line": 363,
+          "column": 7
+        },
+        {
+          "title": "svg: Fit uses the current imported boundary and excludes remote infrastructure and staged draft",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 21025,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:38:12.654Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-97d11e336dea6e732016",
+          "file": "map-fit.spec.ts",
+          "line": 420,
+          "column": 7
+        },
+        {
+          "title": "SVG aspect and corner click XY survive Fit and resize; held release cannot add a draft vertex",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 10596,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:38:33.685Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "svg-transform.json",
+                      "contentType": "application/json",
+                      "body": "eyJhdHRyaWJ1dGUiOiI0OTY4MjcuNDY0MDc1MzgyOCAtNDUwOTEzNi40NDg3NjMyNSA5MTcxLjA3MTg0OTIzNDM5MyAzNjczLjYzOTU3NTk3MTczMSIsInBhcnNlZCI6eyJ4Ijo0OTY4MjcuNDY4NzUsInkiOi00NTA5MTM2LjUsIndpZHRoIjo5MTcxLjA3MjI2NTYyNSwiaGVpZ2h0IjozNjczLjYzOTY0ODQzNzV9LCJyZWN0Ijp7IngiOjczLCJ5IjoyNTksIndpZHRoIjozMDgsImhlaWdodCI6MTIzLjM3NSwidG9wIjoyNTksInJpZ2h0IjozODEsImJvdHRvbSI6MzgyLjM3NSwibGVmdCI6NzN9LCJtYXRyaXgiOnt9fQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-9a3119fd225508ca2e5e",
+          "file": "map-fit.spec.ts",
+          "line": 466,
+          "column": 5
+        },
+        {
+          "title": "svg: Fit retires held touch and mixed-input clicks, then accepts a fresh gesture",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 9375,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:38:44.288Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-c4d8d0b17d12d55fd0fa",
+          "file": "map-fit.spec.ts",
+          "line": 567,
+          "column": 7
+        },
+        {
+          "title": "SVG Fit cancels a held vertex click before shape selection and accepts the next fresh click",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 9913,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:38:54.493Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-e3cdfac244628e1f4374",
+          "file": "map-fit.spec.ts",
+          "line": 604,
+          "column": 5
+        },
+        {
+          "title": "SVG vertex clicks select without mutation and background placement follows the rendered XY",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 10547,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:39:04.411Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-3b087c31da0b87ceeb0b",
+          "file": "map-fit.spec.ts",
+          "line": 650,
+          "column": 5
+        },
+        {
+          "title": "SVG labels stay separated and screen-sized through zoom and resize without changing geometry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 10576,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:39:14.965Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-3e60f08ae81b8a445729",
+          "file": "map-fit.spec.ts",
+          "line": 682,
+          "column": 5
+        },
+        {
+          "title": "SVG label presses select their feature without moving the selected boundary vertex",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 16921,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T21:39:26.407Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-f24ef7d3089c75f00061",
+          "file": "map-fit.spec.ts",
+          "line": 751,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-25T21:34:38.596Z",
+    "duration": 297254.696,
+    "expected": 27,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

@@ -52,6 +52,6 @@ export default defineConfig({
     command: `npx tsx tools/serveStaticWeb.ts apps/mobile/dist ${port}`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
-    url: baseURL,
+    url: `${baseURL}/__cplayout_static_health`,
   },
 });

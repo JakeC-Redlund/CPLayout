@@ -2,11 +2,50 @@
 
 Reviewed 2026-09-13 America/Denver (2026-09-14 UTC). This is an engineering decision record, not an approved wiring diagram or a physical acceptance report.
 
+Public-source followup: 2026-09-16 America/Denver (2026-09-17 UTC). The owner specifically requests **PX1122R with ESP8266** and **NS-RAW** research. The following addendum supersedes any inference that the published ESP32 EVB schematic identifies that requested assembly; historical device inventories below are not new measurements.
+
+Software followup: [receiver protocol support](receiver-protocol-support.md) records byte framing, PX1122R diagnostic decoding, NS-RAW raw decoding and offline log inspection derived from those public sources. These do not resolve the assembly identity or physical qualification gaps below.
+
 ## Owner Requirements
 
 The owner declares PX1122R evaluation board Version 1, NavSpark NS-RAW, ESP32 DevKitC V4, Digi XBee-PRO S3B peer-to-peer-only radios, and a SunFounder four-channel 5 V relay board. Android phones/tablets come first; compatible iOS devices follow. USB, Bluetooth and local Wi-Fi must be software-selectable. Maximum measured position error must be **strictly below 0.10 m in three dimensions, including elevation**.
 
 These names are requirements, not inspected serial numbers, firmware versions or verified assemblies. No physical device was identified during the current enumeration. No wiring, relay activation, receiver configuration or firmware flashing was performed.
+
+## Public-Documentation Followup
+
+Complexity: high; selected reasoning: high. Subagent decision: not useful for this bounded source reconciliation. Scope: this record and the RTK integration plan; no hardware writes, pin assignments, dependency installation or runtime support claims. Gates: source retrieval and cross-check, skill/context validation, diff check and audit. Existing mapping/archive work is preserved and has separate validation.
+
+### Requested ESP8266 Configuration
+
+The [current PX1122R EVB product page](https://navspark.mybigcommerce.com/px1122r-evb-px1122r-l1-l2-rtk-evaluation-board/) advertises USB, UART and Bluetooth SPP, integrated RTK and base/rover operation. Its linked guide documents separate correction and command selectors. Its [linked schematic, sheet 2](https://navspark.mybigcommerce.com/content/PX1122-RTK%20EVB-SWID-V0_3-ENG-20210324.pdf) labels M2 ESP32-WROOM-32E, with an ESP32-WROOM-32D heading. Neither establishes an ESP8266 EVB pinout. Manufacturer pages, the guide and this schematic were retrieved directly; searches did not locate a manufacturer-defined PX1122R ESP8266 assembly. This is an unresolved identity mismatch, not proof that the owner's configuration does not exist.
+
+Keep three identities separate: PX1122R GNSS module, owner-requested ESP8266 communications configuration, and the previously declared ESP32 DevKitC V4 relay controller. Do not silently replace one with another. Continue transport-neutral software development; keep assembly-specific wiring and routing unavailable until a matching documented netlist exists.
+
+[Espressif's ESP8266EX datasheet, sections 1, 4.6 and 5.1](https://www.espressif.com/sites/default/files/documentation/0a-esp8266ex_datasheet_en.pdf) documents local Wi-Fi station/SoftAP, UART0 communication/flow control, and UART1's transmit-only application. At 3.3 V I/O, its minimum HIGH input is 2.475 V; the PX1122R's guaranteed 2.4 V HIGH does not establish direct-drive margin. A qualified buffer remains necessary unless the actual board circuitry establishes adequate margins. The chip's 3.6 V upper I/O limit does not permit 5 V logic. These are chip-level facts, not connector ratings or an approved wiring diagram. The current datasheet also marks ESP8266EX not recommended for new designs; supporting the owner's hardware does not require replacing it.
+
+ESP8266 itself has no Bluetooth, as stated in [Espressif's provisioning guide, section 5.2.1](https://docs.espressif.com/_/downloads/esp-jumpstart/en/latest/pdf/). Thus Bluetooth selection requires a separately identified Bluetooth-capable component and firmware. Wi-Fi support alone does not establish a TCP/UDP bridge protocol, authentication, contact feedback or CPLayout integration. Do not assume the guide's Bluetooth route is an ESP8266 feature.
+
+### Receiver-Specific Software Work
+
+- **PX1122R:** keep onboard solved-position and correction paths separate. Use the [module datasheet](https://navspark.mybigcommerce.com/content/PX1122R_DS.pdf) for NMEA/PSTI/RTCM semantics, then add profile-specific decoding and synthetic replay tests. Its published `1 cm + 1 ppm` RTK specification is not a maximum 3D error bound. Missing vertical uncertainty, correction age or reference metadata must remain explicit, not be filled from that specification.
+- **NS-RAW:** the [product page](https://navspark.mybigcommerce.com/ns-raw-carrier-phase-raw-measurement-output-gps-receiver/) specifies binary raw output over USB/TXD1 and links [Venus raw protocol AN0030 v1.4.35](https://navspark.mybigcommerce.com/content/AN0030_1.4.35.pdf). That protocol specifies big-endian payloads, payload-XOR checksums, measurement epochs (`0xDC`) and raw observations (`0xDD`). Pin this protocol family separately from Phoenix; reject truncated, corrupt and incoherent epochs before a local RTK companion consumes them. Protocol-family message availability is not observed NS-RAW firmware output.
+- **Processing boundary:** [NavSpark's FAQ](https://www.navspark.com.tw/faq) distinguishes binary raw mode, with no computed PVT/PPS, from NMEA mode and host RTK processing. The [manufacturer tutorial](https://www.navspark.com.tw/tutorial-4) uses two receivers and PC RTKLIB. Use a pinned, tested local companion, not a claim that React Native or ESP8266 already runs this solver. Do not copy the tutorial's autonomous base-position estimate into a strict absolute-accuracy qualification.
+- **Rates and firmware:** the NS-RAW product's chipset rate and the general FAQ's board rates have different scope; qualify the actual raw stream before choosing defaults. The PX1122R product currently links firmware dated 20260312; NS-RAW links an SD-logging image dated 20161209. These are review candidates only. Record installed identity, applicable release details, configuration backup and a recovery method before any future update; no firmware was downloaded or flashed in this pass.
+- **Companion tools:** NavSpark's [software page](https://www.navspark.com.tw/software) now describes SkyTraq parser/command utilities, including a simulated receiver. Evaluate pinned source, license, dependencies and offline replay before adoption. A parser or simulator is not an RTK solver or measured receiver evidence; no new package is installed here.
+
+Public documentation is sufficient to resume protocol, transport-state, failure-recovery and synthetic-test development without another request for fixture access. It cannot provide independent measurements of this assembly. Bench electrical qualification, Android/iOS transport proof and strict maximum 3D error below 0.10 m remain distinct, unperformed acceptance gates.
+
+### Retrieved Source Identity
+
+The public PDFs were fetched on 2026-09-17 UTC. SHA-256 identifies the reviewed bytes, not their suitability for the owner's physical board. Direct HTTPS retrieval succeeded where the browsing service could not open the store URLs. Temporary downloads are not a durable test-fixture archive.
+
+| Document | SHA-256 |
+| --- | --- |
+| PX1122R datasheet | `c49f5b8a7e0770caf3ef29ea100ab752aacf5cfb2d023f75b31a41e218ec404b` |
+| PX1122R EVB guide | `7a0b5addf0aa438d590e0deea2399fe0d263626ce06762e88ea7b46bc71ab6ad` |
+| Linked EVB schematic | `dc64e0b58447d34e97d0263bc5d7898eb95ff1e8d631276034cb470cb4b1b325` |
+| NS-RAW linked AN0030 | `4e637808831c7014eb7c4fd154bee61b2d503148a487fab95999ed705bbb468e` |
 
 ## Verified Source Boundaries
 
@@ -23,14 +62,14 @@ These names are requirements, not inspected serial numbers, firmware versions or
 
 ## Electrical Decisions
 
-1. **Block direct unqualified wiring.** No 5 V signal into ESP32, PX1122R or S3B UARTs; no GPIO-driven relay coil. Keep relay power out of the signal contacts. Use current-limited, separately budgeted supply branches and test back-powering and combined radio/relay transients.
+1. **Block direct unqualified wiring.** No 5 V signal into ESP8266, ESP32, PX1122R or S3B UARTs; no GPIO-driven relay coil. Keep relay power out of the signal contacts. Use current-limited, separately budgeted supply branches and test back-powering and combined radio/relay transients.
 2. **Qualify logic margins, not nominal voltage labels.** Bare PX1122R TX's 2.4 V guaranteed HIGH is below the ESP32's 2.475 V minimum at 3.3 V. The documented EVB buffer may resolve this only if actually populated and correctly loaded. Its [SN74AUP1G34, pp. 4-5](https://www.ti.com/lit/ds/symlink/sn74aup1g34.pdf) accepts a 2.0 V HIGH at 3.0-3.6 V supply. Select a direction-specific, rated buffer/level translator only after checking each driving and receiving domain, timing, unpowered behavior and load. No generic bidirectional module is presumed suitable.
 3. **Qualify the relay driver.** For a confirmed low-trigger mechanical board, evaluate an open-drain/transistor driver with hardware bias holding it inactive during reset. Its OFF bias must not expose ESP32 pins to the relay rail. Optocouplers and a removed JD-VCC jumper do not establish galvanic isolation when grounds or supplies remain shared.
 4. **Require a complete routing truth table.** Never connect simultaneous sources in A/B/C or D/E. Four SPDT relays do not automatically provide five independently disconnectable routes, an all-open state or safe transitions. Model actual COM/NC/NO connections and loss-of-power states; do not equate relay OFF with signal disconnected.
 5. **Separate solution, correction and supervisory channels.** A persistent local control channel must remain recoverable while changing the selected GNSS data route. A firmware acknowledgment reports commanded state, not contact position. Contact feedback and electrical commissioning are separate evidence.
 6. **Preserve binary corrections.** UART baud is not RF goodput. Do not use XON/XOFF for RTCM/raw binary; use verified hardware flow control or measured bounded pacing. Rate conversion is a bridge function, not a relay function. No paid/cloud correction service is selected.
 
-No exact ESP32 pin allocation, relay bit mask, Wi-Fi protocol or hardware-ready preset is approved by this record. Unresolved evidence is a software availability blocker, not a request to guess a netlist.
+No exact ESP8266/ESP32 pin allocation, relay bit mask, Wi-Fi protocol or hardware-ready preset is approved by this record. Unresolved evidence blocks enabling a hardware-backed route, not continued protocol/software development or synthetic testing.
 
 ## Bench and Field Gates
 
@@ -51,3 +90,11 @@ Read-only audit at 2026-09-14 05:01-05:03 UTC found no Linux USB GNSS/serial end
 Linux ADB 1.0.41/platform-tools 37.0.0-14910828 and the configured `cplayout_api36` AVD were present; `/dev/kvm` was accessible, not exercised. The historical June schema-v10 native report fails the current schema-v11 validator. The August v11 report remains incomplete, with no current installed-build identity. Historical screenshots retaining their hashes do not prove this source on a live device.
 
 The main implementation may commission a dedicated emulator separately. It cannot synthesize physical receiver presence, contact feedback, antenna calibration or field-control observations. Physical qualification remains unverified until those gates are actually run.
+
+### Device Availability Refresh: 2026-09-26
+
+Read-only endpoint enumeration during save-session integration found no Linux `ttyUSB`, `ttyACM`, `rfcomm` or `/dev/serial/by-id` entries and no identified sysfs USB products. Windows `Win32_SerialPort` now reports generic Bluetooth COM4 and COM5 with status OK; this supersedes the older disabled/error inventory for those ports only. A successful `Get-PnpDevice -Class Bluetooth -PresentOnly` query returned 27 entries, none with a name matching NavSpark, SkyTraq, PX1122, NS-RAW, ESP32, ESP8266, XBee, GNSS or GPS. The first CIM Bluetooth query was malformed and is not evidence of absence. Generic names and status OK do not identify hardware, establish a live link or authorize receiver-profile assumptions. No serial port was opened and no relay, firmware or receiver command was sent.
+
+`npm run check:android-tools` found ADB, emulator, EAS and Expo commands, but no connected ADB device or running emulator; it exited 1 with a device-unavailable blocker. The checker may start ADB servers, but does not install or flash an application. This is a queried-empty ADB result, not a native app test. No new measured 3D control observations or electrical commissioning evidence were obtained. Continue software development; retain native runtime and strictly-below-0.10-m physical accuracy as separate unverified requirements.
+
+A subsequent read-only sidecar at approximately 23:13 UTC queried the already-running Linux ADB server directly (`host:devices-l`): `OKAY`, empty device list, exit 0. Windows CIM/PnP/process queries exited 0, showing generic Bluetooth COM4/COM5 and no identified target hardware or Windows ADB listener. No Linux `ttyUSB`, `ttyACM`, `rfcomm` or serial-by-id endpoints were found. `lsusb` exited 1 without output and USB sysfs was unavailable; these failed inventory channels are not evidence that USB hardware is physically absent. No serial endpoint was opened, no route was switched, and no firmware or hardware was written. The required electrical, native and independently controlled 3D acceptance packets remain missing.

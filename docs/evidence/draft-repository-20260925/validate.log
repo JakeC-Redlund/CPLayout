@@ -1,0 +1,1615 @@
+
+> cplayout@0.1.0 validate
+> npm run typecheck && npm test
+
+
+> cplayout@0.1.0 typecheck
+> tsc -p tsconfig.tools.json && npm run typecheck --workspaces --if-present
+
+
+> @cplayout/mobile@0.1.0 typecheck
+> tsc --noEmit
+
+
+> @cplayout/core@0.1.0 typecheck
+> tsc -p tsconfig.json
+
+
+> @cplayout/geometry@0.1.0 typecheck
+> tsc -p tsconfig.json
+
+
+> @cplayout/gnss@0.1.0 typecheck
+> tsc -p tsconfig.json
+
+
+> @cplayout/map-adapters@0.1.0 typecheck
+> tsc -p tsconfig.json
+
+
+> @cplayout/project-store@0.1.0 typecheck
+> tsc -p tsconfig.json
+
+
+> cplayout@0.1.0 test
+> tsx tools/inspectReceiverLog.test.ts && tsx tools/referenceOverlayBuilder.test.ts && tsx tools/pngMetrics.test.ts && tsx tools/androidResources.test.ts && tsx tools/androidFileUiEvidence.test.ts && tsx tools/devServerManager.test.ts && tsx tools/prepareMapLibreAssets.test.ts && tsx tools/metroDependency.test.ts && tsx tools/windowsLauncherScripts.test.ts && tsx tools/generateRealPivotFixtureManifest.test.ts && tsx tools/generateClientKmzAdvisoryReport.test.ts && tsx tools/verifyImageryEvidencePacket.test.ts && tsx tools/roadmapCompletion.test.ts && tsx tools/androidAppReview.test.ts && tsx tools/cornerGpsFltInventory.test.ts && npm run test --workspaces --if-present
+
+✔ PX inspection uses source-defined diagnostic fields without collection claims (1.56004ms)
+✔ NS-RAW inspection decodes only selected protocol, never solves or associates epochs (0.900236ms)
+✔ inspection counts and hashes are chunk invariant, including mixed text/binary (7.814156ms)
+✔ corrupt, incomplete, empty and invalid known payloads do not pass inspection (0.629607ms)
+✔ truncated proprietary identity rejects and unknown sentences stay explicitly unsupported (0.504935ms)
+✔ file inspection is read-only, refuses nonfiles, and CLI returns useful JSON (2718.487545ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2733.002252
+reference overlay builder tests passed
+PNG metric helper tests passed
+Android splash resource tests passed
+✔ recorded ANR is blocked, never a share sheet or picker (4.286102ms)
+✔ only the observed historical chooser profile is accepted; generic synthetic profiles are unsupported (1.366301ms)
+✔ app Share, Downloads and arbitrary ZIP labels are not system evidence (2.608335ms)
+✔ supported picker profiles require package and both stable identities (2.037046ms)
+✔ foreign overlays and app lookalikes invalidate otherwise matching identities (1.553947ms)
+✔ normal SystemUI bar subtrees are allowed beside or inside the expected root (0.571197ms)
+✔ expected-package identities cannot be smuggled below a SystemUI bar (1.270468ms)
+✔ historical Samsung identities require their observed package, classes and common panel ancestry (1.071796ms)
+✔ UI XML depth is explicitly bounded to 128 nodes (26.77199ms)
+✔ actual collector rejects an already-present fixture before any import tap or export (1.499208ms)
+✔ actual collector cannot export after a no-op, cancelled or failed file tap (2.059913ms)
+✔ actual collector requires captured absence then fresh project UI before export and still claims no receipt (1.123038ms)
+✔ malformed XML, DOCTYPE and entity declarations fail closed (2.834338ms)
+✔ only an exact filename in a picker title row beneath dir_list can be tapped (0.784887ms)
+✔ disabled, hidden, zero, reversed, negative and out-of-parent bounds never send taps (2.302255ms)
+✔ tap records distinguish unavailable target, failed command and accepted command (0.317329ms)
+✔ host bytes, cancel, failed tap and successful tap without receipt never claim a selected file (0.18873ms)
+✔ empty catalog and No Project Open are not export-ready (0.353475ms)
+✔ expected project must be visible in app UI, not a picker label or cancelled import (0.575583ms)
+✔ XML entities are parsed structurally in exact text matches (0.401007ms)
+✔ failed or unconfirmed dump never reads stale XML (0.361766ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 62.396954
+Port 19182 is occupied by an unknown listener; leaving it alone.
+dev server manager tests passed
+MapLibre worker asset preparation tests passed
+Expo/React Native Metro dependency cohort and config compatibility checks passed.
+Windows launcher script tests passed
+real pivot fixture manifest generation tests passed
+client KMZ advisory report tests passed
+imagery evidence packet verifier tests passed
+CPLayout roadmap completion run: fast profile
+Automation policy: run eligible gates, report external proof blockers, do not ask for step-by-step decisions.
+Dry run: no roadmap report files were written.
+Roadmap completion status: incomplete
+- NOT_RUN git-worktree: Dry run: would run git status --short --branch.
+- NOT_RUN validate: Dry run: would run npm run validate.
+- NOT_RUN validate-skills: Dry run: would run npm run validate:skills.
+- NOT_RUN validate-design-guides: Dry run: would run npm run validate:design-guides.
+- NOT_RUN ml-companion-tests: Dry run: would run npm run test:ml-companion.
+- NOT_RUN ml-cv-loop: Dry run: would run npm run verify:ml-cv-loop.
+- NOT_RUN whole-loop: Dry run: would run npm run verify:whole-loop.
+- NOT_RUN diff-check: Dry run: would run git diff --check.
+- NOT_RUN audit: Dry run: would run npm audit.
+- NOT_RUN web-proof: Fast profile skips browser proof; run the checkpoint or release profile to include it.
+- NOT_RUN android-native-runtime: Dry run: would discover a completed Android report, detect adb/device state, or validate --android-report.
+- NOT_RUN gnss-rtk-field-runtime: Dry run: would validate --gnss-report when provided.
+- NOT_RUN retired-review-contracts: Dry run: would inspect removed review routes, contracts, archive exports, and SQLite migration.
+- NOT_RUN google-earth-visual-fidelity: Dry run: would validate an existing visual-fidelity manifest.
+- NOT_RUN real-pivot-fixture-proof: Dry run: would detect/build the real pivot fixture evidence packet.
+- NOT_RUN native-maplibre-render-proof: Dry run: would validate --native-maplibre-report when provided.
+roadmap completion automation tests passed
+✔ positive: decoded synthetic PNGs and correlated GNSS artifacts (9.295004ms)
+✔ negative: commit suffix "-dirty" (2.339497ms)
+✔ negative: commit suffix "g" (1.70026ms)
+✔ negative: commit suffix " " (1.7642ms)
+✔ negative: commit suffix "\n" (1.56882ms)
+✔ positive: documented 12-hex abbreviation and uppercase (1.477398ms)
+✔ negative: shorter than 12 hex (1.601127ms)
+✔ negative: invalid expected commit (1.543546ms)
+✔ negative: native host commit cannot establish installed build identity (1.454112ms)
+✔ negative: boolean build proof cannot unblock release (1.240933ms)
+✔ negative: 9-byte signature cannot support PNG evidence (1.738126ms)
+✔ negative: truncated IEND cannot support PNG evidence (1.687224ms)
+✔ negative: missing IEND cannot support PNG evidence (1.488797ms)
+✔ negative: truncated IDAT cannot support PNG evidence (1.53897ms)
+✔ negative: uniform opaque white cannot support PNG evidence (1.784938ms)
+✔ negative: black cannot support PNG evidence (1.591872ms)
+✔ negative: transparent patterned cannot support PNG evidence (1.57735ms)
+✔ negative: dimensions and metric claims must match pixels (1.486678ms)
+✔ negative: nonaffirmative cleanup {} (1.311516ms)
+✔ negative: nonaffirmative cleanup {"status":"invented","contaminated":false,"postflightProcessRemaining":false} (1.198991ms)
+✔ negative: nonaffirmative cleanup {"status":["force_closed"],"contaminated":false,"postflightProcessRemaining":false} (1.191565ms)
+✔ negative: nonaffirmative cleanup {"status":"force_closed"} (1.224696ms)
+✔ negative: nonaffirmative cleanup {"status":"blocked","contaminated":false,"postflightProcessRemaining":false} (1.38268ms)
+✔ negative: nonaffirmative cleanup {"status":"force_closed","contaminated":true,"postflightProcessRemaining":false} (1.205666ms)
+✔ negative: nonaffirmative cleanup {"status":"force_closed","contaminated":false,"postflightProcessRemaining":true} (1.241347ms)
+✔ negative: nonaffirmative cleanup {"status":"not_requested","contaminated":false,"postflightProcessRemaining":false} (1.912495ms)
+✔ negative: nonaffirmative cleanup {"status":"skipped_leave_open","contaminated":false,"postflightProcessRemaining":false} (1.196352ms)
+✔ positive: cleanup closed_gracefully (1.227593ms)
+✔ positive: cleanup closed_after_modal_discard (1.118105ms)
+✔ positive: cleanup force_closed (1.119203ms)
+✔ positive: explicit leave-open manual review (1.119411ms)
+✔ negative: duplicate GNSS observation reference (3.046687ms)
+✔ negative: control kind cannot relabel observations (3.286988ms)
+✔ negative: symlink aliases cannot supply distinct evidence (3.040585ms)
+✔ negative: hashed garbage is not typed evidence (3.318053ms)
+✔ negative: reported control RMS must be recomputed (6.774862ms)
+✔ negative: reported control maximum must be recomputed (3.051472ms)
+✔ negative: reported control count must be recomputed (3.238458ms)
+✔ negative: out-of-tolerance controls cannot borrow passing metrics (3.111778ms)
+✔ negative: duplicate controls cannot increase count (3.23029ms)
+✔ negative: unknown control observation (3.042222ms)
+✔ negative: wrong control session (3.608979ms)
+✔ negative: artifact project mismatch (3.405551ms)
+✔ negative: artifact commit mismatch (3.705914ms)
+✔ negative: geographic project CRS (2.721825ms)
+✔ negative: infinite derived coordinate (4.016263ms)
+✔ negative: nonfinite antenna height (3.142358ms)
+✔ negative: session counts must match observations (3.097262ms)
+✔ negative: session time ordering (3.315101ms)
+✔ negative: observation outside correlated session (3.95444ms)
+✔ negative: raw fields rejected from derived artifact (6.473891ms)
+✔ negative: fresh report cannot mask stale observations (3.297324ms)
+✔ negative: unknown observation session (2.856614ms)
+✔ negative: duplicate observation IDs (3.113922ms)
+✔ negative: derived coordinates cannot be latitude-longitude (3.206147ms)
+✔ negative: controls require fixed observations (2.849902ms)
+✔ negative: report and artifact contracts are versioned (2.412373ms)
+✔ negative: artifact hash must match content (3.07532ms)
+✔ negative: hardlink aliases cannot supply distinct evidence (3.448807ms)
+✔ positive: opaque PNG filter 0 (3.977499ms)
+✔ positive: opaque PNG filter 1 (3.566763ms)
+✔ positive: opaque PNG filter 2 (3.018025ms)
+✔ positive: opaque PNG filter 3 (2.773797ms)
+✔ positive: opaque PNG filter 4 (3.48257ms)
+✔ negative: corrupted PNG CRC (1.833308ms)
+✔ negative: oversized inflated PNG payload (1.454557ms)
+✔ QA negative: unreviewed GNSS meter CRS EPSG:26741 (2.624978ms)
+✔ QA negative: unreviewed GNSS meter CRS EPSG:26929 (2.629543ms)
+✔ QA negative: unreviewed GNSS meter CRS EPSG:26913 (2.270069ms)
+✔ QA negative: unreviewed GNSS meter CRS EPSG:3857 (3.173922ms)
+✔ QA negative: unreviewed GNSS meter CRS EPSG:900913 (2.709612ms)
+✔ QA negative: unreviewed GNSS meter CRS EPSG:32600 (5.562991ms)
+✔ QA negative: unreviewed GNSS meter CRS EPSG:32761 (2.36044ms)
+✔ QA positive: reviewed meter evidence CRS LOCAL (2.970703ms)
+✔ QA positive: reviewed meter evidence CRS LOCAL:reviewed-grid (2.874697ms)
+✔ QA positive: reviewed meter evidence CRS EPSG:32601 (2.975129ms)
+✔ QA positive: reviewed meter evidence CRS EPSG:32660 (3.446712ms)
+✔ QA positive: reviewed meter evidence CRS EPSG:32701 (3.329344ms)
+✔ QA positive: reviewed meter evidence CRS EPSG:32760 (2.814744ms)
+✔ QA negative: LOCAL evidence must declare meters (3.280097ms)
+✔ QA negative: PNG chunk contract unknown-critical (2.285105ms)
+✔ QA negative: PNG chunk contract duplicate-PLTE (1.978801ms)
+✔ QA negative: PNG chunk contract nonconsecutive-IDAT (1.777231ms)
+✔ QA negative: PNG chunk contract PLTE-after-IDAT (1.813045ms)
+✔ QA negative: PNG chunk contract PLTE-grayscale (2.266459ms)
+✔ QA negative: PNG chunk contract IHDR-not-first (1.615391ms)
+✔ QA negative: PNG chunk contract IEND-not-last (1.422312ms)
+✔ QA positive: opaque PNG color type 0 with consecutive IDAT (2.113903ms)
+✔ QA positive: opaque PNG color type 2 with consecutive IDAT (2.217139ms)
+✔ QA positive: opaque PNG color type 6 with consecutive IDAT (2.104011ms)
+✔ QA negative: noninteger native tileRequests (0.92118ms)
+✔ QA negative: JSON exponent overflow native tileRequests (0.920327ms)
+✔ QA negative: invalid native generatedAt garbage (1.112209ms)
+✔ QA negative: invalid native generatedAt 2026-02-30T00:00:00.000Z (0.948712ms)
+✔ QA negative: invalid native generatedAt 2026-09-13T24:00:00.000Z (0.934848ms)
+✔ QA positive: native integer count and ISO date remain nonrelease only (1.564881ms)
+✔ QA negative: submillisecond GNSS generatedAt (2.188372ms)
+✔ QA negative: submillisecond GNSS startedAt (2.141743ms)
+✔ QA negative: submillisecond GNSS endedAt (2.458113ms)
+✔ QA negative: submillisecond GNSS observedAt (2.894888ms)
+✔ QA negative: GNSS submillisecond ordering cannot be rounded into range (1.805021ms)
+✔ QA positive: GNSS timestamp precision seconds (2.677926ms)
+✔ QA positive: GNSS timestamp precision .1 (5.905062ms)
+✔ QA positive: GNSS timestamp precision .12 (2.954249ms)
+✔ QA positive: GNSS timestamp precision .123 (2.662534ms)
+✔ 3D negative: horizontal good plus vertical bad cannot pass (3.491619ms)
+✔ 3D negative: exact 0.10 meter maximum fails (2.818803ms)
+✔ 3D positive: below 0.10 meter maximum passes without weakening horizontal RMS (2.745189ms)
+✔ 3D negative: declared acceptance cannot relax owner maximum (2.03341ms)
+✔ 3D negative: metric tolerance cannot admit an exact-threshold measurement (2.837019ms)
+✔ 3D negative: stricter declared maximum remains exclusive (3.123417ms)
+✔ 3D negative: exact horizontal maximum remains an additional check (3.25141ms)
+✔ 3D positive: independently calculated 3D and vertical norms and RMS (2.784888ms)
+✔ 3D negative: false results.threeDimensionalRmsMeters (2.383289ms)
+✔ 3D negative: missing results.threeDimensionalRmsMeters (1.889723ms)
+✔ 3D negative: false results.maxThreeDimensionalErrorMeters (8.089386ms)
+✔ 3D negative: missing results.maxThreeDimensionalErrorMeters (2.454099ms)
+✔ 3D negative: false results.verticalRmsMeters (2.987623ms)
+✔ 3D negative: missing results.verticalRmsMeters (2.271249ms)
+✔ 3D negative: false results.maxVerticalErrorMeters (2.677187ms)
+✔ 3D negative: missing results.maxVerticalErrorMeters (2.158572ms)
+✔ 3D negative: false control count (4.048414ms)
+✔ 3D negative: missing observations height (3.156041ms)
+✔ 3D negative: nonfinite JSON observations height (2.833211ms)
+✔ 3D negative: observations verticalReference.datum mismatch (2.879792ms)
+✔ 3D negative: observations verticalReference.referencePoint mismatch (2.676345ms)
+✔ 3D negative: observations verticalReference.heightType mismatch (2.806885ms)
+✔ 3D negative: missing controls height (2.789742ms)
+✔ 3D negative: nonfinite JSON controls height (2.535738ms)
+✔ 3D negative: controls verticalReference.datum mismatch (2.627712ms)
+✔ 3D negative: controls verticalReference.referencePoint mismatch (2.727466ms)
+✔ 3D negative: controls verticalReference.heightType mismatch (3.257566ms)
+✔ 3D negative: unknown or untrimmed vertical datum "" (3.145555ms)
+✔ 3D negative: unknown or untrimmed vertical datum " " (2.483203ms)
+✔ 3D negative: unknown or untrimmed vertical datum "unknown" (2.295415ms)
+✔ 3D negative: unknown or untrimmed vertical datum " synthetic-test-datum " (2.246594ms)
+✔ 3D negative: vertical reference objects are strict (3.488096ms)
+✔ 3D positive: matching orthometric references validate only the declared contract (3.193238ms)
+✔ 3D negative: 2D-only packets are ineligible in every mode (4.373855ms)
+✔ 3D positive: other acceptance comparisons remain inclusive (3.824029ms)
+✔ 3D negative: unfilled template never represents measured evidence (6.051338ms)
+✔ ENU negative: grid XY plus heights is ineligible without comparison coordinates (2.84054ms)
+✔ ENU negative: even complete declared frame evidence cannot unblock release (3.509049ms)
+✔ ENU negative: frame proof boolean cannot unblock release (3.64238ms)
+✔ ENU positive: contract-only result explicitly blocks physical acceptance (3.431344ms)
+✔ ENU negative: invalid release evidence fails rather than becoming blocker-only (3.750586ms)
+✔ ENU negative: invalid release commit still fails (4.54848ms)
+✔ ENU positive: project grid and source heights are not substituted for ENU (8.235029ms)
+✔ ENU negative: good grid error cannot hide bad ENU error (9.180876ms)
+✔ ENU negative: observations frame referenceFrame mismatch (3.127695ms)
+✔ ENU negative: observations frame realization mismatch (3.306738ms)
+✔ ENU negative: observations frame coordinateEpoch mismatch (3.171254ms)
+✔ ENU negative: observations frame referencePoint mismatch (2.703146ms)
+✔ ENU negative: observations origin mismatch (2.587976ms)
+✔ ENU negative: observations missing comparison coordinates (2.835656ms)
+✔ ENU negative: observations nonfinite eastMeters (2.980085ms)
+✔ ENU negative: observations nonfinite northMeters (2.700163ms)
+✔ ENU negative: observations nonfinite upMeters (2.62693ms)
+✔ ENU negative: observations source hash must match retained row (2.694136ms)
+✔ ENU negative: controls frame referenceFrame mismatch (3.426405ms)
+✔ ENU negative: controls frame realization mismatch (4.128289ms)
+✔ ENU negative: controls frame coordinateEpoch mismatch (3.831261ms)
+✔ ENU negative: controls frame referencePoint mismatch (3.74734ms)
+✔ ENU negative: controls origin mismatch (3.674121ms)
+✔ ENU negative: controls missing comparison coordinates (4.776258ms)
+✔ ENU negative: controls nonfinite eastMeters (4.612012ms)
+✔ ENU negative: controls nonfinite northMeters (5.707214ms)
+✔ ENU negative: controls nonfinite upMeters (4.154159ms)
+✔ ENU negative: controls source hash must match retained row (4.260561ms)
+✔ ENU negative: controls must link the exact observation artifact (3.812841ms)
+✔ ENU negative: unknown frame metadata fails (4.006825ms)
+✔ ENU negative: non-ENU basis is not an eligible comparison frame (3.502637ms)
+✔ ENU negative: frame point must match vertical reference (5.027474ms)
+✔ ENU negative: frame epoch cannot claim submillisecond precision (3.226823ms)
+✔ ENU negative: origin must have valid geographic bounds (2.637558ms)
+✔ ENU negative: origin ellipsoidal height cannot be missing (3.207325ms)
+✔ ENU negative: frame rejects unknown extra fields (3.849511ms)
+ℹ tests 177
+ℹ suites 0
+ℹ pass 177
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 723.533647
+CornerGPSMap / FLT inventory tests passed
+
+> @cplayout/mobile@0.1.0 test
+> tsx src/projectOpenRequest.test.ts && tsx src/pendingMapDraft.test.ts && tsx src/projectEditorDispatch.test.ts && tsx src/advisory/advisoryJob.test.ts && tsx src/navigation/navigationViewModels.test.ts && tsx src/navigation/projectTreeViewModel.test.ts && tsx src/gnss/webSerialTransport.test.ts && tsx src/gnss/webSerialTransportSafety.test.ts && tsx src/gnss/webSerialSessionOwner.test.ts && tsx src/gnss/captureDraft.test.ts
+
+✔ reverse project/design opens commit only the latest request, not the last response (5.902438ms)
+✔ direct import invalidates every pending open without retaining the saved design affiliation (1.136945ms)
+✔ an older read cannot commit even while the newer request is still pending (1.149305ms)
+✔ newer missing or failed opens never revive an older read (2.010169ms)
+✔ unmount/navigation invalidation ignores late success and failure; a later open still works (1.534967ms)
+✔ blocked project metadata keeps real reducer undo/redo and nondefault settings without relabelling XY (0.568786ms)
+✔ owner cleanup cancels a pending import without committing or saving it (0.779415ms)
+✔ old import owner cleanup cannot cancel a newer saved-project or other-owner open (2.871565ms)
+✔ only the latest picker in one owner can commit, including stale failures (2.001449ms)
+✔ completion feedback ownership expires on edits/navigation or newer opens (0.270666ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 26.957125
+✔ begin refuses replacement and keeps the pending draft intact (1.573688ms)
+✔ begin, snapshots, apply, and receipts do not expose mutable owned data (0.360446ms)
+✔ successful save retires synchronously and duplicate callbacks cannot dispatch (0.190498ms)
+✔ cancel retires synchronously with explicit unchanged-project feedback (0.246ms)
+✔ rejection retains exact draft and full error, then permits retry (0.26731ms)
+✔ thrown apply errors become full rejection messages and allow retry (0.243676ms)
+✔ same-ID reload invalidates pending ownership before any dispatch (0.211158ms)
+✔ same-ID reload during apply cannot publish a receipt or retain the old draft (0.19019ms)
+✔ new project invalidates pending ownership before any dispatch (0.144984ms)
+✔ new project during apply cannot publish a receipt or retain the old draft (0.246777ms)
+✔ CRS change invalidates pending ownership before any dispatch (0.140248ms)
+✔ CRS change during apply cannot publish a receipt or retain the old draft (0.098198ms)
+✔ Home/Layout/noneditable view invalidates pending ownership before any dispatch (0.088863ms)
+✔ Home/Layout/noneditable view during apply cannot publish a receipt or retain the old draft (0.07686ms)
+✔ noneditable scope blocks handoff, and returning to editing does not revive observed stale work (0.179855ms)
+✔ retained A handlers cannot save or cancel B after retirement, reload, or project switch (0.310027ms)
+✔ every owner field must match, while a copied current token is accepted (0.141441ms)
+✔ reentrant save and cancel cannot dispatch or retire an in-flight draft (0.095615ms)
+✔ invalidation during apply suppresses completion, including thrown rejection (0.134162ms)
+✔ old apply completion cannot overwrite, retire, or unlock newer reentrant work (0.19003ms)
+✔ draft and receipt counters remain monotonic across cancellation and invalidation (0.08772ms)
+✔ geometry qualification beyond ownership is delegated to apply without changing coordinates (0.096323ms)
+✔ retained begin callback refuses same-ID reload before adopting live scope (0.118474ms)
+✔ retained begin callback refuses new project before adopting live scope (0.051571ms)
+✔ retained begin callback refuses CRS change before adopting live scope (0.044843ms)
+✔ retained begin callback refuses Home/Layout/noneditable view before adopting live scope (0.049667ms)
+✔ begin requires both expected and live scopes to be editable (0.112919ms)
+✔ a begin callback retained from Home/Layout cannot replace a current editable draft (0.088815ms)
+✔ returning to A with an invalidated generation never revives A's retained begin callback (0.171679ms)
+✔ retained purpose save evaluates the current core editor after boundary shrink without changing draft ownership (8.021676ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 23.704651
+✔ same-batch boundary shrink rejects a retained purpose save against current geometry (9.023287ms)
+✔ queued accepted changes, undo and redo publish exact reducer snapshots (2.908229ms)
+✔ replacement project is authoritative before the next queued action (2.429358ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 21.317149
+Advisory job: scheduling, caching, cancellation, stale callbacks, errors and subscriptions pass.
+Advisory demand: catalog and unrelated views cannot request expensive analysis.
+web serial transport tests passed
+✔ separate connections retain distinct session IDs even with identical clocks and new adapters (1.768124ms)
+✔ session identity allocation failure occurs before serial permission or port ownership (0.589599ms)
+✔ close releases the stream lock while the consumer is paused at a byte event (5.604978ms)
+✔ close interrupts a pending read and emits exactly one terminal event (0.344833ms)
+✔ bytes resolved concurrently with close cannot escape after closure (0.30924ms)
+✔ events after close do not acquire a stream or report a missing-stream error (0.212499ms)
+✔ concurrent closes await the same port cleanup, and failed cleanup can be retried (0.381377ms)
+✔ correction writes are ordered, use owned byte copies, and do not compete for locks (1.069107ms)
+✔ close waits for an active correction write and rejects queued writes (4.835061ms)
+✔ a write failure releases its lock and still allows explicit close (0.556785ms)
+✔ read failure and an early consumer return release the readable lock (0.636647ms)
+✔ event consumption remains single-use and invalid baud never requests permission (0.552479ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 20.84284
+✔ a late port and failed close retain ownership after every panel unsubscribes (1.374722ms)
+✔ one close attempt is shared and failure requires explicit retry: immediate=true (0.309555ms)
+✔ one close attempt is shared and failure requires explicit retry: immediate=false (0.146336ms)
+✔ permission cancellation restores idle and unrelated sessions cannot close the owner (0.299232ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7.97571
+✔ drafts remain scoped to the project and canonical CRS used for capture (0.540011ms)
+✔ saved draft confidence comes from the weakest captured vertex, not current receiver status (0.200393ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6.451646
+
+> @cplayout/core@0.1.0 test
+> tsx src/crsMutationSafety.test.ts && tsx src/coordinates.test.ts && tsx src/coordinatesSafety.test.ts && tsx src/crsQualification.test.ts && tsx src/projectCalculationSafety.test.ts && tsx src/cornerArmCatalog.test.ts && tsx src/cornerGpsMapImport.test.ts && tsx src/cornerGpsMapExport.test.ts && tsx src/cornerGpsMapLegacyEvidence.test.ts && tsx src/settings.test.ts && tsx src/mapTilePackages.test.ts && tsx src/referenceOverlays.test.ts && tsx src/mapReferenceViewModel.test.ts && tsx src/imageryEvidence.test.ts && tsx src/manualDesign.test.ts && tsx src/designDraft.test.ts && tsx src/gnssEvidence.test.ts && tsx src/navigationMenuXml.test.ts && tsx src/projectDocument.test.ts && tsx src/projectKml.test.ts && tsx src/projectXml.test.ts && tsx src/projectReducer.test.ts && tsx src/provenanceSafety.test.ts && tsx src/units.test.ts
+
+✔ EPSG:26741 stays readable while mixed-unit design mutations are atomic rejections (10.099219ms)
+✔ LOCAL:TEST stays readable while mixed-unit design mutations are atomic rejections (1.320218ms)
+✔ EPSG:3857 stays readable while mixed-unit design mutations are atomic rejections (3.797802ms)
+✔ EPSG:26723 stays readable while mixed-unit design mutations are atomic rejections (1.338269ms)
+✔ a draft cannot cross project CRS even when both grids use metres (0.397102ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 23.883651
+coordinate format tests passed
+Synthetic oracle maximum difference: 4.511093720793724e-9 meters; no field accuracy claim.
+✔ regression: scientific projected input is consumed as two whole numbers (2.494003ms)
+✔ projected accepts X 410.5, Y 360.25 (0.236208ms)
+✔ projected accepts x: +.5; y= -2.E+3 (0.129328ms)
+✔ projected accepts 1e+6 4.5E6 (0.118663ms)
+✔ projected accepts 1,2 ( epsg : 32613 ) (0.187888ms)
+✔ projected accepts 1e308,-1e308 (0.107749ms)
+✔ projected rejects junk 1,2 (0.176251ms)
+✔ projected rejects 1,2 junk (0.07899ms)
+✔ projected rejects 1,2,3 (0.164712ms)
+✔ projected rejects 1 2 3 (0.240728ms)
+✔ projected rejects 1e309,2 (0.114147ms)
+✔ projected rejects 1,NaN (0.055956ms)
+✔ projected rejects Infinity,2 (0.042891ms)
+✔ projected rejects 1e,2 (0.094156ms)
+✔ projected rejects 1e+,2 (0.065907ms)
+✔ projected rejects 1..2,3 (0.067262ms)
+✔ projected rejects 1_000,2 (0.033597ms)
+✔ projected rejects 0x10,2 (0.027732ms)
+✔ projected rejects 1,,2 (0.026199ms)
+✔ projected rejects 1/2 (0.0251ms)
+✔ projected rejects 1-2 (0.02517ms)
+✔ projected rejects Y 1,X 2 (0.033698ms)
+✔ projected rejects X X 1,Y 2 (0.032078ms)
+✔ projected rejects 1,2 (EPSG:32612) (0.059524ms)
+✔ projected rejects 1,2 (EPSG:32613) junk (0.038603ms)
+✔ projected rejects 1,2 (EPSG:32613) (EPSG:32613) (0.030222ms)
+✔ projected LOCAL input keeps XY and the selected CRS verbatim (0.200385ms)
+✔ formatted projected values can be pasted only into their selected CRS (0.086461ms)
+✔ projected input rejects invalid selected CRS "EPSG:4326" (0.189184ms)
+✔ projected input rejects invalid selected CRS "CRS:84" (0.046749ms)
+✔ projected input rejects invalid selected CRS "OGC:CRS84" (0.036728ms)
+✔ projected input rejects invalid selected CRS " epsg : 4326 " (0.070607ms)
+✔ projected input rejects invalid selected CRS "EPSG:999999" (0.064633ms)
+✔ projected input rejects invalid selected CRS "EPSG:32600" (0.041612ms)
+✔ projected input rejects invalid selected CRS "EPSG:32661" (0.643855ms)
+✔ projected input rejects invalid selected CRS "unrecognized" (0.080457ms)
+✔ projected input rejects invalid selected CRS "" (0.05033ms)
+✔ projected input validates but preserves selected CRS "LOCAL" (0.077895ms)
+✔ projected input validates but preserves selected CRS " local:field " (0.061516ms)
+✔ projected input validates but preserves selected CRS " epsg : 32613 " (0.039239ms)
+✔ decimal_degrees formatting rejects nonfinite XY NaN,0 (0.277884ms)
+✔ decimal_degrees formatting rejects nonfinite XY Infinity,0 (0.062976ms)
+✔ decimal_degrees formatting rejects nonfinite XY 0,-Infinity (0.030557ms)
+✔ decimal_degrees formatting rejects invalid supplied WGS84 NaN,0 (0.107585ms)
+✔ decimal_degrees formatting rejects invalid supplied WGS84 Infinity,0 (0.048903ms)
+✔ decimal_degrees formatting rejects invalid supplied WGS84 0,-Infinity (0.028263ms)
+✔ decimal_degrees formatting rejects invalid supplied WGS84 90.1,0 (0.026727ms)
+✔ decimal_degrees formatting rejects invalid supplied WGS84 -90.1,0 (0.025137ms)
+✔ decimal_degrees formatting rejects invalid supplied WGS84 0,180.1 (0.02575ms)
+✔ decimal_degrees formatting rejects invalid supplied WGS84 0,-180.1 (0.028221ms)
+✔ degrees_decimal_minutes formatting rejects nonfinite XY NaN,0 (0.02693ms)
+✔ degrees_decimal_minutes formatting rejects nonfinite XY Infinity,0 (0.024946ms)
+✔ degrees_decimal_minutes formatting rejects nonfinite XY 0,-Infinity (0.022883ms)
+✔ degrees_decimal_minutes formatting rejects invalid supplied WGS84 NaN,0 (0.023982ms)
+✔ degrees_decimal_minutes formatting rejects invalid supplied WGS84 Infinity,0 (0.024442ms)
+✔ degrees_decimal_minutes formatting rejects invalid supplied WGS84 0,-Infinity (0.025354ms)
+✔ degrees_decimal_minutes formatting rejects invalid supplied WGS84 90.1,0 (0.023875ms)
+✔ degrees_decimal_minutes formatting rejects invalid supplied WGS84 -90.1,0 (0.022569ms)
+✔ degrees_decimal_minutes formatting rejects invalid supplied WGS84 0,180.1 (0.0232ms)
+✔ degrees_decimal_minutes formatting rejects invalid supplied WGS84 0,-180.1 (0.062434ms)
+✔ degrees_minutes_seconds formatting rejects nonfinite XY NaN,0 (0.050413ms)
+✔ degrees_minutes_seconds formatting rejects nonfinite XY Infinity,0 (0.027907ms)
+✔ degrees_minutes_seconds formatting rejects nonfinite XY 0,-Infinity (0.024973ms)
+✔ degrees_minutes_seconds formatting rejects invalid supplied WGS84 NaN,0 (0.075342ms)
+✔ degrees_minutes_seconds formatting rejects invalid supplied WGS84 Infinity,0 (0.039024ms)
+✔ degrees_minutes_seconds formatting rejects invalid supplied WGS84 0,-Infinity (0.027291ms)
+✔ degrees_minutes_seconds formatting rejects invalid supplied WGS84 90.1,0 (0.070947ms)
+✔ degrees_minutes_seconds formatting rejects invalid supplied WGS84 -90.1,0 (0.035646ms)
+✔ degrees_minutes_seconds formatting rejects invalid supplied WGS84 0,180.1 (0.051623ms)
+✔ degrees_minutes_seconds formatting rejects invalid supplied WGS84 0,-180.1 (0.05458ms)
+✔ projected_local formatting rejects nonfinite XY NaN,0 (0.031892ms)
+✔ projected_local formatting rejects nonfinite XY Infinity,0 (0.031392ms)
+✔ projected_local formatting rejects nonfinite XY 0,-Infinity (0.025488ms)
+✔ projected_local formatting rejects invalid supplied WGS84 NaN,0 (0.025781ms)
+✔ projected_local formatting rejects invalid supplied WGS84 Infinity,0 (0.023536ms)
+✔ projected_local formatting rejects invalid supplied WGS84 0,-Infinity (0.024295ms)
+✔ projected_local formatting rejects invalid supplied WGS84 90.1,0 (0.022965ms)
+✔ projected_local formatting rejects invalid supplied WGS84 -90.1,0 (0.02517ms)
+✔ projected_local formatting rejects invalid supplied WGS84 0,180.1 (0.033373ms)
+✔ projected_local formatting rejects invalid supplied WGS84 0,-180.1 (0.087817ms)
+✔ angular formatting still supports inverse projection when WGS84 is absent (2.488866ms)
+✔ DD accepts 4e1,-1.04e2 (0.183132ms)
+✔ DD accepts N 4E+1, W 1.04e2 (0.110061ms)
+✔ DD accepts 4e1 N 1.04e2 W (0.068775ms)
+✔ DD accepts +.5, -.25 (0.053702ms)
+✔ DD accepts 40. N; 104. W (0.053397ms)
+✔ DD accepts 40° N, 104° W (0.068ms)
+✔ DD accepts -40 S, -104 W (0.053083ms)
+✔ DD accepts +40 N,+104 E (0.041078ms)
+✔ DD rejects junk 40,-104 (0.061627ms)
+✔ DD rejects 40,-104 garbage (0.030384ms)
+✔ DD rejects 40,-104,5 (0.026596ms)
+✔ DD rejects 40,-104e (0.050678ms)
+✔ DD rejects 40,-104e+ (0.026359ms)
+✔ DD rejects 40,1e309 (0.03596ms)
+✔ DD rejects NaN,-104 (0.030995ms)
+✔ DD rejects 40,Infinity (0.029925ms)
+✔ DD rejects 40, -104 10 (0.028269ms)
+✔ DD rejects 40 N,104 E W (0.029492ms)
+✔ DD rejects 40 S N,104 W (0.024525ms)
+✔ DD rejects N 40 N, W 104 (0.035379ms)
+✔ DD rejects 40 W,104 N (0.034099ms)
+✔ DD rejects 40 E,104 W (0.028121ms)
+✔ DD rejects -40 N,104 W (0.069091ms)
+✔ DD rejects +40 S,104 W (0.04809ms)
+✔ DD rejects 40 N,-104 E (0.037214ms)
+✔ DD rejects 40 N,+104 W (0.03497ms)
+✔ DD rejects -0 N,104 W (0.034713ms)
+✔ DD rejects 40 N,-0 E (0.03815ms)
+✔ DD rejects 40 north,104 west (0.027105ms)
+✔ DD rejects 40,,104 (0.024098ms)
+✔ DD rejects 40-104 (0.02314ms)
+✔ DD rejects 91,0 (0.036314ms)
+✔ DD rejects 0,181 (0.075222ms)
+✔ DD rejects 1e2,0 (0.050867ms)
+✔ degrees_decimal_minutes accepts 40 30 N,104 15 W (0.227845ms)
+✔ degrees_decimal_minutes accepts N 40 30 W 104 15 (0.046808ms)
+✔ degrees_decimal_minutes accepts 40°30′N 104°15′W (0.150946ms)
+✔ degrees_decimal_minutes accepts N40° 30’, W104° 15’ (0.048852ms)
+✔ degrees_decimal_minutes accepts 40 30 -104 15 (0.050604ms)
+✔ degrees_decimal_minutes accepts 40 30, -104 15 (0.052322ms)
+✔ degrees_decimal_minutes accepts 40 .5 N,104 .25 W (0.039681ms)
+✔ degrees_minutes_seconds accepts 40 30 0 N,104 15 0 W (0.169392ms)
+✔ degrees_minutes_seconds accepts N40°30′0″ W104°15′0″ (0.152096ms)
+✔ degrees_minutes_seconds accepts 40°30’0”N,104°15’0”W (0.047374ms)
+✔ degrees_minutes_seconds accepts 40 30 0 -104 15 0 (0.060456ms)
+✔ degrees_minutes_seconds accepts 40 30 0 N W 104 15 0 (0.037169ms)
+✔ degrees_minutes_seconds accepts -40 30 0 S,-104 15 0 W (0.03949ms)
+✔ degrees_decimal_minutes rejects 40 30 15 N,104 15 12 W (0.065912ms)
+✔ degrees_decimal_minutes rejects 40 30 N,104 15 W 1 (0.033631ms)
+✔ degrees_decimal_minutes rejects 40 30 N,104 W (0.029295ms)
+✔ degrees_decimal_minutes rejects 40 30 N,104 15 W junk (0.026015ms)
+✔ degrees_decimal_minutes rejects N40 30 S,W104 15 (0.037803ms)
+✔ degrees_decimal_minutes rejects 40 30 NN,104 15 W (0.027673ms)
+✔ degrees_decimal_minutes rejects 40 30 W,104 15 N (0.025176ms)
+✔ degrees_decimal_minutes rejects -40 30 N,104 15 W (0.035446ms)
+✔ degrees_decimal_minutes rejects +40 30 S,104 15 W (0.117524ms)
+✔ degrees_decimal_minutes rejects 40 30 N,-104 15 E (0.063208ms)
+✔ degrees_decimal_minutes rejects 40 60 N,104 15 W (0.03985ms)
+✔ degrees_decimal_minutes rejects 40 -1 N,104 15 W (0.044771ms)
+✔ degrees_decimal_minutes rejects 40 -0 N,104 15 W (0.029079ms)
+✔ degrees_decimal_minutes rejects 40.5 1 N,104 15 W (0.042588ms)
+✔ degrees_decimal_minutes rejects 40 3e1 N,104 15 W (0.032712ms)
+✔ degrees_decimal_minutes rejects 40 30" N,104 15 W (0.025625ms)
+✔ degrees_decimal_minutes rejects 90 0.1 N,104 15 W (0.042606ms)
+✔ degrees_decimal_minutes rejects 40 30 N,180 0.1 W (0.038104ms)
+✔ degrees_minutes_seconds rejects 40 30 N,104 15 W (0.029025ms)
+✔ degrees_minutes_seconds rejects 40 30 1 2 N,104 15 1 2 W (0.029307ms)
+✔ degrees_minutes_seconds rejects junk 40 30 0 N,104 15 0 W (0.027055ms)
+✔ degrees_minutes_seconds rejects 40 30 0 S N,104 15 0 W (0.085525ms)
+✔ degrees_minutes_seconds rejects 40 30 0 E,104 15 0 W (0.063075ms)
+✔ degrees_minutes_seconds rejects 40 30 60 N,104 15 0 W (0.051581ms)
+✔ degrees_minutes_seconds rejects 40 60 0 N,104 15 0 W (0.036633ms)
+✔ degrees_minutes_seconds rejects 40 30 -1 N,104 15 0 W (0.029081ms)
+✔ degrees_minutes_seconds rejects 40 30.5 0 N,104 15 0 W (0.026558ms)
+✔ degrees_minutes_seconds rejects 40 30 0 N,104 15 0 W extra (0.029524ms)
+✔ degrees_minutes_seconds rejects -0 30 0 N,104 15 0 W (0.037094ms)
+✔ degrees_minutes_seconds rejects 40 30 0 N,+0 15 0 W (0.036834ms)
+✔ degrees_minutes_seconds rejects 40′30°0 N,104 15 0 W (0.028818ms)
+✔ decimal_degrees retains negative zero: -0,-0 (0.103127ms)
+✔ decimal_degrees retains negative zero: 0 S,0 W (0.085997ms)
+✔ decimal_degrees retains negative zero: -0 S,-0 W (0.083301ms)
+✔ degrees_decimal_minutes retains negative zero: -0 0,-0 0 (0.089966ms)
+✔ degrees_decimal_minutes retains negative zero: 0 0 S,0 0 W (0.872845ms)
+✔ degrees_minutes_seconds retains negative zero: -0 0 0,-0 0 0 (0.108622ms)
+✔ degrees_minutes_seconds retains negative zero: 0 0 0 S,0 0 0 W (0.054803ms)
+✔ negative zero degrees give a negative subdegree angle (0.087081ms)
+✔ decimal_degrees preserves the public example (0.286278ms)
+✔ decimal_degrees seeded and boundary display round trips stay within display precision (5.406099ms)
+✔ degrees_decimal_minutes preserves the public example (0.24482ms)
+✔ degrees_decimal_minutes seeded and boundary display round trips stay within display precision (5.992782ms)
+✔ degrees_minutes_seconds preserves the public example (0.225982ms)
+✔ degrees_minutes_seconds seeded and boundary display round trips stay within display precision (6.645198ms)
+✔ forward rejects 91,0 (0.160606ms)
+✔ forward rejects -91,0 (0.041113ms)
+✔ forward rejects 0,181 (0.02517ms)
+✔ forward rejects 0,-181 (0.022808ms)
+✔ forward rejects NaN,0 (0.024152ms)
+✔ forward rejects Infinity,0 (0.021038ms)
+✔ forward rejects 0,-Infinity (0.021143ms)
+✔ inverse rejects nonfinite input or out-of-range output NaN,0 (0.340339ms)
+✔ inverse rejects nonfinite input or out-of-range output 0,Infinity (0.030661ms)
+✔ inverse rejects nonfinite input or out-of-range output -Infinity,0 (0.024218ms)
+✔ inverse rejects nonfinite input or out-of-range output 1e+100,1e+100 (0.27276ms)
+✔ direct transforms normalize accepted CRS spelling (0.461636ms)
+✔ legacy feet XY input preserves numbers and label without allowing an invented WGS84 transform (0.188406ms)
+✔ external proj4 registrations cannot make unsupported EPSG codes into UTM or alter supported definitions (0.276301ms)
+✔ LOCAL transforms fail with a clean Error and parsing reports it (0.13291ms)
+✔ seeded UTM forward/inverse consistency, synthetic only (27.769705ms)
+✔ independent local PROJ 9.4 oracle: 168 synthetic fixtures (6.474454ms)
+ℹ tests 190
+ℹ suites 0
+ℹ pass 190
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 83.69703
+✔ 32601-32660 have exact UTM definitions and metre east/north axes (1.112367ms)
+✔ 32701-32760 have exact UTM definitions and metre east/north axes (0.211752ms)
+✔ 26701-26722 have exact UTM definitions and metre east/north axes (0.131485ms)
+✔ 26901-26923 have exact UTM definitions and metre east/north axes (0.097985ms)
+✔ 26741 stays readable as feet, without a fabricated UTM zone 41 (0.355414ms)
+✔ unsupported EPSG:26700 never acquires a guessed UTM definition (0.18615ms)
+✔ unsupported EPSG:26723 never acquires a guessed UTM definition (0.073797ms)
+✔ unsupported EPSG:26728 never acquires a guessed UTM definition (0.12705ms)
+✔ unsupported EPSG:26729 never acquires a guessed UTM definition (0.125098ms)
+✔ unsupported EPSG:26741 never acquires a guessed UTM definition (0.152163ms)
+✔ unsupported EPSG:26760 never acquires a guessed UTM definition (0.101179ms)
+✔ unsupported EPSG:26761 never acquires a guessed UTM definition (0.061908ms)
+✔ unsupported EPSG:26900 never acquires a guessed UTM definition (0.105186ms)
+✔ unsupported EPSG:26924 never acquires a guessed UTM definition (0.078136ms)
+✔ unsupported EPSG:26928 never acquires a guessed UTM definition (0.074244ms)
+✔ unsupported EPSG:26929 never acquires a guessed UTM definition (0.051078ms)
+✔ unsupported EPSG:26941 never acquires a guessed UTM definition (0.043491ms)
+✔ unsupported EPSG:26960 never acquires a guessed UTM definition (0.040217ms)
+✔ unsupported EPSG:26961 never acquires a guessed UTM definition (0.039621ms)
+✔ unsupported EPSG:32600 never acquires a guessed UTM definition (0.037819ms)
+✔ unsupported EPSG:32661 never acquires a guessed UTM definition (0.037048ms)
+✔ unsupported EPSG:32700 never acquires a guessed UTM definition (0.041207ms)
+✔ unsupported EPSG:32761 never acquires a guessed UTM definition (0.038666ms)
+✔ EPSG:3857 remains usable for display, never for ground-distance qualification (0.741118ms)
+✔ EPSG:900913 remains usable for display, never for ground-distance qualification (0.126223ms)
+✔  epsg : 3857  remains usable for display, never for ground-distance qualification (0.112816ms)
+✔ qualification preserves the original CRS while normalizing case and spacing for lookup (0.090138ms)
+✔ LOCAL alone establishes neither metre axes nor georeferencing (0.158753ms)
+✔ LOCAL:FIELD alone establishes neither metre axes nor georeferencing (0.035612ms)
+✔ LOCAL:METRIC alone establishes neither metre axes nor georeferencing (0.062919ms)
+✔ LOCAL:IMAGE alone establishes neither metre axes nor georeferencing (0.073699ms)
+✔  local:field  alone establishes neither metre axes nor georeferencing (0.116016ms)
+✔ an explicit LOCAL metre declaration admits planar arithmetic only (0.147795ms)
+✔ LOCAL declarations need matching CRS, metre units, orthogonal axes and an evidence reference (0.12149ms)
+✔ EPSG:4326 is angular input, never canonical metric XY (0.158381ms)
+✔  epsg : 4326  is angular input, never canonical metric XY (0.094026ms)
+✔ CRS:84 is angular input, never canonical metric XY (0.074176ms)
+✔ OGC:CRS84 is angular input, never canonical metric XY (0.041181ms)
+✔ valid NAD UTM grid calculations do not authorize implicit WGS84 datum conversion (0.714323ms)
+✔ independent PROJ 9.4 same-datum synthetic oracle checks NAD projection definitions (0.220278ms)
+✔ legacy parse/save/reparse preserves all XY and CRS labels for calculation-blocked documents (10.362971ms)
+ℹ tests 41
+ℹ suites 0
+ℹ pass 41
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 26.094528
+✔ numerical admission is read-only and independent of schema and CRS qualification (2.064552ms)
+✔ span sum overflow remains legacy-serializable and agrees with draft calculation blockers (11.086853ms)
+✔ overhang sum overflow remains legacy-serializable and agrees with draft calculation blockers (4.301154ms)
+✔ end-gun sum overflow remains legacy-serializable and agrees with draft calculation blockers (1.793796ms)
+✔ area overflow repro remains legacy-serializable and agrees with draft calculation blockers (1.650966ms)
+✔ generated XY overflow repro remains legacy-serializable and agrees with draft calculation blockers (1.432696ms)
+✔ typed nonfinite scalar and XY inputs cannot disappear through NaN comparisons (3.662337ms)
+✔ negative distances cannot cancel an otherwise unsafe numerical envelope (0.147848ms)
+✔ corner, bender centers, map geometry and clearance extensions share the numerical domain (4.318614ms)
+✔ active preview and external clearance are checked without inserting defaults (0.431511ms)
+✔ finite measured speeds cannot produce an infinite corner constraint ratio (0.833606ms)
+✔ shared topology and clipping budgets reject unresolved coordinates and excessive range rings (0.790401ms)
+✔ large representable geometry remains numerically admitted without a physical maximum (0.3691ms)
+✔ result invariant includes all metrics, polygons, holes, towers and conflict areas (2.347665ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 42.922122
+CornerGPSMap import tests passed
+CornerGPSMap BPF export tests passed
+CornerGPSMap legacy evidence tests passed
+settings tests passed
+map tile package tests passed
+reference overlay tests passed
+mapReferenceViewModel tests passed
+imagery evidence tests passed
+manual design tests passed
+✔ empty design saves without fabricated inputs or optional arrays (11.195172ms)
+✔ each absent infrastructure point independently saves and blocks completion (6.450269ms)
+✔ each absent machine input independently saves and blocks completion (12.714769ms)
+✔ empty and partial boundary and span inputs survive roundtrip (7.069192ms)
+✔ incomplete topology stays saveable but cannot produce a project (4.846397ms)
+✔ all present XY collections require an explicit CRS (4.317864ms)
+✔ invalid and nonfinite present values are refused before serialization (4.46388ms)
+✔ strict JSON and version contracts refuse unsupported data without mutation (2.264884ms)
+✔ settings must be real supplied values and cannot silently receive legacy defaults (1.912689ms)
+✔ metadata, references and provenance roundtrip without normalization or derivation (14.444739ms)
+✔ reference and capture evidence violations cannot be saved as incomplete drafts (5.753943ms)
+✔ existing component evidence and geometry-kind validators still apply (1.430145ms)
+✔ supported complete fixture builds a detached project without upgrading qualification (0.869418ms)
+✔ legacy-readable unqualified CRS stores unchanged but cannot enable calculation (3.186441ms)
+✔ array JSON hooks cannot rewrite validated XY or introduce nonfinite data (0.822139ms)
+✔ JSON hooks inherited from standard prototypes are rejected without execution (0.71924ms)
+✔ array accessor indices and hook accessors are refused before reading (1.494007ms)
+✔ sparse arrays and extra or hidden array properties are refused (1.19617ms)
+✔ envelope and nested object accessors are refused without execution (0.676666ms)
+✔ frozen plain input creates a detached validated snapshot (1.450869ms)
+✔ finite inputs with overflowing aggregate distances remain saveable but noncalculable (5.884027ms)
+✔ area overflow and nonfinite generated-coordinate repros cannot build projects (2.204588ms)
+✔ finite radii must also fit conservative coverage and coordinate-resolution budgets (3.40456ms)
+✔ numerical envelope includes boundaries, infrastructure, survey and map geometry (9.318538ms)
+✔ corner, feature and clearance extensions are part of the consumer budget (8.300578ms)
+✔ large representable geometry remains eligible without imposing physical machine maxima (0.686667ms)
+✔ unknown nested fields and versions in evidence and metadata refuse without mutation (12.397548ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 138.131342
+✔ v2 evidence round trips all carriers through project/draft JSON and draft build (36.181868ms)
+✔ repeated observation with different valid evaluation time and thresholds: boundary (3.462447ms)
+✔ conflicting declarations in one session are rejected: boundary (3.1889ms)
+✔ one observation cannot move canonical XY: boundary (2.488898ms)
+✔ every carrier individually validates its v2 policy: boundary (3.103413ms)
+✔ repeated observation with different valid evaluation time and thresholds: survey (2.566043ms)
+✔ conflicting declarations in one session are rejected: survey (1.553688ms)
+✔ one observation cannot move canonical XY: survey (1.531327ms)
+✔ every carrier individually validates its v2 policy: survey (1.38562ms)
+✔ repeated observation with different valid evaluation time and thresholds: obstacle (2.347099ms)
+✔ conflicting declarations in one session are rejected: obstacle (1.392273ms)
+✔ one observation cannot move canonical XY: obstacle (1.34281ms)
+✔ every carrier individually validates its v2 policy: obstacle (1.42069ms)
+✔ repeated observation with different valid evaluation time and thresholds: Point (2.454034ms)
+✔ conflicting declarations in one session are rejected: Point (1.825189ms)
+✔ one observation cannot move canonical XY: Point (1.672011ms)
+✔ every carrier individually validates its v2 policy: Point (1.222261ms)
+✔ repeated observation with different valid evaluation time and thresholds: LineString (2.574049ms)
+✔ conflicting declarations in one session are rejected: LineString (1.715154ms)
+✔ one observation cannot move canonical XY: LineString (2.401531ms)
+✔ every carrier individually validates its v2 policy: LineString (1.06372ms)
+✔ repeated observation with different valid evaluation time and thresholds: Polygon (1.97979ms)
+✔ conflicting declarations in one session are rejected: Polygon (1.525374ms)
+✔ one observation cannot move canonical XY: Polygon (1.29421ms)
+✔ every carrier individually validates its v2 policy: Polygon (0.909746ms)
+✔ repeated observation with different valid evaluation time and thresholds: Circle (2.030091ms)
+✔ conflicting declarations in one session are rejected: Circle (1.247271ms)
+✔ one observation cannot move canonical XY: Circle (1.345959ms)
+✔ every carrier individually validates its v2 policy: Circle (1.107752ms)
+✔ missing thresholds are rejected without filling policy defaults (7.00896ms)
+✔ v2 GGA code is required and must represent its usable parser fix (6.418509ms)
+✔ invalid collection evidence: future receipt (1.148159ms)
+✔ invalid collection evidence: negative horizontal uncertainty (2.081828ms)
+✔ invalid collection evidence: missing vertical uncertainty (1.063848ms)
+✔ invalid collection evidence: negative vertical uncertainty (0.968938ms)
+✔ invalid collection evidence: zero HDOP (1.04227ms)
+✔ invalid collection evidence: negative VDOP (0.945088ms)
+✔ invalid collection evidence: too few satellites (0.908519ms)
+✔ invalid collection evidence: stale effective corrections (0.951366ms)
+✔ invalid collection evidence: mismatched antenna (1.176033ms)
+✔ invalid collection evidence: missing coherent sentence (0.935501ms)
+✔ invalid collection evidence: unknown reference (1.231634ms)
+✔ invalid collection evidence: unapplied offset (0.985614ms)
+✔ invalid collection evidence: false field qualification (1.04769ms)
+✔ invalid collection evidence: unknown policy (0.92819ms)
+✔ collection does not invent a vertical or combined accuracy acceptance limit (0.201604ms)
+✔ v2 outer survey quality uses raw receiver values plus elapsed correction age exactly once (7.271674ms)
+✔ observation identity includes raw quality, height, receipt, transport, declaration and source hashes (14.306853ms)
+✔ same UTC in different sessions permits separate observations and declarations (3.267593ms)
+✔ reference declarations reject every ASCII control character including internal newline (11.290032ms)
+✔ object property ordering does not create observation or session conflicts (2.154927ms)
+✔ v1 admission stays permissive while draft legacy identity conflicts remain strict (6.409332ms)
+✔ v2 checks do not enforce session declarations on unrelated v1 records (1.558755ms)
+✔ mixed v1/v2 observation identity collisions fail in either encounter order (15.793732ms)
+✔ manual design deep copies nested v2 evidence and cannot mutate retained records (0.465376ms)
+✔ reducer rejects conflicting v2 admission without changing project or history (1.827131ms)
+✔ v2 survey observedAt must exactly equal receiver time; v1 retains legacy timestamp behavior (5.835603ms)
+✔ Point: GNSS confidence ceiling permits equal/conservative labels without upgrading (25.838471ms)
+✔ Point: non-GNSS labels remain allowed with v2/manual geometry (6.651394ms)
+✔ Point: null, absent and v1 evidence do not invent a confidence constraint (4.106747ms)
+✔ Circle: GNSS confidence ceiling permits equal/conservative labels without upgrading (26.31662ms)
+✔ Circle: non-GNSS labels remain allowed with v2/manual geometry (4.407708ms)
+✔ Circle: null, absent and v1 evidence do not invent a confidence constraint (3.807747ms)
+✔ LineString: GNSS confidence ceiling permits equal/conservative labels without upgrading (25.339547ms)
+✔ LineString: non-GNSS labels remain allowed with v2/manual geometry (4.835394ms)
+✔ LineString: null, absent and v1 evidence do not invent a confidence constraint (5.949944ms)
+✔ Polygon: GNSS confidence ceiling permits equal/conservative labels without upgrading (24.392406ms)
+✔ Polygon: non-GNSS labels remain allowed with v2/manual geometry (6.995421ms)
+✔ Polygon: null, absent and v1 evidence do not invent a confidence constraint (6.046878ms)
+✔ obstacle: GNSS confidence ceiling permits equal/conservative labels without upgrading (32.499555ms)
+✔ obstacle: non-GNSS labels remain allowed with v2/manual geometry (4.768368ms)
+✔ obstacle: null, absent and v1 evidence do not invent a confidence constraint (4.913303ms)
+✔ LineString: mixed evidence ceiling uses the weakest v2, ignoring null/v1 entries (17.926481ms)
+✔ Polygon: mixed evidence ceiling uses the weakest v2, ignoring null/v1 entries (16.137035ms)
+✔ obstacle: mixed evidence ceiling uses the weakest v2, ignoring null/v1 entries (12.354071ms)
+✔ manual geometry edits null displaced evidence without schema-forced confidence changes (4.640078ms)
+ℹ tests 76
+ℹ suites 0
+ℹ pass 76
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 440.072923
+project document tests passed
+project KML tests passed
+project XML tests passed
+project reducer/import tests passed
+✔ duplicate survey IDs are rejected without merging or rewriting source data (7.679309ms)
+✔ a duplicate add is atomic and cannot overwrite immutable observations (3.218053ms)
+✔ infrastructure references resolve uniquely to the exact canonical XY, not capture IDs (3.390254ms)
+✔ manual edits clear displaced associations, preserve unchanged evidence, and undo exactly (2.274912ms)
+✔ same-length boundary replacement and unpaired reordering cannot retain old evidence (2.200761ms)
+✔ paired ring reordering and evidence from a known feature remain traceable (3.278538ms)
+✔ draft evidence is detached from the project and unverifiable associations are not admitted (0.949857ms)
+✔ manual and imported observations do not become high-confidence RTK merely by reference (0.245083ms)
+✔ feature upserts follow the same geometry evidence invalidation as updates (2.399241ms)
+✔ closed boundary and obstacle drafts normalize vertices and evidence as pairs (2.249866ms)
+✔ different non-null closing observations require an explicit choice and do not get discarded (0.641971ms)
+✔ editing a legacy closed ring keeps evidence aligned and undo preserves its original representation (2.701602ms)
+✔ evidence normalization does not prevent repairing legacy invalid topology (0.70262ms)
+✔ radius occupations cannot relocate a known observation or claim unverifiable RTK confidence (6.132139ms)
+✔ abandoned or rejected drafts cannot mutate nested machine configuration or source records (1.053459ms)
+✔ equivalent object property ordering cannot discard capture evidence (2.108072ms)
+✔ deleting a closing index removes only the redundant closure and preserves evidence and undo (3.798198ms)
+✔ same-coordinate moves do not erase evidence or add undo entries (0.747185ms)
+✔ removing a redundant closure cannot admit a still-invalid polygon (0.744527ms)
+✔ an outside-circle containment bound is not labeled exact signed path clearance (0.173011ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 54.127717
+unit conversion tests passed
+
+> @cplayout/geometry@0.1.0 test
+> tsx src/crsCalculationSafety.test.ts && tsx src/numericalCalculationSafety.test.ts && tsx src/workflowSafety.test.ts && tsx src/advisoryScheduling.test.ts && tsx src/advisoryFieldPlanReuse.test.ts && tsx src/geometry.test.ts && tsx src/pathBoundaryDistanceQuality.test.ts && tsx src/advisoryMachineRenderModel.test.ts && tsx src/advisoryPivotPlacement.test.ts && tsx src/advisoryDesignReport.test.ts && tsx src/cornerArmKinematics.test.ts && tsx src/cornerGpsMapAdvisoryReview.test.ts && tsx src/designScenarios.test.ts && tsx src/layoutProof.test.ts && tsx src/layoutScoring.test.ts && tsx src/mapInteraction.test.ts && tsx src/pivotCenterOptimizer.test.ts && tsx src/sampleProjects.test.ts && tsx src/visualLayoutReview.test.ts
+
+✔ EPSG:26741 cannot produce metric layouts or silently empty optimizer results (3.757453ms)
+✔ EPSG:26741 produces blocked review diagnostics without metre clearance (1.143711ms)
+✔ LOCAL:TEST cannot produce metric layouts or silently empty optimizer results (0.408588ms)
+✔ LOCAL:TEST produces blocked review diagnostics without metre clearance (0.214243ms)
+✔ EPSG:3857 cannot produce metric layouts or silently empty optimizer results (0.243451ms)
+✔ EPSG:3857 produces blocked review diagnostics without metre clearance (0.140795ms)
+✔ EPSG:26723 cannot produce metric layouts or silently empty optimizer results (0.310287ms)
+✔ EPSG:26723 produces blocked review diagnostics without metre clearance (0.12205ms)
+✔ metric grid arithmetic does not confer field qualification (0.157766ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 13.507353
+✔ legacy area overflow repro remains recoverable but cannot enter geometry calculations (6.425047ms)
+✔ legacy generated coordinate overflow repro remains recoverable but cannot enter geometry calculations (1.885381ms)
+✔ aggregate overflow rejects even entrypoints that otherwise return empty results (0.694593ms)
+✔ CRS guard stays first, before reading numerical data or optional calculation arguments (0.612ms)
+✔ typed NaN and Infinity cannot bypass the project numeric guard (11.220038ms)
+✔ normal UTM output is unchanged: partial=false, endGun=0 (6.986913ms)
+✔ normal UTM output is unchanged: partial=false, endGun=15 (22.801316ms)
+✔ normal UTM output is unchanged: partial=true, endGun=0 (2.726195ms)
+✔ normal UTM output is unchanged: partial=true, endGun=15 (9.600376ms)
+✔ large numerically safe radius produces finite layout, circle area and conservative coverage (291.627348ms)
+✔ geometry checks active preview and external clearance (6411.58656ms)
+✔ standalone normalized clearance validates only the geometry and radius it consumes (0.746669ms)
+✔ standalone clearance retains its own finite range and uncertainty contract (0.584174ms)
+✔ geometry export rejects nonfinite result geometry even when every metric is finite (2.587226ms)
+✔ evaluateLayout itself refuses a nonfinite result before returning to the App (1.926623ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6780.236646
+✔ small areas are stable at projected coordinate offsets (0.570185ms)
+✔ hard obstacles between tower tracks remain mechanical conflicts (20.561805ms)
+✔ sampled circle equality does not prove true-circle containment (4.468242ms)
+✔ machine length and other explicit limits are hard constraints (5.949341ms)
+✔ nonfinite or negative ranking parameters cannot produce eligible scores (0.412382ms)
+✔ derived outline rendering preserves zero throw and does not install a corner arm (12.762097ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 51.548308
+Advisory scheduling: 9 frozen-output comparisons and cancellation immutability pass.
+Field plan reuse: complete outputs, scheduling, input immutability, cancellation and request isolation pass.
+geometry tests passed
+analytic concavity {
+  analyticMinimum: -1.0615528128088303,
+  result: {
+    minimumBoundaryDistanceMeters: -1.0619754081374935,
+    lowerBoundMeters: -1.0619754081374935,
+    upperBoundMeters: -1.0612809034142205,
+    errorBoundMeters: 0.0006945047232729262,
+    toleranceMeters: 0.001,
+    numericalErrorBudgetMeters: 1.1368683772161603e-13,
+    maxEvaluatedPointCount: 8193,
+    evaluatedPointCount: 29,
+    method: 'bounded_arc_search',
+    converged: true,
+    terminationReason: 'tolerance',
+    warnings: [
+      'Clearance bounds assume a validated simple polygon in projected/local XY and include a floating-point numerical allowance.'
+    ]
+  }
+}
+precise notch {
+  minimumBoundaryDistanceMeters: -1.0615528172511715,
+  lowerBoundMeters: -1.0615528172511715,
+  upperBoundMeters: -1.061552807433257,
+  errorBoundMeters: 9.817914481402568e-9,
+  toleranceMeters: 1e-8,
+  numericalErrorBudgetMeters: 1.1368683772161603e-13,
+  maxEvaluatedPointCount: 8193,
+  evaluatedPointCount: 81,
+  method: 'bounded_arc_search',
+  converged: true,
+  terminationReason: 'tolerance',
+  warnings: [
+    'Clearance bounds assume a validated simple polygon in projected/local XY and include a floating-point numerical allowance.'
+  ]
+}
+independent dense oracle: 24 synthetic cases, 32769 samples each, bounded interpolation error
+synthetic performance [
+  {
+    vertices: 32,
+    elapsedMs: 1.4281129999999393,
+    evaluatedPointCount: 1001,
+    errorBoundMeters: 0.0010818882797991591,
+    converged: false
+  },
+  {
+    vertices: 128,
+    elapsedMs: 3.6415730000001076,
+    evaluatedPointCount: 1001,
+    errorBoundMeters: 0.17222387215799273,
+    converged: false
+  },
+  {
+    vertices: 512,
+    elapsedMs: 13.136208000000124,
+    evaluatedPointCount: 1001,
+    errorBoundMeters: 6.516835554222386,
+    converged: false
+  }
+]
+path boundary distance quality tests passed
+advisory machine render model tests passed
+advisory pivot placement tests passed
+CornerGPSMap advisory review tests passed
+design scenario tests passed
+layout proof tests passed
+layout scoring tests passed
+map interaction tests passed
+pivot center optimizer tests passed
+Optimizer reuse: 11 complete pre-reuse outputs and yield counts, strict signed zeros and rejection reasons pass.
+sample project fixture tests passed
+visual layout review tests passed
+
+> @cplayout/gnss@0.1.0 test
+> tsx src/nmea.test.ts && tsx src/nmeaSafety.test.ts && tsx src/captureQualification.test.ts && tsx src/receiverStream.test.ts && tsx src/px1122r.test.ts && tsx src/navsparkRaw.test.ts && tsx src/transportSwitchController.test.ts
+
+nmea tests passed
+✔ capture requires a metric destination with an admitted WGS84 projection (2.725526ms)
+✔ a newer positionless or malformed GGA cannot resurrect the preceding fixed solution (0.532479ms)
+✔ GST horizontal uncertainty is two-axis RMS and requires both nonnegative components (0.181273ms)
+✔ NMEA coordinates and measurements reject non-decimal or physically invalid values (0.553168ms)
+✔ quality gates fail closed on malformed required measurements (0.445221ms)
+✔ quality gates reject invalid threshold configuration (1.960098ms)
+✔ invalid and future monotonic timestamps cannot bypass freshness (0.473096ms)
+✔ malformed observation positions are never eligible for capture (0.294305ms)
+✔ present RMC must contain a valid measured solution with matching coordinates and date (0.413362ms)
+✔ matching time-of-day alone cannot attach old GST accuracy to a new GGA (0.233327ms)
+✔ repeated receiver epochs preserve their first receipt time beyond the rolling sample window (0.381037ms)
+✔ new sessions and dated day rollover are not mistaken for replayed epochs (0.307798ms)
+✔ height without explicit metre units is not silently recorded as orthometric metres (0.101023ms)
+✔ stream carry is bounded and resynchronizes after damaged input (0.351824ms)
+✔ nonstandard sentence headers do not masquerade as measured GNSS messages (0.064758ms)
+✔ point creation refuses an invalid fix even when the caller asserts coherence (0.316752ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16.765964
+✔ screened collection preserves raw height and declarations without claiming measured 3D accuracy (6.603719ms)
+✔ missing or invalid vertical evidence cannot enter the live collection constructor (3.51663ms)
+✔ freshness, disconnected state, unsupported projection and session mismatch cannot bypass collection gating (1.570222ms)
+✔ a valid declaration without an observation is not a session mismatch or qualified reference (0.308206ms)
+✔ an observed session mismatch still rejects the declaration and collection (0.488245ms)
+✔ a missing declaration remains required with or without an observation (0.592296ms)
+✔ required metadata cannot be supplied through placeholders, unreviewed frames or implicit offsets (2.122362ms)
+✔ v2 evidence requires coherent dated GGA GST RMC and validates its capture-time policy (3.195519ms)
+✔ reported standard uncertainty is never substituted for the owner's measured maximum-error test (0.672597ms)
+✔ live evidence uses GST position components, not residual RMS or error ellipse axes (0.548466ms)
+✔ a newer matching GST without valid height uncertainty cannot reuse older vertical quality (0.607879ms)
+✔ capture policy is detached and incomplete historical thresholds are not defaulted (0.647836ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 28.970719
+✔ NMEA survives every split and retains first-byte reception time (3.377632ms)
+✔ old partial frames are dropped, never restamped as fresh fixes (0.219101ms)
+✔ successive partial chunks cannot renew first-byte age (0.115589ms)
+✔ SkyTraq payloads are opaque across every split, including embedded valid NMEA (8.566222ms)
+✔ binary in same event discards previously completed NMEA and latches session (0.304424ms)
+✔ corrupt framing and unknown binary fail closed until a new decoder (0.228242ms)
+✔ binary length is unsigned big endian, frame data stays detached (4.594171ms)
+✔ incomplete binary expires without reparsing its tail as text (0.174197ms)
+✔ ASCII overflow, nested dollar and junk prefix reject whole line with bounded recovery (5.318223ms)
+✔ bad checksum invalidates earlier samples in event but permits subsequent whole frames (0.284069ms)
+✔ invalid and regressing clocks fail closed; first reception is cloned (0.275719ms)
+✔ transport event extras cannot leak byte buffers into retained reception metadata (0.167243ms)
+✔ end-of-stream reports truncated frames, never emits incomplete text (0.178325ms)
+✔ post-binary noise and partial text cannot silently pass diagnostic completeness (0.234987ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 31.729198
+✔ PSTI030 parses synthetic diagnostic fields with explicit unit and century limits (1.707651ms)
+✔ ENU values remain velocities, never position uncertainty or capture quality (0.225484ms)
+✔ documented warning and all mode codes are retained without implying measured eligibility (0.729645ms)
+✔ strict proprietary header, subtype and exactly fourteen data fields (0.395193ms)
+✔ checksum corruption, line noise, controls and multiple frames are rejected (0.255406ms)
+✔ numeric fields reject nondecimal, nonfinite, whitespace and unknown sentinel syntax (1.027557ms)
+✔ documented mean-sea-level altitude endpoints are inclusive without inferred units (0.217158ms)
+✔ coordinates enforce axis hemispheres, minute ranges and geographic endpoints (0.437124ms)
+✔ UTC time bounds and declared fractional precision cannot silently truncate (0.285235ms)
+✔ two-digit UTC date validates calendar components but never invents a century (0.331803ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 13.03712
+✔ DC decodes the publisher's BE example with no UTC or PVT synthesis (1.854208ms)
+✔ DC accepts documented endpoints including zero week/TOW and IOD wrap values (0.317612ms)
+✔ DC reports all range violations and retains diagnostic values (0.330377ms)
+✔ known layouts reject truncated and extended payloads without partial records (0.278689ms)
+✔ DD decodes a literal first record derived from the published example (0.29373ms)
+✔ DD uses 23-byte records, signed BE floats and a detached payload snapshot (0.307026ms)
+✔ DD gates each measurement by its own availability bit and preserves every flag byte (1.886714ms)
+✔ DD has no invented zero, sign, CN0, or SVID sentinel (0.150315ms)
+✔ available nonfinite floats invalidate the payload with JSON-safe diagnostic tokens (0.50377ms)
+✔ unavailable nonfinite placeholders remain explicit diagnostics, never usable values (0.240036ms)
+✔ DD preserves zero and maximum byte-representable counts without a hardware-capacity claim (0.347444ms)
+✔ payload views honor nonzero byte offsets and lengths, including Node Buffers (0.199085ms)
+✔ unknown IDs and bytes are opaque, preserved and detached; invalid ID/size is explicit (4.291767ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 17.468609
+✔ qualification is mandatory, matches observed identities, and exposes only qualified selections (2.867054ms)
+✔ contract rejects missing reviews, control independence, ambiguous groups/routes and invalid timing (1.837579ms)
+✔ each selection follows drain, close, safe confirmation, break, target confirmation, settle, open, fresh data (1.492553ms)
+✔ switch revokes capture synchronously, retains old ownership through drain and close, and creates a new session (0.419407ms)
+✔ repeated successful switches never overlap drivers or reuse receiver sessions (0.448278ms)
+✔ firmware acknowledgements stay firmware evidence and never satisfy a contact-feedback contract (0.300282ms)
+✔ safe and target route confirmations must match their entire exclusive-source configuration (0.747154ms)
+✔ each acknowledgement rejects stale run, control-session, request, receiver-session or operation correlation (2.340994ms)
+✔ duplicates cannot repeat route commands or advance a later stage (0.330352ms)
+✔ concurrent requests fail closed at every in-flight stage and never start a second operation (0.801995ms)
+✔ reused requests and unavailable or malformed selections revoke an already-ready capture (0.816592ms)
+✔ drain and cleanup uncertainty retain ownership and veto all route/open effects (0.433256ms)
+✔ adapter failure in every operation quarantines pending ownership, including an unacknowledged open (0.456817ms)
+✔ all asynchronous stages have deadlines, including late acknowledgements without timer delivery (0.723417ms)
+✔ early ticks cannot shorten break-before-make or settling (0.283393ms)
+✔ restart and either-channel disconnect latch every phase closed and cannot adopt a previous ready state (2.279589ms)
+✔ malformed, negative, infinite and regressing clocks fail closed, including capture-time checks (1.388694ms)
+✔ clock precision cannot collapse operation, break, settle, fresh-data or observation bounds (1.084726ms)
+✔ open requires new receiver-session identity and explicit buffer discard (0.278941ms)
+✔ fresh coherent quality, explicit frame/height and first-reception timing are all required (0.899579ms)
+✔ repeated or regressing receiver epochs cannot refresh capture, even when relabelled with the new session (0.358874ms)
+✔ capture expires without timer delivery and an expired scheduled tick cannot restore it (0.146557ms)
+✔ new epochs advance freshness without an older scheduled tick expiring the new observation (0.131361ms)
+✔ malformed events are quarantined and effects never carry geometry or mutate caller data (0.565976ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 28.261419
+
+> @cplayout/map-adapters@0.1.0 test
+> tsx src/mapOverlayGeoJson.test.ts && tsx src/referenceOverlayStyle.test.ts && tsx src/browserMapInteraction.test.ts && tsx src/projectVertexEditing.test.ts && tsx src/mapTools.test.ts && tsx src/mapInteractionController.test.ts && tsx src/mapViewport.test.ts && tsx src/mapCameraSession.test.ts && tsx src/mapFit.test.ts && tsx src/mapPointerGuard.test.ts && tsx src/vertexDragSession.test.ts && tsx src/svgMapLabels.test.ts
+
+map overlay GeoJSON tests passed
+reference overlay style tests passed
+map click intent tests passed
+project vertex editing tests passed
+map tool catalog tests passed
+✔ draft undo preserves project and only changes unfinished vertices (2.337166ms)
+✔ invalid polygon stays editable and cannot enter any purpose until repaired (0.790393ms)
+✔ generic polygons close at first vertex or double-click exactly once (0.554582ms)
+✔ draft undo updates staged manual boundary without committing project (0.295597ms)
+✔ accepted handoff receipts update status only once and honor notify false (0.55011ms)
+✔ rejected receipts retain owner for retry and reject duplicate or out-of-order sequences (0.36277ms)
+✔ an explicit same-tool request clears retired purpose feedback without discarding a newer draft (0.366323ms)
+✔ clearing a retired receipt does not overwrite newer local feedback (0.170127ms)
+✔ receipt identity must match every owner field without consuming a valid retry (0.284988ms)
+✔ rejected handoffs retain each primitive and its reason, then accept a retry (0.599945ms)
+✔ stale accepted handoff owners retain vertices and cannot receive status (0.392317ms)
+✔ legacy void staging and remounts cannot acquire receipt ownership (0.210607ms)
+✔ new drawing, tool, selection and clear commands permanently retire receipt eligibility (0.867534ms)
+✔ input context changes retire receipts even when receipt arrives with the change (0.798941ms)
+✔ a new point click retires its previous owner when staging is unavailable or rejected (0.804268ms)
+✔ same-ID project generation reload discards draft and selection through pure reconciliation (0.136077ms)
+✔ same-render committed receipt survives selection of its newly added feature only (0.630041ms)
+✔ manual request role changes and nonzero generations scope receipt ownership (0.167179ms)
+✔ a new accepted draft rejects old receipts and copies its owner (0.13048ms)
+✔ synchronous handoff context changes cannot restore an obsolete owner or clear new work (0.141266ms)
+✔ pure reconciliation and unchanged input/request updates preserve drafts (0.205085ms)
+✔ actual mode, layer, kind, geometry and typed/generic changes clear drafts (0.300247ms)
+✔ project, CRS and manual request changes discard scoped state (0.16561ms)
+✔ layout and catalog gate every mutation path, clear drafts and selection (0.501891ms)
+✔ stable callbacks use latest props and draft state exactly once (0.182254ms)
+✔ rejected or absent commits retain draft; existing void callbacks succeed (0.168927ms)
+✔ two vertices plus explicit close retain the third vertex on rejection (0.110617ms)
+✔ browser click/click/dblclick sequence retains three distinct vertices (0.313808ms)
+✔ duplicate filtering uses tiny XY epsilon and preserves nearby distinct vertices (0.266282ms)
+✔ trailing explicit close after first-point closure cannot start a phantom draft (0.185192ms)
+✔ double-clicking the second vertex cannot commit a degenerate triangle (0.124611ms)
+✔ finite projected XY and optional WGS84 guard all click/edit paths (0.203868ms)
+✔ longitude click intents use current state and ignore edit-mode background clicks (0.511875ms)
+✔ manual boundary and all point roles stage without canonical callbacks (0.262499ms)
+✔ generic primitives honor geometry override and stage only with a callback (0.355398ms)
+✔ typed features save directly, with point close events suppressed (0.343505ms)
+✔ runtime false from typed feature save retains draft and status until successful retry (0.228254ms)
+✔ runtime false from generic staging retains draft and status until successful retry (0.234705ms)
+✔ structured mutation rejection retains typed and generic drafts until ok true (0.387058ms)
+✔ manual callbacks run once outside state updates and snapshots are stable (0.142178ms)
+✔ selection validates indices and disappears when project entities disappear (0.19599ms)
+✔ vertex commands route boundary, obstacle, feature and circle radius callbacks (0.756015ms)
+✔ missing edit callbacks disable commands and preserve selection (0.097947ms)
+✔ rejected vertex commands retain their selected boundary, obstacle, feature or radius handle (0.740257ms)
+✔ rejected pivot, infrastructure and survey clicks cannot report a successful placement (0.248918ms)
+✔ real reducer rejection preserves geometry and history, followed by a valid edit and undo (5.448526ms)
+✔ obstacle commits, infrastructure and survey preserve routing and provenance (0.272392ms)
+ℹ tests 47
+ℹ suites 0
+ℹ pass 47
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 32.584458
+✔ an already visible handle leaves the camera unchanged (0.658858ms)
+✔ a handle behind the measured bottom dock pans up by only the required pixels (0.533559ms)
+✔ camera offsets place every outside edge inside the usable screen rectangle (0.240352ms)
+✔ subpixel projection noise does not repeatedly pan the camera (0.103898ms)
+✔ empty or fully covered viewports and invalid measurements cannot produce a camera command (0.21459ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9.161382
+✔ equal identities reuse the token and latest camera snapshot (1.221212ms)
+✔ projectId transitions clear the snapshot and A -> B -> A never revives a token (0.234792ms)
+✔ projectCrs transitions clear the snapshot and A -> B -> A never revives a token (0.133348ms)
+✔ projectGeneration transitions clear the snapshot and A -> B -> A never revives a token (0.079404ms)
+✔ homeView transitions clear the snapshot and A -> B -> A never revives a token (0.11023ms)
+✔ projectionAvailable transitions clear the snapshot and A -> B -> A never revives a token (0.074441ms)
+✔ an unavailable projection frame invalidates A even without remembering a camera (0.092432ms)
+✔ identity inputs are copied before caller mutation (0.110629ms)
+✔ remember and every restore isolate the object and nested center tuple (0.213972ms)
+✔ nonfinite longitude=NaN rejects without overwriting a valid snapshot (0.163906ms)
+✔ nonfinite longitude=Infinity rejects without overwriting a valid snapshot (0.114863ms)
+✔ nonfinite longitude=-Infinity rejects without overwriting a valid snapshot (0.103505ms)
+✔ nonfinite latitude=NaN rejects without overwriting a valid snapshot (0.081559ms)
+✔ nonfinite latitude=Infinity rejects without overwriting a valid snapshot (0.062499ms)
+✔ nonfinite latitude=-Infinity rejects without overwriting a valid snapshot (0.034168ms)
+✔ nonfinite zoom=NaN rejects without overwriting a valid snapshot (0.047156ms)
+✔ nonfinite zoom=Infinity rejects without overwriting a valid snapshot (0.066829ms)
+✔ nonfinite zoom=-Infinity rejects without overwriting a valid snapshot (0.139051ms)
+✔ nonfinite bearing=NaN rejects without overwriting a valid snapshot (0.06401ms)
+✔ nonfinite bearing=Infinity rejects without overwriting a valid snapshot (0.032462ms)
+✔ nonfinite bearing=-Infinity rejects without overwriting a valid snapshot (0.023399ms)
+✔ nonfinite pitch=NaN rejects without overwriting a valid snapshot (0.041661ms)
+✔ nonfinite pitch=Infinity rejects without overwriting a valid snapshot (0.024919ms)
+✔ nonfinite pitch=-Infinity rejects without overwriting a valid snapshot (0.020813ms)
+✔ all finite values round-trip without clamping or wrapping (0.096212ms)
+✔ disposal before or after a project transition cannot leak the previous camera (0.093904ms)
+✔ multiple style reconstructions within one frame retain the disposal camera (0.078294ms)
+✔ tokens from another session cannot read or overwrite the current camera (0.083339ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10.875918
+✔ finitePointBounds rejects empty or nonfinite input and never mutates points (1.224632ms)
+✔ finitePointBounds handles large point collections without argument spreading (27.58647ms)
+✔ fit preserves aspect and contains corners across portrait, landscape, and asymmetric HUDs (0.788996ms)
+✔ fit supports points and horizontal or vertical lines using display-only minimum spans (0.26659ms)
+✔ translation changes only the fitted center and inputs stay unchanged (0.205616ms)
+✔ fit rejects nonfinite, reversed, negative, and obstructed inputs (0.268786ms)
+✔ fit rejects overflow and uses stable midpoint arithmetic (0.235546ms)
+✔ viewportForScreen expands only the required base axis, preserving center and zoom (0.304819ms)
+✔ viewportForScreen is idempotent and does not crop across fractional aspect ratios (0.545642ms)
+✔ viewportForScreen rejects invalid dimensions, center, zoom and derived overflow or underflow (0.289712ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 39.286483
+✔ a fresh primary drawing gesture permits its following click after owner release (1.855902ms)
+✔ Fit cancellation survives the held owner's later release and the next real gesture works (0.150601ms)
+✔ cancel retains all held contacts so another primary cannot revive permission (0.10458ms)
+✔ both secondary contacts and another device's primary cancel the whole gesture in either release order (0.166373ms)
+✔ a mixed-device primary arriving after Fit stays blocked until both contacts drain (0.155948ms)
+✔ a canceled touch cannot authorize a compatibility click without a new physical begin (0.142645ms)
+✔ an outside or HUD begin never arms and blocks an inside gesture while still held (0.084005ms)
+✔ an outside contact arriving during an armed drawing gesture cancels it (0.065625ms)
+✔ nonprimary and nonzero-button starts stay tracked even though they cannot arm (0.152811ms)
+✔ duplicate begin for the held owner cancels instead of resetting permission (0.171025ms)
+✔ foreign or canceled ends retire permission without draining the held owner (0.16607ms)
+✔ clear drains every held contact for blur or disposal and never arms a click (0.09629ms)
+✔ cancel after owner release retires its pending click; separate guards remain independent (0.092408ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9.921286
+✔ idle move, release, and cancellation do nothing (1.226671ms)
+✔ only an idle primary pointer with button zero and primary bit can begin (0.362591ms)
+✔ repeated starts cannot replace ownership or reset the starting point (0.230803ms)
+✔ foreign moves, releases, and cancellation cannot affect the owner (0.160369ms)
+✔ primary-button chords may begin and move; other button releases are ignored (0.21506ms)
+✔ losing the primary bit cancels and a late release cannot commit (0.216695ms)
+✔ threshold is inclusive from the original start and preview continues after crossing (0.149111ms)
+✔ threshold uses Euclidean displacement and supports a custom value (0.104961ms)
+✔ preview activation resets for the next session after commit or cancellation (0.230462ms)
+✔ tap and sub-threshold releases cancel without committing geometry (0.227504ms)
+✔ release can cross the threshold without any preceding move (0.102547ms)
+✔ release coordinates take precedence over the last preview (0.103575ms)
+✔ returning inside the threshold keeps preview current but release cancels (0.151952ms)
+✔ explicit owner or unconditional cancellation happens once and permits a new session (0.133173ms)
+✔ nonfinite clientX=NaN fails closed at begin, move, and finish (0.166392ms)
+✔ nonfinite clientX=Infinity fails closed at begin, move, and finish (0.058881ms)
+✔ nonfinite clientX=-Infinity fails closed at begin, move, and finish (0.048328ms)
+✔ nonfinite clientY=NaN fails closed at begin, move, and finish (0.131006ms)
+✔ nonfinite clientY=Infinity fails closed at begin, move, and finish (0.096732ms)
+✔ nonfinite clientY=-Infinity fails closed at begin, move, and finish (0.092489ms)
+✔ touch-like primary pointer accepts button -1 movement and commits its release (0.090346ms)
+✔ preview retains ownership and may explicitly cancel the session (0.083868ms)
+✔ terminal callbacks see cleared state and can begin a new session safely (0.177192ms)
+✔ throwing terminal callbacks cannot leave the old session active (0.335904ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 13.315107
+✔ SVG marker screen dimensions stay constant through deep zoom (0.844739ms)
+✔ crowded labels use deterministic priority and never overlap or change anchors (6.89215ms)
+✔ offscreen or invalid anchors and invalid viewports cannot produce labels (0.148987ms)
+✔ edit handles reserve space even when they do not have their own label (0.282277ms)
+✔ long and multiline names retain their original text with a bounded display name (0.155345ms)
+✔ pixel placement maps back to projected SVG coordinates at large offsets (0.178957ms)
+✔ visible line anchor clips long segments even with both endpoints offscreen (0.349236ms)
+✔ concave polygon labels anchor on the visible perimeter instead of an exterior vertex average (0.201491ms)
+✔ controls reserve space independently of geographic features (0.267156ms)
+✔ short point captions preserve the full accessible name (0.214068ms)
+✔ circle caption anchors stay on visible arcs without changing the radius (0.345288ms)
+✔ absolute overlay reservations follow resized viewports even when the overlay size does not change (0.135355ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18.108496
+
+> @cplayout/project-store@0.1.0 test
+> tsx src/nativeVerification.test.ts && tsx src/webSqliteGate.test.ts && tsx src/workspaceDocument.test.ts && tsx src/workspaceCommands.test.ts && tsx src/webWorkspaceStore.test.ts && tsx src/versionedProjectRepository.test.ts && tsx src/utf8.test.ts && tsx src/designDraftArchive.test.ts && tsx src/persistenceSchema.test.ts && tsx src/projectStoreMigrations.test.ts && tsx src/mapPackageArchive.test.ts && tsx src/projectRepository.test.ts && tsx src/projectArchive.test.ts && tsx src/projectKmlArchive.test.ts && tsx src/projectPersistence.test.ts
+
+native verification tests passed
+✔ a launch with no observations leaves all checks not run and cannot qualify an installation (1.071743ms)
+✔ a current-version SQLite snapshot cannot identify a fresh install or a completed upgrade (0.466101ms)
+✔ single-process CRUD/archive observations and a current database never establish restart or install history (0.870794ms)
+✔ an observed sampleProjectSaved failure stays failed while restart is unverified (0.269327ms)
+✔ an observed settingsMatched failure stays failed while restart is unverified (0.188814ms)
+✔ an observed deleteConfirmed failure stays failed while restart is unverified (0.177198ms)
+✔ current schema failure is retained: pragmaUserVersion (0.131482ms)
+✔ current schema failure is retained: schemaMigrations (0.131735ms)
+✔ current schema failure is retained: mapPackageColumns (0.180067ms)
+✔ current schema failure is retained: absentTables (3.330887ms)
+✔ current schema failure is retained: geometryRowsPopulated (0.154062ms)
+✔ archive failure does not erase SQLite or CRUD observations: manifestProjectCrsMatched (0.159388ms)
+✔ archive failure does not erase SQLite or CRUD observations: savedImportedProject (0.082234ms)
+✔ archive failure does not erase SQLite or CRUD observations: exportedBytes (0.056943ms)
+✔ archive failure does not erase SQLite or CRUD observations: exportedSha256 (0.084522ms)
+✔ failed and blocked reports retain their status despite missing restart evidence (0.411029ms)
+✔ assembled observations do not share mutable evidence arrays with their input (0.177916ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 15.689466
+web SQLite gate tests passed
+✔ an empty versioned workspace invents no folders or design geometry (2.633095ms)
+✔ draft create round-trips exact document strings and leaves all caller data untouched (7.069738ms)
+✔ draft save advances persisted revisions without reassigning ownership or changing catalog identity (6.047535ms)
+✔ draft delete records both tombstones and neither stale save nor fresh create can resurrect identities (7.893579ms)
+✔ project create round-trips exact document strings and leaves all caller data untouched (6.936238ms)
+✔ project save advances persisted revisions without reassigning ownership or changing catalog identity (9.487718ms)
+✔ project delete records both tombstones and neither stale save nor fresh create can resurrect identities (4.786925ms)
+✔ incomplete and calculation-ineligible drafts remain draft-backed after create and save (4.420989ms)
+✔ unowned legacy project imports retain exact bytes while another design changes (4.654074ms)
+✔ unknown versions, malformed JSON and extra envelope fields never become an empty workspace (4.141109ms)
+✔ duplicate identities, duplicate ownership, missing references and ambiguous payloads reject without normalization (3.481461ms)
+✔ summary mismatches and kind or identity changes cannot relink a saved design (16.498277ms)
+✔ create rejects occupied IDs, missing field maps and nonzero initial revision (2.918812ms)
+✔ invalid and exhausted revisions reject before changing caller data (6.840077ms)
+✔ tombstones reject active collisions and duplicate deletion identities (2.228052ms)
+✔ a CRS can be selected for an empty draft but cannot relabel existing coordinates (5.237598ms)
+✔ prototype-looking identity strings remain ordinary array and Map keys (1.361187ms)
+✔ prototype metadata in mutation arguments cannot be silently stripped (2.004641ms)
+✔ workspace and stored payloads reject duplicate members rather than last-value wins (1.179754ms)
+✔ strict parser rejects JSON extensions, duplicates and escaped-equivalent members (0.385363ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 107.857071
+✔ copy creates an independent identity without changing source bytes, ownership or evidence (44.658632ms)
+✔ copy may preserve an unsaved colliding import without adopting the stored document (7.403581ms)
+✔ copy rejects reused, deleted, draft, same-source and unknown identities atomically (23.57327ms)
+✔ copy refuses hidden stored extensions and unknown snapshot fields without changing source (5.70606ms)
+✔ independent imports and folder creation cannot introduce ambiguous deletion identities (8.260938ms)
+✔ commands are detached before a lock wait and both state and command may be deeply frozen (1.793752ms)
+✔ create and update are explicit, deleted documents cannot be recreated, and existing unowned saves enforce CRS (6.236515ms)
+✔ save_project uses the owning design's revision and CRS guards without moving ownership (10.610006ms)
+✔ save_design_project uses the owning design's revision and CRS guards without moving ownership (9.552865ms)
+✔ save-design rejects missing design, changed identity and draft kind without creating payloads (8.424789ms)
+✔ compound creates advance once and produce detached legacy-compatible return values (2.883312ms)
+✔ compound create failures leave no partial catalog or payload changes (6.116775ms)
+✔ clients normalize only explicit input and preserve unrelated historical records (1.666124ms)
+✔ catalog rename and move preserve every document byte and all draft identities (12.511074ms)
+✔ all simple creates require references and reject occupied IDs or payload ownership (8.840703ms)
+✔ folder cascade removes only associated maps, designs and payloads, retaining immutable previous tombstones (27.637113ms)
+✔ matching folder and foreign owned document IDs do not extend a folder cascade (5.525008ms)
+✔ standalone owned-document deletion retains its containing folder and map (8.570436ms)
+✔ strict commands reject unknown fields at envelope, input, project and nested geometry levels (2.569848ms)
+✔ prototype metadata, accessors, symbols, hidden fields and cycles cannot be silently dropped (0.72124ms)
+✔ all commands validate the entire prior workspace, including invalid and future unrelated payloads (3.847832ms)
+✔ inherited JSON hooks are rejected before execution on standard object and array prototypes (0.709576ms)
+✔ unknown stored payload bytes remain untouched by unrelated commands (11.923878ms)
+✔ complete draft documents remain draft-backed through catalog changes (4.965081ms)
+✔ draft deletion tombstones reserve payload identity against future project creation (2.657115ms)
+✔ revision exhaustion fails atomically and pure commands never read clock or randomness (2.977699ms)
+✔ project creation serialization stays compatible with the existing document format (1.689385ms)
+✔ draft create and save preserve empty, one and two vertices without inventing machine inputs (24.444351ms)
+✔ draft commands detach caller data synchronously and retain unrelated payload bytes (10.423113ms)
+✔ draft saves and design deletes require the exact current design revision (18.119921ms)
+✔ delete design removes only its owned payload and permanently reserves both identities (31.574333ms)
+✔ draft commands preserve payload kind and ownership and require caller-assigned fresh import identities (23.448069ms)
+✔ draft saves allow selecting CRS before coordinates but cannot relabel or erase existing XY (6.515399ms)
+✔ completed drafts remain draft-backed through create and save (8.256127ms)
+✔ draft commands accept shared XY references and detach each path before applying (6.166153ms)
+✔ draft command parsing rejects unknown fields, cycles and accessors before mutation (18.779187ms)
+✔ draft command revision exhaustion leaves the workspace unchanged (2.287618ms)
+✔ draft commands omit known optional undefined fields without admitting unknown undefined fields (7.825852ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 38
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 399.614053
+✔ legacy migration preserves exact documents, labels and contacts without inventing catalog entries (14.474596ms)
+✔ known legacy client aliases and absent optional contact fields migrate without normalization (2.830588ms)
+✔ reserved object-key spellings cannot disappear during legacy migration (7.633258ms)
+✔ invalid, ambiguous, orphaned and future legacy records cannot be normalized away (6.437669ms)
+✔ duplicate JSON members including escaped keys cannot discard migration records (1.938426ms)
+✔ initialization preserves both legacy strings, writes backup first and is retry-idempotent (5.789107ms)
+✔ failed backup or workspace commit never alters originals or claims initialization (8.532523ms)
+✔ corrupt source and conflicting recovery backup refuse without any write (3.687239ms)
+✔ two participating instances serialize latest reads and reject a stale expected revision (13.472221ms)
+✔ quota, bad transition, invalid revision and newer schemas leave the exact envelope unchanged (12.735047ms)
+✔ deletion commits document and design tombstones together and rejects stale resurrection (4.069326ms)
+✔ unavailable locking or storage and throwing storage access do not report empty success (0.786882ms)
+✔ an observed old-writer change or missing backup blocks saves and preserves both stores (8.77172ms)
+✔ lost acknowledgment cannot cause blind retry to overwrite the committed revision (6.218965ms)
+✔ a missing committed workspace cannot remigrate and resurrect deleted data (3.36937ms)
+✔ a failed final migration receipt blocks editing until initialization finishes (8.110616ms)
+✔ an unfinished receipt cannot certify a workspace different from its migration (2.789144ms)
+✔ transactions cannot erase or rewrite history or drop documents without tombstones (5.888561ms)
+✔ recovery exports opaque original bytes even when migration cannot parse them (0.56971ms)
+✔ recovery without Web Locks is explicitly best-effort and cannot enable writes (0.129896ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 126.243686
+✔ copy commits exactly once with revision and quota guards, preserving every original byte (42.705718ms)
+✔ the web adapter initializes once and commits independent saves without invented catalog ownership (4.386208ms)
+✔ all legacy-shaped web writes fail closed without a revision or storage mutation (0.532149ms)
+✔ two adapter instances cannot overwrite the same loaded revision (7.999726ms)
+✔ command payload is captured before awaiting a lock and receipts are detached (3.050892ms)
+✔ invalid command and quota failure preserve exact payload, catalog and backup (4.647495ms)
+✔ successful creates are create-only and deletion cannot be undone by stale save or recreate (6.329201ms)
+✔ lost acknowledgments require an explicit read and cannot cause a blind save retry (3.122152ms)
+✔ legacy payload bytes migrate unchanged and remain exportable after later corruption (2.817839ms)
+✔ loaded standalone project cannot discard stored wrapper extensions (4.793653ms)
+✔ loaded standalone project cannot discard stored machine extensions (3.831804ms)
+✔ loaded standalone project cannot discard stored vertex extensions (4.248023ms)
+✔ loaded owned project cannot discard stored wrapper extensions (7.296216ms)
+✔ loaded owned project cannot discard stored machine extensions (4.472842ms)
+✔ loaded owned project cannot discard stored vertex extensions (4.154674ms)
+✔ legacy bare projects with omitted defaulted fields remain editable (5.186607ms)
+✔ draft-aware reads retain mixed catalog kinds and open zero, one and two vertices without invented inputs (46.453397ms)
+✔ draft saves reject stale workspace and design receipts and require explicit reload (29.588421ms)
+✔ draft create, save and delete quota failures are atomic and retryable without recreating deleted identities (49.106234ms)
+✔ draft commands capture input before locks and lost acknowledgments cannot trigger blind retries (25.639644ms)
+✔ draft-aware project opens refuse unknown fields while exact recovery bytes remain available (3.965168ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 272.365106
+✔ strict UTF-8 preserves valid Unicode and rejects noncanonical bytes with native codecs (224.861893ms)
+✔ strict UTF-8 preserves valid Unicode and rejects noncanonical bytes with no-encoder codecs (225.760622ms)
+✔ strict UTF-8 preserves valid Unicode and rejects noncanonical bytes with no-decoder codecs (225.875369ms)
+✔ strict UTF-8 preserves valid Unicode and rejects noncanonical bytes with portable codecs (221.709371ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 904.672296
+✔ draft exporter uses a single header time even if the clock advances (10.603335ms)
+✔ empty and nullable inputs survive without fabricated project data or optional fields (4.973845ms)
+✔ independently missing infrastructure and partial machine inputs round-trip (16.358999ms)
+✔ complete draft remains draft-backed and preserves XY and identity (3.645833ms)
+✔ valid large finite inputs remain saveable despite calculation ineligibility (2.664724ms)
+✔ manifest has the distinct versions, nullable CRS and exact inventory (0.683986ms)
+✔ crafted stored and deflated fixtures are valid before adversarial header changes (2.268546ms)
+✔ signed and unsigned descriptors, reversed directory order and ZIP comments preserve drafts (5.757884ms)
+✔ actual fflate streaming ZIP writers interoperate for stored and deflated files (3.983395ms)
+✔ CRC rejects a changed canonical XY byte instead of silently importing another coordinate (1.637939ms)
+✔ consistent forged header CRCs cannot replace verification of actual stored or deflated bytes (1.682561ms)
+✔ invalid UTF-8 with valid ZIP CRCs cannot change matching names through replacement characters (7.477721ms)
+✔ unsupported flags, encryption, ZIP64 and alternate-name extras are rejected (10.421674ms)
+✔ corrupt directory and local metadata fail before returning any draft (8.128519ms)
+✔ descriptor CRC and size fields must match the actual records for both encodings and methods (6.851242ms)
+✔ rejects malformed manifest, unknown versions, kind and identity confusion (11.141408ms)
+✔ rejects bare payloads, project envelopes and unsupported draft documents (5.70342ms)
+✔ rejects missing, unlisted, duplicate and unexpected manifest inventory (4.150023ms)
+✔ duplicate central-directory entries fail before any expansion (0.676365ms)
+✔ rejects traversal, backslashes, absolute paths and unexpected entries (5.213402ms)
+✔ rejects local-only files, duplicate local headers and central/local name mismatches (1.036545ms)
+✔ rejects file-count and advertised compression budgets before expansion (5.906111ms)
+✔ rejects per-entry and aggregate declared expansion budgets (74.966963ms)
+✔ actual output size rejects forged small and large declarations for both methods (70.566781ms)
+✔ invalid and truncated ZIP input is rejected without altering source bytes (2.132676ms)
+✔ export validates both manifest copies, payload identity and exact files without mutation (13.651596ms)
+✔ build and export reject invalid draft inputs without repairing or mutating them (0.789226ms)
+✔ UTF-8 byte budgets and draft limits are no larger than legacy project limits (5.579306ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 297.076073
+persistence schema tests passed
+✔ future project schemas are rejected before journal, bootstrap or migration writes (1.301574ms)
+✔ missing or malformed schema reads cannot silently become a fresh database (0.414923ms)
+✔ a failed version query propagates without issuing any write SQL (0.179074ms)
+✔ schema 0 dispatches only its pending migrations after compatibility inspection (0.624207ms)
+✔ schema 8 dispatches only its pending migrations after compatibility inspection (0.150472ms)
+✔ schema 10 dispatches only its pending migrations after compatibility inspection (0.228841ms)
+✔ schema 11 dispatches only its pending migrations after compatibility inspection (0.09358ms)
+✔ migration statement failure attempts rollback and does not report success (0.237802ms)
+✔ migration ledger failure attempts rollback and does not report success (0.224195ms)
+✔ migration version failure attempts rollback and does not report success (0.204583ms)
+✔ migration commit failure attempts rollback and does not report success (0.195873ms)
+✔ failure to begin a transaction cannot issue migration statements or an unrelated rollback (0.169085ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10.6694
+map package archive tests passed
+versioned project repository saveable geometry tests passed
+project archive tests passed
+✔ project exporter uses a single header time even if the clock advances (4.682713ms)
+✔ project ZIP retains v2 declared references and raw quality without promoting physical qualification (6.367581ms)
+✔ editable archive admission rejects unknown wrapper, project and deeply nested fields without changing bytes (15.025376ms)
+✔ editable archive admission rejects duplicate keys and explicit future versions before normalization (3.255196ms)
+✔ archive manifest rejects repeated and escaped duplicate identities before schema admission (3.660053ms)
+✔ editable archive admission preserves legacy bare projects, v1 evidence and schema defaults (5.713005ms)
+✔ editable admission compares known companion fields before deriving them (1.192605ms)
+✔ editable parser and field-retention checks do not invoke input hooks or accessors (0.241492ms)
+✔ project recovery rejects a changed XY byte with stale CRC instead of importing changed geometry (2.41629ms)
+✔ project import checks actual CRC for every required, export and ignored legacy entry (45.263125ms)
+✔ project import rejects lossy UTF-8 even when its ZIP checksums are valid (8.982663ms)
+✔ project import rejects encrypted flags and inconsistent local metadata (18.466937ms)
+✔ streamed project and recovery archives preserve geometry and exact byte-view bounds (27.403958ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1877.114713
+project KML archive tests passed
+✔ KMZ preserves Unicode paths, empty folders, nested KML and binary supporting assets (1.916072ms)
+✔ plain KML and KMZ accept UTF-8 BOM and reject malformed or declared alternate encoding (2.436207ms)
+✔ KMZ verifies actual CRC of the selected KML and discarded binary assets (0.405594ms)
+✔ KMZ rejects duplicate names, metadata disagreement, encryption and symlinks (1.067633ms)
+✔ KMZ rejects unsafe ancillary paths, file-directory aliases and directory payloads (2.407712ms)
+✔ KMZ rejects unflagged non-ASCII and malformed flagged UTF-8 filenames (0.482261ms)
+✔ checked ZIP budgets include unretained assets and verify forged output sizes (1.027803ms)
+✔ KMZ rejects excessive file count and declared expansion before allocating assets (16.381344ms)
+✔ KMZ accepts a real streaming writer and validates streamed binary assets (2.019922ms)
+✔ KMZ exporter keeps header times consistent across clock changes (1.122171ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 39.576493
+project persistence plan tests passed

@@ -1,0 +1,125 @@
+{
+  "recordedAt": "2026-09-17T04:49:20.544Z",
+  "checkpoint": "ec050f60bf515b5c4cbd40c3180615b5056e28b3",
+  "scope": "Selected source/browser collection evidence; not full refactor, native runtime or physical qualification",
+  "sourceCount": 287,
+  "sourceSelection": "Nonignored TS/TSX/JS/CJS/JSON in apps/packages/tests/tools plus root build configs and AGENTS.md",
+  "mismatches": [],
+  "validateExitCode": 0,
+  "web": {
+    "createdAt": "2026-09-17T04:39:39.752Z",
+    "url": "http://127.0.0.1:19014",
+    "file": "/_expo/static/js/web/index-0f037071b39630b04eee43ac6dab724f.js",
+    "local": "c41cc5b36e5a066ca20ca7b73204e0959db90a044f419ab5b7c50146753010e9",
+    "served": "c41cc5b36e5a066ca20ca7b73204e0959db90a044f419ab5b7c50146753010e9",
+    "bytes": 5240708,
+    "matches": true
+  },
+  "browser": {
+    "stats": {
+      "startTime": "2026-09-17T04:39:41.061Z",
+      "duration": 159708.726,
+      "expected": 90,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "perViewport": {
+      "desktop": {
+        "passed": 30,
+        "other": 0
+      },
+      "tablet-768": {
+        "passed": 30,
+        "other": 0
+      },
+      "mobile-390": {
+        "passed": 30,
+        "other": 0
+      }
+    },
+    "retries": 0,
+    "errors": [],
+    "fullInventory": false
+  },
+  "audits": {
+    "full": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "production": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    }
+  },
+  "visualBounds": [
+    {
+      "name": "desktop",
+      "width": 978,
+      "overflow": []
+    },
+    {
+      "name": "tablet",
+      "width": 380,
+      "overflow": []
+    },
+    {
+      "name": "phone",
+      "width": 310,
+      "overflow": []
+    }
+  ],
+  "artifacts": {
+    "source-accepted.json": "0b4943a0479a2be622f8f4215b60e48dbddeac69d9e61ef8ea9826646a94585c",
+    "build-accepted.json": "718175d17d2a096d107de38deea81224a7bbff7688daeb0165fbe32620182b62",
+    "validate-accepted.log": "6610494cdd0501aa6f346bd2dd72b2f271e75349428ece4d57424d53b09acbcd",
+    "export-accepted.log": "6165454338650ca492d8f50394d8cea04fc4350e92c7b4731abcff23ce4ee2bf",
+    "browser-first.json": "0fab91830cfde9f84b2edb9a36dc854adbda0012e38517bcb91263cf6f5cbf8b",
+    "browser-final.json": "06c68d226a07276f7d94dac87c369fc47f29d7ad663d537381134f0abc3708b8",
+    "browser-accepted.json": "0b14a81af3d5a05b06cc67d7229399b7a9aca2c2965b2f29e2eaa1d4c34422d7",
+    "audit-final.json": "260151f9cf274aadf97d02826dd280b5c6288552a64dc17632091e1473763a4b",
+    "audit-production-final.json": "260151f9cf274aadf97d02826dd280b5c6288552a64dc17632091e1473763a4b",
+    "skills.log": "1612888a8ef7a80b685f1f56a8f27897776ba6b091acf086a22b09fcd50b81f8",
+    "context.log": "cf0524310319d026dded2161af9395c1def74041048b20861fdcee87b1502123",
+    "serial-identity.log": "fe1aae8f95e87b7a6babfd5660d94626aed026f26d562c9fc6b203efd28de677",
+    "accepted-visual-bounds.json": "85cb66f327c7eb2176b786cc75a3c2b6cf4fd609d4b398c77292680ac33a44d5"
+  },
+  "hardwareActuation": false,
+  "physicalQualification": "unverified",
+  "gitPublication": false,
+  "rawEvidenceDirectory": "/home/cyber/cplayout-gnss-collection-20260917-zs52i0/",
+  "failedAttempts": [
+    {
+      "file": "browser-first.json",
+      "passed": 0,
+      "failed": 2,
+      "notRun": 10,
+      "cause": "Selected radio/toggle state was not forwarded to web ARIA; fixed in the form."
+    },
+    {
+      "file": "browser-final.json",
+      "passed": 82,
+      "failed": 3,
+      "interrupted": 1,
+      "notRun": 4,
+      "cause": "Rounded monotonic session IDs collided on reconnect; replaced with UUIDs before permission/open."
+    }
+  ],
+  "unverified": [
+    "Full current browser inventory",
+    "Physical PX1122R ESP8266 assembly and receiver firmware output",
+    "NS-RAW raw decoder and local solver path",
+    "Native USB/Bluetooth/Wi-Fi and relay routing",
+    "Measured less-than-0.10-m 3D error",
+    "Late previous-session GST/RMC injection during reconnect"
+  ],
+  "publicationStatus": "Uncommitted worktree checkpoint; no Git publication"
+}

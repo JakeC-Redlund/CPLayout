@@ -1,4 +1,4 @@
-import { Archive, Database, Download, FolderOpen, Map, RefreshCw, Save, Trash2, Upload } from "lucide-react-native";
+import { Archive, CopyPlus, Database, Download, FolderOpen, Map, RefreshCw, Save, Trash2, Upload } from "lucide-react-native";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
@@ -13,6 +13,7 @@ import {
   importZipFileAsync,
   installMapPackageArchiveZipAsync,
   readGoogleEarthKmlFile,
+  type CopyProjectCommand,
 } from "@cplayout/project-store";
 import {
   exportCornerGpsMapBpf,
@@ -30,9 +31,11 @@ import {
 } from "@cplayout/core";
 import type { ProjectWorkspaceStatus } from "../hooks/useProjectRepository";
 import { GoogleEarthImportWizard } from "./GoogleEarthImportWizard";
+import { ProjectCopyButton } from "./ProjectCopyButton";
 
 interface ProjectFilesPanelProps {
   dirty: boolean;
+  sourceStored: boolean;
   project: PivotProject;
   result: LayoutResult;
   repository: ProjectWorkspaceStatus;
@@ -43,9 +46,10 @@ interface ProjectFilesPanelProps {
   onApplyGoogleEarthKmlImport: (project: PivotProject) => void;
   onPreviewCornerGpsMapBpf: (bpfText: string, selectedItemIds?: string[], observedAt?: string, sourceRef?: CornerGpsMapSourceRef) => CornerGpsMapBpfImportPreview;
   onApplyCornerGpsMapBpfImport: (project: PivotProject) => void;
-  onImportProjectZip: (owner: object) => Promise<{ name: string; saved: boolean } | null>;
+  onImportProjectZip: (owner: object, asCopy?: boolean) => Promise<{ name: string; saved: boolean } | null>;
   onCancelImport: (owner: object) => void;
   onSaveProject: () => void | Promise<void>;
+  onSaveProjectCopy: (command: CopyProjectCommand, revision: number) => Promise<PivotProject>;
   onOpenProject: (projectId: string) => void | Promise<void>;
   onDeleteProject: (projectId: string) => Promise<boolean>;
   onRefreshProjects: () => Promise<void>;
@@ -83,6 +87,7 @@ interface LegacyEvidenceReview {
 
 export function ProjectFilesPanel({
   dirty,
+  sourceStored,
   project,
   result,
   repository,
@@ -96,6 +101,7 @@ export function ProjectFilesPanel({
   onImportProjectZip,
   onCancelImport,
   onSaveProject,
+  onSaveProjectCopy,
   onOpenProject,
   onDeleteProject,
   onRefreshProjects,
@@ -104,6 +110,7 @@ export function ProjectFilesPanel({
   const [pendingKmlImport, setPendingKmlImport] = useState<PendingKmlImport | null>(null);
   const [selectedKmlImportItemIds, setSelectedKmlImportItemIds] = useState<string[]>([]);
   const appliedKmlImport = useRef<PendingKmlImport | null>(null);
+  const kmlImportRequest = useRef(0);
   const [pendingBpfImport, setPendingBpfImport] = useState<PendingBpfImport | null>(null);
   const [selectedBpfImportItemIds, setSelectedBpfImportItemIds] = useState<string[]>([]);
   const [legacyEvidenceReview, setLegacyEvidenceReview] = useState<LegacyEvidenceReview | null>(null);
@@ -115,6 +122,7 @@ export function ProjectFilesPanel({
     active.current = true;
     return () => {
       active.current = false;
+      kmlImportRequest.current += 1;
       onCancelImport(importOwner);
     };
   }, [onCancelImport, importOwner]);
@@ -178,9 +186,9 @@ export function ProjectFilesPanel({
     }
   }
 
-  async function importZip(): Promise<void> {
+  async function importZip(asCopy = false): Promise<void> {
     try {
-      const imported = await onImportProjectZip(importOwner);
+      const imported = await onImportProjectZip(importOwner, asCopy);
       if (!active.current || !imported) return;
       setStatus({
         tone: imported.saved ? "success" : "warning",
@@ -216,15 +224,21 @@ export function ProjectFilesPanel({
   }
 
   async function importKmlOrKmz(): Promise<void> {
+    const request = ++kmlImportRequest.current;
     try {
       const file = await importFileAsync({
         accept: ".kml,.kmz,application/vnd.google-earth.kml+xml,application/vnd.google-earth.kmz,application/xml,text/xml",
         errorLabel: "KML/KMZ",
       });
+      if (!active.current || request !== kmlImportRequest.current) return;
       if (!file) {
         setStatus({ tone: "info", text: "No Google Earth file selected." });
         return;
       }
+      setPendingKmlImport(null);
+      setSelectedKmlImportItemIds([]);
+      setPendingBpfImport(null);
+      setSelectedBpfImportItemIds([]);
       const googleEarthFile = readGoogleEarthKmlFile(file);
       const result = onPreviewGoogleEarthKml(googleEarthFile.kmlText);
       setPendingKmlImport({
@@ -242,7 +256,7 @@ export function ProjectFilesPanel({
         text: `${googleEarthFile.filename} is ready for import selection. ${kmlImportSummary(result)}${formatWarnings([...googleEarthFile.warnings, ...result.warnings])}`,
       });
     } catch (error) {
-      setStatus({ tone: "error", text: errorMessage(error) });
+      if (active.current && request === kmlImportRequest.current) setStatus({ tone: "error", text: errorMessage(error) });
     }
   }
 
@@ -421,8 +435,10 @@ export function ProjectFilesPanel({
       <FileLane icon={<Archive size={18} color="#254234" />} title="Project Package">
         <View style={styles.actionRow}>
           <FileAction accessibilityLabel="Save local project" icon={<Save size={18} color="#ffffff" />} label={dirty ? "Save *" : "Save"} primary onPress={onSaveProject} testID="files-action-save-local" />
+          <ProjectCopyButton project={project} sourceStored={sourceStored} repository={repository} onCopy={onSaveProjectCopy} />
           <FileAction accessibilityLabel="Export project ZIP" icon={<Download size={18} color="#254234" />} label="Export ZIP" onPress={exportZip} testID="files-action-export-zip" />
-          <FileAction accessibilityLabel="Import project ZIP" icon={<Upload size={18} color="#254234" />} label="Import ZIP" onPress={importZip} testID="files-action-import-zip" />
+          <FileAction accessibilityLabel="Import project ZIP" icon={<Upload size={18} color="#254234" />} label="Import ZIP" onPress={() => importZip()} testID="files-action-import-zip" />
+          <FileAction accessibilityLabel="Import project ZIP as a copy" icon={<CopyPlus size={18} color="#254234" />} label="Import Copy" disabled={!repository.canCopyProject} onPress={() => importZip(true)} testID="files-action-import-copy" />
           <FileAction accessibilityLabel="Refresh local projects" icon={<RefreshCw size={18} color="#254234" />} label="Refresh" onPress={onRefreshProjects} testID="files-action-refresh" />
         </View>
         <View style={styles.destructiveActionRow}>

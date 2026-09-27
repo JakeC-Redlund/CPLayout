@@ -15,7 +15,11 @@ import {
 export type ProjectCatalogDialogMode = "client" | "project" | "fieldMap" | "design";
 
 interface ProjectCatalogDialogProps {
+  feedback?: React.ReactNode;
   createButtonLabel?: string;
+  createAccessibilityLabel?: string;
+  allowCancelWhileSubmitting?: boolean;
+  cancelButtonLabel?: string;
   contextPreview: string;
   defaultName: string;
   helper?: string;
@@ -53,13 +57,17 @@ const dialogCopy: Record<ProjectCatalogDialogMode, {
   },
   design: {
     createLabel: "design",
-    helper: "Design creation is deferred until a real map import or implemented design start workflow creates a saved project document.",
+    helper: "New design draft",
     title: "Create Design",
   },
 };
 
 export function ProjectCatalogDialog({
+  feedback,
   createButtonLabel,
+  createAccessibilityLabel,
+  allowCancelWhileSubmitting,
+  cancelButtonLabel,
   contextPreview,
   defaultName,
   helper,
@@ -81,8 +89,12 @@ export function ProjectCatalogDialog({
     >
       <View style={[styles.backdrop, compact && styles.backdropCompact]} testID="catalog-dialog-backdrop">
         <CatalogItemForm
+          feedback={feedback}
           contextPreview={contextPreview}
           createButtonLabel={createButtonLabel}
+          createAccessibilityLabel={createAccessibilityLabel}
+          allowCancelWhileSubmitting={allowCancelWhileSubmitting}
+          cancelButtonLabel={cancelButtonLabel}
           defaultName={defaultName}
           helper={helper}
           mode={mode}
@@ -97,7 +109,11 @@ export function ProjectCatalogDialog({
 }
 
 export function CatalogItemForm({
+  feedback,
   createButtonLabel,
+  createAccessibilityLabel,
+  allowCancelWhileSubmitting = false,
+  cancelButtonLabel,
   contextPreview,
   defaultName,
   embedded = false,
@@ -140,6 +156,7 @@ export function CatalogItemForm({
         </View>
       </View>
 
+      {feedback}
       <ScrollView
         keyboardShouldPersistTaps="handled"
         style={styles.body}
@@ -171,17 +188,17 @@ export function CatalogItemForm({
 
       <View style={styles.footer}>
         <Pressable
-          accessibilityLabel={`Cancel ${copy.createLabel} creation`}
+          accessibilityLabel={cancelButtonLabel ?? `Cancel ${copy.createLabel} creation`}
           accessibilityRole="button"
-          disabled={submitting}
+          disabled={submitting && !allowCancelWhileSubmitting}
           onPress={onCancel}
-          style={[styles.secondaryButton, submitting && styles.disabledButton]}
+          style={[styles.secondaryButton, submitting && !allowCancelWhileSubmitting && styles.disabledButton]}
           testID="catalog-dialog-cancel"
         >
-          <Text style={styles.secondaryButtonText}>Cancel</Text>
+          <Text style={styles.secondaryButtonText}>{cancelButtonLabel ?? "Cancel"}</Text>
         </Pressable>
         <Pressable
-          accessibilityLabel={`Create ${copy.createLabel}`}
+          accessibilityLabel={createAccessibilityLabel ?? `Create ${copy.createLabel}`}
           accessibilityRole="button"
           disabled={submitting}
           onPress={() => void submit()}
@@ -208,6 +225,7 @@ export interface ClientProfileDialogValue {
 }
 
 export function ClientProfileDialog({
+  feedback,
   defaultDisplayName,
   initialClient,
   mode,
@@ -216,6 +234,7 @@ export function ClientProfileDialog({
   submitting = false,
   visible,
 }: {
+  feedback?: React.ReactNode;
   defaultDisplayName: string;
   initialClient?: ClientRecord | null;
   mode: "create" | "edit";
@@ -230,6 +249,7 @@ export function ClientProfileDialog({
     <Modal animationType="fade" onRequestClose={onCancel} transparent visible={visible}>
       <View style={[styles.backdrop, compact && styles.backdropCompact]} testID="client-profile-dialog-backdrop">
         <ClientProfileForm
+          feedback={feedback}
           defaultDisplayName={defaultDisplayName}
           initialClient={initialClient}
           mode={mode}
@@ -243,6 +263,7 @@ export function ClientProfileDialog({
 }
 
 export function ClientProfileForm({
+  feedback,
   defaultDisplayName,
   embedded = false,
   initialClient,
@@ -251,6 +272,7 @@ export function ClientProfileForm({
   onSave,
   submitting = false,
 }: {
+  feedback?: React.ReactNode;
   defaultDisplayName: string;
   embedded?: boolean;
   initialClient?: ClientRecord | null;
@@ -303,6 +325,7 @@ export function ClientProfileForm({
         </View>
       </View>
 
+      {feedback}
       <ScrollView keyboardShouldPersistTaps="handled" style={styles.body} contentContainerStyle={styles.bodyContent} testID="client-profile-dialog-body">
         <DialogField label="Company name" value={value.companyName} onChangeText={(text) => updateField("companyName", text)} testID="client-profile-company-input" />
         <DialogField label="Last name" value={value.primaryContactLastName} onChangeText={(text) => updateField("primaryContactLastName", text)} error={error} testID="client-profile-last-name-input" />
@@ -328,6 +351,7 @@ export function ClientProfileForm({
 }
 
 export function ConfirmActionDialog({
+  feedback,
   confirmLabel,
   message,
   onCancel,
@@ -338,6 +362,7 @@ export function ConfirmActionDialog({
   tone = "danger",
   visible,
 }: {
+  feedback?: React.ReactNode;
   confirmLabel: string;
   message: string;
   onCancel: () => void;
@@ -354,6 +379,7 @@ export function ConfirmActionDialog({
     <Modal animationType="fade" onRequestClose={onCancel} transparent visible={visible}>
       <View style={[styles.backdrop, compact && styles.backdropCompact]} testID={`${testID}-backdrop`}>
         <ConfirmActionPanel
+          feedback={feedback}
           confirmLabel={confirmLabel}
           message={message}
           onCancel={onCancel}
@@ -369,6 +395,7 @@ export function ConfirmActionDialog({
 }
 
 export function ConfirmActionPanel({
+  feedback,
   confirmLabel,
   embedded = false,
   message,
@@ -379,6 +406,7 @@ export function ConfirmActionPanel({
   title,
   tone = "danger",
 }: {
+  feedback?: React.ReactNode;
   confirmLabel: string;
   embedded?: boolean;
   message: string;
@@ -400,6 +428,7 @@ export function ConfirmActionPanel({
           <Text style={styles.helper}>{message}</Text>
         </View>
       </View>
+      {feedback}
       <View style={styles.footer}>
         <Pressable accessibilityRole="button" disabled={submitting} onPress={onCancel} style={[styles.secondaryButton, submitting && styles.disabledButton]} testID={`${testID}-cancel`}>
           <Text style={styles.secondaryButtonText}>Cancel</Text>
@@ -413,6 +442,7 @@ export function ConfirmActionPanel({
 }
 
 export function MoveProjectDialog({
+  feedback,
   currentClientId,
   clients,
   onCancel,
@@ -421,6 +451,7 @@ export function MoveProjectDialog({
   submitting = false,
   visible,
 }: {
+  feedback?: React.ReactNode;
   currentClientId: string;
   clients: ClientRecord[];
   onCancel: () => void;
@@ -435,6 +466,7 @@ export function MoveProjectDialog({
     <Modal animationType="fade" onRequestClose={onCancel} transparent visible={visible}>
       <View style={[styles.backdrop, compact && styles.backdropCompact]} testID="move-project-dialog-backdrop">
         <MoveProjectForm
+          feedback={feedback}
           currentClientId={currentClientId}
           clients={clients}
           onCancel={onCancel}
@@ -448,6 +480,7 @@ export function MoveProjectDialog({
 }
 
 export function MoveProjectForm({
+  feedback,
   clients,
   currentClientId,
   embedded = false,
@@ -456,6 +489,7 @@ export function MoveProjectForm({
   projectName,
   submitting = false,
 }: {
+  feedback?: React.ReactNode;
   currentClientId: string;
   clients: ClientRecord[];
   embedded?: boolean;
@@ -482,6 +516,7 @@ export function MoveProjectForm({
           <Text style={styles.helper}>Move {projectName} to another client folder. Project geometry and archive contents are unchanged.</Text>
         </View>
       </View>
+      {feedback}
       <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent} testID="move-project-dialog-body">
         {targets.length === 0 ? (
           <Text style={styles.errorText}>Create another client folder before moving this project.</Text>

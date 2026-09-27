@@ -24,6 +24,7 @@ export function projectLayoutToWgs84FeatureCollection(
   draftVertices: XY[] = [],
   advisoryFieldPivotPlan?: AdvisoryFieldPivotPlan,
   advisoryMachineRenderModel?: AdvisoryMachineRenderModel,
+  draftGeometry: "Point" | "LineString" | "Polygon" | "Circle" = "LineString",
 ): { type: "FeatureCollection"; features: GeoJsonFeature[] } {
   const advisoryFieldPivotFeatures = advisoryFieldPivotPlan && advisoryFieldPivotPlan.selectedMachineCount > 0
     ? [
@@ -96,8 +97,10 @@ export function projectLayoutToWgs84FeatureCollection(
           radiusMeters: feature.geometry.radiusMeters,
         });
       }),
-      ...(draftVertices.length === 1 ? [pointFeature(project, "draft_vertices", draftVertices[0], { count: 1 })] : []),
-      ...(draftVertices.length >= 2 ? [lineFeature(project, "draft_vertices", draftVertices, { count: draftVertices.length })] : []),
+      ...draftVertices.map((vertex, index) => pointFeature(project, "draft_vertices", vertex, { vertexIndex: index, count: draftVertices.length })),
+      ...(draftVertices.length >= 3 && draftGeometry === "Polygon"
+        ? [polygonFeature(project, "draft_polygon", [[draftVertices]], { count: draftVertices.length })]
+        : draftVertices.length >= 2 ? [lineFeature(project, "draft_vertices", draftVertices, { count: draftVertices.length })] : []),
     ],
   };
 }

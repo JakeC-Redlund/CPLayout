@@ -1,0 +1,218 @@
+
+Running 165 tests using 2 workers
+
+[1A[2K(node:217800) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:217799) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:217800) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:217799) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/165] [desktop] › tests/web/draft-unit-and-saved-items.spec.ts:65:5 › new design starts with the selected folder's stored units
+[1A[2K[2/165] [desktop] › tests/web/design-draft-editor.spec.ts:78:5 › catalog Open supports Enter and Space without changing stored geometry
+[1A[2K[3/165] [desktop] › tests/web/draft-unit-and-saved-items.spec.ts:78:5 › invalid folder units cannot silently inherit the open editor's units
+[1A[2K[4/165] [desktop] › tests/web/design-draft-editor.spec.ts:94:5 › draft App opens missing data, saves two vertices, undoes and reopens without a sample project
+[1A[2K[5/165] [desktop] › tests/web/draft-unit-and-saved-items.spec.ts:86:5 › saved features and keep-outs can be deleted, undone, saved, and reopened
+[1A[2K[6/165] [desktop] › tests/web/design-draft-editor.spec.ts:125:5 › draft stale tab keeps its edits and cannot overwrite a newer save
+[1A[2K[7/165] [desktop] › tests/web/editor-save-lifecycle.spec.ts:27:5 › StrictMode initialization and effect replay keep the initial session active through saves and rerenders
+[1A[2K[8/165] [desktop] › tests/web/design-draft-editor.spec.ts:146:5 › pending invalid inputs block save and leaving requires an explicit discard
+[1A[2K[9/165] [desktop] › tests/web/editor-save-lifecycle.spec.ts:43:5 › StrictMode same-ID replacement isolates a delayed save receipt and feedback
+[1A[2K[10/165] [desktop] › tests/web/editor-save-lifecycle.spec.ts:57:5 › an accepted save may finish after unmount without reviving feedback or rebasing a remount
+[1A[2K[11/165] [desktop] › tests/web/project-copy.spec.ts:161:5 › Save Copy keeps the saved source and catalog unchanged until the independent copy is opened explicitly
+[1A[2K[12/165] [desktop] › tests/web/design-draft-editor.spec.ts:174:5 › an in-flight draft save keeps its snapshot and leaves newer drawing inputs unsaved
+[1A[2K[13/165] [desktop] › tests/web/design-draft-editor.spec.ts:206:5 › draft ZIP exports supplied incomplete geometry without complete-project outputs
+[1A[2K[14/165] [desktop] › tests/web/design-draft-editor.spec.ts:220:5 › calculations require complete supplied inputs and never promote a draft to Layout
+[1A[2K[15/165] [desktop] › tests/web/project-copy.spec.ts:193:5 › Save Copy retains dirty edits and undo history and does not make the original Save falsely stale
+[1A[2K[16/165] [desktop] › tests/web/design-draft-editor.spec.ts:238:5 › opening a draft cannot silently discard a complete project's unsaved edits
+[1A[2K[17/165] [desktop] › tests/web/project-copy.spec.ts:217:5 › copying an unsaved sample does not upgrade its null receipt or prevent its first normal Save
+[1A[2K[18/165] [desktop] › tests/web/project-copy.spec.ts:238:5 › Refresh allows a stale source to be copied without authorizing overwrite of the newer original
+[1A[2K[19/165] [desktop] › tests/web/design-draft-editor.spec.ts:268:5 › canceling new draft creation preserves a saved project's revision and subsequent save
+[1A[2K[20/165] [desktop] › tests/web/design-draft-editor.spec.ts:302:5 › failed confirmed draft creation restores its name and leaves storage unchanged for retry
+[1A[2K[21/165] [desktop] › tests/web/project-copy.spec.ts:273:5 › closing a pending copy and editing preserves the invocation snapshot without late success feedback
+[1A[2K[22/165] [desktop] › tests/web/design-draft-editor.spec.ts:339:5 › Undo during desktop draft creation retains the edited project and its next save
+[1A[2K[23/165] [desktop] › tests/web/project-copy.spec.ts:300:5 › a copy failure after closing and navigating cannot report on the new editor
+[1A[2K[24/165] [desktop] › tests/web/design-draft-editor.spec.ts:385:5 › late desktop draft creation failures cannot report on a newer editor
+[1A[2K[25/165] [desktop] › tests/web/project-copy.spec.ts:324:5 › a current copy quota failure keeps its name and source available for retry
+[1A[2K[26/165] [desktop] › tests/web/design-draft-editor.spec.ts:438:5 › draft map captures polygons lines and points while camera changes preserve saved geometry
+[1A[2K[27/165] [desktop] › tests/web/design-draft-editor.spec.ts:477:5 › a newer create form supersedes an older draft open waiting for storage
+[1A[2K[28/165] [desktop] › tests/web/project-copy.spec.ts:346:5 › Import ZIP remains create-only while explicit Import Copy recovers a same-ID archive independently
+[1A[2K[29/165] [desktop] › tests/web/project-import-lifecycle.spec.ts:54:7 › late valid ZIP after catalog navigation cannot load or persist
+[1A[2K[30/165] [desktop] › tests/web/project-import-lifecycle.spec.ts:54:7 › late malformed ZIP after catalog navigation cannot load or persist
+[1A[2K[31/165] [desktop] › tests/web/project-copy.spec.ts:376:5 › Save Copy rejects a forced UUID collision without modifying either stored identity
+[1A[2K[32/165] [desktop] › tests/web/project-import-lifecycle.spec.ts:74:5 › leaving Files for Dashboard cancels a pending project import
+[1A[2K[33/165] [desktop] › tests/web/project-import-lifecycle.spec.ts:86:5 › newer project picker wins and stale completion cannot persist another project
+[1A[2K[34/165] [desktop] › tests/web/project-copy.spec.ts:389:5 › Import Copy rejects a forced UUID collision and leaves its unsaved editor unable to overwrite the target
+[1A[2K[35/165] [desktop] › tests/web/project-import-lifecycle.spec.ts:101:7 › accepted EPSG:32613 import acknowledges persistence outside Files
+[1A[2K[36/165] [desktop] › tests/web/project-copy.spec.ts:403:5 › both ZIP import modes reject a nested unknown extension instead of persisting a partial copy
+[1A[2K[37/165] [desktop] › tests/web/project-import-lifecycle.spec.ts:118:7 › accepted EPSG:32613 import shows save failure and can retry
+[1A[2K[38/165] [desktop] › tests/web/project-copy.spec.ts:416:5 › a delayed normal Save failure cannot attach its error to a subsequently loaded editor
+[1A[2K[39/165] [desktop] › tests/web/project-import-lifecycle.spec.ts:101:7 › accepted EPSG:26741 import acknowledges persistence outside Files
+[1A[2K[40/165] [desktop] › tests/web/project-import-lifecycle.spec.ts:118:7 › accepted EPSG:26741 import shows save failure and can retry
+[1A[2K[41/165] [desktop] › tests/web/workspace-activation.spec.ts:63:5 › a catalog form keeps its original revision and typed values across a conflicting refresh
+[1A[2K[42/165] [desktop] › tests/web/project-import-lifecycle.spec.ts:143:5 › current malformed ZIP leaves a visible Files error without loading or saving
+[1A[2K[43/165] [desktop] › tests/web/workspace-activation.spec.ts:83:5 › active repository preserves legacy inputs and rejects a stale save from another live tab
+[1A[2K[44/165] [desktop] › tests/web/project-import-lifecycle.spec.ts:157:5 › corrupt project coordinates fail CRC without replacing saved data and a valid retry succeeds
+[1A[2K[45/165] [desktop] › tests/web/project-import-lifecycle.spec.ts:187:5 › opening a saved project supersedes the old Files picker
+[1A[2K[46/165] [desktop] › tests/web/project-import-lifecycle.spec.ts:201:5 › editing project data while Files remains mounted cancels its old picker
+[1A[2K[47/165] [desktop] › tests/web/workspace-activation.spec.ts:110:5 › corrupt migration data remains recoverable from catalog home without parsing it
+[1A[2K[48/165] [desktop] › tests/web/workspace-activation.spec.ts:129:5 › missing Web Locks blocks persistence while keeping explicitly best-effort recovery available
+[1A[2K(node:220542) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:220542) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[49/165] [desktop] › tests/web/workspace-activation.spec.ts:144:5 › an imported project autosave and queued Save consume the same editor session receipts
+[1A[2K[50/165] [tablet-768] › tests/web/design-draft-editor.spec.ts:78:5 › catalog Open supports Enter and Space without changing stored geometry
+[1A[2K[51/165] [desktop] › tests/web/workspace-activation.spec.ts:175:5 › create-only import collision cannot overwrite an existing stored identity
+[1A[2K[52/165] [desktop] › tests/web/workspace-activation.spec.ts:190:5 › same-task edit then Save persists the authoritative editor instead of an older render
+[1A[2K[53/165] [tablet-768] › tests/web/design-draft-editor.spec.ts:94:5 › draft App opens missing data, saves two vertices, undoes and reopens without a sample project
+[1A[2K[54/165] [desktop] › tests/web/workspace-activation.spec.ts:211:5 › a delayed Save keeps later edits dirty and the next Save uses its acknowledged receipt
+[1A[2K[55/165] [tablet-768] › tests/web/design-draft-editor.spec.ts:125:5 › draft stale tab keeps its edits and cannot overwrite a newer save
+[1A[2K[56/165] [desktop] › tests/web/workspace-activation.spec.ts:247:5 › a pending saved-project open cannot replace edits made while its read waits
+[1A[2K[57/165] [tablet-768] › tests/web/design-draft-editor.spec.ts:146:5 › pending invalid inputs block save and leaving requires an explicit discard
+[1A[2K[58/165] [desktop] › tests/web/workspace-activation.spec.ts:288:5 › editing a loaded legacy project cannot erase unsupported stored fields
+[1A[2K[59/165] [tablet-768] › tests/web/design-draft-editor.spec.ts:174:5 › an in-flight draft save keeps its snapshot and leaves newer drawing inputs unsaved
+[1A[2K[60/165] [desktop] › tests/web/workspace-activation.spec.ts:311:5 › a failed client write keeps the form and typed values available for retry
+[1A[2K[61/165] [tablet-768] › tests/web/design-draft-editor.spec.ts:206:5 › draft ZIP exports supplied incomplete geometry without complete-project outputs
+[1A[2K[62/165] [tablet-768] › tests/web/design-draft-editor.spec.ts:220:5 › calculations require complete supplied inputs and never promote a draft to Layout
+[1A[2K(node:221337) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:221337) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[63/165] [tablet-768] › tests/web/design-draft-editor.spec.ts:238:5 › opening a draft cannot silently discard a complete project's unsaved edits
+[1A[2K[64/165] [tablet-768] › tests/web/draft-unit-and-saved-items.spec.ts:65:5 › new design starts with the selected folder's stored units
+[1A[2K[65/165] [tablet-768] › tests/web/draft-unit-and-saved-items.spec.ts:78:5 › invalid folder units cannot silently inherit the open editor's units
+[1A[2K[66/165] [tablet-768] › tests/web/design-draft-editor.spec.ts:268:5 › canceling new draft creation preserves a saved project's revision and subsequent save
+[1A[2K[67/165] [tablet-768] › tests/web/draft-unit-and-saved-items.spec.ts:86:5 › saved features and keep-outs can be deleted, undone, saved, and reopened
+[1A[2K[68/165] [tablet-768] › tests/web/design-draft-editor.spec.ts:302:5 › failed confirmed draft creation restores its name and leaves storage unchanged for retry
+[1A[2K[69/165] [tablet-768] › tests/web/design-draft-editor.spec.ts:339:5 › Undo during desktop draft creation retains the edited project and its next save
+[1A[2K[70/165] [tablet-768] › tests/web/editor-save-lifecycle.spec.ts:27:5 › StrictMode initialization and effect replay keep the initial session active through saves and rerenders
+[1A[2K[71/165] [tablet-768] › tests/web/design-draft-editor.spec.ts:385:5 › late desktop draft creation failures cannot report on a newer editor
+[1A[2K[72/165] [tablet-768] › tests/web/design-draft-editor.spec.ts:438:5 › draft map captures polygons lines and points while camera changes preserve saved geometry
+[1A[2K[73/165] [tablet-768] › tests/web/editor-save-lifecycle.spec.ts:43:5 › StrictMode same-ID replacement isolates a delayed save receipt and feedback
+[1A[2K[74/165] [tablet-768] › tests/web/editor-save-lifecycle.spec.ts:57:5 › an accepted save may finish after unmount without reviving feedback or rebasing a remount
+[1A[2K[75/165] [tablet-768] › tests/web/project-copy.spec.ts:161:5 › Save Copy keeps the saved source and catalog unchanged until the independent copy is opened explicitly
+[1A[2K[76/165] [tablet-768] › tests/web/design-draft-editor.spec.ts:477:5 › a newer create form supersedes an older draft open waiting for storage
+[1A[2K[77/165] [tablet-768] › tests/web/project-import-lifecycle.spec.ts:54:7 › late valid ZIP after catalog navigation cannot load or persist
+[1A[2K[78/165] [tablet-768] › tests/web/project-copy.spec.ts:193:5 › Save Copy retains dirty edits and undo history and does not make the original Save falsely stale
+[1A[2K[79/165] [tablet-768] › tests/web/project-import-lifecycle.spec.ts:54:7 › late malformed ZIP after catalog navigation cannot load or persist
+[1A[2K[80/165] [tablet-768] › tests/web/project-import-lifecycle.spec.ts:74:5 › leaving Files for Dashboard cancels a pending project import
+[1A[2K[81/165] [tablet-768] › tests/web/project-copy.spec.ts:217:5 › copying an unsaved sample does not upgrade its null receipt or prevent its first normal Save
+[1A[2K[82/165] [tablet-768] › tests/web/project-import-lifecycle.spec.ts:86:5 › newer project picker wins and stale completion cannot persist another project
+[1A[2K[83/165] [tablet-768] › tests/web/project-copy.spec.ts:238:5 › Refresh allows a stale source to be copied without authorizing overwrite of the newer original
+[1A[2K[84/165] [tablet-768] › tests/web/project-import-lifecycle.spec.ts:101:7 › accepted EPSG:32613 import acknowledges persistence outside Files
+[1A[2K[85/165] [tablet-768] › tests/web/project-import-lifecycle.spec.ts:118:7 › accepted EPSG:32613 import shows save failure and can retry
+[1A[2K[86/165] [tablet-768] › tests/web/project-copy.spec.ts:273:5 › closing a pending copy and editing preserves the invocation snapshot without late success feedback
+[1A[2K[87/165] [tablet-768] › tests/web/project-import-lifecycle.spec.ts:101:7 › accepted EPSG:26741 import acknowledges persistence outside Files
+[1A[2K[88/165] [tablet-768] › tests/web/project-import-lifecycle.spec.ts:118:7 › accepted EPSG:26741 import shows save failure and can retry
+[1A[2K[89/165] [tablet-768] › tests/web/project-copy.spec.ts:300:5 › a copy failure after closing and navigating cannot report on the new editor
+[1A[2K[90/165] [tablet-768] › tests/web/project-import-lifecycle.spec.ts:143:5 › current malformed ZIP leaves a visible Files error without loading or saving
+[1A[2K[91/165] [tablet-768] › tests/web/project-import-lifecycle.spec.ts:157:5 › corrupt project coordinates fail CRC without replacing saved data and a valid retry succeeds
+[1A[2K[92/165] [tablet-768] › tests/web/project-copy.spec.ts:324:5 › a current copy quota failure keeps its name and source available for retry
+[1A[2K[93/165] [tablet-768] › tests/web/project-import-lifecycle.spec.ts:187:5 › opening a saved project supersedes the old Files picker
+[1A[2K[94/165] [tablet-768] › tests/web/project-copy.spec.ts:346:5 › Import ZIP remains create-only while explicit Import Copy recovers a same-ID archive independently
+[1A[2K[95/165] [tablet-768] › tests/web/project-import-lifecycle.spec.ts:201:5 › editing project data while Files remains mounted cancels its old picker
+[1A[2K[96/165] [tablet-768] › tests/web/workspace-activation.spec.ts:63:5 › a catalog form keeps its original revision and typed values across a conflicting refresh
+[1A[2K[97/165] [tablet-768] › tests/web/project-copy.spec.ts:376:5 › Save Copy rejects a forced UUID collision without modifying either stored identity
+[1A[2K[98/165] [tablet-768] › tests/web/workspace-activation.spec.ts:83:5 › active repository preserves legacy inputs and rejects a stale save from another live tab
+[1A[2K[99/165] [tablet-768] › tests/web/project-copy.spec.ts:389:5 › Import Copy rejects a forced UUID collision and leaves its unsaved editor unable to overwrite the target
+[1A[2K[100/165] [tablet-768] › tests/web/project-copy.spec.ts:403:5 › both ZIP import modes reject a nested unknown extension instead of persisting a partial copy
+[1A[2K[101/165] [tablet-768] › tests/web/workspace-activation.spec.ts:110:5 › corrupt migration data remains recoverable from catalog home without parsing it
+[1A[2K[102/165] [tablet-768] › tests/web/workspace-activation.spec.ts:129:5 › missing Web Locks blocks persistence while keeping explicitly best-effort recovery available
+[1A[2K[103/165] [tablet-768] › tests/web/project-copy.spec.ts:416:5 › a delayed normal Save failure cannot attach its error to a subsequently loaded editor
+[1A[2K[104/165] [tablet-768] › tests/web/workspace-activation.spec.ts:144:5 › an imported project autosave and queued Save consume the same editor session receipts
+[1A[2K[105/165] [tablet-768] › tests/web/workspace-activation.spec.ts:175:5 › create-only import collision cannot overwrite an existing stored identity
+[1A[2K(node:224042) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:224042) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[106/165] [tablet-768] › tests/web/workspace-activation.spec.ts:190:5 › same-task edit then Save persists the authoritative editor instead of an older render
+[1A[2K[107/165] [mobile-390] › tests/web/design-draft-editor.spec.ts:78:5 › catalog Open supports Enter and Space without changing stored geometry
+[1A[2K[108/165] [tablet-768] › tests/web/workspace-activation.spec.ts:211:5 › a delayed Save keeps later edits dirty and the next Save uses its acknowledged receipt
+[1A[2K[109/165] [mobile-390] › tests/web/design-draft-editor.spec.ts:94:5 › draft App opens missing data, saves two vertices, undoes and reopens without a sample project
+[1A[2K[110/165] [tablet-768] › tests/web/workspace-activation.spec.ts:247:5 › a pending saved-project open cannot replace edits made while its read waits
+[1A[2K[111/165] [mobile-390] › tests/web/design-draft-editor.spec.ts:125:5 › draft stale tab keeps its edits and cannot overwrite a newer save
+[1A[2K[112/165] [tablet-768] › tests/web/workspace-activation.spec.ts:288:5 › editing a loaded legacy project cannot erase unsupported stored fields
+[1A[2K[113/165] [tablet-768] › tests/web/workspace-activation.spec.ts:311:5 › a failed client write keeps the form and typed values available for retry
+[1A[2K[114/165] [mobile-390] › tests/web/design-draft-editor.spec.ts:146:5 › pending invalid inputs block save and leaving requires an explicit discard
+[1A[2K[115/165] [mobile-390] › tests/web/design-draft-editor.spec.ts:174:5 › an in-flight draft save keeps its snapshot and leaves newer drawing inputs unsaved
+[1A[2K(node:224830) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:224830) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[116/165] [mobile-390] › tests/web/design-draft-editor.spec.ts:206:5 › draft ZIP exports supplied incomplete geometry without complete-project outputs
+[1A[2K[117/165] [mobile-390] › tests/web/draft-unit-and-saved-items.spec.ts:65:5 › new design starts with the selected folder's stored units
+[1A[2K[118/165] [mobile-390] › tests/web/design-draft-editor.spec.ts:220:5 › calculations require complete supplied inputs and never promote a draft to Layout
+[1A[2K[119/165] [mobile-390] › tests/web/draft-unit-and-saved-items.spec.ts:78:5 › invalid folder units cannot silently inherit the open editor's units
+[1A[2K[120/165] [mobile-390] › tests/web/design-draft-editor.spec.ts:238:5 › opening a draft cannot silently discard a complete project's unsaved edits
+[1A[2K[121/165] [mobile-390] › tests/web/draft-unit-and-saved-items.spec.ts:86:5 › saved features and keep-outs can be deleted, undone, saved, and reopened
+[1A[2K[122/165] [mobile-390] › tests/web/design-draft-editor.spec.ts:268:5 › canceling new draft creation preserves a saved project's revision and subsequent save
+[1A[2K[123/165] [mobile-390] › tests/web/editor-save-lifecycle.spec.ts:27:5 › StrictMode initialization and effect replay keep the initial session active through saves and rerenders
+[1A[2K[124/165] [mobile-390] › tests/web/editor-save-lifecycle.spec.ts:43:5 › StrictMode same-ID replacement isolates a delayed save receipt and feedback
+[1A[2K[125/165] [mobile-390] › tests/web/design-draft-editor.spec.ts:302:5 › failed confirmed draft creation restores its name and leaves storage unchanged for retry
+[1A[2K[126/165] [mobile-390] › tests/web/editor-save-lifecycle.spec.ts:57:5 › an accepted save may finish after unmount without reviving feedback or rebasing a remount
+[1A[2K[127/165] [mobile-390] › tests/web/project-copy.spec.ts:161:5 › Save Copy keeps the saved source and catalog unchanged until the independent copy is opened explicitly
+[1A[2K[128/165] [mobile-390] › tests/web/design-draft-editor.spec.ts:339:5 › Undo during desktop draft creation retains the edited project and its next save
+[1A[2K[129/165] [mobile-390] › tests/web/design-draft-editor.spec.ts:385:5 › late desktop draft creation failures cannot report on a newer editor
+[1A[2K[130/165] [mobile-390] › tests/web/design-draft-editor.spec.ts:438:5 › draft map captures polygons lines and points while camera changes preserve saved geometry
+[1A[2K[131/165] [mobile-390] › tests/web/project-copy.spec.ts:193:5 › Save Copy retains dirty edits and undo history and does not make the original Save falsely stale
+[1A[2K[132/165] [mobile-390] › tests/web/design-draft-editor.spec.ts:477:5 › a newer create form supersedes an older draft open waiting for storage
+[1A[2K[133/165] [mobile-390] › tests/web/project-import-lifecycle.spec.ts:54:7 › late valid ZIP after catalog navigation cannot load or persist
+[1A[2K[134/165] [mobile-390] › tests/web/project-copy.spec.ts:217:5 › copying an unsaved sample does not upgrade its null receipt or prevent its first normal Save
+[1A[2K[135/165] [mobile-390] › tests/web/project-import-lifecycle.spec.ts:54:7 › late malformed ZIP after catalog navigation cannot load or persist
+[1A[2K[136/165] [mobile-390] › tests/web/project-copy.spec.ts:238:5 › Refresh allows a stale source to be copied without authorizing overwrite of the newer original
+[1A[2K[137/165] [mobile-390] › tests/web/project-import-lifecycle.spec.ts:74:5 › leaving Files for Dashboard cancels a pending project import
+[1A[2K[138/165] [mobile-390] › tests/web/project-import-lifecycle.spec.ts:86:5 › newer project picker wins and stale completion cannot persist another project
+[1A[2K[139/165] [mobile-390] › tests/web/project-import-lifecycle.spec.ts:101:7 › accepted EPSG:32613 import acknowledges persistence outside Files
+[1A[2K[140/165] [mobile-390] › tests/web/project-copy.spec.ts:273:5 › closing a pending copy and editing preserves the invocation snapshot without late success feedback
+[1A[2K[141/165] [mobile-390] › tests/web/project-import-lifecycle.spec.ts:118:7 › accepted EPSG:32613 import shows save failure and can retry
+[1A[2K[142/165] [mobile-390] › tests/web/project-copy.spec.ts:300:5 › a copy failure after closing and navigating cannot report on the new editor
+[1A[2K[143/165] [mobile-390] › tests/web/project-import-lifecycle.spec.ts:101:7 › accepted EPSG:26741 import acknowledges persistence outside Files
+[1A[2K[144/165] [mobile-390] › tests/web/project-copy.spec.ts:324:5 › a current copy quota failure keeps its name and source available for retry
+[1A[2K[145/165] [mobile-390] › tests/web/project-import-lifecycle.spec.ts:118:7 › accepted EPSG:26741 import shows save failure and can retry
+[1A[2K[146/165] [mobile-390] › tests/web/project-import-lifecycle.spec.ts:143:5 › current malformed ZIP leaves a visible Files error without loading or saving
+[1A[2K[147/165] [mobile-390] › tests/web/project-copy.spec.ts:346:5 › Import ZIP remains create-only while explicit Import Copy recovers a same-ID archive independently
+[1A[2K[148/165] [mobile-390] › tests/web/project-import-lifecycle.spec.ts:157:5 › corrupt project coordinates fail CRC without replacing saved data and a valid retry succeeds
+[1A[2K[149/165] [mobile-390] › tests/web/project-import-lifecycle.spec.ts:187:5 › opening a saved project supersedes the old Files picker
+[1A[2K[150/165] [mobile-390] › tests/web/project-copy.spec.ts:376:5 › Save Copy rejects a forced UUID collision without modifying either stored identity
+[1A[2K[151/165] [mobile-390] › tests/web/project-import-lifecycle.spec.ts:201:5 › editing project data while Files remains mounted cancels its old picker
+[1A[2K[152/165] [mobile-390] › tests/web/workspace-activation.spec.ts:63:5 › a catalog form keeps its original revision and typed values across a conflicting refresh
+[1A[2K[153/165] [mobile-390] › tests/web/project-copy.spec.ts:389:5 › Import Copy rejects a forced UUID collision and leaves its unsaved editor unable to overwrite the target
+[1A[2K[154/165] [mobile-390] › tests/web/workspace-activation.spec.ts:83:5 › active repository preserves legacy inputs and rejects a stale save from another live tab
+[1A[2K[155/165] [mobile-390] › tests/web/project-copy.spec.ts:403:5 › both ZIP import modes reject a nested unknown extension instead of persisting a partial copy
+[1A[2K[156/165] [mobile-390] › tests/web/project-copy.spec.ts:416:5 › a delayed normal Save failure cannot attach its error to a subsequently loaded editor
+[1A[2K[157/165] [mobile-390] › tests/web/workspace-activation.spec.ts:110:5 › corrupt migration data remains recoverable from catalog home without parsing it
+[1A[2K[158/165] [mobile-390] › tests/web/workspace-activation.spec.ts:129:5 › missing Web Locks blocks persistence while keeping explicitly best-effort recovery available
+[1A[2K[159/165] [mobile-390] › tests/web/workspace-activation.spec.ts:144:5 › an imported project autosave and queued Save consume the same editor session receipts
+[1A[2K[160/165] [mobile-390] › tests/web/workspace-activation.spec.ts:175:5 › create-only import collision cannot overwrite an existing stored identity
+[1A[2K[161/165] [mobile-390] › tests/web/workspace-activation.spec.ts:190:5 › same-task edit then Save persists the authoritative editor instead of an older render
+[1A[2K[162/165] [mobile-390] › tests/web/workspace-activation.spec.ts:211:5 › a delayed Save keeps later edits dirty and the next Save uses its acknowledged receipt
+[1A[2K[163/165] [mobile-390] › tests/web/workspace-activation.spec.ts:247:5 › a pending saved-project open cannot replace edits made while its read waits
+[1A[2K[164/165] [mobile-390] › tests/web/workspace-activation.spec.ts:288:5 › editing a loaded legacy project cannot erase unsupported stored fields
+[1A[2K[165/165] [mobile-390] › tests/web/workspace-activation.spec.ts:311:5 › a failed client write keeps the form and typed values available for retry
+[1A[2K  4 skipped
+  161 passed (4.8m)

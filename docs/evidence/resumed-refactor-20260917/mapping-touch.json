@@ -1,0 +1,104 @@
+{
+  "schemaVersion": "cplayout-mapping-touch-evidence-v1",
+  "recordedAt": "2026-09-17T08:11:18.693Z",
+  "head": "ec050f60bf515b5c4cbd40c3180615b5056e28b3",
+  "worktree": "dirty, preserved; no publication",
+  "rawEvidenceDirectory": "/home/cyber/cplayout-compact-mapping-85lIgJ/",
+  "postflight": "postflight-camera.json",
+  "postflightSha256": "38e6aacba9457a5dbc48b9207d04c6718a7ddd3d3471b1b137bee473687a64fa",
+  "source": {
+    "manifest": "source-camera-final.json",
+    "manifestSha256": "fcfde9f18ff0471c970dbfa64fd8ae2a073211a5fa821cd011edd623537cf134",
+    "selectedPaths": 301,
+    "scope": "Nonignored apps/packages/tools/tests TS TSX JS CJS MJS JSON plus root package/build configs, AGENTS and generated hook context",
+    "changedAtPostflight": [],
+    "addedAtPostflight": [],
+    "headUnchanged": true,
+    "documentationUpdatesOutsideManifest": true
+  },
+  "validation": {
+    "fullSourceCommand": "npm run validate",
+    "fullSourceLog": "validate-camera-final.log",
+    "fullSourceExit": 0,
+    "fullSourceLogSha256": "1768ca7f32e0d1f9d1f885a2186c4a15928a485482d1ae2aca804bcfdc4bc324",
+    "exportLog": "export-camera-final.log",
+    "exportExit": 0,
+    "gestureUnitTestsPassed": 24,
+    "controllerTestsPassed": 27,
+    "skills": "passed",
+    "contextMap": "passed",
+    "diffCheck": "passed; final documentation repeat in diff-postflight.log",
+    "finalDocumentationChecks": ["skills-postflight.log", "context-postflight.log", "diff-postflight.log"],
+    "fullAuditFindings": 0,
+    "productionAuditFindings": 0
+  },
+  "browser": {
+    "command": "CPLAYOUT_WEB_PROOF_PORT=19014 npx playwright test --workers=2 --retries=0 --max-failures=3 --reporter=line,json",
+    "report": "browser-camera-final.json",
+    "reportSha256": "679de3cedbb1601b368511ea06a707c1894c2a5d0ae72534a7e221ce6a1d7399",
+    "fullInventory": true,
+    "exit": 0,
+    "passed": 546,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "retries": 0,
+    "globalErrors": [],
+    "durationSeconds": 1978.534694,
+    "perViewport": { "desktop": 182, "tablet-768": 182, "mobile-390": 182 },
+    "preliminaryOverlappingRunsCountedAgain": false,
+    "phoneEditEarlyReturnsAndThreeExplicitEditSkipsRemoved": true,
+    "otherScreenshotOnlyCasesEstablishInteractionParity": false,
+    "nativeTouchParityProved": false
+  },
+  "build": {
+    "bundle": "index-2a803f7d4e5680577b661f4b8941b343.js",
+    "bytes": 5259472,
+    "localAndServedSha256": "87c9b8dbfad8840f693bc89968a60067b1ebce34036f5524d736a6a0f0263016",
+    "postflightMatch": true,
+    "preview": "http://127.0.0.1:19014",
+    "launcherOwnedPreviewRetained": true
+  },
+  "visualReview": {
+    "completeAcceptance": false,
+    "inspectedScreenshots": [
+      "browser-camera-final-results/maplibre-runtime-offline-M-2d539-e-projected-layout-overlays-desktop/offline-maplibre-workspace.png",
+      "browser-camera-final-results/browser-workflow-MapLibre--67aaf-ved-geometry-for-correction-tablet-768/maplibre-rejected-vertex.png",
+      "browser-camera-final-results/browser-workflow-MapLibre--67aaf-ved-geometry-for-correction-mobile-390/maplibre-rejected-vertex.png"
+    ],
+    "observations": [
+      "Desktop offline layout remains rendered with an explicit source-unavailable notice; pixel and pan assertions also passed",
+      "Phone rejection reason and horizontally scrollable editing actions remain readable and operable",
+      "Tablet rejection/status text is clipped out of the narrow map panel despite a passing DOM visibility assertion"
+    ],
+    "nextRequiredFix": "Measure clipping ancestors and panel bounds, make HUD responsive to available panel width, and add containment/screenshot regressions",
+    "otherOpenVisualWork": ["compact machine/infrastructure label crowding", "truncated browser imagery attribution"]
+  },
+  "review": {
+    "complexity": "high",
+    "selectedReasoning": "high",
+    "subagentDecision": "required",
+    "independentBoundedSourceReview": true,
+    "independentFullProductApproval": false,
+    "ownership": "Coordinator renderer/browser/docs; isolated worker gesture tests; read-only gesture reviewer and subsequent camera-planning reviewer",
+    "closedFindings": ["noninteractive phone edit controls", "foreign pointer ownership", "rejected marker displacement", "missing interruption cancellation", "listener survival across map replacement", "secondary-button initiation", "incomplete navigation lock", "external camera command during captured drag"],
+    "retainedAttempts": [
+      { "artifact": "baseline.log", "status": "prior-build phone interaction reproduction, not acceptance" },
+      { "artifact": "smoke.json", "passed": 9, "failed": 2 },
+      { "artifact": "smoke-corrected.json", "passed": 12, "failed": 1 },
+      { "artifact": "lifecycle-touch.json", "passed": 6, "status": "pre-camera-correction build" },
+      { "artifact": "browser-full.json", "passed": 216, "interrupted": 1, "unrun": 326, "exit": 130, "status": "superseded after separate zoom probe; not a complete-suite pass" },
+      { "artifact": "camera-smoke.log", "exit": 143, "lastStartedCase": 27, "selectedInventory": 45, "status": "signal origin unestablished; no final JSON report or accepted pass count" }
+    ],
+    "knownFollowups": ["tablet status clipping", "camera persistence across ordinary accepted edits and undo", "genuinely incomplete field drafts", "imagery/reference alignment", "immutable Layout targets", "remaining copy-race browser cases"]
+  },
+  "boundaries": {
+    "canonicalProjectedGeometryPolicyChanged": false,
+    "newPackagesInstalledInMappingPacket": false,
+    "nativeRuntime": "unverified",
+    "physical3dQualification": "unverified",
+    "hardwareCommandsIssued": false,
+    "gitPublished": false,
+    "fullRefactorComplete": false
+  }
+}

@@ -197,3 +197,23 @@ test("only the latest picker in one owner can commit, including stale failures",
     assert.deepEqual(app.snapshot().commits, [importedB.id]);
   }
 });
+
+test("completion feedback ownership expires on edits/navigation or newer opens", async () => {
+  const guard = createProjectOpenRequestGuard();
+  const first = guard.completionIsCurrent();
+  assert.equal(first(), true);
+  guard.invalidate();
+  assert.equal(first(), false);
+  const second = guard.completionIsCurrent();
+  const owner = {};
+  const read = deferred<PivotProject>();
+  const open = guard.open(() => read.promise, () => undefined, owner);
+  assert.equal(second(), false);
+  const duringOpen = guard.completionIsCurrent();
+  guard.invalidate({});
+  assert.equal(duringOpen(), true);
+  guard.invalidate(owner);
+  assert.equal(duringOpen(), false);
+  read.resolve(savedA);
+  await open;
+});

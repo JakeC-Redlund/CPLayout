@@ -1,0 +1,1728 @@
+{
+  "config": {
+    "configFile": "/mnt/h/cplayout/playwright.config.ts",
+    "rootDir": "/mnt/h/cplayout/tests/web",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/tmp/cplayout-overlay-final",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/mnt/h/cplayout/tests/web",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/tmp/cplayout-overlay-final",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "tablet-768",
+        "name": "tablet-768",
+        "testDir": "/mnt/h/cplayout/tests/web",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/tmp/cplayout-overlay-final",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "mobile-390",
+        "name": "mobile-390",
+        "testDir": "/mnt/h/cplayout/tests/web",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 2,
+    "webServer": {
+      "command": "npx tsx tools/serveStaticWeb.ts apps/mobile/dist 19014",
+      "reuseExistingServer": true,
+      "timeout": 120000,
+      "url": "http://127.0.0.1:19014"
+    }
+  },
+  "suites": [
+    {
+      "title": "browser-workflow.spec.ts",
+      "file": "browser-workflow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "tablet portrait map console keeps drawers collapsed and HUD above the viewport floor",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6478,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:25:55.792Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "31dbe23a2b97ff677fcb-bfc323d037f839758249",
+          "file": "browser-workflow.spec.ts",
+          "line": 679,
+          "column": 5
+        },
+        {
+          "title": "tablet landscape map console has fixed page bounds and drawer handles",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5784,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:26:02.457Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "31dbe23a2b97ff677fcb-8a4965397d0b3903574b",
+          "file": "browser-workflow.spec.ts",
+          "line": 710,
+          "column": 5
+        },
+        {
+          "title": "tablet portrait map console keeps drawers collapsed and HUD above the viewport floor",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 5363,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:27:13.384Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "31dbe23a2b97ff677fcb-314cfa439c2031db6aa2",
+          "file": "browser-workflow.spec.ts",
+          "line": 679,
+          "column": 5
+        },
+        {
+          "title": "tablet landscape map console has fixed page bounds and drawer handles",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 5769,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:27:18.976Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "31dbe23a2b97ff677fcb-b674f65614c8d9361ed0",
+          "file": "browser-workflow.spec.ts",
+          "line": 710,
+          "column": 5
+        },
+        {
+          "title": "tablet portrait map console keeps drawers collapsed and HUD above the viewport floor",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7777,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:30:06.202Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "31dbe23a2b97ff677fcb-dae07b47ed1f843743eb",
+          "file": "browser-workflow.spec.ts",
+          "line": 679,
+          "column": 5
+        },
+        {
+          "title": "tablet landscape map console has fixed page bounds and drawer handles",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7328,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:30:14.113Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "31dbe23a2b97ff677fcb-98294e0501aba4e44a54",
+          "file": "browser-workflow.spec.ts",
+          "line": 710,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "map-camera.spec.ts",
+      "file": "map-camera.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "offscreen accepted vertex edit and undo/redo preserve camera and canonical XY",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 23309,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:25:55.806Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "accepted-edit-camera.json",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlY3RlZCI6Wy0xMDQuOTgxNDQ4Nzk5NjA2NjUsNDAuNzA2NjYxNzM4OTIxMTU2LDE2LjIzNTA0MzAzMDg5NDE5MywwLDBdLCJhY3R1YWwiOlstMTA0Ljk4MTQ0ODc5OTYwNjY1LDQwLjcwNjY2MTczODkyMTE1NiwxNi4yMzUwNDMwMzA4OTQxOTMsMCwwXSwiaW5zdGFuY2VCZWZvcmUiOiIxIiwiaW5zdGFuY2VBZnRlciI6IjEifQ=="
+                    },
+                    {
+                      "name": "undo-camera.json",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlY3RlZCI6Wy0xMDQuOTgxNDQ4Nzk5NjA2NjUsNDAuNzA2NjYxNzM4OTIxMTU2LDE2LjIzNTA0MzAzMDg5NDE5MywwLDBdLCJhY3R1YWwiOlstMTA0Ljk4MTQ0ODc5OTYwNjY1LDQwLjcwNjY2MTczODkyMTE1NiwxNi4yMzUwNDMwMzA4OTQxOTMsMCwwXSwiaW5zdGFuY2VCZWZvcmUiOiIxIiwiaW5zdGFuY2VBZnRlciI6IjEifQ=="
+                    },
+                    {
+                      "name": "redo-camera.json",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlY3RlZCI6Wy0xMDQuOTgxNDQ4Nzk5NjA2NjUsNDAuNzA2NjYxNzM4OTIxMTU2LDE2LjIzNTA0MzAzMDg5NDE5MywwLDBdLCJhY3R1YWwiOlstMTA0Ljk4MTQ0ODc5OTYwNjY1LDQwLjcwNjY2MTczODkyMTE1NiwxNi4yMzUwNDMwMzA4OTQxOTMsMCwwXSwiaW5zdGFuY2VCZWZvcmUiOiIxIiwiaW5zdGFuY2VBZnRlciI6IjEifQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4212f298d79ddd5c199d-739c2d92c5f71ce2c6ac",
+          "file": "map-camera.spec.ts",
+          "line": 126,
+          "column": 5
+        },
+        {
+          "title": "offscreen accepted vertex edit and undo/redo preserve camera and canonical XY",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 20798,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:27:24.940Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "accepted-edit-camera.json",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlY3RlZCI6Wy0xMDQuOTgxMjUzNDg5MTk0OSw0MC43MDU0NzgzNDgxMzUwMiwxNi4wODgyMjI2NzU0MDcyMDYsMCwwXSwiYWN0dWFsIjpbLTEwNC45ODEyNTM0ODkxOTQ5LDQwLjcwNTQ3ODM0ODEzNTAyLDE2LjA4ODIyMjY3NTQwNzIwNiwwLDBdLCJpbnN0YW5jZUJlZm9yZSI6IjEiLCJpbnN0YW5jZUFmdGVyIjoiMSJ9"
+                    },
+                    {
+                      "name": "undo-camera.json",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlY3RlZCI6Wy0xMDQuOTgxMjUzNDg5MTk0OSw0MC43MDU0NzgzNDgxMzUwMiwxNi4wODgyMjI2NzU0MDcyMDYsMCwwXSwiYWN0dWFsIjpbLTEwNC45ODEyNTM0ODkxOTQ5LDQwLjcwNTQ3ODM0ODEzNTAyLDE2LjA4ODIyMjY3NTQwNzIwNiwwLDBdLCJpbnN0YW5jZUJlZm9yZSI6IjEiLCJpbnN0YW5jZUFmdGVyIjoiMSJ9"
+                    },
+                    {
+                      "name": "redo-camera.json",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlY3RlZCI6Wy0xMDQuOTgxMjUzNDg5MTk0OSw0MC43MDU0NzgzNDgxMzUwMiwxNi4wODgyMjI2NzU0MDcyMDYsMCwwXSwiYWN0dWFsIjpbLTEwNC45ODEyNTM0ODkxOTQ5LDQwLjcwNTQ3ODM0ODEzNTAyLDE2LjA4ODIyMjY3NTQwNzIwNiwwLDBdLCJpbnN0YW5jZUJlZm9yZSI6IjEiLCJpbnN0YW5jZUFmdGVyIjoiMSJ9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4212f298d79ddd5c199d-e5383894f874d79bac28",
+          "file": "map-camera.spec.ts",
+          "line": 126,
+          "column": 5
+        },
+        {
+          "title": "offscreen accepted vertex edit and undo/redo preserve camera and canonical XY",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 18868,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:30:22.357Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "accepted-edit-camera.json",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlY3RlZCI6Wy0xMDQuOTc4MzAxOTM0OTcxLDQwLjcwNDM1NTMzNDkzNTUxNCwxNC43ODgyMzcxMzM0MDA5NjUsMCwwXSwiYWN0dWFsIjpbLTEwNC45NzgzMDE5MzQ5NzEsNDAuNzA0MzU1MzM0OTM1NTE0LDE0Ljc4ODIzNzEzMzQwMDk2NSwwLDBdLCJpbnN0YW5jZUJlZm9yZSI6IjEiLCJpbnN0YW5jZUFmdGVyIjoiMSJ9"
+                    },
+                    {
+                      "name": "undo-camera.json",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlY3RlZCI6Wy0xMDQuOTc4MzAxOTM0OTcxLDQwLjcwNDM1NTMzNDkzNTUxNCwxNC43ODgyMzcxMzM0MDA5NjUsMCwwXSwiYWN0dWFsIjpbLTEwNC45NzgzMDE5MzQ5NzEsNDAuNzA0MzU1MzM0OTM1NTE0LDE0Ljc4ODIzNzEzMzQwMDk2NSwwLDBdLCJpbnN0YW5jZUJlZm9yZSI6IjEiLCJpbnN0YW5jZUFmdGVyIjoiMSJ9"
+                    },
+                    {
+                      "name": "redo-camera.json",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlY3RlZCI6Wy0xMDQuOTc4MzAxOTM0OTcxLDQwLjcwNDM1NTMzNDkzNTUxNCwxNC43ODgyMzcxMzM0MDA5NjUsMCwwXSwiYWN0dWFsIjpbLTEwNC45NzgzMDE5MzQ5NzEsNDAuNzA0MzU1MzM0OTM1NTE0LDE0Ljc4ODIzNzEzMzQwMDk2NSwwLDBdLCJpbnN0YW5jZUJlZm9yZSI6IjEiLCJpbnN0YW5jZUFmdGVyIjoiMSJ9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4212f298d79ddd5c199d-05e60ecf84cc19d3d469",
+          "file": "map-camera.spec.ts",
+          "line": 126,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "map-fit.spec.ts",
+      "file": "map-fit.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "browser: labeled map tool menus share Design and Layout appearance without authorizing pointer edits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13311,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:26:08.370Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-870df5c80035744c325c",
+          "file": "map-fit.spec.ts",
+          "line": 270,
+          "column": 7
+        },
+        {
+          "title": "browser: standard drawing tools measure, undo, cancel and save polygon line point purposes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 360000,
+              "annotations": [
+                {
+                  "type": "slow",
+                  "location": {
+                    "file": "/mnt/h/cplayout/tests/web/map-fit.spec.ts",
+                    "line": 307,
+                    "column": 10
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 45908,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:26:21.694Z",
+                  "annotations": [
+                    {
+                      "type": "slow",
+                      "location": {
+                        "file": "/mnt/h/cplayout/tests/web/map-fit.spec.ts",
+                        "line": 307,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-d1aec8acd5a33a61fe14",
+          "file": "map-fit.spec.ts",
+          "line": 306,
+          "column": 7
+        },
+        {
+          "title": "svg: labeled map tool menus share Design and Layout appearance without authorizing pointer edits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11821,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:27:09.227Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-37cf2cb439970c6e6f4d",
+          "file": "map-fit.spec.ts",
+          "line": 270,
+          "column": 7
+        },
+        {
+          "title": "svg: standard drawing tools measure, undo, cancel and save polygon line point purposes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 360000,
+              "annotations": [
+                {
+                  "type": "slow",
+                  "location": {
+                    "file": "/mnt/h/cplayout/tests/web/map-fit.spec.ts",
+                    "line": 307,
+                    "column": 10
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 35815,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:27:21.060Z",
+                  "annotations": [
+                    {
+                      "type": "slow",
+                      "location": {
+                        "file": "/mnt/h/cplayout/tests/web/map-fit.spec.ts",
+                        "line": 307,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-9dc5c35c672a044d2cd9",
+          "file": "map-fit.spec.ts",
+          "line": 306,
+          "column": 7
+        },
+        {
+          "title": "browser: Fit field preserves selection, saved bytes and undo; repeats and works in Layout",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 35266,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:27:57.773Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-9d254ef47bb33e3c3cf5",
+          "file": "map-fit.spec.ts",
+          "line": 388,
+          "column": 7
+        },
+        {
+          "title": "svg: Fit field preserves selection, saved bytes and undo; repeats and works in Layout",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 29403,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:28:33.837Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-d11542034e3239813e96",
+          "file": "map-fit.spec.ts",
+          "line": 388,
+          "column": 7
+        },
+        {
+          "title": "SVG labels stay separated and screen-sized through zoom and resize without changing geometry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13461,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:29:04.031Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-5a17f21abc6ceb85ac37",
+          "file": "map-fit.spec.ts",
+          "line": 707,
+          "column": 5
+        },
+        {
+          "title": "browser: labeled map tool menus share Design and Layout appearance without authorizing pointer edits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 11352,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:27:46.701Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-c943fa0256236fe578a4",
+          "file": "map-fit.spec.ts",
+          "line": 270,
+          "column": 7
+        },
+        {
+          "title": "browser: standard drawing tools measure, undo, cancel and save polygon line point purposes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 360000,
+              "annotations": [
+                {
+                  "type": "slow",
+                  "location": {
+                    "file": "/mnt/h/cplayout/tests/web/map-fit.spec.ts",
+                    "line": 307,
+                    "column": 10
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 43658,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:27:58.067Z",
+                  "annotations": [
+                    {
+                      "type": "slow",
+                      "location": {
+                        "file": "/mnt/h/cplayout/tests/web/map-fit.spec.ts",
+                        "line": 307,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-79de7de84360d52032ec",
+          "file": "map-fit.spec.ts",
+          "line": 306,
+          "column": 7
+        },
+        {
+          "title": "svg: labeled map tool menus share Design and Layout appearance without authorizing pointer edits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 9498,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:28:43.303Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-6b097a0aeca7b4d0b786",
+          "file": "map-fit.spec.ts",
+          "line": 270,
+          "column": 7
+        },
+        {
+          "title": "svg: standard drawing tools measure, undo, cancel and save polygon line point purposes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 360000,
+              "annotations": [
+                {
+                  "type": "slow",
+                  "location": {
+                    "file": "/mnt/h/cplayout/tests/web/map-fit.spec.ts",
+                    "line": 307,
+                    "column": 10
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 32276,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:28:52.814Z",
+                  "annotations": [
+                    {
+                      "type": "slow",
+                      "location": {
+                        "file": "/mnt/h/cplayout/tests/web/map-fit.spec.ts",
+                        "line": 307,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-ed4c66794c61c6a0e783",
+          "file": "map-fit.spec.ts",
+          "line": 306,
+          "column": 7
+        },
+        {
+          "title": "browser: Fit field preserves selection, saved bytes and undo; repeats and works in Layout",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 30881,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:29:25.894Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-0ffcf2eef2d76558850b",
+          "file": "map-fit.spec.ts",
+          "line": 388,
+          "column": 7
+        },
+        {
+          "title": "svg: Fit field preserves selection, saved bytes and undo; repeats and works in Layout",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 28077,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:29:57.560Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-f5429dd2cb9e7c20fdec",
+          "file": "map-fit.spec.ts",
+          "line": 388,
+          "column": 7
+        },
+        {
+          "title": "SVG labels stay separated and screen-sized through zoom and resize without changing geometry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 11537,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:30:26.446Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-5777249d2cd54220a731",
+          "file": "map-fit.spec.ts",
+          "line": 707,
+          "column": 5
+        },
+        {
+          "title": "browser: labeled map tool menus share Design and Layout appearance without authorizing pointer edits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 10048,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:30:40.283Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-a6e224c2c13fed0795c6",
+          "file": "map-fit.spec.ts",
+          "line": 270,
+          "column": 7
+        },
+        {
+          "title": "browser: standard drawing tools measure, undo, cancel and save polygon line point purposes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 360000,
+              "annotations": [
+                {
+                  "type": "slow",
+                  "location": {
+                    "file": "/mnt/h/cplayout/tests/web/map-fit.spec.ts",
+                    "line": 307,
+                    "column": 10
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 34287,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:30:51.288Z",
+                  "annotations": [
+                    {
+                      "type": "slow",
+                      "location": {
+                        "file": "/mnt/h/cplayout/tests/web/map-fit.spec.ts",
+                        "line": 307,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-b3b57ae67154236d74c5",
+          "file": "map-fit.spec.ts",
+          "line": 306,
+          "column": 7
+        },
+        {
+          "title": "svg: labeled map tool menus share Design and Layout appearance without authorizing pointer edits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 8944,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:31:26.320Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-52e5a3f4f8149cde3b2e",
+          "file": "map-fit.spec.ts",
+          "line": 270,
+          "column": 7
+        },
+        {
+          "title": "svg: standard drawing tools measure, undo, cancel and save polygon line point purposes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 360000,
+              "annotations": [
+                {
+                  "type": "slow",
+                  "location": {
+                    "file": "/mnt/h/cplayout/tests/web/map-fit.spec.ts",
+                    "line": 307,
+                    "column": 10
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 26268,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:31:35.271Z",
+                  "annotations": [
+                    {
+                      "type": "slow",
+                      "location": {
+                        "file": "/mnt/h/cplayout/tests/web/map-fit.spec.ts",
+                        "line": 307,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-f15039176261275592bf",
+          "file": "map-fit.spec.ts",
+          "line": 306,
+          "column": 7
+        },
+        {
+          "title": "browser: Fit field preserves selection, saved bytes and undo; repeats and works in Layout",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 32200,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:32:02.335Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-deeb6ebb368da01cc60d",
+          "file": "map-fit.spec.ts",
+          "line": 388,
+          "column": 7
+        },
+        {
+          "title": "svg: Fit field preserves selection, saved bytes and undo; repeats and works in Layout",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 29133,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:32:35.327Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-bdf7a84d0ec31013f55b",
+          "file": "map-fit.spec.ts",
+          "line": 388,
+          "column": 7
+        },
+        {
+          "title": "SVG labels stay separated and screen-sized through zoom and resize without changing geometry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 10752,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:33:05.246Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a5dd19baf2e34fed96a7-3e60f08ae81b8a445729",
+          "file": "map-fit.spec.ts",
+          "line": 707,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "maplibre-runtime.spec.ts",
+      "file": "maplibre-runtime.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "loaded map updates edited geometry while later raster requests remain pending",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 12214,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:26:19.363Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1b2af9c74ca829dd4f36-57a57f131416732157fd",
+          "file": "maplibre-runtime.spec.ts",
+          "line": 14,
+          "column": 5
+        },
+        {
+          "title": "loaded map updates edited geometry while later raster requests remain pending",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9479,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:29:21.687Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1b2af9c74ca829dd4f36-b3b07836545bd00989f1",
+          "file": "maplibre-runtime.spec.ts",
+          "line": 14,
+          "column": 5
+        },
+        {
+          "title": "loaded map updates edited geometry while later raster requests remain pending",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8257,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:30:41.279Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1b2af9c74ca829dd4f36-c51223247dd71c12c8ce",
+          "file": "maplibre-runtime.spec.ts",
+          "line": 14,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "rtk-lifecycle.spec.ts",
+      "file": "rtk-lifecycle.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Layout requires current RTK-fixed lock for capture and retained Line draft commits despite permissive settings",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 12700,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:26:32.445Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3891ceebb093378f985c-da30e58feaa35dd1c7cf",
+          "file": "rtk-lifecycle.spec.ts",
+          "line": 126,
+          "column": 5
+        },
+        {
+          "title": "Layout requires current RTK-fixed lock for capture and retained Polygon draft commits despite permissive settings",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 12184,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:26:45.158Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3891ceebb093378f985c-e9fa541698ceb42783dd",
+          "file": "rtk-lifecycle.spec.ts",
+          "line": 126,
+          "column": 5
+        },
+        {
+          "title": "RTK captured v2 evidence and unverified qualification survive reconnect metadata changes and ZIP round trip",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 10596,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:26:57.359Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3891ceebb093378f985c-6ad2ac19a450f3bdac21",
+          "file": "rtk-lifecycle.spec.ts",
+          "line": 382,
+          "column": 5
+        },
+        {
+          "title": "Layout requires current RTK-fixed lock for capture and retained Line draft commits despite permissive settings",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11285,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:29:31.438Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3891ceebb093378f985c-abe2034c079d463a06fc",
+          "file": "rtk-lifecycle.spec.ts",
+          "line": 126,
+          "column": 5
+        },
+        {
+          "title": "Layout requires current RTK-fixed lock for capture and retained Polygon draft commits despite permissive settings",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11615,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:29:42.738Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3891ceebb093378f985c-6f07dfe617e2eb968908",
+          "file": "rtk-lifecycle.spec.ts",
+          "line": 126,
+          "column": 5
+        },
+        {
+          "title": "RTK captured v2 evidence and unverified qualification survive reconnect metadata changes and ZIP round trip",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-768",
+              "projectName": "tablet-768",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8845,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:29:55.133Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3891ceebb093378f985c-4662c9871af61fed6c9a",
+          "file": "rtk-lifecycle.spec.ts",
+          "line": 382,
+          "column": 5
+        },
+        {
+          "title": "Layout requires current RTK-fixed lock for capture and retained Line draft commits despite permissive settings",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10773,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:30:50.394Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3891ceebb093378f985c-23fe85f8a2c75a633369",
+          "file": "rtk-lifecycle.spec.ts",
+          "line": 126,
+          "column": 5
+        },
+        {
+          "title": "Layout requires current RTK-fixed lock for capture and retained Polygon draft commits despite permissive settings",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9498,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:31:01.174Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3891ceebb093378f985c-384fa2d3606fc9f40ebc",
+          "file": "rtk-lifecycle.spec.ts",
+          "line": 126,
+          "column": 5
+        },
+        {
+          "title": "RTK captured v2 evidence and unverified qualification survive reconnect metadata changes and ZIP round trip",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8094,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T22:31:10.680Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3891ceebb093378f985c-6ffbbcae4be1c3394d17",
+          "file": "rtk-lifecycle.spec.ts",
+          "line": 382,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-25T22:25:49.922Z",
+    "duration": 435039.361,
+    "expected": 42,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

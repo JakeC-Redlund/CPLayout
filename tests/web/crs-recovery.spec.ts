@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { strFromU8, unzipSync } from "fflate";
 import { defaultProjectSettings, parseProjectDocument, sampleProject, serializeProjectDocument } from "../../packages/core/src/index";
 import { normalizeProjectCatalog } from "../../packages/project-store/src/projectCatalog";
+import { readWorkspace, workspaceStorageBytes } from "./workspace-fixtures";
 import {
   buildProjectRecoveryArchiveBundle,
   exportProjectArchiveZip,
@@ -49,7 +50,7 @@ for (const span of [1e155, 1e308]) {
     expect(recovered.machine.spanLengthsMeters).toEqual([span]);
     expect(recovered.fieldBoundary).toEqual(legacy.fieldBoundary);
     expect(recovered.projectCrs).toBe(legacy.projectCrs);
-    const stored = await page.evaluate((id) => JSON.parse(JSON.parse(localStorage.getItem("center-pivot-layout-projects-v1") ?? "{}")[id].document).project, legacy.id);
+    const stored = parseProjectDocument((await readWorkspace(page)).projectDocuments.find(entry => entry.summary.id === legacy.id)!.document);
     expect(stored.pivotCenter).toEqual(legacy.pivotCenter);
     expect(stored.machine.spanLengthsMeters).toEqual([span]);
     expect(errors).toEqual([]);
@@ -96,12 +97,12 @@ for (const [projectCrs, reason] of [
     await expect(page.getByTestId("crs-recovery-undo")).toBeDisabled();
     await expect(page.getByTestId("crs-recovery-redo")).toBeDisabled();
 
+    await expect(page.getByTestId("project-import-status")).toHaveText("Imported project saved locally.");
+    const importedRevision = (await readWorkspace(page)).revision;
     await page.getByTestId("crs-recovery-save").click();
+    await expect.poll(async () => (await readWorkspace(page)).revision).toBe(importedRevision + 1);
     await expect(page.getByTestId("project-save-state")).toHaveText("Saved");
-    const stored = await page.evaluate((id) => {
-      const data = JSON.parse(localStorage.getItem("center-pivot-layout-projects-v1") ?? "{}");
-      return JSON.parse(data[id].document).project;
-    }, legacy.id);
+    const stored = parseProjectDocument((await readWorkspace(page)).projectDocuments.find(entry => entry.summary.id === legacy.id)!.document);
     expect(stored.projectCrs).toBe(projectCrs);
     expect(stored.pivotCenter).toEqual(legacy.pivotCenter);
     expect(stored.fieldBoundary).toEqual(legacy.fieldBoundary);
@@ -127,9 +128,15 @@ for (const [projectCrs, reason] of [
     for (const key of ["fieldBoundary", "pivotCenter", "waterSource", "powerSource", "obstacles", "surveyPoints", "machine", "settings", "unitSystem"] as const) {
       expect(restored[key]).toEqual(legacy[key]);
     }
+    const beforeCollision = await workspaceStorageBytes(page);
     await importZip(page, "crs-recovery-import", exportedBytes);
     await expect(page.getByTestId("crs-recovery-crs")).toHaveText(projectCrs);
     await expect(page.getByTestId("project-save-state")).toHaveText("Unsaved edits");
+    expect(await workspaceStorageBytes(page)).toEqual(beforeCollision);
+    await page.getByTestId("crs-recovery-save").click();
+    await expect(page.getByTestId("workspace-storage-error")).toContainText("Document identity is already used");
+    await expect(page.getByTestId("project-save-state")).toHaveText("Unsaved edits");
+    expect(await workspaceStorageBytes(page)).toEqual(beforeCollision);
     await page.getByTestId("crs-recovery-export").scrollIntoViewIfNeeded();
     await page.screenshot({ path: testInfo.outputPath("crs-recovery.png") });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
@@ -166,6 +173,7 @@ test("importing an independent blocked ZIP cannot reassign or overwrite the acti
   const savedDocument = serializeProjectDocument(savedA);
   const savedEntry = { document: savedDocument, summary: { id: savedA.id, name: savedA.name, projectCrs: savedA.projectCrs,
     unitSystem: savedA.unitSystem, updatedAt: timestamp } };
+  // Intentionally seed legacy inputs to exercise migration of an explicitly owned design.
   await page.addInitScript(({ catalog, id, entry }) => {
     localStorage.setItem("center-pivot-layout-project-catalog-v1", JSON.stringify(catalog));
     localStorage.setItem("center-pivot-layout-projects-v1", JSON.stringify({ [id]: entry }));
@@ -178,18 +186,23 @@ test("importing an independent blocked ZIP cannot reassign or overwrite the acti
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText(savedA.name);
   await expect(page.getByTestId("project-save-state")).toContainText("Saved");
   await page.getByTestId("workspace-nav-files").click();
+  const beforeImport = await readWorkspace(page);
+  const legacyBytes = (await workspaceStorageBytes(page)).slice(1);
   await importZip(page, "files-action-import-zip", exportProjectArchiveZip(buildProjectRecoveryArchiveBundle(importedB)));
+  await expect(page.getByTestId("project-import-status")).toHaveText("Imported project saved locally.");
   await expect(page.getByTestId("crs-recovery-project-name")).toHaveText(importedB.name);
   await page.getByTestId("crs-recovery-save").click();
+  await expect.poll(async () => (await readWorkspace(page)).revision).toBe(beforeImport.revision + 2);
   await expect(page.getByTestId("project-save-state")).toHaveText("Saved");
-  const stored = await page.evaluate(() => ({
-    catalog: JSON.parse(localStorage.getItem("center-pivot-layout-project-catalog-v1") ?? "{}"),
-    projects: JSON.parse(localStorage.getItem("center-pivot-layout-projects-v1") ?? "{}"),
-  }));
-  expect(stored.catalog.designs.find((design: { id: string }) => design.id === "design-A")).toEqual(catalog.designs[0]);
-  expect(stored.catalog.fieldMaps.find((field: { id: string }) => field.id === "field-A")).toEqual(catalog.fieldMaps[0]);
-  expect(stored.projects[savedA.id]).toEqual(savedEntry);
-  expect(parseProjectDocument(stored.projects[importedB.id].document)).toEqual(importedB);
+  const stored = await readWorkspace(page);
+  expect(stored.revision).toBe(beforeImport.revision + 2);
+  expect(stored.catalog).toEqual(beforeImport.catalog);
+  expect(stored.catalog.designs.find(design => design.id === "design-A")).toEqual({ ...catalog.designs[0], kind: "project", revision: 0 });
+  expect(stored.catalog.fieldMaps.find(field => field.id === "field-A")).toEqual(catalog.fieldMaps[0]);
+  expect(stored.projectDocuments.find(entry => entry.summary.id === savedA.id)).toEqual(savedEntry);
+  expect(parseProjectDocument(stored.projectDocuments.find(entry => entry.summary.id === importedB.id)!.document)).toEqual(importedB);
+  expect((await workspaceStorageBytes(page)).slice(1)).toEqual(legacyBytes);
+  expect(legacyBytes.slice(0, 2)).toEqual([JSON.stringify({ [savedA.id]: savedEntry }), JSON.stringify(catalog)]);
   await page.getByTestId(`crs-recovery-open-${savedA.id}`).click();
   await expect(page.getByTestId("crs-recovery-panel")).toHaveCount(0);
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText(savedA.name);

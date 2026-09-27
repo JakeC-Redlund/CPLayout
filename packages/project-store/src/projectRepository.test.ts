@@ -16,7 +16,13 @@ import {
   exportProjectArchiveZip,
   importProjectArchiveZip,
 } from "./projectArchive";
-import { projectRepository } from "./projectRepository";
+import type {
+  CatalogProjectRecord, ClientRecord, CreatedProjectFieldMapWorkspace, CreatedProjectWorkspace,
+  DesignRecord, FieldMapRecord, ProjectRepository,
+} from "./projectRepositoryTypes";
+import { createVersionedProjectRepository } from "./versionedProjectRepository";
+import { WEB_WORKSPACE_LOCK, type WorkspaceLocks } from "./webWorkspaceStore";
+import type { WorkspaceCommand } from "./workspaceCommands";
 
 class MemoryStorage {
   private readonly values = new Map<string, string>();
@@ -38,19 +44,79 @@ class MemoryStorage {
   }
 }
 
-Object.defineProperty(globalThis, "localStorage", {
-  configurable: true,
-  value: new MemoryStorage(),
-});
+// Synthetic cooperative serialization only; browser lock behavior has separate proof gates.
+class SerialLocks implements WorkspaceLocks {
+  private tail: Promise<unknown> = Promise.resolve();
+
+  request<T>(name: string, options: { mode: "exclusive" }, callback: () => T | PromiseLike<T>): Promise<T> {
+    assert.equal(name, WEB_WORKSPACE_LOCK);
+    assert.equal(options.mode, "exclusive");
+    const result = this.tail.then(callback);
+    this.tail = result.catch(() => undefined);
+    return result;
+  }
+}
+
+const storage = new MemoryStorage();
+const locks = new SerialLocks();
+const versionedRepository = createVersionedProjectRepository({ getStorage: () => storage, getLocks: () => locks });
+const versionedWorkspace = versionedRepository.versionedWorkspace!;
+const now = "2026-09-17T00:00:00.000Z";
+let identitySequence = 0;
+const fixtureId = (prefix: string) => `${prefix}-geometry-test-${++identitySequence}`;
+
+async function sequentialCommand<T>(command: WorkspaceCommand): Promise<T> {
+  const snapshot = await versionedWorkspace.readAsync();
+  const receipt = await versionedWorkspace.executeAsync(snapshot.revision, command);
+  assert.equal(receipt.workspace.revision, snapshot.revision + 1);
+  return receipt.value as T;
+}
+
+// Test-only facade for sequential geometry scenarios. Stale-editor and atomicity tests use explicit revisions elsewhere.
+function sequentialGeometryRepository(): ProjectRepository {
+  return {
+    ...versionedRepository,
+    async saveProjectAsync(project, result) {
+      const snapshot = await versionedWorkspace.readAsync();
+      const receipt = await versionedWorkspace.executeAsync(snapshot.revision, {
+        type: "save_project", now, project, result,
+        createOnly: !snapshot.projectDocuments.some(entry => entry.summary.id === project.id),
+      });
+      assert.equal(receipt.workspace.revision, snapshot.revision + 1);
+    },
+    saveDesignProjectAsync: (designId, project, result) => sequentialCommand<void>({ type: "save_design_project", now, designId, project, result }),
+    deleteProjectAsync: projectId => sequentialCommand<void>({ type: "delete_project", now, projectId }),
+    createClientAsync: input => sequentialCommand<ClientRecord>({ type: "create_client", now, id: fixtureId("client"), input }),
+    updateClientAsync: input => sequentialCommand<ClientRecord>({ type: "update_client", now, input }),
+    deleteClientAsync: clientId => sequentialCommand<void>({ type: "delete_client", now, clientId }),
+    createProjectWithInitialDesignAsync: input => sequentialCommand<CreatedProjectWorkspace>({ type: "create_project_with_initial_design", now, input }),
+    createProjectWithInitialFieldMapAsync: input => sequentialCommand<CreatedProjectFieldMapWorkspace>({
+      type: "create_project_with_initial_field_map", now, input: { ...input, projectId: input.projectId ?? fixtureId("project") },
+    }),
+    createProjectRecordAsync: input => sequentialCommand<CatalogProjectRecord>({
+      type: "create_project_record", now, input: { ...input, id: input.id ?? fixtureId("project") },
+    }),
+    renameProjectAsync: (projectId, name) => sequentialCommand<CatalogProjectRecord>({ type: "rename_project", now, projectId, name }),
+    moveProjectToClientAsync: (projectId, clientId) => sequentialCommand<CatalogProjectRecord>({ type: "move_project_to_client", now, projectId, clientId }),
+    createFieldMapRecordAsync: input => sequentialCommand<FieldMapRecord>({
+      type: "create_field_map_record", now, input: { ...input, id: input.id ?? fixtureId("field-map") },
+    }),
+    createDesignRecordAsync: input => sequentialCommand<DesignRecord>({
+      type: "create_design_record", now, input: { ...input, id: input.id ?? fixtureId("design") },
+    }),
+  };
+}
+
+const projectRepository = sequentialGeometryRepository();
 
 const CATALOG_STORAGE_KEY = "center-pivot-layout-project-catalog-v1";
 const oldClientsKey = ["cust", "omers"].join("");
 const oldProjectClientIdKey = ["cust", "omerId"].join("");
 
 async function run(): Promise<void> {
-  globalThis.localStorage.clear();
+  storage.clear();
 
-  globalThis.localStorage.setItem(CATALOG_STORAGE_KEY, JSON.stringify({
+  const legacyCatalogRaw = JSON.stringify({
     [oldClientsKey]: [{
       id: "legacy-profile-client",
       displayName: "Legacy Profile Client",
@@ -69,19 +135,18 @@ async function run(): Promise<void> {
     }],
     fieldMaps: [],
     designs: [],
-  }));
+  });
+  storage.setItem(CATALOG_STORAGE_KEY, legacyCatalogRaw);
   const backfilledCatalog = await projectRepository.listProjectCatalogAsync();
-  assert.equal(backfilledCatalog.clients[0]?.companyName, "Legacy Profile Client");
+  assert.equal(backfilledCatalog.clients[0]?.companyName, "");
   assert.equal(backfilledCatalog.projects[0]?.clientId, "legacy-profile-client");
   assert.equal(backfilledCatalog.clients[0]?.contactName, "");
   assert.equal(backfilledCatalog.clients[0]?.primaryContactFirstName, "");
   assert.equal(backfilledCatalog.clients[0]?.primaryContactLastName, "");
   assert.equal(backfilledCatalog.clients[0]?.email, "");
-  assert.match(globalThis.localStorage.getItem(CATALOG_STORAGE_KEY) ?? "", /"companyName":"Legacy Profile Client"/);
-  assert.match(globalThis.localStorage.getItem(CATALOG_STORAGE_KEY) ?? "", /"contactName":""/);
-  assert.match(globalThis.localStorage.getItem(CATALOG_STORAGE_KEY) ?? "", /"primaryContactLastName":""/);
+  assert.equal(storage.getItem(CATALOG_STORAGE_KEY), legacyCatalogRaw);
 
-  globalThis.localStorage.clear();
+  storage.clear();
   const profileClient = await projectRepository.createClientAsync({
     companyName: "Profile Farms",
     primaryContactFirstName: "Ana",
@@ -140,7 +205,7 @@ async function run(): Promise<void> {
       name: "Missing Design Document",
       pivotProjectId: "missing-design-project",
     }),
-    /saved design project/,
+    /Saved project document is required/,
   );
   const importedDesignProject: PivotProject = {
     ...sampleProject,
@@ -155,6 +220,14 @@ async function run(): Promise<void> {
   });
   assert.equal(explicitDesign.pivotProjectId, importedDesignProject.id);
   assert.equal((await projectRepository.loadDesignProjectAsync(explicitDesign.id))?.id, importedDesignProject.id);
+  await assert.rejects(
+    () => projectRepository.createDesignRecordAsync({
+      fieldMapId: catalogOnlyWorkspace.fieldMap.id,
+      name: "Duplicate Ownership",
+      pivotProjectId: importedDesignProject.id,
+    }),
+    /already has an owning design/,
+  );
   await projectRepository.deleteProjectAsync("catalog-only-project");
   catalogOnlyCatalog = await projectRepository.listProjectCatalogAsync();
   assert.equal(catalogOnlyCatalog.projects.some((record) => record.id === "catalog-only-project"), false);
@@ -181,7 +254,7 @@ async function run(): Promise<void> {
   assert.equal(renamedProject.name, "Renamed Managed Project");
   const renamedReloaded = await projectRepository.loadProjectAsync(managedProject.id);
   assert.ok(renamedReloaded);
-  assert.equal(renamedReloaded?.name, "Renamed Managed Project");
+  assert.equal(renamedReloaded?.name, managedProject.name);
   assert.deepEqual(renamedReloaded?.fieldBoundary, managedProject.fieldBoundary);
   const movedProjectRecord = await projectRepository.moveProjectToClientAsync(managedProject.id, targetClient.id);
   assert.equal(movedProjectRecord.clientId, targetClient.id);
@@ -204,17 +277,17 @@ async function run(): Promise<void> {
   await projectRepository.deleteClientAsync(sourceClient.id);
   await projectRepository.deleteClientAsync(targetClient.id);
 
-  globalThis.localStorage.clear();
+  storage.clear();
   const editedProject = buildEditedProjectFromEditorActions();
   await projectRepository.saveProjectAsync(editedProject, evaluateLayout(editedProject));
   const summaries = await projectRepository.listProjectsAsync();
   assert.equal(summaries.length, 1);
   assert.equal(summaries[0]?.id, editedProject.id);
-  const legacyCatalog = await projectRepository.listProjectCatalogAsync();
-  assert.equal(legacyCatalog.clients[0]?.displayName, "Example Client");
-  assert.equal(legacyCatalog.projects[0]?.clientId, "example-client");
-  assert.equal(legacyCatalog.fieldMaps[0]?.name, "Primary Field Map");
-  assert.equal(legacyCatalog.designs[0]?.pivotProjectId, editedProject.id);
+  const unownedCatalog = await projectRepository.listProjectCatalogAsync();
+  assert.deepEqual(unownedCatalog, { clients: [], projects: [], fieldMaps: [], designs: [] });
+  const unownedWorkspace = await versionedWorkspace.readAsync();
+  assert.equal(unownedWorkspace.projectDocuments[0]?.summary.id, editedProject.id);
+  assert.equal(unownedWorkspace.catalog.designs.length, 0);
 
   const reloaded = await projectRepository.loadProjectAsync(editedProject.id);
   assert.ok(reloaded);
@@ -277,7 +350,7 @@ async function run(): Promise<void> {
   const catalog = await projectRepository.listProjectCatalogAsync();
   assert.deepEqual(
     catalog.clients.map((client) => client.displayName).slice(0, 2),
-    ["Adams Irrigation", "Example Client"],
+    ["Adams Irrigation", "Zephyr Farms"],
   );
   const projectRecord = await projectRepository.createProjectRecordAsync({
     clientId: clientA.id,
@@ -303,7 +376,7 @@ async function run(): Promise<void> {
   assert.equal(designReloaded.name, "Adams North Base Pivot");
   assert.ok(clientB.id.startsWith("client-"));
 
-  globalThis.localStorage.clear();
+  storage.clear();
   const stressClient = await projectRepository.createClientAsync({
     companyName: "Stress Proof Farms",
     primaryContactFirstName: "Scale",
@@ -363,7 +436,7 @@ async function run(): Promise<void> {
   assert.equal(stressRoundTrip.mapFeatures?.length, stressProject.mapFeatures?.length);
   assert.deepEqual(stressRoundTrip.pivotCenter, stressProject.pivotCenter);
 
-  console.log("project repository saveable geometry tests passed");
+  console.log("versioned project repository saveable geometry tests passed");
 }
 
 function buildLargeStressProject(): PivotProject {

@@ -5,6 +5,8 @@ import { ProjectSettingsSchema } from "./settings";
 import type { LonLat, PivotProject, ProjectMapFeatureGeometry, ProjectWgs84Companion, XY } from "./types";
 import { assertProjectedCrs } from "./units";
 import { projectXyToLonLat } from "./coordinates";
+import { GnssCaptureEvidenceSchema, gnssConfidenceExceedsV2Evidence, gnssV2CaptureConflicts, RtkQualitySchema } from "./gnssEvidence";
+import { projectDataKey } from "./projectDataComparison";
 
 export const PROJECT_DOCUMENT_VERSION = "pivot-project-v1";
 
@@ -16,41 +18,6 @@ const XySchema = z.object({
 const LonLatSchema = z.object({
   longitude: z.number().min(-180).max(180),
   latitude: z.number().min(-90).max(90),
-});
-
-const RtkQualitySchema = z.object({
-  fixType: z.enum(["invalid", "autonomous", "dgps", "rtk_float", "rtk_fixed", "ppp", "unknown"]),
-  satellites: z.number().int().nullable(),
-  hdop: z.number().nullable(),
-  vdop: z.number().nullable(),
-  pdop: z.number().nullable(),
-  correctionAgeSeconds: z.number().nullable(),
-  horizontalAccuracyMeters: z.number().nullable(),
-  verticalAccuracyMeters: z.number().nullable(),
-  baseStationId: z.string().optional(),
-  roverId: z.string().optional(),
-  nmeaQualityCode: z.number().optional(),
-});
-
-const GnssCaptureEvidenceSchema = z.object({
-  schemaVersion: z.literal("gnss-capture-v1"),
-  observationId: z.string().min(1),
-  sessionId: z.string().min(1),
-  transport: z.enum(["web_serial", "android_ble", "android_spp", "android_usb", "ios_ble", "ios_mfi", "local_tcp", "replay"]),
-  receivedAt: z.string().min(1),
-  receivedMonotonicMs: z.number().finite().min(0),
-  receiverObservedAt: z.string().min(1).optional(),
-  sourceCoordinateFrame: z.string().min(1),
-  coordinateEpoch: z.number().finite().optional(),
-  height: z.object({
-    meters: z.number().finite(),
-    type: z.enum(["ellipsoidal", "orthometric", "unknown"]),
-    geoidSeparationMeters: z.number().finite().optional(),
-  }).optional(),
-  antennaReference: z.enum(["arp", "phase_center", "pole_tip", "tilt_compensated", "unknown"]),
-  sentenceTypes: z.array(z.string().min(1)),
-  coherent: z.boolean(),
-  rawRecordHashes: z.array(z.string().min(1)).optional(),
 });
 
 const SurveyPointSchema = z.object({
@@ -65,6 +32,27 @@ const SurveyPointSchema = z.object({
   rtk: RtkQualitySchema.optional(),
   captureEvidence: GnssCaptureEvidenceSchema.optional(),
   notes: z.string().optional(),
+}).superRefine((point, context) => {
+  const evidence = point.captureEvidence;
+  if (evidence?.schemaVersion !== "gnss-capture-v2") return;
+  if (point.observedAt !== evidence.receiverObservedAt) {
+    context.addIssue({ code: "custom", path: ["observedAt"], message: "V2 survey observedAt must exactly match receiverObservedAt." });
+  }
+  const rawQuality = evidence.qualityScreen.receiverQuality;
+  const elapsed = (evidence.qualityScreen.evaluatedMonotonicMs - evidence.receivedMonotonicMs) / 1000;
+  const captureQuality = {
+    ...rawQuality,
+    correctionAgeSeconds: rawQuality.correctionAgeSeconds === null ? null : rawQuality.correctionAgeSeconds + elapsed,
+  };
+  if (!point.rtk || projectDataKey(point.rtk) !== projectDataKey(captureQuality)) {
+    context.addIssue({ code: "custom", path: ["rtk"], message: "V2 survey quality must match the raw receiver snapshot with capture elapsed correction age added." });
+  }
+  const confidence = rawQuality.fixType === "rtk_fixed" ? "rtk_fixed"
+    : rawQuality.fixType === "rtk_float" ? "rtk_float"
+      : rawQuality.fixType === "dgps" ? "dgps" : "autonomous_gps";
+  if (point.confidence !== confidence) {
+    context.addIssue({ code: "custom", path: ["confidence"], message: "V2 survey confidence must match its receiver fix type." });
+  }
 });
 
 const PivotAngleRangeSchema = z.object({
@@ -202,6 +190,9 @@ const ObstacleZoneSchema = z.object({
   if (obstacle.vertexCaptureEvidence && obstacle.vertexCaptureEvidence.length !== obstacle.polygon.length) {
     context.addIssue({ code: "custom", message: "Obstacle vertex capture evidence must align with polygon vertices.", path: ["vertexCaptureEvidence"] });
   }
+  if (gnssConfidenceExceedsV2Evidence(obstacle.confidence, obstacle.vertexCaptureEvidence)) {
+    context.addIssue({ code: "custom", message: "Obstacle GNSS confidence cannot exceed its weakest retained v2 fix.", path: ["confidence"] });
+  }
 });
 
 const ProjectMapFeatureKindSchema = z.enum([
@@ -221,6 +212,7 @@ const ProjectMapFeatureKindSchema = z.enum([
   "machine_zone",
   "linear_move_path",
   "measurement_line",
+  "measurement_area",
   "end_gun_mark",
   "end_gun_arc",
   "corner_swing_limit",
@@ -263,6 +255,7 @@ const ProjectMapFeatureGeometryByKind: Record<z.infer<typeof ProjectMapFeatureKi
   machine_zone: ["Polygon", "Circle", "LineString"],
   linear_move_path: ["LineString"],
   measurement_line: ["LineString"],
+  measurement_area: ["Polygon"],
   end_gun_mark: ["Point"],
   end_gun_arc: ["Circle", "LineString"],
   corner_swing_limit: ["Polygon", "LineString"],
@@ -291,6 +284,9 @@ const ProjectMapFeatureSchema = z.object({
     : feature.geometry.vertices.length;
   if (feature.vertexCaptureEvidence && feature.vertexCaptureEvidence.length !== expectedEvidenceCount) {
     context.addIssue({ code: "custom", message: "Map feature capture evidence must align with geometry vertices.", path: ["vertexCaptureEvidence"] });
+  }
+  if (gnssConfidenceExceedsV2Evidence(feature.confidence, feature.vertexCaptureEvidence)) {
+    context.addIssue({ code: "custom", message: "Map feature GNSS confidence cannot exceed its weakest retained v2 fix.", path: ["confidence"] });
   }
 });
 
@@ -384,6 +380,7 @@ export const PivotProjectSchema = z.object({
       context.addIssue({ code: "custom", message: `Infrastructure observation reference ${id} must resolve to its exact projected XY coordinate.`, path: ["infrastructureObservationRefs", role] });
     }
   }
+  for (const issue of gnssV2CaptureConflicts(project)) context.addIssue({ code: "custom", ...issue });
 });
 
 const ProjectDocumentSchema = z.object({

@@ -1,4 +1,4 @@
-import type { ProjectCatalog } from "@cplayout/project-store";
+import type { ProjectCatalog, WorkspaceDesignCatalog } from "@cplayout/project-store";
 
 export interface ProjectTreeActiveContext {
   clientId: string | null;
@@ -41,7 +41,7 @@ export interface ProjectTreeViewModel {
   clients: ProjectTreeClientNode[];
 }
 
-export function buildProjectTreeViewModel(catalog: ProjectCatalog, activeContext: ProjectTreeActiveContext): ProjectTreeViewModel {
+export function buildProjectTreeViewModel(catalog: ProjectCatalog | WorkspaceDesignCatalog, activeContext: ProjectTreeActiveContext): ProjectTreeViewModel {
   const visibleClients = activeContext.projectId
     ? catalog.clients.filter((client) => client.id === activeContext.clientId)
     : catalog.clients;
@@ -78,13 +78,13 @@ export function buildProjectTreeViewModel(catalog: ProjectCatalog, activeContext
                     id: design.id,
                     isActive: true,
                     label: design.name,
-                    meta: "active design",
+                    meta: "kind" in design && design.kind === "draft" ? "saved draft" : "active design",
                   })),
                   ...designs.filter((design) => !design.isActive).map((design) => ({
                     id: design.id,
                     isActive: false,
                     label: design.name,
-                    meta: "layout variant",
+                    meta: "kind" in design && design.kind === "draft" ? "saved draft" : "layout variant",
                   })),
                 ],
               };

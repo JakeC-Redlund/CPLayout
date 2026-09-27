@@ -1,6 +1,11 @@
-import { expect, test, type Page, type TestInfo } from "@playwright/test";
+import { expect, test, type Locator, type Page, type TestInfo } from "@playwright/test";
+import { readWorkspace, workspaceStorageBytes } from "./workspace-fixtures";
+import { activateMapTool } from "./map-toolbar";
+import { unobstructedMapPoint } from "./map-hit-point";
+import { fillSyntheticGnssReferenceDeclaration } from "./gnss-reference-fixture";
 import { strFromU8, unzipSync } from "fflate";
 import { readFile } from "node:fs/promises";
+import { defaultAppSettings, parseProjectDocument, projectXyToLonLat } from "../../packages/core/src";
 
 const routeScreens = [
   { nav: "workspace-nav-dashboard", screen: "dashboard-workspace" },
@@ -54,8 +59,8 @@ test("workspace remains usable through the SVG map fallback when WebGL is unavai
   if (svgBounds) {
     const viewBoxBeforePan = await page.getByTestId("layout-map-svg").getAttribute("viewBox");
     expect(viewBoxBeforePan).toBeTruthy();
-    const x = svgBounds.x + svgBounds.width * 0.6;
-    const y = svgBounds.y + svgBounds.height * 0.4;
+    const { x, y } = await unobstructedMapPoint(page.getByTestId("layout-map-svg"),
+      { x: svgBounds.x + svgBounds.width * 0.6, y: svgBounds.y + svgBounds.height * 0.4 }, "svg");
     await page.mouse.move(x, y);
     await page.mouse.down();
     await page.mouse.move(x + 35, y + 20, { steps: 5 });
@@ -67,14 +72,52 @@ test("workspace remains usable through the SVG map fallback when WebGL is unavai
   await expect(page.getByTestId("svg-edit-insert-vertex")).toBeEnabled();
   await page.getByTestId("svg-edit-insert-vertex").click();
   await expect(page.getByTestId("project-save-state").getByText("Unsaved edits")).toBeVisible();
+  if (testInfo.project.name === "mobile-390") {
+    const scroller = page.getByTestId("svg-draft-command-scroller");
+    expect(await scroller.evaluate(element => element.scrollWidth > element.clientWidth)).toBe(true);
+    await scroller.evaluate(element => { element.scrollLeft = element.scrollWidth; });
+    await expect.poll(() => scroller.evaluate(element => element.scrollLeft)).toBeGreaterThan(0);
+    const clear = page.getByRole("button", { name: "Clear draft vertices", exact: true });
+    await expect(clear).toBeVisible();
+    expect(await clear.evaluate(element => {
+      const rect = element.getBoundingClientRect();
+      const hit = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
+      return hit === element || element.contains(hit);
+    }), "the far-right draft command must be hittable after scrolling").toBe(true);
+    await clear.click();
+    expect(await page.getByTestId("svg-map-shell").evaluate(element => element.scrollLeft)).toBe(0);
+    await expect(page.getByTestId("project-save-state").getByText("Unsaved edits")).toBeVisible();
+  }
   if (testInfo.project.name !== "desktop") {
+    await expect(page.getByTestId("advisory-map-job-status")).toHaveText("", { timeout: 60_000 });
     await expectNoOverlapIfVisible(page, "svg-map-draft-hud", "map-bottom-hud");
-    await expectNoOverlapIfVisible(page, "svg-map-draft-hud", "layout-map-svg");
+    if (page.viewportSize()!.width < 760) await expectNoOverlapIfVisible(page, "svg-map-draft-hud", "layout-map-svg");
+    else await expectInsideContainer(page, "svg-map-draft-hud", "layout-map-drawing-surface");
     await expectNoOverlapIfVisible(page, "svg-map-zoom-controls", "map-bottom-hud");
     await expectNoOverlapIfVisible(page, "svg-map-zoom-controls", "svg-map-compact-legend");
     await expectInsideContainer(page, "svg-map-zoom-controls", "layout-map-drawing-surface");
-    await expectMinTargetSize(page, "layout-map-svg", 260, 180);
+    await expectMinTargetSize(page, "layout-map-svg", 260, 170);
     await expectNoHorizontalOverflow(page);
+    const stored = await workspaceStorageBytes(page);
+    const viewBox = await page.getByTestId("layout-map-svg").getAttribute("viewBox");
+    const layerStatusOpen = page.getByTestId("svg-map-layer-status-open");
+    if (await layerStatusOpen.isVisible()) {
+      await layerStatusOpen.click();
+      const layerStatus = page.getByTestId("svg-map-layer-status-dialog");
+      await expect(layerStatus).toBeVisible();
+      await expect(layerStatus).toContainText("Imagery unavailable");
+      await expect(layerStatus).toContainText("Reference overlays unavailable");
+      await expect.poll(() => layerStatus.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
+      await layerStatus.screenshot({ path: testInfo.outputPath("svg-layer-status-details.png"), animations: "disabled" });
+      await layerStatus.getByRole("button", { name: "Close map layer status", exact: true }).click();
+      await expect(layerStatus).toHaveCount(0);
+    } else {
+      const inlineStatus = page.getByTestId("svg-map-status-notices");
+      await expect(inlineStatus).toContainText("Imagery unavailable");
+      await expect(inlineStatus).toContainText("Reference overlays unavailable");
+    }
+    expect(await workspaceStorageBytes(page)).toEqual(stored);
+    await expect(page.getByTestId("layout-map-svg")).toHaveAttribute("viewBox", viewBox!);
   }
   await saveScreen(page, testInfo, "webgl-svg-map-fallback");
 });
@@ -91,7 +134,7 @@ test("launcher and workspace route sweep stay usable without paid APIs or hidden
   await expect(page.getByTestId("workspace-screen")).toBeVisible();
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("CPLayout");
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("Project Catalog");
-  await expect(page.getByText("North America Map")).toBeVisible();
+  await expect(page.getByTestId("browser-map-workbench")).toContainText(/Client\/project catalog view|Catalog/);
   await expect(page.locator(".maplibregl-canvas").first()).toHaveCSS("position", "absolute");
   await expect(page.getByText("Will Rhea / Jason Harmelink Example Map")).toHaveCount(0);
   await expect(page.getByTestId("browser-workflow-layout")).toHaveAttribute("aria-pressed", "true");
@@ -122,12 +165,8 @@ test("launcher and workspace route sweep stay usable without paid APIs or hidden
   await expect(page.getByTestId("design-builder-panel")).toHaveCount(0);
   await openInspectorIfCollapsed(page);
   await expect(page.getByTestId("workflow-sidebar-tab-tools")).toBeVisible();
-  if (testInfo.project.name === "mobile-390") {
-    await expect(page.getByTestId("map-bottom-hud")).toHaveCount(0);
-    await expect(page.getByTestId("inspector-scroll").getByTestId("design-action-pan")).toBeVisible();
-  } else {
-    await expect(page.getByTestId("inspector-scroll").getByTestId("design-action-pan")).toBeVisible();
-  }
+  await expect(page.getByTestId("map-bottom-hud")).toHaveCount(1);
+  await expect(page.getByTestId("inspector-scroll").getByTestId("design-action-pan")).toHaveCount(0);
   await closeInspectorIfOpen(page);
   await clickHudAction(page, "design-action-calculate");
   await expect(page.getByTestId("design-console-dialog")).toBeVisible();
@@ -148,7 +187,7 @@ test("launcher and workspace route sweep stay usable without paid APIs or hidden
   await selectPipelineTool(page);
   await expect(page.getByText("measure · 0 draft pts · line needs 2 pts")).toBeVisible();
   await selectPumpFeatureTool(page);
-  await expect(page.getByText("measure · 0 draft pts · point saves on map click")).toBeVisible();
+  await expect(page.getByText("measure · 0 draft pts · capture point, then choose purpose")).toBeVisible();
   if (testInfo.project.name === "mobile-390") {
     await expect(page.getByText("Saved")).toBeVisible();
     await expectNoOverlapIfVisible(page, "workspace-bottom-status-bar", "map-bottom-hud");
@@ -302,46 +341,46 @@ test("file menu opens curated sample designs with projected xy status", async ({
   await saveScreen(page, testInfo, "file-menu-curated-samples");
 });
 
-test("catalog blank design starts a drawable boundary workflow", async ({ page }, testInfo) => {
+test("catalog blank design starts empty and requires explicit coordinates before drawing", async ({ page }, testInfo) => {
   await page.goto("/");
   await openCatalogFromFile(page);
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("Project Catalog");
   await openInspectorIfCollapsed(page);
-  await expect(page.getByText("Use Start Blank Design or open a saved design from the tree to enable drawing. Catalog maps are navigation-only.")).toBeVisible();
+  await expect(page.getByText("Select a field map and start a design, or open a saved design. Catalog maps are navigation-only.")).toBeVisible();
   await closeInspectorIfOpen(page);
   await expect(page.getByTestId("design-action-polygon")).toHaveCount(0);
 
+  await createClientFolder(page, "Empty Design Farm");
+  await createProjectFromRail(page, "Empty field");
   await startBlankDesignFromFile(page);
-  await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("Blank Field Design");
-  await expect(page.getByTestId("browser-map-workbench")).toBeVisible();
-  await expect(page.getByTestId("design-builder-panel")).toHaveCount(0);
-
-  await selectBoundaryTool(page);
-  const mapBox = await page.getByLabel("CPLayout MapLibre imagery workbench").boundingBox();
-  expect(mapBox).not.toBeNull();
-  const boundaryClicks = [
-    { x: mapBox!.width * 0.28, y: mapBox!.height * 0.34 },
-    { x: mapBox!.width * 0.72, y: mapBox!.height * 0.34 },
-    { x: mapBox!.width * 0.70, y: mapBox!.height * 0.62 },
-    { x: mapBox!.width * 0.30, y: mapBox!.height * 0.62 },
-  ];
-  for (const point of boundaryClicks) {
-    await clickWorkbenchMap(page, point);
-    await page.waitForTimeout(250);
+  await page.getByLabel("Catalog item name").fill("Blank Field Design");
+  await page.getByTestId("catalog-dialog-create").click();
+  await expect(page.getByTestId("design-draft-workspace")).toBeVisible();
+  await expect(page.getByTestId("design-draft-polygon")).toBeDisabled();
+  await expect(page.getByTestId("draft-calculate")).toBeDisabled();
+  const before = await readWorkspace(page);
+  expect(before.projectDocuments).toEqual([]);
+  expect(before.catalog.projects[0].projectCrs).toBe("");
+  expect(JSON.parse(before.draftDocuments[0].document).draft.fieldBoundary).toEqual([]);
+  if (!await page.getByTestId("design-draft-inputs").isVisible()) await page.getByTestId("draft-inputs-toggle").click();
+  await page.getByTestId("draft-crs").fill("LOCAL:METERS");
+  await page.getByRole("button", { name: "Apply CRS", exact: true }).click();
+  await page.getByTestId("draft-inputs-toggle").click();
+  await page.getByTestId("design-draft-polygon").click();
+  await page.getByTestId("design-draft-purpose-boundary").click();
+  const map = page.getByTestId("design-draft-map-svg");
+  const box = (await map.boundingBox())!;
+  for (const [x, y] of [[0.3, 0.35], [0.65, 0.35], [0.6, 0.6]]) {
+    await map.click({ position: { x: box.width * x, y: box.height * y } });
   }
-  await expect(page.getByText(/measure .* 4 draft pts .* polygon needs 3 pts/)).toBeVisible();
-  if (testInfo.project.name === "mobile-390") {
-    await expect(page.getByTestId("project-save-state")).toContainText("Unsaved edits");
-    await saveScreen(page, testInfo, "catalog-blank-design-boundary-draw-mobile");
-    return;
-  }
-
-  await page.getByTestId("browser-action-save-feature").click();
-  await expect(page.getByTestId("pending-draft-purpose-panel")).toContainText("What did you draw?");
-  await choosePendingDraftPurpose(page, "Field Boundary");
-  await expect(page.getByTestId("pending-draft-purpose-panel")).toHaveCount(0);
-  await expect(page.getByTestId("project-save-state")).toContainText("Unsaved edits");
-  await saveScreen(page, testInfo, "catalog-blank-design-boundary-draw");
+  await page.getByTestId("design-draft-commit").click();
+  await page.getByTestId("draft-save").click();
+  await expect(page.getByTestId("draft-save-state")).toContainText("Saved");
+  const draft = JSON.parse((await readWorkspace(page)).draftDocuments[0].document).draft;
+  expect(draft.fieldBoundary).toHaveLength(3);
+  expect(draft.pivotCenter).toBeNull();
+  expect(draft.machine).toEqual({});
+  await saveScreen(page, testInfo, "catalog-real-draft-boundary");
 });
 
 test("design console pivot entry defaults to decimal GPS with expert XY hidden", async ({ page }, testInfo) => {
@@ -382,18 +421,18 @@ test("map-first catalog tree creates client projects and field maps without hidd
   await expect(railProjectButton).toBeDisabled();
   await closeProjectTreeActionOverflow(page);
   await expect(page.getByTestId("catalog-dialog")).toBeHidden();
-  await expect(page.getByRole("button", { name: "Adams North Unit" })).toBeHidden();
+  await expect(page.getByRole("button", { name: "Adams North Unit", exact: true })).toBeHidden();
 
   await createClientFolder(page, "Adams Farms");
-  await expect(page.getByRole("button", { name: "Adams Farms" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Adams Farms", exact: true })).toBeVisible();
   await openProjectTreeActionOverflow(page);
   await expect(page.getByTestId("project-tree-action-project")).toBeEnabled();
   await closeProjectTreeActionOverflow(page);
   await createProjectFromRail(page, "Adams North Unit", "Saved under: Adams Farms");
-  const railProject = page.getByTestId("project-tree-rail").getByRole("button", { name: "Adams North Unit" });
+  const railProject = page.getByTestId("project-tree-rail").getByRole("button", { name: "Adams North Unit", exact: true });
   await expect(railProject).toBeVisible();
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("Project Catalog");
-  await expect(page.getByText("North America Map")).toBeVisible();
+  await expect(page.getByTestId("browser-map-workbench")).toContainText(/Client\/project catalog view|Catalog/);
   await expect(page.getByTestId("browser-workflow-layout")).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByTestId("design-action-polygon")).toHaveCount(0);
   await expect(page.getByText("North Quarter Concept Layout")).toBeHidden();
@@ -402,18 +441,20 @@ test("map-first catalog tree creates client projects and field maps without hidd
   await expectNoSavedProjectDocuments(page);
 
   await createCatalogItem(page, "Field Map", "North Quarter", "Saved under: Adams Farms > Adams North Unit");
-  await expect(page.getByRole("button", { name: "North Quarter" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "North Quarter", exact: true })).toBeVisible();
   await expect(page.getByTestId("project-tree-rail")).toContainText("North Quarter");
   await expect(page.getByTestId("project-tree-rail")).toContainText("0 design files");
-  await expect(page.getByText("North America Map")).toBeVisible();
+  await expect(page.getByTestId("browser-map-workbench")).toContainText(/Client\/project catalog view|Catalog/);
   await expectNoSavedProjectDocuments(page);
   await createCatalogItem(page, "Design", "RTK Layout Pass", "Saved under: Adams Farms > Adams North Unit > North Quarter");
-  await expect(page.getByRole("button", { name: "RTK Layout Pass" })).toBeHidden();
-  await openInspectorIfCollapsed(page);
-  await expect(page.getByTestId("catalog-notice")).toContainText("Design creation for RTK Layout Pass starts after a map is imported");
-  await closeInspectorIfOpen(page);
-  await expectNoSavedProjectDocuments(page);
-  await railProject.dispatchEvent("dblclick");
+  await expect(page.getByTestId("design-draft-workspace")).toBeVisible();
+  await expect(page.getByTestId("draft-layout")).toBeDisabled();
+  expect((await readWorkspace(page)).draftDocuments).toHaveLength(1);
+  expect((await readWorkspace(page)).projectDocuments).toEqual([]);
+  await page.getByTestId("draft-catalog").click();
+  await openProjectDrawerIfCollapsed(page);
+  await page.getByTestId(`${await railProject.getAttribute("data-testid")}-open`).click();
+  await openProjectDrawerIfCollapsed(page);
   await expect(page.getByTestId("project-tree-rail")).toContainText("North Quarter");
   await expect(page.getByTestId("catalog-save-state")).toContainText("Catalog ready");
   await expect(page.getByTestId("project-save-state")).toHaveCount(0);
@@ -511,21 +552,35 @@ test("client detail manages profile and contained project lifecycle", async ({ p
   await expect(page.getByTestId("client-detail-projects")).toContainText("North Unit");
   await expect(page.getByRole("button", { name: "Delete Client" })).toBeDisabled();
 
+  const beforeRename = await readWorkspace(page);
+  const originalKeys = (await workspaceStorageBytes(page)).slice(1);
   await page.getByRole("button", { name: "Rename" }).click();
   await expect(page.getByTestId("catalog-dialog")).toBeVisible();
   await page.getByLabel("Catalog item name").fill("North Unit Renamed");
   await page.getByTestId("catalog-dialog-create").click();
   await expect(page.getByTestId("catalog-dialog")).toBeHidden();
   await expect(page.getByTestId("client-detail-projects")).toContainText("North Unit Renamed");
+  const afterRename = await readWorkspace(page);
+  expect(afterRename.revision).toBe(beforeRename.revision + 1);
+  expect(afterRename.projectDocuments).toEqual(beforeRename.projectDocuments);
+  expect(afterRename.draftDocuments).toEqual(beforeRename.draftDocuments);
+  expect(afterRename.catalog.designs).toEqual(beforeRename.catalog.designs);
+  expect(afterRename.catalog.fieldMaps).toEqual(beforeRename.catalog.fieldMaps);
+  expect(afterRename.catalog.clients).toEqual(beforeRename.catalog.clients);
+  expect(afterRename.tombstones).toEqual(beforeRename.tombstones);
+  expect(afterRename.catalog.projects).toEqual(beforeRename.catalog.projects.map(folder => ({
+    ...folder, name: "North Unit Renamed", updatedAt: expect.any(String),
+  })));
+  expect((await workspaceStorageBytes(page)).slice(1)).toEqual(originalKeys);
 
   await createClientFolder(page, "Beta Farms");
-  await page.getByRole("button", { name: "Adams Farms" }).click();
-  await page.getByRole("button", { name: "Move" }).click();
+  await page.getByRole("button", { name: "Adams Farms", exact: true }).click();
+  await page.getByRole("button", { name: "Move", exact: true }).click();
   await expect(page.getByTestId("move-project-dialog")).toBeVisible();
   await page.getByRole("radio", { name: "Move to Beta Farms" }).click();
   await page.getByTestId("move-project-confirm").click();
   await expect(page.getByTestId("move-project-dialog")).toBeHidden();
-  await page.getByRole("button", { name: "Beta Farms" }).click();
+  await page.getByRole("button", { name: "Beta Farms", exact: true }).click();
   await openInspectorIfCollapsed(page);
   await expect(page.getByTestId("client-detail-projects")).toContainText("North Unit Renamed");
 
@@ -538,7 +593,7 @@ test("client detail manages profile and contained project lifecycle", async ({ p
   await page.getByRole("button", { name: "Delete Client" }).click();
   await expect(page.getByTestId("delete-client-dialog")).toBeVisible();
   await page.getByTestId("delete-client-dialog-confirm").click();
-  await expect(page.getByRole("button", { name: "Beta Farms" })).toBeHidden();
+  await expect(page.getByRole("button", { name: "Beta Farms", exact: true })).toBeHidden();
   expect(nativeDialogs).toEqual([]);
   await saveScreen(page, testInfo, "client-detail-project-lifecycle");
 });
@@ -562,7 +617,7 @@ test("public proof map features can select the side-panel editor without geometr
     await saveScreen(page, testInfo, "public-proof-feature-mobile-map-visible");
     return;
   }
-  await clickWorkbenchMap(page, { x: box.width * 0.61, y: box.height * 0.68 });
+  await workbench.click({ position: { x: box.width * 0.61, y: box.height * 0.68 } });
   await expect(page.getByText(/Selected map feature/)).toBeVisible();
   await expect(page.getByLabel("Selected map feature name")).toHaveValue("Power feed from 112th Avenue");
   await expect(page.getByText("Saved")).toBeVisible();
@@ -657,7 +712,7 @@ test("tablet portrait map console keeps drawers collapsed and HUD above the view
   await expect(page.getByTestId("map-view")).toBeVisible();
   await expect(page.getByTestId("left-drawer-handle")).toBeVisible();
   await expect(page.getByTestId("right-drawer-handle")).toBeVisible();
-  await expect(page.getByTestId("map-bottom-hud")).toHaveCount(0);
+  await expect(page.getByTestId("map-bottom-hud")).toBeVisible();
   await expect(page.getByTestId("map-bottom-hud-toggle")).toHaveCount(0);
   await expectNoPageScroll(page);
   await expectNoHorizontalOverflow(page);
@@ -689,7 +744,7 @@ test("tablet landscape map console has fixed page bounds and drawer handles", as
   await expect(page.getByTestId("left-drawer-handle")).toBeVisible();
   await expect(page.getByTestId("right-drawer-handle")).toBeVisible();
   await expect(page.getByTestId("browser-map-workbench")).toBeVisible();
-  await expect(page.getByTestId("map-bottom-hud")).toHaveCount(0);
+  await expect(page.getByTestId("map-bottom-hud")).toBeVisible();
   await expect(page.getByTestId("map-bottom-hud-toggle")).toHaveCount(0);
   await expectNoPageScroll(page);
   await expectNoHorizontalOverflow(page);
@@ -718,7 +773,8 @@ test("survey rtk receiver starts closed without mutating the project", async ({ 
 
 test("survey rtk capture requires coherent current serial evidence and closes on disconnect", async ({ page }, testInfo) => {
   await openControlledRtkReceiver(page);
-  await expect(page.getByTestId("rtk-gate-badge").getByText("Gate accepted")).toBeVisible();
+  await expect(page.getByTestId("rtk-gate-badge").getByText("Collection eligible")).toBeVisible();
+  await expect(page.getByText("3D field accuracy", { exact: true }).locator("..")).toContainText("Unverified");
   await expect(page.getByText("rtk_fixed", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Capture Survey Point" })).toBeEnabled();
   await page.getByRole("button", { name: "Capture Survey Point" }).click();
@@ -797,13 +853,14 @@ async function openControlledRtkReceiver(page: Page): Promise<void> {
   await openBaselineSample(page);
   await page.getByTestId("workspace-nav-survey").click();
   await page.getByRole("textbox", { name: "Receiver source CRS" }).fill("EPSG:4326");
+  await fillSyntheticGnssReferenceDeclaration(page);
   await page.getByRole("button", { name: "Open Serial" }).click();
-  await expect(page.getByTestId("rtk-gate-badge")).toContainText("Gate accepted");
+  await expect(page.getByTestId("rtk-gate-badge")).toContainText("Collection eligible");
 }
 
 test("survey rtk invalid latest fix and replayed epoch cannot revive capture", async ({ page }, testInfo) => {
   await openControlledRtkReceiver(page);
-  await expect(page.getByText("Horizontal RMS", { exact: true })).toBeVisible();
+  await expect(page.getByText("Horizontal uncertainty", { exact: true })).toBeVisible();
   await expect(page.getByText("0.014 m", { exact: true })).toBeVisible();
   await page.evaluate((payload) => {
     (window as ControlledRtkWindow).cplayoutRtkFixture.emit(payload);
@@ -822,7 +879,7 @@ test("survey rtk invalid latest fix and replayed epoch cannot revive capture", a
   await page.evaluate((payload) => {
     (window as ControlledRtkWindow).cplayoutRtkFixture.emit(payload);
   }, controlledRtkPayload("123521.00"));
-  await expect(page.getByTestId("rtk-gate-badge")).toContainText("Gate accepted");
+  await expect(page.getByTestId("rtk-gate-badge")).toContainText("Collection eligible");
   await expect(page.getByTestId("project-save-state")).toContainText("Saved");
 });
 
@@ -914,7 +971,7 @@ test("browser utility point save keeps projected feature status explicit", async
   await page.getByTestId("workspace-nav-map").click();
   await expect(page.getByTestId("browser-map-workbench")).toBeVisible();
   await selectPumpFeatureTool(page);
-  await expect(page.getByText("measure · 0 draft pts · point saves on map click")).toBeVisible();
+  await expect(page.getByText("measure · 0 draft pts · capture point, then choose purpose")).toBeVisible();
   await clickWorkbenchMap(page, { x: 190, y: 220 });
   await expect(page.getByTestId("pending-draft-purpose-panel")).toContainText("What did you draw?");
   await choosePendingDraftPurpose(page, "Pump");
@@ -927,6 +984,16 @@ test("design console selects end-gun circle and corner footprint utility tools",
   test.slow();
   await page.goto("/");
   await openBaselineSample(page);
+  await page.getByTestId("workspace-nav-files").click();
+  const x = 500000, y = 4505200;
+  await page.getByTestId("files-geojson-import-input").fill(JSON.stringify({ type: "FeatureCollection",
+    properties: { projectCrs: "EPSG:32613" }, features: [{ type: "Feature", properties: { layerType: "field_boundary" },
+      geometry: { type: "Polygon", coordinates: [[[x, y], [x + 3000, y], [x + 3000, y + 3000], [x, y + 3000], [x, y]]] } }],
+  }));
+  await page.getByTestId("files-action-import-geojson").click();
+  await expect(page.getByTestId("project-save-state")).toContainText("Unsaved edits");
+  await page.getByTestId("command-icon-save").click();
+  await expect(page.getByTestId("project-save-state")).toContainText("Saved");
   await page.getByTestId("workspace-nav-map").click();
   await expect(page.getByTestId("browser-map-workbench")).toBeVisible();
 
@@ -941,6 +1008,8 @@ test("design console selects end-gun circle and corner footprint utility tools",
   await expect(page.getByTestId("pending-draft-purpose-panel")).toContainText("What did you draw?");
   await choosePendingDraftPurpose(page, "End-Gun Circle");
   await expect(page.getByTestId("pending-draft-purpose-panel")).toHaveCount(0);
+  await expect(page.getByTestId("browser-map-action-status")).toContainText("End-Gun Circle committed in projected XY");
+  await expectShortMapControlsClear(page);
   await expect(page.getByText("Unsaved edits")).toBeVisible();
 
   await closeInspectorIfOpen(page);
@@ -952,16 +1021,128 @@ test("design console selects end-gun circle and corner footprint utility tools",
   await selectCornerFootprintTool(page);
   await map.scrollIntoViewIfNeeded();
   await expect(page.getByTestId("design-action-polygon")).toHaveAttribute("aria-pressed", "true");
-  await clickWorkbenchMap(page, { x: 180, y: 330 });
-  await clickWorkbenchMap(page, { x: 185, y: 330 });
-  await clickWorkbenchMap(page, { x: 180, y: 335 });
+  await expect(page.getByTestId("advisory-map-job-status")).toHaveText("", { timeout: 60000 });
+  if (testInfo.project.name === "mobile-390") {
+    await expect(page.getByTestId("advisory-map-job-status")).toHaveText("", { timeout: 60000 });
+    const bounds = await map.boundingBox();
+    if (!bounds) throw new Error("Missing map bounds");
+    const beforePan = await map.getAttribute("data-map-camera");
+    await page.mouse.move(bounds.x + 60, bounds.y + 140);
+    await page.mouse.down();
+    await page.mouse.move(bounds.x + 60, bounds.y + 60, { steps: 8 });
+    await page.mouse.up();
+    await expect(map).not.toHaveAttribute("data-map-camera", beforePan!);
+    let previousCamera: string | null = null;
+    await expect.poll(async () => {
+      const current = await map.getAttribute("data-map-camera");
+      const stable = current !== null && current === previousCamera;
+      previousCamera = current;
+      return stable;
+    }, { intervals: [200] }).toBe(true);
+  }
+  const desktopFootprint = testInfo.project.name === "desktop";
+  if (desktopFootprint) await page.getByTestId("browser-map-fit-field").click();
+  const footprintPoints = desktopFootprint
+    ? [{ x: x + 1300, y: y + 1300 }, { x: x + 1700, y: y + 1300 }, { x: x + 1300, y: y + 1700 }]
+    : [{ x: 140, y: 420 }, { x: 220, y: 420 }, { x: 180, y: 470 }];
+  for (const point of footprintPoints) {
+    if (desktopFootprint) await clickWorkbenchProjectedPoint(page, point);
+    else await clickWorkbenchMap(page, point);
+    const feedback = await page.getByTestId("browser-map-action-status").innerText();
+    const coordinates = feedback.match(/draft vertex (-?\d+(?:\.\d+)?), (-?\d+(?:\.\d+)?)/);
+    expect(coordinates, "Each footprint point must report projected XY").not.toBeNull();
+    const px = Number(coordinates![1]), py = Number(coordinates![2]);
+    expect(px).toBeGreaterThan(x);
+    expect(px).toBeLessThan(x + 3000);
+    expect(py).toBeGreaterThan(y);
+    expect(py).toBeLessThan(y + 3000);
+    if (desktopFootprint) {
+      expect(Math.hypot(px - point.x, py - point.y), "projected click must land near its requested XY").toBeLessThan(250);
+    }
+  }
   await expect(page.getByText(/measure .* 3 draft pts .* polygon needs 3 pts/)).toBeVisible();
   await page.getByTestId("browser-action-save-feature").click();
   await expect(page.getByTestId("pending-draft-purpose-panel")).toContainText("What did you draw?");
   await choosePendingDraftPurpose(page, "Corner-Arm Footprint");
   await expect(page.getByTestId("pending-draft-purpose-panel")).toHaveCount(0);
+  await expect(page.getByTestId("browser-map-action-status")).toContainText("Corner-Arm Footprint committed in projected XY");
+  await expectShortMapControlsClear(page);
   await expect(page.getByText("Unsaved edits")).toBeVisible();
   await saveScreen(page, testInfo, "design-console-feature-kind-tools");
+});
+
+test("pending map purpose reports rejection retry and cancellation without stale feedback", async ({ page }, testInfo) => {
+  test.slow();
+  await page.goto("/");
+  await openBaselineSample(page);
+  await page.getByTestId("workspace-nav-files").click();
+  const x = 500000, y = 4505200;
+  await page.getByTestId("files-geojson-import-input").fill(JSON.stringify({ type: "FeatureCollection",
+    properties: { projectCrs: "EPSG:32613" }, features: [{ type: "Feature", properties: { layerType: "field_boundary" },
+      geometry: { type: "Polygon", coordinates: [[[x, y], [x + 10, y], [x + 10, y + 10], [x, y + 10], [x, y]]] } }],
+  }));
+  await page.getByTestId("files-action-import-geojson").click();
+  await page.getByTestId("command-icon-save").click();
+  await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+  await page.getByTestId("workspace-nav-map").click();
+  await selectCornerFootprintTool(page);
+  for (const point of [{ x: 140, y: 240 }, { x: 210, y: 240 }, { x: 175, y: 320 }]) {
+    await clickWorkbenchMap(page, point);
+    const feedback = await page.getByTestId("browser-map-action-status").innerText();
+    const coordinates = feedback.match(/draft vertex (-?\d+(?:\.\d+)?), (-?\d+(?:\.\d+)?)/);
+    expect(coordinates).not.toBeNull();
+    const px = Number(coordinates![1]), py = Number(coordinates![2]);
+    expect(px < x || px > x + 10 || py < y || py > y + 10, "The rejection fixture must be outside the field").toBe(true);
+  }
+  await page.getByTestId("browser-action-save-feature").click();
+  await choosePendingDraftPurpose(page, "Corner-Arm Footprint");
+  const error = page.getByTestId("pending-draft-error");
+  await expect(error).toContainText("must be inside the field boundary");
+  await expect(page.getByTestId("browser-map-action-status")).toContainText("must be inside the field boundary");
+  await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+  await expect.poll(async () => (await measureTextClipping(error)).clippedBy).toEqual([]);
+  await expectShortMapControlsClear(page);
+  await saveScreen(page, testInfo, "pending-purpose-rejected");
+
+  await choosePendingDraftPurpose(page, "Field Boundary");
+  await expect(page.getByTestId("pending-draft-purpose-panel")).toHaveCount(0);
+  await expect(page.getByTestId("browser-map-action-status")).toContainText("Field Boundary committed in projected XY");
+  await expect(page.getByTestId("project-save-state")).toContainText("Unsaved edits");
+  await expectShortMapControlsClear(page);
+  await saveScreen(page, testInfo, "pending-purpose-retry-committed");
+  await selectPumpFeatureTool(page);
+  await clickWorkbenchMap(page, { x: 160, y: 250 });
+  await expect(page.getByTestId("pending-draft-purpose-panel")).toBeVisible();
+  await expect(page.getByTestId("pending-draft-error")).toHaveCount(0);
+  await page.getByTestId("pending-draft-cancel").click();
+  await expect(page.getByTestId("pending-draft-purpose-panel")).toHaveCount(0);
+  await expect(page.getByTestId("browser-map-action-status")).toContainText(/cancelled/i);
+  await expectShortMapControlsClear(page);
+  await saveScreen(page, testInfo, "pending-purpose-cancelled");
+  await closeInspectorIfOpen(page);
+  if (testInfo.project.name === "mobile-390") await expect(page.getByTestId("map-bottom-hud")).toBeVisible();
+  await selectPumpFeatureTool(page);
+  await expect(page.getByTestId("browser-map-action-status")).not.toContainText(/cancelled|committed|must be inside/i);
+  await clickWorkbenchMap(page, { x: 180, y: 250 });
+  await expect(page.getByTestId("pending-draft-purpose-panel")).toBeVisible();
+  await choosePendingDraftPurpose(page, "Pump");
+  await expect(page.getByTestId("browser-map-action-status")).toContainText("Pump committed in projected XY");
+  await closeInspectorIfOpen(page);
+  await clickWorkbenchMap(page, { x: 190, y: 250 });
+  await expect(page.getByTestId("pending-draft-purpose-panel")).toBeVisible();
+  await choosePendingDraftPurpose(page, "Well");
+  await expect(page.getByTestId("browser-map-action-status")).toContainText("Well committed in projected XY");
+  await closeInspectorIfOpen(page);
+  await clickWorkbenchMap(page, { x: 200, y: 250 });
+  await expect(page.getByTestId("pending-draft-purpose-panel")).toBeVisible();
+  await page.getByTestId("pending-draft-cancel").click();
+  await expect(page.getByTestId("browser-map-action-status")).toContainText(/cancelled/i);
+  await closeInspectorIfOpen(page);
+  await clickWorkbenchMap(page, { x: 210, y: 250 });
+  await expect(page.getByTestId("pending-draft-purpose-panel")).toBeVisible();
+  await openCatalogFromFile(page);
+  await expect(page.getByTestId("pending-draft-purpose-panel")).toHaveCount(0);
+  await expect(page.getByTestId("browser-map-action-status")).not.toContainText(/Choose its purpose|must be inside/i);
 });
 
 test("placement review applies advisory pivot candidates only after confirmation", async ({ page }, testInfo) => {
@@ -1213,6 +1394,196 @@ test("browser map tool buttons expose active state", async ({ page }, testInfo) 
   await saveScreen(page, testInfo, "browser-map-tool-active-state");
 });
 
+for (const renderer of ["SVG", "MapLibre"] as const) {
+  test(`${renderer} rejected boundary nudge preserves selection and saved geometry for correction`, async ({ page }, testInfo) => {
+    if (renderer === "SVG") await page.addInitScript(() => {
+      const original = HTMLCanvasElement.prototype.getContext;
+      Object.defineProperty(HTMLCanvasElement.prototype, "getContext", {
+        configurable: true,
+        value(id: string, ...args: unknown[]) {
+          return ["webgl", "webgl2", "experimental-webgl"].includes(id) ? null : Reflect.apply(original, this, [id, ...args]);
+        },
+      });
+    });
+    await page.goto("/");
+    await openBaselineSample(page);
+    await page.getByTestId("workspace-nav-files").click();
+    const step = Math.max(1, defaultAppSettings().drawing.panStepMeters / 4);
+    const x = 501000, y = 4506000;
+    await page.getByTestId("files-geojson-import-input").fill(JSON.stringify({ type: "FeatureCollection",
+      properties: { projectCrs: "EPSG:32613" }, features: [{ type: "Feature", properties: { layerType: "field_boundary" },
+        geometry: { type: "Polygon", coordinates: [[[x, y], [x + step, y], [x + step, y + 120], [x, y + 120], [x, y]]] } }],
+    }));
+    await page.getByTestId("files-action-import-geojson").click();
+    await expect(page.getByTestId("project-save-state")).toContainText("Unsaved edits");
+    await page.getByTestId("command-icon-save").click();
+    await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+    const stored = await workspaceStorageBytes(page);
+    await page.getByTestId("workspace-nav-map").click();
+    await selectEditTool(page);
+    if (renderer === "SVG") await page.getByRole("button", { name: "Select first boundary vertex", exact: true }).click();
+    else await activateMapControl(page.getByTestId("browser-edit-select-boundary"), testInfo);
+    const nudge = renderer === "SVG" ? page.getByRole("button", { name: "Move selected vertex east", exact: true }) : page.getByTestId("browser-edit-nudge-east");
+    await activateMapControl(nudge, testInfo);
+    if (renderer === "SVG") {
+      expect(await page.getByTestId("svg-map-shell").evaluate(element => element.scrollLeft),
+        "activating a draft command must not scroll the outer map shell").toBe(0);
+    }
+    const rejection = page.getByText(/^Map edit rejected:.*duplicate/i);
+    await expect(rejection).toBeVisible();
+    const rejectionLayout = await measureTextClipping(rejection);
+    await testInfo.attach("rejection-text-layout.json", { body: JSON.stringify(rejectionLayout, null, 2), contentType: "application/json" });
+    expect(rejectionLayout.clippedBy, "Every rejection text line must remain inside its visible panel").toEqual([]);
+    if (renderer === "MapLibre") {
+      await page.getByTestId("browser-edit-delete-vertex").scrollIntoViewIfNeeded();
+      expect((await measureTextClipping(rejection)).clippedBy).toEqual([]);
+      await page.addStyleTag({ content: '[data-testid="browser-map-action-status"] { font-size: 18px !important; line-height: 24px !important; }' });
+      expect((await measureTextClipping(rejection)).clippedBy).toEqual([]);
+      await expectNoOverlap(page, "browser-map-action-status", "browser-map-hud-actions");
+      await expectInsideContainer(page, "browser-map-bottom-dock", "browser-map-frame");
+      await expectMinTargetSize(page, "browser-edit-delete-vertex", 44, 44);
+    }
+    await expect(page.getByText(/^Moved boundary vertex/)).toHaveCount(0);
+    await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+    expect(await workspaceStorageBytes(page)).toEqual(stored);
+    await expect(nudge).toBeEnabled();
+    await page.screenshot({ path: testInfo.outputPath(`${renderer.toLowerCase()}-rejected-vertex.png`), animations: "disabled" });
+    // Correct a different vertex without reselecting the object; accepted edits remain undoable.
+    if (renderer === "SVG") await page.getByRole("button", { name: "Select next editable vertex", exact: true }).click();
+    else await activateMapControl(page.getByTestId("browser-edit-next-vertex"), testInfo);
+    await activateMapControl(nudge, testInfo);
+    await expect(page.getByText(/^Moved boundary vertex 2 of 4/)).toBeVisible();
+    await expect(page.getByTestId("project-save-state")).toContainText("Unsaved edits");
+    await page.getByTestId("command-icon-undo").click();
+    await page.getByTestId("command-icon-save").click();
+    await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+    const saved = parseProjectDocument((await readWorkspace(page)).projectDocuments[0].document);
+    expect(saved.fieldBoundary).toEqual([{ x, y }, { x: x + step, y }, { x: x + step, y: y + 120 }, { x, y: y + 120 }]);
+  });
+}
+
+test("text clipping probe distinguishes visible overflow from trailing wrap whitespace", async ({ page }) => {
+  await page.setContent('<meta name="viewport" content="width=device-width, initial-scale=1"><div data-testid="browser-map-status-hud"><div data-testid="probe-text" style="font-family:monospace;font-size:16px;line-height:20px;white-space:pre-wrap;overflow:hidden">Alpha beta</div></div>');
+  const text = page.getByTestId("probe-text");
+  await text.evaluate(element => {
+    const range = document.createRange();
+    range.setStart(element.firstChild!, 0);
+    range.setEnd(element.firstChild!, 5);
+    (element as HTMLElement).style.width = `${range.getBoundingClientRect().width + 0.5}px`;
+  });
+  expect(await text.evaluate(element => {
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    return [...range.getClientRects()].some(box => box.right > element.getBoundingClientRect().right + 1);
+  })).toBe(true);
+  expect((await measureTextClipping(text)).clippedBy).toEqual([]);
+  await text.evaluate(element => { (element as HTMLElement).style.width = `${element.getBoundingClientRect().width - 6}px`; });
+  expect((await measureTextClipping(text)).clippedBy).toContain("probe-text");
+  await text.evaluate(element => { (element as HTMLElement).style.width = "200px"; });
+  await page.getByTestId("browser-map-status-hud").evaluate(element => { (element as HTMLElement).style.height = "12px"; });
+  expect((await measureTextClipping(text)).clippedBy).toContain("browser-map-status-hud");
+});
+
+test("browser map source details preserve camera, selection and saved geometry", async ({ page }, testInfo) => {
+  await page.goto("/");
+  await openBaselineSample(page);
+  await page.getByTestId("workspace-nav-map").click();
+  await selectEditTool(page);
+  await activateMapControl(page.getByTestId("browser-edit-select-boundary"), testInfo);
+  await expect(page.getByTestId("advisory-map-job-status")).toHaveText("", { timeout: 60000 });
+  const stored = await workspaceStorageBytes(page);
+  const map = page.getByLabel("CPLayout MapLibre imagery workbench");
+  const camera = await map.getAttribute("data-map-camera");
+  const handle = page.getByTestId("browser-edit-drag-handle");
+  const selection = await handle.getAttribute("aria-label");
+  expect((await measureTextClipping(page.getByTestId("browser-map-attribution-credit"))).clippedBy).toEqual([]);
+  const source = page.getByRole("button", { name: "Map source details", exact: true });
+  await expectMinTargetSize(page, "browser-map-attribution-hud", 44, 44);
+  await source.focus();
+  await activateMapControl(source, testInfo);
+  const dialog = page.getByTestId("browser-map-source-dialog");
+  const attribution = dialog.getByText("USDA, USGS The National Map: Orthoimagery", { exact: true });
+  const license = dialog.getByText(/USGS public National Map imagery service;/);
+  await expect(dialog).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "Map Sources", exact: true })).toBeVisible();
+  expect((await measureTextClipping(attribution)).clippedBy).toEqual([]);
+  expect((await measureTextClipping(license)).clippedBy).toEqual([]);
+  await dialog.screenshot({ path: testInfo.outputPath("map-source-details.png"), animations: "disabled" });
+  await page.getByRole("button", { name: "Close map source details", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(source).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(dialog).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(source).toBeFocused();
+  await expect(map).toHaveAttribute("data-map-camera", camera!);
+  await expect(handle).toHaveAttribute("aria-label", selection!);
+  expect(await workspaceStorageBytes(page)).toEqual(stored);
+  await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+  await handle.hover();
+  const box = await handle.boundingBox();
+  if (!box) throw new Error("Missing drag handle");
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 + 12, box.y + box.height / 2 - 8, { steps: 3 });
+  await expect(handle).toHaveAttribute("data-drag-state", "active");
+  await source.evaluate(element => (element as HTMLElement).click());
+  await expect(dialog).toBeVisible();
+  await expect(handle).toHaveAttribute("data-drag-state", "cancelled");
+  await page.mouse.up();
+  await page.getByRole("button", { name: "Close map source details", exact: true }).click();
+  expect(await workspaceStorageBytes(page)).toEqual(stored);
+  await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+});
+
+test("browser map panel resize keeps feedback visible and cancels an active drag", async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 1024, height: 900 });
+  await page.goto("/");
+  await openBaselineSample(page);
+  await page.getByTestId("workspace-nav-map").click();
+  await selectEditTool(page);
+  await activateMapControl(page.getByTestId("browser-edit-select-boundary"), testInfo);
+  await expect(page.getByTestId("advisory-map-job-status")).toHaveText("", { timeout: 60000 });
+  const stored = await workspaceStorageBytes(page);
+  const frame = page.getByTestId("browser-map-frame");
+  const status = page.getByTestId("browser-map-action-status");
+  const actions = page.getByTestId("browser-map-hud-actions");
+  await openInspectorIfCollapsed(page);
+  await expect.poll(async () => (await frame.boundingBox())!.width).toBeLessThan(600);
+  await expect.poll(() => actions.evaluate(el => el.scrollWidth > el.clientWidth)).toBe(true);
+  expect((await measureTextClipping(status)).clippedBy).toEqual([]);
+  await closeInspectorIfOpen(page);
+  await expect.poll(async () => (await frame.boundingBox())!.width).toBeGreaterThan(600);
+  expect((await measureTextClipping(status)).clippedBy).toEqual([]);
+  await openInspectorIfCollapsed(page);
+  await expect.poll(async () => (await frame.boundingBox())!.width).toBeLessThan(600);
+  const handle = page.getByTestId("browser-edit-drag-handle");
+  await handle.hover();
+  const box = await handle.boundingBox();
+  if (!box) throw new Error("Missing drag handle");
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 + 12, box.y + box.height / 2 - 8, { steps: 3 });
+  await expect(handle).toHaveAttribute("data-drag-state", "active");
+  await page.setViewportSize({ width: 900, height: 900 });
+  await expect(handle).not.toHaveAttribute("data-drag-state", "active");
+  await page.mouse.up();
+  expect((await measureTextClipping(status)).clippedBy).toEqual([]);
+  await expectInsideContainer(page, "browser-map-bottom-dock", "browser-map-frame");
+  const map = page.getByLabel("CPLayout MapLibre imagery workbench");
+  const camera = await map.getAttribute("data-map-camera");
+  const canvas = await map.locator("canvas").boundingBox();
+  if (!canvas) throw new Error("Missing map canvas");
+  const start = { x: canvas.x + canvas.width * 0.6, y: canvas.y + canvas.height * 0.3 };
+  await page.mouse.move(start.x, start.y);
+  await page.mouse.down();
+  await page.mouse.move(start.x + 30, start.y - 20, { steps: 5 });
+  await page.mouse.up();
+  await expect.poll(() => map.getAttribute("data-map-camera")).not.toBe(camera);
+  expect(await workspaceStorageBytes(page)).toEqual(stored);
+  await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+  await saveScreen(page, testInfo, "resized-map-feedback");
+});
+
 test("browser map edit vertices nudges projected boundary through reducer actions", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
@@ -1224,11 +1595,6 @@ test("browser map edit vertices nudges projected boundary through reducer action
   await expect(page.getByTestId("design-action-edit")).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByText("edit vertices · 0 draft pts")).toBeVisible();
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
-
-  if (testInfo.project.name === "mobile-390") {
-    await saveScreen(page, testInfo, "browser-edit-vertices-compact");
-    return;
-  }
 
   await page.getByTestId("browser-edit-select-boundary").click();
   await expect(page.getByText(/Selected boundary vertex 1 of \d+ for projected XY editing\./)).toBeVisible();
@@ -1247,11 +1613,6 @@ test("browser map edit vertices nudges selected map feature through reducer acti
   await page.getByTestId("workspace-nav-map").click();
   await expect(page.getByTestId("browser-map-workbench")).toBeVisible();
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
-
-  if (testInfo.project.name === "mobile-390") {
-    await saveScreen(page, testInfo, "browser-edit-feature-compact");
-    return;
-  }
 
   await selectPipelineTool(page);
   await clickWorkbenchMap(page, { x: 170, y: 330 });
@@ -1281,11 +1642,6 @@ test("browser map edit vertices resizes selected circle map feature through radi
   await expect(page.getByTestId("browser-map-workbench")).toBeVisible();
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
 
-  if (testInfo.project.name === "mobile-390") {
-    await saveScreen(page, testInfo, "browser-edit-feature-radius-compact");
-    return;
-  }
-
   await selectEndGunCircleTool(page);
   await clickWorkbenchMap(page, { x: 180, y: 330 });
   await clickWorkbenchMap(page, { x: 250, y: 370 });
@@ -1310,13 +1666,9 @@ test("browser map edit vertices resizes selected circle map feature through radi
 test("browser map edit inserts and drags a selected boundary vertex through reducer actions", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
+  const originalBoundary = parseProjectDocument((await readWorkspace(page)).projectDocuments[0].document).fieldBoundary;
   await page.getByTestId("workspace-nav-map").click();
   await selectEditTool(page);
-
-  if (testInfo.project.name === "mobile-390") {
-    await saveScreen(page, testInfo, "browser-edit-insert-compact");
-    return;
-  }
 
   await page.getByTestId("browser-edit-select-boundary").click();
   const insert = page.getByTestId("browser-edit-insert-vertex");
@@ -1328,27 +1680,27 @@ test("browser map edit inserts and drags a selected boundary vertex through redu
   const handle = page.getByTestId("browser-edit-drag-handle");
   await expect(handle).toBeVisible();
   await expect(handle).toHaveAttribute("data-drag-ready", "true");
-  const box = await handle.boundingBox();
-  expect(box, "selected vertex drag handle").not.toBeNull();
-  if (box) {
-    await handle.hover();
-    await page.mouse.down();
-    await expect(handle).toHaveAttribute("data-drag-state", "active");
-    await page.mouse.move(box.x + box.width / 2 + 18, box.y + box.height / 2 + 12, { steps: 4 });
-    await page.mouse.up();
-    await expect.poll(async () => {
-      const moved = await handle.boundingBox();
-      return moved ? Math.hypot(moved.x - box.x, moved.y - box.y) : 0;
-    }).toBeGreaterThan(5);
-  }
+  const box = await dragBrowserVertex(page, testInfo, { x: 18, y: 12 });
+  await expect.poll(async () => {
+    const moved = await handle.boundingBox();
+    return moved ? Math.hypot(moved.x - box.x, moved.y - box.y) : 0;
+  }).toBeGreaterThan(5);
   await page.getByRole("button", { name: "Undo", exact: true }).click();
   await expect(page.getByText(/edit vertices .* boundary vertex 2 of 7/)).toBeVisible();
+  await activateMapControl(page.getByTestId("browser-edit-delete-vertex"), testInfo);
+  await expect(page.getByText("Deleted selected projected XY vertex.")).toBeVisible();
+  await page.getByTestId("command-icon-undo").click();
+  await page.getByTestId("command-icon-undo").click();
+  await page.getByTestId("command-icon-save").click();
+  await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+  expect(parseProjectDocument((await readWorkspace(page)).projectDocuments[0].document).fieldBoundary).toEqual(originalBoundary);
+  await saveScreen(page, testInfo, "browser-edit-insert-drag-delete-undo");
 });
 
 test("cancelled browser vertex drag preserves saved geometry", async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name === "mobile-390", "Compact mobile does not expose vertex drag controls.");
   await page.goto("/");
   await openBaselineSample(page);
+  const savedBefore = await workspaceStorageBytes(page);
   await page.getByTestId("workspace-nav-map").click();
   await selectEditTool(page);
   await page.getByTestId("browser-edit-select-boundary").click();
@@ -1356,27 +1708,279 @@ test("cancelled browser vertex drag preserves saved geometry", async ({ page }, 
   await expect(handle).toHaveAttribute("data-drag-ready", "true");
   await expect(handle).toHaveCSS("position", "absolute");
   await expect(handle).toBeInViewport();
-  await handle.hover();
-  const box = await handle.boundingBox();
-  expect(box).not.toBeNull();
-  if (!box) return;
-  await page.mouse.down();
-  await expect(handle).toHaveAttribute("data-drag-state", "active");
-  await page.mouse.move(box.x + box.width / 2 + 35, box.y + box.height / 2 + 25, { steps: 4 });
-  await page.evaluate(() => {
-    window.dispatchEvent(new PointerEvent("pointercancel", { pointerId: 1 }));
-  });
-  await page.mouse.up();
+  await expect.poll(() => handle.evaluate((element) => {
+    const box = element.getBoundingClientRect();
+    return document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2) === element;
+  })).toBe(true);
+  const box = await dragBrowserVertex(page, testInfo, { x: 35, y: 25 }, true);
   await expect(handle).toHaveAttribute("data-drag-state", "cancelled");
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
   await expect.poll(async () => {
     const restored = await handle.boundingBox();
     return restored ? Math.hypot(restored.x - box.x, restored.y - box.y) : Infinity;
   }).toBeLessThan(2);
+  expect(await workspaceStorageBytes(page)).toEqual(savedBefore);
   await saveScreen(page, testInfo, "cancelled-vertex-drag");
 });
 
-test("grouped drawing HUD menus do not clear active drafts", async ({ page }, testInfo) => {
+test("browser vertex handle tap and secondary buttons do not edit geometry", async ({ page }, testInfo) => {
+  await page.goto("/");
+  await openBaselineSample(page);
+  const stored = await workspaceStorageBytes(page);
+  await page.getByTestId("workspace-nav-map").click();
+  await selectEditTool(page);
+  await activateMapControl(page.getByTestId("browser-edit-select-boundary"), testInfo);
+  const handle = page.getByTestId("browser-edit-drag-handle");
+  await expectMinTargetSize(page, "browser-edit-drag-handle", 44, 44);
+  await activateMapControl(handle, testInfo);
+  await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+  for (const button of ["right", "middle"] as const) {
+    await handle.hover();
+    await page.mouse.down({ button });
+    await page.mouse.move(160, 250, { steps: 3 });
+    await page.mouse.up({ button });
+    await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+  }
+  expect(await workspaceStorageBytes(page)).toEqual(stored);
+});
+
+test("browser rejected vertex drag restores its marker and permits correction", async ({ page }, testInfo) => {
+  await page.goto("/");
+  await openBaselineSample(page);
+  await page.getByTestId("workspace-nav-files").click();
+  const x = 501370, y = 4506530;
+  await page.getByTestId("files-geojson-import-input").fill(JSON.stringify({ type: "FeatureCollection",
+    properties: { projectCrs: "EPSG:32613" }, features: [{ type: "Feature", properties: { layerType: "field_boundary" },
+      geometry: { type: "Polygon", coordinates: [[[x, y], [x + 80, y], [x + 80, y + 60], [x, y + 60], [x, y]]] } }],
+  }));
+  await page.getByTestId("files-action-import-geojson").click();
+  await expect(page.getByTestId("project-save-state")).toContainText("Unsaved edits");
+  await page.getByTestId("command-icon-save").click();
+  await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+  const stored = await workspaceStorageBytes(page);
+  const originalBoundary = parseProjectDocument((await readWorkspace(page)).projectDocuments[0].document).fieldBoundary;
+  await page.getByTestId("workspace-nav-map").click();
+  await selectEditTool(page);
+  await activateMapControl(page.getByTestId("browser-edit-select-boundary"), testInfo);
+  await expect(page.getByTestId("advisory-map-job-status")).toHaveText("", { timeout: 60000 });
+  const handle = page.getByTestId("browser-edit-drag-handle");
+  const map = page.getByLabel("CPLayout MapLibre imagery workbench");
+  // Keep all rectangle corners in view before collecting screen coordinates across selections.
+  const initialZoom = JSON.parse((await map.getAttribute("data-map-camera"))!)[2] as number;
+  await map.getByRole("button", { name: "Zoom out", exact: true }).click();
+  await expect.poll(async () => JSON.parse((await map.getAttribute("data-map-camera"))!)[2] as number)
+    .toBeCloseTo(initialZoom - 1, 5);
+  await activateMapControl(page.getByTestId("browser-edit-select-boundary"), testInfo);
+  const camera = await map.getAttribute("data-map-camera");
+  await activateMapControl(page.getByTestId("browser-edit-next-vertex"), testInfo);
+  await expect(map).toHaveAttribute("data-map-camera", camera!);
+  await activateMapControl(page.getByTestId("browser-edit-next-vertex"), testInfo);
+  await expect(handle).toHaveAttribute("aria-label", "Drag boundary vertex 3 of 4");
+  await expect(map).toHaveAttribute("data-map-camera", camera!);
+  const oppositeRight = await handle.boundingBox();
+  await activateMapControl(page.getByTestId("browser-edit-next-vertex"), testInfo);
+  await expect(handle).toHaveAttribute("aria-label", "Drag boundary vertex 4 of 4");
+  await expect(map).toHaveAttribute("data-map-camera", camera!);
+  const oppositeLeft = await handle.boundingBox();
+  await activateMapControl(page.getByTestId("browser-edit-select-boundary"), testInfo);
+  await expect(handle).toHaveAttribute("aria-label", "Drag boundary vertex 1 of 4");
+  await expect(map).toHaveAttribute("data-map-camera", camera!);
+  const original = await handle.boundingBox();
+  if (!original || !oppositeRight || !oppositeLeft) throw new Error("Missing boundary handles");
+  // Move the first rectangle corner beyond the midpoint of its opposite edge to create a crossing.
+  const oppositeMidpoint = {
+    x: (oppositeRight.x + oppositeRight.width / 2 + oppositeLeft.x + oppositeLeft.width / 2) / 2,
+    y: (oppositeRight.y + oppositeRight.height / 2 + oppositeLeft.y + oppositeLeft.height / 2) / 2,
+  };
+  await dragBrowserVertex(page, testInfo, {
+    x: (oppositeMidpoint.x - original.x - original.width / 2) * 1.25,
+    y: (oppositeMidpoint.y - original.y - original.height / 2) * 1.25,
+  });
+  await expect(page.getByText(/^Map edit rejected:/)).toBeVisible();
+  await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+  expect(await workspaceStorageBytes(page)).toEqual(stored);
+  await expect.poll(async () => {
+    const restored = await handle.boundingBox();
+    return restored ? Math.hypot(restored.x - original.x, restored.y - original.y) : Infinity;
+  }).toBeLessThan(2);
+  await dragBrowserVertex(page, testInfo, { x: 12, y: -8 });
+  await expect(page.getByTestId("project-save-state")).toContainText("Unsaved edits");
+  await page.getByTestId("command-icon-undo").click();
+  await page.getByTestId("command-icon-save").click();
+  await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+  expect(parseProjectDocument((await readWorkspace(page)).projectDocuments[0].document).fieldBoundary)
+    .toEqual(originalBoundary);
+});
+
+test("browser vertex drag ignores foreign pointers and cancels on focus or capture loss", async ({ page }, testInfo) => {
+  await page.goto("/");
+  await openBaselineSample(page);
+  const stored = await workspaceStorageBytes(page);
+  await page.getByTestId("workspace-nav-map").click();
+  await selectEditTool(page);
+  await activateMapControl(page.getByTestId("browser-edit-select-boundary"), testInfo);
+  await expect(page.getByTestId("browser-advisory-generated-field-pivot-layer")).toBeVisible();
+  const handle = page.getByTestId("browser-edit-drag-handle");
+  for (const interruption of ["blur", "capture", "escape"] as const) {
+    await handle.hover();
+    const original = await handle.boundingBox();
+    if (!original) throw new Error("Missing handle");
+    await page.mouse.down();
+    await expect(handle).toHaveAttribute("data-drag-state", "active");
+    const map = page.getByLabel("CPLayout MapLibre imagery workbench");
+    const camera = await map.getAttribute("data-map-camera");
+    await page.locator(".maplibregl-canvas").focus();
+    await page.keyboard.press("ArrowUp");
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    await expect(map).toHaveAttribute("data-map-camera", camera!);
+    await page.mouse.move(original.x + 34, original.y + 32, { steps: 3 });
+    const preview = await handle.boundingBox();
+    await page.evaluate(() => {
+      for (const type of ["pointermove", "pointerup", "pointercancel"]) window.dispatchEvent(new PointerEvent(type,
+        { pointerId: 999, pointerType: "touch", clientX: 10, clientY: 10, button: 0, buttons: type === "pointermove" ? 1 : 0 }));
+    });
+    await expect(handle).toHaveAttribute("data-drag-state", "active");
+    expect(await handle.boundingBox()).toEqual(preview);
+    if (interruption === "blur") await page.evaluate(() => window.dispatchEvent(new Event("blur")));
+    else if (interruption === "capture") {
+      await handle.evaluate(element => element.releasePointerCapture(1));
+      await page.mouse.move(original.x + 35, original.y + 33);
+    }
+    else await page.keyboard.press("Escape");
+    await expect(handle).toHaveAttribute("data-drag-state", "cancelled");
+    await page.mouse.up();
+    await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+    await expect.poll(async () => {
+      const restored = await handle.boundingBox();
+      return restored ? Math.hypot(restored.x - original.x, restored.y - original.y) : Infinity;
+    }).toBeLessThan(2);
+  }
+  expect(await workspaceStorageBytes(page)).toEqual(stored);
+});
+
+test("browser vertex selection survives imagery replacement and SVG teardown cancels an active drag", async ({ page }, testInfo) => {
+  await page.goto("/");
+  await openBaselineSample(page);
+  const originalBoundary = parseProjectDocument((await readWorkspace(page)).projectDocuments[0].document).fieldBoundary;
+  await page.getByTestId("workspace-nav-map").click();
+  await selectEditTool(page);
+  await activateMapControl(page.getByTestId("browser-edit-select-boundary"), testInfo);
+  const handle = page.getByTestId("browser-edit-drag-handle");
+  const oldHandle = await handle.elementHandle();
+  if (!oldHandle) throw new Error("Missing handle");
+  await openLayersSheet(page);
+  await page.getByRole("button", { name: "Aerial Off", exact: true }).click();
+  await page.getByTestId("design-console-close").click();
+  await expect.poll(() => oldHandle.evaluate(element => element.isConnected)).toBe(false);
+  await expect(handle).toHaveCount(1);
+  await expect(handle).toHaveAttribute("aria-label", "Drag boundary vertex 1 of 6");
+  // Settings changes use the ordinary project transaction; isolate the following drag.
+  await page.getByTestId("command-icon-save").click();
+  await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+  expect(parseProjectDocument((await readWorkspace(page)).projectDocuments[0].document).fieldBoundary).toEqual(originalBoundary);
+  const stored = await workspaceStorageBytes(page);
+  await handle.hover();
+  await page.mouse.down();
+  await expect(handle).toHaveAttribute("data-drag-state", "active");
+  await page.getByTestId("browser-map-use-svg").evaluate(element => (element as HTMLElement).click());
+  await expect(page.getByTestId("layout-map-svg")).toBeVisible();
+  await expect(handle).toHaveCount(0);
+  await page.mouse.move(150, 300);
+  await page.mouse.up();
+  await page.evaluate(() => window.dispatchEvent(new PointerEvent("pointerup", { pointerId: 1, button: 0, clientX: 10, clientY: 10 })));
+  await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+  expect(await workspaceStorageBytes(page)).toEqual(stored);
+});
+
+test("browser camera controls cancel an active vertex drag before accepting late release", async ({ page }, testInfo) => {
+  await page.goto("/");
+  await openBaselineSample(page);
+  const stored = await workspaceStorageBytes(page);
+  await page.getByTestId("workspace-nav-map").click();
+  await selectEditTool(page);
+  await activateMapControl(page.getByTestId("browser-edit-select-boundary"), testInfo);
+  await expect(page.getByTestId("browser-advisory-generated-field-pivot-layer")).toBeVisible();
+  const handle = page.getByTestId("browser-edit-drag-handle");
+  await handle.hover();
+  const box = await handle.boundingBox();
+  if (!box) throw new Error("Missing handle");
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 + 12, box.y + box.height / 2 - 8, { steps: 3 });
+  await expect(handle).toHaveAttribute("data-drag-state", "active");
+  const map = page.getByLabel("CPLayout MapLibre imagery workbench");
+  const before = await map.getAttribute("data-map-camera");
+  // A separate control activation must not reinterpret a captured drag in a new camera frame.
+  await page.getByRole("button", { name: "Zoom in", exact: true }).evaluate(element => (element as HTMLElement).click());
+  await expect.poll(() => map.getAttribute("data-map-camera")).not.toBe(before);
+  await expect(handle).toHaveAttribute("data-drag-state", "cancelled");
+  await page.mouse.up();
+  await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+  expect(await workspaceStorageBytes(page)).toEqual(stored);
+  await saveScreen(page, testInfo, "camera-control-cancels-vertex-drag");
+});
+
+test.describe("touch vertex ownership", () => {
+  test.use({ hasTouch: true });
+  test("a second finger cannot pitch the map or finish the active vertex drag", async ({ page }) => {
+    await page.goto("/");
+    await openBaselineSample(page);
+    const stored = await workspaceStorageBytes(page);
+    await page.getByTestId("workspace-nav-map").click();
+    await selectEditTool(page);
+    await page.getByTestId("browser-edit-select-boundary").tap();
+    await expect(page.getByTestId("browser-advisory-generated-field-pivot-layer")).toBeVisible();
+    const handle = page.getByTestId("browser-edit-drag-handle");
+    const box = await handle.boundingBox();
+    if (!box) throw new Error("Missing handle");
+    const owner = { x: box.x + box.width / 2, y: box.y + box.height / 2, id: 1 };
+    const other = { x: owner.x + 60, y: owner.y, id: 2 };
+    const map = page.getByLabel("CPLayout MapLibre imagery workbench");
+    const camera = await map.getAttribute("data-map-camera");
+    const session = await page.context().newCDPSession(page);
+    try {
+      await session.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [owner] });
+      await expect(handle).toHaveAttribute("data-drag-state", "active");
+      await session.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [owner, other] });
+      for (let offset = 4; offset <= 16; offset += 4) {
+        await session.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ ...owner, y: owner.y - offset }, { ...other, y: other.y - offset }] });
+      }
+      await expect(map).toHaveAttribute("data-map-camera", camera!);
+      await session.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ ...owner, y: owner.y - 16 }] });
+      await expect(handle).toHaveAttribute("data-drag-state", "active");
+      await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+      await session.send("Input.dispatchTouchEvent", { type: "touchCancel", touchPoints: [] });
+      await expect(handle).toHaveAttribute("data-drag-state", "cancelled");
+    } finally {
+      await session.detach();
+    }
+    expect(await workspaceStorageBytes(page)).toEqual(stored);
+    await expect(map).toHaveAttribute("data-map-camera", camera!);
+  });
+});
+
+test("browser boundary vertex selection keeps handles clear of the editing dock without changing saved data", async ({ page }, testInfo) => {
+  await page.goto("/");
+  await openBaselineSample(page);
+  const savedBefore = await workspaceStorageBytes(page);
+  await page.getByTestId("workspace-nav-map").click();
+  await selectEditTool(page);
+  await page.getByTestId("browser-edit-select-boundary").click();
+  const handle = page.getByTestId("browser-edit-drag-handle");
+  for (let vertex = 0; vertex < 6; vertex++) {
+    await expect(handle).toHaveAttribute("aria-label", `Drag boundary vertex ${vertex + 1} of 6`);
+    await expect.poll(() => handle.evaluate((element) => {
+      const box = element.getBoundingClientRect();
+      return document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2) === element;
+    })).toBe(true);
+    await handle.hover();
+    if (vertex < 5) await page.getByTestId("browser-edit-next-vertex").click();
+  }
+  expect(await workspaceStorageBytes(page)).toEqual(savedBefore);
+  await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
+  await saveScreen(page, testInfo, "unobscured-boundary-vertex");
+});
+
+test("reselecting a drawing tool and opening machine settings preserve active drafts", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
   await page.getByTestId("workspace-nav-map").click();
@@ -1386,8 +1990,10 @@ test("grouped drawing HUD menus do not clear active drafts", async ({ page }, te
   await clickWorkbenchMap(page, { x: 160, y: 180 });
   await expect(page.getByText(/measure .* 1 draft pts .* polygon needs 3 pts/)).toBeVisible();
 
-  await openDesignToolPanel(page, "polygon");
-  await expect(page.getByTestId("design-console-dialog").getByRole("button", { name: "Polygon", exact: true })).toBeVisible();
+  await selectBoundaryTool(page);
+  await expect(page.getByTestId("design-console-dialog")).toHaveCount(0);
+  await expect(page.getByText(/measure .* 1 draft pts .* polygon needs 3 pts/)).toBeVisible();
+  await openDesignToolPanel(page, "machine");
   await expect(page.getByText(/measure .* 1 draft pts .* polygon needs 3 pts/)).toBeVisible();
   await page.getByTestId("design-console-close").click();
   await expect(page.getByTestId("design-console-dialog")).toHaveCount(0);
@@ -1410,6 +2016,35 @@ test("browser map workflow modes expose active state", async ({ page }, testInfo
   await saveScreen(page, testInfo, "browser-map-workflow-active-state");
 });
 
+test("compact warnings navigation reveals its tab without blocking map controls", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile-390");
+  await page.goto("/");
+  await openBaselineSample(page);
+  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("command-menu-inspect").click();
+  await page.getByTestId("command-inspect-warnings").click();
+  const tabs = page.getByTestId("workflow-sidebar-tabs");
+  const selected = page.getByTestId("workflow-sidebar-tab-warnings");
+  await expect(selected).toHaveAttribute("aria-selected", "true");
+  await expect.poll(async () => {
+    const strip = await tabs.boundingBox();
+    const tab = await selected.boundingBox();
+    return Boolean(strip && tab && tab.x >= strip.x - 1 && tab.x + tab.width <= strip.x + strip.width + 1);
+  }).toBe(true);
+  await expectInsideContainer(page, "right-workflow-sidebar", "map-view");
+  await page.getByTestId("right-drawer-handle").click();
+  const fit = page.getByTestId("browser-map-fit-field");
+  await expect(fit).toBeEnabled();
+  await expect.poll(() => fit.evaluate(element => {
+    const rect = element.getBoundingClientRect();
+    const hit = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
+    return hit === element || element.contains(hit);
+  })).toBe(true);
+  const saved = await workspaceStorageBytes(page);
+  await fit.click();
+  expect(await workspaceStorageBytes(page)).toEqual(saved);
+});
+
 test("guided manual design stages required geometry without mutating until apply", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
@@ -1427,9 +2062,12 @@ test("guided manual design stages required geometry without mutating until apply
     expect(sheetBox, "mobile workflow sheet bounding box").not.toBeNull();
     if (mapBox && sheetBox) {
       expect(mapBox.width).toBeGreaterThan(260);
+      expect(mapBox.height).toBeGreaterThan(180);
       expect(sheetBox.width).toBeGreaterThan(260);
-      expect(sheetBox.y).toBeGreaterThanOrEqual(mapBox.y + mapBox.height - 2);
     }
+    await expectInsideContainer(page, "right-workflow-sidebar", "map-view");
+    await expectInsideViewport(page, "right-drawer-handle");
+    await expectMinTargetSize(page, "right-drawer-handle", 44, 44);
     await expect(page.getByTestId("browser-map-status-hud")).toBeVisible();
     await expectInsideContainer(page, "browser-map-status-hud", "browser-map-frame");
     await expectInsideContainer(page, "browser-map-attribution-hud", "browser-map-frame");
@@ -1447,12 +2085,10 @@ test("guided manual design stages required geometry without mutating until apply
   await clickWorkbenchMapFraction(page, { x: 0.2, y: 0.25 });
   await clickWorkbenchMapFraction(page, { x: 0.8, y: 0.25 });
   await clickWorkbenchMapFraction(page, { x: 0.8, y: 0.55 });
-  await clickWorkbenchMapFraction(page, { x: 0.2, y: 0.55 });
+  const closingPoint = await clickWorkbenchMapFraction(page, { x: 0.2, y: 0.55 });
   await expect(page.getByTestId("manual-design-status")).toContainText("4 map-click boundary vertices staged");
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
-  const closingMapBox = await page.getByLabel("CPLayout MapLibre imagery workbench").boundingBox();
-  expect(closingMapBox).not.toBeNull();
-  if (closingMapBox) await page.mouse.dblclick(closingMapBox.x + closingMapBox.width * 0.2, closingMapBox.y + closingMapBox.height * 0.25);
+  await page.mouse.dblclick(closingPoint.x, closingPoint.y);
   await expect(page.getByTestId("browser-map-status-hud")).toContainText("0 draft pts");
   await expect(page.getByTestId("manual-design-status")).toContainText("4 map-click boundary vertices staged");
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
@@ -1490,11 +2126,11 @@ test("browser map utility sheets expose active state", async ({ page }, testInfo
   await page.getByTestId("workspace-nav-map").click();
   await selectPipelineTool(page);
   await expect(page.getByTestId("design-action-line")).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByTestId("map-hud-active-tool-chip")).toContainText("LineString");
+  await expect(page.getByTestId("map-hud-active-tool-chip")).toContainText("Draw line");
   await selectPumpFeatureTool(page);
   await expect(page.getByTestId("design-action-point")).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByTestId("map-hud-active-tool-chip")).toContainText("Point");
-  await expect(page.getByText("measure · 0 draft pts · point saves on map click")).toBeVisible();
+  await expect(page.getByTestId("map-hud-active-tool-chip")).toContainText("Draw point");
+  await expect(page.getByText("measure · 0 draft pts · capture point, then choose purpose")).toBeVisible();
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
   await saveScreen(page, testInfo, "browser-map-chip-active-state");
 });
@@ -1512,7 +2148,7 @@ test("browser map HUD actions expose disabled state", async ({ page }, testInfo)
     await expect(clear).toHaveCount(0);
   } else {
     await expect(commit).toHaveAttribute("aria-disabled", "true");
-    await expect(saveFeature).toHaveAttribute("aria-disabled", "true");
+    await expect(saveFeature).toHaveCount(0);
     await expect(clear).toHaveAttribute("aria-disabled", "true");
   }
 
@@ -1520,10 +2156,11 @@ test("browser map HUD actions expose disabled state", async ({ page }, testInfo)
   await clickWorkbenchMap(page, { x: 160, y: 180 });
   await expect(clear).not.toHaveAttribute("aria-disabled", "true");
   await expect(clear).toBeEnabled();
-  await expect(commit).toHaveAttribute("aria-disabled", "true");
+  await expect(commit).toHaveCount(0);
+  await expect(saveFeature).toBeDisabled();
   await clickWorkbenchMap(page, { x: 200, y: 240 });
   await clickWorkbenchMap(page, { x: 230, y: 185 });
-  await expect(commit).toHaveAttribute("aria-disabled", "true");
+  await expect(commit).toHaveCount(0);
   await expect(saveFeature).not.toHaveAttribute("aria-disabled", "true");
   await expect(saveFeature).toBeEnabled();
 
@@ -1531,7 +2168,7 @@ test("browser map HUD actions expose disabled state", async ({ page }, testInfo)
   await selectPipelineTool(page);
   await clickWorkbenchMap(page, { x: 160, y: 330 });
   await clickWorkbenchMap(page, { x: 220, y: 370 });
-  await expect(commit).toHaveAttribute("aria-disabled", "true");
+  await expect(commit).toHaveCount(0);
   await expect(saveFeature).not.toHaveAttribute("aria-disabled", "true");
   await expect(saveFeature).toBeEnabled();
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
@@ -1546,7 +2183,7 @@ test("browser map compact HUD actions stay inside the status panel", async ({ pa
   await clickWorkbenchMap(page, { x: 160, y: 180 });
   await clickWorkbenchMap(page, { x: 200, y: 240 });
   await clickWorkbenchMap(page, { x: 230, y: 185 });
-  await expect(page.getByTestId("browser-action-commit")).toHaveAttribute("aria-disabled", "true");
+  await expect(page.getByTestId("browser-action-commit")).toHaveCount(0);
   await expect(page.getByTestId("browser-action-save-feature")).toBeEnabled();
   await expect(page.getByText(/measure .* 3 draft pts .* polygon needs 3 pts/)).toBeVisible();
   await expectNoHorizontalOverflow(page);
@@ -1555,7 +2192,7 @@ test("browser map compact HUD actions stay inside the status panel", async ({ pa
   await expectInsideContainer(page, "browser-map-status-hud", "browser-map-frame");
   await expectInsideContainerIfVisible(page, "map-bottom-hud", "browser-map-frame");
   await expectInsideContainer(page, "browser-map-hud-actions", "browser-map-status-hud");
-  await expectInsideContainer(page, "browser-action-commit", "browser-map-hud-actions");
+  await expectInsideContainer(page, "browser-action-undo-draft", "browser-map-hud-actions");
   await expectInsideContainer(page, "browser-action-save-feature", "browser-map-hud-actions");
   await expectInsideContainer(page, "browser-action-clear", "browser-map-hud-actions");
   await expectNoOverlap(page, "browser-map-status-hud", "browser-map-attribution-hud");
@@ -1574,16 +2211,17 @@ test("layout mode keeps map clicks read-only and actions disabled", async ({ pag
   await page.getByTestId("workspace-nav-map").click();
   await page.getByTestId("browser-workflow-layout").click();
   await expect(page.getByText("Layout mode: RTK-only geometry changes; pointer gestures inspect only.")).toBeVisible();
-  await clickWorkbenchMap(page, { x: 160, y: 180 });
-  await clickWorkbenchMap(page, { x: 200, y: 240 });
-  await clickWorkbenchMap(page, { x: 230, y: 185 });
+  const canvas = page.locator(".maplibregl-canvas");
+  await canvas.click({ position: { x: 24, y: 180 } });
+  await canvas.click({ position: { x: 32, y: 220 } });
+  await canvas.click({ position: { x: 40, y: 190 } });
   await expect(page.getByText("Layout mode is RTK-only; switch to Design for pointer-based geometry edits.")).toBeVisible();
   await expect(page.getByText("pan · 0 draft pts")).toBeVisible();
   if (testInfo.project.name === "mobile-390") {
     await expect(page.getByTestId("browser-map-hud-actions")).toHaveCount(0);
   } else {
     await expect(page.getByTestId("browser-action-commit")).toHaveAttribute("aria-disabled", "true");
-    await expect(page.getByTestId("browser-action-save-feature")).toHaveAttribute("aria-disabled", "true");
+    await expect(page.getByTestId("browser-action-save-feature")).toHaveCount(0);
     await expect(page.getByTestId("browser-action-clear")).toHaveAttribute("aria-disabled", "true");
   }
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
@@ -1608,7 +2246,8 @@ test("offline browser map workbench stays usable with external requests blocked"
   externalRequests.length = 0;
   await page.getByTestId("workspace-nav-map").click();
   await expect(page.getByTestId("browser-map-workbench")).toBeVisible();
-  await expect(page.getByText("EPSG:32613 canonical geometry · offline overlay")).toBeVisible();
+  await expect(page.getByText(testInfo.project.name === "mobile-390"
+    ? "EPSG:32613" : "EPSG:32613 canonical geometry · offline overlay", { exact: true })).toBeVisible();
   await expect(page.getByText(/Aerial imagery is off/)).toBeVisible();
   await selectBoundaryTool(page);
   await clickWorkbenchMap(page, { x: 160, y: 180 });
@@ -1811,7 +2450,8 @@ test("settings map style changes do not enable online imagery", async ({ page },
   await expect(page.getByTestId("settings-imagery-source-summary")).toHaveText(/No connected aerial provider selected/);
   await expect(page.getByTestId("settings-imagery-guardrail-summary")).toHaveText(/project exports keep projected\/local XY geometry/);
   await page.getByTestId("workspace-nav-map").click();
-  await expect(page.getByText("EPSG:32613 canonical geometry · offline overlay")).toBeVisible();
+  await expect(page.getByText(testInfo.project.name === "mobile-390"
+    ? "EPSG:32613" : "EPSG:32613 canonical geometry · offline overlay", { exact: true })).toBeVisible();
   await expect(page.getByText(/Aerial imagery is off/)).toBeVisible();
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
   await saveScreen(page, testInfo, "settings-map-style-offline-imagery");
@@ -2471,7 +3111,7 @@ test("dashboard walkthrough progress is scoped to the active project", async ({ 
   await page.getByTestId("command-file-real-proof").click();
   await expect(page.getByText("Public Adams County Center Pivot Proof", { exact: true }).first()).toBeVisible();
   await expect(page.getByTestId("dashboard-card-walkthrough").getByText("0/9 modules")).toBeVisible();
-  await openBaselineSample(page);
+  await openBaselineSample(page, false);
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("North Quarter Concept Layout");
   await expect(page.getByTestId("dashboard-card-walkthrough").getByText("1/9 modules")).toBeVisible();
   await saveScreen(page, testInfo, "dashboard-walkthrough-project-scope");
@@ -2490,7 +3130,7 @@ test("dashboard walkthrough reset only clears the active project", async ({ page
   await expect(page.getByTestId("dashboard-card-walkthrough").getByText("1/9 modules")).toBeVisible();
   await page.getByRole("button", { name: "Reset walkthrough progress for active project" }).click();
   await expect(page.getByTestId("dashboard-card-walkthrough").getByText("0/9 modules")).toBeVisible();
-  await openBaselineSample(page);
+  await openBaselineSample(page, false);
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("North Quarter Concept Layout");
   await expect(page.getByTestId("dashboard-card-walkthrough").getByText("2/9 modules")).toBeVisible();
   await saveScreen(page, testInfo, "dashboard-walkthrough-reset-project-scope");
@@ -2543,7 +3183,7 @@ test("dashboard recent-project row can reopen a saved browser project", async ({
   await openInspectorIfCollapsed(page);
   await expect(page.getByTestId("catalog-notice")).toContainText("Select or create a client folder");
   await expect(page.getByText("Untitled Field Layout", { exact: true })).toBeHidden();
-  await openBaselineSample(page);
+  await openBaselineSample(page, false);
   await page.getByTestId("dashboard-recent-projects").getByRole("button", { name: "Open recent project North Quarter Concept Layout" }).click();
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("North Quarter Concept Layout");
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
@@ -2612,6 +3252,24 @@ async function closeInspectorIfOpen(page: Page): Promise<void> {
   if (await closeButton.first().isVisible()) await closeButton.first().click();
 }
 
+async function expectShortMapControlsClear(page: Page): Promise<void> {
+  await expectInsideContainer(page, "browser-map-bottom-dock", "browser-map-frame");
+  for (const selector of [".maplibregl-ctrl-zoom-in", ".maplibregl-ctrl-zoom-out"]) {
+    const zoomBox = await page.locator(selector).boundingBox();
+    expect(zoomBox).not.toBeNull();
+    for (const id of ["browser-map-attribution-hud", "browser-map-status-hud"]) {
+      const box = await page.getByTestId(id).boundingBox();
+      expect(box).not.toBeNull();
+      const overlaps = box!.x < zoomBox!.x + zoomBox!.width && box!.x + box!.width > zoomBox!.x
+        && box!.y < zoomBox!.y + zoomBox!.height && box!.y + box!.height > zoomBox!.y;
+      expect(overlaps, `${id} must not cover ${selector}`).toBe(false);
+    }
+  }
+  expect((await measureTextClipping(page.getByTestId("browser-map-action-status"))).clippedBy).toEqual([]);
+  const creditBox = await page.getByTestId("browser-map-attribution-hud").boundingBox();
+  expect(creditBox!.height).toBeGreaterThanOrEqual(44);
+}
+
 async function openCommandMenu(page: Page, menuId: string): Promise<void> {
   const panel = page.getByTestId(`command-menu-${menuId}-panel`);
   if (await panel.count() > 0 && await panel.first().isVisible()) {
@@ -2676,8 +3334,7 @@ async function openCatalogFromFile(page: Page): Promise<void> {
 async function startBlankDesignFromFile(page: Page): Promise<void> {
   await openCommandMenu(page, "file");
   await page.getByTestId("command-file-blank-design").click();
-  await expect(page.getByTestId("map-view")).toBeVisible();
-  await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("Blank Field Design");
+  await expect(page.getByTestId("catalog-dialog")).toBeVisible();
 }
 
 async function navigateToSurvey(page: Page): Promise<void> {
@@ -2760,16 +3417,10 @@ async function expectPassiveBottomStatusBar(page: Page): Promise<void> {
 }
 
 async function expectNoSavedProjectDocuments(page: Page): Promise<void> {
-  const storageShape = await page.evaluate(() => {
-    const projects = JSON.parse(localStorage.getItem("center-pivot-layout-projects-v1") ?? "{}") as Record<string, unknown>;
-    const catalog = JSON.parse(localStorage.getItem("center-pivot-layout-project-catalog-v1") ?? "{\"designs\":[]}") as { designs?: unknown[] };
-    return {
-      designCount: Array.isArray(catalog.designs) ? catalog.designs.length : 0,
-      projectDocumentIds: Object.keys(projects),
-    };
-  });
-  expect(storageShape.designCount).toBe(0);
-  expect(storageShape.projectDocumentIds).toEqual([]);
+  const workspace = await readWorkspace(page);
+  expect(workspace.catalog.designs).toEqual([]);
+  expect(workspace.projectDocuments).toEqual([]);
+  expect((await workspaceStorageBytes(page)).slice(1, 3)).toEqual([null, null]);
 }
 
 async function createClientFolder(
@@ -2873,14 +3524,13 @@ async function saveScreen(page: Page, testInfo: TestInfo, label: string): Promis
 }
 
 async function clickHudAction(page: Page, testId: string): Promise<void> {
-  const viewport = page.viewportSize();
-  const compact = Boolean(viewport && viewport.width < 700);
   const geometryAction = /^design-action-(pan|edit|point|line|polygon|circle)$/.test(testId);
+  if (geometryAction) {
+    await activateMapTool(page, testId.replace("design-action-", "") as Parameters<typeof activateMapTool>[1]);
+    return;
+  }
   let action;
-  if (compact && geometryAction) {
-    await closeInspectorIfOpen(page);
-    action = page.getByTestId("map-bottom-hud").getByTestId(testId).first();
-  } else {
+  {
     await openInspectorIfCollapsed(page);
     const toolsTab = page.getByTestId("workflow-sidebar-tab-tools");
     if (await toolsTab.count() > 0 && await toolsTab.first().isVisible()) await toolsTab.first().click();
@@ -2919,7 +3569,7 @@ async function openLayersSheet(page: Page): Promise<void> {
 }
 
 async function openPivotGpsSheet(page: Page): Promise<void> {
-  await openDesignToolPanel(page, "point");
+  await openDesignToolPanel(page, "machine");
   await page.getByRole("button", { name: "Pivot GPS Entry", exact: true }).click();
   await expect(page.getByLabel("Pivot latitude and longitude decimal degrees")).toBeVisible();
 }
@@ -2931,18 +3581,15 @@ async function openCornerArmAdvisorySheet(page: Page): Promise<void> {
 }
 
 async function selectBoundaryTool(page: Page): Promise<void> {
-  await openDesignToolPanel(page, "polygon");
-  await chooseDesignConsoleTool(page, "Polygon");
+  await clickHudAction(page, "design-action-polygon");
 }
 
 async function selectPipelineTool(page: Page): Promise<void> {
-  await openDesignToolPanel(page, "line");
-  await chooseDesignConsoleTool(page, "Line");
+  await clickHudAction(page, "design-action-line");
 }
 
 async function selectPumpFeatureTool(page: Page): Promise<void> {
-  await openDesignToolPanel(page, "point");
-  await chooseDesignConsoleTool(page, "Point");
+  await clickHudAction(page, "design-action-point");
 }
 
 async function selectEndGunCircleTool(page: Page): Promise<void> {
@@ -2951,8 +3598,7 @@ async function selectEndGunCircleTool(page: Page): Promise<void> {
 }
 
 async function selectCornerFootprintTool(page: Page): Promise<void> {
-  await openDesignToolPanel(page, "polygon");
-  await chooseDesignConsoleTool(page, "Polygon");
+  await clickHudAction(page, "design-action-polygon");
 }
 
 async function choosePendingDraftPurpose(page: Page, label: string): Promise<void> {
@@ -2975,6 +3621,74 @@ async function activateBrowserNudgeEast(page: Page): Promise<void> {
   await button.click();
 }
 
+async function measureTextClipping(control: Locator) {
+  return control.evaluate(element => {
+    const rect = (box: DOMRect) => ({ left: box.left, right: box.right, top: box.top, bottom: box.bottom, width: box.width, height: box.height });
+    const range = document.createRange();
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    const lines: ReturnType<typeof rect>[] = [];
+    // Wrapped trailing whitespace can extend beyond the line without clipped visible text.
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      for (const word of (node.textContent ?? "").matchAll(/\S+/g)) {
+        range.setStart(node, word.index);
+        range.setEnd(node, word.index + word[0].length);
+        lines.push(...[...range.getClientRects()].filter(box => box.width > 0 && box.height > 0).map(rect));
+      }
+    }
+    const ancestors = [];
+    const clippedBy: string[] = [];
+    for (let parent: Element | null = element; parent; parent = parent.parentElement) {
+      const style = getComputedStyle(parent);
+      const bounds = rect(parent.getBoundingClientRect());
+      const name = parent.getAttribute("data-testid") ?? parent.tagName;
+      const contained = parent === element || parent.matches('[data-testid="browser-map-status-hud"], [data-testid="browser-map-attribution-hud"]');
+      const clipX = contained || /hidden|clip|auto|scroll/.test(style.overflowX);
+      const clipY = contained || /hidden|clip|auto|scroll/.test(style.overflowY);
+      ancestors.push({ name, bounds, clipX, clipY });
+      if (lines.some(line => (clipX && (line.left < bounds.left - 1 || line.right > bounds.right + 1))
+        || (clipY && (line.top < bounds.top - 1 || line.bottom > bounds.bottom + 1)))) clippedBy.push(name);
+    }
+    if (!lines.length) clippedBy.push("no text rectangles");
+    if (lines.some(line => line.left < -1 || line.right > innerWidth + 1 || line.top < -1 || line.bottom > innerHeight + 1)) clippedBy.push("viewport");
+    return { lines, ancestors, clippedBy };
+  });
+}
+
+async function activateMapControl(control: Locator, testInfo: TestInfo): Promise<void> {
+  await control.scrollIntoViewIfNeeded();
+  if (testInfo.project.use.hasTouch) await control.tap();
+  else await control.click();
+}
+
+async function dragBrowserVertex(page: Page, testInfo: TestInfo, delta: { x: number; y: number }, cancel = false) {
+  const handle = page.getByTestId("browser-edit-drag-handle");
+  const box = await handle.boundingBox();
+  expect(box, "selected vertex drag handle").not.toBeNull();
+  if (!box) throw new Error("Selected vertex drag handle is missing.");
+  const start = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+  if (testInfo.project.use.hasTouch) {
+    const session = await page.context().newCDPSession(page);
+    try {
+      await session.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ ...start, id: 1 }] });
+      await expect(handle).toHaveAttribute("data-drag-state", "active");
+      for (let step = 1; step <= 4; step++) {
+        await session.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: start.x + delta.x * step / 4, y: start.y + delta.y * step / 4, id: 1 }] });
+      }
+      await session.send("Input.dispatchTouchEvent", { type: cancel ? "touchCancel" : "touchEnd", touchPoints: [] });
+    } finally {
+      await session.detach();
+    }
+  } else {
+    await handle.hover();
+    await page.mouse.down();
+    await expect(handle).toHaveAttribute("data-drag-state", "active");
+    await page.mouse.move(start.x + delta.x, start.y + delta.y, { steps: 4 });
+    if (cancel) await page.evaluate(() => window.dispatchEvent(new PointerEvent("pointercancel", { pointerId: 1 })));
+    await page.mouse.up();
+  }
+  return box;
+}
+
 async function clickWorkbenchMap(page: Page, position: { x: number; y: number }): Promise<void> {
   const map = page.getByLabel("CPLayout MapLibre imagery workbench");
   await map.scrollIntoViewIfNeeded();
@@ -2984,30 +3698,65 @@ async function clickWorkbenchMap(page: Page, position: { x: number; y: number })
   const viewport = page.viewportSize();
   const phoneLayout = Boolean(viewport && viewport.width < 700);
   const tabletLayout = Boolean(viewport && viewport.width >= 700 && viewport.width < 900);
+  const dock = await page.getByTestId("browser-map-bottom-dock").boundingBox();
+  const availableBottom = Math.min(box.height - 16, dock ? dock.y - box.y - 16 : box.height - 16);
   const target = phoneLayout
     ? {
       x: Math.min(Math.max(position.x, 28), Math.max(28, box.width - 28)),
-      y: Math.min(Math.max(position.y, 96), Math.max(96, box.height - 220)),
+      y: 48 + Math.min(1, Math.max(0, position.y / 500)) * (availableBottom - 48),
     }
     : tabletLayout
       ? {
         x: Math.min(Math.max(position.x, 32), Math.max(32, box.width - 32)),
-        y: Math.min(Math.max(position.y, 178), Math.max(178, box.height - 132)),
+        y: 48 + Math.min(1, Math.max(0, position.y / 500)) * (availableBottom - 48),
       }
     : position;
-  await page.mouse.click(box.x + target.x, box.y + target.y);
+  expect(availableBottom, "unobstructed map height").toBeGreaterThan(120);
+  const hit = await unobstructedMapPoint(map, { x: box.x + target.x, y: box.y + target.y }, "canvas");
+  await page.mouse.click(hit.x, hit.y);
 }
 
-async function clickWorkbenchMapFraction(page: Page, position: { x: number; y: number }): Promise<void> {
+async function clickWorkbenchProjectedPoint(page: Page, position: { x: number; y: number }): Promise<void> {
+  const map = page.getByLabel("CPLayout MapLibre imagery workbench");
+  await map.scrollIntoViewIfNeeded();
+  let previousCamera: string | null = null;
+  await expect.poll(async () => {
+    const current = await map.getAttribute("data-map-camera");
+    const stable = current !== null && current === previousCamera;
+    previousCamera = current;
+    return stable;
+  }, { intervals: [200], message: "map camera must settle before projecting a test click" }).toBe(true);
+  const cameraText = await map.getAttribute("data-map-camera");
+  expect(cameraText, "loaded map camera").not.toBeNull();
+  const [longitude, latitude, zoom, bearing, pitch] = JSON.parse(cameraText!) as number[];
+  expect(bearing).toBeCloseTo(0, 8);
+  expect(pitch).toBeCloseTo(0, 8);
+  const frame = await map.boundingBox();
+  expect(frame, "map workbench bounding box").not.toBeNull();
+  if (!frame) return;
+  const target = projectXyToLonLat(position, "EPSG:32613");
+  const mercatorY = (degrees: number) => (1 - Math.asinh(Math.tan(degrees * Math.PI / 180)) / Math.PI) / 2;
+  const worldSize = 512 * 2 ** zoom;
+  const requested = {
+    x: frame.x + frame.width / 2 + (target.longitude - longitude) / 360 * worldSize,
+    y: frame.y + frame.height / 2 + (mercatorY(target.latitude) - mercatorY(latitude)) * worldSize,
+  };
+  const hit = await unobstructedMapPoint(map, requested, "canvas");
+  await page.mouse.click(hit.x, hit.y);
+}
+
+async function clickWorkbenchMapFraction(page: Page, position: { x: number; y: number }): Promise<{ x: number; y: number }> {
   const map = page.getByLabel("CPLayout MapLibre imagery workbench");
   await map.scrollIntoViewIfNeeded();
   const box = await map.boundingBox();
   expect(box, "map workbench bounding box").not.toBeNull();
-  if (!box) return;
-  await page.mouse.click(
-    box.x + Math.min(0.9, Math.max(0.1, position.x)) * box.width,
-    box.y + Math.min(0.7, Math.max(0.15, position.y)) * box.height,
-  );
+  if (!box) throw new Error("Missing map workbench bounding box");
+  const hit = await unobstructedMapPoint(map, {
+    x: box.x + Math.min(0.9, Math.max(0.1, position.x)) * box.width,
+    y: box.y + Math.min(0.7, Math.max(0.15, position.y)) * box.height,
+  }, "canvas");
+  await page.mouse.click(hit.x, hit.y);
+  return hit;
 }
 
 async function expectNoOverlap(page: Page, firstTestId: string, secondTestId: string): Promise<void> {

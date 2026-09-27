@@ -3,6 +3,7 @@ import test from "node:test";
 
 import { defaultProjectSettings, parseDesignDraftDocument, sampleProject, serializeDesignDraftDocument, serializeProjectDocument, type DesignDraft } from "@cplayout/core";
 import { emptyClientProfileFields } from "./projectCatalog";
+import { parseStrictJson } from "./strictJson";
 import {
   createWorkspaceDesign, deleteWorkspaceDesign, emptyWorkspaceDocument, parseWorkspaceDocument,
   saveWorkspaceDesign, serializeWorkspaceDocument, validateWorkspaceDocument, WorkspaceDocumentError,
@@ -238,4 +239,36 @@ test("prototype-looking identity strings remain ordinary array and Map keys", ()
   assert.equal(value.draftDocuments[0].id, "__proto__");
   assert.equal(value.catalog.designs[0].id, "constructor");
   assert.deepEqual(parseWorkspaceDocument(serializeWorkspaceDocument(value)), value);
+});
+
+test("prototype metadata in mutation arguments cannot be silently stripped", () => {
+  const add = <T>(value: T): T => JSON.parse(JSON.stringify(value).replace(/^\{/, '{"__proto__":"must not disappear",'));
+  errorCode(() => createWorkspaceDesign(workspace(), add(input())), "invalid_document");
+  const creation = input();
+  creation.design = add(creation.design);
+  errorCode(() => createWorkspaceDesign(workspace(), creation), "invalid_document");
+  const value = createWorkspaceDesign(workspace(), input());
+  errorCode(() => saveWorkspaceDesign(value, add({ designId: "design", expectedRevision: 0, document: input().document, updatedAt: later })), "invalid_document");
+  errorCode(() => deleteWorkspaceDesign(value, add({ designId: "design", expectedRevision: 0, deletedAt: later })), "invalid_document");
+});
+
+test("workspace and stored payloads reject duplicate members rather than last-value wins", () => {
+  const document = serializeWorkspaceDocument(workspace());
+  errorCode(() => parseWorkspaceDocument(document.replace(/^\{/, '{"revision":999,')), "invalid_document");
+  for (const kind of ["draft", "project"] as const) {
+    const creation = input(kind);
+    const field = kind === "draft" ? "draft" : "project";
+    creation.document = creation.document.replace(/\{/, `{"${field}":null,`);
+    errorCode(() => createWorkspaceDesign(workspace(), creation), "invalid_document");
+  }
+});
+
+test("strict parser rejects JSON extensions, duplicates and escaped-equivalent members", () => {
+  for (const bad of ["", " ", "{}{}", '{"a":1,}', "[1,]", "/* comment */{}", '{"a":1,"a":2}',
+    '{"a":1,"\\u0061":2}', '[{"nested":{"x":0,"x":1}}]', '{"__proto__":0,"__proto__":1}', '{"a":01}']) {
+    assert.throws(() => parseStrictJson(bad), SyntaxError);
+  }
+  for (const good of ['[{"a":1},{"a":2}]', '{"a":{"a":1}}', '{"__proto__":"identity"}', '"duplicate text: a a"', "null"]) {
+    assert.deepEqual(parseStrictJson(good), JSON.parse(good));
+  }
 });

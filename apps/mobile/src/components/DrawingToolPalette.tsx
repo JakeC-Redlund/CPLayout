@@ -1,7 +1,6 @@
 import {
   Calculator,
   ChevronDown,
-  ChevronUp,
   Circle,
   Hand,
   Layers,
@@ -9,14 +8,16 @@ import {
   MousePointer2,
   Pentagon,
   Route,
+  Satellite,
   Wrench,
+  X,
 } from "lucide-react-native";
-import React, { useMemo, useState } from "react";
-import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 
 import type { AppSettings, ProjectMapFeatureKind } from "@cplayout/core";
 import type { DrawingLayerType, DrawingMode } from "@cplayout/geometry";
-import { MAP_TOOL_CATALOG, type MapToolCatalogItem, type MapToolId } from "@cplayout/map-adapters";
+import { MAP_TOOL_CATALOG, type MapToolCatalogItem, type MapToolId, type UtilityFeatureGeometry } from "@cplayout/map-adapters";
 
 export type DrawingToolPaletteModal = "point" | "line" | "polygon" | "circle" | "pivot" | "obstacle" | "machine" | "endGun" | "cornerArm" | "calculate" | "layers" | null;
 
@@ -32,9 +33,11 @@ interface DrawingToolPaletteProps {
   activeModal: DrawingToolPaletteModal;
   activeTool: ActiveTool;
   onActivateTool: (mode: DrawingMode, activeLayer: DrawingLayerType, featureKind?: ProjectMapFeatureKind) => void;
+  onActivatePrimitive: (geometry: UtilityFeatureGeometry) => void;
   onCalculate: () => void;
   onOpenModal: (modal: DrawingToolPaletteModal) => void;
   onToggleLayers: () => void;
+  onOpenReceiver?: () => void;
   settings: AppSettings;
 }
 
@@ -47,9 +50,11 @@ export function DrawingToolPalette({
   activeModal,
   activeTool,
   onActivateTool,
+  onActivatePrimitive,
   onCalculate,
   onOpenModal,
   onToggleLayers,
+  onOpenReceiver,
   settings,
 }: DrawingToolPaletteProps): React.JSX.Element {
   return (
@@ -58,9 +63,11 @@ export function DrawingToolPalette({
         activeModal={activeModal}
         activeTool={activeTool}
         onActivateTool={onActivateTool}
+        onActivatePrimitive={onActivatePrimitive}
         onCalculate={onCalculate}
         onOpenModal={onOpenModal}
         onToggleLayers={onToggleLayers}
+        onOpenReceiver={onOpenReceiver}
         settings={settings}
         variant="compact"
       />
@@ -72,22 +79,55 @@ export function DrawingToolLauncher({
   activeModal,
   activeTool,
   onActivateTool,
+  onActivatePrimitive,
   onCalculate,
   onOpenModal,
   onToggleLayers,
+  onOpenReceiver,
   settings,
   showGeometryTools = true,
   variant,
 }: DrawingToolLauncherProps): React.JSX.Element {
-  const [expandedHud, setExpandedHud] = useState(false);
+  const { width, height } = useWindowDimensions();
+  const [openToolId, setOpenToolId] = useState<MapToolId | null>(null);
+  const triggerRefs = useRef<Partial<Record<MapToolId, View | null>>>({});
+  const focusReturnToolRef = useRef<MapToolId | null>(null);
+  const menuCloseRef = useRef<View | null>(null);
   const sidebar = variant === "sidebar";
+  const shortLandscape = !sidebar && width > height && height < 500;
   const designMode = settings.mappingWorkflowMode === "design";
   const activeToolId = useMemo(() => activeMapToolId(activeModal, activeTool), [activeModal, activeTool]);
   const statusText = activeToolStatus(activeModal, activeTool, designMode);
-  const expanded = sidebar || expandedHud;
+  const expanded = !shortLandscape;
+  const openTool = MAP_TOOL_CATALOG.find((tool) => tool.id === openToolId);
+  useEffect(() => setOpenToolId(null), [settings.mappingWorkflowMode]);
+  useEffect(() => {
+    if (openToolId !== null || focusReturnToolRef.current === null) return;
+    const toolId = focusReturnToolRef.current;
+    focusReturnToolRef.current = null;
+    triggerRefs.current[toolId]?.focus();
+  }, [openToolId]);
+  useEffect(() => {
+    if (Platform.OS === "web" && shortLandscape && openToolId !== null) menuCloseRef.current?.focus();
+  }, [openToolId, shortLandscape]);
+
+  function closeMenu(restoreFocus = true): void {
+    if (restoreFocus) focusReturnToolRef.current = openToolId;
+    setOpenToolId(null);
+  }
+
+  function runMenuAction(action: () => void): void {
+    closeMenu(false);
+    action();
+  }
 
   function runTool(tool: MapToolCatalogItem): void {
     const action = tool.action;
+    if (!designMode && tool.id !== "pan") return;
+    if (action.type === "draw") {
+      onActivatePrimitive(action.geometry);
+      return;
+    }
     if (action.type === "activate") {
       onActivateTool(action.mode, action.layer, action.featureKind);
       return;
@@ -99,24 +139,37 @@ export function DrawingToolLauncher({
   }
 
   return (
-    <View style={[styles.shell, sidebar && styles.sidebarShell]} testID="design-action-hud">
-      <View style={styles.statusRow}>
-        {!sidebar ? (
-          <Pressable
-            accessibilityLabel={expandedHud ? "Collapse map HUD" : "Expand map HUD"}
-            accessibilityRole="button"
-            accessibilityState={{ expanded: expandedHud }}
-            onPress={() => setExpandedHud((expanded) => !expanded)}
-            style={styles.hudToggleButton}
-            testID="map-bottom-hud-toggle"
-          >
-            {expandedHud ? <ChevronDown size={18} color="#173428" /> : <ChevronUp size={18} color="#173428" />}
-          </Pressable>
-        ) : null}
+    <View style={[styles.shell, sidebar && styles.sidebarShell, shortLandscape && styles.shellShortLandscape]} testID="design-action-hud"
+      {...(Platform.OS === "web" ? { onKeyDown: (event: { key: string; stopPropagation: () => void; preventDefault: () => void }) => {
+        if (event.key === "Escape" && openToolId) { event.stopPropagation(); event.preventDefault(); closeMenu(); }
+      } } : {})}>
+      <View style={[styles.statusRow, shortLandscape && styles.statusRowShortLandscape]}>
         <View style={styles.activeChip} testID="map-hud-active-tool-chip">
           <Text numberOfLines={sidebar ? 2 : 1} style={styles.activeChipText}>{statusText}</Text>
         </View>
+        {openTool ? <Pressable ref={menuCloseRef} accessibilityRole="button" accessibilityLabel="Close tool options" onPress={() => closeMenu()}
+          style={[styles.menuClose, shortLandscape && styles.menuCloseShortLandscape]}><X size={16} color="#173428" /></Pressable> : null}
       </View>
+      {!sidebar && openTool ? (
+        <ScrollView horizontal showsHorizontalScrollIndicator style={shortLandscape && styles.toolScrollShortLandscape}
+          contentContainerStyle={styles.menuActions} testID="map-tool-options">
+          <MenuAction label={primaryActionLabel(openTool.id)} disabled={!designMode && openTool.id !== "pan"}
+            icon={toolIcon(openTool.id, false)} testID={`${legacyTestId(openTool.id)}-start`}
+            onPress={() => runMenuAction(() => runTool(openTool))} />
+          {openTool.id === "polygon" ? <>
+            <MenuAction label="Field boundary" disabled={!designMode} icon={<Pentagon size={17} color="#173428" />}
+              testID="map-tool-field-boundary" onPress={() => runMenuAction(() => onActivateTool("draw_boundary", "field_boundary"))} />
+            <MenuAction label="Keep-out area" disabled={!designMode} icon={<Pentagon size={17} color="#173428" />}
+              testID="map-tool-keep-out" onPress={() => runMenuAction(() => onActivateTool("mark_obstacle", "obstacle"))} />
+          </> : null}
+          {openTool.id === "circle" ? <MenuAction label="Machine" disabled={!designMode} icon={<Wrench size={17} color="#173428" />}
+            testID="map-tool-machine" onPress={() => runMenuAction(() => onOpenModal("machine"))} /> : null}
+          {onOpenReceiver && (openTool.id === "point" || openTool.id === "line" || openTool.id === "polygon") ? (
+            <MenuAction label="RTK capture" icon={<Satellite size={17} color="#173428" />} testID="map-tool-rtk"
+              onPress={() => runMenuAction(onOpenReceiver)} />
+          ) : <MenuAction label="Layers" icon={<Layers size={17} color="#173428" />} testID="map-tool-layers" onPress={() => runMenuAction(onToggleLayers)} />}
+        </ScrollView>
+      ) : null}
       {sidebar ? (
         <>
           {showGeometryTools ? (
@@ -145,8 +198,9 @@ export function DrawingToolLauncher({
       ) : (
         <ScrollView
           horizontal
-          showsHorizontalScrollIndicator={expandedHud}
-          style={styles.toolScroll}
+          showsHorizontalScrollIndicator
+          style={[styles.toolScroll, shortLandscape && styles.toolScrollShortLandscape,
+            shortLandscape && openTool && styles.toolScrollHidden]}
           contentContainerStyle={styles.toolRow}
           testID="design-action-scroll"
         >
@@ -157,16 +211,16 @@ export function DrawingToolLauncher({
               expanded={expanded}
               icon={toolIcon(tool.id, activeToolId === tool.id)}
               legacyTestID={legacyTestId(tool.id)}
-              onPress={() => runTool(tool)}
+              onPress={() => setOpenToolId((current) => current === tool.id ? null : tool.id)}
+              menuOpen={openToolId === tool.id}
+              shortLandscape={shortLandscape}
+              triggerRef={(ref) => { triggerRefs.current[tool.id] = ref; }}
               testID={groupTestId(tool.id)}
               tool={tool}
             />
           ))}
         </ScrollView>
       )}
-      {!designMode && expanded ? (
-        <Text style={styles.notice}>Layout mode is read-only for pointer edits.</Text>
-      ) : null}
     </View>
   );
 }
@@ -180,6 +234,9 @@ function ToolButton({
   sidebar = false,
   testID,
   tool,
+  menuOpen,
+  shortLandscape = false,
+  triggerRef,
 }: {
   active: boolean;
   expanded: boolean;
@@ -189,25 +246,54 @@ function ToolButton({
   sidebar?: boolean;
   testID: string;
   tool: MapToolCatalogItem;
+  menuOpen?: boolean;
+  shortLandscape?: boolean;
+  triggerRef?: (ref: View | null) => void;
 }): React.JSX.Element {
   const visualGroup = toolVisualGroup(tool.id);
   return (
     <View style={[styles.toolGroupShell, { borderTopColor: visualGroup.color }]} testID={testID}>
       <Pressable
+        ref={triggerRef}
         accessibilityLabel={tool.label}
         accessibilityHint={tool.statusLabel}
         accessibilityRole="button"
-        accessibilityState={{ selected: active }}
+        accessibilityState={{ selected: active, ...(menuOpen === undefined ? {} : { expanded: menuOpen }) }}
         onPress={onPress}
-        style={[styles.toolButton, { borderColor: visualGroup.borderColor }, expanded && styles.toolButtonExpanded, sidebar && styles.sidebarToolButton, active && styles.toolButtonActive]}
+        style={[styles.toolButton, { borderColor: visualGroup.borderColor }, expanded && styles.toolButtonExpanded,
+          sidebar && styles.sidebarToolButton, shortLandscape && styles.toolButtonShortLandscape, active && styles.toolButtonActive]}
         testID={legacyTestID}
         {...toolButtonWebHint(tool.label, tool.statusLabel, active, expanded)}
+        {...(Platform.OS === "web" && menuOpen !== undefined ? { "aria-expanded": menuOpen } : {})}
       >
         {icon}
         {expanded ? <Text style={[styles.toolText, active && styles.toolTextActive]}>{tool.shortLabel}</Text> : null}
+        {menuOpen === undefined ? null : <ChevronDown size={12} color={active ? "#ffffff" : "#173428"} />}
       </Pressable>
     </View>
   );
+}
+
+function primaryActionLabel(id: MapToolId): string {
+  switch (id) {
+    case "pan": return "Pan map";
+    case "edit": return "Edit vertices";
+    case "point": return "Draw point";
+    case "line": return "Draw line";
+    case "polygon": return "Draw polygon";
+    case "circle": return "Coverage settings";
+  }
+}
+
+function MenuAction({ label, icon, onPress, testID, disabled = false }: {
+  label: string; icon: React.ReactNode; onPress: () => void; testID: string; disabled?: boolean;
+}): React.JSX.Element {
+  return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled }}
+    disabled={disabled} onPress={onPress} testID={testID}
+    style={[styles.menuAction, disabled && styles.menuActionDisabled]}>
+    {icon}<Text style={styles.workflowActionText}>{label}</Text>
+    {disabled ? <Text style={styles.designOnly}>Design only</Text> : null}
+  </Pressable>;
 }
 
 function toolVisualGroup(id: MapToolId): { label: string; color: string; borderColor: string } {
@@ -254,6 +340,7 @@ function activeToolStatus(activeModal: DrawingToolPaletteModal, activeTool: Acti
   if (!designMode) return "Layout: inspect";
   if (activeModal) return `${activeModal.replaceAll("_", " ")} sheet`;
   if (!activeTool) return "Pan";
+  if (activeTool.mode === "measure" && activeTool.draftGeometry) return `Draw ${activeTool.draftGeometry === "LineString" ? "line" : activeTool.draftGeometry.toLowerCase()}`;
   const layer = activeTool.featureKind ?? activeTool.draftGeometry ?? activeTool.activeLayer;
   return `${activeTool.mode.replaceAll("_", " ")} · ${layer.replaceAll("_", " ")}`;
 }
@@ -314,7 +401,7 @@ function toolButtonWebHint(label: string, hint: string, active: boolean, expande
   if (Platform.OS !== "web") return {};
   return {
     ...(active ? { "aria-pressed": "true" } : {}),
-    ...(!expanded ? { title: `${label}: ${hint}` } : {}),
+    title: `${label}: ${hint}`,
   };
 }
 
@@ -339,8 +426,8 @@ function WorkflowActionButton({
 
 const styles = StyleSheet.create({
   bottomHud: {
-    alignSelf: "center",
-    maxWidth: "100%",
+    alignSelf: "flex-start",
+    maxWidth: 560,
     width: "100%",
   },
   shell: {
@@ -349,11 +436,16 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     flexShrink: 0,
-    gap: 7,
+    gap: 4,
     minHeight: 56,
     overflow: "hidden",
     paddingHorizontal: 7,
     paddingVertical: 7,
+  },
+  shellShortLandscape: {
+    alignItems: "center",
+    flexDirection: "row",
+    paddingVertical: 3,
   },
   sidebarShell: {
     backgroundColor: "#f7faf5",
@@ -367,6 +459,10 @@ const styles = StyleSheet.create({
     gap: 7,
     minWidth: 0,
   },
+  statusRowShortLandscape: {
+    flexShrink: 0,
+    width: 116,
+  },
   hudToggleButton: {
     alignItems: "center",
     backgroundColor: "#fffef8",
@@ -378,15 +474,11 @@ const styles = StyleSheet.create({
     width: 42,
   },
   activeChip: {
-    backgroundColor: "#edf4ef",
-    borderColor: "#cbd8ce",
-    borderRadius: 8,
-    borderWidth: 1,
     flex: 1,
-    minHeight: 38,
+    minHeight: 18,
     minWidth: 0,
     paddingHorizontal: 10,
-    paddingVertical: 9,
+    paddingVertical: 1,
   },
   activeChipText: {
     color: "#173428",
@@ -396,6 +488,12 @@ const styles = StyleSheet.create({
   },
   toolScroll: {
     minWidth: 0,
+  },
+  toolScrollShortLandscape: {
+    flex: 1,
+  },
+  toolScrollHidden: {
+    display: "none",
   },
   toolRow: {
     alignItems: "center",
@@ -444,16 +542,24 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     flexShrink: 0,
-    gap: 4,
-    height: 44,
+    gap: 2,
+    height: 58,
     justifyContent: "center",
     paddingHorizontal: 7,
     paddingVertical: 7,
     width: 44,
   },
   toolButtonExpanded: {
-    minWidth: 72,
+    minWidth: 64,
     width: "auto",
+  },
+  toolButtonShortLandscape: {
+    flexDirection: "row",
+    gap: 1,
+    height: 44,
+    paddingHorizontal: 3,
+    paddingVertical: 3,
+    width: 44,
   },
   sidebarToolButton: {
     flexBasis: 94,
@@ -482,4 +588,10 @@ const styles = StyleSheet.create({
     lineHeight: 15,
     textAlign: "center",
   },
+  menuActions: { gap: 6, paddingVertical: 4, alignItems: "stretch" },
+  menuClose: { width: 28, height: 28, alignItems: "center", justifyContent: "center" },
+  menuCloseShortLandscape: { width: 44, height: 44 },
+  menuAction: { minHeight: 44, paddingHorizontal: 10, gap: 5, alignItems: "center", justifyContent: "center", flexDirection: "row", backgroundColor: "#ffffff", borderWidth: 1, borderColor: "#b9c8bd", borderRadius: 4 },
+  menuActionDisabled: { opacity: 0.55 },
+  designOnly: { color: "#5b625e", fontSize: 10 },
 });

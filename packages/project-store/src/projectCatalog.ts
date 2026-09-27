@@ -91,7 +91,9 @@ export function assertClientPrimaryContact(source: Partial<ClientRecord>): void 
   }
 }
 
-export function sortProjectCatalog(catalog: ProjectCatalog): ProjectCatalog {
+export function sortProjectCatalog<T extends { name: string } = DesignRecord>(
+  catalog: Omit<ProjectCatalog, "designs"> & { designs: T[] },
+): Omit<ProjectCatalog, "designs"> & { designs: T[] } {
   return {
     clients: [...catalog.clients].sort((a, b) => compareByName(a.sortName, b.sortName)),
     projects: [...catalog.projects].sort((a, b) => compareByName(a.name, b.name)),

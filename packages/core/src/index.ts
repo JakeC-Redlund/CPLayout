@@ -5,6 +5,8 @@ export * from "./cornerGpsMapExport";
 export * from "./cornerGpsMapImport";
 export * from "./cornerGpsMapLegacyEvidence";
 export * from "./designDraft";
+export * from "./designDraftEditor";
+export * from "./gnssEvidence";
 export * from "./imageryEvidence";
 export * from "./machineCatalog";
 export * from "./manualDesign";

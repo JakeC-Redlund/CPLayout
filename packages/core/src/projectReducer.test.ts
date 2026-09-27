@@ -207,6 +207,18 @@ const invalidPlanningBoundaryState = reduceProjectEditorState(state, {
 });
 assert.equal(invalidPlanningBoundaryState.lastError, "Planning Boundary map feature must be inside the field boundary.");
 assert.equal(invalidPlanningBoundaryState.project, state.project);
+for (const vertices of [
+  [{ x: 501020, y: 4506020 }, { x: 501080, y: 4506080 }, { x: 501080, y: 4506020 }, { x: 501020, y: 4506080 }],
+  [{ x: 501020, y: 4506020 }, { x: 501030, y: 4506030 }, { x: 501040, y: 4506040 }],
+  [{ x: 501020, y: 4506020 }, { x: 501080, y: 4506020 }, { x: 501020, y: 4506020 }, { x: 501020, y: 4506080 }],
+]) {
+  const invalid = reduceProjectEditorState(state, { type: "add_map_feature", feature: {
+    id: "invalid-polygon", name: "Invalid", kind: "planning_boundary", confidence: "user_estimated", geometry: { type: "Polygon", vertices },
+  } });
+  assert.ok(invalid.lastError);
+  assert.equal(invalid.project, state.project);
+  assert.equal(invalid.past, state.past);
+}
 const beforeLineFeatureEditPivotCenter = state.project.pivotCenter;
 state = reduceProjectEditorState(state, {
   type: "insert_map_feature_vertex",
