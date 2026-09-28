@@ -1,0 +1,603 @@
+{
+  "schemaVersion": "cplayout-corner-research-benchmark-v1",
+  "syntheticOnly": true,
+  "identity": {
+    "node": "v24.14.1",
+    "sourceSha256": {
+      "cli.ts": "641feb54b55fbfbb964f86df4b7a635df47565d71ad606b01c05337523c6639f",
+      "core.ts": "f85bdc775d85bab42c5d450bd7343ffba0301c470275df657c92dc1bc8ccb9aa",
+      "fixtures.ts": "64ef51684036b91689ee27c41c1441da225378373a1390cfa2ced0e523706205",
+      "harness.test.ts": "b26e78952ba8f67d33a00477a8b3cf54371e9ad72c4265f77889dbce89f9f472"
+    }
+  },
+  "pass": true,
+  "cases": [
+    {
+      "id": "roomy-circle",
+      "file": "roomy-circle.json",
+      "expected": "verified_within_model",
+      "purpose": "Full-circle baseline and deterministic graph/SciPy comparison; hinge-coincident synthetic dimensions.",
+      "actual": "verified_within_model",
+      "pass": true,
+      "durationMs": 8.150667999999996,
+      "fixtureSha256": "147e141d3a90044dfa6b39256f498dc6b11d3e17a5f117b96e64f538365b6111",
+      "stats": {
+        "visitedIntervals": 15,
+        "certifiedIntervals": 8,
+        "deepestSubdivision": 3,
+        "minCertifiedMarginM": 2.711039831077141
+      },
+      "issues": []
+    },
+    {
+      "id": "square-layout",
+      "file": "square-layout.json",
+      "expected": "verified_within_model",
+      "purpose": "Full-circle baseline and deterministic graph/SciPy comparison; hinge-coincident synthetic dimensions.",
+      "actual": "verified_within_model",
+      "pass": true,
+      "durationMs": 23.49661500000002,
+      "fixtureSha256": "85e97044649ba5ebd8b3d8abdc2538f56a559b30e736ff48fc0cd3af319b076e",
+      "stats": {
+        "visitedIntervals": 127,
+        "certifiedIntervals": 64,
+        "deepestSubdivision": 7,
+        "minCertifiedMarginM": 0.04318353339275505
+      },
+      "issues": []
+    },
+    {
+      "id": "rectangle-open",
+      "file": "rectangle-open.json",
+      "expected": "verified_within_model",
+      "purpose": "Open partial sweep with buffered full members in a rectangle.",
+      "actual": "verified_within_model",
+      "pass": true,
+      "durationMs": 0.9164180000000215,
+      "fixtureSha256": "b99e8eb2f3c1bd4f5dd94fb5868b74312bb2c2512a35608180b2b40888e8cda8",
+      "stats": {
+        "visitedIntervals": 1,
+        "certifiedIntervals": 1,
+        "deepestSubdivision": 0,
+        "minCertifiedMarginM": 1.0233175543446855
+      },
+      "issues": []
+    },
+    {
+      "id": "reverse-open-offsets",
+      "file": "reverse-open-offsets.json",
+      "expected": "verified_within_model",
+      "purpose": "Clockwise partial sweep; asymmetric antenna and wheel offsets.",
+      "actual": "verified_within_model",
+      "pass": true,
+      "durationMs": 1.327633999999989,
+      "fixtureSha256": "ec91adacbc74766bcc42b939ceec89a8693d634c289f9fa76949f50cafd3ed80",
+      "stats": {
+        "visitedIntervals": 1,
+        "certifiedIntervals": 1,
+        "deepestSubdivision": 0,
+        "minCertifiedMarginM": 1.1946950299582888
+      },
+      "issues": []
+    },
+    {
+      "id": "reverse-full-circle",
+      "file": "reverse-full-circle.json",
+      "expected": "verified_within_model",
+      "purpose": "Clockwise full revolution and derivative closure.",
+      "actual": "verified_within_model",
+      "pass": true,
+      "durationMs": 2.7635389999999234,
+      "fixtureSha256": "cf634f8e76097eb2606c05dd5b7d3280ea28fe02d3ea75ed2e533d8e7023bfe6",
+      "stats": {
+        "visitedIntervals": 7,
+        "certifiedIntervals": 4,
+        "deepestSubdivision": 2,
+        "minCertifiedMarginM": 1.3147156105762783
+      },
+      "issues": []
+    },
+    {
+      "id": "straight-sdu-knot-guide",
+      "file": "straight-sdu-knot-guide.json",
+      "expected": "verified_within_model",
+      "purpose": "Analytic y=0 SDU guide supplies reachable angle knots only; linear interpolation is not claimed to follow that guide between knots.",
+      "actual": "verified_within_model",
+      "pass": true,
+      "durationMs": 24.698756000000003,
+      "fixtureSha256": "4fed6439afefc2829bcc692a2cfae75d3d32cad89b8b788785f8e4eee7214d02",
+      "stats": {
+        "visitedIntervals": 32,
+        "certifiedIntervals": 32,
+        "deepestSubdivision": 0,
+        "minCertifiedMarginM": 9.660170132186288
+      },
+      "issues": []
+    },
+    {
+      "id": "concave-clear",
+      "file": "concave-clear.json",
+      "expected": "verified_within_model",
+      "purpose": "Concave field remains clear throughout the partial sweep.",
+      "actual": "verified_within_model",
+      "pass": true,
+      "durationMs": 1.5313619999999446,
+      "fixtureSha256": "e8dcd8813716b82f3d8d523df039a8bf9b8be965502901d88ed52339d710ef68",
+      "stats": {
+        "visitedIntervals": 1,
+        "certifiedIntervals": 1,
+        "deepestSubdivision": 0,
+        "minCertifiedMarginM": 1.0233175543446855
+      },
+      "issues": []
+    },
+    {
+      "id": "concave-interior-exit",
+      "file": "concave-interior-exit.json",
+      "expected": "constraint_violated",
+      "purpose": "Both member endpoints are inside but the main segment crosses a concave notch.",
+      "actual": "constraint_violated",
+      "pass": true,
+      "durationMs": 1.0233140000000276,
+      "fixtureSha256": "5262ebde91267403426a5ce4db98cea93e76cacb5d061c01e1bb9e4abdf630b9",
+      "stats": {
+        "visitedIntervals": 0,
+        "certifiedIntervals": 0,
+        "deepestSubdivision": 0,
+        "minCertifiedMarginM": null
+      },
+      "issues": [
+        {
+          "code": "knot_member_collision",
+          "message": "A supplied knot violates whole-member/offset clearance."
+        }
+      ]
+    },
+    {
+      "id": "hole-interior-collision",
+      "file": "hole-interior-collision.json",
+      "expected": "constraint_violated",
+      "purpose": "Main member crosses a field hole although hinge and pivot are outside it.",
+      "actual": "constraint_violated",
+      "pass": true,
+      "durationMs": 2.675747000000001,
+      "fixtureSha256": "fa17bb2c5f23db0e6e4e4f4966df9f04f99c7ca4e7b340fe3219fbebd00a0cd2",
+      "stats": {
+        "visitedIntervals": 1,
+        "certifiedIntervals": 0,
+        "deepestSubdivision": 0,
+        "minCertifiedMarginM": null
+      },
+      "issues": [
+        {
+          "code": "continuous_member_collision",
+          "message": "A checked midpoint violates whole-member/offset clearance.",
+          "interval": 0,
+          "thetaRad": 0
+        }
+      ]
+    },
+    {
+      "id": "obstacle-main-interior",
+      "file": "obstacle-main-interior.json",
+      "expected": "constraint_violated",
+      "purpose": "Whole-member interior obstacle collision.",
+      "actual": "constraint_violated",
+      "pass": true,
+      "durationMs": 1.1964120000000094,
+      "fixtureSha256": "a200026ad7a2e29de91e8debe3edf3e9eb7ec5a12f16f5dc0b1ab5421a7b45fb",
+      "stats": {
+        "visitedIntervals": 1,
+        "certifiedIntervals": 0,
+        "deepestSubdivision": 0,
+        "minCertifiedMarginM": null
+      },
+      "issues": [
+        {
+          "code": "continuous_member_collision",
+          "message": "A checked midpoint violates whole-member/offset clearance.",
+          "interval": 0,
+          "thetaRad": 0
+        }
+      ]
+    },
+    {
+      "id": "obstacle-overhang",
+      "file": "obstacle-overhang.json",
+      "expected": "constraint_violated",
+      "purpose": "Overhang hits obstacle beyond SDU.",
+      "actual": "constraint_violated",
+      "pass": true,
+      "durationMs": 0.6490349999999125,
+      "fixtureSha256": "210669c4a4bbf902c98ae909c2f3ea8c99770f9971e0589baaf6f26b7165a039",
+      "stats": {
+        "visitedIntervals": 0,
+        "certifiedIntervals": 0,
+        "deepestSubdivision": 0,
+        "minCertifiedMarginM": null
+      },
+      "issues": [
+        {
+          "code": "knot_member_collision",
+          "message": "A supplied knot violates whole-member/offset clearance."
+        }
+      ]
+    },
+    {
+      "id": "between-sample-collision",
+      "file": "between-sample-collision.json",
+      "expected": "constraint_violated",
+      "purpose": "Endpoints and original interval midpoint are clear; recursive proof finds collision near pi/8.",
+      "actual": "constraint_violated",
+      "pass": true,
+      "durationMs": 2.463416999999936,
+      "fixtureSha256": "95589b2452eb02f038f8d2ef307ba83c40487b0f5c2919705a54ac69c5981edf",
+      "stats": {
+        "visitedIntervals": 2,
+        "certifiedIntervals": 0,
+        "deepestSubdivision": 1,
+        "minCertifiedMarginM": null
+      },
+      "issues": [
+        {
+          "code": "continuous_member_collision",
+          "message": "A checked midpoint violates whole-member/offset clearance.",
+          "interval": 0,
+          "thetaRad": 0.39269908169872414
+        }
+      ]
+    },
+    {
+      "id": "offset-only-collision",
+      "file": "offset-only-collision.json",
+      "expected": "constraint_violated",
+      "purpose": "Buffered offset point collides outside the structural member centerlines.",
+      "actual": "constraint_violated",
+      "pass": true,
+      "durationMs": 0.8460789999999179,
+      "fixtureSha256": "60bb88684dd0dbbc0afb2a63c9c7402a3efcdd9a89ab93d4cdd1d06c1710410f",
+      "stats": {
+        "visitedIntervals": 0,
+        "certifiedIntervals": 0,
+        "deepestSubdivision": 0,
+        "minCertifiedMarginM": null
+      },
+      "issues": [
+        {
+          "code": "knot_member_collision",
+          "message": "A supplied knot violates whole-member/offset clearance."
+        }
+      ]
+    },
+    {
+      "id": "close-positive-gap",
+      "file": "close-positive-gap.json",
+      "expected": "verified_within_model",
+      "purpose": "A small positive clearance is proven without relaxing the requested buffer.",
+      "actual": "verified_within_model",
+      "pass": true,
+      "durationMs": 96.82276100000001,
+      "fixtureSha256": "60a5f7e202c0e9450cac5aa558397cedc560ba9d041b2b1577034f99bfc9876c",
+      "stats": {
+        "visitedIntervals": 511,
+        "certifiedIntervals": 256,
+        "deepestSubdivision": 8,
+        "minCertifiedMarginM": 4.14063371559914e-05
+      },
+      "issues": []
+    },
+    {
+      "id": "tangent-buffer",
+      "file": "tangent-buffer.json",
+      "expected": "numerically_unresolved",
+      "purpose": "Exact tangent at the midpoint must never pass by epsilon slack.",
+      "actual": "numerically_unresolved",
+      "pass": true,
+      "durationMs": 0.9802889999999707,
+      "fixtureSha256": "7836696620e267247e70da77ce71488cc195bc2f0d3ec99512918eecc6ab0857",
+      "stats": {
+        "visitedIntervals": 1,
+        "certifiedIntervals": 0,
+        "deepestSubdivision": 0,
+        "minCertifiedMarginM": null
+      },
+      "issues": [
+        {
+          "code": "clearance_budget",
+          "message": "Strict clearance could not be established before depth, displacement tolerance, arithmetic, or operation budget was reached. Tolerance never relaxes clearance."
+        }
+      ]
+    },
+    {
+      "id": "budget-unresolved",
+      "file": "budget-unresolved.json",
+      "expected": "numerically_unresolved",
+      "purpose": "Insufficient subdivision depth is an unresolved result, not infeasibility.",
+      "actual": "numerically_unresolved",
+      "pass": true,
+      "durationMs": 0.44110200000000077,
+      "fixtureSha256": "4deb1e3dfe132874630985bf5bff747d7df6251f6afc746b00e9682e835164c4",
+      "stats": {
+        "visitedIntervals": 1,
+        "certifiedIntervals": 0,
+        "deepestSubdivision": 0,
+        "minCertifiedMarginM": null
+      },
+      "issues": [
+        {
+          "code": "clearance_budget",
+          "message": "Strict clearance could not be established before depth, displacement tolerance, arithmetic, or operation budget was reached. Tolerance never relaxes clearance."
+        }
+      ]
+    },
+    {
+      "id": "joint-cycle-open",
+      "file": "joint-cycle-open.json",
+      "expected": "constraint_violated",
+      "purpose": "Full-cycle articulation seam remains open.",
+      "actual": "constraint_violated",
+      "pass": true,
+      "durationMs": 0.0903329999999869,
+      "fixtureSha256": "1f5a67ac648513fcd9044e5f0dd1171ef3e29e654d56f565713a7357611d9627",
+      "stats": {
+        "visitedIntervals": 0,
+        "certifiedIntervals": 0,
+        "deepestSubdivision": 0,
+        "minCertifiedMarginM": null
+      },
+      "issues": [
+        {
+          "code": "cycle_joint_seam",
+          "message": "Full-cycle articulation must close exactly without assumed joint winding."
+        }
+      ]
+    },
+    {
+      "id": "derivative-cycle-open",
+      "file": "derivative-cycle-open.json",
+      "expected": "constraint_violated",
+      "purpose": "Full-cycle positions close but first derivatives do not.",
+      "actual": "constraint_violated",
+      "pass": true,
+      "durationMs": 0.08654200000000856,
+      "fixtureSha256": "1ff17ea82ceb0444a8dbd7d4bcd3457b484ae196b7941e9adff32e01c2473fba",
+      "stats": {
+        "visitedIntervals": 0,
+        "certifiedIntervals": 0,
+        "deepestSubdivision": 0,
+        "minCertifiedMarginM": null
+      },
+      "issues": [
+        {
+          "code": "cycle_derivative_seam",
+          "message": "One-sided first derivatives do not close at the full-cycle seam."
+        }
+      ]
+    },
+    {
+      "id": "partial-no-closure-required",
+      "file": "partial-no-closure-required.json",
+      "expected": "verified_within_model",
+      "purpose": "An open partial sweep may end at a different articulation.",
+      "actual": "verified_within_model",
+      "pass": true,
+      "durationMs": 0.4478879999999208,
+      "fixtureSha256": "a94d0b391b5a01d936816351382b7f55223e226ed6196a3454971da540970668",
+      "stats": {
+        "visitedIntervals": 1,
+        "certifiedIntervals": 1,
+        "deepestSubdivision": 0,
+        "minCertifiedMarginM": 0.5477644882093309
+      },
+      "issues": []
+    },
+    {
+      "id": "large-translated-coordinates",
+      "file": "large-translated-coordinates.json",
+      "expected": "verified_within_model",
+      "purpose": "Same local problem translated to large projected coordinates.",
+      "actual": "verified_within_model",
+      "pass": true,
+      "durationMs": 0.5298569999999927,
+      "fixtureSha256": "f180aefa65432f38c6107df9485eb42bb53183454eec4cce150b28ba43c8d563",
+      "stats": {
+        "visitedIntervals": 1,
+        "certifiedIntervals": 1,
+        "deepestSubdivision": 0,
+        "minCertifiedMarginM": 1.022408009204628
+      },
+      "issues": []
+    },
+    {
+      "id": "invalid-bowtie",
+      "file": "invalid-bowtie.json",
+      "expected": "missing_evidence",
+      "purpose": "Reject a self-intersecting ring.",
+      "actual": "missing_evidence",
+      "pass": true,
+      "durationMs": 0.10059000000001106,
+      "fixtureSha256": "436f51feba1b462c8630abdfa36a5d844fe9736ecb7ccbad231e3b29b270f780",
+      "stats": {
+        "visitedIntervals": 0,
+        "certifiedIntervals": 0,
+        "deepestSubdivision": 0,
+        "minCertifiedMarginM": null
+      },
+      "issues": [
+        {
+          "code": "invalid_input",
+          "message": "Self-intersecting polygon ring."
+        }
+      ]
+    },
+    {
+      "id": "invalid-knot-order",
+      "file": "invalid-knot-order.json",
+      "expected": "missing_evidence",
+      "purpose": "Reject unordered unwrapped theta knots.",
+      "actual": "missing_evidence",
+      "pass": true,
+      "durationMs": 0.06879899999989902,
+      "fixtureSha256": "f96cc4f3e61f83d5f96d4db335d7748a46ff3599807c092343e06ca2324c76e0",
+      "stats": {
+        "visitedIntervals": 0,
+        "certifiedIntervals": 0,
+        "deepestSubdivision": 0,
+        "minCertifiedMarginM": null
+      },
+      "issues": [
+        {
+          "code": "knot_order",
+          "message": "Theta knots must be strictly ordered in the declared rotation direction."
+        }
+      ]
+    },
+    {
+      "id": "invalid-missing-sweep-end",
+      "file": "invalid-missing-sweep-end.json",
+      "expected": "missing_evidence",
+      "purpose": "No epsilon-based omission of final sweep coverage.",
+      "actual": "missing_evidence",
+      "pass": true,
+      "durationMs": 0.056899999999927786,
+      "fixtureSha256": "503affa40d3162ffade8f494a12e784e50145124cbcb577a45d5f0597a18d1a2",
+      "stats": {
+        "visitedIntervals": 0,
+        "certifiedIntervals": 0,
+        "deepestSubdivision": 0,
+        "minCertifiedMarginM": null
+      },
+      "issues": [
+        {
+          "code": "incomplete_sweep",
+          "message": "First and last theta must equal the declared sweep endpoints exactly."
+        }
+      ]
+    },
+    {
+      "id": "slope-limit",
+      "file": "slope-limit.json",
+      "expected": "constraint_violated",
+      "purpose": "Hard articulation-slope bound.",
+      "actual": "constraint_violated",
+      "pass": true,
+      "durationMs": 0.0654100000000426,
+      "fixtureSha256": "6d826f86de3c1411746f96d0e79c55a030ada20d2edc595aa24d8d2152d5cd47",
+      "stats": {
+        "visitedIntervals": 0,
+        "certifiedIntervals": 0,
+        "deepestSubdivision": 0,
+        "minCertifiedMarginM": null
+      },
+      "issues": [
+        {
+          "code": "articulation_slope",
+          "message": "Linear trajectory exceeds the declared articulation slope bound."
+        }
+      ]
+    },
+    {
+      "id": "articulation-limit",
+      "file": "articulation-limit.json",
+      "expected": "constraint_violated",
+      "purpose": "Hard articulation bounds.",
+      "actual": "constraint_violated",
+      "pass": true,
+      "durationMs": 0.06160899999997582,
+      "fixtureSha256": "7afd9f114120af8d07b4c090edc13919b6621938d976c49ce1a1a1e251836de3",
+      "stats": {
+        "visitedIntervals": 0,
+        "certifiedIntervals": 0,
+        "deepestSubdivision": 0,
+        "minCertifiedMarginM": null
+      },
+      "issues": [
+        {
+          "code": "articulation_bound",
+          "message": "Linear trajectory articulation exceeds declared bounds."
+        }
+      ]
+    },
+    {
+      "id": "clipped-endpoint-negative",
+      "file": "clipped-endpoint-negative.json",
+      "expected": "constraint_violated",
+      "purpose": "Illustrates why clipping visible endpoint/envelope to field cannot validate physical reach.",
+      "actual": "constraint_violated",
+      "pass": true,
+      "durationMs": 0.23186700000007932,
+      "fixtureSha256": "1841407f539f7974984c4810c2a3ccd72e0f349a04b759f6a168c9dfa5d1694d",
+      "stats": {
+        "visitedIntervals": 0,
+        "certifiedIntervals": 0,
+        "deepestSubdivision": 0,
+        "minCertifiedMarginM": null
+      },
+      "issues": [
+        {
+          "code": "knot_member_collision",
+          "message": "A supplied knot violates whole-member/offset clearance."
+        }
+      ]
+    }
+  ],
+  "libraries": {
+    "pass": true,
+    "versions": {
+      "polygon-clipping": "0.15.7",
+      "polyclip-ts": "0.16.8",
+      "proj4": "2.20.8"
+    },
+    "polygons": [
+      {
+        "operation": "intersection",
+        "expectedArea": 4,
+        "polygonClipping": 4,
+        "polyclipTs": 4,
+        "pass": true
+      },
+      {
+        "operation": "union",
+        "expectedArea": 28,
+        "polygonClipping": 28,
+        "polyclipTs": 28,
+        "pass": true
+      },
+      {
+        "operation": "difference-hole",
+        "expectedArea": 12,
+        "polygonClipping": 12,
+        "polyclipTs": 12,
+        "pass": true
+      },
+      {
+        "operation": "concave-intersection",
+        "expectedArea": 7,
+        "polygonClipping": 7,
+        "polyclipTs": 7,
+        "pass": true
+      }
+    ],
+    "projection": {
+      "inputWgs84": [
+        -99,
+        0
+      ],
+      "expectedXY": [
+        500000,
+        0
+      ],
+      "actualXY": [
+        500000,
+        0
+      ],
+      "pass": true
+    },
+    "limitation": "Known synthetic analytic checks only. Polygon libraries and proj4 are not used by the independent continuous-clearance core; library agreement is not ground truth."
+  },
+  "fixtureCount": 26,
+  "notEvaluated": [
+    "Unreachable arbitrary guidance is not evaluated: no guide inversion resolver is implemented.",
+    "No production app, vendor, device, control, or field proof is claimed."
+  ]
+}

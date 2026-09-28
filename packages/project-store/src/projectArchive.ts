@@ -7,7 +7,8 @@ import { z } from "zod";
 import {
   exportProjectGoogleEarthKml,
   exportProjectMapXml,
-  PROJECT_DOCUMENT_VERSION,
+  LEGACY_PROJECT_DOCUMENT_VERSION,
+  PROJECT_DOCUMENT_VERSIONS,
   serializeProjectDocument,
 } from "@cplayout/core";
 import type {
@@ -39,7 +40,7 @@ export interface ProjectArchiveManifest {
   files: string[];
   offlineFirst: true;
   paidServicesRequired: false;
-  projectDocumentVersion: typeof PROJECT_DOCUMENT_VERSION;
+  projectDocumentVersion: typeof PROJECT_DOCUMENT_VERSIONS[number];
 }
 
 export interface ProjectArchiveBundle {
@@ -56,7 +57,7 @@ const ProjectArchiveManifestSchema = z.object({
   files: z.array(z.string().min(1)).min(1),
   offlineFirst: z.literal(true),
   paidServicesRequired: z.literal(false),
-  projectDocumentVersion: z.literal(PROJECT_DOCUMENT_VERSION),
+  projectDocumentVersion: z.enum(PROJECT_DOCUMENT_VERSIONS),
 });
 
 /** A recovery package needs neither calculated metrics nor a WGS84 transform. */
@@ -74,7 +75,7 @@ export function buildProjectRecoveryArchiveBundle(
     files: [PROJECT_MANIFEST_FILENAME, PROJECT_JSON_FILENAME],
     offlineFirst: true,
     paidServicesRequired: false,
-    projectDocumentVersion: PROJECT_DOCUMENT_VERSION,
+    projectDocumentVersion: projectDocumentVersion(document),
   };
   return {
     manifest,
@@ -91,6 +92,7 @@ export function buildProjectArchiveBundle(
   geoJson: object,
   createdAt = new Date().toISOString(),
 ): ProjectArchiveBundle {
+  const document = serializeProjectDocument(project);
   const manifest: ProjectArchiveManifest = {
     archiveVersion: PROJECT_ARCHIVE_VERSION,
     createdAt,
@@ -109,14 +111,14 @@ export function buildProjectArchiveBundle(
     ],
     offlineFirst: true,
     paidServicesRequired: false,
-    projectDocumentVersion: PROJECT_DOCUMENT_VERSION,
+    projectDocumentVersion: projectDocumentVersion(document),
   };
 
   return {
     manifest,
     files: {
       [PROJECT_MANIFEST_FILENAME]: JSON.stringify(manifest, null, 2),
-      [PROJECT_JSON_FILENAME]: serializeProjectDocument(project),
+      [PROJECT_JSON_FILENAME]: document,
       [PROJECT_GEOJSON_FILENAME]: JSON.stringify(geoJson, null, 2),
       [PROJECT_GOOGLE_EARTH_KML_FILENAME]: exportProjectGoogleEarthKml(project, result).kml,
       [PROJECT_MAP_XML_FILENAME]: exportProjectMapXml(project),
@@ -148,10 +150,20 @@ export function importProjectArchiveZip(data: Uint8Array): PivotProject {
     if (!manifest.files.includes(requiredFile)) throw new Error(`Project archive manifest must list ${requiredFile}.`);
   }
   validateProjectArchiveManifestFiles(manifest, [...files.keys()]);
-  const project = parseEditableProjectDocument(files.get(PROJECT_JSON_FILENAME)!);
+  const document = files.get(PROJECT_JSON_FILENAME)!;
+  const project = parseEditableProjectDocument(document);
+  if (manifest.projectDocumentVersion !== projectDocumentVersion(document)) throw new Error("Project archive manifest version does not match project.json.");
   if (manifest.projectId !== project.id) throw new Error("Project archive manifest projectId does not match project.json.");
   if (manifest.projectCrs !== project.projectCrs) throw new Error("Project archive manifest projectCrs does not match project.json.");
   return project;
+}
+
+function projectDocumentVersion(document: string): typeof PROJECT_DOCUMENT_VERSIONS[number] {
+  const raw = parseStrictJson(document);
+  if (raw !== null && typeof raw === "object" && "documentVersion" in raw) {
+    return z.enum(PROJECT_DOCUMENT_VERSIONS).parse(raw.documentVersion);
+  }
+  return LEGACY_PROJECT_DOCUMENT_VERSION;
 }
 
 export function surveyPointsToCsv(points: SurveyPoint[]): string {

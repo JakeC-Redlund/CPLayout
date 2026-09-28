@@ -602,21 +602,22 @@ name = "cplayout-local-ml-companion"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
-    { name = "dvc" },
-    { name = "mlflow" },
     { name = "numpy" },
     { name = "opencv-python-headless" },
     { name = "pandas" },
+    { name = "portable-cv-toolkit" },
     { name = "scikit-learn" },
 ]
 
 [package.optional-dependencies]
 all = [
     { name = "dash" },
+    { name = "dvc" },
     { name = "fastapi" },
     { name = "geopandas" },
     { name = "httpx" },
     { name = "matplotlib" },
+    { name = "mlflow" },
     { name = "plotly" },
     { name = "rasterio" },
     { name = "rioxarray" },
@@ -635,6 +636,10 @@ dashboard = [
     { name = "dash" },
     { name = "streamlit" },
 ]
+experiment = [
+    { name = "dvc" },
+    { name = "mlflow" },
+]
 gis = [
     { name = "geopandas" },
     { name = "rasterio" },
@@ -650,7 +655,8 @@ vision = [
 requires-dist = [
     { name = "dash", marker = "extra == 'all'" },
     { name = "dash", marker = "extra == 'dashboard'" },
-    { name = "dvc", specifier = ">=3.60" },
+    { name = "dvc", marker = "extra == 'all'", specifier = ">=3.60" },
+    { name = "dvc", marker = "extra == 'experiment'", specifier = ">=3.60" },
     { name = "fastapi", marker = "extra == 'all'" },
     { name = "fastapi", marker = "extra == 'api'" },
     { name = "geopandas", marker = "extra == 'all'" },
@@ -659,12 +665,14 @@ requires-dist = [
     { name = "httpx", marker = "extra == 'api'" },
     { name = "matplotlib", marker = "extra == 'all'" },
     { name = "matplotlib", marker = "extra == 'vision'" },
-    { name = "mlflow", specifier = ">=3.0" },
+    { name = "mlflow", marker = "extra == 'all'", specifier = ">=3.0" },
+    { name = "mlflow", marker = "extra == 'experiment'", specifier = ">=3.0" },
     { name = "numpy" },
     { name = "opencv-python-headless", specifier = ">=4.10" },
     { name = "pandas", specifier = ">=2.2" },
     { name = "plotly", marker = "extra == 'all'" },
     { name = "plotly", marker = "extra == 'vision'" },
+    { name = "portable-cv-toolkit", path = "vendor/portable_cv_toolkit-0.3.1-py3-none-any.whl" },
     { name = "rasterio", marker = "extra == 'all'" },
     { name = "rasterio", marker = "extra == 'gis'" },
     { name = "rioxarray", marker = "extra == 'all'" },
@@ -679,7 +687,7 @@ requires-dist = [
     { name = "uvicorn", marker = "extra == 'all'" },
     { name = "uvicorn", marker = "extra == 'api'" },
 ]
-provides-extras = ["gis", "vision", "dashboard", "api", "all"]
+provides-extras = ["gis", "vision", "dashboard", "api", "experiment", "all"]
 
 [[package]]
 name = "cryptography"
@@ -1430,7 +1438,7 @@ name = "gunicorn"
 version = "25.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "packaging", marker = "sys_platform != 'win32'" },
+    { name = "packaging" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c4/f4/e78fa054248fab913e2eab0332c6c2cb07421fca1ce56d8fe43b6aef57a4/gunicorn-25.3.0.tar.gz", hash = "sha256:f74e1b2f9f76f6cd1ca01198968bd2dd65830edc24b6e8e4d78de8320e2fe889", size = 634883, upload-time = "2026-03-27T00:00:26.092Z" }
 wheels = [
@@ -2468,6 +2476,14 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/3a/7f/0f100df1172aadf88a929a9dbb902656b0880ba4b960fe5224867159d8f4/plotly-6.7.0.tar.gz", hash = "sha256:45eea0ff27e2a23ccd62776f77eb43aa1ca03df4192b76036e380bb479b892c6", size = 6911286, upload-time = "2026-04-09T20:36:45.738Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/90/ad/cba91b3bcf04073e4d1655a5c1710ef3f457f56f7d1b79dcc3d72f4dd912/plotly-6.7.0-py3-none-any.whl", hash = "sha256:ac8aca1c25c663a59b5b9140a549264a5badde2e057d79b8c772ae2920e32ff0", size = 9898444, upload-time = "2026-04-09T20:36:39.812Z" },
+]
+
+[[package]]
+name = "portable-cv-toolkit"
+version = "0.3.1"
+source = { path = "vendor/portable_cv_toolkit-0.3.1-py3-none-any.whl" }
+wheels = [
+    { filename = "portable_cv_toolkit-0.3.1-py3-none-any.whl", hash = "sha256:e2ad1117b5c6ad44b09fb9aa5a61a732868c53e426f25af3aeb9a6fe28a0589b" },
 ]
 
 [[package]]

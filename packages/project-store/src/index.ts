@@ -1,6 +1,7 @@
 export * from "./androidNativeProofRuntime";
 export * from "./nativeVerification";
 export * from "./designDraftArchive";
+export * from "./fieldDesignArchive";
 export * from "./mapPackageArchive";
 export * from "./mapPackageArchiveInstall";
 export * from "./persistenceSchema";

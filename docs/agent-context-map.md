@@ -19,7 +19,7 @@ This record provides compact route-to-context references for hooks, coordinators
 | --- | --- | --- | --- | --- | --- |
 | `workspace_preflight` | `650` | Load the durable CPLayout work contract and dirty-tree/validation expectations before non-trivial changes. | `AGENTS.md`<br>`docs/agent-tree-protocol.md` | `.agents/skills/cplayout-workspace-preflight/SKILL.md`<br>`docs/agent-known-gaps.md`<br>`docs/dependency-upgrade-plan.md`<br>`package.json`<br>`docs/center-pivot-package-surface-inventory.md` | `npm run validate:skills`<br>`git diff --check`<br>`npm audit` |
 | `governance_hooks_skills` | `1200` | Review and update prompt triage, route data, hooks, custom agents, skills, and process records. | `docs/agent-tree-protocol.md`<br>`.codex/hooks/cplayout_prompt_triage.py` | `.codex/hooks/cplayout_route_data.json`<br>`tools/validate_cplayout_skills.py`<br>`docs/agent-governance-summary.md`<br>`.codex/hooks.json`<br>`.codex/hooks/cplayout_subagent_start.py` | `npm run context-map:check`<br>`npm run validate:skills`<br>`git diff --check`<br>`npm audit` |
-| `interface_ui` | `900` | Map Expo React Native, browser UI, HUD, right drawer/sidebar, toolbar, component, UI-proof, and visible workflow work to proof gates. | `.agents/skills/cplayout-interface-development-agent/SKILL.md`<br>`apps/mobile/App.tsx` | `apps/mobile/src/components/CommandSurface.tsx`<br>`apps/mobile/src/components/DrawingToolPalette.tsx`<br>`packages/map-adapters/src/SvgMapSurface.tsx`<br>`packages/map-adapters/src/MapSurface.tsx`<br>`playwright.config.ts` | `npm run validate`<br>`npm run proof:web`<br>`npm run validate:skills`<br>`git diff --check`<br>`npm audit` |
+| `interface_ui` | `900` | Map Expo React Native, browser UI, HUD, right drawer/sidebar, toolbar, component, UI-proof, and visible workflow work to proof gates. | `.agents/skills/cplayout-interface-development-agent/SKILL.md`<br>`apps/mobile/App.tsx` | `apps/mobile/src/components/CommandSurface.tsx`<br>`apps/mobile/src/components/DrawingToolPalette.tsx`<br>`packages/map-adapters/src/SvgMapSurface.tsx`<br>`packages/map-adapters/src/MapSurface.tsx`<br>`docs/interactive-browser-review.md` | `npm run validate`<br>`npm run proof:web`<br>`npm run validate:skills`<br>`git diff --check`<br>`npm audit` |
 | `rtk_gnss_hardware` | `1100` | Route RTK/GNSS receiver, NMEA epoch, correction, antenna, native transport, capture provenance, and field-proof work. | `docs/rtk-gnss-integration-plan.md`<br>`packages/gnss/src/index.ts` | `packages/gnss/src/nmea.ts`<br>`packages/gnss/src/transport.ts`<br>`apps/mobile/src/gnss/webSerialTransport.ts`<br>`packages/core/src/projectReducer.ts`<br>`docs/android-native-verification.md` | `npm run validate`<br>`npm run proof:web`<br>`npm run validate:skills`<br>`git diff --check`<br>`npm audit` |
 | `geometry_design` | `950` | Route center pivot, corner-arm, lateral/linear move, and sprinkler design prompts to advisory geometry evidence. | `.agents/skills/cplayout-center-pivot-design-agent/SKILL.md`<br>`packages/geometry/src/index.ts` | `docs/design-guides/topic-index.md`<br>`packages/geometry/src/cornerGpsMapAdvisoryReview.ts`<br>`docs/design-guides/guides/local-precision-corner-0999428.md`<br>`docs/design-guides/guides/local-vflex-corner-0998325.md`<br>`docs/agent-known-gaps.md` | `npm run validate`<br>`npm run validate:design-guides`<br>`npm run validate:corner-service-manuals`<br>`git diff --check`<br>`npm audit` |
 | `core_project_geometry` | `900` | Route project document, KML/XML, sample fixture, and canonical geometry contract work. | `packages/core/src/projectDocument.ts`<br>`packages/core/src/index.ts` | `packages/core/src/projectKml.ts`<br>`packages/core/src/sampleProject.ts`<br>`packages/core/src/imageryEvidence.ts`<br>`docs/agent-known-gaps.md` | `npm run validate`<br>`npm run validate:skills`<br>`git diff --check`<br>`npm audit` |
@@ -66,7 +66,7 @@ This record provides compact route-to-context references for hooks, coordinators
 
 ## Source Hashes
 
-- `.agents/skills/cplayout-center-pivot-design-agent/SKILL.md`: `4bcad74ed787f5b3e5cf29552429d14d779238df17a21600a1b07e929b89a084`
+- `.agents/skills/cplayout-center-pivot-design-agent/SKILL.md`: `ff15be66079f4a42e7eb060a2a4a21f78e3029125becdf48d044daae482258ac`
 - `.agents/skills/cplayout-database-agent/SKILL.md`: `3cfa01cab12a411adde021d061cddaddaadd69b3dec090e6d8fc87be4f526a31`
 - `.agents/skills/cplayout-expert-agent-panels/SKILL.md`: `72089b23da6f815a932af1619bcdedacfbbb391a1d6300bacdda663157fea1c8`
 - `.agents/skills/cplayout-expert-agent-panels/references/agent-prompts.md`: `fd546f9da143545b64d4d2aa0dc87217b48249e8fa892d997b4c9827cf676443`
@@ -80,7 +80,7 @@ This record provides compact route-to-context references for hooks, coordinators
 - `.agents/skills/cplayout-google-earth-imagery-analysis/references/kml-kmz-evidence.md`: `a590bb4f5a8a1410977c34fda62fbc4f246f1f9a97edae0ee4abcb066bf7e65b`
 - `.agents/skills/cplayout-google-earth-imagery-analysis/references/source-ledger-template.md`: `627fd8321ddffd15a9f851eb309f2902120d9f0926f205864a19f71f95ed38f5`
 - `.agents/skills/cplayout-imagery-mapping-agent/SKILL.md`: `b9cc53477e590b5a3d5bbbfe77e0df4eaf2a1521ec06de6244dab14b0b9f3a1e`
-- `.agents/skills/cplayout-interface-development-agent/SKILL.md`: `996d0022072ecf8d3e928f1a098da17983678e72809824356b8f2c3918508c88`
+- `.agents/skills/cplayout-interface-development-agent/SKILL.md`: `116af1c5c32ec24af1191595efd8fc2d6fc863c2abf723b536526305bbe21f20`
 - `.agents/skills/cplayout-planning-review/SKILL.md`: `6ce645ae27dc77ecca760f8c0a71a236508c0eb190dd02c92d0878a85a9d15e2`
 - `.agents/skills/cplayout-qa-validation-agent/SKILL.md`: `2d0657b7ac6c94e448396f668c495c0a8e08d827e2b90f0901072028e195d4ce`
 - `.agents/skills/cplayout-runtime-proof-gate-agent/SKILL.md`: `d09dac9fc1fd63ce0fe04c1a1ee3fa9fb94339a905f1ac81b28cfd337d9284d2`
@@ -100,24 +100,24 @@ This record provides compact route-to-context references for hooks, coordinators
 - `.codex/hooks/cplayout_route_data.json`: `b98d5a1c94cc26570010cdc14dc378e1a9d53b9468ba878d6e6b314724608dd0`
 - `.codex/hooks/cplayout_stop_multi_agent.py`: `d9a079f447da909cafe61321b0b070f49c761c828818cde07ace63a7081312f8`
 - `.codex/hooks/cplayout_subagent_start.py`: `5c3d65dbb7ba33d5ecff531cfbfcb6cd8ae98b05ad109fbe6ea99190ad34c4b3`
-- `AGENTS.md`: `bc440cafbda043e55ecaa0a07155ca5ca58a48371e791520d03e160b575277e2`
-- `apps/mobile/App.tsx`: `365a76c05f72e95f56137d3d3aa681b55acb58766a3f5c020da72c940fcca6dd`
-- `docs/README.md`: `bbb466d18f4e260686355da7805251410189324e9cf15b0e9249d08f269ea899`
-- `docs/agent-known-gaps.md`: `364c9e0205b4df942077576701b4b009e2b270d55de97c87b30da2bcd31c7878`
-- `docs/agent-prompt-registry.md`: `880835d361287e9abecd2cb9c4baf33f93b503c842e52e5add4b3015fcf88d53`
-- `docs/agent-source-ledger.md`: `6c2906db5b9a8f47c414b48783ce582d780442809316ca2e5deb9fcebad0b596`
-- `docs/agent-tree-protocol.md`: `8a1fffd45ba33f649d40296fcb007c1f3c96629b64236df320032eec735bc954`
+- `AGENTS.md`: `ff5bfeb12012b25d61245e5854fcd6cb0803d47216837a82588b3aee32e80c34`
+- `apps/mobile/App.tsx`: `c7d9b4a0fc86c7aaaa2c94b4fc2932054d3fc30dcdbd5d72c37f118f4555aeb7`
+- `docs/README.md`: `8de4aa5fc25f15f9d80c8fde1fd928a1d974d2810e633243032d62b82af45dae`
+- `docs/agent-known-gaps.md`: `bd68c48452e3094b9d6f0825cf9643301df267063cc1ee18a58e4c15e95fc6a9`
+- `docs/agent-prompt-registry.md`: `65bbf9223b03a72ade1537ca3ac9f240d1fd6a4b751b7a3addf855be7affddd9`
+- `docs/agent-source-ledger.md`: `266120ad55ab87a6f858068cdeea6bfc41fa8fa670f0c9f09a37357c1f05dd0d`
+- `docs/agent-tree-protocol.md`: `ee9b72d77752ddde2e177091ee8c49e7f2597efc6dd65cdd8b4d81f6830b40f1`
 - `docs/agent-tree-rollout.md`: `acbd2bd17661fe55bb62adfd94dfa3b41ce324ada9f08498d64b178fd539c5a3`
 - `docs/android-native-verification.md`: `49a1f5ef1083e1be8db0b5add9141def3e35b952aef5284b4c90fdc8a0c6985c`
 - `docs/codex-managed-hook-deployment.md`: `bd161d4ec4e88bec9df30e419e798a75801e465398ad0039e0aab63d515c6b5b`
 - `docs/kml-kmz-google-earth-source-ledger.md`: `f7005f48fde5a880d0cbdf584212cc009f564adbe58eb29295d4e437c33f3d08`
 - `docs/rtk-gnss-integration-plan.md`: `355a83416053732bf62969ecc23d539e54e0aabd118e50e76fe9a1b10e21ee44`
-- `package.json`: `877bc4308f3826497519c7c5620832a1928f1ebb46650d301ae9c1463a51a5d0`
+- `package.json`: `3d64ccb164d3fdc814d5a456e8987ba9c77213244eeb16d720031d64cb0982a4`
 - `packages/core/src/cornerGpsMapImport.ts`: `35e170203a5bdf5669b3bfd088f549c7e2326ad05891c319fa9ce717a19a258f`
-- `packages/core/src/index.ts`: `245aa8ab313bca5d498785f03c2d51ec780bc6259d6c53d5a4a3789af1142936`
-- `packages/core/src/projectDocument.ts`: `33ff62d49297004fd00714dce739bec238e353f277db997c5504282a48231ef4`
-- `packages/geometry/src/index.ts`: `591f2f877e2109b0b73d95f383c0a6926a7fea92145a3fe6f9e177b875cbcd3f`
+- `packages/core/src/index.ts`: `69c2a265b380192f2ec0a5b4ce6c35c8ce8ded56e8e14f521adf40112b2fb0c5`
+- `packages/core/src/projectDocument.ts`: `53318b0655ea183b260e78bbff8bdeaeb870ee140e1760013260231eccc7a62e`
+- `packages/geometry/src/index.ts`: `15e3f996cf2dcde2822edb14abccdc2b3b3db2aa54f524849bfcdfb33f88b419`
 - `packages/gnss/src/index.ts`: `9a78f48fefcc5cd5edcfcdb830fe0002321fdf1ee7bc81e9011ad8f3f7d72e46`
-- `packages/project-store/src/index.ts`: `590e4b6718efa032803ce25d0e67f1a7228fc16ff9c6c52b62ba0bac0b0aba25`
-- `tools/build_cplayout_context_map.py`: `bf85a226bd5e3357e1cc3e9488fe0af848c323109b3659269531f90cc21493e5`
+- `packages/project-store/src/index.ts`: `3b6c5280b340e3f69e8664e05bff3d92bc4dab29a0954b85fd469a838b35978f`
+- `tools/build_cplayout_context_map.py`: `a25adf5da411a7ce7c4b188e54f43eb1ce41d4b5f00e3eccfce4812ffdad3889`
 - `tools/validate_cplayout_skills.py`: `f7f13c692a8a93e885e1c18d59fde3fb0d1ac5bdfcbded19872c854724842a61`

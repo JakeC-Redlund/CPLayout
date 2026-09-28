@@ -101,7 +101,8 @@ export function scoreLayoutAlternative(
   }
 
   const breakdown: LayoutScoreBreakdown = {
-    coverage: clamp01(result.metrics.coveragePercent / Math.max(effectiveConstraints.minCoveragePercent, 1)),
+    // Eligibility is a floor, never the denominator of the ranking objective.
+    coverage: clamp01(result.metrics.coveragePercent / 100),
     outsideField: 1 - clamp01(result.metrics.outsideFieldAcres / Math.max(effectiveConstraints.maxOutsideFieldAcres, 0.0001)),
     obstacleConflicts: 1 - clamp01(result.metrics.obstacleConflictCount / Math.max(effectiveConstraints.maxObstacleConflicts || 1, 1)),
     machineConstraint: machineRadius <= maxMachineRadius ? 1 : clamp01(maxMachineRadius / machineRadius),

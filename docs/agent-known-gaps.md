@@ -2,6 +2,17 @@
 
 This file tracks gaps in the agent/skill process layer. It does not replace product validation checklists.
 
+This is a dated gap/evidence ledger. Some earlier implementation-status statements
+below have been superseded; use [development-status.md](development-status.md) for
+current resumption and verify the selected contract before reopening a closed gap.
+
+The [2026-09-27 CUDA companion integration](cuda-companion-workspace-2026-09-27.md)
+adds a pinned shared wheel, measured WSL CUDA image/video inference and synthetic
+training/resume. Field-quality comparison, native Windows/device CV, compiled
+model cleanup, offline environment restoration and full workspace relocation
+remain open. CUDA metadata and a preflight tensor cannot label CPU boundary work
+GPU-backed or enable automatic geometry application.
+
 The current [mapping workflow packet](mapping-workflow-review.md) fixes local numerical, scoring, selection, save-status and hook-payload regressions. The [continuing refactor](full-refactor-execution.md) adds strict planar CRS admission, recovery, and pure transport switching guards; full integration/browser acceptance is in progress. True incomplete drafts, atomic catalog creation, grid-to-ground/datum/height qualification, immutable Layout snapshots, continuous corner/linear feasibility and physical RTK proof remain open. Successful local checks do not close these gaps. Web checkbox state required direct ARIA props in the installed renderer; the wider accessibility inventory and native screen-reader parity remain unverified.
 
 The new core draft document is exported/test-registered after focused review, but storage/archive/UI integration is not implemented. Request-local field-plan and optimizer reuse passed strict parity review; cost edits still run synchronous panel calculations and whole-project keys still invalidate unrelated results. Legacy numerical admission and pending ZIP ownership corrections await combined acceptance. The isolated Android build/install and current-process schema-v11 SQLite/in-memory ZIP observations are retained, but the overall collector failed at OS UI navigation. The narrowed OS classifier/collector repair passed 21 focused tests and independent review; it has not been rerun on a device. Restart/upgrade, received-file/consumed-bundle identity and physical evidence remain separate. Nine `WgcDsc` readiness browser cases now pass across desktop/tablet/phone; previous failures remain retained, and complete-inventory acceptance for later source is still required.
@@ -91,6 +102,17 @@ Key anchors:
 
 Use this section for irrigation design records, corner-arm/LRDU/SDU evidence, CornerGPSMap/BPF, generated scenarios, local sample fixtures, and certified-design non-claims.
 
+The [corner-arm research packet](corner-arm-geometry-research-plan.md) and
+[source reconciliation](corner-arm-research-sources.md) add a reproducible
+synthetic single-arm benchmark and graph/spline comparison. A bounded planar
+interval-clearance result applies only to its declared synthetic reference
+frames and interpolation. It does not qualify a manufacturer installation,
+terrain, steering/rolling behavior, timing, water application or controller.
+The app's report sampler and radial map/placement model remain separate;
+arbitrary SDU guidance-path inversion and shared-trajectory integration are
+still development gates. Workbook component dimensions, effective length and
+maximum reach retain their source-specific meanings and unresolved lineage.
+
 | Guided manual design and edit ergonomics remain native-device unverified. | The session-only guided transaction now stages map-click boundary, pivot, last-wheel, and machine-end inputs without project mutation, then validates and applies the complete draft in one reducer revision. MapLibre and forced SVG browser proof cover reducer-backed segment insertion and direct drag/reposition controls on desktop, tablet, and mobile. | Keep the source/static-browser claim bounded. Run Android/iOS device proof before claiming native MapLibre/SVG gesture parity, touch ergonomics, persistence, or production readiness. |
 | Hydraulic and agronomic suitability remain outside geometry readiness. | Readiness reports missing flow, pressure, application intensity, friction loss, nozzle package, topography, and uniformity inputs, but it does not calculate or certify them. | Keep geometry output advisory and require qualified engineering review before final design or equipment/controller decisions. |
 
@@ -130,6 +152,8 @@ Key anchors:
 - `web-sqlite-research-gate`: web SQLite remains behind Expo SQLite WASM plus COOP/COEP deployment and proof.
 
 ## Runtime Proof Boundaries
+
+The shared CV catalog in the canonical CV checkout is a source-file inventory. The separate CUDA records now include local SAM 2 and PP-OCRv5/Grounding DINO runtime observations; see `records/research-notes/cuda-vision-expansion-2026-09-27.md` and its linked acceptance record in that checkout. Those synthetic companion measurements do not qualify CPLayout field accuracy. SAM 3, Qwen3-VL and browser ONNX still require their own assets and runtime evaluations. `tools/verifyImageryEvidencePacket.ts` validates packet declarations, not independently reopened image bytes or pixels. The separate evidence classes are declaration, byte/hash verification, pixel measurement, human review and direct runtime proof; none should be promoted by wording alone. Keep raw imagery, OCR text, prompts and model weights outside shared governance records.
 
 Use this section for runtime checklist boundaries that cross storage, map rendering, Android/iOS, Google Earth, browser proof, and ignored report artifacts.
 

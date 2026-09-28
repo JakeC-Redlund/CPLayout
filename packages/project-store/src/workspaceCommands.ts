@@ -1,8 +1,9 @@
 import {
   DESIGN_DRAFT_DOCUMENT_VERSION, PivotProjectSchema, parseDesignDraftDocument, parseProjectDocument,
-  serializeDesignDraftDocument, serializeProjectDocument,
+  serializeDesignDraftDocument, serializeProjectDocument, validateFieldDesign, serializeFieldDesignDocument,
+  parseFieldDesignDocument, convertPivotProjectToFieldDesign, createFieldDesignEditorState, reduceFieldDesignEditorState,
 } from "@cplayout/core";
-import type { DesignDraft, LayoutResult, PivotProject } from "@cplayout/core";
+import type { DesignDraft, FieldDesign, FieldPivotMachine, LayoutResult, PivotProject } from "@cplayout/core";
 import { z } from "zod";
 import { parseEditableProjectDocument } from "./projectDocumentEditing";
 
@@ -17,6 +18,7 @@ import type {
 } from "./projectRepositoryTypes";
 import {
   createWorkspaceDesign, deleteWorkspaceDesign, saveWorkspaceDesign, validateWorkspaceDocument, WorkspaceDocumentError,
+  serializeWorkspaceDocument, upgradeWorkspaceDocumentToV2, FIELD_WORKSPACE_DOCUMENT_VERSION,
   type WorkspaceDesignRecord, type WorkspaceDocument,
 } from "./workspaceDocument";
 
@@ -50,13 +52,32 @@ export type CreateFieldMapRecordCommand = TimedCommand<"create_field_map_record"
 export type CreateDesignRecordCommand = TimedCommand<"create_design_record"> & {
   input: { id: string; fieldMapId: string; name: string; pivotProjectId: string; isActive?: boolean };
 };
+export type UpgradeFieldWorkspaceCommand = TimedCommand<"upgrade_workspace_to_v2">;
+export type CreateFieldDesignCommand = TimedCommand<"create_field_design"> & {
+  designId: string; fieldMapId: string; name: string; field: FieldDesign; isActive?: boolean; originalProjectDocument?: string;
+};
+export type SaveFieldDesignCommand = TimedCommand<"save_field_design"> & {
+  designId: string; expectedDesignRevision: number; field: FieldDesign;
+};
+export type CopyFieldDesignCommand = TimedCommand<"copy_field_design"> & {
+  sourceDesignId: string; expectedDesignRevision: number; designId: string; fieldMapId: string; fieldId: string; name: string;
+};
+export type ConvertProjectToFieldDesignCommand = TimedCommand<"convert_project_to_field_design"> & {
+  sourceDesignId: string; expectedDesignRevision: number; designId: string; fieldMapId: string; name: string;
+  fieldId: string; waterSourceId: string; powerSourceId: string;
+};
+export type AdoptFieldPlanCommand = TimedCommand<"adopt_field_plan"> & {
+  designId: string; expectedDesignRevision: number; machines: FieldPivotMachine[]; allowedReplacementMachineIds?: string[];
+};
 export type WorkspaceCommand = SaveProjectCommand | SaveDesignProjectCommand | CopyProjectCommand | DeleteProjectCommand
   | CreateClientCommand | UpdateClientCommand | DeleteClientCommand | CreateProjectWithInitialDesignCommand
   | CreateProjectWithInitialFieldMapCommand | CreateProjectRecordCommand | RenameProjectCommand
   | MoveProjectToClientCommand | CreateFieldMapRecordCommand | CreateDesignRecordCommand
-  | CreateDesignDraftCommand | SaveDesignDraftCommand | DeleteDesignCommand;
+  | CreateDesignDraftCommand | SaveDesignDraftCommand | DeleteDesignCommand
+  | UpgradeFieldWorkspaceCommand | CreateFieldDesignCommand | SaveFieldDesignCommand | CopyFieldDesignCommand
+  | ConvertProjectToFieldDesignCommand | AdoptFieldPlanCommand;
 export type WorkspaceCommandValue = void | ClientRecord | CatalogProjectRecord | FieldMapRecord | DesignRecord
-  | CreatedProjectWorkspace | CreatedProjectFieldMapWorkspace | PivotProject | Extract<WorkspaceDesignRecord, { kind: "draft" }>;
+  | CreatedProjectWorkspace | CreatedProjectFieldMapWorkspace | PivotProject | Extract<WorkspaceDesignRecord, { kind: "draft" | "field" }>;
 export interface WorkspaceCommandResult { workspace: WorkspaceDocument; value: WorkspaceCommandValue }
 
 const id = z.string().min(1);
@@ -98,7 +119,22 @@ const DraftInputSchema = z.unknown().transform((input): DesignDraft => {
     return fail("invalid_document", "Invalid design draft command data.");
   }
 });
+const FieldInputSchema = z.unknown().transform((input): FieldDesign => {
+  try { return validateFieldDesign(input); }
+  catch { return fail("invalid_document", "Invalid field design command data."); }
+});
 const CommandSchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("upgrade_workspace_to_v2"), now }).strict(),
+  z.object({ type: z.literal("create_field_design"), now, designId: id, fieldMapId: id, name: text,
+    field: FieldInputSchema, isActive: z.boolean().optional(), originalProjectDocument: z.string().optional() }).strict(),
+  z.object({ type: z.literal("save_field_design"), now, designId: id, expectedDesignRevision: designRevision, field: FieldInputSchema }).strict(),
+  z.object({ type: z.literal("copy_field_design"), now, sourceDesignId: id, expectedDesignRevision: designRevision,
+    designId: id, fieldMapId: id, fieldId: id, name: z.string().min(1) }).strict(),
+  z.object({ type: z.literal("convert_project_to_field_design"), now, sourceDesignId: id, expectedDesignRevision: designRevision,
+    designId: id, fieldMapId: id, name: text, fieldId: id, waterSourceId: id, powerSourceId: id }).strict(),
+  z.object({ type: z.literal("adopt_field_plan"), now, designId: id, expectedDesignRevision: designRevision,
+    machines: z.array(z.custom<FieldPivotMachine>(value => value !== null && typeof value === "object").transform(value => JSON.parse(JSON.stringify(value)) as FieldPivotMachine)),
+    allowedReplacementMachineIds: z.array(id).optional() }).strict(),
   z.object({ type: z.literal("save_project"), now, project: ProjectInputSchema, result: ResultSchema.optional(), createOnly: z.boolean() }).strict(),
   z.object({ type: z.literal("save_design_project"), now, designId: id, project: ProjectInputSchema, result: ResultSchema.optional() }).strict(),
   z.object({ type: z.literal("create_design_draft"), now, designId: id, fieldMapId: id, name: text,
@@ -147,6 +183,56 @@ export function applyWorkspaceCommand(workspace: WorkspaceDocument, command: Wor
   const revision = increment(next.revision);
   let value: WorkspaceCommandValue = undefined;
   switch (cmd.type) {
+    case "upgrade_workspace_to_v2":
+      next = upgradeWorkspaceDocumentToV2(serializeWorkspaceDocument(next));
+      break;
+    case "create_field_design": {
+      const created = createField(next, cmd, cmd.field);
+      next = created.workspace; value = created.design;
+      if (cmd.originalProjectDocument !== undefined) next.fieldDocuments!.find(item => item.id === cmd.field.id)!.originalProjectDocument = cmd.originalProjectDocument;
+      break;
+    }
+    case "save_field_design": {
+      fieldDesign(next, cmd.designId, cmd.expectedDesignRevision);
+      next = saveWorkspaceDesign(next, { designId: cmd.designId, expectedRevision: cmd.expectedDesignRevision,
+        document: serializeFieldDesignDocument(cmd.field), updatedAt: cmd.now });
+      value = next.catalog.designs.find(item => item.id === cmd.designId)!;
+      break;
+    }
+    case "copy_field_design": {
+      const source = fieldDesign(next, cmd.sourceDesignId, cmd.expectedDesignRevision);
+      const entry = next.fieldDocuments!.find(item => item.id === source.fieldDesignId)!;
+      const copy = { ...parseFieldDesignDocument(entry.document), id: cmd.fieldId, name: cmd.name };
+      const created = createField(next, cmd, copy);
+      next = created.workspace; value = created.design;
+      if (entry.originalProjectDocument !== undefined) next.fieldDocuments!.find(item => item.id === cmd.fieldId)!.originalProjectDocument = entry.originalProjectDocument;
+      break;
+    }
+    case "convert_project_to_field_design": {
+      const source = requireRecord(next.catalog.designs, cmd.sourceDesignId, "Source design");
+      if (source.kind !== "project") fail("identity_mismatch", "Explicit conversion requires a project-backed source design.");
+      if (source.revision !== cmd.expectedDesignRevision) fail("conflict", "Source design revision changed before conversion.");
+      const original = next.projectDocuments.find(item => item.summary.id === source.pivotProjectId)!.document;
+      let converted: ReturnType<typeof convertPivotProjectToFieldDesign>;
+      try { converted = convertPivotProjectToFieldDesign(original, { fieldId: cmd.fieldId, waterSourceId: cmd.waterSourceId, powerSourceId: cmd.powerSourceId }); }
+      catch { return fail("invalid_document", "Project conversion refused unsupported data; preserve the original project."); }
+      const created = createField(next, cmd, { ...converted.field, name: cmd.name });
+      next = created.workspace; value = created.design;
+      next.fieldDocuments!.find(item => item.id === cmd.fieldId)!.originalProjectDocument = original;
+      break;
+    }
+    case "adopt_field_plan": {
+      const design = fieldDesign(next, cmd.designId, cmd.expectedDesignRevision);
+      const field = parseFieldDesignDocument(next.fieldDocuments!.find(item => item.id === design.fieldDesignId)!.document);
+      const editor = { ...createFieldDesignEditorState(field), revision: design.revision };
+      const adopted = reduceFieldDesignEditorState(editor, { type: "adopt_plan", expectedRevision: cmd.expectedDesignRevision,
+        machines: cmd.machines, ...(cmd.allowedReplacementMachineIds === undefined ? {} : { allowedReplacementMachineIds: cmd.allowedReplacementMachineIds }) });
+      if (adopted.lastError) fail("conflict", adopted.lastError);
+      next = saveWorkspaceDesign(next, { designId: cmd.designId, expectedRevision: cmd.expectedDesignRevision,
+        document: serializeFieldDesignDocument(adopted.field), updatedAt: cmd.now });
+      value = next.catalog.designs.find(item => item.id === cmd.designId)!;
+      break;
+    }
     case "save_project": {
       const existing = next.projectDocuments.find((entry) => entry.summary.id === cmd.project.id);
       if (cmd.createOnly) {
@@ -294,6 +380,21 @@ export function applyWorkspaceCommand(workspace: WorkspaceDocument, command: Wor
   return { workspace: validateWorkspaceDocument(next), value };
 }
 
+function fieldDesign(workspace: WorkspaceDocument, designId: string, revision: number): Extract<WorkspaceDesignRecord, { kind: "field" }> {
+  const design = requireRecord(workspace.catalog.designs, designId, "Field design");
+  if (design.kind !== "field") fail("identity_mismatch", "Field operation requires a field-backed design.");
+  if (design.revision !== revision) fail("conflict", "Field design revision changed; reload before saving.");
+  return design;
+}
+
+function createField(workspace: WorkspaceDocument, command: { designId: string; fieldMapId: string; name: string; isActive?: boolean; now: string }, field: FieldDesign) {
+  if (workspace.workspaceVersion !== FIELD_WORKSPACE_DOCUMENT_VERSION) fail("unsupported_version", "Explicitly upgrade the workspace to v2 before creating field designs.");
+  const design: Extract<WorkspaceDesignRecord, { kind: "field" }> = { id: command.designId, fieldMapId: command.fieldMapId,
+    name: normalizeCatalogSortName(command.name), kind: "field", fieldDesignId: field.id, isActive: command.isActive ?? true,
+    revision: 0, createdAt: command.now, updatedAt: command.now };
+  return { design, workspace: createWorkspaceDesign(workspace, { design, document: serializeFieldDesignDocument(field) }) };
+}
+
 function saveOwned(workspace: WorkspaceDocument, designId: string, project: PivotProject, updatedAt: string): WorkspaceDocument {
   const design = requireRecord(workspace.catalog.designs, designId, "Design");
   if (design.kind !== "project" || design.pivotProjectId !== project.id) fail("identity_mismatch", "Save requires the selected project-backed design's original payload identity.");
@@ -336,6 +437,7 @@ function deleteProject(workspace: WorkspaceDocument, projectId: string, deletedA
   const removedDesigns = workspace.catalog.designs.filter((record) => folder ? mapIds.has(record.fieldMapId) : record.kind === "project" && record.pivotProjectId === projectId);
   const documents = new Set(removedDesigns.filter((record) => record.kind === "project").map(payloadId));
   const drafts = new Set(removedDesigns.filter((record) => record.kind === "draft").map(payloadId));
+  const fields = new Set(removedDesigns.filter(record => record.kind === "field").map(payloadId));
   const matchingDocument = workspace.projectDocuments.some((entry) => entry.summary.id === projectId);
   const matchingOwner = workspace.catalog.designs.find((record) => record.kind === "project" && record.pivotProjectId === projectId);
   if (!folder) {
@@ -348,13 +450,14 @@ function deleteProject(workspace: WorkspaceDocument, projectId: string, deletedA
   for (const design of removedDesigns) {
     const deletedRevision = increment(design.revision);
     workspace.tombstones.push({ entity: "design", id: design.id, revision: deletedRevision, deletedAt });
-    workspace.tombstones.push({ entity: design.kind === "project" ? "project_document" : "draft_document", id: payloadId(design), revision: deletedRevision, deletedAt });
+    workspace.tombstones.push({ entity: design.kind === "project" ? "project_document" : design.kind === "draft" ? "draft_document" : "field_document", id: payloadId(design), revision: deletedRevision, deletedAt });
   }
   if (!folder && removedDesigns.length === 0) workspace.tombstones.push({ entity: "project_document", id: projectId, revision, deletedAt });
   const designIds = new Set(removedDesigns.map((record) => record.id));
   workspace.catalog.designs = workspace.catalog.designs.filter((record) => !designIds.has(record.id));
   workspace.projectDocuments = workspace.projectDocuments.filter((entry) => !documents.has(entry.summary.id));
   workspace.draftDocuments = workspace.draftDocuments.filter((entry) => !drafts.has(entry.id));
+  if (workspace.fieldDocuments) workspace.fieldDocuments = workspace.fieldDocuments.filter(entry => !fields.has(entry.id));
   if (folder) {
     workspace.catalog.projects = workspace.catalog.projects.filter((record) => record.id !== projectId);
     workspace.catalog.fieldMaps = workspace.catalog.fieldMaps.filter((record) => !mapIds.has(record.id));
@@ -386,9 +489,10 @@ function definedFields<T extends object>(value: T): Partial<T> {
   return Object.fromEntries(Object.entries(value).filter(([, field]) => field !== undefined)) as Partial<T>;
 }
 
-function payloadId(design: WorkspaceDesignRecord): string { return design.kind === "project" ? design.pivotProjectId : design.draftId; }
+function payloadId(design: WorkspaceDesignRecord): string { return design.kind === "field" ? design.fieldDesignId : design.kind === "project" ? design.pivotProjectId : design.draftId; }
 function assertUnusedPayload(workspace: WorkspaceDocument, id: string): void {
   if (workspace.projectDocuments.some((entry) => entry.summary.id === id) || workspace.draftDocuments.some((entry) => entry.id === id)
+    || (workspace.fieldDocuments ?? []).some(entry => entry.id === id)
     || workspace.tombstones.some((entry) => entry.entity !== "design" && entry.id === id)) fail("conflict", "Document identity is already used or deleted.");
 }
 function assertUnused(records: { id: string }[], id: string, label: string): void {

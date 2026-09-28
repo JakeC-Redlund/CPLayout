@@ -369,9 +369,21 @@ test("catalog blank design starts empty and requires explicit coordinates before
   await page.getByTestId("design-draft-polygon").click();
   await page.getByTestId("design-draft-purpose-boundary").click();
   const map = page.getByTestId("design-draft-map-svg");
-  const box = (await map.boundingBox())!;
   for (const [x, y] of [[0.3, 0.35], [0.65, 0.35], [0.6, 0.6]]) {
-    await map.click({ position: { x: box.width * x, y: box.height * y } });
+    const box = (await map.boundingBox())!;
+    const overlay = (await page.getByTestId("design-draft-capture-status").boundingBox())!;
+    const camera = (await page.getByTestId("design-draft-camera-controls").boundingBox())!;
+    const clearTop = 10;
+    const clearWidth = Math.min(box.width - 20, camera.x - box.x - 20);
+    const clearHeight = Math.min(box.height, overlay.y - box.y) - clearTop - 10;
+    expect(clearWidth).toBeGreaterThan(20);
+    expect(clearHeight).toBeGreaterThan(20);
+    const position = { x: 10 + clearWidth * x, y: clearTop + clearHeight * y };
+    expect(await map.evaluate((element, point) => {
+      const bounds = element.getBoundingClientRect();
+      return element.contains(document.elementFromPoint(bounds.x + point.x, bounds.y + point.y));
+    }, position)).toBe(true);
+    await map.click({ position });
   }
   await page.getByTestId("design-draft-commit").click();
   await page.getByTestId("draft-save").click();
@@ -622,6 +634,16 @@ test("public proof map features can select the side-panel editor without geometr
   await expect(page.getByLabel("Selected map feature name")).toHaveValue("Power feed from 112th Avenue");
   await expect(page.getByText("Saved")).toBeVisible();
   await saveScreen(page, testInfo, "public-proof-feature-selected");
+  const mapNode = await workbench.elementHandle();
+  const camera = await workbench.getAttribute("data-map-camera");
+  await clickHudAction(page, "design-action-calculate");
+  await expect(page.getByTestId("calculation-screen")).toBeVisible();
+  await page.getByTestId("design-console-close").click();
+  await expect(page.getByTestId("workflow-sidebar-tab-tools")).toHaveAttribute("aria-selected", "true");
+  expect(await mapNode!.evaluate(node => node.isConnected)).toBe(true);
+  await expect(workbench).toHaveAttribute("data-map-camera", camera!);
+  await page.getByTestId("workflow-sidebar-tab-feature").click();
+  await expect(page.getByLabel("Selected map feature name")).toHaveValue("Power feed from 112th Avenue");
 });
 
 test("workspace rail exposes the selected view state", async ({ page }, testInfo) => {
@@ -1145,6 +1167,32 @@ test("pending map purpose reports rejection retry and cancellation without stale
   await expect(page.getByTestId("browser-map-action-status")).not.toContainText(/Choose its purpose|must be inside/i);
 });
 
+test("full-screen calculation preserves unfinished map drawing and camera", async ({ page }) => {
+  await page.goto("/");
+  await openBaselineSample(page);
+  await page.getByTestId("workspace-nav-map").click();
+  await activateMapTool(page, "polygon");
+  await clickWorkbenchMap(page, { x: 180, y: 240 });
+  await clickWorkbenchMap(page, { x: 200, y: 270 });
+  const draftStatus = page.getByText(/measure .* 2 draft pts .* polygon needs 3 pts/);
+  await expect(draftStatus).toBeVisible();
+  const feedback = await page.getByTestId("browser-map-action-status").textContent();
+  const stored = await workspaceStorageBytes(page);
+  await openInspectorIfCollapsed(page);
+  await page.getByTestId("workflow-sidebar-tab-tools").click();
+  const map = page.getByLabel("CPLayout MapLibre imagery workbench");
+  const node = await map.elementHandle();
+  const camera = await map.getAttribute("data-map-camera");
+  await page.getByTestId("design-action-calculate").click();
+  await expect(page.getByTestId("calculation-screen")).toBeVisible();
+  await page.getByTestId("design-console-close").click();
+  expect(await node!.evaluate(element => element.isConnected)).toBe(true);
+  await expect(map).toHaveAttribute("data-map-camera", camera!);
+  await expect(draftStatus).toBeVisible();
+  await expect(page.getByTestId("browser-map-action-status")).toHaveText(feedback!);
+  expect(await workspaceStorageBytes(page)).toEqual(stored);
+});
+
 test("placement review applies advisory pivot candidates only after confirmation", async ({ page }, testInfo) => {
   test.slow();
   await page.goto("/");
@@ -1157,21 +1205,27 @@ test("placement review applies advisory pivot candidates only after confirmation
   await expect(page.getByTestId("design-console-dialog")).toBeVisible();
   await page.getByTestId("design-console-calculate").click();
   await expect(page.getByTestId("placement-review-panel")).toContainText("Placement Review");
-  await expect(page.getByTestId("placement-review-panel")).toContainText("advisory");
-  await expect(page.getByTestId("placement-review-panel")).toContainText("source-backed");
+  await expect(page.getByTestId("placement-review-panel")).toContainText(/advisory/i);
+  await expect(page.getByTestId("placement-review-panel")).toContainText(/source-backed/i);
   await expect(page.getByTestId("placement-candidate-0")).toBeVisible();
-  await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
+  await expect(page.getByTestId("calculation-save-state")).toHaveText("Project: Saved");
 
   await page.getByTestId("placement-candidate-apply-0").click();
   await expect(page.getByTestId("placement-confirm-dialog")).toBeVisible();
-  await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
+  await expect(page.getByTestId("calculation-save-state")).toHaveText("Project: Saved");
+  await expect(page.getByTestId("design-console-dialog")).toBeHidden();
   await page.getByTestId("placement-confirm-dialog-cancel").click();
   await expect(page.getByTestId("placement-confirm-dialog")).toHaveCount(0);
-  await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
+  await expect(page.getByTestId("calculation-save-state")).toHaveText("Project: Saved");
+
+  await page.getByTestId("placement-candidate-apply-0").click();
+  await page.keyboard.press("Escape");
+  await expect(page.getByTestId("placement-confirm-dialog")).toHaveCount(0);
+  await expect(page.getByTestId("design-console-dialog")).toBeVisible();
 
   await page.getByTestId("placement-candidate-apply-0").click();
   await page.getByTestId("placement-confirm-dialog-confirm").click();
-  await expect(page.getByText("Unsaved edits")).toBeVisible();
+  await expect(page.getByTestId("calculation-save-state")).toHaveText("Project: Unsaved edits");
   await saveScreen(page, testInfo, "placement-review-confirmed-apply");
 });
 
@@ -1183,14 +1237,14 @@ test("generated field pivot plan saves advisory machine-zone review features aft
   await clickHudAction(page, "design-action-calculate");
   await expect(page.getByTestId("design-console-dialog")).toBeVisible();
   await expect(page.getByTestId("advisory-calculation-status")).toHaveCount(0, { timeout: 60000 });
-  await expect(page.getByTestId("advisory-generated-field-pivot-plan")).toContainText("Generated Field Pivot Plan");
-  await expect(page.getByTestId("advisory-generated-field-pivot-plan")).toContainText("does not create saved pivots");
+  await expect(page.getByTestId("advisory-generated-field-pivot-plan")).toContainText("Proposed pivot layout");
+  await expect(page.getByTestId("advisory-generated-field-pivot-plan")).toContainText("Proposed locations are not saved pivots");
   await expect(page.getByTestId("advisory-generated-multi-pivot-scenario-review")).toContainText("Generated Multi-Pivot Scenario Review");
   await expect(page.getByTestId("advisory-generated-multi-pivot-scenario-review")).toContainText("runtime collision controls");
-  await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
+  await expect(page.getByTestId("calculation-save-state")).toHaveText("Project: Saved");
 
   await page.getByTestId("save-generated-field-pivot-zones").click();
-  await expect(page.getByTestId("project-save-state").getByText("Unsaved edits")).toBeVisible();
+  await expect(page.getByTestId("calculation-save-state")).toHaveText("Project: Unsaved edits");
   await expect(page.getByTestId("advisory-calculation-status")).toHaveCount(0, { timeout: 60000 });
   await expect(page.getByTestId("generated-field-pivot-zone-save-status")).toHaveText(/Review zones: [1-9]\d* current \/ 0 missing \/ 0 stale/);
 
@@ -1211,15 +1265,15 @@ test("advisory cost review uses local assumptions without dirtying geometry", as
   await clickHudAction(page, "design-action-calculate");
   await expect(page.getByTestId("design-console-dialog")).toBeVisible();
   await expect(page.getByTestId("advisory-calculation-status")).toHaveCount(0, { timeout: 60000 });
-  await expect(page.getByTestId("advisory-cost-review-panel")).toContainText("Cost Review");
-  await expect(page.getByTestId("advisory-cost-status")).toContainText("will not infer machine prices");
+  await expect(page.getByTestId("advisory-cost-review-panel")).toContainText("Pivot equipment cost");
+  await expect(page.getByTestId("advisory-cost-status")).toContainText("No price has been assumed.");
   await expect(page.getByTestId("advisory-bender-strategy-summary")).toContainText("operator-labeled projected-XY second-pivot evidence");
-  await expect(page.getByTestId("advisory-obstacle-interaction-summary")).toContainText("Obstacle Interaction Review");
-  await expect(page.getByTestId("advisory-obstacle-interaction-summary")).toContainText("does not mutate canonical projected XY");
-  await expect(page.getByTestId("advisory-full-scope-boundary-summary")).toContainText("Full-Scope Boundary Review");
-  await expect(page.getByTestId("advisory-full-scope-boundary-summary")).toContainText("canonical projected XY");
-  await expect(page.getByTestId("advisory-generated-field-pivot-plan")).toContainText("Generated Field Pivot Plan");
-  await expect(page.getByTestId("advisory-generated-field-pivot-plan")).toContainText("canonical projected XY");
+  await expect(page.getByTestId("advisory-obstacle-interaction-summary")).toContainText("Obstacles and clearances");
+  await expect(page.getByTestId("advisory-obstacle-interaction-summary")).toContainText("checked in the field before operation");
+  await expect(page.getByTestId("advisory-full-scope-boundary-summary")).toContainText("Whole-field coverage");
+  await expect(page.getByTestId("advisory-full-scope-boundary-summary")).toContainText("saved boundary and equipment remain unchanged");
+  await expect(page.getByTestId("advisory-generated-field-pivot-plan")).toContainText("Proposed pivot layout");
+  await expect(page.getByTestId("advisory-generated-field-pivot-plan")).toContainText("without changing the active pivot");
   await expect(page.getByTestId("advisory-generated-multi-pivot-scenario-review")).toContainText("Generated Multi-Pivot Scenario Review");
   await expect(page.getByTestId("advisory-generated-multi-pivot-scenario-review")).toContainText("cost evidence Missing");
   await expect(page.getByTestId("advisory-design-report-panel")).toContainText("Advisory Design Report");
@@ -1227,11 +1281,14 @@ test("advisory cost review uses local assumptions without dirtying geometry", as
   await expect(page.getByTestId("advisory-review-zone-audit-summary")).toContainText("Review-zone audit");
   await expect(page.getByTestId("advisory-design-report-preview")).toContainText("Canonical geometry mutation: false");
 
+  await page.getByTestId("advisory-cost-basis-length_tower_estimate").click();
+  await expect(page.getByTestId("advisory-cost-currency")).toHaveValue("USD");
   await page.getByTestId("advisory-cost-fixed").fill("80000");
-  await page.getByTestId("advisory-cost-per-meter").fill("700");
+  await page.getByTestId("advisory-cost-per-foot").fill("213.36");
   await page.getByTestId("advisory-cost-per-tower").fill("3000");
+  await page.getByTestId("advisory-cost-includes").fill("Pivot equipment and drive towers");
   await expect(page.getByTestId("advisory-calculation-status")).toHaveCount(0, { timeout: 60000 });
-  await expect(page.getByTestId("advisory-cost-review-panel")).toContainText("Complete");
+  await expect(page.getByTestId("advisory-cost-status")).toContainText("USD 80000.00 base + 213.36/ft + 3000.00/tower.");
   await expect(page.getByTestId("advisory-generated-multi-pivot-scenario-review")).toContainText("cost evidence Complete");
   await expect(page.getByText("Unsaved edits")).toHaveCount(0, { timeout: 2000 });
 
@@ -1243,7 +1300,7 @@ test("advisory cost review uses local assumptions without dirtying geometry", as
   await expect.poll(
     async () => page.getByTestId("advisory-strategy-cost-summary").evaluate((node) => node.textContent ?? ""),
     { timeout: 30000 },
-  ).toContain("does not create a quote");
+  ).toContain("are not purchase recommendations");
   await expect.poll(
     async () => page.getByTestId("placement-review-panel").evaluate((node) => node.textContent ?? ""),
     { timeout: 30000 },
@@ -1276,10 +1333,13 @@ test("full-scope demo compares cost versus acres across advisory strategies", as
 
   await clickHudAction(page, "design-action-calculate");
   await expect(page.getByTestId("design-console-dialog")).toBeVisible();
+  await page.getByTestId("advisory-cost-basis-length_tower_estimate").click();
+  await expect(page.getByTestId("advisory-cost-currency")).toHaveValue("USD");
   await page.getByTestId("advisory-cost-fixed").fill("85000");
-  await page.getByTestId("advisory-cost-per-meter").fill("650");
+  await page.getByTestId("advisory-cost-per-foot").fill("198.12");
   await page.getByTestId("advisory-cost-per-tower").fill("2800");
-  await expect(page.getByTestId("advisory-cost-review-panel")).toContainText("Complete");
+  await page.getByTestId("advisory-cost-includes").fill("Pivot equipment and drive towers");
+  await expect(page.getByTestId("advisory-cost-status")).toContainText("USD 85000.00 base + 198.12/ft + 2800.00/tower.");
 
   await expect(page.getByTestId("advisory-cost-acres-comparison")).toContainText("Strategy");
   await expect(page.getByTestId("advisory-cost-row-current-machine")).toContainText("Current");
@@ -1299,8 +1359,8 @@ test("full-scope demo compares cost versus acres across advisory strategies", as
   await expect(page.getByTestId("advisory-cost-row-linear-lateral")).toContainText("/ac");
   await expect(page.getByTestId("advisory-cost-row-bender-second-pivot")).toContainText("Bender");
   await expect(page.getByTestId("advisory-cost-row-bender-second-pivot")).toContainText("/ac");
-  await expect(page.getByTestId("advisory-full-scope-boundary-summary")).toContainText("Full-Scope Boundary Review");
-  await expect(page.getByTestId("advisory-obstacle-interaction-summary")).toContainText("Obstacle Interaction Review");
+  await expect(page.getByTestId("advisory-full-scope-boundary-summary")).toContainText("Whole-field coverage");
+  await expect(page.getByTestId("advisory-obstacle-interaction-summary")).toContainText("Obstacles and clearances");
   await expect(page.getByText("Unsaved edits")).toHaveCount(0, { timeout: 2000 });
 
   const reportDownloadPromise = page.waitForEvent("download");
@@ -1330,10 +1390,13 @@ test("partial-sweep sample exposes advisory sweep efficiency comparison", async 
   await clickHudAction(page, "design-action-calculate");
   await expect(page.getByTestId("design-console-dialog")).toBeVisible();
 
+  await page.getByTestId("advisory-cost-basis-length_tower_estimate").click();
+  await expect(page.getByTestId("advisory-cost-currency")).toHaveValue("USD");
   await page.getByTestId("advisory-cost-fixed").fill("90000");
-  await page.getByTestId("advisory-cost-per-meter").fill("650");
+  await page.getByTestId("advisory-cost-per-foot").fill("198.12");
   await page.getByTestId("advisory-cost-per-tower").fill("2500");
-  await expect(page.getByTestId("advisory-cost-review-panel")).toContainText("Complete");
+  await page.getByTestId("advisory-cost-includes").fill("Pivot equipment and drive towers");
+  await expect(page.getByTestId("advisory-cost-status")).toContainText("USD 90000.00 base + 198.12/ft + 2500.00/tower.");
   await expect(page.getByTestId("advisory-sweep-efficiency-table")).toContainText("Sweep Efficiency");
   await expect(page.getByTestId("advisory-sweep-efficiency-table")).toContainText("Same radius full circle");
   await expect(page.getByTestId("advisory-sweep-efficiency-table")).toContainText("Shorter full circle");
@@ -2551,7 +2614,7 @@ test("Will Rhea guided demo exposes evidence status and blocked corner-arm calcu
   await expect(page.getByTestId("will-rhea-evidence-status")).toContainText("SHA-256");
   await expect(page.getByTestId("will-rhea-corner-arm-input-blockers")).toContainText("Measured LRDU speed");
   await expect(page.getByTestId("will-rhea-corner-arm-input-blockers")).toContainText("Source-labeled corner-arm model");
-  await expect(page.getByTestId("will-rhea-corner-arm-input-blockers")).toContainText("linear_move_path");
+  await expect(page.getByTestId("will-rhea-corner-arm-input-blockers")).toContainText("Explicit SDU guidance-line");
 
   await page.getByTestId("walkthrough-module-cornerArmInputs").click();
   await page.getByTestId("walkthrough-module-cornerArmCalculation").click();
@@ -2560,10 +2623,11 @@ test("Will Rhea guided demo exposes evidence status and blocked corner-arm calcu
 
   await page.getByTestId("workspace-nav-map").click();
   await clickHudAction(page, "design-action-calculate");
-  await expect(page.getByTestId("corner-arm-kinematics-panel")).toContainText("blockers");
-  await expect(page.getByTestId("corner-arm-kinematics-blockers")).toContainText("missing lrdu speed");
-  await expect(page.getByTestId("corner-arm-kinematics-blockers")).toContainText("missing model spec");
-  await expect(page.getByTestId("corner-arm-kinematics-blockers")).toContainText("missing guidance path");
+  await expect(page.getByTestId("corner-input-missing")).toContainText("Positive last regular drive tower speed in ft/min");
+  await expect(page.getByTestId("corner-input-missing")).toContainText("Corner model");
+  await expect(page.getByTestId("corner-input-missing")).toContainText("Steerable corner tower guidance line");
+  await expect(page.getByTestId("corner-input-run")).toBeDisabled();
+  await expect(page.getByTestId("corner-arm-kinematics-panel")).toHaveCount(0);
   await page.getByTestId("design-console-close").click();
 
   await openCornerArmAdvisorySheet(page);

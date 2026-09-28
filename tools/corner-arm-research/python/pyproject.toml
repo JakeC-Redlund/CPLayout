@@ -1,0 +1,14 @@
+[project]
+name = "cplayout-corner-arm-research"
+version = "0.1.0"
+description = "Offline synthetic corner-arm experiments; not a machine controller"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "numpy==2.5.3",
+  "scipy==1.18.1",
+  "shapely==2.1.2",
+  "pyproj==3.8.0",
+]
+
+[tool.uv]
+package = false

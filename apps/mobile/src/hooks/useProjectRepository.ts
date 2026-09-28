@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { parseDesignDraftDocument, parseProjectDocument, type DesignDraft, type LayoutResult, type PivotProject } from "@cplayout/core";
+import { parseDesignDraftDocument, parseProjectDocument, type DesignDraft, type LayoutResult, type PivotProject, type FieldDesign } from "@cplayout/core";
 import {
   createCatalogId, exportFileAsync, projectRepository, workspaceBackendInfo, workspaceDesignCatalog,
   type CatalogProjectRecord, type CreatedProjectFieldMapWorkspace, type CreatedProjectWorkspace,
@@ -21,9 +21,13 @@ export interface OpenedProject {
 }
 export type OpenedDesign = (OpenedProject & { kind: "project" }) | {
   kind: "draft"; draft: DesignDraft; persistenceRevision: number; designRevision: number; context: ProjectCatalogContext;
+} | {
+  kind: "field"; field: FieldDesign; persistenceRevision: number; designRevision: number; context: ProjectCatalogContext;
+  originalProjectDocument?: string;
 };
 export interface SaveOutcome { saved: boolean; persistenceRevision?: number }
 export type OpenedDraft = Extract<OpenedDesign, { kind: "draft" }>;
+export type OpenedField = Extract<OpenedDesign, { kind: "field" }>;
 export interface SaveFeedbackOwner { isCurrent(): boolean }
 
 export interface ProjectWorkspaceStatus {
@@ -42,6 +46,9 @@ export interface ProjectWorkspaceStatus {
   clearCatalogError: () => void;
   canCopyProject: boolean;
   canSaveDraft: boolean;
+  canSaveField: boolean;
+  createFieldFromSavedProject: (designId: string, revision: number) => Promise<OpenedField>;
+  saveFieldDesign: (designId: string, field: FieldDesign, revision: number, designRevision: number, owner?: SaveFeedbackOwner) => Promise<SaveOutcome & { designRevision?: number }>;
   createDesignDraft: (input: { fieldMapId: string; draft: DesignDraft }, revision: number | null, owner?: SaveFeedbackOwner) => Promise<OpenedDraft | null>;
   saveDesignDraft: (designId: string, draft: DesignDraft, revision: number, designRevision: number, owner?: SaveFeedbackOwner) => Promise<SaveOutcome & { designRevision?: number }>;
   copyProject: (command: CopyProjectCommand, revision: number) => Promise<{ project: PivotProject; persistenceRevision: number }>;
@@ -75,6 +82,8 @@ export async function readVersionedDesign(repository: VersionedWorkspaceReposito
   const read = await repository.readDesignAsync(designId);
   if (read.kind === "not_found") throw new Error("Project or design was not found in local storage.");
   const shared = { context: read.context, persistenceRevision: read.workspaceRevision };
+  if (read.kind === "field") return { ...shared, kind: "field", field: read.field,
+    designRevision: read.design.revision, ...(read.originalProjectDocument === undefined ? {} : { originalProjectDocument: read.originalProjectDocument }) };
   return read.kind === "draft"
     ? { ...shared, kind: "draft", draft: read.draft, designRevision: read.design.revision }
     : { ...shared, kind: "project", project: read.project };
@@ -211,6 +220,33 @@ export function useProjectRepository(): ProjectWorkspaceStatus {
     canExportWorkspaceRecovery: Boolean(versioned), reportError, clearProjectError, clearCatalogError, refreshProjects,
     canCopyProject: Boolean(versioned),
     canSaveDraft: Boolean(versioned),
+    canSaveField: Boolean(versioned) && backendInfo?.runtime === "web",
+    async createFieldFromSavedProject(designId, revision) {
+      if (!versioned || (await projectRepository.getBackendInfoAsync()).runtime !== "web") throw new Error("Independent field storage requires the web workspace; native activation is pending verification.");
+      const source = await versioned.readDesignAsync(designId);
+      if (source.kind !== "project" || source.workspaceRevision !== revision) throw new Error("Reopen and save the source design before creating an independent field.");
+      let nextRevision = revision;
+      const workspace = await versioned.readAsync();
+      if (workspace.workspaceVersion === "cplayout-workspace-v1") {
+        nextRevision = (await execute({ type: "upgrade_workspace_to_v2", now: now() }, nextRevision)).workspace.revision;
+      }
+      const fieldDesignId = id("design");
+      await execute({ type: "convert_project_to_field_design", now: now(), sourceDesignId: designId,
+        expectedDesignRevision: source.design.revision, designId: fieldDesignId, fieldMapId: source.context.fieldMapId,
+        name: `${source.project.name} independent machines`, fieldId: id("field"), waterSourceId: id("water"), powerSourceId: id("power") }, nextRevision);
+      const opened = await readVersionedDesign(versioned, fieldDesignId);
+      if (opened.kind !== "field") throw new Error("The created field could not be reopened.");
+      return opened;
+    },
+    async saveFieldDesign(designId, field, revision, designRevision, owner) {
+      try {
+        const receipt = await execute({ type: "save_field_design", designId, field,
+          expectedDesignRevision: designRevision, now: now() }, revision);
+        const design = receipt.workspace.catalog.designs.find(item => item.id === designId)!;
+        if (!owner || owner.isCurrent()) { clearProjectError(); setStatusMessage(`Saved ${field.name}.`); }
+        return { saved: true, persistenceRevision: receipt.workspace.revision, designRevision: design.revision };
+      } catch (error) { if (!owner || owner.isCurrent()) reportError(error); return { saved: false }; }
+    },
     async createDesignDraft(input, revision, owner) {
       try {
         const designId = id("design");

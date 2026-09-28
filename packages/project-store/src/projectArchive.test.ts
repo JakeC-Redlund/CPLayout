@@ -653,6 +653,28 @@ function rejectsArchiveUnchanged(bytes: Uint8Array, message: RegExp): void {
   assert.deepEqual(bytes, before);
 }
 
+test("v1 recovery and archive admission refuse reserved multi-machine data without loss", () => {
+  const recovery = buildProjectRecoveryArchiveBundle(sampleProject);
+  for (const extra of [{ machines: [] }, { machines: [{ id: "second-pivot" }] }, { selectedMachineId: "second-pivot" }]) {
+    const project = { ...sampleProject, ...extra };
+    const before = JSON.stringify(project);
+    assert.throws(() => buildProjectRecoveryArchiveBundle(project), /unsupported/);
+    assert.throws(() => buildProjectArchiveBundle(project, result, {}), /unsupported/);
+    assert.equal(JSON.stringify(project), before);
+    for (const raw of [
+      project,
+      { documentVersion: "pivot-project-v1", project },
+      { documentVersion: "pivot-project-v1", project: sampleProject, ...extra },
+    ]) {
+      const document = JSON.stringify(raw);
+      assert.throws(() => parseEditableProjectDocument(document), /unsupported/);
+      for (const stored of [false, true]) {
+        rejectsArchiveUnchanged(archiveBytes({ ...recovery.files, [PROJECT_JSON_FILENAME]: document }, stored), /unsupported/);
+      }
+    }
+  }
+});
+
 test("editable archive admission rejects unknown wrapper, project and deeply nested fields without changing bytes", () => {
   const recovery = buildProjectRecoveryArchiveBundle(evidenceArchiveProject);
   for (const mutate of [
@@ -840,4 +862,17 @@ test("streamed project and recovery archives preserve geometry and exact byte-vi
       assert.deepEqual(padded, before);
     }
   }
+});
+
+test("classified project v2 recovery archives preserve typed metadata and declare actual payload version", () => {
+  const project = { ...structuredClone(sampleProject), drawingMetadata: {
+    schemaVersion: "project-drawing-metadata-v1" as const, autosaveEnabled: false, records: [],
+  } };
+  const archive = buildProjectRecoveryArchiveBundle(project);
+  assert.equal(archive.manifest.projectDocumentVersion, "pivot-project-v2");
+  assert.deepEqual(importProjectArchiveZip(exportProjectArchiveZip(archive)), parseProjectDocument(archive.files[PROJECT_JSON_FILENAME]));
+  const wrong = structuredClone(archive);
+  wrong.manifest.projectDocumentVersion = "pivot-project-v1";
+  wrong.files[PROJECT_MANIFEST_FILENAME] = JSON.stringify(wrong.manifest);
+  assert.throws(() => importProjectArchiveZip(exportProjectArchiveZip(wrong)), /manifest version/);
 });

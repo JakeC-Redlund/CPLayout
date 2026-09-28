@@ -1,3 +1,4 @@
+import { refreshInheritedDrawingMetadata } from "./drawingProjectMutation";
 import { importProjectedGeoJsonToProject, importSurveyCsvToProject } from "./projectImports";
 import { PivotProjectSchema, withWgs84Companion } from "./projectDocument";
 import { projectDataKey } from "./projectDataComparison";
@@ -169,7 +170,7 @@ export function reduceProjectEditorState(state: ProjectEditorState, action: Proj
 function applyValidatedProjectImport(state: ProjectEditorState, project: PivotProject): ProjectEditorState {
   const topologyIssue = evaluateManualDesignReadiness(createManualDesignDraft(project, state.revision)).topologyIssues[0];
   if (topologyIssue) throw new Error(`Imported boundary is invalid: ${topologyIssue.message}`);
-  return applyProjectChange(state, project);
+  return applyProjectChange(state, project, false);
 }
 
 export function evaluateProjectEditorAction(state: ProjectEditorState, action: ProjectEditorAction): ProjectMutationResult {
@@ -178,8 +179,9 @@ export function evaluateProjectEditorAction(state: ProjectEditorState, action: P
   return { ok: true, revision: nextState.revision };
 }
 
-function applyProjectChange(state: ProjectEditorState, nextProject: PivotProject): ProjectEditorState {
-  const parsedProject = withWgs84Companion(PivotProjectSchema.parse(nextProject));
+function applyProjectChange(state: ProjectEditorState, nextProject: PivotProject, inheritDrawingMetadata = true): ProjectEditorState {
+  const candidate = inheritDrawingMetadata ? refreshInheritedDrawingMetadata(state.project, nextProject) : nextProject;
+  const parsedProject = withWgs84Companion(PivotProjectSchema.parse(candidate));
   return {
     project: parsedProject,
     past: [...state.past, state.project],

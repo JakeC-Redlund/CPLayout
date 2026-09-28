@@ -1,13 +1,15 @@
 import {
-  DESIGN_DRAFT_DOCUMENT_VERSION, parseDesignDraftDocument, parseProjectDocument,
-  type DesignDraft, type PivotProject,
+  parseDesignDraftDocument, parseProjectDocument, serializeDesignDraftDocument, serializeProjectDocument,
+  parseFieldDesignDocument, serializeFieldDesignDocument,
+  type DesignDraft, type PivotProject, type FieldDesign,
 } from "@cplayout/core";
 
 export type EditorPersistenceRevision = number | null | undefined;
-export type EditorSavePayload = { kind: "project"; project: PivotProject } | { kind: "draft"; draft: DesignDraft };
+export type EditorSavePayload = { kind: "project"; project: PivotProject } | { kind: "draft"; draft: DesignDraft }
+  | { kind: "field"; field: FieldDesign };
 export type EditorSaveTarget =
   | { kind: "project"; payloadId: string; designId: string | null; workspaceRevision: EditorPersistenceRevision }
-  | { kind: "draft"; payloadId: string; designId: string; workspaceRevision: number; designRevision: number };
+  | { kind: "draft" | "field"; payloadId: string; designId: string; workspaceRevision: number; designRevision: number };
 export interface EditorSaveSession {
   readonly generation: number;
   readonly kind: EditorSaveTarget["kind"];
@@ -96,7 +98,7 @@ export function createEditorSaveCoordinator() {
       requireActive(session);
       assertRevision(editorRevision, "Editor revision");
       const payload = snapshotPayload(request.payload);
-      const payloadId = payload.kind === "project" ? payload.project.id : payload.draft.id;
+      const payloadId = payload.kind === "project" ? payload.project.id : payload.kind === "draft" ? payload.draft.id : payload.field.id;
       if (payload.kind !== session.kind || payloadId !== session.payloadId) throw new Error("Save payload does not belong to this editor session.");
       const owner = { isCurrent: () => active === session && (feedbackIsCurrent?.() ?? true) };
       // Accepted requests keep their snapshot and ordering even if navigation retires their UI owner.
@@ -105,7 +107,7 @@ export function createEditorSaveCoordinator() {
         const outcome = await write(payload, { ...target }, owner);
         if (outcome.saved) {
           validateReceipt(target, outcome);
-          targets.set(session, target.kind === "draft"
+          targets.set(session, target.kind !== "project"
             ? { ...target, workspaceRevision: outcome.persistenceRevision!, designRevision: outcome.designRevision! }
             : { ...target, workspaceRevision: outcome.persistenceRevision });
         }
@@ -121,19 +123,20 @@ export function createEditorSaveCoordinator() {
 }
 
 function snapshotPayload(payload: EditorSavePayload): EditorSavePayload {
+  if (payload.kind === "field") return { kind: "field", field: parseFieldDesignDocument(serializeFieldDesignDocument(payload.field)) };
   return payload.kind === "draft"
-    ? { kind: "draft", draft: parseDesignDraftDocument({ documentVersion: DESIGN_DRAFT_DOCUMENT_VERSION, draft: payload.draft }) }
-    : { kind: "project", project: parseProjectDocument(payload.project) };
+    ? { kind: "draft", draft: parseDesignDraftDocument(serializeDesignDraftDocument(payload.draft)) }
+    : { kind: "project", project: parseProjectDocument(serializeProjectDocument(payload.project)) };
 }
 
 function validateTarget(target: EditorSaveTarget): void {
-  if (target.kind !== "project" && target.kind !== "draft") throw new Error("Unknown editor save kind.");
+  if (target.kind !== "project" && target.kind !== "draft" && target.kind !== "field") throw new Error("Unknown editor save kind.");
   if (typeof target.payloadId !== "string" || !target.payloadId.trim()
     || (target.designId !== null && (typeof target.designId !== "string" || !target.designId.trim()))
-    || (target.kind === "draft" && target.designId === null)) {
+    || (target.kind !== "project" && target.designId === null)) {
     throw new Error("Save target requires explicit payload and design identities.");
   }
-  if (target.kind === "draft") {
+  if (target.kind !== "project") {
     assertRevision(target.workspaceRevision, "Draft workspace revision");
     assertRevision(target.designRevision, "Draft design revision");
   } else if (target.workspaceRevision !== null && target.workspaceRevision !== undefined) {
@@ -148,7 +151,7 @@ function validateReceipt(target: EditorSaveTarget, outcome: EditorWriteOutcome):
   }
   if (target.workspaceRevision === null) assertRevision(outcome.persistenceRevision, "Created project workspace revision");
   else assertNextRevision(target.workspaceRevision, outcome.persistenceRevision, "Workspace revision");
-  if (target.kind === "draft") assertNextRevision(target.designRevision, outcome.designRevision, "Draft design revision");
+  if (target.kind !== "project") assertNextRevision(target.designRevision, outcome.designRevision, "Design revision");
 }
 
 function assertRevision(value: number | undefined, label: string): asserts value is number {

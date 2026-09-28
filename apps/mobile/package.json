@@ -10,11 +10,12 @@
     "web": "expo start --web --host localhost",
     "android": "expo run:android",
     "export:web": "tsx ../../tools/webBuildLease.ts workspace-export",
-    "test": "tsx src/newDesignDraft.test.ts && tsx src/components/designDraftInputValues.test.ts && tsx src/hooks/useProjectRepository.test.ts && tsx src/projectOpenRequest.test.ts && tsx src/pendingMapDraft.test.ts && tsx src/projectEditorDispatch.test.ts && tsx src/editorSaveCoordinator.test.ts && tsx src/advisory/advisoryJob.test.ts && tsx src/navigation/navigationViewModels.test.ts && tsx src/navigation/projectTreeViewModel.test.ts && tsx src/gnss/webSerialTransport.test.ts && tsx src/gnss/webSerialTransportSafety.test.ts && tsx src/gnss/webSerialSessionOwner.test.ts && tsx src/gnss/captureDraft.test.ts",
+    "test": "tsx src/newDesignDraft.test.ts && tsx src/components/designDraftInputValues.test.ts && tsx src/hooks/useProjectRepository.test.ts && tsx src/projectOpenRequest.test.ts && tsx src/pendingMapDraft.test.ts && tsx src/projectEditorDispatch.test.ts && tsx src/editorSaveCoordinator.test.ts && tsx src/advisory/advisoryJob.test.ts && tsx src/advisory/cornerArmInputs.test.ts && tsx src/advisory/costInputs.test.ts && tsx src/navigation/navigationViewModels.test.ts && tsx src/navigation/projectTreeViewModel.test.ts && tsx src/gnss/webSerialTransport.test.ts && tsx src/gnss/webSerialTransportSafety.test.ts && tsx src/gnss/webSerialSessionOwner.test.ts && tsx src/gnss/captureDraft.test.ts && tsx src/components/fieldMachineInputs.test.ts",
     "typecheck": "tsc --noEmit",
     "validate": "npm run typecheck"
   },
   "dependencies": {
+    "@cplayout/backup-artifacts": "*",
     "@cplayout/core": "*",
     "@cplayout/geometry": "*",
     "@cplayout/gnss": "*",
@@ -27,7 +28,7 @@
     "expo-file-system": "~55.0.26",
     "expo-sharing": "~55.0.24",
     "expo-splash-screen": "~55.0.25",
-    "expo-sqlite": "~55.0.20",
+    "expo-sqlite": "55.0.20",
     "expo-status-bar": "55.0.6",
     "lucide-react-native": "1.16.0",
     "react": "19.2.0",
@@ -40,5 +41,14 @@
   "devDependencies": {
     "@types/react": "19.2.16",
     "typescript": "~5.9.2"
+  },
+  "expo": {
+    "autolinking": {
+      "android": {
+        "buildFromSource": [
+          "expo-sqlite"
+        ]
+      }
+    }
   }
 }

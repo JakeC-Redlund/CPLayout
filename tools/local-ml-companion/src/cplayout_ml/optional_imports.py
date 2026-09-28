@@ -10,6 +10,7 @@ EXTRA_GROUP_IMPORTS: dict[str, list[tuple[str, str]]] = {
         ("opencv-python-headless", "cv2"),
         ("pandas", "pandas"),
         ("scikit-learn", "sklearn"),
+        ("portable-cv-toolkit", "cv_toolkit"),
     ],
     "gis": [
         ("rasterio", "rasterio"),
@@ -30,6 +31,10 @@ EXTRA_GROUP_IMPORTS: dict[str, list[tuple[str, str]]] = {
         ("httpx", "httpx"),
         ("uvicorn", "uvicorn"),
         ("sqlalchemy", "sqlalchemy"),
+    ],
+    "experiment": [
+        ("dvc", "dvc"),
+        ("mlflow", "mlflow"),
     ],
 }
 

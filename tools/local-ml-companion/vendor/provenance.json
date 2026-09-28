@@ -1,0 +1,12 @@
+{
+  "schema_version": "CPLayoutVendoredCV-v1",
+  "source_repository": "JakeC-Redlund/redlund-cv-analytics",
+  "source_commit": "d013a6d0c49eab0b3f7b63eb5fa24cb67f7721e4",
+  "wheel": "portable_cv_toolkit-0.3.1-py3-none-any.whl",
+  "sha256": "e2ad1117b5c6ad44b09fb9aa5a61a732868c53e426f25af3aeb9a6fe28a0589b",
+  "source_manifest_sha256": "356bdd5b6a882376f289194d59bfbca5309ede6ce230194f4b5151e375a21146",
+  "verified_source_files": 25,
+  "notice_sha256": "2133695af1636c9e4d62c9050885c606d8009034ee1ce8af5286b503578e7119",
+  "publication_scope": "Owner-approved portable source toolkit checkpoint; model weights, imagery and runtime dependencies excluded.",
+  "runtime_claim": "Packaging provenance only; managed CUDA and native acceptance remain separate."
+}

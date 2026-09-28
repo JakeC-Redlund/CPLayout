@@ -19,6 +19,7 @@ import {
   Map as MapIcon,
   MapPin,
   MapPinned,
+  Minus,
   Monitor,
   MoreHorizontal,
   PackageCheck,
@@ -46,6 +47,7 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   View,
@@ -54,6 +56,12 @@ import {
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { CoordinateFormatPanel } from "./src/components/CoordinateFormatPanel";
+import { FieldPivotPreviewControls } from "./src/components/FieldPivotPreviewControls";
+import { ReportField, ReportNotice, ReportValue, reportStyles } from "./src/components/CalculationReport";
+import { advisoryCostDraftMessage, advisoryCostDraftReadyForRadiusSensitivity, advisoryCostDraftStatus,
+  advisoryCostInputFromDraft, advisoryCostPriceNeedsReview, EMPTY_ADVISORY_COST_DRAFT, updateMachinePrice, type AdvisoryCostDraft } from "./src/advisory/costInputs";
+import { CornerArmCalculationInputs } from "./src/components/CornerArmCalculationInputs";
+import { cornerArmInputScope, cornerArmInputsForPreview, initialCornerArmInputs, type CornerArmInputDraft } from "./src/advisory/cornerArmInputs";
 import { useAdvisoryJob } from "./src/advisory/useAdvisoryJob";
 import { advisoryDemand } from "./src/advisory/advisoryDemand";
 import { AndroidNativeProofRunner } from "./src/components/AndroidNativeProofRunner";
@@ -96,11 +104,12 @@ import { dispatchProjectEditorAction } from "./src/projectEditorDispatch";
 import { type EditorSavePayload, type EditorSaveSession, type EditorSaveTarget } from "./src/editorSaveCoordinator";
 import { useEditorSaveCoordinator } from "./src/hooks/useEditorSaveCoordinator";
 import { DesignDraftWorkspace } from "./src/components/DesignDraftWorkspace";
+import { FieldDesignWorkspace } from "./src/components/FieldDesignWorkspace";
 import { newDesignDraft } from "./src/newDesignDraft";
 import { createPendingMapDraftSession, type PendingMapDraftState } from "./src/pendingMapDraft";
 import { SettingsPanel } from "./src/components/SettingsPanel";
 import { DrawingToolLauncher, DrawingToolPalette, type DrawingToolPaletteModal } from "./src/components/DrawingToolPalette";
-import { useProjectRepository, type ProjectWorkspaceStatus, type PersistenceRevision, type OpenedDraft } from "./src/hooks/useProjectRepository";
+import { useProjectRepository, type ProjectWorkspaceStatus, type PersistenceRevision, type OpenedDraft, type OpenedField } from "./src/hooks/useProjectRepository";
 import {
   parseCplayoutLeftNavMenuXml,
   type CplayoutLeftNavCatalogActionDefinition,
@@ -229,12 +238,6 @@ type Screen = "projects" | "workspace";
 type WalkthroughModuleId = "imagery" | "boundary" | "obstacles" | "pivot" | "survey" | "cornerArmInputs" | "cornerArmCalculation" | "validation" | "export";
 type DesignConsoleModal = DrawingToolPaletteModal;
 type RightWorkflowSidebarPage = "overview" | "tools" | "purpose" | "toolForm" | "layers" | "rtk" | "feature" | "warnings" | "catalog" | "catalogForm";
-type AdvisoryCostDraft = {
-  fixedMachineCost: string;
-  costPerMeter: string;
-  costPerTower: string;
-  currencyCode: string;
-};
 type PendingPlacementAction =
   | { kind: "pivot"; candidate: PivotPlacementCandidate }
   | { kind: "cornerArm"; config: AdvisoryCornerArmConfig };
@@ -244,23 +247,19 @@ type MapDraftPurposeOption =
   | { purposeType: "field_boundary"; kind: "field_boundary"; label: string; geometry: "Polygon"; meta: string }
   | { purposeType: "obstacle"; kind: ObstacleZone["kind"]; label: string; geometry: "Polygon"; meta: string };
 
-const EMPTY_ADVISORY_COST_DRAFT: AdvisoryCostDraft = {
-  fixedMachineCost: "",
-  costPerMeter: "",
-  costPerTower: "",
-  currencyCode: "USD",
-};
 const DEFAULT_CORNER_ARM_LENGTH_METERS = 91;
 const DEFAULT_CORNER_ARM_WHEEL_TRACK_LENGTH_METERS = 66;
 const DEFAULT_CORNER_ARM_OVERHANG_LENGTH_METERS = 25;
 
 export default function App(): React.JSX.Element {
   const [draft, setDraft] = useState<OpenedDraft | null>(null);
+  const [field, setField] = useState<OpenedField | null>(null);
   const [pendingDraft, setPendingDraft] = useState<{ onConfirm: () => void; onCancel: () => void } | null>(null);
   return (
     <SafeAreaProvider>
-      {draft ? <DesignDraftWorkspace key={draft.context.designId} initial={draft} onClose={() => setDraft(null)} />
-        : <AppContent onOpenDraft={setDraft} onRequestDiscard={(onConfirm, onCancel) => setPendingDraft({ onConfirm, onCancel })} />}
+      {field ? <FieldDesignWorkspace key={field.context.designId} initial={field} onClose={() => setField(null)} />
+        : draft ? <DesignDraftWorkspace key={draft.context.designId} initial={draft} onClose={() => setDraft(null)} />
+        : <AppContent onOpenDraft={setDraft} onOpenField={setField} onRequestDiscard={(onConfirm, onCancel) => setPendingDraft({ onConfirm, onCancel })} />}
       <ConfirmActionDialog visible={pendingDraft !== null} title="Leave unsaved project?"
         message="Changes since the last save will be discarded when you open the draft."
         confirmLabel="Discard changes" testID="project-to-draft-discard"
@@ -287,8 +286,9 @@ function ProjectImportStatus({ kind }: { kind: "saving" | "saved" | "error" }): 
   );
 }
 
-function AppContent({ onOpenDraft, onRequestDiscard }: {
+function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
   onOpenDraft: (draft: OpenedDraft) => void;
+  onOpenField: (field: OpenedField) => void;
   onRequestDiscard: (onConfirm: () => void, onCancel: () => void) => void;
 }): React.JSX.Element {
   const [screen, setScreen] = useState<Screen>("workspace");
@@ -329,7 +329,9 @@ function AppContent({ onOpenDraft, onRequestDiscard }: {
   const [designScenarioPreview, setDesignScenarioPreview] = useState<DesignScenarioPreview[] | null>(null);
   const [idealCenterAnalysis, setIdealCenterAnalysis] = useState<IdealCenterPointAnalysis | null>(null);
   const [placementCandidates, setPlacementCandidates] = useState<PivotPlacementCandidate[] | null>(null);
-  const [advisoryCostDraft, setAdvisoryCostDraft] = useState<AdvisoryCostDraft>(EMPTY_ADVISORY_COST_DRAFT);
+  const [costDraftState, setCostDraftState] = useState({ generation: projectLoadSequenceRef.current, draft: EMPTY_ADVISORY_COST_DRAFT });
+  const advisoryCostDraft = costDraftState.generation === projectLoadSequenceRef.current ? costDraftState.draft : EMPTY_ADVISORY_COST_DRAFT;
+  const setAdvisoryCostDraft = (draft: AdvisoryCostDraft) => setCostDraftState({ generation: projectLoadSequenceRef.current, draft });
   const [pendingPlacementAction, setPendingPlacementAction] = useState<PendingPlacementAction | null>(null);
   const [pendingMapDraftState, setPendingMapDraftState] = useState<PendingMapDraftState | null>(null);
   const pendingMapFeatureDraft = pendingMapDraftState?.draft ?? null;
@@ -413,7 +415,7 @@ function AppContent({ onOpenDraft, onRequestDiscard }: {
     }
   }, [project]);
   const calculationAvailable = calculation.result !== null;
-  const advisoryCostInput = useMemo(() => advisoryCostInputFromDraft(advisoryCostDraft), [advisoryCostDraft]);
+  const advisoryCostInput = useMemo(() => advisoryCostInputFromDraft(advisoryCostDraft, project.machine), [advisoryCostDraft, project.machine]);
   const androidNativeProofEnabled = Platform.OS === "android" && process.env.EXPO_PUBLIC_CPLAYOUT_ANDROID_NATIVE_PROOF === "1";
   const nativeMapLibreProofEnabled = Platform.OS === "android" && process.env.EXPO_PUBLIC_CPLAYOUT_NATIVE_MAPLIBRE_PROOF === "1";
   const isDirty = editor.revision !== savedRevision;
@@ -463,13 +465,26 @@ function AppContent({ onOpenDraft, onRequestDiscard }: {
     : (visibleSidebarPages[0]?.id ?? "overview");
   const demand = advisoryDemand({ homeView: homeMapView, view: activeView, modal: designConsoleModal, sidebar: effectiveSidebarPage, sidebarOpen: rightDrawerOpen });
   const projectGeneration = projectLoadSequenceRef.current;
+  const cornerInputScope = useMemo(() => cornerArmInputScope(project), [project]);
+  const [cornerInputState, setCornerInputState] = useState<{ generation: number; scope: string; draft: CornerArmInputDraft } | null>(null);
+  useEffect(() => {
+    setCornerInputState(current => current && (current.generation !== projectGeneration || current.scope !== cornerInputScope) ? null : current);
+  }, [cornerInputScope, projectGeneration]);
+  const cornerInputDraft = useMemo(() => cornerInputState?.generation === projectGeneration && cornerInputState.scope === cornerInputScope
+    ? cornerInputState.draft : initialCornerArmInputs(project), [cornerInputState, project, projectGeneration, cornerInputScope]);
+  const updateCornerInputDraft = (draft: CornerArmInputDraft) => setCornerInputState({ generation: projectGeneration, scope: cornerInputScope, draft });
+  const [fieldPivotPreview, setFieldPivotPreview] = useState({ generation: projectGeneration, count: 3 });
+  const requestedFieldPivots = fieldPivotPreview.generation === projectGeneration ? fieldPivotPreview.count : 3;
+  const updateRequestedFieldPivots = (count: number) => {
+    if (Number.isInteger(count) && count >= 1 && count <= 4) setFieldPivotPreview({ generation: projectGeneration, count });
+  };
   const fieldPlanRequest = useMemo(() => ({
     projectId: project.id, generation: projectGeneration, revision: editor.revision,
     create: () => planAdvisoryFieldPivotsSteps(project, {
-      gridDivisions: 6, maxMachines: 3, candidatePoolSize: 24,
+      gridDivisions: 6, maxMachines: requestedFieldPivots, candidatePoolSize: 24,
       collisionBufferMeters: project.machine.machineClearanceBufferMeters, costInput: advisoryCostInput,
     }),
-  }), [advisoryCostInput, editor.revision, project, projectGeneration]);
+  }), [advisoryCostInput, editor.revision, project, projectGeneration, requestedFieldPivots]);
   const multiMachineRequest = useMemo(() => ({
     projectId: project.id, generation: projectGeneration, revision: editor.revision,
     create: () => analyzeAdvisoryMultiMachineLayoutSteps(project, {
@@ -520,8 +535,11 @@ function AppContent({ onOpenDraft, onRequestDiscard }: {
     if (homeMapView) setDesignConsoleModal(null);
   }, [homeMapView]);
 
+  const previousFeatureConsoleModal = useRef(designConsoleModal);
   useEffect(() => {
-    if (!selectedMapFeatureId) return;
+    const returningFromCalculation = previousFeatureConsoleModal.current === "calculate" && designConsoleModal === null;
+    previousFeatureConsoleModal.current = designConsoleModal;
+    if (!selectedMapFeatureId || returningFromCalculation) return;
     if (activeCatalogForm || designConsoleModal) return;
     setActiveSidebarPage("feature");
     setRightDrawerOpen(true);
@@ -764,10 +782,11 @@ function AppContent({ onOpenDraft, onRequestDiscard }: {
   async function openDesignProject(designId: string): Promise<void> {
     try {
       await projectOpenRequests.open(() => repository.openDesignProject(designId), (loaded) => {
-        if (loaded.kind === "draft") {
+        if (loaded.kind === "draft" || loaded.kind === "field") {
           if (saveOwnerMountedRef.current) {
-            if (hasUnsavedProjectWork()) onRequestDiscard(() => onOpenDraft(loaded), restoreRetainedProjectView);
-            else onOpenDraft(loaded);
+            const proceed = () => loaded.kind === "draft" ? onOpenDraft(loaded) : onOpenField(loaded);
+            if (hasUnsavedProjectWork()) onRequestDiscard(proceed, restoreRetainedProjectView);
+            else proceed();
           }
         } else {
           loadProject(loaded.project, loaded.context, true, loaded.persistenceRevision);
@@ -783,6 +802,27 @@ function AppContent({ onOpenDraft, onRequestDiscard }: {
     if (imported.importedBoundary) parts.push("boundary");
     if (imported.importedObstacleCount > 0) parts.push(`${imported.importedObstacleCount} obstacle${imported.importedObstacleCount === 1 ? "" : "s"}`);
     return `Imported projected GeoJSON ${parts.length > 0 ? parts.join(" and ") : "features"} into the current project.`;
+  }
+
+  async function createIndependentField(): Promise<void> {
+    try {
+      const designId = activeCatalogContext.designId;
+      if (!designId) throw new Error("Save this design in a field map before creating an independent-machine field.");
+      if (!repository.canSaveField) throw new Error("Independent-machine fields are currently available in the web workspace.");
+      // Preserve the acknowledged source document byte-for-byte when unchanged.
+      // Re-serializing can recompute derived WGS84 display values across engines.
+      if (editorRef.current.revision !== savedRevision) await saveCurrentProject();
+      const receipt = saveCoordinator.receipt(projectSaveSession);
+      if (receipt.workspaceRevision === null || receipt.workspaceRevision === undefined) throw new Error("Save the source design before creating the field copy.");
+      // Read back the acknowledged source; failed or stale saves cannot create a
+      // field from an earlier design under the current editor's name.
+      const source = await repository.openDesignProject(designId);
+      if (source.kind !== "project" || JSON.stringify(source.project) !== JSON.stringify(editorRef.current.project)) {
+        throw new Error("The source save did not match the current design. Resolve the save error before creating a field copy.");
+      }
+      const opened = await repository.createFieldFromSavedProject(designId, receipt.workspaceRevision);
+      if (saveOwnerMountedRef.current && saveCoordinator.isCurrent(projectSaveSession)) onOpenField(opened);
+    } catch (error) { repository.reportError(error); }
   }
 
   function importSurveyCsv(csv: string): string {
@@ -953,7 +993,7 @@ function AppContent({ onOpenDraft, onRequestDiscard }: {
 
   function openDesignConsolePanel(modal: DesignConsoleModal): void {
     setDesignConsoleModal(modal);
-    if (modal && sidebarInlineWorkflow) {
+    if (modal && modal !== "calculate" && sidebarInlineWorkflow) {
       setActiveSidebarPage(modal === "layers" ? "layers" : "toolForm");
       setRightDrawerOpen(true);
       setActiveView("map");
@@ -973,13 +1013,6 @@ function AppContent({ onOpenDraft, onRequestDiscard }: {
 
   function calculateAndOpenPanel(): void {
     calculateDesignScenarios();
-    if (sidebarInlineWorkflow) {
-      setDesignConsoleModal("calculate");
-      setActiveSidebarPage("toolForm");
-      setRightDrawerOpen(true);
-      setActiveView("map");
-      return;
-    }
     setDesignConsoleModal("calculate");
   }
 
@@ -1684,10 +1717,12 @@ function AppContent({ onOpenDraft, onRequestDiscard }: {
     }
 
     if (page === "toolForm") {
-      return designConsoleModal ? (
+      return designConsoleModal && designConsoleModal !== "calculate" ? (
         <View testID="design-console-panel">
           <DesignConsolePanel
             activeModal={designConsoleModal}
+            cornerInputDraft={cornerInputDraft}
+            onCornerInputDraftChange={updateCornerInputDraft}
             advisoryCostDraft={advisoryCostDraft}
             advisoryStatus={advisoryStatus}
             advisoryError={advisoryError}
@@ -1698,6 +1733,8 @@ function AppContent({ onOpenDraft, onRequestDiscard }: {
             multiMachineReview={advisoryMultiMachineReview}
             editorError={editor.lastError}
             fieldPivotPlan={advisoryFieldPivotPlan}
+            requestedFieldPivots={requestedFieldPivots}
+            onRequestedFieldPivotsChange={updateRequestedFieldPivots}
             onActivatePrimitive={activatePrimitiveMapTool}
             onActivateTool={activateDesignConsoleTool}
             onApplyPivot={(point, wgs84) => dispatchProjectWithResult({ type: "place_pivot", point, wgs84 })}
@@ -1963,6 +2000,7 @@ function AppContent({ onOpenDraft, onRequestDiscard }: {
             onRedo={() => dispatchProject({ type: "redo" })}
             onResetWalkthrough={resetWalkthrough}
             onSave={saveCurrentProject}
+            onCreateField={createIndependentField}
             onShowMetrics={() => {
               setActiveSidebarPage("overview");
               setRightDrawerOpen(true);
@@ -2256,12 +2294,26 @@ function AppContent({ onOpenDraft, onRequestDiscard }: {
             warningCount={warningCount}
           />
         </View>
-      {!homeMapView && !sidebarInlineWorkflow ? (
+      {!homeMapView && (!sidebarInlineWorkflow || designConsoleModal === "calculate") ? (
           <DesignConsoleDialog
             activeModal={designConsoleModal}
+            workspaceDirty={isDirty}
+            confirmation={designConsoleModal === "calculate" && pendingPlacementAction ? (
+              <ConfirmActionPanel
+                confirmLabel={pendingPlacementAction.kind === "pivot" ? "Apply Pivot Center" : "Save Corner Arm Advisory"}
+                message={pendingPlacementMessage(pendingPlacementAction)}
+                onCancel={() => setPendingPlacementAction(null)}
+                onConfirm={confirmPlacementAction}
+                testID="placement-confirm-dialog"
+                title={pendingPlacementAction.kind === "pivot" ? "Apply Advisory Pivot Center" : "Save Advisory Corner Arm"}
+              />
+            ) : undefined}
+            onDismissConfirmation={() => setPendingPlacementAction(null)}
             advisoryStatus={advisoryStatus}
             advisoryError={advisoryError}
             onRetryAdvisory={retryAdvisory}
+            cornerInputDraft={cornerInputDraft}
+            onCornerInputDraftChange={updateCornerInputDraft}
             advisoryCostDraft={advisoryCostDraft}
             advisoryCostInput={advisoryCostInput}
             advisoryMachineRenderModel={advisoryMachineRenderModel}
@@ -2269,11 +2321,16 @@ function AppContent({ onOpenDraft, onRequestDiscard }: {
             multiMachineReview={advisoryMultiMachineReview}
             editorError={editor.lastError}
             fieldPivotPlan={advisoryFieldPivotPlan}
+            requestedFieldPivots={requestedFieldPivots}
+            onRequestedFieldPivotsChange={updateRequestedFieldPivots}
             onActivatePrimitive={activatePrimitiveMapTool}
             onActivateTool={activateDesignConsoleTool}
             onApplyPivot={(point, wgs84) => dispatchProjectWithResult({ type: "place_pivot", point, wgs84 })}
             onCalculate={calculateDesignScenarios}
-            onClose={() => setDesignConsoleModal(null)}
+            onClose={() => {
+              setDesignConsoleModal(null);
+              if (activeSidebarPage === "toolForm") setActiveSidebarPage("tools");
+            }}
             onOpenModal={openDesignConsolePanel}
             onOpenFiles={() => {
               setDesignConsoleModal(null);
@@ -2391,7 +2448,7 @@ function AppContent({ onOpenDraft, onRequestDiscard }: {
           visible
         />
       ) : null}
-      {pendingPlacementAction ? (
+      {pendingPlacementAction && designConsoleModal !== "calculate" ? (
         <ConfirmActionDialog
           confirmLabel={pendingPlacementAction.kind === "pivot" ? "Apply Pivot Center" : "Save Corner Arm Advisory"}
           message={pendingPlacementMessage(pendingPlacementAction)}
@@ -2562,6 +2619,7 @@ function WorkspaceCommandSurface({
   onRedo,
   onResetWalkthrough,
   onSave,
+  onCreateField,
   onShowMetrics,
   onShowWarnings,
   onStartBlankDesign,
@@ -2584,6 +2642,7 @@ function WorkspaceCommandSurface({
   onRedo: () => void;
   onResetWalkthrough: () => void;
   onSave: () => void | Promise<void>;
+  onCreateField: () => void | Promise<void>;
   onShowMetrics: () => void;
   onShowWarnings: () => void;
   onStartBlankDesign: () => void;
@@ -2658,6 +2717,10 @@ function WorkspaceCommandSurface({
     { id: "redo", label: "Redo", disabled: !canRedo, hint: "Redo the last undone project edit.", icon: <RotateCcw />, onPress: onRedo, testID: "command-icon-redo" },
   ];
 
+  if (menus[0]) menus[0].items.push({ id: "create-independent-field", label: "Save as independent-machine field",
+    description: "Keep the source design and create a field with separately editable machines.",
+    icon: <MapPinned />, disabled: homeMapView, onPress: onCreateField, testID: "command-create-independent-field" });
+
   return <CommandBar iconButtons={iconButtons} menus={menus} testID="workspace-command-bar" />;
 }
 
@@ -2698,6 +2761,8 @@ function DesignActionHud({
 }
 
 type DesignConsolePanelProps = {
+  cornerInputDraft: CornerArmInputDraft;
+  onCornerInputDraftChange: (draft: CornerArmInputDraft) => void;
   activeModal: DesignConsoleModal;
   advisoryCostDraft: AdvisoryCostDraft;
   advisoryCostInput: AdvisoryCostInput | undefined;
@@ -2709,6 +2774,8 @@ type DesignConsolePanelProps = {
   onRetryAdvisory: () => void;
   editorError: string | null;
   fieldPivotPlan: AdvisoryFieldPivotPlan | null;
+  requestedFieldPivots: number;
+  onRequestedFieldPivotsChange: (count: number) => void;
   onActivatePrimitive: (geometry: UtilityFeatureGeometry) => void;
   onActivateTool: (mode: DrawingMode, activeLayer: DrawingLayerType, featureKind?: ProjectMapFeatureKind) => void;
   onApplyPivot: (point: XY, wgs84?: LonLat) => boolean;
@@ -2729,26 +2796,43 @@ type DesignConsolePanelProps = {
   result: ReturnType<typeof evaluateLayout>;
   settings: AppSettings;
   testID?: string;
+  fullScreen?: boolean;
+  workspaceDirty?: boolean;
 };
 
 function DesignConsoleDialog({
   visible,
+  confirmation,
+  onDismissConfirmation,
   ...panelProps
-}: DesignConsolePanelProps & { visible: boolean }): React.JSX.Element | null {
+}: DesignConsolePanelProps & { visible: boolean; confirmation?: React.ReactNode; onDismissConfirmation?: () => void }): React.JSX.Element | null {
   if (!panelProps.activeModal) return null;
+  const fullScreen = panelProps.activeModal === "calculate";
   return (
-    <Modal animationType="fade" onRequestClose={panelProps.onClose} transparent visible={visible}>
-      <View style={styles.consoleModalBackdrop} testID="design-console-dialog-backdrop">
+    <Modal animationType="fade" onRequestClose={confirmation ? onDismissConfirmation : panelProps.onClose} transparent={!fullScreen}
+      presentationStyle={fullScreen ? "fullScreen" : undefined} visible={visible}>
+      {fullScreen ? (
+        <SafeAreaView style={styles.calculationScreen} testID="calculation-screen">
+          <View style={[styles.calculationScreen, confirmation ? { display: "none" } : undefined]}>
+            <DesignConsolePanel {...panelProps} fullScreen testID="design-console-dialog" />
+          </View>
+          {confirmation ? <View style={styles.consoleModalBackdrop}>{confirmation}</View> : null}
+        </SafeAreaView>
+      ) : (
+        <View style={styles.consoleModalBackdrop} testID="design-console-dialog-backdrop">
         <DesignConsolePanel
           {...panelProps}
           testID="design-console-dialog"
         />
-      </View>
+        </View>
+      )}
     </Modal>
   );
 }
 
 function DesignConsolePanel({
+  cornerInputDraft,
+  onCornerInputDraftChange,
   activeModal,
   advisoryCostDraft,
   advisoryStatus,
@@ -2760,6 +2844,8 @@ function DesignConsolePanel({
   multiMachineReview,
   editorError,
   fieldPivotPlan,
+  requestedFieldPivots,
+  onRequestedFieldPivotsChange,
   onActivatePrimitive,
   onActivateTool,
   onApplyPivot,
@@ -2780,25 +2866,37 @@ function DesignConsolePanel({
   result,
   settings,
   testID = "design-console-panel",
+  fullScreen = false,
+  workspaceDirty = false,
 }: DesignConsolePanelProps): React.JSX.Element | null {
   if (!activeModal) return null;
   const copy = designConsoleCopy(activeModal);
   return (
-    <View accessibilityViewIsModal={testID === "design-console-dialog"} style={styles.consoleDialog} testID={testID}>
+    <View accessibilityViewIsModal={testID === "design-console-dialog"} style={[styles.consoleDialog, testID !== "design-console-dialog" && styles.consoleInline, fullScreen && styles.calculationPanel]} testID={testID}>
       <View style={styles.consoleDialogHeader}>
-        <View style={styles.consoleIconBadge}>{copy.icon}</View>
+        {fullScreen && onClose ? (
+          <IconCommandButton id="calculation-back" icon={<ChevronLeft />} label="Back to workspace" hint="Return to the previous workspace view" onPress={onClose} testID="design-console-close" />
+        ) : <View style={styles.consoleIconBadge}>{copy.icon}</View>}
         <View style={styles.consoleDialogTitleBlock}>
           <Text style={styles.consoleDialogTitle}>{copy.title}</Text>
-          <Text style={styles.consoleDialogMeta}>{copy.meta}</Text>
+          <Text style={styles.consoleDialogMeta} numberOfLines={fullScreen ? 2 : undefined}>{fullScreen ? project.name : copy.meta}</Text>
+          {fullScreen ? (
+            <View style={styles.calculationSaveState}>
+              {workspaceDirty ? <AlertTriangle size={16} color="#9b4707" /> : <CheckCircle2 size={16} color="#216544" />}
+              <Text accessibilityLiveRegion="polite" style={[styles.consoleDialogMeta, { color: workspaceDirty ? "#9b4707" : "#216544" }]} testID="calculation-save-state">
+                Project: {workspaceDirty ? "Unsaved edits" : "Saved"}
+              </Text>
+            </View>
+          ) : null}
         </View>
-        {onClose ? (
+        {onClose && !fullScreen ? (
           <Pressable accessibilityLabel="Close design console dialog" accessibilityRole="button" onPress={onClose} style={styles.consoleCloseButton} testID="design-console-close">
             <Text style={styles.consoleCloseText}>Close</Text>
           </Pressable>
         ) : null}
       </View>
 
-      <ScrollView keyboardShouldPersistTaps="handled" style={styles.consoleDialogBody} contentContainerStyle={styles.consoleDialogBodyContent}>
+      <ScrollView keyboardShouldPersistTaps="handled" style={[styles.consoleDialogBody, fullScreen && styles.calculationBody]} contentContainerStyle={[styles.consoleDialogBodyContent, fullScreen && styles.calculationBodyContent]}>
           {activeModal === "point" ? <PointToolSheet onActivatePrimitive={onActivatePrimitive} onOpenModal={onOpenModal} /> : null}
           {activeModal === "line" ? <LineToolSheet onActivatePrimitive={onActivatePrimitive} /> : null}
           {activeModal === "polygon" ? <PolygonToolSheet onActivatePrimitive={onActivatePrimitive} /> : null}
@@ -2828,13 +2926,17 @@ function DesignConsolePanel({
             />
           ) : null}
           {activeModal === "calculate" ? (
-            <View>
-              <AdvisoryCostReviewPanel draft={advisoryCostDraft} onChange={onUpdateAdvisoryCostDraft} />
+            <View testID="calculation-report">
+              <FieldPivotPreviewControls count={requestedFieldPivots} onChange={onRequestedFieldPivotsChange}
+                plan={fieldPivotPlan} model={advisoryMachineRenderModel} settings={settings} failed={advisoryError} />
+              <AdvisoryCostReviewPanel draft={advisoryCostDraft} machine={project.machine} onChange={onUpdateAdvisoryCostDraft} />
               <Pressable accessibilityRole="button" onPress={onCalculate} style={styles.calculateButton} testID="design-console-calculate">
                 <Calculator size={16} color="#ffffff" />
                 <Text style={styles.calculateButtonText}>Calculate Preview</Text>
               </Pressable>
             <CalculateSheet
+              cornerInputDraft={cornerInputDraft}
+              onCornerInputDraftChange={onCornerInputDraftChange}
               advisoryCostDraft={advisoryCostDraft}
               advisoryCostInput={advisoryCostInput}
               advisoryMachineRenderModel={advisoryMachineRenderModel}
@@ -3437,6 +3539,8 @@ function CornerArmSheet({
 }
 
 function CalculateSheet({
+  cornerInputDraft,
+  onCornerInputDraftChange,
   advisoryCostDraft,
   advisoryCostInput,
   advisoryMachineRenderModel,
@@ -3455,6 +3559,8 @@ function CalculateSheet({
   result,
   settings,
 }: {
+  cornerInputDraft: CornerArmInputDraft;
+  onCornerInputDraftChange: (draft: CornerArmInputDraft) => void;
   advisoryCostDraft: AdvisoryCostDraft;
   advisoryCostInput: AdvisoryCostInput | undefined;
   advisoryMachineRenderModel: AdvisoryMachineRenderModel | null;
@@ -3495,22 +3601,11 @@ function CalculateSheet({
   }), [advisoryCostInput, project]);
   const obstacleInteractionReview = useMemo<AdvisoryObstacleInteractionReview>(() => analyzeAdvisoryObstacleInteractions(project), [project]);
   const machineBoundaryClearanceRows = useMemo<MachineBoundaryClearanceRow[]>(() => evaluateMachineBoundaryClearance(project, settings), [project, settings]);
-  const cornerArmKinematicResult = useMemo<CornerArmKinematicResult>(() => evaluateCornerArmKinematics({
-    projectCrs: project.projectCrs,
-    pivotCenter: project.pivotCenter,
-    pivotCenterToLrduRadiusMeters: project.machine.spanLengthsMeters.reduce((sum, span) => sum + span, 0),
-    lrduSpeedMetersPerMinuteAt100Percent: project.machine.driveUnits?.lrdu?.operatorMeasuredSpeedMetersPerMinute,
-    modelSpec: project.machine.cornerArm ? VALLEY_CORNER_ARM_SCAFFOLD_CATALOG.find((entry) => entry.id === project.machine.cornerArm?.id) : undefined,
-    rotationDirection: project.machine.sweep.mode === "partial_circle" ? project.machine.sweep.direction : "counterclockwise",
-    orientation: project.machine.cornerArm?.orientation === "trailing" ? "trailing" : "leading",
-    sweep: project.machine.sweep,
-    fieldBoundary: project.fieldBoundary,
-    obstacles: project.obstacles,
-    guidancePath: cornerArmGuidancePath(project),
-    endGunThrowMeters: project.machine.endGunThrowMeters,
-    endGunAngleRanges: project.machine.endGunAngleRanges,
-    safetyZoneMeters: settings.layoutReview.requiredBoundaryClearanceMeters,
-  }), [project, settings.layoutReview.requiredBoundaryClearanceMeters]);
+  const cornerInputs = useMemo(() => cornerArmInputsForPreview(project, cornerInputDraft,
+    settings.layoutReview.requiredBoundaryClearanceMeters), [project, cornerInputDraft, settings.layoutReview.requiredBoundaryClearanceMeters]);
+  const [requestedCornerInputs, setRequestedCornerInputs] = useState<typeof cornerInputs | null>(null);
+  const cornerArmKinematicResult = useMemo(() => requestedCornerInputs === cornerInputs && cornerInputs.missing.length === 0
+    ? evaluateCornerArmKinematics(cornerInputs.inputs) : null, [cornerInputs, requestedCornerInputs]);
   const generatedMultiPivotScenarioReview = useMemo<AdvisoryGeneratedMultiPivotScenarioReview | null>(() => (
     fieldPivotPlan ? buildAdvisoryGeneratedMultiPivotScenarioReview(fieldPivotPlan) : null
   ), [fieldPivotPlan]);
@@ -3556,15 +3651,16 @@ function CalculateSheet({
 
   return (
     <View style={styles.machineForm}>
-      <View style={styles.metricGrid}>
-        <MetricTile label="Coverage" value={`${result.metrics.coveragePercent.toFixed(1)}%`} />
-        <MetricTile label="Irrigated" value={formatAreaFromAcres(result.metrics.irrigatedAcres, settings.unitSystem)} tone="good" />
-        <MetricTile label="Outside field" value={formatAreaFromAcres(result.metrics.outsideFieldAcres, settings.unitSystem)} tone={result.metrics.outsideFieldAcres > 0 ? "danger" : "good"} />
+      <View style={reportStyles.section} testID="calculation-current-machine-summary">
+        <Text style={reportStyles.heading}>Current pivot irrigation area</Text>
+        <ReportValue label="Coverage" value={`${result.metrics.coveragePercent.toFixed(1)}%`} />
+        <ReportValue label="Irrigated" value={formatAreaFromAcres(result.metrics.irrigatedAcres, settings.unitSystem)} />
+        <ReportValue label="Outside field" value={formatAreaFromAcres(result.metrics.outsideFieldAcres, settings.unitSystem)} tone={result.metrics.outsideFieldAcres > 0 ? "danger" : "neutral"} />
       </View>
       {editorError ? <Text style={styles.formError}>{editorError}</Text> : null}
       {advisoryCostInput ? (
         <Text style={styles.mapFeatureMeta} testID="advisory-cost-active-note">
-          Cost assumptions will rank advisory candidates and machine strategies only; they are not saved as canonical geometry or vendor quotes.
+          Equipment prices are temporary planning inputs. They are not saved with the project or verified as dealer quotes.
         </Text>
       ) : null}
       <MachineBoundaryClearancePanel
@@ -3572,13 +3668,15 @@ function CalculateSheet({
         rows={machineBoundaryClearanceRows}
         settings={settings}
       />
-      <CornerArmKinematicStatusPanel
+      <CornerArmCalculationInputs project={project} value={cornerInputDraft} onChange={onCornerInputDraftChange}
+        missing={cornerInputs.missing} onRun={() => setRequestedCornerInputs(cornerInputs)} />
+      {cornerArmKinematicResult ? <CornerArmKinematicStatusPanel
         result={cornerArmKinematicResult}
         settings={settings}
-      />
-      <View style={styles.placementReviewPanel} testID="advisory-strategy-cost-summary">
+      /> : null}
+      <View style={reportStyles.section} testID="advisory-strategy-cost-summary">
         <View style={styles.scenarioRowHeader}>
-          <Text style={styles.rowTitle}>Machine Strategy Cost Review</Text>
+          <Text style={styles.rowTitle}>Pivot options and equipment cost</Text>
           <Text style={styles.scenarioScore}>{costStatusShortLabel(strategyComparison.costInputStatus)}</Text>
         </View>
         <Text style={styles.rowMeta}>
@@ -3586,7 +3684,7 @@ function CalculateSheet({
             ? `${bestStrategy.label} · ${formatAreaFromAcres(bestStrategy.irrigatedAcres, settings.unitSystem)} modeled · ${bestStrategy.costAssessment ? formatCostAssessment(bestStrategy.costAssessment) : "Cost efficiency pending."}`
             : "No advisory machine strategy is ready for cost comparison."}
         </Text>
-        <Text style={styles.mapFeatureMeta}>Strategy cost review uses operator-supplied local assumptions only and does not create a quote, purchase recommendation, or project geometry change.</Text>
+        <Text style={styles.mapFeatureMeta}>Equipment estimates use the prices entered above. They exclude annual operating costs and are not purchase recommendations.</Text>
         <AdvisoryCostAcresComparisonTable
           settings={settings}
           strategies={strategyComparison.strategies}
@@ -3609,22 +3707,22 @@ function CalculateSheet({
           </Text>
         ) : null}
       </View>
-      <View style={styles.placementReviewPanel} testID="advisory-obstacle-interaction-summary">
+      <View style={reportStyles.section} testID="advisory-obstacle-interaction-summary">
         <View style={styles.scenarioRowHeader}>
-          <Text style={styles.rowTitle}>Obstacle Interaction Review</Text>
+          <Text style={styles.rowTitle}>Obstacles and clearances</Text>
           <Text style={styles.scenarioScore}>{obstacleInteractionReview.status.replaceAll("_", " ")}</Text>
         </View>
         <Text style={styles.rowMeta}>{formatObstacleInteractionSummary(obstacleInteractionReview)}</Text>
         <Text style={styles.mapFeatureMeta}>{formatFirstObstacleInteraction(obstacleInteractionReview)}</Text>
-        <Text style={styles.mapFeatureMeta}>Obstacle interaction review is advisory only and does not mutate canonical projected XY, obstacle settings, utility features, or machine settings.</Text>
+        <Text style={styles.mapFeatureMeta}>Estimated from mapped obstacles. Clearances need to be checked in the field before operation.</Text>
       </View>
-      {multiMachineReview ? <View style={styles.placementReviewPanel} testID="advisory-full-scope-boundary-summary">
+      {multiMachineReview ? <View style={reportStyles.section} testID="advisory-full-scope-boundary-summary">
         <View style={styles.scenarioRowHeader}>
-          <Text style={styles.rowTitle}>Full-Scope Boundary Review</Text>
+          <Text style={styles.rowTitle}>Whole-field coverage</Text>
           <Text style={styles.scenarioScore}>{multiMachineReview.compilation.fullScopeCoveragePercent.toFixed(1)}%</Text>
         </View>
         <Text style={styles.rowMeta}>{formatFullScopeBoundarySummary(multiMachineReview, settings)}</Text>
-        <Text style={styles.mapFeatureMeta}>Compiled full-scope boundary review is advisory only and leaves canonical projected XY, field boundary, machine zones, and project storage unchanged.</Text>
+        <Text style={styles.mapFeatureMeta}>Estimated from the mapped layouts. The saved boundary and equipment remain unchanged.</Text>
       </View> : null}
       {advisoryMachineRenderModel && multiMachineReview ? <AdvisoryEvidenceStatusPanel
         advisoryMachineRenderModel={advisoryMachineRenderModel}
@@ -3634,14 +3732,14 @@ function CalculateSheet({
         settings={settings}
         surface="calculate"
       /> : null}
-      {fieldPivotPlan && reviewZoneAudit && generatedMultiPivotScenarioReview ? <View style={styles.placementReviewPanel} testID="advisory-generated-field-pivot-plan">
+      {fieldPivotPlan && reviewZoneAudit && generatedMultiPivotScenarioReview ? <View style={reportStyles.section} testID="advisory-generated-field-pivot-plan">
         <View style={styles.scenarioRowHeader}>
-          <Text style={styles.rowTitle}>Generated Field Pivot Plan</Text>
+          <Text style={styles.rowTitle}>Proposed pivot layout</Text>
           <Text style={styles.scenarioScore}>{fieldPivotPlan.selectedMachineCount}/{fieldPivotPlan.requestedMachineCount}</Text>
         </View>
         <Text style={styles.rowMeta}>{formatGeneratedFieldPivotPlanSummary(fieldPivotPlan, settings)}</Text>
         <Text style={styles.mapFeatureMeta}>
-          Generated field-pivot planning is advisory only. Save Review Zones creates projected-XY machine-zone map features for review; it does not create saved pivots, change the active pivot, or mutate canonical projected XY automatically.
+          Proposed locations are not saved pivots. Save Review Zones saves their outlines for comparison without changing the active pivot.
         </Text>
         <Text style={styles.mapFeatureMeta} testID="generated-field-pivot-zone-save-status">Review zones: {reviewZoneAudit.currentCount} current / {reviewZoneAudit.missingCount} missing / {reviewZoneAudit.staleCount} stale</Text>
         <GeneratedMultiPivotScenarioTable
@@ -3657,7 +3755,7 @@ function CalculateSheet({
           />
         </View>
       </View> : null}
-      {advisoryDesignReport && reviewZoneAudit ? <View style={styles.placementReviewPanel} testID="advisory-design-report-panel">
+      {advisoryDesignReport && reviewZoneAudit ? <View style={reportStyles.section} testID="advisory-design-report-panel">
         <View style={styles.scenarioRowHeader}>
           <Text style={styles.rowTitle}>Advisory Design Report</Text>
           <Text style={styles.scenarioScore}>{advisoryDesignReport.readiness.replaceAll("_", " ")}</Text>
@@ -3680,7 +3778,7 @@ function CalculateSheet({
         <Text style={styles.mapFeatureMeta} testID="advisory-design-report-export-status">{advisoryReportExportStatus}</Text>
       </View> : null}
       <IdealCenterSummary analysis={idealCenterAnalysis} onRequestApplyPivotCandidate={onRequestApplyPivotCandidate} settings={settings} />
-      <ScenarioPreviewList preview={preview} settings={settings} />
+      <ScenarioPreviewList preview={preview} settings={settings} report />
       <PlacementReviewPanel analysis={idealCenterAnalysis} candidates={placementCandidates} onRequestApplyPivotCandidate={onRequestApplyPivotCandidate} settings={settings} />
     </View>
   );
@@ -3805,7 +3903,7 @@ function AdvisoryRadiusSensitivityTable({
   if (!review) {
     return (
       <Text style={styles.mapFeatureMeta} testID="advisory-radius-sensitivity-table">
-        Radius alternatives need fixed, per-meter, and per-tower local cost assumptions before shared advisory sensitivity rows can be shown.
+        Comparing different pivot lengths requires the length-and-tower estimate. A price for one pivot cannot price different equipment.
       </Text>
     );
   }
@@ -4004,15 +4102,18 @@ function formatCostPerAcreAssessment(assessment: AdvisoryCostAssessment | null |
 
 function AdvisoryCostReviewPanel({
   draft,
+  machine,
   onChange,
 }: {
   draft: AdvisoryCostDraft;
+  machine: PivotMachine;
   onChange: (draft: AdvisoryCostDraft) => void;
 }): React.JSX.Element {
   const status = advisoryCostDraftStatus(draft);
-  const statusTone = status === "complete" ? "good" : status === "invalid_cost_input" ? "danger" : "warn";
+  const priceNeedsReview = advisoryCostPriceNeedsReview(draft, machine);
+  const statusTone = priceNeedsReview ? "warn" : status === "complete" ? "good" : status === "invalid_cost_input" ? "danger" : "warn";
 
-  function update(field: keyof AdvisoryCostDraft, value: string): void {
+  function update(field: "baseCost" | "costPerFoot" | "costPerTower" | "currencyCode" | "includes", value: string): void {
     onChange({ ...draft, [field]: field === "currencyCode" ? value.toUpperCase().slice(0, 8) : value });
   }
 
@@ -4021,29 +4122,41 @@ function AdvisoryCostReviewPanel({
   }
 
   return (
-    <View style={styles.placementReviewPanel} testID="advisory-cost-review-panel">
+    <View style={reportStyles.section} testID="advisory-cost-review-panel">
       <View style={styles.scenarioRowHeader}>
-        <Text style={styles.rowTitle}>Cost Review</Text>
-        <Text style={styles.scenarioScore}>{costStatusShortLabel(status)}</Text>
+        <Text style={reportStyles.heading}>Pivot equipment cost</Text>
       </View>
-      <AdvisoryBadgeRow badges={["operator supplied", "advisory", "not a quote"]} />
-      <View style={styles.metricGrid}>
-        <MetricTile label="Cost input" value={costStatusShortLabel(status)} tone={statusTone} />
-        <MetricTile label="Currency" value={draft.currencyCode.trim() || "USD"} />
-        <MetricTile label="Price source" value="Local" />
+      <View style={styles.reportPricingChoices} accessibilityRole="radiogroup" accessibilityLabel="Pricing method">
+        {([{ value: "machine_price", label: "Price for this pivot" },
+          { value: "length_tower_estimate", label: "Estimate by length and towers" }] as const).map(option => (
+          <Pressable key={option.value} accessibilityRole="radio" accessibilityLabel={option.label}
+            accessibilityState={{ checked: draft.basis === option.value }} aria-checked={draft.basis === option.value}
+            onPress={() => onChange({ ...draft, basis: option.value })} style={styles.reportPricingChoice}
+            testID={`advisory-cost-basis-${option.value}`}>
+            {draft.basis === option.value ? <CircleDot size={20} color="#155c75" /> : <Circle size={20} color="#42525a" />}
+            <Text style={reportStyles.note}>{option.label}</Text>
+          </Pressable>
+        ))}
       </View>
-      <View style={styles.formGrid}>
-        <FormField label="Fixed machine cost" onChangeText={(value) => update("fixedMachineCost", value)} testID="advisory-cost-fixed" value={draft.fixedMachineCost} />
-        <FormField label="Cost per meter" onChangeText={(value) => update("costPerMeter", value)} testID="advisory-cost-per-meter" value={draft.costPerMeter} />
-        <FormField label="Cost per tower" onChangeText={(value) => update("costPerTower", value)} testID="advisory-cost-per-tower" value={draft.costPerTower} />
-        <FormField keyboardType="default" label="Currency" onChangeText={(value) => update("currencyCode", value)} testID="advisory-cost-currency" value={draft.currencyCode} />
+      <ReportNotice>Planning estimate only. Well, pump and power supply are separate unless listed in the price below. Annual operating costs are not calculated.</ReportNotice>
+      <View testID="advisory-cost-form">
+        <ReportField text label="Currency" onChangeText={(value) => update("currencyCode", value)} testID="advisory-cost-currency" value={draft.currencyCode} />
+        {draft.basis === "machine_price" ? (
+          <ReportField label="Price for this pivot" onChangeText={value => onChange(updateMachinePrice(draft, value, machine))}
+            testID="advisory-cost-pivot-price" value={draft.machinePrice} />
+        ) : <>
+          <ReportField label="Base equipment amount" onChangeText={(value) => update("baseCost", value)} testID="advisory-cost-fixed" value={draft.baseCost} />
+          <ReportField label="Additional cost per foot of pivot" onChangeText={(value) => update("costPerFoot", value)} testID="advisory-cost-per-foot" value={draft.costPerFoot} />
+          <ReportField label="Additional cost per drive tower" onChangeText={(value) => update("costPerTower", value)} testID="advisory-cost-per-tower" value={draft.costPerTower} />
+        </>}
+        <ReportField text label="Equipment and work included" onChangeText={value => update("includes", value)} testID="advisory-cost-includes" value={draft.includes} />
       </View>
       <View style={styles.inlineActions}>
-        <SmallActionButton label="Clear Cost Input" onPress={clear} testID="advisory-cost-clear" />
+        <IconCommandButton id="advisory-cost-clear" icon={<RotateCcw />} label="Clear cost inputs" onPress={clear} testID="advisory-cost-clear" />
       </View>
-      <Text style={status === "invalid_cost_input" ? styles.formError : styles.mapFeatureMeta} testID="advisory-cost-status">
-        {advisoryCostDraftMessage(draft, status)}
-      </Text>
+      <ReportNotice tone={statusTone} testID="advisory-cost-status">
+        {priceNeedsReview ? "The pivot equipment has changed. Re-enter its price after checking the included equipment. The earlier price is not being used." : advisoryCostDraftMessage(draft, status)}
+      </ReportNotice>
     </View>
   );
 }
@@ -4870,8 +4983,9 @@ function AdvisoryEvidenceStatusPanel({
   const outsideFieldAcres = renderLedger?.outsideFieldAcres ?? result.metrics.outsideFieldAcres;
   const verifiedBlockedAcres = renderLedger?.verifiedBlockedAcres ?? result.metrics.blockedByNoSprayAcres ?? 0;
   const title = surface === "overview" ? "Advisory Map Evidence" : "Acre And Evidence Ledger";
+  const EvidenceValue = surface === "calculate" ? ReportValue : MetricTile;
   return (
-    <View style={styles.placementReviewPanel} testID={`advisory-evidence-status-${surface}`}>
+    <View style={surface === "calculate" ? reportStyles.section : styles.placementReviewPanel} testID={`advisory-evidence-status-${surface}`}>
       <View style={styles.scenarioRowHeader}>
         <View style={styles.rowTitleWithIcon}>
           <Monitor size={16} color="#254234" />
@@ -4879,22 +4993,22 @@ function AdvisoryEvidenceStatusPanel({
         </View>
         <Text style={powerEvidence.status === "missing" ? styles.scenarioScoreWarn : styles.scenarioScore}>{powerEvidence.status.replaceAll("_", " ")}</Text>
       </View>
-      <View style={styles.metricGrid}>
-        <MetricTile label="Field boundary" value={formatAreaFromAcres(result.metrics.fieldAcres, settings.unitSystem)} />
-        <MetricTile label="Design area" value={compiled ? formatAreaFromAcres(compiled.compiledBoundaryAcres, settings.unitSystem) : "pending"} tone={compiled ? "neutral" : "warn"} />
-        <MetricTile label="Machine zones" value={`${machineZoneCount}`} tone={machineZoneCount > 0 ? "neutral" : "warn"} />
-        <MetricTile label="Preferred outlines" value={`${preferredOutlineCount}`} tone={preferredOutlineCount > 0 ? "neutral" : "warn"} />
-        <MetricTile label="Render machines" value={`${advisoryMachineRenderModel?.instances.length ?? 0}`} tone={(advisoryMachineRenderModel?.instances.length ?? 0) === 2 ? "good" : "warn"} />
-        <MetricTile label="Planning boundaries" value={`${planningBoundaryCount}`} />
-        <MetricTile label="Standard pivot" value={formatAreaFromAcres(renderLedger?.standardPivotAcres ?? result.metrics.standardPivotAcres ?? Math.max(0, result.metrics.irrigatedAcres - result.metrics.endGunAcres), settings.unitSystem)} />
-        <MetricTile label="End gun" value={formatAreaFromAcres(renderLedger?.endGunAcres ?? result.metrics.endGunAcres, settings.unitSystem)} />
-        <MetricTile label="Corner arm" value={formatAreaFromAcres(renderLedger?.cornerArmAcres ?? result.metrics.cornerArmAcres ?? 0, settings.unitSystem)} />
-        <MetricTile label="De-duped total" value={formatAreaFromAcres(renderDeduplicatedAcres, settings.unitSystem)} />
-        <MetricTile label="Overlap" value={formatAreaFromAcres(overlapAcres, settings.unitSystem)} tone={overlapAcres > 0 ? "warn" : "good"} />
-        <MetricTile label="Outside field" value={formatAreaFromAcres(outsideFieldAcres, settings.unitSystem)} tone={outsideFieldAcres > 0 ? "danger" : "good"} />
-        <MetricTile label="Outside full scope" value={formatAreaFromAcres(outsideFullScopeAcres, settings.unitSystem)} tone={outsideFullScopeAcres > 0 ? "danger" : "good"} />
-        <MetricTile label="Blocked acres" value={formatAreaFromAcres(verifiedBlockedAcres, settings.unitSystem)} tone={verifiedBlockedAcres > 0 ? "warn" : "good"} />
-        <MetricTile label="Power evidence" value={powerEvidence.status.replaceAll("_", " ")} tone={powerEvidence.status === "missing" ? "warn" : "good"} />
+      <View style={surface === "calculate" ? undefined : styles.metricGrid}>
+        <EvidenceValue label="Field boundary" value={formatAreaFromAcres(result.metrics.fieldAcres, settings.unitSystem)} />
+        <EvidenceValue label="Design area" value={compiled ? formatAreaFromAcres(compiled.compiledBoundaryAcres, settings.unitSystem) : "pending"} tone={compiled ? "neutral" : "warn"} />
+        <EvidenceValue label="Machine zones" value={`${machineZoneCount}`} tone={machineZoneCount > 0 ? "neutral" : "warn"} />
+        <EvidenceValue label="Preferred outlines" value={`${preferredOutlineCount}`} tone={preferredOutlineCount > 0 ? "neutral" : "warn"} />
+        <EvidenceValue label="Render machines" value={`${advisoryMachineRenderModel?.instances.length ?? 0}`} tone={(advisoryMachineRenderModel?.instances.length ?? 0) === 2 ? "good" : "warn"} />
+        <EvidenceValue label="Planning boundaries" value={`${planningBoundaryCount}`} />
+        <EvidenceValue label="Standard pivot" value={formatAreaFromAcres(renderLedger?.standardPivotAcres ?? result.metrics.standardPivotAcres ?? Math.max(0, result.metrics.irrigatedAcres - result.metrics.endGunAcres), settings.unitSystem)} />
+        <EvidenceValue label="End gun" value={formatAreaFromAcres(renderLedger?.endGunAcres ?? result.metrics.endGunAcres, settings.unitSystem)} />
+        <EvidenceValue label="Corner arm" value={formatAreaFromAcres(renderLedger?.cornerArmAcres ?? result.metrics.cornerArmAcres ?? 0, settings.unitSystem)} />
+        <EvidenceValue label="De-duped total" value={formatAreaFromAcres(renderDeduplicatedAcres, settings.unitSystem)} />
+        <EvidenceValue label="Overlap" value={formatAreaFromAcres(overlapAcres, settings.unitSystem)} tone={overlapAcres > 0 ? "warn" : "good"} />
+        <EvidenceValue label="Outside field" value={formatAreaFromAcres(outsideFieldAcres, settings.unitSystem)} tone={outsideFieldAcres > 0 ? "danger" : "good"} />
+        <EvidenceValue label="Outside full scope" value={formatAreaFromAcres(outsideFullScopeAcres, settings.unitSystem)} tone={outsideFullScopeAcres > 0 ? "danger" : "good"} />
+        <EvidenceValue label="Blocked acres" value={formatAreaFromAcres(verifiedBlockedAcres, settings.unitSystem)} tone={verifiedBlockedAcres > 0 ? "warn" : "good"} />
+        <EvidenceValue label="Power evidence" value={powerEvidence.status.replaceAll("_", " ")} tone={powerEvidence.status === "missing" ? "warn" : "good"} />
       </View>
       <Text style={styles.mapFeatureMeta} testID={`advisory-evidence-power-status-${surface}`}>
         {powerEvidence.message}
@@ -5027,14 +5141,14 @@ function ProjectedPolygonEditor({ label, onApply, vertices }: { label: string; o
   );
 }
 
-function ScenarioPreviewList({ preview, settings }: { preview: DesignScenarioPreview[] | null; settings: AppSettings }): React.JSX.Element {
+function ScenarioPreviewList({ preview, settings, report = false }: { preview: DesignScenarioPreview[] | null; settings: AppSettings; report?: boolean }): React.JSX.Element {
   if (!preview) {
     return <Text style={styles.mapFeatureMeta}>Scenario metrics update only after Calculate.</Text>;
   }
   return (
     <View style={styles.scenarioList} testID="design-builder-scenarios">
       {preview.map((scenario) => (
-        <View key={scenario.id} style={[styles.scenarioRow, scenario.feasible ? styles.scenarioRowFeasible : styles.scenarioRowRejected]}>
+        <View key={scenario.id} style={report ? reportStyles.section : [styles.scenarioRow, scenario.feasible ? styles.scenarioRowFeasible : styles.scenarioRowRejected]}>
           <View style={styles.scenarioRowHeader}>
             <Text style={styles.rowTitle}>{scenario.label}</Text>
             <Text style={styles.scenarioScore}>{scenario.feasible ? scenario.score.toFixed(1) : "Check"}</Text>
@@ -5065,42 +5179,38 @@ function MachineBoundaryClearancePanel({
   const stepMeters = layoutReviewClearanceStepMeters(settings.unitSystem);
   const required = settings.layoutReview.requiredBoundaryClearanceMeters;
   return (
-    <View style={styles.placementReviewPanel} testID="machine-boundary-clearance-panel">
+    <View style={reportStyles.section} testID="machine-boundary-clearance-panel">
       <View style={styles.scenarioRowHeader}>
         <Text style={styles.rowTitle}>Machine Boundary Distances</Text>
         <Text style={styles.scenarioScore}>{failingCount > 0 ? `${failingCount} check` : "Ready"}</Text>
       </View>
-      <View style={styles.metricGrid}>
-        <MetricTile
+      <View>
+        <ReportValue
           label="Shortest"
           testID="machine-boundary-shortest"
           tone={shortest && !shortest.meetsRequiredBoundaryClearance ? "danger" : "good"}
           value={shortest ? formatDistance(shortest.minimumBoundaryDistanceMeters, settings.unitSystem) : "n/a"}
         />
-        <MetricTile
+        <ReportValue
           label="Required"
           testID="machine-boundary-required"
           value={formatDistance(required, settings.unitSystem)}
         />
-        <MetricTile
+        <ReportValue
           label="Rows"
           value={`${rows.length}`}
         />
       </View>
       <View style={styles.controlRow}>
-        <ActionButton
-          label={settings.layoutReview.showMachineBoundaryDistances ? "Rows shown" : "Rows hidden"}
-          selected={settings.layoutReview.showMachineBoundaryDistances}
-          onPress={() => onUpdateLayoutReview({ showMachineBoundaryDistances: !settings.layoutReview.showMachineBoundaryDistances })}
-        />
-        <SmallActionButton
-          disabled={required <= 0}
-          label="Clearance -"
+        <Switch accessibilityLabel="Show boundary distance rows" value={settings.layoutReview.showMachineBoundaryDistances}
+          onValueChange={showMachineBoundaryDistances => onUpdateLayoutReview({ showMachineBoundaryDistances })} />
+        <Text style={reportStyles.note}>Show distance rows</Text>
+        <IconCommandButton id="clearance-decrease" icon={<Minus />} disabled={required <= 0}
+          label="Decrease required clearance"
           onPress={() => onUpdateLayoutReview({ requiredBoundaryClearanceMeters: Math.max(0, required - stepMeters) })}
           testID="machine-boundary-clearance-decrease"
         />
-        <SmallActionButton
-          label="Clearance +"
+        <IconCommandButton id="clearance-increase" icon={<Plus />} label="Increase required clearance"
           onPress={() => onUpdateLayoutReview({ requiredBoundaryClearanceMeters: required + stepMeters })}
           testID="machine-boundary-clearance-increase"
         />
@@ -5108,7 +5218,7 @@ function MachineBoundaryClearancePanel({
       {settings.layoutReview.showMachineBoundaryDistances ? (
         <View style={styles.placementCandidateList} testID="machine-boundary-clearance-rows">
           {rows.map((row) => (
-            <View key={`${row.kind}-${row.towerIndex ?? row.radiusMeters}`} style={[styles.placementCandidateRow, row.meetsRequiredBoundaryClearance ? styles.scenarioRowFeasible : styles.scenarioRowRejected]} testID={`machine-boundary-row-${row.kind}`}>
+            <View key={`${row.kind}-${row.towerIndex ?? row.radiusMeters}`} style={reportStyles.section} testID={`machine-boundary-row-${row.kind}`}>
               <View style={styles.scenarioRowHeader}>
                 <Text style={styles.rowTitle}>{row.towerIndex ? `${row.label} T${row.towerIndex}` : row.label}</Text>
                 <Text style={styles.scenarioScore}>{row.meetsRequiredBoundaryClearance ? "OK" : "Short"}</Text>
@@ -5147,19 +5257,19 @@ function CornerArmKinematicStatusPanel({
   const blockerCount = result.infeasibleDiagnostics.length;
   const firstBlockers = result.infeasibleDiagnostics.slice(0, 3);
   return (
-    <View style={styles.placementReviewPanel} testID="corner-arm-kinematics-panel">
+    <View style={reportStyles.section} testID="corner-arm-kinematics-panel">
       <View style={styles.scenarioRowHeader}>
         <Text style={styles.rowTitle}>Corner-Arm Kinematics</Text>
         <Text style={result.status === "ready" ? styles.scenarioScore : styles.scenarioScoreWarn}>{result.status === "unresolved" ? "Unresolved" : result.status === "ready" ? "Ready" : `${blockerCount} blockers`}</Text>
       </View>
-      <AdvisoryBadgeRow badges={["projected XY", "advisory", result.scaffoldSourceStatus.replaceAll("_", " "), "no controller proof"]} />
-      <View style={styles.metricGrid}>
-        <MetricTile label="LRDU path" value={`${result.lrduPath.length}`} tone={result.lrduPath.length > 0 ? "neutral" : "warn"} />
-        <MetricTile label="SDU path" value={`${result.sduPath.length}`} tone={result.sduPath.length > 0 ? "neutral" : "warn"} />
-        <MetricTile label="Endpoint path" value={`${result.overhangEndpointPath.length}`} tone={result.overhangEndpointPath.length > 0 ? "neutral" : "warn"} />
-        <MetricTile label="Safety zone" value={formatDistance(result.safetyZoneMeters, settings.unitSystem)} tone="neutral" />
-        <MetricTile label="Sampled sweep" value={formatAreaFromAcres(result.sweptPhysicalEnvelopeAcres, settings.unitSystem)} tone="neutral" />
-        <MetricTile label="Wetted/endgun" value={formatAreaFromAcres(result.wettedEndGunEnvelopeAcres, settings.unitSystem)} tone="neutral" />
+      <ReportNotice tone="warn">Advisory | {result.scaffoldSourceStatus.replaceAll("_", " ")} | No controller proof</ReportNotice>
+      <View>
+        <ReportValue label="LRDU path samples" value={`${result.lrduPath.length}`} tone={result.lrduPath.length > 0 ? "neutral" : "warn"} />
+        <ReportValue label="SDU path samples" value={`${result.sduPath.length}`} tone={result.sduPath.length > 0 ? "neutral" : "warn"} />
+        <ReportValue label="Endpoint path samples" value={`${result.overhangEndpointPath.length}`} tone={result.overhangEndpointPath.length > 0 ? "neutral" : "warn"} />
+        <ReportValue label="Safety zone" value={formatDistance(result.safetyZoneMeters, settings.unitSystem)} />
+        <ReportValue label="Sampled sweep" value={formatAreaFromAcres(result.sweptPhysicalEnvelopeAcres, settings.unitSystem)} />
+        <ReportValue label="Wetted/endgun" value={formatAreaFromAcres(result.wettedEndGunEnvelopeAcres, settings.unitSystem)} />
       </View>
       {firstBlockers.length > 0 ? (
         <View testID="corner-arm-kinematics-blockers">
@@ -5211,7 +5321,7 @@ function IdealCenterSummary({
 }): React.JSX.Element {
   if (!analysis) {
     return (
-      <View style={styles.placementReviewPanel} testID="ideal-center-summary">
+      <View style={reportStyles.section} testID="ideal-center-summary">
         <View style={styles.scenarioRowHeader}>
           <Text style={styles.rowTitle}>Ideal Center Analysis</Text>
           <Text style={styles.scenarioScore}>Pending</Text>
@@ -5223,19 +5333,19 @@ function IdealCenterSummary({
 
   const best = analysis.bestCandidate;
   return (
-    <View style={styles.placementReviewPanel} testID="ideal-center-summary">
+    <View style={reportStyles.section} testID="ideal-center-summary">
       <View style={styles.scenarioRowHeader}>
         <Text style={styles.rowTitle}>Ideal Center Analysis</Text>
         <Text style={styles.scenarioScore}>{analysis.status.replaceAll("_", " ")}</Text>
       </View>
-      <AdvisoryBadgeRow badges={["advisory", "projected XY", "inside boundary", "qualified review required"]} />
+      <ReportNotice>Advisory | Inside boundary | Qualified review required</ReportNotice>
       {best ? (
         <>
-          <View style={styles.metricGrid}>
-            <MetricTile label="Best score" value={best.score.toFixed(1)} tone="good" />
-            <MetricTile label="Boundary clearance" value={formatDistance(best.boundaryClearanceMeters, settings.unitSystem)} tone={best.boundaryClearanceMeters >= 0 ? "good" : "danger"} />
-            <MetricTile label="Move from current" value={formatDistance(best.distanceFromCurrentMeters, settings.unitSystem)} />
-            <MetricTile label="Cost input" value={costAssessmentLabel(best.costAssessment)} tone={best.costAssessment.status === "complete" ? "neutral" : "warn"} />
+          <View>
+            <ReportValue label="Best score" value={best.score.toFixed(1)} />
+            <ReportValue label="Boundary clearance" value={formatDistance(best.boundaryClearanceMeters, settings.unitSystem)} tone={best.boundaryClearanceMeters >= 0 ? "neutral" : "danger"} />
+            <ReportValue label="Move from current" value={formatDistance(best.distanceFromCurrentMeters, settings.unitSystem)} />
+            <ReportValue label="Cost input" value={costAssessmentLabel(best.costAssessment)} tone={best.costAssessment.status === "complete" ? "neutral" : "warn"} />
           </View>
           <Text style={styles.rowMeta}>
             XY {best.pivotCenter.x.toFixed(2)}, {best.pivotCenter.y.toFixed(2)} · {formatAreaFromAcres(best.metrics.irrigatedAcres, settings.unitSystem)} irrigated · outside {formatAreaFromAcres(best.metrics.outsideFieldAcres, settings.unitSystem)}
@@ -5274,12 +5384,12 @@ function PlacementReviewPanel({
   settings: AppSettings;
 }): React.JSX.Element {
   return (
-    <View style={styles.placementReviewPanel} testID="placement-review-panel">
+    <View style={reportStyles.section} testID="placement-review-panel">
       <View style={styles.scenarioRowHeader}>
         <Text style={styles.rowTitle}>Placement Review</Text>
         <Text style={styles.scenarioScore}>{analysis ? analysis.status.replaceAll("_", " ") : "0"}</Text>
       </View>
-      <AdvisoryBadgeRow badges={["advisory", "source-backed", "qualified review required"]} />
+      <ReportNotice>Advisory | Source-backed | Qualified review required</ReportNotice>
       {!candidates ? (
         <Text style={styles.mapFeatureMeta}>Automatic center alternatives update after Calculate Preview.</Text>
       ) : null}
@@ -5537,15 +5647,6 @@ function shortestBoundaryClearanceRow(rows: MachineBoundaryClearanceRow[]): Mach
     : null;
 }
 
-function cornerArmGuidancePath(project: PivotProject): XY[] | undefined {
-  const guidanceFeature = (project.mapFeatures ?? []).find((feature) => (
-    feature.kind === "linear_move_path"
-    && feature.geometry.type === "LineString"
-    && feature.geometry.vertices.length >= 2
-  ));
-  return guidanceFeature?.geometry.type === "LineString" ? guidanceFeature.geometry.vertices : undefined;
-}
-
 function isWillRheaGuidedDemo(project: PivotProject): boolean {
   return project.id === willRheaJasonHarmelinkExampleProject.id;
 }
@@ -5556,34 +5657,6 @@ function positiveFiniteNumber(value: unknown): boolean {
 
 function layoutReviewClearanceStepMeters(unitSystem: AppSettings["unitSystem"]): number {
   return unitSystem === "metric" ? 5 : 15.24;
-}
-
-function advisoryCostInputFromDraft(draft: AdvisoryCostDraft): AdvisoryCostInput | undefined {
-  if (!advisoryCostDraftHasAnyValue(draft)) return undefined;
-  return {
-    fixedMachineCost: optionalDraftCostNumber(draft.fixedMachineCost),
-    costPerMeter: optionalDraftCostNumber(draft.costPerMeter),
-    costPerTower: optionalDraftCostNumber(draft.costPerTower),
-    currencyCode: draft.currencyCode.trim() || "USD",
-    notes: "Operator-supplied local advisory cost assumptions; not a vendor quote.",
-  };
-}
-
-function advisoryCostDraftStatus(draft: AdvisoryCostDraft): AdvisoryCostAssessment["status"] {
-  if (!advisoryCostDraftHasAnyValue(draft)) return "missing_cost_input";
-  const values = [
-    optionalDraftCostNumber(draft.fixedMachineCost),
-    optionalDraftCostNumber(draft.costPerMeter),
-    optionalDraftCostNumber(draft.costPerTower),
-  ].map((value) => value ?? 0);
-  if (values.some((value) => !Number.isFinite(value) || value < 0)) return "invalid_cost_input";
-  return values.reduce((sum, value) => sum + value, 0) > 0 ? "complete" : "invalid_cost_input";
-}
-
-function advisoryCostDraftReadyForRadiusSensitivity(draft: AdvisoryCostDraft): boolean {
-  return [draft.fixedMachineCost, draft.costPerMeter, draft.costPerTower]
-    .map((value) => optionalDraftCostNumber(value))
-    .every((value) => value !== undefined && Number.isFinite(value) && value >= 0);
 }
 
 function appRadiusSensitivityRadii(project: PivotProject): number[] {
@@ -5611,32 +5684,6 @@ function appSweepEfficiencyRadii(project: PivotProject): number[] {
     .map((ratio) => Math.round(currentRadius * ratio * 1000) / 1000)
     .filter((radius) => Number.isFinite(radius) && radius > 0)
     .filter((radius, index, radii) => radii.indexOf(radius) === index);
-}
-
-function advisoryCostDraftMessage(draft: AdvisoryCostDraft, status: AdvisoryCostAssessment["status"]): string {
-  if (status === "missing_cost_input") {
-    return "Enter local cost assumptions to rank advisory candidates; CPLayout will not infer machine prices.";
-  }
-  if (status === "invalid_cost_input") {
-    return "Cost assumptions must be finite, nonnegative numbers with at least one value above zero.";
-  }
-  const input = advisoryCostInputFromDraft(draft);
-  const fixed = input?.fixedMachineCost ?? 0;
-  const perMeter = input?.costPerMeter ?? 0;
-  const perTower = input?.costPerTower ?? 0;
-  return `${input?.currencyCode ?? "USD"} assumptions: fixed ${fixed.toFixed(0)} · per meter ${perMeter.toFixed(0)} · per tower ${perTower.toFixed(0)}.`;
-}
-
-function advisoryCostDraftHasAnyValue(draft: AdvisoryCostDraft): boolean {
-  return draft.fixedMachineCost.trim().length > 0
-    || draft.costPerMeter.trim().length > 0
-    || draft.costPerTower.trim().length > 0;
-}
-
-function optionalDraftCostNumber(value: string): number | undefined {
-  const trimmed = value.trim();
-  if (trimmed.length === 0) return undefined;
-  return Number(trimmed);
 }
 
 function awarenessFeatureCount(project: PivotProject): number {
@@ -6066,12 +6113,11 @@ function WillRheaGuidedDemoPanel({
   const hasMeasuredLrduSpeed = positiveFiniteNumber(project.machine.driveUnits?.lrdu?.operatorMeasuredSpeedMetersPerMinute);
   const hasSourceLabeledCornerArmModel = Boolean(project.machine.cornerArm && VALLEY_CORNER_ARM_SCAFFOLD_CATALOG.some((entry) => entry.id === project.machine.cornerArm?.id));
   const hasSelectedOrientation = project.machine.cornerArm?.orientation === "leading" || project.machine.cornerArm?.orientation === "trailing";
-  const hasGuidancePath = Boolean(cornerArmGuidancePath(project));
   const missingInputs = [
     hasMeasuredLrduSpeed ? null : "Measured LRDU speed at 100% timer",
     hasSourceLabeledCornerArmModel ? null : "Source-labeled corner-arm model/config",
     hasSelectedOrientation ? null : "Operator-selected leading/trailing orientation and rotation context",
-    hasGuidancePath ? null : "Projected-XY SDU guidance path saved as linear_move_path",
+    "Explicit SDU guidance-line and rotation selection in Calculate",
   ].filter((value): value is string => Boolean(value));
 
   return (
@@ -6090,7 +6136,7 @@ function WillRheaGuidedDemoPanel({
         <MetricTile label="LRDU radius" value={formatDistance(lrduRadiusMeters, settings.unitSystem)} />
         <MetricTile label="Machine zones" value={`${machineZones.length}`} />
         <MetricTile label="Preferred outlines" value={`${preferredOutlines.length}`} />
-        <MetricTile label="Guidance path" value={hasGuidancePath ? "linear_move_path" : "Missing"} tone={hasGuidancePath ? "good" : "warn"} />
+        <MetricTile label="Guidance path" value="Selection required" tone="warn" />
       </View>
       <View style={styles.warningList} testID="will-rhea-evidence-status">
         <EvidenceStatusRow label="Field boundary" value={boundaryEvidence ? "Imported planning_boundary evidence. Current boundary match unverified." : "Missing imported boundary evidence."} />
@@ -7066,6 +7112,9 @@ function draftPurposeOptions(geometry: UtilityFeatureGeometry): MapDraftPurposeO
 
 function mapFeaturePurposeMeta(kind: ProjectMapFeatureKind): string {
   switch (kind) {
+    case "reference_point":
+    case "reference_line":
+    case "reference_area": return "Classified reference geometry; its stated purpose and effects are retained with the drawing.";
     case "measurement_area": return "Area measurement; does not constrain irrigation coverage.";
     case "pump_location":
       return "Site utility evidence point; not hydraulic certification.";
@@ -8501,6 +8550,38 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     width: "100%",
   },
+  consoleInline: {
+    borderWidth: 0,
+    borderRadius: 0,
+    maxHeight: "100%",
+  },
+  calculationScreen: {
+    flex: 1,
+    backgroundColor: "#fbfcf8",
+  },
+  calculationPanel: {
+    backgroundColor: "#ffffff",
+    flex: 1,
+    maxHeight: "100%",
+    maxWidth: "100%",
+    borderWidth: 0,
+    borderRadius: 0,
+  },
+  calculationBody: {
+    flex: 1,
+  },
+  calculationSaveState: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  calculationBodyContent: {
+    alignSelf: "center",
+    width: "100%",
+    maxWidth: 960,
+  },
+  reportPricingChoices: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
+  reportPricingChoice: { minHeight: 44, flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 8, paddingRight: 12, maxWidth: "100%" },
   consoleDialogHeader: {
     alignItems: "center",
     backgroundColor: "#f3f7f0",

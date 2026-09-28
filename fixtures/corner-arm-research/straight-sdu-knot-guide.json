@@ -1,0 +1,207 @@
+{
+  "schemaVersion": "cplayout-corner-research-v1",
+  "id": "straight-sdu-knot-guide",
+  "model": {
+    "pivot": [
+      0,
+      0
+    ],
+    "mainRadiusM": 10,
+    "armLengthM": 4,
+    "overhangM": 1,
+    "bodyHalfWidthM": 0.1,
+    "antennaOffsetM": [
+      -2,
+      0.5
+    ],
+    "wheelOffsetsM": [
+      [
+        -1,
+        0.4
+      ],
+      [
+        -1,
+        -0.4
+      ]
+    ],
+    "towerRadiiM": [
+      3,
+      7,
+      10
+    ]
+  },
+  "limits": {
+    "articulationRad": [
+      -2,
+      2
+    ],
+    "maxArticulationSlope": 5
+  },
+  "field": {
+    "outer": [
+      [
+        -25,
+        -25
+      ],
+      [
+        25,
+        -25
+      ],
+      [
+        25,
+        25
+      ],
+      [
+        -25,
+        25
+      ]
+    ],
+    "holes": []
+  },
+  "obstacles": [],
+  "sweep": {
+    "startRad": -0.2,
+    "endRad": 0.2,
+    "fullCircle": false
+  },
+  "clearanceM": 0.1,
+  "maxDepth": 18,
+  "toleranceM": 1e-7,
+  "trajectory": {
+    "interpolation": "linear",
+    "knots": [
+      {
+        "thetaRad": -0.2,
+        "alphaRad": 0.7197617052545429
+      },
+      {
+        "thetaRad": -0.1875,
+        "alphaRad": 0.6722738088789206
+      },
+      {
+        "thetaRad": -0.17500000000000002,
+        "alphaRad": 0.6253385371588425
+      },
+      {
+        "thetaRad": -0.1625,
+        "alphaRad": 0.5788931532260821
+      },
+      {
+        "thetaRad": -0.15000000000000002,
+        "alphaRad": 0.5328819939777846
+      },
+      {
+        "thetaRad": -0.1375,
+        "alphaRad": 0.4872552150701431
+      },
+      {
+        "thetaRad": -0.125,
+        "alphaRad": 0.44196778544462223
+      },
+      {
+        "thetaRad": -0.1125,
+        "alphaRad": 0.39697867092745487
+      },
+      {
+        "thetaRad": -0.1,
+        "alphaRad": 0.3522501626411837
+      },
+      {
+        "thetaRad": -0.08750000000000001,
+        "alphaRad": 0.30774731729530014
+      },
+      {
+        "thetaRad": -0.07500000000000001,
+        "alphaRad": 0.26343748446396414
+      },
+      {
+        "thetaRad": -0.0625,
+        "alphaRad": 0.2192899017384088
+      },
+      {
+        "thetaRad": -0.04999999999999999,
+        "alphaRad": 0.1752753428373884
+      },
+      {
+        "thetaRad": -0.037500000000000006,
+        "alphaRad": 0.13136580682520577
+      },
+      {
+        "thetaRad": -0.024999999999999994,
+        "alphaRad": 0.0875342388319708
+      },
+      {
+        "thetaRad": -0.012500000000000011,
+        "alphaRad": 0.04375427430612756
+      },
+      {
+        "thetaRad": 0,
+        "alphaRad": 0
+      },
+      {
+        "thetaRad": 0.012500000000000011,
+        "alphaRad": -0.04375427430612756
+      },
+      {
+        "thetaRad": 0.024999999999999994,
+        "alphaRad": -0.0875342388319708
+      },
+      {
+        "thetaRad": 0.037500000000000006,
+        "alphaRad": -0.13136580682520577
+      },
+      {
+        "thetaRad": 0.04999999999999999,
+        "alphaRad": -0.1752753428373884
+      },
+      {
+        "thetaRad": 0.0625,
+        "alphaRad": -0.2192899017384088
+      },
+      {
+        "thetaRad": 0.07500000000000001,
+        "alphaRad": -0.26343748446396414
+      },
+      {
+        "thetaRad": 0.08750000000000002,
+        "alphaRad": -0.30774731729530014
+      },
+      {
+        "thetaRad": 0.10000000000000003,
+        "alphaRad": -0.3522501626411838
+      },
+      {
+        "thetaRad": 0.11249999999999999,
+        "alphaRad": -0.3969786709274548
+      },
+      {
+        "thetaRad": 0.125,
+        "alphaRad": -0.44196778544462223
+      },
+      {
+        "thetaRad": 0.1375,
+        "alphaRad": -0.4872552150701431
+      },
+      {
+        "thetaRad": 0.15000000000000002,
+        "alphaRad": -0.5328819939777846
+      },
+      {
+        "thetaRad": 0.16250000000000003,
+        "alphaRad": -0.5788931532260823
+      },
+      {
+        "thetaRad": 0.175,
+        "alphaRad": -0.6253385371588425
+      },
+      {
+        "thetaRad": 0.1875,
+        "alphaRad": -0.6722738088789206
+      },
+      {
+        "thetaRad": 0.2,
+        "alphaRad": -0.7197617052545429
+      }
+    ]
+  }
+}

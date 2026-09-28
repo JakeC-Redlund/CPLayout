@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "drawing-visual-followup-20260927",
+  "title": "CPLayout Drawing Visual Follow-up",
+  "context": "Partial visual implementation only. Your original Q01-Q10 answers remain recorded; this is a new V01-V04 review. Post-drawing classification, autosave and persistent pause/resume are still pending. Synthetic LOCAL:METERS design, not GPS/elevation or hardware accuracy evidence. Completion records responses, not design acceptance.",
+  "questions": [
+    {
+      "id": "V01",
+      "text": "Is the bottom placement and size suitable?",
+      "choices": [{"value":"a","label":"Yes for desktop"},{"value":"b","label":"Move or resize as described"},{"value":"c","label":"Not suitable; explain"},{"value":"d","label":"Other; explain"}],
+      "images": [{"path":"annotated/fig-01.png","label":"Fig. 1: Bottom drawing tools"}],
+      "observations": ["1A: Drawing tools now occupy the bottom of the map. Each button is at least 48 CSS pixels high."]
+    },
+    {
+      "id": "V02",
+      "text": "Are the capture actions sufficiently obvious and close together?",
+      "choices": [{"value":"a","label":"Yes"},{"value":"b","label":"Larger labels or icons needed"},{"value":"c","label":"Arrangement needs changing"},{"value":"d","label":"Other; explain"}],
+      "images": [{"path":"annotated/fig-02.png","label":"Fig. 2: Drawing actions together"}],
+      "observations": ["2A: Information, geometry tools, vertex count and capture actions are grouped at the bottom.","2B: This capture is still unsaved. Autosave and post-drawing classification are not implemented in this visual pass."]
+    },
+    {
+      "id": "V03",
+      "text": "Is the narrow toolbar wrapping acceptable?",
+      "choices": [{"value":"a","label":"Yes"},{"value":"b","label":"Prefer a single horizontal row"},{"value":"c","label":"Prefer a compact expandable toolbar"},{"value":"d","label":"Other; explain"}],
+      "images": [{"path":"annotated/fig-03.png","label":"Fig. 3: Narrow browser layout"}],
+      "observations": ["3A: At 390 CSS pixels the Point tool wraps to a second row. This is browser emulation, not an Android device test.","3B: Warnings now use larger text and an icon. The saved/ready distinction still needs human review."]
+    },
+    {
+      "id": "V04",
+      "text": "Do the status indicators clearly separate saving from readiness?",
+      "choices": [{"value":"a","label":"Yes"},{"value":"b","label":"Increase prominence further"},{"value":"c","label":"Wording needs changing"},{"value":"d","label":"Other; explain"}],
+      "images": [{"path":"annotated/fig-04.png","label":"Fig. 4: Saved draft, not qualified"}],
+      "observations": ["4A: Saved is green and accompanied by an icon.","4B: Missing calculation inputs remain visible. Saving does not establish field qualification or 3D accuracy."]
+    }
+  ]
+}

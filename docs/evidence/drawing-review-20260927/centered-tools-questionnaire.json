@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "id": "drawing-centered-tools-20260927",
+  "title": "CPLayout Centered Drawing Tools",
+  "context": "W01-W04 follows your completed V01-V04 feedback. Only the incomplete-design SVG visual surface is reviewed here. Post-drawing classification, default-on autosave, boundary-first closure and persistent pause/resume are not yet available in this screen. Synthetic LOCAL:METERS geometry; no GPS, elevation or RTK accuracy evidence. Previous responses are archived; completing this packet does not imply acceptance.",
+  "questions": [
+    {
+      "id": "W01",
+      "text": "Does this centered placement and color treatment meet your V01 request?",
+      "choices": [
+        {
+          "value": "a",
+          "label": "Yes for this desktop view"
+        },
+        {
+          "value": "b",
+          "label": "Change the colors or contrast"
+        },
+        {
+          "value": "c",
+          "label": "Change size or placement"
+        },
+        {
+          "value": "d",
+          "label": "Other; describe"
+        }
+      ],
+      "images": [
+        {
+          "path": "annotated/fig-01.png",
+          "label": "Fig. 01: Centered colored drawing tools"
+        }
+      ],
+      "observations": [
+        "1A: Four labeled tools share one centered bottom row. Each is 60 CSS pixels high; the selected Pan tool has a light background and dark outline."
+      ]
+    },
+    {
+      "id": "W02",
+      "text": "Are the grouped capture actions now easy to recognize and reach?",
+      "choices": [
+        {
+          "value": "a",
+          "label": "Yes"
+        },
+        {
+          "value": "b",
+          "label": "Increase size or contrast"
+        },
+        {
+          "value": "c",
+          "label": "Change the arrangement"
+        },
+        {
+          "value": "d",
+          "label": "Other; describe"
+        }
+      ],
+      "images": [
+        {
+          "path": "annotated/fig-02.png",
+          "label": "Fig. 02: Capture actions beneath the tools"
+        }
+      ],
+      "observations": [
+        "2A: Remove last is amber, Keep green, and Cancel red. The actions remain grouped with the bottom toolbar.",
+        "2B: This capture is unsaved. Keep still requires a separate Save; autosave is not wired into this screen."
+      ]
+    },
+    {
+      "id": "W03",
+      "text": "Is this narrow single-row arrangement suitable for the requested workflow?",
+      "choices": [
+        {
+          "value": "a",
+          "label": "Yes for this view"
+        },
+        {
+          "value": "b",
+          "label": "Labels or icons need enlargement"
+        },
+        {
+          "value": "c",
+          "label": "Drawing space needs more room"
+        },
+        {
+          "value": "d",
+          "label": "Other; describe"
+        }
+      ],
+      "images": [
+        {
+          "path": "annotated/fig-03.png",
+          "label": "Fig. 03: Single row at 320 CSS pixels"
+        }
+      ],
+      "observations": [
+        "3A: All four tools remain on one row at 320 CSS pixels. Icons sit above labels. This is a narrow Windows browser viewport, not a phone device test.",
+        "3B: Warnings use amber text and an icon. No position accuracy is implied."
+      ]
+    },
+    {
+      "id": "W04",
+      "text": "Are saved status and remaining warnings sufficiently distinct?",
+      "choices": [
+        {
+          "value": "a",
+          "label": "Yes"
+        },
+        {
+          "value": "b",
+          "label": "Increase contrast or size"
+        },
+        {
+          "value": "c",
+          "label": "Change the wording or placement"
+        },
+        {
+          "value": "d",
+          "label": "Other; describe"
+        }
+      ],
+      "images": [
+        {
+          "path": "annotated/fig-04.png",
+          "label": "Fig. 04: Saved does not mean ready"
+        }
+      ],
+      "observations": [
+        "4A: Saved is green with a check icon.",
+        "4B: Missing calculation inputs stay amber. Field qualification remains explicitly unverified."
+      ]
+    }
+  ]
+}

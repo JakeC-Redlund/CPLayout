@@ -1,3 +1,4 @@
+import type { ProjectDrawingMetadata } from "./drawingMetadata";
 import type { ProjectSettings, ReferenceOverlaySchema } from "./settings";
 import type { GnssCaptureEvidenceV2 } from "./gnssEvidence";
 
@@ -274,6 +275,9 @@ export interface ObstacleZone {
 }
 
 export type ProjectMapFeatureKind =
+  | "reference_point"
+  | "reference_line"
+  | "reference_area"
   | "pump_location"
   | "well_location"
   | "underground_pipeline"
@@ -333,6 +337,8 @@ export interface ProjectWgs84Companion {
 }
 
 export interface PivotProject {
+  /** Versioned classification and drawing preferences; canonical XY remains in its target. */
+  drawingMetadata?: ProjectDrawingMetadata;
   id: string;
   name: string;
   projectCrs: string;

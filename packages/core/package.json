@@ -6,13 +6,14 @@
   "types": "src/index.ts",
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
-    "test": "tsx src/crsMutationSafety.test.ts && tsx src/coordinates.test.ts && tsx src/coordinatesSafety.test.ts && tsx src/crsQualification.test.ts && tsx src/projectCalculationSafety.test.ts && tsx src/cornerArmCatalog.test.ts && tsx src/cornerGpsMapImport.test.ts && tsx src/cornerGpsMapExport.test.ts && tsx src/cornerGpsMapLegacyEvidence.test.ts && tsx src/settings.test.ts && tsx src/mapTilePackages.test.ts && tsx src/referenceOverlays.test.ts && tsx src/mapReferenceViewModel.test.ts && tsx src/imageryEvidence.test.ts && tsx src/manualDesign.test.ts && tsx src/designDraft.test.ts && tsx src/designDraftEditor.test.ts && tsx src/gnssEvidence.test.ts && tsx src/navigationMenuXml.test.ts && tsx src/projectDocument.test.ts && tsx src/projectKml.test.ts && tsx src/projectXml.test.ts && tsx src/projectReducer.test.ts && tsx src/provenanceSafety.test.ts && tsx src/units.test.ts",
+    "test": "tsx src/crsMutationSafety.test.ts && tsx src/coordinates.test.ts && tsx src/coordinatesSafety.test.ts && tsx src/crsQualification.test.ts && tsx src/projectCalculationSafety.test.ts && tsx src/cornerArmCatalog.test.ts && tsx src/cornerGpsMapImport.test.ts && tsx src/cornerGpsMapExport.test.ts && tsx src/cornerGpsMapLegacyEvidence.test.ts && tsx src/settings.test.ts && tsx src/mapTilePackages.test.ts && tsx src/referenceOverlays.test.ts && tsx src/mapReferenceViewModel.test.ts && tsx src/imageryEvidence.test.ts && tsx src/manualDesign.test.ts && tsx src/draftDrawingWorkflow.test.ts && tsx src/drawingClassification.test.ts && tsx src/designDraft.test.ts && tsx src/designDraftEditor.test.ts && tsx src/gnssEvidence.test.ts && tsx src/navigationMenuXml.test.ts && tsx src/projectDocument.test.ts && tsx src/fieldDesignDocument.test.ts && tsx src/fieldDesignEditor.test.ts && tsx src/projectKml.test.ts && tsx src/projectXml.test.ts && tsx src/projectReducer.test.ts && tsx src/provenanceSafety.test.ts && tsx src/units.test.ts && tsx src/drawingMetadata.test.ts && tsx src/fieldCalculationInput.test.ts && tsx src/fieldLayoutTarget.test.ts && tsx src/drawingProjectEdits.test.ts && tsx src/straightLateral.test.ts",
     "validate": "npm run typecheck && npm test"
   },
   "dependencies": {
     "@placemarkio/tokml": "^0.3.9",
     "@tmcw/togeojson": "^7.1.2",
     "@xmldom/xmldom": "0.9.12",
+    "jsonc-parser": "3.3.1",
     "proj4": "2.20.8",
     "zod": "4.4.3"
   },

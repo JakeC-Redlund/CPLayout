@@ -1,21 +1,24 @@
 import * as polygonClipping from "polygon-clipping";
+import * as robustPolygonClipping from "polyclip-ts";
 
 import type {
   CornerArmModelCatalogEntry,
+  CrsQualificationOptions,
   MultiPolygonXY,
   ObstacleZone,
   PivotAngleRange,
   PivotSweep,
   XY,
 } from "@cplayout/core";
-import { assertMetricCalculationCrs, feetToMeters, squareMetersToAcres } from "@cplayout/core";
+import { assertMetricCalculationCrs, feetToMeters, squareMetersToAcres, FieldCalculationCrsOptionsSchema } from "@cplayout/core";
 
 import {
-  createAnnularSector,
   createCirclePolygon,
   multiPolygonAreaSquareMeters,
   polarOffset,
 } from "./geometry";
+import { memberConflictsWithRing, memberInsideRing } from "./cornerMemberClearance";
+import { accountCornerFootprints, type CornerFootprintAccounting } from "./cornerPathAccounting";
 
 type ClipPosition = [number, number];
 type ClipPolygon = ClipPosition[][];
@@ -30,8 +33,16 @@ export type CornerArmKinematicDiagnosticCode =
   | "missing_lrdu_radius"
   | "missing_lrdu_speed"
   | "missing_model_spec"
+  | "invalid_model_spec"
+  | "missing_model_provenance"
+  | "invalid_model_provenance"
+  | "inconsistent_model_provenance"
   | "missing_field_boundary"
   | "missing_guidance_path"
+  | "missing_rotation_direction"
+  | "invalid_rotation_direction"
+  | "missing_orientation"
+  | "invalid_orientation"
   | "guidance_unreachable"
   | "corner_angle_below_min"
   | "corner_angle_above_max"
@@ -43,12 +54,13 @@ export type CornerArmKinematicDiagnosticCode =
 
 export interface CornerArmKinematicInputs {
   projectCrs: string;
+  crsOptions?: CrsQualificationOptions;
   pivotCenter?: XY;
   pivotCenterToLrduRadiusMeters?: number;
   lrduSpeedMetersPerMinuteAt100Percent?: number;
   modelSpec?: CornerArmModelCatalogEntry;
-  rotationDirection: CornerArmKinematicRotationDirection;
-  orientation: CornerArmKinematicOrientation;
+  rotationDirection?: CornerArmKinematicRotationDirection;
+  orientation?: CornerArmKinematicOrientation;
   sweep?: PivotSweep;
   fieldBoundary?: XY[];
   obstacles?: ObstacleZone[];
@@ -58,6 +70,11 @@ export interface CornerArmKinematicInputs {
   sampleAngleStepDegrees?: number;
   physicalBufferMeters?: number;
   safetyZoneMeters?: number;
+  /** Explicit opt-in budget; the default preserves the base sample schedule. */
+  refinement?: { maxAdditionalSamples: number; minAngleStepDegrees?: number };
+  /** Declared baseline geometric wet footprints, including other machines if applicable.
+   * Omitted means unknown net additional footprint; [] explicitly declares no baseline. */
+  baselineFootprints?: MultiPolygonXY[];
 }
 
 export interface CornerArmKinematicState {
@@ -74,6 +91,10 @@ export interface CornerArmKinematicState {
   sduToLrduSpeedRatio: number;
   feasible: boolean;
   infeasibleDiagnostics: CornerArmKinematicDiagnostic[];
+  guidanceSegmentIndex: number;
+  guidanceDistanceMeters: number;
+  signedGuidanceTravelMeters: number;
+  cornerAngularRateDegreesPerMinute: number;
 }
 
 export interface CornerArmKinematicDiagnostic {
@@ -110,112 +131,153 @@ export interface CornerArmKinematicResult {
   infeasibleDiagnostics: CornerArmKinematicDiagnostic[];
   endGunControlRows: CornerArmEndGunControlRow[];
   warnings: string[];
+  /** Unrounded calculation states. Consumers must not feed display-rounded paths back into calculations. */
+  sampledStates: ReadonlyArray<Readonly<CornerArmKinematicState>>;
+  sampling: {
+    baseSampleCount: number;
+    addedSampleCount: number;
+    maxAdditionalSamples: number;
+    budgetExhausted: boolean;
+    betweenPoseClearance: "unresolved";
+  };
+  pathChecks: { directionReversalStateIndices: number[]; branchDiscontinuityStateIndices: number[]; qualification: string };
+  wheelTracks: { lrdu: XY[]; sdu: XY[]; qualification: string };
+  /** Union of buffered main and corner members at the evaluated poses only. */
+  sampledStructuralEnvelope: MultiPolygonXY;
+  sampledStructuralEnvelopeAcres: number;
+  /** Raw acreage and field-clipped potential end-gun footprint, with explicit baseline subtraction. */
+  footprintAccounting: CornerFootprintAccounting;
 }
 
 const DEFAULT_SAMPLE_STEP_DEGREES = 10;
 const DEFAULT_PHYSICAL_BUFFER_METERS = 0.75;
+const SOURCE_VERIFICATION_WARNING = "Declared source status and artifact metadata are not independently verified by this calculation; matching declared statuses are not artifact proof.";
+const MODEL_LIMITS = [
+  ["minCornerAngleDegrees", "Minimum corner angle"],
+  ["maxCornerAngleDegrees", "Maximum corner angle"],
+  ["maxOutwardSteeringAngleDegrees", "Maximum outward steering angle"],
+  ["maxInwardSteeringAngleDegrees", "Maximum inward steering angle"],
+  ["cornerSpeedRatio", "Maximum SDU/LRDU speed ratio"],
+] as const;
 export const CORNER_ARM_MINIMUM_PHYSICAL_SAFETY_ZONE_METERS = feetToMeters(1);
 
 export function evaluateCornerArmKinematics(inputs: CornerArmKinematicInputs): CornerArmKinematicResult {
-  const safetyZoneMeters = Math.max(CORNER_ARM_MINIMUM_PHYSICAL_SAFETY_ZONE_METERS, inputs.safetyZoneMeters ?? CORNER_ARM_MINIMUM_PHYSICAL_SAFETY_ZONE_METERS);
+  const safetyZoneMeters = Math.max(CORNER_ARM_MINIMUM_PHYSICAL_SAFETY_ZONE_METERS,
+    Number.isFinite(inputs.safetyZoneMeters) ? inputs.safetyZoneMeters! : CORNER_ARM_MINIMUM_PHYSICAL_SAFETY_ZONE_METERS);
   const requiredDiagnostics = requiredInputDiagnostics(inputs);
 
   if (requiredDiagnostics.length > 0) {
-    return emptyResult(inputs.modelSpec?.sourceStatus ?? "missing", safetyZoneMeters, requiredDiagnostics, [
-      "Corner-arm kinematic calculation is blocked until required projected-XY machine, speed, boundary, and guidance inputs are supplied.",
+    const provenanceInvalid = requiredDiagnostics.some((diagnostic) => diagnostic.code === "missing_model_provenance"
+      || diagnostic.code === "invalid_model_provenance" || diagnostic.code === "inconsistent_model_provenance");
+    return emptyResult(provenanceInvalid ? "missing" : inputs.modelSpec?.sourceStatus ?? "missing", safetyZoneMeters, requiredDiagnostics, [
+      "Corner-arm kinematic calculation is blocked until valid projected-XY machine, source metadata, speed, boundary, guidance, rotation, and orientation inputs are supplied.",
       "Existing advisory corner-arm envelopes may still be displayed as fallback evidence, but they are not extension/retraction-aware kinematic proof.",
     ]);
   }
 
-  assertMetricCalculationCrs(inputs.projectCrs);
+  assertMetricCalculationCrs(inputs.projectCrs, inputs.crsOptions);
   const pivotCenter = inputs.pivotCenter;
   const fieldBoundary = inputs.fieldBoundary;
   const guidancePath = inputs.guidancePath;
   const modelSpec = inputs.modelSpec;
-  if (!pivotCenter || !fieldBoundary || !guidancePath || !modelSpec) {
+  if (!pivotCenter || !fieldBoundary || !guidancePath || !modelSpec || !inputs.rotationDirection || !inputs.orientation) {
     return emptyResult(inputs.modelSpec?.sourceStatus ?? "missing", safetyZoneMeters, requiredDiagnostics, []);
   }
 
   const sweep = inputs.sweep ?? { mode: "full_circle" as const };
-  const angles = sampleSweepAngles(sweep, inputs.sampleAngleStepDegrees ?? DEFAULT_SAMPLE_STEP_DEGREES, inputs.rotationDirection);
+  let angles = sampleSweepAngles(sweep, inputs.sampleAngleStepDegrees ?? DEFAULT_SAMPLE_STEP_DEGREES, inputs.rotationDirection);
+  // Evaluate supplied end-gun control boundaries on the same articulated timeline.
+  angles = withControlAngles(angles, inputs.endGunAngleRanges ?? []);
+  const baseSampleCount = angles.length;
+  const maxAdditionalSamples = inputs.refinement?.maxAdditionalSamples ?? 0;
+  const minAngleStepDegrees = inputs.refinement?.minAngleStepDegrees ?? 0.1;
   const physicalBufferMeters = Math.max(0.1, inputs.physicalBufferMeters ?? DEFAULT_PHYSICAL_BUFFER_METERS);
   const spanLengthMeters = modelSpec.spanLengthMeters;
   const overhangLengthMeters = modelSpec.overhangLengthMeters;
   const orientationSign = (inputs.orientation === "leading" ? 1 : -1) * (inputs.rotationDirection === "counterclockwise" ? 1 : -1);
-  const states: CornerArmKinematicState[] = [];
-  const physicalClips: ClipMultiPolygon[] = [];
-  let elapsedMinutes = 0;
-
-  for (let index = 0; index < angles.length; index += 1) {
-    const thetaDegrees = angles[index];
-    const thetaRadians = (thetaDegrees * Math.PI) / 180;
-    const previousTheta = index === 0 ? thetaDegrees : angles[index - 1];
-    const deltaThetaRadians = index === 0 ? 0 : Math.abs(shortestSignedAngleDegrees(previousTheta, thetaDegrees)) * Math.PI / 180;
-    const deltaMinutes = (inputs.pivotCenterToLrduRadiusMeters! * deltaThetaRadians) / inputs.lrduSpeedMetersPerMinuteAt100Percent!;
-    elapsedMinutes += deltaMinutes;
-
-    // The closing pose must reuse the same trigonometric angle as the opening pose.
-    const lrdu = polarOffset(pivotCenter, inputs.pivotCenterToLrduRadiusMeters!, normalizeDegrees(thetaDegrees));
-    const guidanceCandidates = circlePolylineIntersections(lrdu, spanLengthMeters, guidancePath);
-    if (guidanceCandidates.length === 0) {
-      return emptyResult(modelSpec.sourceStatus, safetyZoneMeters, [{ code: "guidance_unreachable", stateIndex: index,
-        message: `No arm-length intersection with the guidance path at ${thetaDegrees.toFixed(3)} degrees.` }], []);
+  const guidanceLength = guidancePath.slice(1).reduce((sum, point, index) => sum + distance(guidancePath[index], point), 0);
+  const closedGuidance = distance(guidancePath[0], guidancePath[guidancePath.length - 1]) < 1e-9;
+  const solve = (sampleAngles: number[]): { states: CornerArmKinematicState[]; diagnostic?: CornerArmKinematicDiagnostic } => {
+    const states: CornerArmKinematicState[] = [];
+    let elapsedMinutes = 0;
+    for (let index = 0; index < sampleAngles.length; index += 1) {
+      const thetaDegrees = sampleAngles[index];
+      const thetaRadians = (thetaDegrees * Math.PI) / 180;
+      const previous = states.at(-1);
+      const deltaThetaRadians = previous === undefined ? 0 : Math.abs(thetaDegrees - previous.thetaDegrees) * Math.PI / 180;
+      const deltaMinutes = (inputs.pivotCenterToLrduRadiusMeters! * deltaThetaRadians) / inputs.lrduSpeedMetersPerMinuteAt100Percent!;
+      elapsedMinutes += deltaMinutes;
+      const lrdu = polarOffset(pivotCenter, inputs.pivotCenterToLrduRadiusMeters!, normalizeDegrees(thetaDegrees));
+      const candidates = circlePolylineIntersections(lrdu, spanLengthMeters, guidancePath);
+      if (candidates.length === 0) return { states, diagnostic: { code: "guidance_unreachable", stateIndex: index,
+        message: `No arm-length intersection with the guidance path at ${thetaDegrees.toFixed(3)} degrees.` } };
+      const target = previous?.sdu ?? polarOffset(lrdu, spanLengthMeters, thetaDegrees + orientationSign * 90);
+      const selected = candidates.reduce((best, candidate) => distance(candidate.point, target) < distance(best.point, target) ? candidate : best);
+      const sdu = selected.point;
+      const vectorAngle = angleDegrees(lrdu, sdu);
+      const overhangEndpoint = polarOffset(sdu, overhangLengthMeters, vectorAngle);
+      const signedCornerAngle = normalizeDegrees(orientationSign * (vectorAngle - thetaDegrees));
+      let signedGuidanceTravelMeters = previous === undefined ? 0 : selected.distanceAlong - previous.guidanceDistanceMeters;
+      if (closedGuidance && guidanceLength > 0 && Math.abs(signedGuidanceTravelMeters) > guidanceLength / 2) {
+        signedGuidanceTravelMeters -= Math.sign(signedGuidanceTravelMeters) * guidanceLength;
+      }
+      const steeringAngleDegrees = steeringAngleForState(previous, sdu);
+      // Guidance arc distance includes traversal around sampled line turns, rather than its chord.
+      const sduToLrduSpeedRatio = previous === undefined || deltaMinutes <= 0 ? 1
+        : Math.abs(signedGuidanceTravelMeters) / deltaMinutes / inputs.lrduSpeedMetersPerMinuteAt100Percent!;
+      const cornerAngularRateDegreesPerMinute = previous === undefined || deltaMinutes <= 0 ? 0
+        : shortestSignedAngleDegrees(previous.cornerAngleDegrees, signedCornerAngle) / deltaMinutes;
+      if (![lrdu, sdu, overhangEndpoint].every(finitePoint)
+        || ![thetaDegrees, thetaRadians, elapsedMinutes, deltaMinutes, signedCornerAngle, steeringAngleDegrees,
+          sduToLrduSpeedRatio, selected.distanceAlong, signedGuidanceTravelMeters, cornerAngularRateDegreesPerMinute].every(Number.isFinite)) {
+        return { states, diagnostic: { code: "geometry_invalid", stateIndex: index, message: "Calculation overflowed finite metric coordinates, timing, or rates." } };
+      }
+      const stateDiagnostics = stateDiagnosticsFor({ stateIndex: index, modelSpec, fieldBoundary, safetyZoneMeters,
+        physicalBufferMeters, obstacles: inputs.obstacles ?? [], pivotCenter, lrdu, sdu, overhangEndpoint,
+        cornerAngleDegrees: signedCornerAngle, steeringAngleDegrees, sduToLrduSpeedRatio });
+      states.push({ sequenceIndex: index, thetaDegrees, thetaRadians, elapsedMinutes, deltaMinutes, lrdu, sdu, overhangEndpoint,
+        cornerAngleDegrees: signedCornerAngle, steeringAngleDegrees, sduToLrduSpeedRatio,
+        feasible: stateDiagnostics.length === 0, infeasibleDiagnostics: stateDiagnostics,
+        guidanceSegmentIndex: selected.segmentIndex, guidanceDistanceMeters: selected.distanceAlong,
+        signedGuidanceTravelMeters, cornerAngularRateDegreesPerMinute });
     }
-    const target = states.at(-1)?.sdu ?? polarOffset(lrdu, spanLengthMeters, thetaDegrees + orientationSign * 90);
-    const sdu = guidanceCandidates.reduce((best, candidate) => distance(candidate, target) < distance(best, target) ? candidate : best);
-    const vectorAngle = angleDegrees(lrdu, sdu);
-    const overhangEndpoint = polarOffset(sdu, overhangLengthMeters, vectorAngle);
-    const cornerAngleDegrees = normalizeDegrees(vectorAngle - thetaDegrees);
-    const signedCornerAngle = orientationSign > 0 ? cornerAngleDegrees : normalizeDegrees(thetaDegrees - vectorAngle);
-    const steeringAngleDegrees = steeringAngleForState(states[states.length - 1], sdu);
-    const sduToLrduSpeedRatio = sduSpeedRatio(states[states.length - 1], sdu, deltaMinutes, inputs.lrduSpeedMetersPerMinuteAt100Percent!);
-    const stateDiagnostics = stateDiagnosticsFor({
-      stateIndex: index,
-      modelSpec,
-      fieldBoundary,
-      safetyZoneMeters,
-      obstacles: inputs.obstacles ?? [],
-      lrdu,
-      sdu,
-      overhangEndpoint,
-      cornerAngleDegrees: signedCornerAngle,
-      steeringAngleDegrees,
-      sduToLrduSpeedRatio,
-    });
-
-    states.push({
-      sequenceIndex: index,
-      thetaDegrees: round(thetaDegrees),
-      thetaRadians: round(thetaRadians),
-      elapsedMinutes: round(elapsedMinutes),
-      deltaMinutes: round(deltaMinutes),
-      lrdu: roundedPoint(lrdu),
-      sdu: roundedPoint(sdu),
-      overhangEndpoint: roundedPoint(overhangEndpoint),
-      cornerAngleDegrees: round(signedCornerAngle),
-      steeringAngleDegrees: round(steeringAngleDegrees),
-      sduToLrduSpeedRatio: round(sduToLrduSpeedRatio),
-      feasible: stateDiagnostics.length === 0,
-      infeasibleDiagnostics: stateDiagnostics,
-    });
-
-    // The rigid span and collinear overhang form one member, without a numerical joint at the SDU.
-    physicalClips.push(toClipMultiPolygon([[lineSegmentBufferPolygon(lrdu, overhangEndpoint, physicalBufferMeters)]]));
+    return { states };
+  };
+  let solved = solve(angles);
+  let refinementNeeded = refinementIntervals(solved.states, minAngleStepDegrees);
+  while (!solved.diagnostic && refinementNeeded.length > 0 && angles.length - baseSampleCount < maxAdditionalSamples) {
+    const remaining = maxAdditionalSamples - (angles.length - baseSampleCount);
+    const selected = new Set(refinementNeeded.slice(0, remaining));
+    angles = angles.flatMap((angle, index) => selected.has(index) ? [angle, (angle + angles[index + 1]) / 2] : [angle]);
+    solved = solve(angles);
+    refinementNeeded = refinementIntervals(solved.states, minAngleStepDegrees);
   }
+  if (solved.diagnostic) return emptyResult(modelSpec.sourceStatus, safetyZoneMeters, [solved.diagnostic], []);
+  const states = solved.states;
+  const sampling: CornerArmKinematicResult["sampling"] = { baseSampleCount, addedSampleCount: angles.length - baseSampleCount,
+    maxAdditionalSamples, budgetExhausted: refinementNeeded.length > 0 && angles.length - baseSampleCount >= maxAdditionalSamples,
+    betweenPoseClearance: "unresolved" };
+  const physicalClips = states.map(state => toClipMultiPolygon([[lineSegmentBufferPolygon(state.lrdu, state.overhangEndpoint, physicalBufferMeters)]]));
+  const mainClips = states.map(state => toClipMultiPolygon([[lineSegmentBufferPolygon(pivotCenter, state.lrdu, physicalBufferMeters)]]));
 
-  const lrduPath = states.map((state) => state.lrdu);
-  const sduPath = states.map((state) => state.sdu);
-  const overhangEndpointPath = states.map((state) => state.overhangEndpoint);
+  const lrduPath = states.map((state) => roundedPoint(state.lrdu));
+  const sduPath = states.map((state) => roundedPoint(state.sdu));
+  const overhangEndpointPath = states.map((state) => roundedPoint(state.overhangEndpoint));
   const sweptPhysicalEnvelope = fromClipMultiPolygon(unionClipMultiPolygons(physicalClips));
-  const wettedEndGunEnvelope = buildWettedEndGunEnvelope(inputs, modelSpec, pivotCenter, sweep);
+  const sampledStructuralEnvelope = fromClipMultiPolygon(unionClipMultiPolygons([...mainClips, ...physicalClips]));
+  const wettedEndGunEnvelope = buildWettedEndGunEnvelope(inputs, states);
+  const footprintAccounting = accountCornerFootprints([wettedEndGunEnvelope], fieldBoundary, inputs.baselineFootprints);
+  const pathChecks = pathChecksFor(states);
   const infeasibleDiagnostics = states.flatMap((state) => state.infeasibleDiagnostics);
-  const endGunControlRows = buildEndGunControlRows(inputs, modelSpec, pivotCenter);
+  const endGunControlRows = buildEndGunControlRows(inputs, states);
 
   return {
     status: infeasibleDiagnostics.length === 0 ? "unresolved" : "blocked",
     qualificationBlockers: [
       "Sampled states do not establish continuous swept clearance, branch continuity, or full-cycle steering feasibility.",
       ...(modelSpec.sourceStatus === "scaffold_only" ? ["Equipment specifications require source confirmation."] : []),
+      ...MODEL_LIMITS.filter(([key]) => modelSpec[key] === undefined)
+        .map(([, label]) => `${label} is missing; this constraint was not evaluated.`),
     ],
     advisoryOnly: true,
     canonicalGeometryMutation: false,
@@ -224,6 +286,20 @@ export function evaluateCornerArmKinematics(inputs: CornerArmKinematicInputs): C
     lrduPath,
     sduPath,
     overhangEndpointPath,
+    sampledStates: Object.freeze(states.map(state => {
+      Object.freeze(state.lrdu);
+      Object.freeze(state.sdu);
+      Object.freeze(state.overhangEndpoint);
+      state.infeasibleDiagnostics.forEach(Object.freeze);
+      Object.freeze(state.infeasibleDiagnostics);
+      return Object.freeze(state);
+    })),
+    sampling,
+    pathChecks,
+    wheelTracks: { lrdu: lrduPath, sdu: sduPath, qualification: "Sampled wheel-center polylines, not tire-width footprints or continuous motion proof." },
+    sampledStructuralEnvelope,
+    sampledStructuralEnvelopeAcres: squareMetersToAcres(multiPolygonAreaSquareMeters(sampledStructuralEnvelope)),
+    footprintAccounting,
     sweptPhysicalEnvelope,
     wettedEndGunEnvelope,
     sweptPhysicalEnvelopeAcres: round(squareMetersToAcres(multiPolygonAreaSquareMeters(sweptPhysicalEnvelope))),
@@ -231,6 +307,12 @@ export function evaluateCornerArmKinematics(inputs: CornerArmKinematicInputs): C
     infeasibleDiagnostics,
     endGunControlRows,
     warnings: [
+      SOURCE_VERIFICATION_WARNING,
+      footprintAccounting.qualification,
+      "Sampled footprint accounting includes blocked poses; reported geometric area does not override clearance or motion diagnostics.",
+      "Potential end-gun footprint uses discs at actual sampled articulated endpoints; legacy max-reach annulus semantics are retired. No nozzle or irrigation performance is inferred.",
+      ...(inputs.baselineFootprints === undefined ? ["Net additional footprint is unknown because baseline footprints were not explicitly supplied."] : []),
+      ...(sampling.budgetExhausted ? ["Refinement budget exhausted or disabled while guidance, clearance, or articulation transitions remain."] : []),
       "Corner-arm kinematics are advisory projected/local XY calculations and do not mutate canonical project geometry, storage, archives, or KML/KMZ exports.",
       "Catalog rows imported from local artifacts remain scaffold-only until confirmed by manufacturer, dealer, or operator source evidence.",
       "Physical swept envelope is separate from wetted/end-gun envelope; water application requires nozzle, pressure, sequencing, and end-gun data before stronger claims.",
@@ -242,7 +324,7 @@ export function evaluateCornerArmKinematics(inputs: CornerArmKinematicInputs): C
 function requiredInputDiagnostics(inputs: CornerArmKinematicInputs): CornerArmKinematicDiagnostic[] {
   const diagnostics: CornerArmKinematicDiagnostic[] = [];
   try {
-    assertMetricCalculationCrs(inputs.projectCrs);
+    assertMetricCalculationCrs(inputs.projectCrs, inputs.crsOptions);
   } catch (error) {
     diagnostics.push({ code: "missing_projected_crs", message: error instanceof Error ? error.message : "Projected CRS is required." });
   }
@@ -250,13 +332,123 @@ function requiredInputDiagnostics(inputs: CornerArmKinematicInputs): CornerArmKi
   if (!positiveFinite(inputs.pivotCenterToLrduRadiusMeters)) diagnostics.push({ code: "missing_lrdu_radius", message: "Length to LRDU must be a positive pivot-center-to-LRDU radius in project meters." });
   if (!positiveFinite(inputs.lrduSpeedMetersPerMinuteAt100Percent)) diagnostics.push({ code: "missing_lrdu_speed", message: "LRDU speed must be a positive linear ground speed at 100% timer in meters per minute." });
   if (!inputs.modelSpec) diagnostics.push({ code: "missing_model_spec", message: "A selected corner-arm model spec is required." });
-  if (!inputs.fieldBoundary || inputs.fieldBoundary.length < 3) diagnostics.push({ code: "missing_field_boundary", message: "A projected-XY field boundary polygon is required." });
-  if (!inputs.guidancePath || inputs.guidancePath.length < 2) diagnostics.push({ code: "missing_guidance_path", message: "A projected-XY SDU guidance path is required for extension/retraction-aware kinematics." });
-  if ([inputs.pivotCenter, ...(inputs.fieldBoundary ?? []), ...(inputs.guidancePath ?? [])].some((point) => point && (!Number.isFinite(point.x) || !Number.isFinite(point.y)))
+  if (inputs.rotationDirection == null) {
+    diagnostics.push({ code: "missing_rotation_direction", message: "Select clockwise or counterclockwise rotation explicitly." });
+  } else if (inputs.rotationDirection !== "clockwise" && inputs.rotationDirection !== "counterclockwise") {
+    diagnostics.push({ code: "invalid_rotation_direction", message: "Rotation direction must be clockwise or counterclockwise." });
+  }
+  if (inputs.orientation == null) {
+    diagnostics.push({ code: "missing_orientation", message: "Select leading or trailing corner-arm orientation explicitly." });
+  } else if (inputs.orientation !== "leading" && inputs.orientation !== "trailing") {
+    diagnostics.push({ code: "invalid_orientation", message: "Corner-arm orientation must be leading or trailing." });
+  }
+  if (inputs.modelSpec) {
+    diagnostics.push(...modelProvenanceDiagnostics(inputs.modelSpec));
+    const model = inputs.modelSpec;
+    if (MODEL_LIMITS.some(([key]) => model[key] !== undefined && !Number.isFinite(model[key]))
+      || (model.minCornerAngleDegrees !== undefined && model.maxCornerAngleDegrees !== undefined
+        && model.minCornerAngleDegrees > model.maxCornerAngleDegrees)
+      || (model.maxOutwardSteeringAngleDegrees !== undefined && model.maxOutwardSteeringAngleDegrees < 0)
+      || (model.maxInwardSteeringAngleDegrees !== undefined && model.maxInwardSteeringAngleDegrees < 0)
+      || (model.cornerSpeedRatio !== undefined && !positiveFinite(model.cornerSpeedRatio))) {
+      diagnostics.push({ code: "invalid_model_spec", message: "Supplied model limits must be finite, corner-angle bounds ordered, steering limits nonnegative, and the speed ratio positive." });
+    }
+  }
+  if (!inputs.fieldBoundary || (Array.isArray(inputs.fieldBoundary) && inputs.fieldBoundary.length < 3)) diagnostics.push({ code: "missing_field_boundary", message: "A projected-XY field boundary polygon is required." });
+  if (!inputs.guidancePath || (Array.isArray(inputs.guidancePath) && inputs.guidancePath.length < 2)) diagnostics.push({ code: "missing_guidance_path", message: "A projected-XY SDU guidance path is required for extension/retraction-aware kinematics." });
+  if ((inputs.pivotCenter != null && !finitePoint(inputs.pivotCenter))
+    || (inputs.crsOptions !== undefined && !FieldCalculationCrsOptionsSchema.safeParse(inputs.crsOptions).success)
+    || (inputs.fieldBoundary != null && !finitePoints(inputs.fieldBoundary))
+    || (inputs.guidancePath != null && !finitePoints(inputs.guidancePath))
     || (inputs.modelSpec && (!positiveFinite(inputs.modelSpec.spanLengthMeters) || !Number.isFinite(inputs.modelSpec.overhangLengthMeters) || inputs.modelSpec.overhangLengthMeters < 0))
     || (inputs.sampleAngleStepDegrees !== undefined && !positiveFinite(inputs.sampleAngleStepDegrees))
-    || (inputs.sweep?.mode === "partial_circle" && (inputs.sweep.direction !== inputs.rotationDirection || !Number.isFinite(inputs.sweep.startAngleDegrees) || !Number.isFinite(inputs.sweep.stopAngleDegrees)))) {
-    diagnostics.push({ code: "geometry_invalid", message: "Finite coordinates, valid dimensions and consistent sweep/rotation direction are required." });
+    || [inputs.physicalBufferMeters, inputs.safetyZoneMeters].some((value) => value !== undefined && (!Number.isFinite(value) || value < 0))
+    || (inputs.endGunThrowMeters !== undefined && (!Number.isFinite(inputs.endGunThrowMeters) || inputs.endGunThrowMeters < 0))
+    || (inputs.endGunAngleRanges !== undefined && (!Array.isArray(inputs.endGunAngleRanges)
+      || !Array.from(inputs.endGunAngleRanges).every(validAngleRange)))
+    || (inputs.refinement !== undefined && !validRefinement(inputs.refinement))
+    || (inputs.baselineFootprints !== undefined && (!Array.isArray(inputs.baselineFootprints)
+      || !Array.from(inputs.baselineFootprints).every(validMultiPolygon)))
+    || (inputs.sweep !== undefined && (inputs.sweep === null || typeof inputs.sweep !== "object"
+      || (inputs.sweep.mode !== "full_circle" && inputs.sweep.mode !== "partial_circle")))
+    || (inputs.obstacles !== undefined && (!Array.isArray(inputs.obstacles)
+      || Array.from(inputs.obstacles).some((obstacle: unknown) => !validClearanceObstacle(obstacle))))
+    || (inputs.sweep?.mode === "partial_circle" && (
+      (inputs.sweep.direction !== "clockwise" && inputs.sweep.direction !== "counterclockwise")
+      || ((inputs.rotationDirection === "clockwise" || inputs.rotationDirection === "counterclockwise") && inputs.sweep.direction !== inputs.rotationDirection)
+      || !Number.isFinite(inputs.sweep.startAngleDegrees) || !Number.isFinite(inputs.sweep.stopAngleDegrees)))) {
+    diagnostics.push({ code: "geometry_invalid", message: "Finite coordinates, valid dimensions and clearance buffers, hard-obstacle polygons, and consistent sweep/rotation direction are required." });
+  }
+  return diagnostics;
+}
+
+function finitePoint(value: unknown): value is XY {
+  return value !== null && typeof value === "object" && !Array.isArray(value)
+    && "x" in value && "y" in value && Number.isFinite(value.x) && Number.isFinite(value.y);
+}
+
+function validAngleRange(value: unknown): boolean {
+  if (value === null || typeof value !== "object") return false;
+  return "direction" in value && (value.direction === "clockwise" || value.direction === "counterclockwise")
+    && "startAngleDegrees" in value && "stopAngleDegrees" in value
+    && [value.startAngleDegrees, value.stopAngleDegrees].every(angle => typeof angle === "number" && Number.isFinite(angle) && angle >= 0 && angle <= 360);
+}
+
+function validRefinement(value: unknown): boolean {
+  if (value === null || typeof value !== "object" || !("maxAdditionalSamples" in value)) return false;
+  const maximum = value.maxAdditionalSamples;
+  return typeof maximum === "number" && Number.isSafeInteger(maximum) && maximum >= 0 && maximum <= 512
+    && (!("minAngleStepDegrees" in value) || value.minAngleStepDegrees === undefined
+      || (typeof value.minAngleStepDegrees === "number" && Number.isFinite(value.minAngleStepDegrees)
+        && value.minAngleStepDegrees >= 0.000001 && value.minAngleStepDegrees <= 45));
+}
+
+function validMultiPolygon(value: unknown): boolean {
+  return Array.isArray(value) && Array.from(value).every(polygon => Array.isArray(polygon) && polygon.length > 0
+    && Array.from(polygon).every(ring => finitePoints(ring) && ring.length >= 3));
+}
+
+function finitePoints(value: unknown): value is XY[] {
+  // Array.from visits sparse entries too, so holes cannot evade admission.
+  return Array.isArray(value) && Array.from(value).every(finitePoint);
+}
+
+function validClearanceObstacle(value: unknown): boolean {
+  if (value === null || typeof value !== "object" || Array.isArray(value)
+    || !("hardConflict" in value) || typeof value.hardConflict !== "boolean") return false;
+  if (!value.hardConflict) return true;
+  return "bufferMeters" in value && typeof value.bufferMeters === "number"
+    && Number.isFinite(value.bufferMeters) && value.bufferMeters >= 0
+    && "polygon" in value && finitePoints(value.polygon) && value.polygon.length >= 3;
+}
+
+function isSourceStatus(value: unknown): value is CornerArmModelCatalogEntry["sourceStatus"] {
+  return value === "scaffold_only" || value === "operator_confirmed" || value === "manufacturer_verified";
+}
+
+function nonemptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function modelProvenanceDiagnostics(model: CornerArmModelCatalogEntry): CornerArmKinematicDiagnostic[] {
+  const diagnostics: CornerArmKinematicDiagnostic[] = [];
+  const refs = model.sourceRefs;
+  if (model.sourceStatus == null || refs == null || (Array.isArray(refs) && refs.length === 0)) {
+    diagnostics.push({ code: "missing_model_provenance", message: "Model source status and at least one artifact reference are required." });
+  }
+  const validRefs = Array.isArray(refs) && refs.length > 0 && Array.from(refs).every((ref) => ref !== null && typeof ref === "object"
+    && isSourceStatus(ref.sourceStatus) && nonemptyString(ref.sourceId) && nonemptyString(ref.limit)
+    && nonemptyString(ref.localEvidencePath) && typeof ref.artifactSha256 === "string" && /^[a-fA-F0-9]{64}$/.test(ref.artifactSha256));
+  if ((model.sourceStatus != null && !isSourceStatus(model.sourceStatus))
+    || (refs != null && !(Array.isArray(refs) && refs.length === 0) && !validRefs)
+    || model.productionReady !== false
+    || !["EXTERNAL_OFFICIAL", "PROJECT_UNCONFIRMED", "UNCONFIRMED"].includes(model.normalizedRecordStatus)) {
+    diagnostics.push({ code: "invalid_model_provenance", message: "Model provenance must use supported statuses, productionReady=false, and complete artifact reference metadata." });
+  }
+  // Matching declared metadata is a consistency check, not artifact or manufacturer verification.
+  if (validRefs && isSourceStatus(model.sourceStatus) && model.sourceStatus !== "scaffold_only"
+    && !refs.some((ref) => ref.sourceStatus === model.sourceStatus)) {
+    diagnostics.push({ code: "inconsistent_model_provenance", message: "The claimed model confirmation has no artifact reference with the same declared source status." });
   }
   return diagnostics;
 }
@@ -266,7 +458,9 @@ function stateDiagnosticsFor(input: {
   modelSpec: CornerArmModelCatalogEntry;
   fieldBoundary: XY[];
   safetyZoneMeters: number;
+  physicalBufferMeters: number;
   obstacles: ObstacleZone[];
+  pivotCenter: XY;
   lrdu: XY;
   sdu: XY;
   overhangEndpoint: XY;
@@ -292,58 +486,92 @@ function stateDiagnosticsFor(input: {
   if (input.modelSpec.cornerSpeedRatio !== undefined && input.sduToLrduSpeedRatio > input.modelSpec.cornerSpeedRatio) {
     diagnostics.push({ code: "speed_ratio_above_max", stateIndex: input.stateIndex, message: `SDU/LRDU speed ratio ${input.sduToLrduSpeedRatio.toFixed(3)} exceeds scaffold ratio ${input.modelSpec.cornerSpeedRatio}.` });
   }
-  const physicalPoints = [input.lrdu, input.sdu, input.overhangEndpoint];
-  const minimumDistance = physicalPoints.reduce((minimum, point) => Math.min(minimum, signedBoundaryDistance(point, input.fieldBoundary)), Number.POSITIVE_INFINITY);
-  if (minimumDistance < input.safetyZoneMeters) {
-    diagnostics.push({ code: "outside_field_safety_zone", stateIndex: input.stateIndex, message: `Physical machine path is within ${input.safetyZoneMeters.toFixed(3)} m safety zone or outside the field boundary.` });
+  // SDU lies on the rigid LRDU-to-overhang member. Check whole members, including
+  // the main pivot span, before rounding coordinates for display. The buffer is
+  // the member's physical radius; required clearance starts at its outer edge.
+  const members: [XY, XY][] = [[input.pivotCenter, input.lrdu], [input.lrdu, input.overhangEndpoint]];
+  if (members.some(([start, end]) => !memberInsideRing(start, end, input.fieldBoundary,
+    input.physicalBufferMeters + input.safetyZoneMeters))) {
+    diagnostics.push({ code: "outside_field_safety_zone", stateIndex: input.stateIndex, message: `Buffered physical machine member is within ${input.safetyZoneMeters.toFixed(3)} m safety zone or outside the field boundary at this sampled pose.` });
   }
-  const blockedObstacle = input.obstacles.find((obstacle) => obstacle.hardConflict && physicalPoints.some((point) => (
-    pointInPolygon(point, obstacle.polygon) || distanceToRing(point, obstacle.polygon) < obstacle.bufferMeters
-  )));
+  const blockedObstacle = input.obstacles.find((obstacle) => obstacle.hardConflict && members.some(([start, end]) =>
+    memberConflictsWithRing(start, end, obstacle.polygon, input.physicalBufferMeters + obstacle.bufferMeters)));
   if (blockedObstacle) {
-    diagnostics.push({ code: "obstacle_clearance_failed", stateIndex: input.stateIndex, message: `Physical machine path conflicts with ${blockedObstacle.name}.` });
+    diagnostics.push({ code: "obstacle_clearance_failed", stateIndex: input.stateIndex, message: `Buffered physical machine member conflicts with ${blockedObstacle.name} at this sampled pose.` });
   }
   return diagnostics;
 }
 
-function buildWettedEndGunEnvelope(
-  inputs: CornerArmKinematicInputs,
-  modelSpec: CornerArmModelCatalogEntry,
-  pivotCenter: XY,
-  sweep: PivotSweep,
-): MultiPolygonXY {
-  const endGunThrowMeters = Math.max(0, inputs.endGunThrowMeters ?? 0);
-  if (endGunThrowMeters <= 0) return [];
-  const endpointRadius = (inputs.pivotCenterToLrduRadiusMeters ?? 0) + modelSpec.spanLengthMeters + modelSpec.overhangLengthMeters;
-  const outerRadius = endpointRadius + endGunThrowMeters;
-  const ranges = inputs.endGunAngleRanges?.filter((range) => Number.isFinite(range.startAngleDegrees) && Number.isFinite(range.stopAngleDegrees)) ?? [];
-  if (ranges.length === 0) return createAnnularSector(pivotCenter, endpointRadius, outerRadius, sweep);
-  return fromClipMultiPolygon(unionClipMultiPolygons(ranges.map((range) => toClipMultiPolygon(createAnnularSector(
-    pivotCenter,
-    endpointRadius,
-    outerRadius,
-    { mode: "partial_circle", startAngleDegrees: range.startAngleDegrees, stopAngleDegrees: range.stopAngleDegrees, direction: range.direction },
-  )))));
+function buildWettedEndGunEnvelope(inputs: CornerArmKinematicInputs, states: CornerArmKinematicState[]): MultiPolygonXY {
+  const throwMeters = inputs.endGunThrowMeters ?? 0;
+  if (throwMeters <= 0) return [];
+  const ranges = inputs.endGunAngleRanges ?? [];
+  return fromClipMultiPolygon(unionClipMultiPolygons(states
+    .filter(state => ranges.length === 0 || ranges.some(range => angleInRange(state.thetaDegrees, range)))
+    .map(state => toClipMultiPolygon([[createCirclePolygon(state.overhangEndpoint, throwMeters, 64)]]))));
 }
 
-function buildEndGunControlRows(
-  inputs: CornerArmKinematicInputs,
-  modelSpec: CornerArmModelCatalogEntry,
-  pivotCenter: XY,
-): CornerArmEndGunControlRow[] {
-  const endGunThrowMeters = Math.max(0, inputs.endGunThrowMeters ?? 0);
-  if (endGunThrowMeters <= 0) return [];
-  const radius = (inputs.pivotCenterToLrduRadiusMeters ?? 0) + modelSpec.spanLengthMeters + modelSpec.overhangLengthMeters + endGunThrowMeters;
-  return (inputs.endGunAngleRanges ?? []).map((range, index) => ({
-    rangeIndex: index,
-    startAngleDegrees: round(range.startAngleDegrees),
-    stopAngleDegrees: round(range.stopAngleDegrees),
-    direction: range.direction,
-    startCoordinate: roundedPoint(polarOffset(pivotCenter, radius, range.startAngleDegrees)),
-    stopCoordinate: roundedPoint(polarOffset(pivotCenter, radius, range.stopAngleDegrees)),
-    advisoryOnly: true,
-    canonicalGeometryMutation: false,
-  }));
+function angleInRange(angle: number, range: PivotAngleRange): boolean {
+  if (Math.abs(range.stopAngleDegrees - range.startAngleDegrees) === 360) return true;
+  const sign = range.direction === "counterclockwise" ? 1 : -1;
+  return normalizeDegrees(sign * (angle - range.startAngleDegrees))
+    <= normalizeDegrees(sign * (range.stopAngleDegrees - range.startAngleDegrees)) + 1e-10;
+}
+
+function withControlAngles(angles: number[], ranges: PivotAngleRange[]): number[] {
+  const start = angles[0];
+  const end = angles[angles.length - 1];
+  const sign = end >= start ? 1 : -1;
+  const extra = ranges.flatMap(range => [range.startAngleDegrees, range.stopAngleDegrees])
+    .map(angle => start + sign * normalizeDegrees(sign * (angle - start)))
+    .filter(angle => sign * (angle - start) <= sign * (end - start));
+  return [...new Set([...angles, ...extra])].sort((left, right) => sign * (left - right));
+}
+
+function buildEndGunControlRows(inputs: CornerArmKinematicInputs, states: CornerArmKinematicState[]): CornerArmEndGunControlRow[] {
+  if ((inputs.endGunThrowMeters ?? 0) <= 0) return [];
+  return (inputs.endGunAngleRanges ?? []).flatMap((range, index) => {
+    const fullTurn = Math.abs(range.stopAngleDegrees - range.startAngleDegrees) === 360;
+    if (fullTurn && Math.abs((states.at(-1)?.thetaDegrees ?? 0) - (states[0]?.thetaDegrees ?? 0)) < 360) return [];
+    const start = states.find(state => Math.abs(shortestSignedAngleDegrees(state.thetaDegrees, range.startAngleDegrees)) < 1e-9);
+    const stop = (fullTurn ? [...states].reverse() : states)
+      .find(state => Math.abs(shortestSignedAngleDegrees(state.thetaDegrees, range.stopAngleDegrees)) < 1e-9);
+    if (!start || !stop) return [];
+    return [{ rangeIndex: index, startAngleDegrees: range.startAngleDegrees, stopAngleDegrees: range.stopAngleDegrees,
+      direction: range.direction, startCoordinate: roundedPoint(start.overhangEndpoint), stopCoordinate: roundedPoint(stop.overhangEndpoint),
+      advisoryOnly: true as const, canonicalGeometryMutation: false as const }];
+  });
+}
+
+function refinementIntervals(states: CornerArmKinematicState[], minimumStep: number): number[] {
+  const intervals: number[] = [];
+  const clearanceKey = (state: CornerArmKinematicState) => state.infeasibleDiagnostics
+    .filter(item => item.code === "obstacle_clearance_failed" || item.code === "outside_field_safety_zone")
+    .map(item => item.code).join(",");
+  for (let index = 0; index + 1 < states.length; index += 1) {
+    const start = states[index];
+    const end = states[index + 1];
+    if (Math.abs(end.thetaDegrees - start.thetaDegrees) / 2 < minimumStep) continue;
+    if (start.guidanceSegmentIndex !== end.guidanceSegmentIndex || clearanceKey(start) !== clearanceKey(end)
+      || Math.abs(shortestSignedAngleDegrees(start.cornerAngleDegrees, end.cornerAngleDegrees)) > 10
+      || Math.abs(start.sduToLrduSpeedRatio - end.sduToLrduSpeedRatio) > Math.max(0.25, Math.abs(start.sduToLrduSpeedRatio) * 0.2)) intervals.push(index);
+  }
+  return intervals;
+}
+
+function pathChecksFor(states: CornerArmKinematicState[]): CornerArmKinematicResult["pathChecks"] {
+  const directionReversalStateIndices: number[] = [];
+  const branchDiscontinuityStateIndices: number[] = [];
+  let previousDirection = 0;
+  for (let index = 1; index < states.length; index += 1) {
+    const state = states[index];
+    const sign = Math.abs(state.signedGuidanceTravelMeters) < 1e-9 ? 0 : Math.sign(state.signedGuidanceTravelMeters);
+    if (sign !== 0 && previousDirection !== 0 && sign !== previousDirection) directionReversalStateIndices.push(index);
+    if (sign !== 0) previousDirection = sign;
+    if (Math.abs(shortestSignedAngleDegrees(states[index - 1].cornerAngleDegrees, state.cornerAngleDegrees)) > 90) branchDiscontinuityStateIndices.push(index);
+  }
+  return { directionReversalStateIndices, branchDiscontinuityStateIndices,
+    qualification: "Sampled guidance direction reversals and over-90-degree articulation changes are review flags; shortest closed-path traversal and nearest-branch selection do not prove continuity or manufacturer rate limits." };
 }
 
 function sampleSweepAngles(sweep: PivotSweep, sampleAngleStepDegrees: number, direction: CornerArmKinematicRotationDirection): number[] {
@@ -359,8 +587,9 @@ function sampleSweepAngles(sweep: PivotSweep, sampleAngleStepDegrees: number, di
   return Array.from({ length: count + 1 }, (_value, index) => sweep.startAngleDegrees + (delta * index) / count);
 }
 
-function circlePolylineIntersections(center: XY, radius: number, vertices: XY[]): XY[] {
-  const intersections: XY[] = [];
+function circlePolylineIntersections(center: XY, radius: number, vertices: XY[]): Array<{ point: XY; segmentIndex: number; distanceAlong: number }> {
+  const intersections: Array<{ point: XY; segmentIndex: number; distanceAlong: number }> = [];
+  let distanceAlong = 0;
   for (let index = 1; index < vertices.length; index += 1) {
     const start = vertices[index - 1];
     const end = vertices[index];
@@ -373,22 +602,18 @@ function circlePolylineIntersections(center: XY, radius: number, vertices: XY[])
     const along = (center.x - start.x) * ux + (center.y - start.y) * uy;
     const perpendicular = (center.x - start.x) * uy - (center.y - start.y) * ux;
     const square = (radius - Math.abs(perpendicular)) * (radius + Math.abs(perpendicular));
-    if (square < 0) continue;
+    if (square < 0) { distanceAlong += length; continue; }
     const offset = Math.sqrt(square);
     for (const position of [along - offset, along + offset]) {
       if (position < 0 || position > length) continue;
       const candidate = { x: start.x + position * ux, y: start.y + position * uy };
-      if (!intersections.some((point) => distance(point, candidate) < 1e-9)) intersections.push(candidate);
+      if (!intersections.some((item) => distance(item.point, candidate) < 1e-9)) {
+        intersections.push({ point: candidate, segmentIndex: index - 1, distanceAlong: distanceAlong + position });
+      }
     }
+    distanceAlong += length;
   }
   return intersections;
-}
-
-function nearestPointOnSegment(point: XY, start: XY, end: XY): XY {
-  const segmentLengthSquared = (end.x - start.x) ** 2 + (end.y - start.y) ** 2;
-  if (segmentLengthSquared === 0) return start;
-  const t = Math.max(0, Math.min(1, ((point.x - start.x) * (end.x - start.x) + (point.y - start.y) * (end.y - start.y)) / segmentLengthSquared));
-  return { x: start.x + (end.x - start.x) * t, y: start.y + (end.y - start.y) * t };
 }
 
 function steeringAngleForState(previous: CornerArmKinematicState | undefined, sdu: XY): number {
@@ -396,15 +621,6 @@ function steeringAngleForState(previous: CornerArmKinematicState | undefined, sd
   return shortestSignedAngleDegrees(angleDegrees(previous.sdu, sdu), angleDegrees(previous.lrdu, previous.sdu));
 }
 
-function sduSpeedRatio(
-  previous: CornerArmKinematicState | undefined,
-  sdu: XY,
-  deltaMinutes: number,
-  lrduSpeedMetersPerMinute: number,
-): number {
-  if (!previous || deltaMinutes <= 0 || lrduSpeedMetersPerMinute <= 0) return 1;
-  return distance(previous.sdu, sdu) / deltaMinutes / lrduSpeedMetersPerMinute;
-}
 
 function emptyResult(
   scaffoldSourceStatus: CornerArmKinematicResult["scaffoldSourceStatus"],
@@ -428,7 +644,14 @@ function emptyResult(
     wettedEndGunEnvelopeAcres: 0,
     infeasibleDiagnostics,
     endGunControlRows: [],
-    warnings,
+    sampledStates: [],
+    sampling: { baseSampleCount: 0, addedSampleCount: 0, maxAdditionalSamples: 0, budgetExhausted: false, betweenPoseClearance: "unresolved" },
+    pathChecks: pathChecksFor([]),
+    wheelTracks: { lrdu: [], sdu: [], qualification: "No admitted sampled wheel-center tracks." },
+    sampledStructuralEnvelope: [],
+    sampledStructuralEnvelopeAcres: 0,
+    footprintAccounting: accountCornerFootprints([], [], undefined),
+    warnings: [SOURCE_VERIFICATION_WARNING, ...warnings],
   };
 }
 
@@ -444,22 +667,30 @@ function fromClipMultiPolygon(multiPolygon: ClipMultiPolygon | null): MultiPolyg
 function unionClipMultiPolygons(clips: ClipMultiPolygon[]): ClipMultiPolygon {
   if (clips.length === 0) return [];
   if (clips.length === 1) return clips[0];
-  return clips.slice(1).reduce((merged, clip) => polygonClipping.union(merged, clip) as ClipMultiPolygon, clips[0]);
+  return clips.slice(1).reduce((merged, clip) => {
+    try {
+      return polygonClipping.union(merged, clip) as ClipMultiPolygon;
+    } catch {
+      // Existing exact-decimal clipping dependency handles nearly coincident cap
+      // edges without snapping the canonical/raw coordinates to a display grid.
+      return robustPolygonClipping.union(merged, clip) as ClipMultiPolygon;
+    }
+  }, clips[0]);
 }
 
 function lineSegmentBufferPolygon(start: XY, end: XY, bufferMeters: number): XY[] {
   const dx = end.x - start.x;
   const dy = end.y - start.y;
   const length = Math.hypot(dx, dy);
-  if (length === 0) return createCirclePolygon(start, bufferMeters, 16);
-  const offsetX = (-dy / length) * bufferMeters;
-  const offsetY = (dx / length) * bufferMeters;
-  return [
-    { x: start.x + offsetX, y: start.y + offsetY },
-    { x: end.x + offsetX, y: end.y + offsetY },
-    { x: end.x - offsetX, y: end.y - offsetY },
-    { x: start.x - offsetX, y: start.y - offsetY },
-  ];
+  if (length === 0) return createCirclePolygon(start, bufferMeters, 32);
+  const heading = Math.atan2(dy, dx);
+  // Polygonal display envelope includes both end caps. Clearance diagnostics
+  // use analytic distances instead of this inscribed arc approximation.
+  const cap = (center: XY, startAngle: number): XY[] => Array.from({ length: 17 }, (_value, index) => {
+    const angle = startAngle + index * Math.PI / 16;
+    return { x: center.x + Math.cos(angle) * bufferMeters, y: center.y + Math.sin(angle) * bufferMeters };
+  });
+  return [...cap(end, heading - Math.PI / 2), ...cap(start, heading + Math.PI / 2)];
 }
 
 function closeRing(ring: XY[]): XY[] {
@@ -467,31 +698,6 @@ function closeRing(ring: XY[]): XY[] {
   const first = ring[0];
   const last = ring[ring.length - 1];
   return first.x === last.x && first.y === last.y ? ring : [...ring, first];
-}
-
-function signedBoundaryDistance(point: XY, fieldBoundary: XY[]): number {
-  const boundaryDistance = distanceToRing(point, fieldBoundary);
-  return (pointInPolygon(point, fieldBoundary) ? 1 : -1) * boundaryDistance;
-}
-
-function pointInPolygon(point: XY, ring: XY[]): boolean {
-  let inside = false;
-  for (let currentIndex = 0, previousIndex = ring.length - 1; currentIndex < ring.length; previousIndex = currentIndex, currentIndex += 1) {
-    const current = ring[currentIndex];
-    const previous = ring[previousIndex];
-    const intersects = ((current.y > point.y) !== (previous.y > point.y))
-      && point.x < ((previous.x - current.x) * (point.y - current.y)) / (previous.y - current.y) + current.x;
-    if (intersects) inside = !inside;
-  }
-  return inside;
-}
-
-function distanceToRing(point: XY, ring: XY[]): number {
-  return ring.reduce((minimum, start, index) => Math.min(minimum, distanceToSegment(point, start, ring[(index + 1) % ring.length])), Number.POSITIVE_INFINITY);
-}
-
-function distanceToSegment(point: XY, start: XY, end: XY): number {
-  return distance(point, nearestPointOnSegment(point, start, end));
 }
 
 function angleDegrees(start: XY, end: XY): number {

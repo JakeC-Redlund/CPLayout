@@ -1,5 +1,5 @@
 import { migrateLegacyWorkspace, type LegacyWorkspaceSources } from "./legacyWorkspaceMigration";
-import { parseWorkspaceDocument, serializeWorkspaceDocument, WorkspaceDocumentError, type WorkspaceDocument } from "./workspaceDocument";
+import { parseWorkspaceDocument, serializeWorkspaceDocument, WorkspaceDocumentError, FIELD_WORKSPACE_DOCUMENT_VERSION, WORKSPACE_DOCUMENT_VERSION, type WorkspaceDocument } from "./workspaceDocument";
 
 export const WEB_WORKSPACE_KEY = "center-pivot-layout-workspace-v1";
 export const WEB_WORKSPACE_BACKUP_KEY = "center-pivot-layout-workspace-legacy-backup-v1";
@@ -128,7 +128,16 @@ export function createWebWorkspaceStore(dependencies: WebWorkspaceStoreDependenc
         }
         if (latest.revision === Number.MAX_SAFE_INTEGER) throw new WorkspaceDocumentError("revision_exhausted", "Persisted revision limit reached.");
         const nextRevision = latest.revision + 1;
-        const encoded = serializeWorkspaceDocument(transition(parseWorkspaceDocument(current)));
+        const candidate = transition(parseWorkspaceDocument(current));
+        if (latest.workspaceVersion === WORKSPACE_DOCUMENT_VERSION && candidate.workspaceVersion === FIELD_WORKSPACE_DOCUMENT_VERSION) {
+          // Publish v2 and its exact original v1 bytes together in the same atomic localStorage value.
+          candidate.originalV1Document = current;
+        }
+        if (latest.workspaceVersion === FIELD_WORKSPACE_DOCUMENT_VERSION
+          && (candidate.workspaceVersion !== FIELD_WORKSPACE_DOCUMENT_VERSION || candidate.originalV1Document !== latest.originalV1Document)) {
+          throw new WorkspaceDocumentError("conflict", "A transaction cannot downgrade v2 or replace its retained original v1 document.");
+        }
+        const encoded = serializeWorkspaceDocument(candidate);
         const next = parseWorkspaceDocument(encoded);
         if (next.revision !== nextRevision) throw new WorkspaceDocumentError("conflict", "A workspace transaction must advance exactly one revision.");
         requireDeletionHistory(latest, next);
@@ -150,10 +159,17 @@ function requireDeletionHistory(previous: WorkspaceDocument, next: WorkspaceDocu
       throw new WorkspaceDocumentError("conflict", "A transaction cannot remove or rewrite deletion history.");
     }
   }
+  for (const old of previous.fieldDocuments ?? []) {
+    const retained = next.fieldDocuments?.find(item => item.id === old.id);
+    if (retained && retained.originalProjectDocument !== old.originalProjectDocument) {
+      throw new WorkspaceDocumentError("conflict", "A field save cannot remove or rewrite its original project source.");
+    }
+  }
   const collections = [
     { entity: "design", previous: previous.catalog.designs.map(item => item.id), next: next.catalog.designs.map(item => item.id) },
     { entity: "project_document", previous: previous.projectDocuments.map(item => item.summary.id), next: next.projectDocuments.map(item => item.summary.id) },
     { entity: "draft_document", previous: previous.draftDocuments.map(item => item.id), next: next.draftDocuments.map(item => item.id) },
+    { entity: "field_document", previous: (previous.fieldDocuments ?? []).map(item => item.id), next: (next.fieldDocuments ?? []).map(item => item.id) },
   ];
   for (const collection of collections) {
     const active = new Set(collection.next);

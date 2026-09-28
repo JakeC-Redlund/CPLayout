@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
 
-import { PROJECT_DOCUMENT_VERSION, parseProjectDocument, serializeProjectDocument } from "./projectDocument";
+import { LEGACY_PROJECT_DOCUMENT_VERSION, PROJECT_DOCUMENT_VERSION, PivotProjectSchema, parseProjectDocument, serializeProjectDocument } from "./projectDocument";
+import { createProjectEditorState, reduceProjectEditorState } from "./projectReducer";
 import { sampleProject, willRheaJasonHarmelinkExampleProject } from "./sampleProject";
 import { DEFAULT_LAYOUT_SAFETY_ZONE_METERS } from "./settings";
 
 const serialized = serializeProjectDocument(sampleProject);
-assert.match(serialized, new RegExp(PROJECT_DOCUMENT_VERSION));
+assert.match(serialized, new RegExp(LEGACY_PROJECT_DOCUMENT_VERSION));
 
 const parsed = parseProjectDocument(serialized);
 assert.equal(parsed.id, sampleProject.id);
@@ -470,8 +471,64 @@ assert.throws(
 
 assert.throws(
   () => parseProjectDocument({ documentVersion: "bad-version", project: sampleProject }),
-  /fieldBoundary|projectCrs|Invalid input/,
+  /version is unsupported/,
 );
+
+// Refuse unsupported future documents before any bare-project normalization.
+for (const documentVersion of ["pivot-project-v3", "", null, undefined, 2]) {
+  for (const source of [
+    { documentVersion, project: sampleProject },
+    { ...sampleProject, documentVersion, machines: [{ id: "second-pivot" }] },
+  ]) {
+    const before = JSON.stringify(source);
+    assert.throws(() => parseProjectDocument(source), /version is unsupported/);
+    assert.equal(JSON.stringify(source), before);
+    // JSON omits undefined, leaving a valid legacy bare project only if no new fields exist.
+    if (documentVersion !== undefined) {
+      assert.throws(() => parseProjectDocument(before), /version is unsupported/);
+    }
+  }
+}
+
+for (const extra of [
+  { machines: [{ id: "second-pivot", pivotCenter: sampleProject.waterSource, machine: sampleProject.machine }] },
+  { machines: [] },
+  { machines: null },
+  { selectedMachineId: "second-pivot" },
+  { selectedMachineId: null },
+]) {
+  const source = { ...sampleProject, ...extra };
+  const before = JSON.stringify(source);
+  assert.throws(() => PivotProjectSchema.parse(source), /unsupported/);
+  assert.throws(() => serializeProjectDocument(source), /unsupported/);
+  assert.throws(() => parseProjectDocument(source), /unsupported/);
+  assert.throws(() => parseProjectDocument(before), /unsupported/);
+  assert.throws(() => createProjectEditorState(source), /unsupported/);
+  for (const wrapped of [
+    { documentVersion: PROJECT_DOCUMENT_VERSION, project: source },
+    { documentVersion: PROJECT_DOCUMENT_VERSION, project: sampleProject, ...extra },
+  ]) {
+    assert.throws(() => parseProjectDocument(wrapped), /unsupported/);
+    assert.throws(() => parseProjectDocument(JSON.stringify(wrapped)), /unsupported/);
+  }
+  const editor = createProjectEditorState(sampleProject);
+  const rejected = reduceProjectEditorState(editor, { type: "apply_project_import", project: source });
+  assert.match(rejected.lastError ?? "", /unsupported/);
+  assert.equal(rejected.project, editor.project);
+  assert.equal(rejected.revision, editor.revision);
+  assert.deepEqual(rejected.past, []);
+  assert.equal(JSON.stringify(source), before);
+}
+
+// Other legacy metadata remains readable; editable storage admission is stricter.
+assert.doesNotThrow(() => parseProjectDocument({ ...sampleProject, futureProjectData: { value: 1 } }));
+assert.doesNotThrow(() => parseProjectDocument({ documentVersion: LEGACY_PROJECT_DOCUMENT_VERSION, project: sampleProject, futureWrapper: true }));
+assert.throws(() => parseProjectDocument({ documentVersion: PROJECT_DOCUMENT_VERSION, project: sampleProject, futureWrapper: true }), /unsupported fields/);
+const futureVersionProject = { ...sampleProject, documentVersion: "pivot-project-v2" };
+assert.throws(() => serializeProjectDocument(futureVersionProject), /supported document envelope/);
+
+assert.deepEqual(parseProjectDocument(JSON.stringify(sampleProject)), parsed);
+assert.deepEqual(parseProjectDocument({ documentVersion: PROJECT_DOCUMENT_VERSION, project: sampleProject }), parseProjectDocument(sampleProject));
 
 const captureEvidence = {
   schemaVersion: "gnss-capture-v1" as const,

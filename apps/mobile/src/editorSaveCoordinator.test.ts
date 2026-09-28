@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createDesignDraftEditorState, defaultProjectSettings, reduceDesignDraftEditorState, sampleProject, type DesignDraft } from "@cplayout/core";
+import { convertPivotProjectToFieldDesign, createDesignDraftEditorState, defaultProjectSettings, reduceDesignDraftEditorState, sampleProject, serializeProjectDocument, type DesignDraft, type DraftDrawingCommand } from "@cplayout/core";
 import { createVersionedProjectRepository } from "../../../packages/project-store/src/versionedProjectRepository";
 import { WEB_WORKSPACE_KEY, type WorkspaceLocks } from "../../../packages/project-store/src/webWorkspaceStore";
 import { createEditorSaveCoordinator, type EditorSavePayload, type EditorSaveTarget } from "./editorSaveCoordinator";
@@ -46,6 +46,55 @@ test("queued saves snapshot immediately and use only their own preceding acknowl
   assert.deepEqual(writes, [{ name: "First requested edit", revision: 5 }, { name: "Second requested edit", revision: 6 }]);
   assert.equal(source.name, "Later unsaved edit");
   assert.equal(coordinator.receipt(session).workspaceRevision, 7);
+});
+
+test("classified project saves retain the versioned metadata and detach the accepted snapshot", async () => {
+  const coordinator = createEditorSaveCoordinator();
+  const session = coordinator.open(projectTarget());
+  const source = project();
+  source.drawingMetadata = { schemaVersion: "project-drawing-metadata-v1", autosaveEnabled: false, records: [] };
+  const gate = deferred();
+  const pending = coordinator.save({ session, payload: { kind: "project", project: source }, editorRevision: 1,
+    write: async (payload) => {
+      await gate.promise;
+      assert.equal(payload.kind, "project");
+      if (payload.kind !== "project") throw new Error("Expected project");
+      assert.deepEqual(payload.project.drawingMetadata, { schemaVersion: "project-drawing-metadata-v1", autosaveEnabled: false, records: [] });
+      assert.equal(JSON.parse(serializeProjectDocument(payload.project)).documentVersion, "pivot-project-v2");
+      return { saved: true, persistenceRevision: 6 };
+    } });
+  source.drawingMetadata.autosaveEnabled = true;
+  gate.resolve();
+  assert.equal((await pending).saved, true);
+});
+
+test("field saves own exact unequal machine snapshots and reject incomplete or stale acknowledgments", async () => {
+  const field = convertPivotProjectToFieldDesign(serializeProjectDocument(project()), {
+    fieldId: "field", waterSourceId: "water", powerSourceId: "power",
+  }).field;
+  field.machines.push({ ...structuredClone(field.machines[0]), id: "second",
+    configuration: { ...structuredClone(field.machines[0].configuration), spanLengthsMeters: [31.125, 27.0625] } });
+  const coordinator = createEditorSaveCoordinator();
+  const session = coordinator.open({ kind: "field", payloadId: field.id, designId: "design", workspaceRevision: 5, designRevision: 2 });
+  const expected = structuredClone(field);
+  const gate = deferred();
+  const pending = coordinator.save({ session, payload: { kind: "field", field }, editorRevision: 8,
+    write: async (payload, target) => {
+      await gate.promise;
+      assert.deepEqual(payload, { kind: "field", field: expected });
+      assert.equal(target.kind, "field");
+      return { saved: true, persistenceRevision: 6, designRevision: 3 };
+    } });
+  field.machines[1].configuration.spanLengthsMeters[0] = 99;
+  gate.resolve();
+  assert.equal((await pending).editorRevision, 8);
+  const receipt = coordinator.receipt(session);
+  assert.deepEqual(receipt, { kind: "field", payloadId: field.id, designId: "design", workspaceRevision: 6, designRevision: 3 });
+  for (const designRevision of [undefined, 3, 5]) {
+    await assert.rejects(coordinator.save({ session, payload: { kind: "field", field }, editorRevision: 9,
+      write: async () => ({ saved: true, persistenceRevision: 7, designRevision }) }), /revision/i);
+    assert.deepEqual(coordinator.receipt(session), receipt);
+  }
 });
 
 test("same-ID reopen isolates old receipt and feedback while honoring an already accepted save", async () => {
@@ -285,6 +334,42 @@ test("draft reducer saves use actual versioned repository receipts, not undo rev
   assert.equal(reopened.design.revision, 3);
   assert.equal(reopened.workspaceRevision, 6);
   assert.deepEqual(reopened.draft.machine.spanLengthsMeters, [null, 25]);
+});
+
+test("paused drawing saves snapshot vertices and preferences before later resumed edits", async () => {
+  const { coordinator, session, write, draft, api } = await draftRepository();
+  let editor = reduceDesignDraftEditorState(createDesignDraftEditorState(draft), { type: "set_crs", projectCrs: "EPSG:32613" });
+  const drawing = (command: DraftDrawingCommand) => {
+    editor = reduceDesignDraftEditorState(editor, { type: "drawing", expectedRevision: editor.revision, command });
+    assert.equal(editor.lastError, null);
+  };
+  drawing({ type: "begin", id: "boundary", name: "Field boundary", geometryType: "Polygon" });
+  drawing({ type: "append_vertex", id: "boundary", vertex: {
+    point: { x: 500000, y: 4400000 }, recordedAt: "2026-09-27T00:00:00Z", wgs84: null, elevation: null,
+  } });
+  drawing({ type: "set_autosave", enabled: false });
+  drawing({ type: "pause", id: "boundary" });
+  const paused = structuredClone(editor.draft);
+  const gate = deferred();
+  const pending = coordinator.save({ session, payload: { kind: "draft", draft: editor.draft }, editorRevision: editor.revision,
+    write: async (payload, target) => { await gate.promise; return write(payload, target); } });
+  drawing({ type: "resume", id: "boundary" });
+  drawing({ type: "append_vertex", id: "boundary", vertex: {
+    point: { x: 500010, y: 4400000 }, recordedAt: "2026-09-27T00:00:01Z", wgs84: null, elevation: null,
+  } });
+  gate.resolve();
+  const receipt = await pending;
+  assert.notEqual(receipt.editorRevision, editor.revision);
+  const reopened = await api.readDesignAsync("design");
+  assert.ok(reopened.kind === "draft");
+  assert.deepEqual(reopened.draft, paused);
+  assert.equal(reopened.draft.drawingWorkflow!.activeCaptureId, null);
+  assert.equal(reopened.draft.drawingWorkflow!.autosaveEnabled, false);
+  assert.equal(reopened.draft.drawingWorkflow!.captures[0].vertices.length, 1);
+  await coordinator.save({ session, payload: { kind: "draft", draft: editor.draft }, editorRevision: editor.revision, write });
+  const latest = await api.readDesignAsync("design");
+  assert.ok(latest.kind === "draft");
+  assert.deepEqual(latest.draft, editor.draft);
 });
 
 test("lost acknowledgment cannot silently rebase or overwrite with the next queued draft save", async () => {
