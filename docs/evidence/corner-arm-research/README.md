@@ -73,6 +73,21 @@ bounded synthetic research scope after these corrections.
 
 ## Whole-worktree validation
 
+**Superseded aggregate failures (checked 2026-09-28 UTC):** the attempts below
+remain diagnostic history. The later
+[iterative-layout acceptance receipt](../../../.cplayout-local/publication-checkpoint-20260927/reports/iterative-layout-20260927/acceptance-evidence.json)
+records `npm run validate` exit 0 against
+[577 captured source/configuration paths](../../../.cplayout-local/publication-checkpoint-20260927/reports/iterative-layout-20260927/acceptance-source-r4.json).
+The original VFlex pilot preflight independently rehashed all 577 paths and
+found no differences before its implementation began. These historical receipts
+now reside in the publication checkpoint's local-only evidence directory; they
+are not a current-HEAD acceptance claim. This supersedes the mobile
+import and geometry snapshot failures as current blockers; it does not qualify
+the research model, an OEM exchange, a controller or a physical machine. The
+original failed logs and `validation.json` are preserved unchanged. Subsequent
+pilot edits require their own acceptance; see the
+[VFlex/Trimble pilot evidence](../vflex-trimble-pilot/README.md).
+
 The initial aggregate attempt failed in concurrently changing mobile code:
 `App.tsx` lacked a return path, `FieldDesignWorkspace.tsx` had nullable selection
 state mismatches, and `fieldMachineInputs.ts` imported an unavailable export.
@@ -105,7 +120,8 @@ outside the research scope, in core drawing/import/reducer and geometry search
 work. The full list is retained in `validation.json`. This moving-worktree run
 cannot qualify the product even if individual suites pass. The research
 comparison separately bound all of its own source and fixture hashes and
-completed without drift. No further aggregate rerun is claimed.
+completed without drift. That research packet did not run a further aggregate;
+the later independent aggregate receipt is linked in the supersession note above.
 
 ## Scope and remaining evidence
 
