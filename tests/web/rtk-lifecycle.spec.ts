@@ -47,9 +47,13 @@ test("shared receiver survives Survey, Files and map navigation with one owned p
   await prepare(page, baseURL!, gga(), true);
   await connectOperationalReceiver(page); await ready(page);
   await page.getByRole("button", { name: "Add Boundary (0)", exact: true }).click();
+  const closeSidebar = page.getByRole("button", { name: /Collapse (map inspector|right workflow sidebar)/ }).first();
+  if (await closeSidebar.isVisible()) await closeSidebar.click();
   const toolbar = page.getByTestId("map-bottom-hud");
   await toolbar.getByTestId("design-action-pan").click();
   await toolbar.getByTestId("design-action-pan-start").click();
+  const openSidebar = page.getByRole("button", { name: /Open (map inspector|right workflow sidebar)/ }).first();
+  if (await openSidebar.isVisible()) await openSidebar.click();
   await expect(page.getByRole("button", { name: "Add Boundary (1)", exact: true })).toBeEnabled();
   await page.getByTestId("workspace-nav-files").click();
   expect(await page.evaluate(() => (window as ReceiverFixtureWindow).operationalReceiver.openPorts)).toBe(1);

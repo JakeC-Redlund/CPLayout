@@ -381,7 +381,8 @@ test("Layout target import requires review and retains exact bytes through renam
 
 test("catalog import checks unsupported files and requires a destination before saving an independent copy", async ({ page, context }) => {
   await seed(context, completeDraftWorkspace()); await page.goto("/");
-  const startImport = page.getByTestId("start-import");
+  await page.getByTestId("workspace-nav-dashboard").click();
+  const startImport = page.getByTestId("dashboard-workspace").getByTestId("start-import");
   await startImport.click();
   await expect(page.getByTestId("catalog-archive-import")).toBeVisible();
   const before = await readWorkspace(page);
@@ -437,8 +438,10 @@ test("Layout writes refresh catalog counts and returning field can save a later 
   await page.getByTestId(`layout-open-${initial.id}`).click();
   await page.getByTestId("layout-archive").click();
   await page.getByTestId("layout-archive-confirm-confirm").click();
+  await expect(page.getByTestId("layout-archive-confirm-backdrop")).toHaveCount(0);
   await expect(page.getByTestId("layout-save-state")).toContainText("Archived");
   await page.getByTestId("layout-workspace-back").click();
+  await expect(page.getByTestId("layout-session-catalog")).toBeVisible();
   await expect(page.getByTestId(`layout-session-row-${initial.id}`)).toHaveCount(0);
   await page.getByTestId("layout-show-archived").click();
   await expect(page.getByTestId(`layout-session-row-${initial.id}`)).toContainText("Archived");
@@ -756,8 +759,10 @@ test("unfinished vertices retain drawing mode and camera through File Catalog an
   expect(source).toBeDefined();
   const map = await drawingMap(page);
   await activateMapTool(page, "polygon");
-  const points = await unobstructedMapTriangle(map);
+  const points = [await nextUnobstructedMapTrianglePoint(map, [])];
   await clickMapCanvas(map, points[0]);
+  await expect(page.getByText(/measure .* 1 draft pts .* polygon needs 3 pts/)).toBeVisible();
+  points.push(await nextUnobstructedMapTrianglePoint(map, points));
   await clickMapCanvas(map, points[1]);
   const vertices = page.getByText(/measure .* 2 draft pts .* polygon needs 3 pts/);
   await expect(vertices).toBeVisible();
@@ -777,6 +782,7 @@ test("unfinished vertices retain drawing mode and camera through File Catalog an
   await expect(map).toHaveAttribute("data-map-camera", camera!);
   await expect(page.getByTestId("browser-map-action-status")).toHaveText(feedback);
   expect(await readWorkspace(page)).toEqual(before);
+  points.push(await nextUnobstructedMapTrianglePoint(map, points));
   await clickMapCanvas(map, points[2]);
   await expect(page.getByText(/measure .* 3 draft pts .* polygon needs 3 pts/)).toBeVisible();
   await page.getByTestId("browser-action-save-feature").click();
@@ -935,30 +941,27 @@ test("reload restores an imported saved field in its selected customer project a
   await expectCatalogSelection(page, selected);
 });
 
-async function unobstructedMapTriangle(map: Locator): Promise<Array<{ x: number; y: number }>> {
-  const points = await map.evaluate(element => {
+async function nextUnobstructedMapTrianglePoint(map: Locator, previous: Array<{ x: number; y: number }>): Promise<{ x: number; y: number }> {
+  // Accepted vertices can expand the HUD. Re-scan the current canvas before each click.
+  const point = await map.evaluate((element, accepted) => {
     const frame = element.getBoundingClientRect();
     const canvas = element.querySelector("canvas.maplibregl-canvas");
-    if (!canvas) return [];
+    if (!canvas) return null;
     const clear: Array<{ x: number; y: number }> = [];
     for (let y = 24; y < frame.height - 24; y += 12) {
       for (let x = 24; x < frame.width - 24; x += 12) {
         if (document.elementFromPoint(frame.x + x, frame.y + y) === canvas) clear.push({ x, y });
       }
     }
-    const result: Array<{ x: number; y: number }> = [];
-    for (const [fx, fy] of [[0.35, 0.35], [0.5, 0.55], [0.65, 0.35]]) {
-      const candidates = clear.filter(candidate => result.every(previous => Math.hypot(previous.x - candidate.x, previous.y - candidate.y) >= 28));
-      candidates.sort((a, b) => Math.hypot(a.x - frame.width * fx, a.y - frame.height * fy) - Math.hypot(b.x - frame.width * fx, b.y - frame.height * fy));
-      const next = candidates.find(candidate => result.length < 2 || Math.abs((result[1].x - result[0].x) * (candidate.y - result[0].y)
-        - (result[1].y - result[0].y) * (candidate.x - result[0].x)) > 200);
-      if (!next) return [];
-      result.push(next);
-    }
-    return result;
-  });
-  expect(points, "Map must expose three separated non-collinear canvas points outside its overlays").toHaveLength(3);
-  return points;
+    const [fx, fy] = [[0.35, 0.35], [0.5, 0.55], [0.65, 0.35]][accepted.length];
+    const candidates = clear.filter(candidate => accepted.every(previous => Math.hypot(previous.x - candidate.x, previous.y - candidate.y) >= 28));
+    candidates.sort((a, b) => Math.hypot(a.x - frame.width * fx, a.y - frame.height * fy) - Math.hypot(b.x - frame.width * fx, b.y - frame.height * fy));
+    return candidates.find(candidate => accepted.length < 2 || Math.abs((accepted[1].x - accepted[0].x) * (candidate.y - accepted[0].y)
+      - (accepted[1].y - accepted[0].y) * (candidate.x - accepted[0].x)) > 200) ?? null;
+  }, previous);
+  expect(point, "Map must expose the next separated non-collinear canvas point outside its current overlays").not.toBeNull();
+  if (!point) throw new Error("No unobstructed triangle point is available");
+  return point;
 }
 async function clickMapCanvas(map: Locator, point: { x: number; y: number }) {
   expect(await map.evaluate((element, position) => {

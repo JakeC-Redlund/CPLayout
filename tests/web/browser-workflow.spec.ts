@@ -854,6 +854,14 @@ test("survey rtk closed gate disables geometry capture controls", async ({ page 
   await saveScreen(page, testInfo, "survey-rtk-geometry-disabled");
 });
 
+async function mockLocalImageryTiles(page: Page): Promise<void> {
+  // This operator-hosted source is a fixture, not a running external tile server.
+  const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGO49PDsfwAIiQOAeAI40gAAAABJRU5ErkJggg==", "base64");
+  await page.route(/^http:\/\/127\.0\.0\.1:8088\/tiles\/\d+\/\d+\/\d+\.png$/, route => route.fulfill({
+    status: 200, contentType: "image/png", headers: { "Access-Control-Allow-Origin": "*" }, body: png,
+  }));
+}
+
 function controlledNmeaSentence(body: string): string {
   const checksum = [...body].reduce((value, character) => value ^ character.charCodeAt(0), 0);
   return `$${body}*${checksum.toString(16).padStart(2, "0")}\r\n`;
@@ -1325,6 +1333,16 @@ test("full-scope demo compares cost versus acres across advisory strategies", as
   await page.getByTestId("advisory-cost-per-tower").fill("2800");
   await page.getByTestId("advisory-cost-includes").fill("Pivot equipment and drive towers");
   await expect(page.getByTestId("advisory-cost-status")).toContainText("USD 85000.00 base + 198.12/ft + 2800.00/tower.");
+  // Cost edits invalidate the field-plan request; its previous result is hidden until the current jobs finish.
+  await page.waitForFunction(() => {
+    const report = document.querySelector('[data-testid="calculation-report"]');
+    if (!report) return false;
+    const status = report.querySelector('[data-testid="advisory-calculation-status"]');
+    if (status?.textContent?.includes("Advisory calculation failed.")) {
+      throw new Error(`Current cost advisory failed: ${status.textContent}`);
+    }
+    return status === null && report.querySelector('[data-testid="advisory-generated-multi-pivot-scenario-review"]') !== null;
+  }, undefined, { timeout: 60_000 });
 
   await expect(page.getByTestId("advisory-cost-acres-comparison")).toContainText("Strategy");
   await expect(page.getByTestId("advisory-cost-row-current-machine")).toContainText("Current");
@@ -2372,6 +2390,7 @@ test("network allowlist blocks credential query strings on allowed imagery hosts
 });
 
 test("settings custom imagery applies no-key local tile templates", async ({ page }, testInfo) => {
+  await mockLocalImageryTiles(page);
   await page.goto("/");
   await openBaselineSample(page);
   await page.getByTestId("workspace-nav-settings").click();
@@ -2532,6 +2551,7 @@ test("settings offline imagery off blocks map tile requests after live source is
 });
 
 test("settings browser-local imagery settings stay out of project zip", async ({ page }, testInfo) => {
+  await mockLocalImageryTiles(page);
   await page.goto("/");
   await openBaselineSample(page);
   await page.getByTestId("workspace-nav-settings").click();
