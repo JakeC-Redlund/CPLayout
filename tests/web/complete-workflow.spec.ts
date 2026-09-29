@@ -1,5 +1,6 @@
 import { expect, test, type BrowserContext, type Locator, type Page } from "@playwright/test";
 import { readFile } from "node:fs/promises";
+import { encodeRgbaPng } from "../../tools/pngMetrics";
 import { sampleProject, projectXyToLonLat, convertPivotProjectToFieldDesign, formatDistanceInputValue, serializeProjectDocument, parseFieldDesignDocument, parseFieldLayoutTarget, parseLayoutSessionDocument, tryBuildPivotProject } from "../../packages/core/src";
 import { buildFieldDesignArchiveBundle, exportFieldDesignArchiveZip } from "../../packages/project-store/src/fieldDesignArchive";
 import { importProjectArchiveZip } from "../../packages/project-store/src/projectArchive";
@@ -635,7 +636,18 @@ async function drawingMap(page: Page) {
   return map;
 }
 
+async function installDrawingImagery(page: Page): Promise<void> {
+  // These retention checks need a fully loaded map. Blocked raster retries can
+  // delay its load event, so supply only the expected imagery tiles locally.
+  const pixels = new Uint8Array(256 * 256 * 4);
+  for (let offset = 0; offset < pixels.length; offset += 4) pixels.set([20, 40, 60, 255], offset);
+  const tile = Buffer.from(encodeRgbaPng(256, 256, pixels));
+  await page.route(/\/USGSImagery(?:Only|Topo)\/MapServer\/tile\/\d+\/\d+\/\d+(?:\?.*)?$/, route =>
+    route.fulfill({ contentType: "image/png", body: tile }));
+}
+
 test("finished drawing purpose and optional input survive File Catalog and canceled imported-copy activation", async ({ page, context }, info) => {
+  await installDrawingImagery(page);
   await seed(context, completeDraftWorkspace()); await openCompleteEditor(page);
   const before = await readWorkspace(page);
   const original = before.projectDocuments[0];
@@ -752,6 +764,7 @@ test("field conversion quota after workspace upgrade preserves the source and pe
 });
 
 test("unfinished vertices retain drawing mode and camera through File Catalog and canceled design activation", async ({ page, context }) => {
+  await installDrawingImagery(page);
   await seed(context, completeDraftWorkspace()); await openCompleteEditor(page);
   const before = await readWorkspace(page);
   const original = before.projectDocuments[0];
