@@ -43,7 +43,19 @@ function sourceSnapshot(db: DatabaseSync) {
         queryOnly: db.prepare("PRAGMA query_only;").all() });
 }
 test("manifest exactly matches replay of current trusted migrations in synthetic SQLite", () => {
-    assert.deepEqual(plain(manifest), plain(generateNativeWorkspaceSchemaManifest()));
+    const { sqliteVersion: recordedEngine, ...recordedSchema } = manifest;
+    const { sqliteVersion: replayEngine, ...replayedSchema } = generateNativeWorkspaceSchemaManifest();
+    // The engine version records generation provenance, not the schema contract.
+    // Keep every schema field exact when replaying on another supported SQLite build.
+    assert.deepEqual(plain(recordedSchema), plain(replayedSchema));
+    assert.match(recordedEngine, /^\d+\.\d+\.\d+(?:\.\d+)?$/);
+    const engineProbe = new DatabaseSync(":memory:");
+    try {
+        assert.equal(replayEngine, engineProbe.prepare("SELECT sqlite_version() AS version;").get()?.version);
+    }
+    finally {
+        engineProbe.close();
+    }
     assert.ok(manifest.objects.some(row => row.name.startsWith("sqlite_autoindex_") && row.sql === null));
     assert.ok(!manifest.objects.some(row => "rootpage" in row));
     assert.ok(Object.isFrozen(manifest) && Object.isFrozen(manifest.objects));
