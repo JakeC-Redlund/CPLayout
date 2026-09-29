@@ -39,7 +39,7 @@ import {
   WifiOff,
   Wrench,
 } from "lucide-react-native";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Linking,
   Modal,
@@ -101,15 +101,20 @@ import { ProjectCrsRecoveryPanel } from "./src/components/ProjectCrsRecoveryPane
 import { WorkspaceStorageNotice } from "./src/components/WorkspaceStorageNotice";
 import { createProjectOpenRequestGuard } from "./src/projectOpenRequest";
 import { dispatchProjectEditorAction } from "./src/projectEditorDispatch";
-import { type EditorSavePayload, type EditorSaveSession, type EditorSaveTarget } from "./src/editorSaveCoordinator";
+import { InputRetentionProvider, useInputRetention, useRetainedInput } from "./src/inputRetention";
+import { type EditorSavePayload, type EditorSaveSession, type RetainedProjectReceipt, type EditorSaveTarget } from "./src/editorSaveCoordinator";
 import { useEditorSaveCoordinator } from "./src/hooks/useEditorSaveCoordinator";
 import { DesignDraftWorkspace } from "./src/components/DesignDraftWorkspace";
 import { FieldDesignWorkspace } from "./src/components/FieldDesignWorkspace";
+import { CatalogArchiveImport } from "./src/components/CatalogArchiveImport";
+import { LayoutSessionCatalog } from "./src/components/LayoutSessionCatalog";
+import { LayoutSessionWorkspace } from "./src/components/LayoutSessionWorkspace";
+import { createBrowserReceiverSessionOwner, type ReceiverSessionOwner } from "./src/gnss/receiverSessionOwner";
 import { newDesignDraft } from "./src/newDesignDraft";
 import { createPendingMapDraftSession, type PendingMapDraftState } from "./src/pendingMapDraft";
 import { SettingsPanel } from "./src/components/SettingsPanel";
 import { DrawingToolLauncher, DrawingToolPalette, type DrawingToolPaletteModal } from "./src/components/DrawingToolPalette";
-import { useProjectRepository, type ProjectWorkspaceStatus, type PersistenceRevision, type OpenedDraft, type OpenedField } from "./src/hooks/useProjectRepository";
+import { useProjectRepository, type ProjectWorkspaceStatus, type PersistenceRevision, type OpenedDraft, type OpenedField, type OpenedDesign, type OpenedLayoutSession } from "./src/hooks/useProjectRepository";
 import {
   parseCplayoutLeftNavMenuXml,
   type CplayoutLeftNavCatalogActionDefinition,
@@ -119,7 +124,8 @@ import {
   type CplayoutLeftNavMenuItemDefinition,
   type CplayoutLeftNavRailItemDefinition,
 } from "./src/navigation/leftNavMenu";
-import { buildCommandMenuConfigs, isLeftNavItemDisabled } from "./src/navigation/navigationViewModels";
+import { buildCommandMenuConfigs, isLeftNavItemDisabled, nextCatalogCreateAction } from "./src/navigation/navigationViewModels";
+import { readWorkspaceResume, resolveResumeContext, writeWorkspaceResume } from "./src/navigation/workspaceResume";
 import { buildProjectTreeViewModel } from "./src/navigation/projectTreeViewModel";
 import type { ClientRecord } from "@cplayout/project-store";
 import { createCatalogId, exportFileAsync, importProjectArchiveZip, importZipFileAsync, parseWorkspaceCommand, projectRepository, rehydrateInstalledMapPackageManifestsAsync, type CopyProjectCommand, type ProjectCatalog } from "@cplayout/project-store";
@@ -254,14 +260,56 @@ const DEFAULT_CORNER_ARM_OVERHANG_LENGTH_METERS = 25;
 export default function App(): React.JSX.Element {
   const [draft, setDraft] = useState<OpenedDraft | null>(null);
   const [field, setField] = useState<OpenedField | null>(null);
+  const [completed, setCompleted] = useState<Extract<OpenedDesign, { kind: "project" }> | null>(null);
+  const [archiveImport, setArchiveImport] = useState<{ fieldMapId: string | null } | null>(null);
+  const [layout, setLayout] = useState<OpenedLayoutSession | null>(null);
+  const [layoutTargetSaved, setLayoutTargetSaved] = useState<{ fieldMapId: string; targetDocument: string } | undefined>();
+  const [layoutCatalog, setLayoutCatalog] = useState<{ fieldMapId: string | null; pendingTarget?: {
+    targetDocument: string; fieldMapId: string; expectedWorkspaceRevision: number;
+  } } | null>(null);
+  const [receiverOwner] = useState(createBrowserReceiverSessionOwner);
   const [pendingDraft, setPendingDraft] = useState<{ onConfirm: () => void; onCancel: () => void } | null>(null);
+  useEffect(() => () => { void receiverOwner.disconnect(); }, [receiverOwner]);
+  useEffect(() => {
+    const opened = draft ?? field;
+    if (opened) writeWorkspaceResume({ version: 1, context: opened.context, editorOpen: true, view: "map" });
+  }, [draft, field]);
+  const covered = Boolean(field || draft || layout || layoutCatalog || archiveImport);
   return (
     <SafeAreaProvider>
-      {field ? <FieldDesignWorkspace key={field.context.designId} initial={field} onClose={() => setField(null)} />
-        : draft ? <DesignDraftWorkspace key={draft.context.designId} initial={draft} onClose={() => setDraft(null)} />
-        : <AppContent onOpenDraft={setDraft} onOpenField={setField} onRequestDiscard={(onConfirm, onCancel) => setPendingDraft({ onConfirm, onCancel })} />}
+      <View style={{ flex: 1, display: covered ? "none" : "flex" }}>
+        <InputRetentionProvider><AppContent visible={!covered} completed={completed} receiverOwner={receiverOwner}
+          onOpenLayoutCatalog={fieldMapId => setLayoutCatalog({ fieldMapId })}
+          onOpenArchiveImport={fieldMapId => setArchiveImport({ fieldMapId })}
+          onOpenDraft={setDraft} onOpenField={setField} onRequestDiscard={(onConfirm, onCancel) => setPendingDraft({ onConfirm, onCancel })} /></InputRetentionProvider>
+      </View>
+      {field ? <View style={{ flex: 1, display: layout || layoutCatalog ? "none" : "flex" }}>
+        <FieldDesignWorkspace key={field.context.designId} initial={field} visible={!layout && !layoutCatalog} layoutTargetSaved={layoutTargetSaved} onClose={() => setField(null)}
+          onOpenLayout={async (targetDocument, fieldMapId, expectedWorkspaceRevision) => {
+            setLayoutCatalog({ fieldMapId, pendingTarget: { targetDocument, fieldMapId, expectedWorkspaceRevision } });
+            return true;
+          }} />
+      </View> : null}
+      {draft ? <View style={{ flex: 1, display: layout || layoutCatalog ? "none" : "flex" }}>
+        <DesignDraftWorkspace key={draft.context.designId} initial={draft} onClose={() => setDraft(null)}
+          onOpenComplete={opened => { setCompleted(opened); setDraft(null); }} />
+      </View> : null}
+      {layoutCatalog ? <View style={{ flex: 1, display: layout ? "none" : "flex" }}>
+        <LayoutSessionCatalog {...layoutCatalog} visible={!layout} onOpenSession={opened => {
+          setLayoutTargetSaved({ fieldMapId: opened.session.fieldMapId, targetDocument: opened.session.targetDocument });
+          setLayout(opened);
+        }} onClose={() => setLayoutCatalog(null)} />
+      </View> : null}
+      {archiveImport ? <CatalogArchiveImport {...archiveImport} onClose={() => setArchiveImport(null)} onOpenDesign={opened => {
+        setArchiveImport(null);
+        if (opened.kind === "draft") setDraft(opened);
+        else if (opened.kind === "field") setField(opened);
+        else setCompleted(opened);
+      }} /> : null}
+      {layout ? <LayoutSessionWorkspace key={layout.session.id} initial={layout} receiverOwner={receiverOwner}
+        onClose={() => setLayout(null)} onOpenCopy={setLayout} /> : null}
       <ConfirmActionDialog visible={pendingDraft !== null} title="Leave unsaved project?"
-        message="Changes since the last save will be discarded when you open the draft."
+        message="Changes since the last save will be discarded when you open the selected design."
         confirmLabel="Discard changes" testID="project-to-draft-discard"
         onCancel={() => { pendingDraft?.onCancel(); setPendingDraft(null); }}
         onConfirm={() => { const proceed = pendingDraft?.onConfirm; setPendingDraft(null); proceed?.(); }} />
@@ -286,11 +334,20 @@ function ProjectImportStatus({ kind }: { kind: "saving" | "saved" | "error" }): 
   );
 }
 
-function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
+function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, completed, receiverOwner, onOpenLayoutCatalog, onOpenArchiveImport }: {
+  visible: boolean;
+  completed: Extract<OpenedDesign, { kind: "project" }> | null;
+  receiverOwner: ReceiverSessionOwner;
+  onOpenLayoutCatalog: (fieldMapId: string | null) => void;
+  onOpenArchiveImport: (fieldMapId: string | null) => void;
   onOpenDraft: (draft: OpenedDraft) => void;
   onOpenField: (field: OpenedField) => void;
   onRequestDiscard: (onConfirm: () => void, onCancel: () => void) => void;
 }): React.JSX.Element {
+  const inputRetention = useInputRetention();
+  const [resume] = useState(readWorkspaceResume);
+  const [resumeApplied, setResumeApplied] = useState(false);
+  const resumeStarted = useRef(false);
   const [screen, setScreen] = useState<Screen>("workspace");
   const [activeView, setActiveView] = useState<WorkspaceView>("map");
   const [editor, setEditor] = useState(() => createProjectEditorState(defaultDevelopmentProject));
@@ -298,11 +355,17 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
   const project = editor.project;
   const [runtimeMapPackages, setRuntimeMapPackages] = useState<MapPackageManifest[]>([]);
   const projectLoadSequenceRef = useRef(0);
+  const unfinishedControllerDrawing = useRef(false);
+  const onUnfinishedDrawingChange = useCallback((scope: { projectId: string; projectCrs: string; projectGeneration: number }, unfinished: boolean) => {
+    if (scope.projectId === editorRef.current.project.id && scope.projectCrs === editorRef.current.project.projectCrs && scope.projectGeneration === projectLoadSequenceRef.current) unfinishedControllerDrawing.current = unfinished;
+  }, []);
   const { saveCoordinator, saveSessionRef: projectSaveSessionRef, saveOwnerMountedRef } = useEditorSaveCoordinator({
     kind: "project", payloadId: defaultDevelopmentProject.id, designId: null,
     workspaceRevision: projectRepository.versionedWorkspace ? null : undefined,
   });
   const projectSaveSession = projectSaveSessionRef.current;
+  const retainedProjectReceipt = useRef<RetainedProjectReceipt | null>(null);
+  const siblingOpening = useRef(false);
   const [projectOpenRequests] = useState(createProjectOpenRequestGuard);
   const dispatchProjectTransaction = (action: ProjectEditorAction): ProjectMutationResult => {
     if (action.type !== "load_project") projectOpenRequests.invalidate();
@@ -350,12 +413,14 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
   const pendingMapScopeRef = useRef({
     projectId: project.id, projectCrs: project.projectCrs,
     projectGeneration: projectLoadSequenceRef.current,
-    editable: settings.mappingWorkflowMode === "design" && !homeMapView,
+    editable: settings.mappingWorkflowMode === "design" && !homeMapView && visible && activeView === "map",
+    suspended: homeMapView || !visible || activeView !== "map",
   });
   pendingMapScopeRef.current = {
     projectId: project.id, projectCrs: project.projectCrs,
     projectGeneration: projectLoadSequenceRef.current,
-    editable: settings.mappingWorkflowMode === "design" && !homeMapView,
+    editable: settings.mappingWorkflowMode === "design" && !homeMapView && visible && activeView === "map",
+    suspended: homeMapView || !visible || activeView !== "map",
   };
   const [pendingMapDraftSession] = useState(() => createPendingMapDraftSession(() => ({
     ...pendingMapScopeRef.current,
@@ -366,11 +431,11 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
   useEffect(() => {
     const scope = pendingMapScopeRef.current;
     const current = pendingMapDraftState;
-    if (current && (!scope.editable || current.owner.projectId !== scope.projectId
+    if (current && ((!scope.editable && !scope.suspended) || current.owner.projectId !== scope.projectId
       || current.owner.projectCrs !== scope.projectCrs || current.owner.projectGeneration !== scope.projectGeneration)) {
       invalidatePendingMapDraft();
     }
-  }, [project.id, project.projectCrs, projectLoadSequenceRef.current, settings.mappingWorkflowMode, homeMapView, pendingMapDraftSession, pendingMapDraftState]);
+  }, [project.id, project.projectCrs, projectLoadSequenceRef.current, settings.mappingWorkflowMode, homeMapView, visible, activeView, pendingMapDraftSession, pendingMapDraftState]);
   const [activeCatalogContext, setActiveCatalogContext] = useState<{
     clientId: string | null;
     projectId: string | null;
@@ -399,6 +464,40 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
   const [rightDrawerOpen, setRightDrawerOpen] = useState(() => desktopConsole);
   const [activeSidebarPage, setActiveSidebarPage] = useState<RightWorkflowSidebarPage>("catalog");
   const repository = useProjectRepository();
+  useEffect(() => {
+    if (resumeStarted.current || repository.catalogRevision === null) return;
+    resumeStarted.current = true;
+    if (!resume) { setResumeApplied(true); return; }
+    const context = resolveResumeContext(resume.context, repository.designCatalog ?? repository.catalog);
+    setActiveCatalogContext(context);
+    if (resume.editorOpen && context.designId) {
+      void openDesignProject(context.designId).finally(() => { setActiveView(resume.view); setResumeApplied(true); });
+    } else { setActiveView(resume.view); setResumeApplied(true); }
+  }, [repository.catalogRevision]);
+  useEffect(() => {
+    if (resumeApplied && visible) writeWorkspaceResume({ version: 1, context: activeCatalogContext,
+      editorOpen: !homeMapView, view: activeView });
+  }, [resumeApplied, activeCatalogContext, homeMapView, activeView, visible]);
+  const loadedCompleteRef = useRef<OpenedDesign | null>(null);
+  useEffect(() => {
+    if (!visible) return;
+    void repository.refreshProjects();
+    const baseline = retainedProjectReceipt.current;
+    retainedProjectReceipt.current = null;
+    const versioned = projectRepository.versionedWorkspace;
+    if (baseline && versioned && saveCoordinator.isCurrent(baseline.session)) {
+      void saveCoordinator.reconcileRetainedProject({ baseline, read: () => versioned.readAsync() })
+        .catch(error => { if (saveCoordinator.isCurrent(baseline.session)) repository.reportError(error); });
+    }
+  }, [visible]);
+  useEffect(() => {
+    if (completed && loadedCompleteRef.current !== completed) {
+      loadedCompleteRef.current = completed;
+      const proceed = () => loadProject(completed.project, completed.context, true, completed.persistenceRevision);
+      if (hasUnsavedProjectWork()) onRequestDiscard(proceed, restoreRetainedProjectView);
+      else proceed();
+    }
+  }, [completed]);
   const catalogFormRef = useRef<{
     revision: number | null; catalog: ProjectCatalog; projects: ProjectWorkspaceStatus["projects"]; context: typeof activeCatalogContext; clientDefaultName: string;
   } | null>(null);
@@ -443,13 +542,15 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
     ? formCatalog.clients.find((client) => client.id === deletingClientId) ?? null
     : null;
   const sidebarInlineWorkflow = !compactLayout && !nativeMapLibreProofEnabled;
-  const inlineCatalogForms = sidebarInlineWorkflow && activeView === "map";
+  const inlineCatalogForms = sidebarInlineWorkflow;
   const activeCatalogForm = Boolean(catalogDialogMode || clientProfileDialogMode || renamingProject || movingProject || deletingProject || deletingClient);
   const warningCount = (calculation.result?.warnings.length ?? calculation.reasons.length) + (editor.lastError ? 1 : 0);
   const powerEvidenceStatus = useMemo(() => projectPowerLineEvidenceStatus(project), [project]);
   const visibleSidebarPages = useMemo(
     () => rightWorkflowSidebarPages({
       activeCatalogForm: inlineCatalogForms && activeCatalogForm,
+      catalogFormLabel: clientProfileDialogMode ? "Customer details" : catalogDialogMode === "fieldMap" ? "Field details" : catalogDialogMode === "design" ? "New design" : "Project details",
+      toolFormLabel: designConsoleModal ? designConsoleCopy(designConsoleModal).title : "Design inputs",
       activePurposeForm: Boolean(pendingMapFeatureDraft),
       activeToolForm: Boolean(designConsoleModal),
       homeView: homeMapView,
@@ -457,7 +558,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
       selectedMapFeature: Boolean(selectedMapFeature),
       warningCount,
     }),
-    [activeCatalogForm, designConsoleModal, homeMapView, inlineCatalogForms, pendingMapFeatureDraft, selectedMapFeature, settings.mappingWorkflowMode, warningCount],
+    [activeCatalogForm, clientProfileDialogMode, catalogDialogMode, designConsoleModal, homeMapView, inlineCatalogForms, pendingMapFeatureDraft, selectedMapFeature, settings.mappingWorkflowMode, warningCount],
   );
   const requestedSidebarPage = inlineCatalogForms && activeCatalogForm ? "catalogForm" : activeSidebarPage;
   const effectiveSidebarPage = visibleSidebarPages.some((page) => page.id === requestedSidebarPage)
@@ -550,9 +651,10 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
       setActiveSidebarPage("catalog");
       return;
     }
+    if (pendingMapDraftState) { setActiveSidebarPage("purpose"); return; }
     if (selectedMapFeatureId) return;
     setActiveSidebarPage(settings.mappingWorkflowMode === "layout" ? "rtk" : "tools");
-  }, [homeMapView, selectedMapFeatureId, settings.mappingWorkflowMode]);
+  }, [homeMapView, selectedMapFeatureId, settings.mappingWorkflowMode, pendingMapDraftState]);
 
   useEffect(() => {
     if (desktopConsole) {
@@ -607,6 +709,10 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
   function commitSettings(nextSettings: AppSettings): void {
     const parsed = parseAppSettings(nextSettings);
     setSettings(parsed);
+    if (Platform.OS === "web") {
+      try { globalThis.localStorage?.setItem("cplayout-workspace-preferences-v1", JSON.stringify({ unitSystem: parsed.unitSystem,
+        coordinateDisplayFormat: parsed.coordinateDisplayFormat })); } catch { /* optional preferences never block project editing */ }
+    }
     if (!homeMapView) {
       dispatchProject({ type: "update_project_settings", unitSystem: parsed.unitSystem, settings: projectSettingsFromApp(parsed) });
     }
@@ -623,13 +729,15 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
   }
 
   function loadProject(nextProject: PivotProject, context?: Partial<typeof activeCatalogContext>, persisted = false, persistenceRevision: PersistenceRevision = null): void {
+    inputRetention.reset();
+    unfinishedControllerDrawing.current = false;
     invalidateCatalogForm();
     repository.clearProjectError();
     projectOpenRequests.invalidate();
     const loadSequence = projectLoadSequenceRef.current + 1;
     projectLoadSequenceRef.current = loadSequence;
     pendingMapScopeRef.current = { projectId: nextProject.id, projectCrs: nextProject.projectCrs,
-      projectGeneration: loadSequence, editable: false };
+      projectGeneration: loadSequence, editable: false, suspended: false };
     projectSaveSessionRef.current = saveCoordinator.open({
       kind: "project", payloadId: nextProject.id, designId: context?.designId ?? null,
       workspaceRevision: projectRepository.versionedWorkspace ? persistenceRevision : undefined,
@@ -723,8 +831,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
 
   function openCatalogHome(): void {
     invalidateCatalogForm();
-    pendingMapScopeRef.current = { ...pendingMapScopeRef.current, editable: false };
-    invalidatePendingMapDraft();
+    pendingMapScopeRef.current = { ...pendingMapScopeRef.current, editable: false, suspended: true };
     projectOpenRequests.invalidate();
     setScreen("workspace");
     setActiveView("map");
@@ -771,10 +878,30 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
     return receipt.project;
   }
 
+  async function openRetainedWorkspace(open: () => void): Promise<void> {
+    if (siblingOpening.current) return;
+    siblingOpening.current = true;
+    const session = projectSaveSessionRef.current;
+    try {
+      const versioned = projectRepository.versionedWorkspace;
+      const meaningfulEditor = projectLoadSequenceRef.current > 0 || hasUnsavedProjectWork();
+      const baseline = versioned && meaningfulEditor ? await saveCoordinator.captureRetainedProject({ session, read: () => versioned.readAsync() }) : null;
+      if (!saveOwnerMountedRef.current || !saveCoordinator.isCurrent(session)) return;
+      retainedProjectReceipt.current = baseline;
+      open();
+    } catch (error) { if (saveCoordinator.isCurrent(session)) repository.reportError(error); }
+    finally { siblingOpening.current = false; }
+  }
+
+  function openArchiveWorkspace(): void { void openRetainedWorkspace(() => onOpenArchiveImport(activeCatalogContext.fieldMapId)); }
+  function openLayoutWorkspace(): void { void openRetainedWorkspace(() => onOpenLayoutCatalog(activeCatalogContext.fieldMapId)); }
+
   async function openSavedProject(projectId: string): Promise<void> {
     try {
       await projectOpenRequests.open(() => repository.openProject(projectId), (loaded) => {
-        loadProject(loaded.project, loaded.context, true, loaded.persistenceRevision);
+        const proceed = () => loadProject(loaded.project, loaded.context, true, loaded.persistenceRevision);
+        if (hasUnsavedProjectWork()) onRequestDiscard(proceed, restoreRetainedProjectView);
+        else proceed();
       });
     } catch (error) { repository.reportError(error); }
   }
@@ -784,12 +911,17 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
       await projectOpenRequests.open(() => repository.openDesignProject(designId), (loaded) => {
         if (loaded.kind === "draft" || loaded.kind === "field") {
           if (saveOwnerMountedRef.current) {
-            const proceed = () => loaded.kind === "draft" ? onOpenDraft(loaded) : onOpenField(loaded);
+            const proceed = () => {
+              setActiveCatalogContext(loaded.context);
+              void openRetainedWorkspace(() => { if (loaded.kind === "draft") onOpenDraft(loaded); else onOpenField(loaded); });
+            };
             if (hasUnsavedProjectWork()) onRequestDiscard(proceed, restoreRetainedProjectView);
             else proceed();
           }
         } else {
-          loadProject(loaded.project, loaded.context, true, loaded.persistenceRevision);
+          const proceed = () => loadProject(loaded.project, loaded.context, true, loaded.persistenceRevision);
+        if (hasUnsavedProjectWork()) onRequestDiscard(proceed, restoreRetainedProjectView);
+        else proceed();
         }
       });
     } catch (error) { repository.reportError(error); }
@@ -805,6 +937,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
   }
 
   async function createIndependentField(): Promise<void> {
+    let baseline: RetainedProjectReceipt | null = null;
     try {
       const designId = activeCatalogContext.designId;
       if (!designId) throw new Error("Save this design in a field map before creating an independent-machine field.");
@@ -820,9 +953,21 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
       if (source.kind !== "project" || JSON.stringify(source.project) !== JSON.stringify(editorRef.current.project)) {
         throw new Error("The source save did not match the current design. Resolve the save error before creating a field copy.");
       }
+      const versioned = projectRepository.versionedWorkspace;
+      baseline = versioned ? await saveCoordinator.captureRetainedProject({ session: projectSaveSession, read: () => versioned.readAsync() }) : null;
       const opened = await repository.createFieldFromSavedProject(designId, receipt.workspaceRevision);
-      if (saveOwnerMountedRef.current && saveCoordinator.isCurrent(projectSaveSession)) onOpenField(opened);
-    } catch (error) { repository.reportError(error); }
+      if (saveOwnerMountedRef.current && saveCoordinator.isCurrent(projectSaveSession)) {
+        retainedProjectReceipt.current = baseline;
+        onOpenField(opened);
+      }
+    } catch (error) {
+      const versioned = projectRepository.versionedWorkspace;
+      if (baseline && versioned && saveCoordinator.isCurrent(baseline.session)) {
+        try { await saveCoordinator.reconcileRetainedProject({ baseline, read: () => versioned.readAsync() }); }
+        catch (reconciliationError) { repository.reportError(reconciliationError); return; }
+      }
+      repository.reportError(error);
+    }
   }
 
   function importSurveyCsv(csv: string): string {
@@ -865,7 +1010,13 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
     return mutation;
   }
 
+  function cleanPendingPurposeInputs(): void {
+    const owner = pendingMapDraftState?.owner;
+    if (owner) for (const key of ["selection", "name", "notes"]) inputRetention.markClean(`purpose:${owner.projectGeneration}:${owner.draftId}:${key}`);
+  }
+
   function invalidatePendingMapDraft(): void {
+    cleanPendingPurposeInputs();
     pendingMapDraftSession.invalidate();
     setPendingMapDraftState(null);
     setDraftPurposeReceipt(null);
@@ -888,12 +1039,13 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
   function cancelPendingMapFeatureDraft(owner: MapDraftOwner): void {
     const receipt = pendingMapDraftSession.cancel(owner);
     if (!receipt) return;
+    cleanPendingPurposeInputs();
     setPendingMapDraftState(pendingMapDraftSession.getSnapshot());
     setDraftPurposeReceipt(receipt);
     setActiveSidebarPage("tools");
   }
 
-  function savePendingMapFeatureDraft(owner: MapDraftOwner, option: MapDraftPurposeOption): void {
+  function savePendingMapFeatureDraft(owner: MapDraftOwner, option: MapDraftPurposeOption, details?: { name: string; notes: string }): void {
     let featureId: string | null = null;
     const receipt = pendingMapDraftSession.save(owner, (draft) => {
       if (option.geometry !== draft.geometryType) return { ok: false, error: "This purpose does not match the captured geometry." };
@@ -907,11 +1059,11 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
       featureId = `map-feature-${Date.now().toString(36)}-${(project.mapFeatures ?? []).length + 1}`;
       const feature: ProjectMapFeature = {
         id: featureId,
-        name: defaultMapFeatureName(option.kind, draft.geometryType, draft.vertices.length),
+        name: details?.name.trim() || defaultMapFeatureName(option.kind, draft.geometryType, draft.vertices.length),
         kind: option.kind,
         geometry: draftVerticesToFeatureGeometry(draft.geometryType, draft.vertices),
         confidence: draft.sourceConfidence,
-        notes: draft.notes,
+        notes: details?.notes.trim() || draft.notes,
       };
       return dispatchProjectTransaction({ type: "add_map_feature", feature });
     }, `${option.label} committed in projected XY. Save Local to persist.`);
@@ -919,6 +1071,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
     setPendingMapDraftState(pendingMapDraftSession.getSnapshot());
     setDraftPurposeReceipt(receipt);
     if (receipt.outcome !== "committed") return;
+    cleanPendingPurposeInputs();
     if (featureId) setSelectedMapFeatureId(featureId);
     setActiveSidebarPage(featureId ? "feature" : "tools");
   }
@@ -1019,7 +1172,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
   function routeToClientSelection(): void {
     showCatalogMap(
       { clientId: activeCatalogContext.clientId, projectId: null, fieldMapId: null, designId: null },
-      "Select or create a client folder, then use New Project inside that client.",
+      "Select or create a customer, then use New Project for that customer.",
     );
   }
 
@@ -1061,7 +1214,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
     invalidateCatalogForm();
     repository.clearCatalogError();
     catalogFormRef.current = { revision: repository.catalogRevision, catalog: repository.catalog, projects: repository.projects,
-      context: { ...activeCatalogContext }, clientDefaultName: `Client ${repository.catalog.clients.length + 1}` };
+      context: { ...activeCatalogContext }, clientDefaultName: `Customer ${repository.catalog.clients.length + 1}` };
     return true;
   }
 
@@ -1113,12 +1266,12 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
     setCatalogDialogSubmitting(false);
   }
 
-  async function submitCatalogDialog(name: string): Promise<void> {
+  async function submitCatalogDialog(name: string, initialFieldName?: string): Promise<void> {
     if (!catalogDialogMode || catalogDialogSubmitting) return;
     const session = catalogFormRef.current;
     setCatalogDialogSubmitting(true);
     try {
-      if (catalogDialogMode === "project") await createProjectFolder(name);
+      if (catalogDialogMode === "project") await createProjectFolder(name, initialFieldName);
       if (catalogDialogMode === "fieldMap") await createFieldMapForProject(name);
       if (catalogDialogMode === "design") await createDesignForFieldMap(name);
     } finally {
@@ -1133,12 +1286,12 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
   }
 
   function defaultCatalogDialogName(mode: ProjectCatalogDialogMode): string {
-    if (mode === "client") return `Client ${repository.catalog.clients.length + 1}`;
+    if (mode === "client") return `Customer ${repository.catalog.clients.length + 1}`;
     if (mode === "project") return `Untitled Project ${repository.catalog.projects.length + 1}`;
     if (mode === "fieldMap") {
       const projectId = activeCatalogContext.projectId;
       const siblingCount = repository.catalog.fieldMaps.filter((record) => record.projectId === projectId).length;
-      return `Field Map ${siblingCount + 1}`;
+      return `Field ${siblingCount + 1}`;
     }
     const fieldMapId = activeCatalogContext.fieldMapId;
     const siblingCount = (repository.designCatalog?.designs ?? repository.catalog.designs).filter((record) => record.fieldMapId === fieldMapId).length;
@@ -1151,7 +1304,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
     if (mode === "client") return "Saved under: Project Catalog";
     if (mode === "project") {
       const client = catalog.clients.find(item => item.id === context.clientId);
-      return client ? `Saved under: ${client.displayName}` : "Select a client folder before creating a project.";
+      return client ? `Saved under: ${client.displayName}` : "Select a customer before creating a project.";
     }
     if (mode === "fieldMap") {
       const projectRecord = context.projectId
@@ -1208,7 +1361,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
     closeInlineCatalogForm();
   }
 
-  async function createProjectFolder(name: string): Promise<void> {
+  async function createProjectFolder(name: string, initialFieldName = "Field 1"): Promise<void> {
     const session = catalogFormRef.current;
     if (!session) return;
     const trimmedName = name.trim();
@@ -1228,7 +1381,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
       projectCrs: "",
       unitSystem: settings.unitSystem,
       fieldMapId,
-      fieldMapName: "Primary Field Map",
+      fieldMapName: initialFieldName.trim() || "Field 1",
     }, session.revision);
     if (created && catalogFormRef.current === session) {
       showCatalogMap({
@@ -1302,7 +1455,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
       });
       if (created && saveOwnerMountedRef.current && catalogFormRef.current === session) {
         invalidateCatalogForm();
-        if (departureIsCurrent()) onOpenDraft(created);
+        if (departureIsCurrent()) await openRetainedWorkspace(() => onOpenDraft(created));
         else restoreRetainedProjectView();
       }
     } catch (error) {
@@ -1313,8 +1466,9 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
   }
 
   function hasUnsavedProjectWork(): boolean {
-    return (projectLoadSequenceRef.current > 0 || editorRef.current.revision > 0)
-      && editorRef.current.revision !== savedRevision;
+    return unfinishedControllerDrawing.current || inputRetention.hasDirty() || pendingMapDraftSession.getSnapshot() !== null
+      || ((projectLoadSequenceRef.current > 0 || editorRef.current.revision > 0)
+        && editorRef.current.revision !== savedRevision);
   }
 
   function restoreRetainedProjectView(): void {
@@ -1329,7 +1483,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
       fieldMapId: field?.id ?? null, designId: design?.id ?? null });
     setHomeMapView(false);
     setActiveView("map");
-    setActiveSidebarPage(settings.mappingWorkflowMode === "layout" ? "rtk" : "tools");
+    setActiveSidebarPage(pendingMapDraftState ? "purpose" : settings.mappingWorkflowMode === "layout" ? "rtk" : "tools");
   }
 
   async function openFieldMap(fieldMapId: string): Promise<void> {
@@ -1460,15 +1614,13 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
   }
 
   function showCatalogMap(context: Partial<typeof activeCatalogContext>, notice: string | null = null): void {
+    pendingMapScopeRef.current = { ...pendingMapScopeRef.current, editable: false, suspended: true };
     invalidateCatalogForm();
     projectOpenRequests.invalidate();
     setScreen("workspace");
     setActiveView("map");
     setHomeMapView(true);
-    setWorkflowMode("layout");
     setCatalogNotice(notice);
-    setSelectedMapFeatureId(null);
-    setDesignConsoleModal(null);
     setActiveSidebarPage("catalog");
     setActiveCatalogContext((current) => ({ ...current, ...context }));
   }
@@ -1530,11 +1682,11 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
           <View style={styles.topBar}>
             <View>
               <Text style={styles.appTitle}>CPLayout</Text>
-              <Text style={styles.appSubtitle}>Browser mapping console</Text>
+              <Text style={styles.appSubtitle}>Your field design workspace</Text>
             </View>
             <View style={[styles.statusRow, compactLayout && styles.statusRowCompact]}>
               <StatusPill icon={<WifiOff size={15} color="#254234" />} label="Offline storage" />
-              <StatusPill icon={<Ruler size={15} color="#254234" />} label="Projected XY canonical" />
+              <StatusPill icon={<Ruler size={15} color="#254234" />} label="Field coordinates" />
               <StatusPill icon={<Satellite size={15} color="#254234" />} label={settings.onlineImagery.enabled ? "USGS imagery ready" : "Imagery off"} />
             </View>
           </View>
@@ -1611,6 +1763,9 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
         />
       ) : (
         <CatalogHomePanel
+          onImport={openArchiveWorkspace}
+          onPreferences={() => setActiveView("settings")}
+          onOpenDesign={openDesignProject}
           catalog={repository.catalog}
           notice={catalogNotice}
           onCreateClient={openClientCreateDialog}
@@ -1706,10 +1861,11 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
         <>
           <PendingDraftPurposePanel
             draft={pendingMapFeatureDraft}
+            retentionKey={pendingMapDraftState ? `purpose:${pendingMapDraftState.owner.projectGeneration}:${pendingMapDraftState.owner.draftId}` : "purpose:none"}
             projectCrs={project.projectCrs}
             error={pendingMapDraftState?.error ?? null}
             onCancel={() => { if (pendingMapDraftState) cancelPendingMapFeatureDraft(pendingMapDraftState.owner); }}
-            onSave={(option) => { if (pendingMapDraftState) savePendingMapFeatureDraft(pendingMapDraftState.owner, option); }}
+            onSave={(option, details) => { if (pendingMapDraftState) savePendingMapFeatureDraft(pendingMapDraftState.owner, option, details); }}
             unitSystem={settings.unitSystem}
           />
         </>
@@ -1801,10 +1957,12 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
     }
 
     if (page === "rtk") {
+      if (activeView !== "map") return <View />;
       return (
         <>
           <Text style={styles.sectionTitle}>{settings.mappingWorkflowMode === "design" ? "RTK Design Evidence" : "RTK Layout Capture"}</Text>
           <BrowserRtkReceiverPanel
+            owner={receiverOwner}
             onAddMapFeature={addMapFeature}
             onAddSurveyPoint={(point) => dispatchProjectTransaction({ type: "add_survey_point", point })}
             onCommitBoundaryDraft={(vertices, captureEvidence) => dispatchProjectTransaction({ type: "commit_boundary_draft", vertices, captureEvidence })}
@@ -1826,6 +1984,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
           <Text style={styles.sectionTitle}>Feature</Text>
           <MapFeatureEditor
             feature={selectedMapFeature}
+            unitSystem={settings.unitSystem}
             onDelete={deleteMapFeature}
             onRename={updateMapFeatureName}
             onUpdate={updateMapFeature}
@@ -1868,6 +2027,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
           feedback={storageNotice}
           contextPreview={catalogDialogContextPreview(catalogDialogMode)}
           defaultName={catalogDialogDefaultName}
+          defaultFieldName={catalogDialogMode === "project" ? "Field 1" : undefined}
           embedded
           mode={catalogDialogMode}
           onCancel={closeCatalogDialog}
@@ -1880,7 +2040,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
       return (
         <ClientProfileForm
           feedback={storageNotice}
-          defaultDisplayName={catalogFormRef.current?.clientDefaultName ?? "New client"}
+          defaultDisplayName={catalogFormRef.current?.clientDefaultName ?? "New customer"}
           embedded
           initialClient={clientProfileDialogMode === "edit" ? editingClient : null}
           mode={clientProfileDialogMode}
@@ -1955,9 +2115,9 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
       return (
         <ConfirmActionPanel
           feedback={storageNotice}
-          confirmLabel="Delete Client"
+          confirmLabel="Delete Customer"
           embedded
-          message={`Delete the empty client folder ${deletingClient.displayName}. This is blocked automatically if any projects remain inside it.`}
+          message={`Delete the empty customer ${deletingClient.displayName}. This is blocked automatically if any projects remain inside it.`}
           onCancel={() => {
             if (!catalogDialogSubmitting) {
               setDeletingClientId(null);
@@ -1967,14 +2127,14 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
           onConfirm={confirmDeleteClient}
           submitting={catalogDialogSubmitting}
           testID="delete-client-dialog"
-          title="Delete Client"
+          title="Delete Customer"
         />
       );
     }
     return (
       <View style={styles.mapFeatureEditor}>
         <Text style={styles.mapFeatureTitle}>No catalog form open</Text>
-        <Text style={styles.mapFeatureMeta}>Use the catalog rail or client details to create, rename, move, or delete local catalog records.</Text>
+        <Text style={styles.mapFeatureMeta}>Use the catalog rail or customer details to create, rename, move, or delete local catalog records.</Text>
       </View>
     );
   }
@@ -2018,6 +2178,15 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
             rightDrawerOpen={rightDrawerOpen}
           />
         </WorkspaceTopToolbar>
+        <View style={styles.workflowContext} testID="workflow-context">
+          <Text style={styles.mapFeatureMeta}>{[
+            repository.catalog.clients.find(item => item.id === activeCatalogContext.clientId)?.displayName ?? "Customer",
+            repository.catalog.projects.find(item => item.id === activeCatalogContext.projectId)?.name ?? "Project",
+            repository.catalog.fieldMaps.find(item => item.id === activeCatalogContext.fieldMapId)?.name ?? "Field",
+            (repository.designCatalog?.designs ?? repository.catalog.designs).find(item => item.id === activeCatalogContext.designId)?.name ?? "Design",
+          ].join(" → ")}</Text>
+          <SmallActionButton label="Layout sessions" testID="open-layout-sessions" onPress={openLayoutWorkspace} />
+        </View>
         {activeCatalogForm ? null : storageNotice}
         {!homeMapView ? importNotice : null}
 
@@ -2058,6 +2227,9 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
           {activeView === "dashboard" && (homeMapView ? (
             <Section title="Project Catalog" icon={<Home size={20} color="#254234" />} testID="dashboard-workspace">
               <CatalogHomePanel
+          onImport={openArchiveWorkspace}
+          onPreferences={() => setActiveView("settings")}
+          onOpenDesign={openDesignProject}
                 catalog={repository.catalog}
                 notice={catalogNotice}
                 onCreateClient={openClientCreateDialog}
@@ -2092,7 +2264,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
             />
           ))}
 
-          {activeView === "map" && (
+          <View style={{ display: activeView === "map" ? "flex" : "none", flex: activeView === "map" ? 1 : undefined }}>
             <WorkspaceConsoleShell compact={compactLayout} short={shortLandscapeMap} rightDrawerOpen={nativeMapLibreProofEnabled ? false : rightDrawerOpen} testID="map-view">
               <View style={styles.mapConsoleFrame}>
                 <AdvisoryCalculationStatus
@@ -2153,6 +2325,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
                   onAddSurveyPoint={(point) => dispatchProjectTransaction({ type: "add_survey_point", point })}
                   onAddMapFeature={addMapFeature}
                   onCreateMapFeatureDraft={createPendingMapFeatureDraft}
+                  onUnfinishedDrawingChange={onUnfinishedDrawingChange}
                   onSelectMapFeature={setSelectedMapFeatureId}
                   onManualDesignCapture={captureManualDesignMapInput}
                   />
@@ -2171,7 +2344,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
                 </RightWorkflowSidebar>
               )}
             </WorkspaceConsoleShell>
-          )}
+          </View>
 
             {activeView === "survey" && (homeMapView ? (
               <Section title="Survey Capture Readiness" icon={<Satellite size={20} color="#254234" />} testID="survey-view">
@@ -2183,6 +2356,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
             ) : (
               <Section title="Survey Capture Readiness" icon={<Satellite size={20} color="#254234" />} testID="survey-view">
                 <BrowserRtkReceiverPanel
+            owner={receiverOwner}
                   onAddMapFeature={addMapFeature}
                   onAddSurveyPoint={(point) => dispatchProjectTransaction({ type: "add_survey_point", point })}
                   onCommitBoundaryDraft={(vertices, captureEvidence) => dispatchProjectTransaction({ type: "commit_boundary_draft", vertices, captureEvidence })}
@@ -2233,7 +2407,8 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
             <Section title="Files and GIS Exchange" icon={<ClipboardList size={20} color="#254234" />} testID="files-view">
               <View style={styles.mapFeatureEditor}>
                 <Text style={styles.mapFeatureTitle}>No Project Open</Text>
-                <Text style={styles.mapFeatureMeta}>Project ZIP, GeoJSON, KML/KMZ, CSV, and map package tools become active after opening a saved design, sample, or blank design.</Text>
+                <Text style={styles.mapFeatureMeta}>Import a saved project, draft, or field design into a selected field. Open a design to add map or survey files.</Text>
+                <SmallActionButton label="Import saved design" onPress={openArchiveWorkspace} testID="catalog-import-design" />
               </View>
               <View style={styles.metricGrid}>
                 <MetricTile label="Storage" value={repository.backendLabel} />
@@ -2245,6 +2420,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
           ) : (
             <Section title="Files and GIS Exchange" icon={<ClipboardList size={20} color="#254234" />} testID="files-view">
               <ProjectFilesPanel
+                outputContext={{ designId: saveCoordinator.receipt(projectSaveSession).designId, designRevision: repository.catalogRevision === saveCoordinator.receipt(projectSaveSession).workspaceRevision ? repository.designCatalog?.designs.find(item => item.id === saveCoordinator.receipt(projectSaveSession).designId)?.revision ?? null : null, editRevision: editor.revision }}
                 dirty={isDirty}
                 sourceStored={typeof saveCoordinator.receipt(projectSaveSession).workspaceRevision === "number"}
                 onApplyCornerGpsMapBpfImport={applyCornerGpsMapBpfImport}
@@ -2356,6 +2532,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
           feedback={storageNotice}
           contextPreview={catalogDialogContextPreview(catalogDialogMode)}
           defaultName={catalogDialogDefaultName}
+          defaultFieldName={catalogDialogMode === "project" ? "Field 1" : undefined}
           mode={catalogDialogMode}
           onCancel={closeCatalogDialog}
           onCreate={submitCatalogDialog}
@@ -2366,7 +2543,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
       {clientProfileDialogMode && !inlineCatalogForms ? (
         <ClientProfileDialog
           feedback={storageNotice}
-          defaultDisplayName={catalogFormRef.current?.clientDefaultName ?? "New client"}
+          defaultDisplayName={catalogFormRef.current?.clientDefaultName ?? "New customer"}
           initialClient={clientProfileDialogMode === "edit" ? editingClient : null}
           mode={clientProfileDialogMode}
           onCancel={closeClientProfileDialog}
@@ -2433,8 +2610,8 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
       {deletingClient && !inlineCatalogForms ? (
         <ConfirmActionDialog
           feedback={storageNotice}
-          confirmLabel="Delete Client"
-          message={`Delete the empty client folder ${deletingClient.displayName}. This is blocked automatically if any projects remain inside it.`}
+          confirmLabel="Delete Customer"
+          message={`Delete the empty customer ${deletingClient.displayName}. This is blocked automatically if any projects remain inside it.`}
           onCancel={() => {
             if (!catalogDialogSubmitting) {
               setDeletingClientId(null);
@@ -2444,7 +2621,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard }: {
           onConfirm={confirmDeleteClient}
           submitting={catalogDialogSubmitting}
           testID="delete-client-dialog"
-          title="Delete Client"
+          title="Delete Customer"
           visible
         />
       ) : null}
@@ -3117,18 +3294,12 @@ function PivotGpsCoordinateForm({ onApply, project }: { onApply: (point: XY, wgs
       return { ok: false as const, value: coordinateExample("decimal_degrees"), error: error instanceof Error ? error.message : String(error) };
     }
   }, [project.pivotCenter, project.projectCrs]);
-  const [gpsText, setGpsText] = useState(gpsDefault.value);
+  const [gpsText, setGpsText] = useRetainedInput("pivotGps:gpsText", gpsDefault.value);
   const [expertOpen, setExpertOpen] = useState(false);
-  const [x, setX] = useState(project.pivotCenter.x.toFixed(3));
-  const [y, setY] = useState(project.pivotCenter.y.toFixed(3));
+  const [x, setX] = useRetainedInput("pivotGps:x", project.pivotCenter.x.toFixed(3));
+  const [y, setY] = useRetainedInput("pivotGps:y", project.pivotCenter.y.toFixed(3));
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    setGpsText(gpsDefault.value);
-    setX(project.pivotCenter.x.toFixed(3));
-    setY(project.pivotCenter.y.toFixed(3));
-    setError(null);
-  }, [gpsDefault.value, project.pivotCenter.x, project.pivotCenter.y]);
 
   function applyGps(): void {
     if (!gpsDefault.ok) {
@@ -3208,28 +3379,19 @@ function EndGunSettingsForm({
   unitSystem: PivotProject["unitSystem"];
 }): React.JSX.Element {
   const firstRange = machine.endGunAngleRanges?.[0] ?? null;
-  const [throwDistance, setThrowDistance] = useState(formatDistanceInputValue(machine.endGunThrowMeters, unitSystem));
-  const [arcEnabled, setArcEnabled] = useState(Boolean(firstRange));
-  const [startAngle, setStartAngle] = useState(firstRange ? String(firstRange.startAngleDegrees) : "0");
-  const [stopAngle, setStopAngle] = useState(firstRange ? String(firstRange.stopAngleDegrees) : "120");
-  const [direction, setDirection] = useState<"clockwise" | "counterclockwise">(firstRange?.direction ?? "counterclockwise");
+  const [throwDistance, setThrowDistance] = useRetainedInput("endGun:throwDistance", formatDistanceInputValue(machine.endGunThrowMeters, unitSystem));
+  const [arcEnabled, setArcEnabled] = useRetainedInput("endGun:arcEnabled", Boolean(firstRange));
+  const [startAngle, setStartAngle] = useRetainedInput("endGun:startAngle", firstRange ? String(firstRange.startAngleDegrees) : "0");
+  const [stopAngle, setStopAngle] = useRetainedInput("endGun:stopAngle", firstRange ? String(firstRange.stopAngleDegrees) : "120");
+  const [direction, setDirection] = useRetainedInput<"clockwise" | "counterclockwise">("endGun:direction", firstRange?.direction ?? "counterclockwise");
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const nextRange = machine.endGunAngleRanges?.[0] ?? null;
-    setThrowDistance(formatDistanceInputValue(machine.endGunThrowMeters, unitSystem));
-    setArcEnabled(Boolean(nextRange));
-    setStartAngle(nextRange ? String(nextRange.startAngleDegrees) : "0");
-    setStopAngle(nextRange ? String(nextRange.stopAngleDegrees) : "120");
-    setDirection(nextRange?.direction ?? "counterclockwise");
-    setError(null);
-  }, [machine, unitSystem]);
 
   function apply(): void {
     try {
       const nextMachine: PivotMachine = {
         ...machine,
-        endGunThrowMeters: requiredNonNegativeDistanceInput(throwDistance, unitSystem, "End gun throw"),
+        endGunThrowMeters: preserveDistanceInput(throwDistance, machine.endGunThrowMeters, unitSystem, "End gun throw"),
         endGunAngleRanges: arcEnabled
           ? [{
             startAngleDegrees: requiredFiniteNumber(startAngle, "End gun arc start"),
@@ -4377,22 +4539,22 @@ function ManualDesignTransactionPanel({
   projectRevision: number;
   unitSystem: PivotProject["unitSystem"];
 }): React.JSX.Element {
+  const inputRetention = useInputRetention();
+  const source = useMemo(() => ({ draft: createManualDesignDraft(project, projectRevision),
+    spanRows: project.machine.spanLengthsMeters.map(span => formatDistanceInputValue(span, unitSystem)),
+    overhang: formatDistanceInputValue(project.machine.overhangMeters, unitSystem),
+    endGunThrow: formatDistanceInputValue(project.machine.endGunThrowMeters, unitSystem) }), [project.id, unitSystem]);
   const [activeStep, setActiveStep] = useState<Exclude<ManualDesignStep, "apply">>("boundary");
-  const [draft, setDraft] = useState<ManualDesignDraft>(() => createManualDesignDraft(project, projectRevision));
-  const [spanRows, setSpanRows] = useState(() => project.machine.spanLengthsMeters.map((span) => formatDistanceInputValue(span, unitSystem)));
-  const [overhang, setOverhang] = useState(() => formatDistanceInputValue(project.machine.overhangMeters, unitSystem));
-  const [endGunThrow, setEndGunThrow] = useState(() => formatDistanceInputValue(project.machine.endGunThrowMeters, unitSystem));
+  const [draft, setDraft] = useRetainedInput<ManualDesignDraft>("manual:draft", source.draft);
+  const [spanRows, setSpanRows] = useRetainedInput("manual:spanRows", source.spanRows);
+  const [overhang, setOverhang] = useRetainedInput("manual:overhang", source.overhang);
+  const [endGunThrow, setEndGunThrow] = useRetainedInput("manual:endGunThrow", source.endGunThrow);
   const [status, setStatus] = useState("Preview only. Apply creates one project revision and one undo entry.");
   const readiness = useMemo(() => evaluateManualDesignReadiness(draft), [draft]);
   const pathSummary = draft.machine ? buildMachinePathSummary(draft.machine.value) : null;
   const radiusMeasurementFeatures = (project.mapFeatures ?? []).filter((feature) => feature.kind === "measurement_line" && feature.geometry.type === "LineString");
   const stale = draft.baseRevision !== projectRevision;
 
-  useEffect(() => {
-    resetFromProject();
-    // Project identity and unit changes require a new session-only draft.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [project.id, unitSystem]);
 
   useEffect(() => {
     if (!mapCapture) return;
@@ -4420,6 +4582,7 @@ function ManualDesignTransactionPanel({
     setSpanRows(project.machine.spanLengthsMeters.map((span) => formatDistanceInputValue(span, unitSystem)));
     setOverhang(formatDistanceInputValue(project.machine.overhangMeters, unitSystem));
     setEndGunThrow(formatDistanceInputValue(project.machine.endGunThrowMeters, unitSystem));
+    for (const key of ["draft", "spanRows", "overhang", "endGunThrow"]) inputRetention.markClean(`manual:${key}`);
     setActiveStep("boundary");
     setStatus("Draft reset from the current project.");
   }
@@ -4561,6 +4724,7 @@ function ManualDesignTransactionPanel({
       return;
     }
     if (onApply(draft)) {
+      for (const key of ["draft", "spanRows", "overhang", "endGunThrow"]) inputRetention.markClean(`manual:${key}`);
       setStatus("Manual design applied atomically. Undo restores the prior project revision.");
     }
   }
@@ -5037,15 +5201,11 @@ function DesignStep({ children, index, meta, title }: { children: React.ReactNod
   );
 }
 
-function PivotCoordinateForm({ onApply, point }: { onApply: (point: XY) => boolean; point: XY }): React.JSX.Element {
-  const [x, setX] = useState(point.x.toFixed(3));
-  const [y, setY] = useState(point.y.toFixed(3));
+function PivotCoordinateForm({ onApply, point, retentionKey = "pivotXY" }: { retentionKey?: string; onApply: (point: XY) => boolean; point: XY }): React.JSX.Element {
+  const [x, setX] = useRetainedInput(`${retentionKey}:x`, point.x.toFixed(3));
+  const [y, setY] = useRetainedInput(`${retentionKey}:y`, point.y.toFixed(3));
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    setX(point.x.toFixed(3));
-    setY(point.y.toFixed(3));
-  }, [point.x, point.y]);
 
   function apply(): void {
     try {
@@ -5072,12 +5232,9 @@ function PivotCoordinateForm({ onApply, point }: { onApply: (point: XY) => boole
 }
 
 function ProjectedPolygonEditor({ label, onApply, vertices }: { label: string; onApply: (vertices: XY[]) => boolean; vertices: XY[] }): React.JSX.Element {
-  const [text, setText] = useState(formatXyLines(vertices));
+  const [text, setText] = useRetainedInput(`polygon:${label}`, formatXyLines(vertices));
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    setText(formatXyLines(vertices));
-  }, [vertices]);
 
   function apply(): void {
     try {
@@ -5713,6 +5870,7 @@ function lineLengthMeters(vertices: XY[]): number {
 }
 
 function CatalogHomePanel({
+  onImport, onPreferences, onOpenDesign,
   catalog,
   notice,
   onCreateClient,
@@ -5720,6 +5878,9 @@ function CatalogHomePanel({
   repository,
   settings,
 }: {
+  onImport: () => void;
+  onPreferences: () => void;
+  onOpenDesign: (id: string) => Promise<void>;
   catalog: ProjectWorkspaceStatus["catalog"];
   notice: string | null;
   onCreateClient: () => void;
@@ -5729,12 +5890,12 @@ function CatalogHomePanel({
 }): React.JSX.Element {
   const hasCatalogRecords = catalog.clients.length > 0 || catalog.projects.length > 0 || catalog.fieldMaps.length > 0 || catalog.designs.length > 0;
   const storageLabel = repository.backendInfo?.backendLabel ?? repository.backendLabel;
-  const nextAction = hasCatalogRecords ? "Open design" : "Add client";
+  const nextAction = hasCatalogRecords ? "Open design" : "Create customer";
   const imageryState = settings.onlineImagery.enabled ? "No-key preview" : "Off";
 
   return (
     <>
-      <Text style={styles.sectionTitle}>Catalog Home</Text>
+      <Text style={styles.sectionTitle}>Start or resume your work</Text>
       <View style={styles.metricGrid} testID="catalog-home-readiness">
         <MetricTile label="Storage" value={storageLabel} />
         <MetricTile label="Active context" value="Catalog" />
@@ -5754,12 +5915,19 @@ function CatalogHomePanel({
         </View>
       ) : null}
       <View style={styles.inlineActions}>
-        <SmallActionButton label="Add Client" onPress={onCreateClient} />
-        <SmallActionButton label="Start Blank Design" onPress={onStartBlankDesign} />
+        <SmallActionButton label="Create customer" onPress={onCreateClient} testID="start-create-customer" />
+        <SmallActionButton label="Import" onPress={onImport} testID="start-import" />
+        <SmallActionButton label="Units and preferences" onPress={onPreferences} testID="start-preferences" />
+      </View>
+      <View style={styles.mapFeatureEditor} testID="recent-work">
+        <Text style={styles.mapFeatureTitle}>Recent work</Text>
+        {[...(repository.designCatalog?.designs ?? catalog.designs)].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, 6).map(design =>
+          <SmallActionButton key={design.id} label={design.name} onPress={() => onOpenDesign(design.id)} testID={`recent-design-${design.id}`} />)}
+        {(repository.designCatalog?.designs ?? catalog.designs).length === 0 ? <Text style={styles.mapFeatureMeta}>Your saved drafts and designs will appear here.</Text> : null}
       </View>
       <View style={styles.warningItem}>
         <MapPinned size={17} color="#9a4c1c" />
-        <Text style={styles.warningText}>Select a field map and start a design, or open a saved design. Catalog maps are navigation-only.</Text>
+        <Text style={styles.warningText}>Create a customer and project, name your first field, then add a design. You can return to any saved item from the list.</Text>
       </View>
     </>
   );
@@ -5810,13 +5978,13 @@ function ClientDetailPanel({
         </View>
         <View style={styles.clientDetailTitleBlock}>
           <Text style={styles.sectionTitle}>{client.displayName}</Text>
-          <Text style={styles.mapFeatureMeta}>{projects.length} project{projects.length === 1 ? "" : "s"} in this client folder</Text>
+          <Text style={styles.mapFeatureMeta}>{projects.length} project{projects.length === 1 ? "" : "s"} in this customer</Text>
         </View>
       </View>
 
       <View style={styles.inlineActions}>
-        <SmallActionButton label="Edit Client" onPress={() => onEditClient(client.id)} />
-        <SmallActionButton disabled={!canDeleteClient} label="Delete Client" onPress={() => onDeleteClient(client.id)} />
+        <SmallActionButton label="Edit Customer" onPress={() => onEditClient(client.id)} />
+        <SmallActionButton disabled={!canDeleteClient} label="Delete Customer" onPress={() => onDeleteClient(client.id)} />
         <SmallActionButton label="New Project" onPress={onCreateProject} />
       </View>
 
@@ -5843,7 +6011,7 @@ function ClientDetailPanel({
 
       <View style={styles.projectList} testID="client-detail-projects">
         {projects.length === 0 ? (
-          <Text style={styles.dashboardMuted}>No projects in this client folder.</Text>
+          <Text style={styles.dashboardMuted}>No projects in this customer.</Text>
         ) : projects.map((projectRecord) => {
           const fieldMaps = catalog.fieldMaps.filter((fieldMap) => fieldMap.projectId === projectRecord.id);
           const active = activeProjectId === projectRecord.id;
@@ -5858,7 +6026,7 @@ function ClientDetailPanel({
             >
               <View style={styles.clientProjectText}>
                 <Text style={styles.rowTitle}>{projectRecord.name}</Text>
-                <Text style={styles.rowMeta}>{fieldMaps.length} field map{fieldMaps.length === 1 ? "" : "s"} · {projectRecord.projectCrs} · {projectRecord.unitSystem.replaceAll("_", " ")}</Text>
+                <Text style={styles.rowMeta}>{fieldMaps.length} field{fieldMaps.length === 1 ? "" : "s"} · {projectRecord.projectCrs} · {projectRecord.unitSystem.replaceAll("_", " ")}</Text>
               </View>
               <View style={styles.inlineActions}>
                 <SmallActionButton label="Open" onPress={() => onOpenProject(projectRecord.id)} />
@@ -6192,7 +6360,7 @@ function HelpTrainingPanel({
     title: string;
   }> = [
     {
-      boundary: "Samples remain unsaved until Save succeeds. New designs create saved empty drafts under the selected field map; later edits require Save draft. Open a catalog item with its folder icon. Drafts require explicit CRS and geometry inputs, and cannot start Layout. Local progress stays outside project ZIPs.",
+      boundary: "Samples remain unsaved until Save succeeds. New designs start as drafts under the selected field. Apply your inputs, then Create complete design when ready. Convert a completed pivot to a field design, save it, and freeze its target to open Layout. Local progress stays outside project ZIPs.",
       checkpoints: [],
       detail: "Use the catalog, then move into Map for layout work.",
       icon: <Home size={18} color="#254234" />,
@@ -6406,7 +6574,13 @@ function mergeMapPackageManifests(base: MapPackageManifest[], overrides: MapPack
 }
 
 function browserLocalSettings(settings?: PivotProject["settings"], current?: AppSettings): AppSettings {
-  const merged = mergeAppSettings(settings);
+  let merged = mergeAppSettings(settings);
+  if (!current && Platform.OS === "web") {
+    try {
+      const preference = JSON.parse(globalThis.localStorage?.getItem("cplayout-workspace-preferences-v1") ?? "null");
+      if (preference) merged = parseAppSettings({ ...merged, unitSystem: preference.unitSystem, coordinateDisplayFormat: preference.coordinateDisplayFormat });
+    } catch { /* invalid optional preferences use validated defaults */ }
+  }
   if (current) {
     return {
       ...merged,
@@ -6552,6 +6726,8 @@ type RightWorkflowSidebarTab = {
 
 function rightWorkflowSidebarPages({
   activeCatalogForm,
+  catalogFormLabel,
+  toolFormLabel,
   activePurposeForm,
   activeToolForm,
   homeView,
@@ -6560,6 +6736,8 @@ function rightWorkflowSidebarPages({
   warningCount,
 }: {
   activeCatalogForm: boolean;
+  catalogFormLabel: string;
+  toolFormLabel: string;
   activePurposeForm: boolean;
   activeToolForm: boolean;
   homeView: boolean;
@@ -6570,15 +6748,15 @@ function rightWorkflowSidebarPages({
   if (homeView) {
     return [
       { id: "catalog", label: "Catalog", shortLabel: "CAT" },
-      ...(activeCatalogForm ? [{ id: "catalogForm" as const, label: "Form", shortLabel: "FORM" }] : []),
+      ...(activeCatalogForm ? [{ id: "catalogForm" as const, label: catalogFormLabel, shortLabel: "EDIT" }] : []),
     ];
   }
   return [
     { id: "overview", label: "Overview", shortLabel: "MAP" },
-    ...(activeCatalogForm ? [{ id: "catalogForm" as const, label: "Form", shortLabel: "FORM" }] : []),
+    ...(activeCatalogForm ? [{ id: "catalogForm" as const, label: catalogFormLabel, shortLabel: "EDIT" }] : []),
     ...(mappingWorkflowMode === "design" ? [{ id: "tools" as const, label: "Tools", shortLabel: "TOOL" }] : []),
-    ...(mappingWorkflowMode === "design" && activePurposeForm ? [{ id: "purpose" as const, label: "Form", shortLabel: "FORM" }] : []),
-    ...(mappingWorkflowMode === "design" && activeToolForm ? [{ id: "toolForm" as const, label: "Form", shortLabel: "FORM" }] : []),
+    ...(mappingWorkflowMode === "design" && activePurposeForm ? [{ id: "purpose" as const, label: "Drawing purpose", shortLabel: "PURPOSE" }] : []),
+    ...(mappingWorkflowMode === "design" && activeToolForm ? [{ id: "toolForm" as const, label: toolFormLabel, shortLabel: "INPUTS" }] : []),
     { id: "layers", label: "Layers", shortLabel: "LAY" },
     { id: "rtk", label: "RTK", shortLabel: "RTK" },
     ...(selectedMapFeature ? [{ id: "feature" as const, label: "Feature", shortLabel: "FEAT" }] : []),
@@ -6781,7 +6959,9 @@ function ProjectTreeRail({
   }
 
   function defaultCreateAction(): CplayoutLeftNavCatalogActionDefinition {
-    return createActions.find((item) => !catalogActionDisabled(item)) ?? createActions[0]!;
+    const nextAction = nextCatalogCreateAction(activeContext);
+    return createActions.find(item => item.action === nextAction && !catalogActionDisabled(item))
+      ?? createActions.find(item => !catalogActionDisabled(item)) ?? createActions[0]!;
   }
 
   function renderRailItem(item: CplayoutLeftNavRailItemDefinition, collapsed: boolean): React.JSX.Element {
@@ -6817,7 +6997,8 @@ function ProjectTreeRail({
   }
 
   return (
-    <View style={[styles.leftRail, compact && !consoleMode && styles.leftRailCompact, consoleMode && styles.leftRailConsole, consoleMode && !drawerOpen && styles.leftRailConsoleCollapsed]} testID="workspace-rail">
+    <ScrollView style={[styles.leftRail, compact && !consoleMode && styles.leftRailCompact, consoleMode && styles.leftRailConsole, consoleMode && !drawerOpen && styles.leftRailConsoleCollapsed]}
+      contentContainerStyle={[styles.leftRailContent, consoleMode && !drawerOpen && { alignItems: "center" }]} testID="workspace-rail">
       {consoleMode ? (
         <Pressable
           accessibilityLabel={drawerOpen ? "Collapse project drawer" : "Open project drawer"}
@@ -6844,7 +7025,7 @@ function ProjectTreeRail({
               hint={`Create ${defaultCreateAction().label.toLowerCase()} from the current catalog selection.`}
               icon={<Plus />}
               id="project-tree-new"
-              label="New"
+              label={`New ${defaultCreateAction().label}`}
               onPress={() => onPressCatalogAction(defaultCreateAction())}
               showLabel
               testID="project-tree-action-new"
@@ -6868,7 +7049,7 @@ function ProjectTreeRail({
           ) : null}
           <ScrollView style={[styles.projectTreeScroll, compact && styles.projectTreeScrollCompact]} contentContainerStyle={styles.projectTreeContent} testID="project-tree-scroll">
             {catalog.clients.length === 0 ? (
-              <Text style={styles.projectTreeEmpty}>No client folders yet.</Text>
+              <Text style={styles.projectTreeEmpty}>No customers yet.</Text>
             ) : null}
             {tree.clients.map((client) => {
               return (
@@ -6947,7 +7128,7 @@ function ProjectTreeRail({
         ) : null}
         {secondaryRailItems.map((item) => renderRailItem(item, navCollapsed))}
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -6992,7 +7173,7 @@ function ProjectTreeNode({
           <Text style={styles.projectTreeNodeMeta} numberOfLines={1}>{meta}</Text>
         </View>
       </Pressable>
-      <Pressable accessibilityRole="button" accessibilityLabel={`Open ${["client", "project folder", "field map", "design"][depth]} ${label} in project tree`} testID={`${testID}-open`}
+      <Pressable accessibilityRole="button" accessibilityLabel={`Open ${["customer", "project", "field", "design"][depth]} ${label} in project tree`} testID={`${testID}-open`}
         onPress={() => void onOpen()} onHoverIn={() => setOpenHovered(true)} onHoverOut={() => setOpenHovered(false)}
         style={styles.projectTreeNodeOpen}>
         <FolderOpen size={17} color="#e5f0e8" />
@@ -7043,53 +7224,52 @@ function SmallActionButton({
   );
 }
 
-function PendingDraftPurposePanel({
-  draft,
-  projectCrs,
-  error,
-  onCancel,
-  onSave,
-  unitSystem,
-}: {
+function PendingDraftPurposePanel({ draft, retentionKey, projectCrs, error, onCancel, onSave, unitSystem }: {
+  retentionKey: string;
   draft: PendingMapFeatureDraft | null;
   projectCrs: string;
   error: string | null;
   onCancel: () => void;
-  onSave: (option: MapDraftPurposeOption) => void;
+  onSave: (option: MapDraftPurposeOption, details?: { name: string; notes: string }) => void;
   unitSystem: PivotProject["unitSystem"];
 }): React.JSX.Element {
-  if (!draft) {
-    return (
-      <View style={styles.mapFeatureEditor}>
-        <Text style={styles.mapFeatureTitle}>No Pending Draft</Text>
-        <Text style={styles.mapFeatureMeta}>Draw a point, line, polygon, or circle before choosing a purpose.</Text>
-      </View>
-    );
-  }
+  const [selection, setSelection] = useRetainedInput(`${retentionKey}:selection`, "");
+  const [name, setName] = useRetainedInput(`${retentionKey}:name`, "");
+  const [notes, setNotes] = useRetainedInput(`${retentionKey}:notes`, "");
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [choicesOpen, setChoicesOpen] = useState(false);
+  if (!draft) return <Text style={styles.mapFeatureMeta}>Finish a drawing to choose its purpose.</Text>;
   const options = draftPurposeOptions(draft.geometryType);
-  return (
-    <View style={styles.pendingDraftPurposePanel} testID="pending-draft-purpose-panel">
-      {error ? <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.formError} testID="pending-draft-error">{error}</Text> : null}
-      <View>
-        <Text style={styles.mapFeatureTitle}>What did you draw?</Text>
-        <Text style={styles.mapFeatureMeta}>{draftGeometrySummary(draft, unitSystem, projectCrs)}</Text>
-        {draft.notes ? <Text style={styles.mapFeatureMeta}>{draft.notes}</Text> : null}
+  const optionKey = (option: MapDraftPurposeOption) => `${option.purposeType}:${option.kind}`;
+  const selected = options.find(option => optionKey(option) === selection);
+  return <View style={styles.pendingDraftPurposePanel} testID="pending-draft-purpose-panel">
+    <Text style={styles.mapFeatureTitle}>What did you draw?</Text>
+    <Text style={styles.mapFeatureMeta}>{draftGeometrySummary(draft, unitSystem, projectCrs)}</Text>
+    {Platform.OS === "web" ? React.createElement("select", {
+      "aria-label": "Drawing purpose", "data-testid": "pending-draft-purpose-select", value: selection,
+      onChange: (event: React.ChangeEvent<HTMLSelectElement>) => setSelection(event.target.value),
+      style: { width: "100%", minWidth: 0, minHeight: 44, padding: 8, fontSize: 15, background: "white", color: "#254234" },
+    }, React.createElement("option", { value: "" }, "Choose a purpose…"), ...options.map(option =>
+      React.createElement("option", { key: optionKey(option), value: optionKey(option) }, option.label)))
+      : <View><SmallActionButton label={selected?.label ?? "Choose a purpose…"} onPress={() => setChoicesOpen(!choicesOpen)} />
+        {choicesOpen ? <ScrollView style={{ maxHeight: 200 }}>{options.map(option => <SmallActionButton key={optionKey(option)}
+          label={option.label} onPress={() => { setSelection(optionKey(option)); setChoicesOpen(false); }} />)}</ScrollView> : null}</View>}
+    {selected ? <Text style={styles.mapFeatureMeta}>{selected.meta}</Text> : null}
+    {selected?.purposeType === "map_feature" ? <>
+      <SmallActionButton label={detailsOpen ? "Hide optional details" : "Name and notes (optional)"} onPress={() => setDetailsOpen(!detailsOpen)} />
+      <View style={{ display: detailsOpen ? "flex" : "none", gap: 8 }}>
+        <Text style={styles.mapFeatureMeta}>Drawing name</Text>
+        <TextInput accessibilityLabel="Drawing name" value={name} onChangeText={setName} style={styles.textInput} />
+        <Text style={styles.mapFeatureMeta}>Drawing notes</Text>
+        <TextInput accessibilityLabel="Drawing notes" value={notes} onChangeText={setNotes} multiline style={styles.textInput} />
       </View>
-      <View style={styles.consoleChoiceGrid}>
-        {options.map((option) => (
-          <ConsoleChoiceButton
-            key={`${option.purposeType}-${option.kind}`}
-            label={option.label}
-            meta={option.meta}
-            onPress={() => onSave(option)}
-          />
-        ))}
-      </View>
-      <View style={styles.inlineActions}>
-        <SmallActionButton label="Cancel Draft" onPress={onCancel} testID="pending-draft-cancel" />
-      </View>
+    </> : null}
+    {error ? <Text accessibilityRole="alert" style={styles.formError} testID="pending-draft-error">{error}</Text> : null}
+    <View style={styles.inlineActions}>
+      <SmallActionButton label="Keep drawing" disabled={!selected} testID="pending-draft-keep" onPress={() => selected && onSave(selected, { name, notes })} />
+      <SmallActionButton label="Back to drawing" onPress={onCancel} testID="pending-draft-cancel" />
     </View>
-  );
+  </View>;
 }
 
 function draftPurposeOptions(geometry: UtilityFeatureGeometry): MapDraftPurposeOption[] {
@@ -7163,20 +7343,19 @@ function draftGeometrySummary(draft: PendingMapFeatureDraft, unitSystem: PivotPr
 
 function MapFeatureEditor({
   feature,
+  unitSystem,
   onDelete,
   onRename,
   onUpdate,
 }: {
   feature: ProjectMapFeature | null;
+  unitSystem: PivotProject["unitSystem"];
   onDelete: (featureId: string) => void;
   onRename: (feature: ProjectMapFeature, name: string) => void;
   onUpdate: (feature: ProjectMapFeature) => void;
 }): React.JSX.Element {
-  const [name, setName] = useState(feature?.name ?? "");
+  const [name, setName] = useRetainedInput(`feature:${feature?.id ?? "none"}:name`, feature?.name ?? "");
 
-  useEffect(() => {
-    setName(feature?.name ?? "");
-  }, [feature?.id, feature?.name]);
 
   if (!feature) {
     return (
@@ -7187,7 +7366,7 @@ function MapFeatureEditor({
     );
   }
 
-  const geometryLabel = mapFeatureGeometryLabel(feature);
+  const geometryLabel = mapFeatureGeometryLabel(feature, unitSystem);
 
   return (
     <View style={styles.mapFeatureEditor}>
@@ -7212,10 +7391,10 @@ function MapFeatureEditor({
             onUpdate({ ...feature, geometry: { type: "Point", point } });
             return true;
           }}
-          point={feature.geometry.point}
+          point={feature.geometry.point} retentionKey={`feature:${feature.id}:point`}
         />
       ) : feature.geometry.type === "Circle" ? (
-        <CircleFeatureEditor feature={{ ...feature, geometry: feature.geometry }} onUpdate={onUpdate} />
+        <CircleFeatureEditor feature={{ ...feature, geometry: feature.geometry }} onUpdate={onUpdate} unitSystem={unitSystem} />
       ) : feature.geometry.type === "LineString" ? (
         <ProjectedPolygonEditor
           label={`${feature.name} line XY`}
@@ -7241,17 +7420,14 @@ function MapFeatureEditor({
   );
 }
 
-function CircleFeatureEditor({ feature, onUpdate }: { feature: ProjectMapFeature & { geometry: { type: "Circle"; center: XY; radiusMeters: number } }; onUpdate: (feature: ProjectMapFeature) => void }): React.JSX.Element {
-  const [radius, setRadius] = useState(String(roundCoordinate(feature.geometry.radiusMeters)));
+function CircleFeatureEditor({ feature, onUpdate, unitSystem }: { unitSystem: PivotProject["unitSystem"]; feature: ProjectMapFeature & { geometry: { type: "Circle"; center: XY; radiusMeters: number } }; onUpdate: (feature: ProjectMapFeature) => void }): React.JSX.Element {
+  const [radius, setRadius] = useRetainedInput(`feature:${feature.id}:radius`, formatDistanceInputValue(feature.geometry.radiusMeters, unitSystem));
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    setRadius(String(roundCoordinate(feature.geometry.radiusMeters)));
-  }, [feature.geometry.radiusMeters]);
 
   function applyRadius(): void {
     try {
-      const radiusMeters = requiredPositiveNumber(radius, "Circle radius");
+      const radiusMeters = preserveDistanceInput(radius, feature.geometry.radiusMeters, unitSystem, "Circle radius", true);
       onUpdate({ ...feature, geometry: { ...feature.geometry, radiusMeters } });
       setError(null);
     } catch (err) {
@@ -7267,10 +7443,10 @@ function CircleFeatureEditor({ feature, onUpdate }: { feature: ProjectMapFeature
           onUpdate({ ...feature, geometry: { ...feature.geometry, center } });
           return true;
         }}
-        point={feature.geometry.center}
+        point={feature.geometry.center} retentionKey={`feature:${feature.id}:center`}
       />
       <View style={styles.formGrid}>
-        <FormField label="Radius (m)" value={radius} onChangeText={setRadius} />
+        <FormField label={`Radius (${unitSystem === "metric" ? "m" : "ft"})`} value={radius} onChangeText={setRadius} />
       </View>
       <View style={styles.inlineActions}>
         <SmallActionButton label="Apply Radius" onPress={applyRadius} />
@@ -7279,58 +7455,40 @@ function CircleFeatureEditor({ feature, onUpdate }: { feature: ProjectMapFeature
   );
 }
 
-function mapFeatureGeometryLabel(feature: ProjectMapFeature): string {
+function mapFeatureGeometryLabel(feature: ProjectMapFeature, unitSystem: PivotProject["unitSystem"]): string {
   if (feature.geometry.type === "Point") return "Point";
   if (feature.geometry.type === "LineString") return `${feature.geometry.vertices.length} point line`;
   if (feature.geometry.type === "Polygon") return `${feature.geometry.vertices.length} point polygon`;
-  return `Circle · ${formatDistance(feature.geometry.radiusMeters, "metric")} radius`;
+  return `Circle · ${formatDistance(feature.geometry.radiusMeters, unitSystem)} radius`;
 }
 
 function MachineSettingsForm({ machine, onChange, unitSystem }: { machine: PivotMachine; onChange: (machine: PivotMachine) => void; unitSystem: PivotProject["unitSystem"] }): React.JSX.Element {
-  const [spanRows, setSpanRows] = useState(machine.spanLengthsMeters.map((span) => formatDistanceInputValue(span, unitSystem)));
-  const [overhang, setOverhang] = useState(formatDistanceInputValue(machine.overhangMeters, unitSystem));
-  const [towerClearance, setTowerClearance] = useState(formatDistanceInputValue(machine.towerClearanceBufferMeters, unitSystem));
-  const [machineClearance, setMachineClearance] = useState(formatDistanceInputValue(machine.machineClearanceBufferMeters, unitSystem));
-  const [startAngle, setStartAngle] = useState(machine.sweep.mode === "partial_circle" ? String(machine.sweep.startAngleDegrees) : "210");
-  const [stopAngle, setStopAngle] = useState(machine.sweep.mode === "partial_circle" ? String(machine.sweep.stopAngleDegrees) : "35");
-  const [direction, setDirection] = useState<"clockwise" | "counterclockwise">(machine.sweep.mode === "partial_circle" ? machine.sweep.direction : "counterclockwise");
-  const [mode, setMode] = useState<PivotSweep["mode"]>(machine.sweep.mode);
-  const [lrduTireId, setLrduTireId] = useState(machine.driveUnits?.lrdu?.tire?.id ?? "valley-public-custom-required");
-  const [sduTireId, setSduTireId] = useState(machine.driveUnits?.sdu?.tire?.id ?? "valley-public-custom-required");
-  const [lrduRpm, setLrduRpm] = useState(machine.driveUnits?.lrdu?.customMotorRpm !== undefined ? String(machine.driveUnits.lrdu.customMotorRpm) : "");
-  const [sduRpm, setSduRpm] = useState(machine.driveUnits?.sdu?.customMotorRpm !== undefined ? String(machine.driveUnits.sdu.customMotorRpm) : "");
-  const [operatorSpeed, setOperatorSpeed] = useState(machine.driveUnits?.lrdu?.operatorMeasuredSpeedMetersPerMinute !== undefined ? String(machine.driveUnits.lrdu.operatorMeasuredSpeedMetersPerMinute) : "");
-  const [sduOperatorSpeed, setSduOperatorSpeed] = useState(machine.driveUnits?.sdu?.operatorMeasuredSpeedMetersPerMinute !== undefined ? String(machine.driveUnits.sdu.operatorMeasuredSpeedMetersPerMinute) : "");
+  const [spanRows, setSpanRows] = useRetainedInput("machine:spanRows", machine.spanLengthsMeters.map((span) => formatDistanceInputValue(span, unitSystem)));
+  const [overhang, setOverhang] = useRetainedInput("machine:overhang", formatDistanceInputValue(machine.overhangMeters, unitSystem));
+  const [towerClearance, setTowerClearance] = useRetainedInput("machine:towerClearance", formatDistanceInputValue(machine.towerClearanceBufferMeters, unitSystem));
+  const [machineClearance, setMachineClearance] = useRetainedInput("machine:machineClearance", formatDistanceInputValue(machine.machineClearanceBufferMeters, unitSystem));
+  const [startAngle, setStartAngle] = useRetainedInput("machine:startAngle", machine.sweep.mode === "partial_circle" ? String(machine.sweep.startAngleDegrees) : "210");
+  const [stopAngle, setStopAngle] = useRetainedInput("machine:stopAngle", machine.sweep.mode === "partial_circle" ? String(machine.sweep.stopAngleDegrees) : "35");
+  const [direction, setDirection] = useRetainedInput<"clockwise" | "counterclockwise">("machine:direction", machine.sweep.mode === "partial_circle" ? machine.sweep.direction : "counterclockwise");
+  const [mode, setMode] = useRetainedInput<PivotSweep["mode"]>("machine:mode", machine.sweep.mode);
+  const [lrduTireId, setLrduTireId] = useRetainedInput("machine:lrduTireId", machine.driveUnits?.lrdu?.tire?.id ?? "valley-public-custom-required");
+  const [sduTireId, setSduTireId] = useRetainedInput("machine:sduTireId", machine.driveUnits?.sdu?.tire?.id ?? "valley-public-custom-required");
+  const [lrduRpm, setLrduRpm] = useRetainedInput("machine:lrduRpm", machine.driveUnits?.lrdu?.customMotorRpm !== undefined ? String(machine.driveUnits.lrdu.customMotorRpm) : "");
+  const [sduRpm, setSduRpm] = useRetainedInput("machine:sduRpm", machine.driveUnits?.sdu?.customMotorRpm !== undefined ? String(machine.driveUnits.sdu.customMotorRpm) : "");
+  const [operatorSpeed, setOperatorSpeed] = useRetainedInput("machine:operatorSpeed", machine.driveUnits?.lrdu?.operatorMeasuredSpeedMetersPerMinute !== undefined ? formatDistanceInputValue(machine.driveUnits.lrdu.operatorMeasuredSpeedMetersPerMinute, unitSystem) : "");
+  const [sduOperatorSpeed, setSduOperatorSpeed] = useRetainedInput("machine:sduOperatorSpeed", machine.driveUnits?.sdu?.operatorMeasuredSpeedMetersPerMinute !== undefined ? formatDistanceInputValue(machine.driveUnits.sdu.operatorMeasuredSpeedMetersPerMinute, unitSystem) : "");
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    setSpanRows(machine.spanLengthsMeters.map((span) => formatDistanceInputValue(span, unitSystem)));
-    setOverhang(formatDistanceInputValue(machine.overhangMeters, unitSystem));
-    setTowerClearance(formatDistanceInputValue(machine.towerClearanceBufferMeters, unitSystem));
-    setMachineClearance(formatDistanceInputValue(machine.machineClearanceBufferMeters, unitSystem));
-    setLrduTireId(machine.driveUnits?.lrdu?.tire?.id ?? "valley-public-custom-required");
-    setSduTireId(machine.driveUnits?.sdu?.tire?.id ?? "valley-public-custom-required");
-    setLrduRpm(machine.driveUnits?.lrdu?.customMotorRpm !== undefined ? String(machine.driveUnits.lrdu.customMotorRpm) : "");
-    setSduRpm(machine.driveUnits?.sdu?.customMotorRpm !== undefined ? String(machine.driveUnits.sdu.customMotorRpm) : "");
-    setOperatorSpeed(machine.driveUnits?.lrdu?.operatorMeasuredSpeedMetersPerMinute !== undefined ? String(machine.driveUnits.lrdu.operatorMeasuredSpeedMetersPerMinute) : "");
-    setSduOperatorSpeed(machine.driveUnits?.sdu?.operatorMeasuredSpeedMetersPerMinute !== undefined ? String(machine.driveUnits.sdu.operatorMeasuredSpeedMetersPerMinute) : "");
-    setMode(machine.sweep.mode);
-    if (machine.sweep.mode === "partial_circle") {
-      setStartAngle(String(machine.sweep.startAngleDegrees));
-      setStopAngle(String(machine.sweep.stopAngleDegrees));
-      setDirection(machine.sweep.direction);
-    }
-  }, [machine, unitSystem]);
 
   function apply(): void {
     try {
-      const spanValues = spanRows.map((value, index) => requiredPositiveDistanceInput(value.trim(), unitSystem, `Span ${index + 1}`));
+      const spanValues = spanRows.map((value, index) => preserveDistanceInput(value, machine.spanLengthsMeters[index], unitSystem, `Span ${index + 1}`, true));
       const nextMachine: PivotMachine = {
         ...machine,
         spanLengthsMeters: spanValues,
-        overhangMeters: requiredNonNegativeDistanceInput(overhang, unitSystem, "Overhang"),
-        towerClearanceBufferMeters: requiredNonNegativeDistanceInput(towerClearance, unitSystem, "Tower clearance"),
-        machineClearanceBufferMeters: requiredNonNegativeDistanceInput(machineClearance, unitSystem, "Machine clearance"),
+        overhangMeters: preserveDistanceInput(overhang, machine.overhangMeters, unitSystem, "Overhang"),
+        towerClearanceBufferMeters: preserveDistanceInput(towerClearance, machine.towerClearanceBufferMeters, unitSystem, "Tower clearance"),
+        machineClearanceBufferMeters: preserveDistanceInput(machineClearance, machine.machineClearanceBufferMeters, unitSystem, "Machine clearance"),
         sweep: mode === "full_circle"
           ? { mode: "full_circle" }
           : {
@@ -7340,8 +7498,8 @@ function MachineSettingsForm({ machine, onChange, unitSystem }: { machine: Pivot
             direction,
           },
         driveUnits: {
-          lrdu: driveUnitConfig("lrdu", lrduTireId, lrduRpm, operatorSpeed),
-          sdu: driveUnitConfig("sdu", sduTireId, sduRpm, sduOperatorSpeed),
+          lrdu: driveUnitConfig("lrdu", lrduTireId, lrduRpm, operatorSpeed, unitSystem, machine.driveUnits?.lrdu?.operatorMeasuredSpeedMetersPerMinute),
+          sdu: driveUnitConfig("sdu", sduTireId, sduRpm, sduOperatorSpeed, unitSystem, machine.driveUnits?.sdu?.operatorMeasuredSpeedMetersPerMinute),
         },
       };
       setError(null);
@@ -7440,8 +7598,8 @@ function MachineSettingsForm({ machine, onChange, unitSystem }: { machine: Pivot
           </View>
           <FormField label="LRDU motor RPM custom" value={lrduRpm} onChangeText={setLrduRpm} />
           <FormField label="SDU motor RPM custom" value={sduRpm} onChangeText={setSduRpm} />
-          <FormField label="LRDU measured speed (m/min)" value={operatorSpeed} onChangeText={setOperatorSpeed} />
-          <FormField label="SDU measured speed (m/min)" value={sduOperatorSpeed} onChangeText={setSduOperatorSpeed} />
+          <FormField label={`LRDU measured speed (${unitSystem === "metric" ? "m" : "ft"}/min)`} value={operatorSpeed} onChangeText={setOperatorSpeed} />
+          <FormField label={`SDU measured speed (${unitSystem === "metric" ? "m" : "ft"}/min)`} value={sduOperatorSpeed} onChangeText={setSduOperatorSpeed} />
         </View>
         <Text style={styles.mapFeatureMeta}>
           Tire options are public source labels. RPM fields require operator or curated manual evidence; blank RPM stays unverified/source required. {selectedLrduTire?.sourceRefs[0]?.sourceId ?? "LRDU source required"} · {selectedSduTire?.sourceRefs[0]?.sourceId ?? "SDU source required"}.
@@ -7451,16 +7609,23 @@ function MachineSettingsForm({ machine, onChange, unitSystem }: { machine: Pivot
   );
 }
 
+function preserveDistanceInput(value: string, original: number | undefined, units: PivotProject["unitSystem"], label: string, positive = false): number {
+  if (original !== undefined && value.trim() === formatDistanceInputValue(original, units)) return original;
+  return positive ? requiredPositiveDistanceInput(value, units, label) : requiredNonNegativeDistanceInput(value, units, label);
+}
+
 function driveUnitConfig(
   role: AdvisoryDriveUnitConfig["role"],
   tireId: string,
   rpmInput: string,
   speedInput = "",
+  unitSystem: PivotProject["unitSystem"] = "metric",
+  originalSpeed?: number,
 ): AdvisoryDriveUnitConfig {
   const tire = ADVISORY_DRIVE_UNIT_TIRE_OPTIONS.find((option) => option.id === tireId);
   const customMotorRpm = rpmInput.trim() ? requiredFiniteNumber(rpmInput, `${role.toUpperCase()} motor RPM`) : undefined;
   if (customMotorRpm !== undefined && customMotorRpm <= 0) throw new Error(`${role.toUpperCase()} motor RPM must be greater than zero.`);
-  const operatorMeasuredSpeedMetersPerMinute = speedInput.trim() ? requiredPositiveDistanceInput(speedInput, "metric", "Measured speed") : undefined;
+  const operatorMeasuredSpeedMetersPerMinute = speedInput.trim() ? preserveDistanceInput(speedInput, originalSpeed, unitSystem, "Measured speed", true) : undefined;
   return {
     role,
     advisoryOnly: true,
@@ -7496,6 +7661,7 @@ function FormField({
     <View style={styles.formField}>
       <Text style={styles.formLabel}>{label}</Text>
       <TextInput
+        accessibilityLabel={label}
         keyboardType={keyboardType}
         onChangeText={onChangeText}
         style={styles.textInput}
@@ -7584,6 +7750,7 @@ function requiredFiniteNumber(value: string, label: string): number {
 }
 
 const styles = StyleSheet.create({
+  workflowContext: { paddingHorizontal: 12, paddingVertical: 4, gap: 8, flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", backgroundColor: "#edf3ed" },
   safeArea: {
     backgroundColor: "#edf1eb",
     flex: 1,
@@ -7700,6 +7867,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   leftRail: {
+    flexGrow: 0,
+    flexShrink: 0,
     backgroundColor: "#13211b",
     borderRightColor: "#26392f",
     borderRightWidth: 1,
@@ -7720,8 +7889,11 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     width: 292,
   },
+  leftRailContent: {
+    flexGrow: 1,
+    gap: 8,
+  },
   leftRailConsoleCollapsed: {
-    alignItems: "center",
     paddingHorizontal: 4,
     width: 64,
   },
@@ -7747,8 +7919,10 @@ const styles = StyleSheet.create({
   },
   projectTreePanel: {
     flex: 1,
+    flexBasis: "auto",
+    flexShrink: 0,
     gap: 6,
-    minHeight: 0,
+    minHeight: 440,
   },
   projectTreeTitle: {
     color: "#eef7f1",
@@ -7803,7 +7977,7 @@ const styles = StyleSheet.create({
   },
   projectTreeScroll: {
     flex: 1,
-    minHeight: 0,
+    minHeight: 120,
   },
   projectTreeScrollCompact: {
     flexGrow: 0,

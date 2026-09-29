@@ -418,6 +418,7 @@ export function captureEvidenceFromObservation(input: {
   transport: GnssTransportKind;
   sourceCoordinateFrame: string;
 }): GnssCaptureEvidence {
+  if (input.transport === "bluetooth_spp" || input.transport === "local_udp") throw new Error("This transport requires operational fixed-GGA evidence.");
   return {
     schemaVersion: "gnss-capture-v1",
     observationId: input.observation.id,

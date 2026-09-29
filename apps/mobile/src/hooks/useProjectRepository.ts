@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { parseDesignDraftDocument, parseProjectDocument, type DesignDraft, type LayoutResult, type PivotProject, type FieldDesign } from "@cplayout/core";
+import { parseFieldDesignDocument, parseLayoutSessionDocument, parseDesignDraftDocument, parseProjectDocument, type LayoutSession, type LayoutObservation, type DesignDraft, type LayoutResult, type PivotProject, type FieldDesign } from "@cplayout/core";
 import {
   createCatalogId, exportFileAsync, projectRepository, workspaceBackendInfo, workspaceDesignCatalog,
   type CatalogProjectRecord, type CreatedProjectFieldMapWorkspace, type CreatedProjectWorkspace,
@@ -25,6 +25,7 @@ export type OpenedDesign = (OpenedProject & { kind: "project" }) | {
   kind: "field"; field: FieldDesign; persistenceRevision: number; designRevision: number; context: ProjectCatalogContext;
   originalProjectDocument?: string;
 };
+export interface OpenedLayoutSession { session: LayoutSession; persistenceRevision: number }
 export interface SaveOutcome { saved: boolean; persistenceRevision?: number }
 export type OpenedDraft = Extract<OpenedDesign, { kind: "draft" }>;
 export type OpenedField = Extract<OpenedDesign, { kind: "field" }>;
@@ -47,6 +48,20 @@ export interface ProjectWorkspaceStatus {
   canCopyProject: boolean;
   canSaveDraft: boolean;
   canSaveField: boolean;
+  canCreateCompleteDesign: boolean;
+  createCompleteDesignFromDraft: (designId: string, draft: DesignDraft, revision: number, designRevision: number, owner?: SaveFeedbackOwner) => Promise<Extract<OpenedDesign, { kind: "project" }> & { sourceDraftRevision: number }>;
+  importDesignDocument: (input: { fieldMapId: string; document: string; name?: string; originalProjectDocument?: string }, revision: number, owner?: SaveFeedbackOwner) => Promise<OpenedDesign>;
+  workspaceVersion: WorkspaceDocument["workspaceVersion"] | null;
+  layoutSessions: LayoutSession[];
+  canSaveLayout: boolean;
+  upgradeLayoutWorkspace: (revision: number) => Promise<number>;
+  createLayoutSession: (input: { fieldMapId: string; targetDocument: string; name: string }, revision: number) => Promise<OpenedLayoutSession>;
+  openLayoutSession: (sessionId: string) => Promise<OpenedLayoutSession>;
+  appendLayoutObservation: (sessionId: string, observation: LayoutObservation, revision: number, sessionRevision: number, owner?: SaveFeedbackOwner) => Promise<OpenedLayoutSession>;
+  renameLayoutSession: (sessionId: string, name: string, revision: number, sessionRevision: number) => Promise<OpenedLayoutSession>;
+  archiveLayoutSession: (sessionId: string, archived: boolean, revision: number, sessionRevision: number) => Promise<OpenedLayoutSession>;
+  copyLayoutSession: (sessionId: string, name: string, revision: number, sessionRevision: number) => Promise<OpenedLayoutSession>;
+  importLayoutSession: (document: string, fieldMapId: string, revision: number) => Promise<OpenedLayoutSession>;
   createFieldFromSavedProject: (designId: string, revision: number) => Promise<OpenedField>;
   saveFieldDesign: (designId: string, field: FieldDesign, revision: number, designRevision: number, owner?: SaveFeedbackOwner) => Promise<SaveOutcome & { designRevision?: number }>;
   createDesignDraft: (input: { fieldMapId: string; draft: DesignDraft }, revision: number | null, owner?: SaveFeedbackOwner) => Promise<OpenedDraft | null>;
@@ -91,6 +106,8 @@ export async function readVersionedDesign(repository: VersionedWorkspaceReposito
 
 export function useProjectRepository(): ProjectWorkspaceStatus {
   const [catalog, setCatalog] = useState<ProjectCatalog>({ clients: [], projects: [], fieldMaps: [], designs: [] });
+  const [workspaceVersion, setWorkspaceVersion] = useState<WorkspaceDocument["workspaceVersion"] | null>(null);
+  const [layoutSessions, setLayoutSessions] = useState<LayoutSession[]>([]);
   const [designCatalog, setDesignCatalog] = useState<WorkspaceDesignCatalog | null>(null);
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [statusMessage, setStatusMessage] = useState(`Storage: ${projectRepository.backendLabel}`);
@@ -118,6 +135,8 @@ export function useProjectRepository(): ProjectWorkspaceStatus {
   const publishSnapshot = useCallback((workspace: WorkspaceDocument) => {
     if (latestCatalogRevision.current !== null && workspace.revision < latestCatalogRevision.current) return;
     const completeCatalog = workspaceDesignCatalog(workspace);
+    setWorkspaceVersion(workspace.workspaceVersion);
+    setLayoutSessions((workspace.layoutSessions ?? []).map(entry => parseLayoutSessionDocument(entry.document)));
     latestCatalogRevision.current = workspace.revision;
     setCatalogRevision(workspace.revision);
     setDesignCatalog(completeCatalog);
@@ -152,9 +171,10 @@ export function useProjectRepository(): ProjectWorkspaceStatus {
 
   useEffect(() => { void refreshProjects(); return () => { refreshSequence.current++; }; }, [refreshProjects]);
 
-  async function execute(command: WorkspaceCommand, revision: number | null | undefined) {
+  async function execute(command: WorkspaceCommand, revision: number | null | undefined, owner?: SaveFeedbackOwner) {
     if (!versioned || revision === null || revision === undefined) throw new Error("Refresh the catalog or reopen the project before saving; no loaded workspace revision is available.");
-    const receipt = await versioned.executeAsync(revision, command);
+    if (owner && !owner.isCurrent()) throw new Error("The active editor or receiver changed; retry from the current screen.");
+    const receipt = await versioned.executeAsync(revision, command, owner ? () => owner.isCurrent() : undefined);
     refreshSequence.current++;
     publishSnapshot(receipt.workspace);
     return receipt;
@@ -213,6 +233,16 @@ export function useProjectRepository(): ProjectWorkspaceStatus {
     }
   }
 
+  async function requireWebWorkflow(): Promise<void> {
+    if (!versioned || (await projectRepository.getBackendInfoAsync()).runtime !== "web") throw new Error("This workflow requires the browser workspace. Native activation is pending verification.");
+  }
+  async function layoutMutation(command: WorkspaceCommand, revision: number, owner?: SaveFeedbackOwner): Promise<OpenedLayoutSession> {
+    await requireWebWorkflow();
+    const receipt = await execute(command, revision, owner);
+    const session = receipt.value as LayoutSession;
+    if (!owner || owner.isCurrent()) { clearProjectError(); setStatusMessage(`Saved Layout session ${session.name}.`); }
+    return { session, persistenceRevision: receipt.workspace.revision };
+  }
   const now = () => new Date().toISOString();
   const id = createCatalogId;
   return {
@@ -221,6 +251,57 @@ export function useProjectRepository(): ProjectWorkspaceStatus {
     canCopyProject: Boolean(versioned),
     canSaveDraft: Boolean(versioned),
     canSaveField: Boolean(versioned) && backendInfo?.runtime === "web",
+    workspaceVersion, layoutSessions, canSaveLayout: Boolean(versioned) && backendInfo?.runtime === "web",
+    canCreateCompleteDesign: Boolean(versioned) && backendInfo?.runtime === "web",
+    async importDesignDocument(input, revision, owner) {
+      await requireWebWorkflow();
+      const designId = id("design");
+      const receipt = await execute({ type: "import_design_document", ...input, designId, payloadId: id("imported-design"), now: now() }, revision, owner);
+      // Read from the committed receipt, so a later operation cannot change the returned import.
+      const design = receipt.workspace.catalog.designs.find(item => item.id === designId)!;
+      const field = receipt.workspace.catalog.fieldMaps.find(item => item.id === design.fieldMapId)!;
+      const folder = receipt.workspace.catalog.projects.find(item => item.id === field.projectId)!;
+      const context = { clientId: folder.clientId, projectId: folder.id, fieldMapId: field.id, designId };
+      const shared = { persistenceRevision: receipt.workspace.revision, context };
+      if (!owner || owner.isCurrent()) { clearProjectError(); setStatusMessage(`Imported ${design.name}.`); }
+      if (design.kind === "project") return { ...shared, kind: "project", project: parseProjectDocument(receipt.workspace.projectDocuments.find(entry => entry.summary.id === design.pivotProjectId)!.document) };
+      if (design.kind === "draft") return { ...shared, kind: "draft", designRevision: design.revision, draft: parseDesignDraftDocument(receipt.workspace.draftDocuments.find(entry => entry.id === design.draftId)!.document) };
+      const entry = receipt.workspace.fieldDocuments!.find(item => item.id === design.fieldDesignId)!;
+      return { ...shared, kind: "field", designRevision: design.revision, field: parseFieldDesignDocument(entry.document), ...(entry.originalProjectDocument === undefined ? {} : { originalProjectDocument: entry.originalProjectDocument }) };
+    },
+    async createCompleteDesignFromDraft(designId, draft, revision, designRevision, owner) {
+      await requireWebWorkflow();
+      const completeDesignId = id("design"), projectId = id("complete-design");
+      const receipt = await execute({ type: "create_complete_design_from_draft", sourceDesignId: designId,
+        expectedDesignRevision: designRevision, draft, designId: completeDesignId, projectId, name: draft.name, now: now() }, revision, owner);
+      const source = receipt.workspace.catalog.designs.find(item => item.id === designId)!;
+      const field = receipt.workspace.catalog.fieldMaps.find(item => item.id === source.fieldMapId)!;
+      const folder = receipt.workspace.catalog.projects.find(item => item.id === field.projectId)!;
+      if (!owner || owner.isCurrent()) { clearProjectError(); setStatusMessage(`Created complete design ${draft.name}; the source draft is preserved.`); }
+      return { kind: "project", project: receipt.value as PivotProject, persistenceRevision: receipt.workspace.revision,
+        sourceDraftRevision: source.revision, context: { clientId: folder.clientId, projectId: folder.id, fieldMapId: field.id, designId: completeDesignId } };
+    },
+    async upgradeLayoutWorkspace(revision) {
+      await requireWebWorkflow();
+      const receipt = await execute({ type: "upgrade_workspace_to_v3", now: now() }, revision);
+      setStatusMessage("Workspace upgraded for Layout; the exact previous workspace is retained in recovery data.");
+      return receipt.workspace.revision;
+    },
+    createLayoutSession: (input, revision) => layoutMutation({ type: "create_layout_session", ...input, sessionId: id("layout"), now: now() }, revision),
+    async openLayoutSession(sessionId) {
+      await requireWebWorkflow();
+      const workspace = await versioned!.readAsync();
+      const entry = workspace.layoutSessions?.find(item => item.id === sessionId);
+      if (!entry) throw new Error("Layout session was not found. Refresh the workspace and try again.");
+      publishSnapshot(workspace);
+      return { session: parseLayoutSessionDocument(entry.document), persistenceRevision: workspace.revision };
+    },
+    appendLayoutObservation: (sessionId, observation, revision, sessionRevision, owner) => layoutMutation({ type: "append_layout_observation",
+      sessionId, observation, expectedSessionRevision: sessionRevision, now: now() }, revision, owner),
+    renameLayoutSession: (sessionId, name, revision, sessionRevision) => layoutMutation({ type: "rename_layout_session", sessionId, name, expectedSessionRevision: sessionRevision, now: now() }, revision),
+    archiveLayoutSession: (sessionId, archived, revision, sessionRevision) => layoutMutation({ type: "archive_layout_session", sessionId, archived, expectedSessionRevision: sessionRevision, now: now() }, revision),
+    copyLayoutSession: (sourceSessionId, name, revision, sessionRevision) => layoutMutation({ type: "copy_layout_session", sourceSessionId, sessionId: id("layout"), name, expectedSessionRevision: sessionRevision, now: now() }, revision),
+    importLayoutSession: (document, fieldMapId, revision) => layoutMutation({ type: "import_layout_session", document, fieldMapId, now: now() }, revision),
     async createFieldFromSavedProject(designId, revision) {
       if (!versioned || (await projectRepository.getBackendInfoAsync()).runtime !== "web") throw new Error("Independent field storage requires the web workspace; native activation is pending verification.");
       const source = await versioned.readDesignAsync(designId);
@@ -263,7 +344,7 @@ export function useProjectRepository(): ProjectWorkspaceStatus {
     async saveDesignDraft(designId, draft, revision, designRevision, owner) {
       try {
         const receipt = await execute({ type: "save_design_draft", designId, draft,
-          expectedDesignRevision: designRevision, now: now() }, revision);
+          expectedDesignRevision: designRevision, syncCatalogName: true, now: now() }, revision);
         const design = receipt.workspace.catalog.designs.find(item => item.id === designId)!;
         if (!owner || owner.isCurrent()) { clearProjectError(); setStatusMessage(`Saved ${draft.name}.`); }
         return { saved: true, persistenceRevision: receipt.workspace.revision, designRevision: design.revision };
@@ -288,11 +369,11 @@ export function useProjectRepository(): ProjectWorkspaceStatus {
     openDesignProject: designId => versioned ? readVersionedDesign(versioned, designId)
       : open(designId, true).then((loaded) => ({ ...loaded, kind: "project" as const })),
     createClient: (input, revision) => mutate<ClientRecord>({ type: "create_client", input, id: id("client"), now: now() }, revision,
-      () => projectRepository.createClientAsync(input), record => `Created client folder ${record.displayName}.`),
+      () => projectRepository.createClientAsync(input), record => `Created customer ${record.displayName}.`),
     updateClient: (input, revision) => mutate<ClientRecord>({ type: "update_client", input, now: now() }, revision,
-      () => projectRepository.updateClientAsync(input), record => `Updated client folder ${record.displayName}.`),
+      () => projectRepository.updateClientAsync(input), record => `Updated customer ${record.displayName}.`),
     deleteClient: async (clientId, revision) => (await mutate<void>({ type: "delete_client", clientId, now: now() }, revision,
-      () => projectRepository.deleteClientAsync(clientId), () => "Deleted empty client folder.")) !== null,
+      () => projectRepository.deleteClientAsync(clientId), () => "Deleted empty customer folder.")) !== null,
     deleteProject: async (projectId, revision) => (await mutate<void>({ type: "delete_project", projectId, now: now() }, revision,
       () => projectRepository.deleteProjectAsync(projectId), () => "Deleted local project entry.")) !== null,
     createProjectWithInitialDesign: (input, revision) => mutate<CreatedProjectWorkspace>({ type: "create_project_with_initial_design", input, now: now() }, revision,

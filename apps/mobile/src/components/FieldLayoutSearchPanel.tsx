@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Pressable, StyleSheet, Switch, Text, TextInput, View } from "react-native";
-import type { FieldDesign, FieldPivotMachine } from "@cplayout/core";
+import { formatDistance, type FieldDesign, type FieldPivotMachine } from "@cplayout/core";
 import {
   LAYOUT_SEARCH_MODEL_VERSION, LAYOUT_SEARCH_REQUEST_VERSION, layoutSearchResultMatches, searchFieldLayoutSteps,
   type LayoutSearchResult, type LayoutSearchTemplate,
@@ -62,7 +62,7 @@ export function FieldLayoutSearchPanel({ field, revision, blocked, onAdopt }: {
   const best = result?.value.best;
   return <View style={styles.card} testID="field-search-panel">
     <Text style={styles.heading}>Compare pivot locations</Text>
-    <Text style={styles.text}>Saved machines stay at their current locations unless you allow a move. Optional copies use the exact saved equipment. No dimensions are resized.</Text>
+    <Text style={styles.text}>Saved machines stay at their current locations unless you allow a move. Optional copies use the exact saved equipment. No dimensions are resized. Comparing does not change the saved field; use the reviewed layout to apply a result.</Text>
     {field.machines.map(machine => <View key={machine.id} style={styles.row}>
       <View style={styles.grow}><Text style={styles.label}>{machine.configuration.name}</Text>
         <Text style={styles.text}>Allow center to move</Text></View>
@@ -83,11 +83,11 @@ export function FieldLayoutSearchPanel({ field, revision, blocked, onAdopt }: {
       {!current && <Text style={styles.error}>The field changed. Compare layouts again before adopting a result.</Text>}
       {best ? <>
         <Text style={styles.text}>Best found: {best.irrigatedUnionAcres.toFixed(2)} net acres | {best.machineCount} machines</Text>
-        <Text style={styles.text}>Overlap: {(best.overlapSquareMeters / 4046.8564224).toFixed(2)} acres | Clearance beyond required gap: {best.minimumPairClearanceMeters === null ? "No machine pair" : `${best.minimumPairClearanceMeters.toFixed(2)} m`}</Text>
+        <Text style={styles.text}>Overlap: {(best.overlapSquareMeters / 4046.8564224).toFixed(2)} acres | Clearance beyond required gap: {best.minimumPairClearanceMeters === null ? "No machine pair" : formatDistance(best.minimumPairClearanceMeters, "us_survey_feet")}</Text>
         <Text style={styles.text}>Equipment cost: {best.cost.amount === null ? "Unavailable — exact equipment prices have not been supplied" : `${best.cost.currencyCode} ${best.cost.amount.toFixed(2)}`}</Text>
-        {result.value.greedyBaseline && <Text style={styles.text}>Greedy comparison: {result.value.greedyBaseline.irrigatedUnionAcres.toFixed(2)} net acres on this search's candidate set.</Text>}
-        {best.machines.map(item => <Text style={styles.text} key={item.candidateId}>{item.machine.configuration.name}: X {item.machine.pivotCenter.x.toFixed(3)}, Y {item.machine.pivotCenter.y.toFixed(3)} {item.pinned ? "(pinned)" : "(proposed)"}</Text>)}
-        <Action label="Adopt reviewed layout" disabled={!current || blocked || running} id="field-search-adopt" onPress={() => {
+        {result.value.greedyBaseline && <Text style={styles.text}>Starting comparison: {result.value.greedyBaseline.irrigatedUnionAcres.toFixed(2)} net acres on this search's candidate set.</Text>}
+        {best.machines.map(item => <Text style={styles.text} key={item.candidateId}>{item.machine.configuration.name} · {item.machine.id}: {item.pinned ? "Saved location kept" : "Proposed location"} · {formatDistance(item.machine.configuration.spanLengthsMeters.reduce((sum, span) => sum + span, 0), "us_survey_feet")} total span length</Text>)}
+        <Action label="Use this reviewed layout" disabled={!current || blocked || running} id="field-search-adopt" onPress={() => {
           if (current && onAdopt(best.machines.map(item => item.machine), result.value.requestKey.fieldRevision, result.unlocked)) setResult(null);
         }} />
       </> : <Text style={styles.text}>No eligible complete layout was found.</Text>}

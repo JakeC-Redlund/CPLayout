@@ -1,6 +1,6 @@
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import { readFile, writeFile } from "node:fs/promises";
-import { parseFieldDesignDocument, parseFieldLayoutTarget, sampleProject, type FieldDesign, type FieldPivotMachine } from "../../packages/core/src";
+import { feetToMeters, formatDistanceInputValue, metersToFeet, parseFieldDesignDocument, parseFieldLayoutTarget, sampleProject, type FieldDesign, type FieldPivotMachine } from "../../packages/core/src";
 import { buildFieldDesignArchiveBundle, exportFieldDesignArchiveZip, importFieldDesignArchiveZip } from "../../packages/project-store/src/fieldDesignArchive";
 import { applyWorkspaceCommand } from "../../packages/project-store/src/workspaceCommands";
 import { emptyWorkspaceDocument, serializeWorkspaceDocument } from "../../packages/project-store/src/workspaceDocument";
@@ -55,10 +55,13 @@ async function seed(context: BrowserContext) {
 }
 async function openCatalogDesign(page: Page, id = designId) {
   await page.goto("/");
-  const drawer = page.getByRole("button", { name: "Open project drawer" });
-  if (await drawer.isVisible()) await drawer.click();
-  const open = page.getByTestId(`catalog-design-${id}-open`);
-  if (test.info().project.use.hasTouch) await open.tap(); else await open.click();
+  const resume = await page.evaluate(() => JSON.parse(localStorage.getItem("cplayout-desktop-context-v1") ?? "null"));
+  if (!resume?.editorOpen || resume?.context?.designId !== id) {
+    const drawer = page.getByRole("button", { name: "Open project drawer" });
+    if (await drawer.isVisible()) await drawer.click();
+    const open = page.getByTestId(`catalog-design-${id}-open`);
+    if (test.info().project.use.hasTouch) await open.tap(); else await open.click();
+  }
 }
 async function openField(page: Page) {
   await openCatalogDesign(page);
@@ -69,7 +72,12 @@ async function storedField(page: Page): Promise<FieldDesign> {
   return parseFieldDesignDocument(workspace.fieldDocuments!.find(entry => entry.id === fieldId)!.document);
 }
 async function applyInputs(page: Page, values: Record<string, string>) {
-  for (const [key, value] of Object.entries(values)) await page.getByTestId(`field-input-${key}`).fill(value);
+  // Fixtures state canonical metres; normal machine inputs are feet.
+  const lengths = new Set(["x", "y", "spans", "overhang", "endGun", "towerClearance", "machineClearance"]);
+  for (const [key, value] of Object.entries(values)) {
+    const entered = lengths.has(key) ? value.split(",").map(part => String(metersToFeet(Number(part.trim())))).join(", ") : value;
+    await page.getByTestId(`field-input-${key}`).fill(entered);
+  }
   await page.getByTestId("field-apply-machine").click();
 }
 async function save(page: Page) {
@@ -104,19 +112,21 @@ test("independent edits autosave, reopen, undo, redo and export without changing
   await expect(page.getByTestId("field-save-state")).toContainText("Saved");
   const edited = await storedField(page);
   expect(edited.machines[0]).toEqual(initial.machines[0]);
-  expect(edited.machines[1]).toEqual({ ...initial.machines[1], pivotCenter: editedCenter, configuration: {
-    ...initial.machines[1].configuration, spanLengthsMeters: [35.125, 44.375, 29.0625], overhangMeters: 14.875 } });
+  // Explicitly edited values traverse the feet input conversion; untouched fields remain byte-exact.
+  const enteredMeters = (value: number) => feetToMeters(metersToFeet(value));
+  expect(edited.machines[1]).toEqual({ ...initial.machines[1], pivotCenter: { x: enteredMeters(editedCenter.x), y: enteredMeters(editedCenter.y) }, configuration: {
+    ...initial.machines[1].configuration, spanLengthsMeters: [35.125, 44.375, 29.0625].map(enteredMeters), overhangMeters: enteredMeters(14.875) } });
   expect((await readWorkspace(page)).projectDocuments).toEqual(originalWorkspace.projectDocuments);
   await openField(page);
   await page.getByTestId(`field-machine-${secondId}`).click();
-  await expect(page.getByTestId("field-input-spans")).toHaveValue("35.125, 44.375, 29.0625");
-  await expect(page.getByTestId("field-input-x")).toHaveValue(String(editedCenter.x));
+  await expect(page.getByTestId("field-input-spans")).toHaveValue([35.125, 44.375, 29.0625].map(value => formatDistanceInputValue(value, "us_survey_feet")).join(", "));
+  await expect(page.getByTestId("field-input-x")).toHaveValue(formatDistanceInputValue(editedCenter.x, "us_survey_feet"));
   await page.getByTestId("field-autosave").getByRole("switch").uncheck();
   await applyInputs(page, { endGun: "22.625" });
   await page.getByTestId("field-undo").click();
-  await expect(page.getByTestId("field-input-endGun")).toHaveValue("17.625");
+  await expect(page.getByTestId("field-input-endGun")).toHaveValue(formatDistanceInputValue(17.625, "us_survey_feet"));
   await page.getByTestId("field-redo").click();
-  await expect(page.getByTestId("field-input-endGun")).toHaveValue("22.625");
+  await expect(page.getByTestId("field-input-endGun")).toHaveValue(formatDistanceInputValue(22.625, "us_survey_feet"));
   await save(page);
   const saved = await storedField(page);
   const archive = importFieldDesignArchiveZip(await downloadBytes(page, "field-export"));
@@ -168,9 +178,13 @@ test("stale field tabs retain edits but cannot overwrite a newer field save", as
     const saved = await readWorkspace(page);
     await second.getByTestId(`field-machine-${secondId}`).click();
     await applyInputs(second, { name: "Retained stale-tab edit" });
+    await second.getByTestId("field-save").click();
+    await expect(second.getByTestId("field-feedback")).toContainText("revision changed");
+    await expect(second.getByTestId("field-receipt-conflict")).toContainText("saved field changed");
     for (let attempt = 0; attempt < 2; attempt++) {
-      await second.getByTestId("field-save").click();
-      await expect(second.getByTestId("field-feedback")).toContainText("revision changed");
+      await second.getByTestId("field-conflict-recheck").click();
+      await expect(second.getByTestId("field-receipt-conflict")).toContainText("saved field changed");
+      await expect(second.getByTestId("field-save")).toBeDisabled();
       await expect(second.getByTestId("field-save-state")).toContainText("Unsaved");
       await expect(second.getByTestId("field-input-name")).toHaveValue("Retained stale-tab edit");
       expect(await readWorkspace(second)).toEqual(saved);
@@ -216,7 +230,7 @@ test("machine-plan import requires explicit replacement permission and becomes s
   };
   await importPlan();
   await page.getByTestId("field-adopt-plan").click();
-  await expect(page.getByTestId("field-feedback")).toContainText("pinned");
+  await expect(page.getByTestId("field-feedback")).toContainText("Allow replacement of the affected machine");
   expect(await storedField(page)).toEqual(before);
   await page.getByTestId(`field-unlock-${secondId}`).getByRole("switch").check();
   await page.getByTestId("field-adopt-plan").click();
@@ -303,7 +317,7 @@ test("saved lateral uses its explicit straight travel model and stays outside pi
   await openField(page);
   await expect(page.getByTestId("field-laterals")).toContainText("Straight lateral review");
   await page.getByTestId("field-lateral-calculate-straight-lateral").click();
-  await expect(page.getByTestId("field-lateral-result-straight-lateral")).toContainText("5850.00 m²");
+  await expect(page.getByTestId("field-lateral-result-straight-lateral")).toContainText("1.45 acres");
   await expect(page.getByTestId("field-lateral-result-straight-lateral")).toContainText("unknown without sprinkler reach");
   await page.getByTestId("field-search-run").click();
   await expect(page.getByTestId("field-search-result")).toContainText("Inputs need attention");

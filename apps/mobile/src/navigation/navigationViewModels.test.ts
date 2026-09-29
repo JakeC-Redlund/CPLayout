@@ -89,3 +89,10 @@ assert.equal(LEFT_NAV_MENU_ICON_IDS.includes("map-pinned"), true);
 
 const firstItem = menu.commandMenus[0]?.items.find((entry) => !("source" in entry)) as CplayoutLeftNavMenuItemDefinition;
 assert.equal(firstItem.action, "open_catalog");
+
+// Creation advances through the selected hierarchy, regardless of menu order.
+import { nextCatalogCreateAction } from "./navigationViewModels";
+assert.equal(nextCatalogCreateAction(null), "create_client");
+assert.equal(nextCatalogCreateAction({clientId:"c",projectId:null,fieldMapId:null}), "create_project");
+assert.equal(nextCatalogCreateAction({clientId:"c",projectId:"p",fieldMapId:null}), "create_field_map");
+assert.equal(nextCatalogCreateAction({clientId:"c",projectId:"p",fieldMapId:"f"}), "create_design");

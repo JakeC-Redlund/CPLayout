@@ -1,10 +1,12 @@
 import {
-  DESIGN_DRAFT_DOCUMENT_VERSION, PivotProjectSchema, parseDesignDraftDocument, parseProjectDocument,
+  OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION, PivotProjectSchema, parseDesignDraftDocument, parseProjectDocument,
   serializeDesignDraftDocument, serializeProjectDocument, validateFieldDesign, serializeFieldDesignDocument,
   parseFieldDesignDocument, convertPivotProjectToFieldDesign, createFieldDesignEditorState, reduceFieldDesignEditorState,
+  tryBuildPivotProject, createLayoutSessionDocument, parseLayoutSessionDocument, serializeLayoutSessionDocument, LayoutObservationSchema,
 } from "@cplayout/core";
-import type { DesignDraft, FieldDesign, FieldPivotMachine, LayoutResult, PivotProject } from "@cplayout/core";
+import type { DesignDraft, FieldDesign, FieldPivotMachine, LayoutResult, PivotProject, LayoutSession, LayoutObservation } from "@cplayout/core";
 import { z } from "zod";
+import { parseStrictJson } from "./strictJson";
 import { parseEditableProjectDocument } from "./projectDocumentEditing";
 
 import {
@@ -17,8 +19,8 @@ import type {
   CreateProjectWithInitialFieldMapInput, DesignRecord, FieldMapRecord,
 } from "./projectRepositoryTypes";
 import {
-  createWorkspaceDesign, deleteWorkspaceDesign, saveWorkspaceDesign, validateWorkspaceDocument, WorkspaceDocumentError,
-  serializeWorkspaceDocument, upgradeWorkspaceDocumentToV2, FIELD_WORKSPACE_DOCUMENT_VERSION,
+  assertRetainedOperationalEvidence, createWorkspaceDesign, deleteWorkspaceDesign, saveWorkspaceDesign, validateWorkspaceDocument, WorkspaceDocumentError,
+  serializeWorkspaceDocument, upgradeWorkspaceDocumentToV2, upgradeWorkspaceDocumentToV3, FIELD_WORKSPACE_DOCUMENT_VERSION, LAYOUT_WORKSPACE_DOCUMENT_VERSION,
   type WorkspaceDesignRecord, type WorkspaceDocument,
 } from "./workspaceDocument";
 
@@ -29,7 +31,7 @@ export type CreateDesignDraftCommand = TimedCommand<"create_design_draft"> & {
   designId: string; fieldMapId: string; name: string; draft: DesignDraft; isActive?: boolean;
 };
 export type SaveDesignDraftCommand = TimedCommand<"save_design_draft"> & {
-  designId: string; expectedDesignRevision: number; draft: DesignDraft;
+  designId: string; expectedDesignRevision: number; draft: DesignDraft; syncCatalogName?: boolean;
 };
 export type DeleteDesignCommand = TimedCommand<"delete_design"> & { designId: string; expectedDesignRevision: number };
 export type CopyProjectCommand = TimedCommand<"copy_project"> & {
@@ -69,15 +71,30 @@ export type ConvertProjectToFieldDesignCommand = TimedCommand<"convert_project_t
 export type AdoptFieldPlanCommand = TimedCommand<"adopt_field_plan"> & {
   designId: string; expectedDesignRevision: number; machines: FieldPivotMachine[]; allowedReplacementMachineIds?: string[];
 };
+export type CreateCompleteDesignFromDraftCommand = TimedCommand<"create_complete_design_from_draft"> & {
+  sourceDesignId: string; expectedDesignRevision: number; draft: DesignDraft; designId: string; projectId: string; name: string;
+};
+export type UpgradeLayoutWorkspaceCommand = TimedCommand<"upgrade_workspace_to_v3">;
+export type CreateLayoutSessionCommand = TimedCommand<"create_layout_session"> & { sessionId: string; fieldMapId: string; name: string; targetDocument: string };
+export type AppendLayoutObservationCommand = TimedCommand<"append_layout_observation"> & { sessionId: string; expectedSessionRevision: number; observation: LayoutObservation };
+export type RenameLayoutSessionCommand = TimedCommand<"rename_layout_session"> & { sessionId: string; expectedSessionRevision: number; name: string };
+export type ArchiveLayoutSessionCommand = TimedCommand<"archive_layout_session"> & { sessionId: string; expectedSessionRevision: number; archived: boolean };
+export type CopyLayoutSessionCommand = TimedCommand<"copy_layout_session"> & { sourceSessionId: string; expectedSessionRevision: number; sessionId: string; name: string };
+export type ImportLayoutSessionCommand = TimedCommand<"import_layout_session"> & { document: string; fieldMapId: string };
+export type ImportDesignDocumentCommand = TimedCommand<"import_design_document"> & {
+  fieldMapId: string; designId: string; payloadId: string; document: string; name?: string; originalProjectDocument?: string;
+};
 export type WorkspaceCommand = SaveProjectCommand | SaveDesignProjectCommand | CopyProjectCommand | DeleteProjectCommand
   | CreateClientCommand | UpdateClientCommand | DeleteClientCommand | CreateProjectWithInitialDesignCommand
   | CreateProjectWithInitialFieldMapCommand | CreateProjectRecordCommand | RenameProjectCommand
   | MoveProjectToClientCommand | CreateFieldMapRecordCommand | CreateDesignRecordCommand
   | CreateDesignDraftCommand | SaveDesignDraftCommand | DeleteDesignCommand
   | UpgradeFieldWorkspaceCommand | CreateFieldDesignCommand | SaveFieldDesignCommand | CopyFieldDesignCommand
-  | ConvertProjectToFieldDesignCommand | AdoptFieldPlanCommand;
+  | ConvertProjectToFieldDesignCommand | AdoptFieldPlanCommand | CreateCompleteDesignFromDraftCommand
+  | UpgradeLayoutWorkspaceCommand | CreateLayoutSessionCommand | AppendLayoutObservationCommand | RenameLayoutSessionCommand
+  | ArchiveLayoutSessionCommand | CopyLayoutSessionCommand | ImportLayoutSessionCommand | ImportDesignDocumentCommand;
 export type WorkspaceCommandValue = void | ClientRecord | CatalogProjectRecord | FieldMapRecord | DesignRecord
-  | CreatedProjectWorkspace | CreatedProjectFieldMapWorkspace | PivotProject | Extract<WorkspaceDesignRecord, { kind: "draft" | "field" }>;
+  | CreatedProjectWorkspace | CreatedProjectFieldMapWorkspace | PivotProject | LayoutSession | Extract<WorkspaceDesignRecord, { kind: "draft" | "field" }>;
 export interface WorkspaceCommandResult { workspace: WorkspaceDocument; value: WorkspaceCommandValue }
 
 const id = z.string().min(1);
@@ -114,7 +131,7 @@ const ProjectInputSchema = PivotProjectSchema;
 const designRevision = z.number().int().min(0).max(Number.MAX_SAFE_INTEGER);
 const DraftInputSchema = z.unknown().transform((input): DesignDraft => {
   try {
-    return parseDesignDraftDocument({ documentVersion: DESIGN_DRAFT_DOCUMENT_VERSION, draft: input });
+    return parseDesignDraftDocument({ documentVersion: OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION, draft: input });
   } catch {
     return fail("invalid_document", "Invalid design draft command data.");
   }
@@ -124,6 +141,16 @@ const FieldInputSchema = z.unknown().transform((input): FieldDesign => {
   catch { return fail("invalid_document", "Invalid field design command data."); }
 });
 const CommandSchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("import_design_document"), now, fieldMapId: id, designId: id, payloadId: id, document: z.string(), name: z.string().trim().min(1).max(200).optional(), originalProjectDocument: z.string().optional() }).strict(),
+  z.object({ type: z.literal("create_complete_design_from_draft"), now, sourceDesignId: id, expectedDesignRevision: designRevision,
+    draft: DraftInputSchema, designId: id, projectId: id, name: z.string().trim().min(1).max(200) }).strict(),
+  z.object({ type: z.literal("upgrade_workspace_to_v3"), now }).strict(),
+  z.object({ type: z.literal("create_layout_session"), now, sessionId: id, fieldMapId: id, name: id, targetDocument: z.string() }).strict(),
+  z.object({ type: z.literal("append_layout_observation"), now, sessionId: id, expectedSessionRevision: designRevision, observation: LayoutObservationSchema }).strict(),
+  z.object({ type: z.literal("rename_layout_session"), now, sessionId: id, expectedSessionRevision: designRevision, name: id }).strict(),
+  z.object({ type: z.literal("archive_layout_session"), now, sessionId: id, expectedSessionRevision: designRevision, archived: z.boolean() }).strict(),
+  z.object({ type: z.literal("copy_layout_session"), now, sourceSessionId: id, expectedSessionRevision: designRevision, sessionId: id, name: id }).strict(),
+  z.object({ type: z.literal("import_layout_session"), now, document: z.string(), fieldMapId: id }).strict(),
   z.object({ type: z.literal("upgrade_workspace_to_v2"), now }).strict(),
   z.object({ type: z.literal("create_field_design"), now, designId: id, fieldMapId: id, name: text,
     field: FieldInputSchema, isActive: z.boolean().optional(), originalProjectDocument: z.string().optional() }).strict(),
@@ -139,7 +166,7 @@ const CommandSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("save_design_project"), now, designId: id, project: ProjectInputSchema, result: ResultSchema.optional() }).strict(),
   z.object({ type: z.literal("create_design_draft"), now, designId: id, fieldMapId: id, name: text,
     draft: DraftInputSchema, isActive: z.boolean().optional() }).strict(),
-  z.object({ type: z.literal("save_design_draft"), now, designId: id, expectedDesignRevision: designRevision, draft: DraftInputSchema }).strict(),
+  z.object({ type: z.literal("save_design_draft"), now, designId: id, expectedDesignRevision: designRevision, draft: DraftInputSchema, syncCatalogName: z.boolean().optional() }).strict(),
   z.object({ type: z.literal("delete_design"), now, designId: id, expectedDesignRevision: designRevision }).strict(),
   z.object({ type: z.literal("copy_project"), now, source: ProjectInputSchema, sourceStored: z.boolean(),
     newProjectId: id, name: z.string().trim().min(1).max(200) }).strict(),
@@ -169,7 +196,7 @@ export function parseWorkspaceCommand(input: unknown): WorkspaceCommand {
   if (!parsed.success) fail("invalid_document", "Invalid workspace command arguments.");
   // Draft parsing already rejects unknown fields and may omit known optional undefined values.
   // Legacy payload schemas allow extras when reading, so their mutations need the retention check.
-  if (parsed.data.type !== "create_design_draft" && parsed.data.type !== "save_design_draft") {
+  if (parsed.data.type !== "create_design_draft" && parsed.data.type !== "save_design_draft" && parsed.data.type !== "create_complete_design_from_draft") {
     assertNoStrippedFields(input, parsed.data);
   }
   return parsed.data;
@@ -183,6 +210,88 @@ export function applyWorkspaceCommand(workspace: WorkspaceDocument, command: Wor
   const revision = increment(next.revision);
   let value: WorkspaceCommandValue = undefined;
   switch (cmd.type) {
+    case "import_design_document": {
+      assertUnused(next.catalog.projects, cmd.payloadId, "Project folder");
+      const raw: unknown = parseStrictJson(cmd.document);
+      if (!raw || typeof raw !== "object" || !("documentVersion" in raw) || typeof raw.documentVersion !== "string") fail("invalid_document", "Import a supported versioned project, draft or field document.");
+      const shared = { id: cmd.designId, fieldMapId: cmd.fieldMapId, isActive: true, revision: 0, createdAt: cmd.now, updatedAt: cmd.now };
+      if (raw.documentVersion.startsWith("pivot-project-")) {
+        if (cmd.originalProjectDocument !== undefined) fail("invalid_document", "Original project provenance belongs to field archives only.");
+        const source = parseEditableProjectDocument(cmd.document);
+        const project = { ...source, id: cmd.payloadId, name: cmd.name ?? source.name };
+        next = createWorkspaceDesign(next, { design: { ...shared, kind: "project", pivotProjectId: project.id, name: project.name }, document: serializeProjectDocument(project) });
+      } else if (raw.documentVersion.startsWith("design-draft-")) {
+        if (cmd.originalProjectDocument !== undefined) fail("invalid_document", "Original project provenance belongs to field archives only.");
+        const source = parseDesignDraftDocument(cmd.document);
+        const draft = { ...source, id: cmd.payloadId, name: cmd.name ?? source.name };
+        next = createWorkspaceDesign(next, { design: { ...shared, kind: "draft", draftId: draft.id, name: draft.name }, document: serializeDesignDraftDocument(draft) });
+      } else if (raw.documentVersion.startsWith("field-design-")) {
+        const source = parseFieldDesignDocument(cmd.document);
+        if (cmd.originalProjectDocument !== undefined) parseProjectDocument(cmd.originalProjectDocument);
+        const field = { ...source, id: cmd.payloadId, name: cmd.name ?? source.name };
+        const created = createField(next, { ...cmd, name: field.name }, field);
+        next = created.workspace;
+        if (cmd.originalProjectDocument !== undefined) next.fieldDocuments!.find(entry => entry.id === field.id)!.originalProjectDocument = cmd.originalProjectDocument;
+      } else fail("unsupported_version", "This file is not a supported project, draft or field document. Use Layout target import for frozen targets.");
+      break;
+    }
+    case "create_complete_design_from_draft": {
+      const source = requireRecord(next.catalog.designs, cmd.sourceDesignId, "Source draft design");
+      if (source.kind !== "draft" || source.draftId !== cmd.draft.id) fail("identity_mismatch", "Completion requires the selected draft and its original identity.");
+      if (source.revision !== cmd.expectedDesignRevision) fail("conflict", "Draft revision changed; reopen it before completing.");
+      assertUnused(next.catalog.designs, cmd.designId, "Complete design");
+      if (next.tombstones.some(item => item.entity === "design" && item.id === cmd.designId)) fail("conflict", "Complete design identity was already deleted.");
+      assertUnusedPayload(next, cmd.projectId);
+      assertUnused(next.catalog.projects, cmd.projectId, "Project folder");
+      const result = tryBuildPivotProject(cmd.draft);
+      if (!result.ok) fail("invalid_document", "The applied draft is incomplete or cannot be calculated. Resolve its missing inputs before creating a complete design.");
+      const project = { ...result.project, id: cmd.projectId, name: cmd.name };
+      const previousDocument = next.draftDocuments.find(entry => entry.id === source.draftId)!.document;
+      next = saveWorkspaceDesign(next, { designId: source.id, expectedRevision: source.revision,
+        document: serializeDesignDraftDocument(cmd.draft), updatedAt: cmd.now });
+      if (parseDesignDraftDocument(previousDocument).name !== cmd.draft.name) {
+        next.catalog.designs.find(entry => entry.id === source.id)!.name = normalizeCatalogSortName(cmd.draft.name);
+      }
+      next.catalog.designs.push({ id: cmd.designId, kind: "project", pivotProjectId: project.id, fieldMapId: source.fieldMapId,
+        name: cmd.name, isActive: true, revision: 0, createdAt: cmd.now, updatedAt: cmd.now });
+      next.projectDocuments.push(projectEntry(project, cmd.now));
+      value = project;
+      break;
+    }
+    case "upgrade_workspace_to_v3":
+      next = upgradeWorkspaceDocumentToV3(serializeWorkspaceDocument(next));
+      break;
+    case "create_layout_session": {
+      requireLayoutWorkspace(next);
+      const session = createLayoutSessionDocument({ id: cmd.sessionId, fieldMapId: cmd.fieldMapId, name: cmd.name, targetDocument: cmd.targetDocument, now: cmd.now });
+      insertLayoutSession(next, session); value = session; break;
+    }
+    case "import_layout_session": {
+      requireLayoutWorkspace(next);
+      const session = parseLayoutSessionDocument(cmd.document);
+      // Association is explicit; immutable target bytes, observation identities and history remain exact.
+      const associated = parseLayoutSessionDocument({ ...session, fieldMapId: cmd.fieldMapId });
+      insertLayoutSession(next, associated); value = associated; break;
+    }
+    case "copy_layout_session": {
+      const source = readLayoutSession(next, cmd.sourceSessionId, cmd.expectedSessionRevision);
+      const session = createLayoutSessionDocument({ id: cmd.sessionId, fieldMapId: source.fieldMapId, name: cmd.name, targetDocument: source.targetDocument, now: cmd.now });
+      insertLayoutSession(next, session); value = session; break;
+    }
+    case "append_layout_observation":
+    case "rename_layout_session":
+    case "archive_layout_session": {
+      const session = readLayoutSession(next, cmd.sessionId, cmd.expectedSessionRevision);
+      if (cmd.type === "append_layout_observation") {
+        if (session.archived) fail("conflict", "Restore the archived Layout session before collecting observations.");
+        session.observations.push(cmd.observation);
+      } else if (cmd.type === "rename_layout_session") session.name = cmd.name;
+      else session.archived = cmd.archived;
+      session.revision = increment(session.revision); session.updatedAt = cmd.now;
+      const document = serializeLayoutSessionDocument(session);
+      next.layoutSessions!.find(item => item.id === session.id)!.document = document;
+      value = parseLayoutSessionDocument(document); break;
+    }
     case "upgrade_workspace_to_v2":
       next = upgradeWorkspaceDocumentToV2(serializeWorkspaceDocument(next));
       break;
@@ -286,12 +395,17 @@ export function applyWorkspaceCommand(workspace: WorkspaceDocument, command: Wor
     case "save_design_draft": {
       const design = requireRecord(next.catalog.designs, cmd.designId, "Design");
       if (design.kind !== "draft") fail("identity_mismatch", "Draft save requires a draft-backed design.");
+      const previousDocument = next.draftDocuments.find(entry => entry.id === design.draftId)!.document;
       next = saveWorkspaceDesign(next, {
         designId: cmd.designId, expectedRevision: cmd.expectedDesignRevision,
         document: serializeDesignDraftDocument(cmd.draft), updatedAt: cmd.now,
       });
       value = next.catalog.designs.find((entry): entry is Extract<WorkspaceDesignRecord, { kind: "draft" }> =>
         entry.id === cmd.designId && entry.kind === "draft")!;
+      // An applied document rename also renames its visible catalog entry. Other
+      // saves retain any historical catalog alias. Compare only after the normal
+      // revision and payload checks have succeeded, within this same transaction.
+      if (cmd.syncCatalogName && parseDesignDraftDocument(previousDocument).name !== cmd.draft.name) value.name = normalizeCatalogSortName(cmd.draft.name);
       break;
     }
     case "delete_design":
@@ -377,6 +491,7 @@ export function applyWorkspaceCommand(workspace: WorkspaceDocument, command: Wor
     }
   }
   next.revision = revision;
+  assertRetainedOperationalEvidence(workspace, next);
   return { workspace: validateWorkspaceDocument(next), value };
 }
 
@@ -388,7 +503,7 @@ function fieldDesign(workspace: WorkspaceDocument, designId: string, revision: n
 }
 
 function createField(workspace: WorkspaceDocument, command: { designId: string; fieldMapId: string; name: string; isActive?: boolean; now: string }, field: FieldDesign) {
-  if (workspace.workspaceVersion !== FIELD_WORKSPACE_DOCUMENT_VERSION) fail("unsupported_version", "Explicitly upgrade the workspace to v2 before creating field designs.");
+  if (workspace.workspaceVersion !== FIELD_WORKSPACE_DOCUMENT_VERSION && workspace.workspaceVersion !== LAYOUT_WORKSPACE_DOCUMENT_VERSION) fail("unsupported_version", "Explicitly upgrade the workspace to v2 before creating field designs.");
   const design: Extract<WorkspaceDesignRecord, { kind: "field" }> = { id: command.designId, fieldMapId: command.fieldMapId,
     name: normalizeCatalogSortName(command.name), kind: "field", fieldDesignId: field.id, isActive: command.isActive ?? true,
     revision: 0, createdAt: command.now, updatedAt: command.now };
@@ -433,6 +548,7 @@ function addFieldMap(workspace: WorkspaceDocument, input: CreateFieldMapRecordCo
 function deleteProject(workspace: WorkspaceDocument, projectId: string, deletedAt: string, revision: number): void {
   const folder = workspace.catalog.projects.find((record) => record.id === projectId);
   const mapIds = new Set(folder ? workspace.catalog.fieldMaps.filter((record) => record.projectId === projectId).map((record) => record.id) : []);
+  if (workspace.layoutSessions?.some(entry => mapIds.has(parseLayoutSessionDocument(entry.document).fieldMapId))) fail("conflict", "This project owns retained Layout sessions. Keep the project to preserve their field context.");
   // A matching payload owned by a different folder is outside this cascade.
   const removedDesigns = workspace.catalog.designs.filter((record) => folder ? mapIds.has(record.fieldMapId) : record.kind === "project" && record.pivotProjectId === projectId);
   const documents = new Set(removedDesigns.filter((record) => record.kind === "project").map(payloadId));
@@ -539,4 +655,20 @@ function assertNoStrippedFields(input: unknown, parsed: unknown, message = "Unkn
     if (parsed === null || typeof parsed !== "object" || !Object.hasOwn(parsed, key)) fail("invalid_document", message);
     assertNoStrippedFields((input as Record<string, unknown>)[key], (parsed as Record<string, unknown>)[key], message);
   }
+}
+
+function requireLayoutWorkspace(workspace: WorkspaceDocument): void {
+  if (workspace.workspaceVersion !== LAYOUT_WORKSPACE_DOCUMENT_VERSION || !workspace.layoutSessions) fail("unsupported_version", "Choose Upgrade workspace for Layout before creating or changing a Layout session.");
+}
+function readLayoutSession(workspace: WorkspaceDocument, sessionId: string, expectedRevision: number): LayoutSession {
+  requireLayoutWorkspace(workspace);
+  const entry = requireRecord(workspace.layoutSessions!, sessionId, "Layout session");
+  const session = parseLayoutSessionDocument(entry.document);
+  if (session.revision !== expectedRevision) fail("conflict", "Layout session changed; reopen it before saving.");
+  return session;
+}
+function insertLayoutSession(workspace: WorkspaceDocument, session: LayoutSession): void {
+  requireRecord(workspace.catalog.fieldMaps, session.fieldMapId, "Layout session field");
+  assertUnused(workspace.layoutSessions!, session.id, "Layout session");
+  workspace.layoutSessions!.push({ id: session.id, document: serializeLayoutSessionDocument(session) });
 }

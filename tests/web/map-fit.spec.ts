@@ -377,7 +377,8 @@ for (const renderer of ["browser", "svg"] as const) {
     await fit(page, renderer);
     for (const point of points) await clickPoint(point);
     await finish().click();
-    await purpose.getByRole("button", { name: "Keep-Out / No-Spray", exact: true }).click();
+    await purpose.getByTestId("pending-draft-purpose-select").selectOption({ label: "Keep-Out / No-Spray" });
+    await purpose.getByTestId("pending-draft-keep").click();
     await expect(purpose).toHaveCount(0);
     const withPolygon = await saveProject(page);
     expect(withPolygon.obstacles).toHaveLength(project.obstacles.length + 1);
@@ -389,7 +390,8 @@ for (const renderer of ["browser", "svg"] as const) {
     for (const point of points.slice(0, 2)) await clickPoint(point);
     await expect(measurement).toContainText("XY length");
     await finish().click();
-    await purpose.getByRole("button", { name: "Measurement Line", exact: true }).click();
+    await purpose.getByTestId("pending-draft-purpose-select").selectOption({ label: "Measurement Line" });
+    await purpose.getByTestId("pending-draft-keep").click();
     const withLine = await saveProject(page);
     expect(withLine.mapFeatures?.at(-1)?.geometry.type).toBe("LineString");
     expect(withLine.mapFeatures?.at(-1)?.kind).toBe("measurement_line");
@@ -397,7 +399,8 @@ for (const renderer of ["browser", "svg"] as const) {
     await drawTool(page, "point");
     await fit(page, renderer);
     await clickPoint(center);
-    await purpose.getByRole("button", { name: "Well", exact: true }).click();
+    await purpose.getByTestId("pending-draft-purpose-select").selectOption({ label: "Well" });
+    await purpose.getByTestId("pending-draft-keep").click();
     const final = await saveProject(page);
     expect(final.mapFeatures?.at(-1)?.geometry.type).toBe("Point");
     expect(final.mapFeatures?.at(-1)?.kind).toBe("well_location");
@@ -917,7 +920,8 @@ test("SVG label presses select their feature without moving the selected boundar
     y: -(editView[1] + editView[3] / 2),
   }]);
   await page.mouse.click(point.x, point.y);
-  await page.getByTestId("pending-draft-purpose-panel").getByRole("button", { name: "Well", exact: true }).click();
+  await page.getByTestId("pending-draft-purpose-select").selectOption({ label: "Well" });
+  await page.getByTestId("pending-draft-keep").click();
   const saved = await saveProject(page);
   const feature = saved.mapFeatures!.at(-1)!;
   await selectBoundary(page, "svg");

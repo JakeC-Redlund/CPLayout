@@ -1,3 +1,4 @@
+import { hasOperationalGnssEvidence, refuseOperationalGnssEvidence } from "./operationalGnssEvidence";
 import { z } from "zod";
 import { ProjectDrawingMetadataSchema, validateProjectDrawingMetadata } from "./drawingMetadata";
 import { snapshotJsonValue } from "./jsonDataSnapshot";
@@ -13,7 +14,8 @@ import { projectDataKey } from "./projectDataComparison";
 
 export const LEGACY_PROJECT_DOCUMENT_VERSION = "pivot-project-v1";
 export const PROJECT_DOCUMENT_VERSION = "pivot-project-v2";
-export const PROJECT_DOCUMENT_VERSIONS = [LEGACY_PROJECT_DOCUMENT_VERSION, PROJECT_DOCUMENT_VERSION] as const;
+export const OPERATIONAL_PROJECT_DOCUMENT_VERSION = "pivot-project-v3";
+export const PROJECT_DOCUMENT_VERSIONS = [LEGACY_PROJECT_DOCUMENT_VERSION, PROJECT_DOCUMENT_VERSION, OPERATIONAL_PROJECT_DOCUMENT_VERSION] as const;
 
 const XySchema = z.object({
   x: z.number().finite(),
@@ -428,7 +430,7 @@ export function serializeProjectDocument(project: PivotProject): string {
     assertNoStrippedFields(snapshot, parsedProject, "Project v2 contains unsupported fields; refusing to discard data. Preserve the original document.");
   }
   return JSON.stringify({
-    documentVersion: parsedProject.drawingMetadata === undefined ? LEGACY_PROJECT_DOCUMENT_VERSION : PROJECT_DOCUMENT_VERSION,
+    documentVersion: hasOperationalGnssEvidence(parsedProject) ? OPERATIONAL_PROJECT_DOCUMENT_VERSION : parsedProject.drawingMetadata === undefined ? LEGACY_PROJECT_DOCUMENT_VERSION : PROJECT_DOCUMENT_VERSION,
     project: withWgs84Companion(parsedProject),
   }, null, 2);
 }
@@ -436,6 +438,7 @@ export function serializeProjectDocument(project: PivotProject): string {
 /** Frozen reader for compatibility checks; v2 data must never be normalized by v1. */
 export function parseProjectDocumentV1(input: string | unknown): PivotProject {
   const raw = snapshotJsonValue(typeof input === "string" ? JSON.parse(input) : input);
+  refuseOperationalGnssEvidence(raw);
   if (isRecord(raw) && "documentVersion" in raw) {
     if (raw.documentVersion !== LEGACY_PROJECT_DOCUMENT_VERSION) throw new Error("Project document version is unsupported; preserve the original document and use a compatible editor.");
     return withWgs84Companion(LegacyPivotProjectSchema.parse(ProjectEnvelopeSchema.parse(raw).project));
@@ -450,6 +453,7 @@ export function parseProjectDocument(input: string | unknown): PivotProject {
       throw new Error("Project document version is unsupported; preserve the original document and use a compatible editor.");
     }
     const envelope = ProjectEnvelopeSchema.parse(raw);
+    if (envelope.documentVersion !== OPERATIONAL_PROJECT_DOCUMENT_VERSION) refuseOperationalGnssEvidence(envelope.project);
     if (envelope.documentVersion === LEGACY_PROJECT_DOCUMENT_VERSION) return parseProjectDocumentV1(raw);
     assertNoStrippedFields(raw, envelope, "Project v2 envelope contains unsupported fields; refusing to discard data. Preserve the original document.");
     const project = PivotProjectSchema.parse(envelope.project);
@@ -507,4 +511,12 @@ export function deriveWgs84Companion(project: PivotProject): ProjectWgs84Compani
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/** Frozen v1/v2 reader refuses operational evidence even in incorrectly labeled old envelopes. */
+export function parseProjectDocumentV2(input: string | unknown): PivotProject {
+  const raw = snapshotJsonValue(typeof input === "string" ? JSON.parse(input) : input);
+  if (isRecord(raw) && "documentVersion" in raw && raw.documentVersion === OPERATIONAL_PROJECT_DOCUMENT_VERSION) throw new Error("Project version requires an operational-evidence-aware reader.");
+  refuseOperationalGnssEvidence(raw);
+  return parseProjectDocument(raw);
 }

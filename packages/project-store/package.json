@@ -6,7 +6,7 @@
   "types": "src/index.ts",
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
-    "test": "tsx src/nativeVerification.test.ts && tsx src/webSqliteGate.test.ts && tsx src/workspaceDocument.test.ts && tsx src/workspaceCommands.test.ts && tsx src/webWorkspaceStore.test.ts && tsx src/versionedProjectRepository.test.ts && tsx src/utf8.test.ts && tsx src/designDraftArchive.test.ts && tsx src/persistenceSchema.test.ts && tsx src/projectStoreMigrations.test.ts && tsx src/mapPackageArchive.test.ts && tsx src/projectRepository.test.ts && tsx src/projectArchive.test.ts && tsx src/projectKmlArchive.test.ts && tsx src/projectPersistence.test.ts && node ../../tools/runNativeWorkspaceTests.cjs --if-supported && tsx src/fieldWorkspace.test.ts && tsx src/fieldDesignArchive.test.ts",
+    "test": "tsx src/nativeVerification.test.ts && tsx src/webSqliteGate.test.ts && tsx src/workspaceDocument.test.ts && tsx src/workspaceCommands.test.ts && tsx src/webWorkspaceStore.test.ts && tsx src/versionedProjectRepository.test.ts && tsx src/utf8.test.ts && tsx src/designDraftArchive.test.ts && tsx src/persistenceSchema.test.ts && tsx src/projectStoreMigrations.test.ts && tsx src/mapPackageArchive.test.ts && tsx src/projectRepository.test.ts && tsx src/projectArchive.test.ts && tsx src/projectKmlArchive.test.ts && tsx src/projectPersistence.test.ts && node ../../tools/runNativeWorkspaceTests.cjs --if-supported && tsx src/fieldWorkspace.test.ts && tsx src/fieldDesignArchive.test.ts && tsx src/completeWorkflowStorage.test.ts",
     "test:native-workspace": "node ../../tools/runNativeWorkspaceTests.cjs",
     "validate": "npm run typecheck && npm test"
   },

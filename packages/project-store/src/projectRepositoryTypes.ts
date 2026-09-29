@@ -154,7 +154,7 @@ export type WorkspaceDesignRead =
 export interface VersionedWorkspaceRepository {
   readAsync(): Promise<WorkspaceDocument>;
   readDesignAsync(designId: string): Promise<WorkspaceDesignRead>;
-  executeAsync(expectedRevision: number, command: WorkspaceCommand): Promise<{ workspace: WorkspaceDocument; value: WorkspaceCommandValue }>;
+  executeAsync(expectedRevision: number, command: WorkspaceCommand, isCurrent?: () => boolean): Promise<{ workspace: WorkspaceDocument; value: WorkspaceCommandValue }>;
   exportRecoveryAsync(): Promise<string>;
 }
 

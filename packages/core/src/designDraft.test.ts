@@ -182,7 +182,7 @@ test("invalid and nonfinite present values are refused before serialization", ()
 
 test("strict JSON and version contracts refuse unsupported data without mutation", () => {
   const draft = emptyDraft();
-  for (const documentVersion of ["design-draft-v4", "pivot-project-v1", "", null]) {
+  for (const documentVersion of ["design-draft-v999", "pivot-project-v1", "", null]) {
     assert.throws(() => parseDesignDraftDocument({ documentVersion, draft }));
   }
   assert.throws(() => parseDesignDraftDocument(draft));

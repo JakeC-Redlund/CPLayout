@@ -1,3 +1,4 @@
+import { hasOperationalGnssEvidence, refuseOperationalGnssEvidence } from "./operationalGnssEvidence";
 import { z } from "zod";
 
 import { DrawingMetadataRecordSchema, PROJECT_DRAWING_METADATA_VERSION, validateProjectDrawingMetadata,
@@ -16,7 +17,8 @@ import { assertProjectedCrs } from "./units";
 export const LEGACY_FIELD_DESIGN_DOCUMENT_VERSION = "field-design-v1";
 export const FIELD_DESIGN_DOCUMENT_V2_VERSION = "field-design-v2";
 export const FIELD_DESIGN_DOCUMENT_VERSION = "field-design-v3";
-export const FIELD_DESIGN_DOCUMENT_VERSIONS = [LEGACY_FIELD_DESIGN_DOCUMENT_VERSION, FIELD_DESIGN_DOCUMENT_V2_VERSION, FIELD_DESIGN_DOCUMENT_VERSION] as const;
+export const OPERATIONAL_FIELD_DESIGN_DOCUMENT_VERSION = "field-design-v4";
+export const FIELD_DESIGN_DOCUMENT_VERSIONS = [LEGACY_FIELD_DESIGN_DOCUMENT_VERSION, FIELD_DESIGN_DOCUMENT_V2_VERSION, FIELD_DESIGN_DOCUMENT_VERSION, OPERATIONAL_FIELD_DESIGN_DOCUMENT_VERSION] as const;
 export const FIELD_DRAWING_METADATA_VERSION = "field-drawing-metadata-v1";
 
 const referenceId = z.string().min(1);
@@ -174,6 +176,7 @@ export function validateFieldDesign(input: unknown): FieldDesign {
 export function parseFieldDesignDocument(input: string | unknown): FieldDesign {
   const raw = typeof input === "string" ? parseStrictJson(input) : input;
   const envelope = EnvelopeSchema.parse(snapshotJsonValue(raw, "document"));
+  if (envelope.documentVersion !== OPERATIONAL_FIELD_DESIGN_DOCUMENT_VERSION) refuseOperationalGnssEvidence(envelope.field);
   if (envelope.documentVersion === LEGACY_FIELD_DESIGN_DOCUMENT_VERSION) return parseFieldDesignDocumentV1(envelope);
   if (envelope.documentVersion === FIELD_DESIGN_DOCUMENT_V2_VERSION) return parseFieldDesignDocumentV2(envelope);
   return validateFieldDesign(envelope.field);
@@ -183,6 +186,7 @@ export function parseFieldDesignDocument(input: string | unknown): FieldDesign {
 export function parseFieldDesignDocumentV1(input: string | unknown): FieldDesign {
   const raw = typeof input === "string" ? parseStrictJson(input) : input;
   const envelope = EnvelopeSchema.parse(snapshotJsonValue(raw, "document"));
+  refuseOperationalGnssEvidence(envelope.field);
   if (envelope.documentVersion !== LEGACY_FIELD_DESIGN_DOCUMENT_VERSION) {
     throw new Error("Field document version is unsupported; preserve the original document and use a compatible editor.");
   }
@@ -197,6 +201,7 @@ export function parseFieldDesignDocumentV1(input: string | unknown): FieldDesign
 export function parseFieldDesignDocumentV2(input: string | unknown): FieldDesign {
   const raw = typeof input === "string" ? parseStrictJson(input) : input;
   const envelope = EnvelopeSchema.parse(snapshotJsonValue(raw, "document"));
+  if (envelope.documentVersion !== OPERATIONAL_FIELD_DESIGN_DOCUMENT_VERSION) refuseOperationalGnssEvidence(envelope.field);
   if (envelope.documentVersion === LEGACY_FIELD_DESIGN_DOCUMENT_VERSION) return parseFieldDesignDocumentV1(envelope);
   if (envelope.documentVersion !== FIELD_DESIGN_DOCUMENT_V2_VERSION) {
     throw new Error("Field document version is unsupported by v2; preserve the original document and use a compatible editor.");
@@ -213,7 +218,7 @@ function refuseLegacyLaterals(field: unknown): void {
 
 export function serializeFieldDesignDocument(field: FieldDesign): string {
   const admitted = validateFieldDesign(field);
-  return JSON.stringify({ documentVersion: admitted.lateralMachines !== undefined ? FIELD_DESIGN_DOCUMENT_VERSION
+  return JSON.stringify({ documentVersion: hasOperationalGnssEvidence(admitted) ? OPERATIONAL_FIELD_DESIGN_DOCUMENT_VERSION : admitted.lateralMachines !== undefined ? FIELD_DESIGN_DOCUMENT_VERSION
     : admitted.drawingMetadata === undefined ? LEGACY_FIELD_DESIGN_DOCUMENT_VERSION : FIELD_DESIGN_DOCUMENT_V2_VERSION, field: admitted }, null, 2);
 }
 
@@ -334,4 +339,11 @@ function assertCaptureConsistency(field: FieldDesign): void {
   });
   const conflict = gnssV2CaptureConflicts(field)[0];
   if (conflict) throw new Error(`${conflict.path.join(".")}: ${conflict.message}`);
+}
+
+export function parseFieldDesignDocumentV3(input: string | unknown): FieldDesign {
+  const raw = snapshotJsonValue(typeof input === "string" ? parseStrictJson(input) : input, "document");
+  refuseOperationalGnssEvidence(raw);
+  if (raw && typeof raw === "object" && "documentVersion" in raw && raw.documentVersion === OPERATIONAL_FIELD_DESIGN_DOCUMENT_VERSION) throw new Error("Field version requires an operational-evidence-aware reader.");
+  return parseFieldDesignDocument(raw);
 }

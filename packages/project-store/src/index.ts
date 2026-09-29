@@ -16,3 +16,4 @@ export * from "./workspaceDocument";
 export * from "./workspaceCommands";
 export { readWorkspaceDesign, workspaceBackendInfo, workspaceDesignCatalog, workspaceProjectCatalog } from "./versionedProjectRepository";
 export { createCatalogId } from "./projectCatalog";
+export * from "./layoutSessionArchive";

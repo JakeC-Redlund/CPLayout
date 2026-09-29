@@ -101,7 +101,7 @@ This record provides compact route-to-context references for hooks, coordinators
 - `.codex/hooks/cplayout_stop_multi_agent.py`: `d9a079f447da909cafe61321b0b070f49c761c828818cde07ace63a7081312f8`
 - `.codex/hooks/cplayout_subagent_start.py`: `5c3d65dbb7ba33d5ecff531cfbfcb6cd8ae98b05ad109fbe6ea99190ad34c4b3`
 - `AGENTS.md`: `ff5bfeb12012b25d61245e5854fcd6cb0803d47216837a82588b3aee32e80c34`
-- `apps/mobile/App.tsx`: `c7d9b4a0fc86c7aaaa2c94b4fc2932054d3fc30dcdbd5d72c37f118f4555aeb7`
+- `apps/mobile/App.tsx`: `4aec5d50b88c9c4bca212ad7c6de638afc9b7e403e8a67d28b3a371f40da3358`
 - `docs/README.md`: `8de4aa5fc25f15f9d80c8fde1fd928a1d974d2810e633243032d62b82af45dae`
 - `docs/agent-known-gaps.md`: `bd68c48452e3094b9d6f0825cf9643301df267063cc1ee18a58e4c15e95fc6a9`
 - `docs/agent-prompt-registry.md`: `65bbf9223b03a72ade1537ca3ac9f240d1fd6a4b751b7a3addf855be7affddd9`
@@ -112,12 +112,12 @@ This record provides compact route-to-context references for hooks, coordinators
 - `docs/codex-managed-hook-deployment.md`: `bd161d4ec4e88bec9df30e419e798a75801e465398ad0039e0aab63d515c6b5b`
 - `docs/kml-kmz-google-earth-source-ledger.md`: `f7005f48fde5a880d0cbdf584212cc009f564adbe58eb29295d4e437c33f3d08`
 - `docs/rtk-gnss-integration-plan.md`: `355a83416053732bf62969ecc23d539e54e0aabd118e50e76fe9a1b10e21ee44`
-- `package.json`: `3d64ccb164d3fdc814d5a456e8987ba9c77213244eeb16d720031d64cb0982a4`
+- `package.json`: `bdb799da2fe221a4685edd93a60c2f11d4be7ea147ba39cdb9c5f3209505c80e`
 - `packages/core/src/cornerGpsMapImport.ts`: `35e170203a5bdf5669b3bfd088f549c7e2326ad05891c319fa9ce717a19a258f`
-- `packages/core/src/index.ts`: `69c2a265b380192f2ec0a5b4ce6c35c8ce8ded56e8e14f521adf40112b2fb0c5`
-- `packages/core/src/projectDocument.ts`: `53318b0655ea183b260e78bbff8bdeaeb870ee140e1760013260231eccc7a62e`
+- `packages/core/src/index.ts`: `8862cc22533bd7a63b17d00759570e6dbd19ddec282484619764dd80bbe61910`
+- `packages/core/src/projectDocument.ts`: `6c881dfd0825f72753efc42cb123f890173c34822480f5ef660a4aa33ade9778`
 - `packages/geometry/src/index.ts`: `15e3f996cf2dcde2822edb14abccdc2b3b3db2aa54f524849bfcdfb33f88b419`
-- `packages/gnss/src/index.ts`: `9a78f48fefcc5cd5edcfcdb830fe0002321fdf1ee7bc81e9011ad8f3f7d72e46`
-- `packages/project-store/src/index.ts`: `3b6c5280b340e3f69e8664e05bff3d92bc4dab29a0954b85fd469a838b35978f`
+- `packages/gnss/src/index.ts`: `ad5cb41391985ad957fcf5cf7ab4cf666f2830d68d7082dffef07f77110ef0d0`
+- `packages/project-store/src/index.ts`: `ef37669d2319f393d1a093222e73e8a5cd4794f76e3c9ec4bcc0784346495b5f`
 - `tools/build_cplayout_context_map.py`: `a25adf5da411a7ce7c4b188e54f43eb1ce41d4b5f00e3eccfce4812ffdad3889`
 - `tools/validate_cplayout_skills.py`: `f7f13c692a8a93e885e1c18d59fde3fb0d1ac5bdfcbded19872c854724842a61`

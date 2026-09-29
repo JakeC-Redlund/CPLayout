@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { DESIGN_DRAFT_DOCUMENT_VERSION, parseDesignDraftDocument, type DesignDraft, type DesignDraftMachine } from "./designDraft";
+import { OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION, parseDesignDraftDocument, type DesignDraft, type DesignDraftMachine } from "./designDraft";
 import { projectDataKey } from "./projectDataComparison";
 import { snapshotJsonValue } from "./jsonDataSnapshot";
 import { DRAFT_DRAWING_WORKFLOW_VERSION, createDraftDrawingWorkflow, reduceDraftDrawingWorkflow, type DraftDrawingCommand } from "./draftDrawingWorkflow";
@@ -216,7 +216,7 @@ function travel(state: DesignDraftEditorState, direction: "undo" | "redo"): Desi
 }
 
 function snapshot(draft: DesignDraft): DesignDraft {
-  return parseDesignDraftDocument({ documentVersion: DESIGN_DRAFT_DOCUMENT_VERSION, draft });
+  return parseDesignDraftDocument({ documentVersion: OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION, draft });
 }
 
 function hasCoordinates(draft: DesignDraft): boolean {

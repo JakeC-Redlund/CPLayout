@@ -1,10 +1,23 @@
 # Development Status
 
-Updated 2026-09-27. Current resumption index; not release acceptance.
+Updated 2026-09-28. Current resumption index; not release acceptance.
 Read after `AGENTS.md` and `agent-tree-protocol.md` when resuming broad work.
 Use one linked task contract, not the complete historical logs.
 
 ## Current State
+
+- The [complete desktop workflow pass](complete-workflow-improvement.md) is being
+  implemented and verified in isolated branch `codex/complete-workflow-20260928`,
+  based on `a70a6ebd81bcef1c11ca2fef6cdc57442f143689`. Customer/field creation,
+  draft completion, immutable Layout sessions, operational fixed-GGA collection,
+  serial and local TCP/UDP connections, and retained editor navigation are implemented.
+  Final software review and the consolidated human review remain pending. The
+  canonical publication checkpoint and its browser-test edit remain untouched;
+  this work has not been integrated or published. Continue with that task record.
+
+### Preserved 2026-09-27 checkpoint
+
+The following facts describe the preceding checkpoint, not this isolated build.
 
 - Checkout: `main`, base `96ba2e90aed79efae0b44ab7190a53a2bd677700`.
   Review preflight found 70 modified tracked entries and 110 untracked entries
@@ -43,6 +56,11 @@ Use one linked task contract, not the complete historical logs.
   validation and public companion wheel provenance are still being finalized.
 
 ## Next Queue
+
+Complete the isolated desktop workflow acceptance and consolidated human review
+first. The preceding drawing and field questionnaires below are historical input;
+their approvals do not apply to the changed workflow. Native, physical transport
+and field-accuracy gates remain independent.
 
 | Order | Deliverable and owner boundary | Exit evidence |
 | --- | --- | --- |

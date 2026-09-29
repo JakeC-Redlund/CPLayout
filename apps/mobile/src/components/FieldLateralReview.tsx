@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import type { FieldDesign } from "@cplayout/core";
+import { formatDistance, squareMetersToAcres, type FieldDesign } from "@cplayout/core";
 import { evaluateStraightLateral, type StraightLateralEvaluation } from "@cplayout/geometry";
 
 /** The new persisted kind is visible and calculable without pretending it is a pivot. */
@@ -16,18 +16,18 @@ export function FieldLateralReview({ field, revision, blocked }: { field: FieldD
       const current = result?.key.inputRevision === revision && result.key.fieldId === field.id;
       return <View key={machine.id} style={styles.machine}>
         <Text style={styles.label}>{machine.name}</Text>
-        <Text style={styles.text}>Left: {machine.leftExtentMeters} m | Right: {machine.rightExtentMeters} m | Travel heading: {machine.travelHeadingDegrees}°</Text>
-        <Text style={styles.text}>From ({machine.travel.start.x}, {machine.travel.start.y}) to ({machine.travel.end.x}, {machine.travel.end.y})</Text>
-        <Text style={styles.text}>Water source: {machine.waterSourceId ?? "Unassigned"} | Sprinkler reach: {machine.sprinklerReachMeters === undefined ? "Unknown" : `${machine.sprinklerReachMeters} m`}</Text>
+        <Text style={styles.text}>Left: {formatDistance(machine.leftExtentMeters, "us_survey_feet")} | Right: {formatDistance(machine.rightExtentMeters, "us_survey_feet")} | Travel heading: {machine.travelHeadingDegrees}°</Text>
+        <Text style={styles.text}>Machine {machine.id} · Design revision {revision} · Travel endpoints saved</Text>
+        <Text style={styles.text}>Water source: {machine.waterSourceId ?? "Unassigned"} | Sprinkler reach: {machine.sprinklerReachMeters === undefined ? "Unknown" : formatDistance(machine.sprinklerReachMeters, "us_survey_feet")}</Text>
         <Pressable accessibilityRole="button" accessibilityState={{ disabled: blocked }} disabled={blocked} style={styles.button} testID={`field-lateral-calculate-${machine.id}`} onPress={() => {
           try { const value = evaluateStraightLateral(field, { machineId: machine.id, inputRevision: revision, expectedRevision: revision }); setResults(values => ({ ...values, [machine.id]: value })); setError(null); }
           catch (failure) { setError(failure instanceof Error ? failure.message : String(failure)); }
         }}><Text style={styles.label}>Check straight travel</Text></Pressable>
         {current && result.status === "unsupported" && result.blockers.map((blocker, index) => <Text key={index} style={styles.text}>{blocker.message}</Text>)}
         {current && result.status === "evaluated" && <View testID={`field-lateral-result-${machine.id}`}>
-          <Text style={styles.text}>Structural swept area: {result.rawSweptSquareMeters.toFixed(2)} m²</Text>
-          <Text style={styles.text}>{result.boundaryConstraint.status === "within_boundary" ? "Buffered travel stays within the field in this model." : "Buffered travel extends outside the field."}</Text>
-          <Text style={styles.text}>Hard-obstacle conflicts: {result.mechanicalConstraints.conflicts.length}</Text>
+          <Text style={styles.text}>Area traveled by the machine: {squareMetersToAcres(result.rawSweptSquareMeters).toFixed(2)} acres</Text>
+          <Text style={styles.text}>{result.boundaryConstraint.status === "within_boundary" ? "Travel and required clearance stay within the field in this calculation." : "Travel or required clearance extends outside the field."}</Text>
+          <Text style={styles.text}>Machine obstacles crossed: {result.mechanicalConstraints.conflicts.length}</Text>
           <Text style={styles.text}>{result.wet.status === "unknown" ? "Potential wet area is unknown without sprinkler reach." : `Potential wet area inside the field after no-spray exclusions: ${(result.wet.clippedSquareMeters / 4046.8564224).toFixed(2)} acres.`}</Text>
           <Text style={styles.text}>Rigid straight travel only. Clearance from other machines, bends, terrain, pressure, flow, nozzles and application performance are unverified.</Text>
         </View>}

@@ -2,7 +2,7 @@ import { expect, test, type Locator, type Page, type TestInfo } from "@playwrigh
 import { readWorkspace, workspaceStorageBytes } from "./workspace-fixtures";
 import { activateMapTool } from "./map-toolbar";
 import { unobstructedMapPoint } from "./map-hit-point";
-import { fillSyntheticGnssReferenceDeclaration } from "./gnss-reference-fixture";
+import { connectOperationalReceiver, emitGga, gga, installOperationalReceiver, type ReceiverFixtureWindow } from "./operational-receiver-fixture";
 import { strFromU8, unzipSync } from "fflate";
 import { readFile } from "node:fs/promises";
 import { defaultAppSettings, parseProjectDocument, projectXyToLonLat } from "../../packages/core/src";
@@ -279,7 +279,7 @@ test("catalog home readiness replaces global count metrics", async ({ page }, te
   await expect(readiness).toContainText("Active context");
   await expect(readiness).toContainText("Next action");
   await expect(readiness).toContainText("Imagery");
-  await expect(readiness).not.toContainText("Clients");
+  await expect(readiness).not.toContainText("Customers");
   await expect(readiness).not.toContainText("Projects");
   await expect(readiness).not.toContainText("Field maps");
   await expect(readiness).not.toContainText("Designs");
@@ -296,7 +296,7 @@ test("catalog home routes stay navigation-only and non-project-backed", async ({
 
   await page.getByTestId("workspace-nav-dashboard").click();
   await expect(page.getByTestId("dashboard-workspace")).toBeVisible();
-  await expect(page.getByTestId("catalog-home-readiness")).toBeVisible();
+  await expect(page.getByTestId("dashboard-workspace").getByTestId("catalog-home-readiness")).toBeVisible();
   await expect(page.getByText("Coverage")).toHaveCount(0);
   await expect(page.getByText("Irrigated")).toHaveCount(0);
   await expect(page.getByText("Will Rhea / Jason Harmelink Example Map")).toHaveCount(0);
@@ -346,7 +346,7 @@ test("catalog blank design starts empty and requires explicit coordinates before
   await openCatalogFromFile(page);
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("Project Catalog");
   await openInspectorIfCollapsed(page);
-  await expect(page.getByText("Select a field map and start a design, or open a saved design. Catalog maps are navigation-only.")).toBeVisible();
+  await expect(page.getByText("Create a customer and project, name your first field, then add a design. You can return to any saved item from the list.")).toBeVisible();
   await closeInspectorIfOpen(page);
   await expect(page.getByTestId("design-action-polygon")).toHaveCount(0);
 
@@ -385,10 +385,10 @@ test("catalog blank design starts empty and requires explicit coordinates before
     await map.click({ position });
   }
   await page.getByTestId("design-draft-commit").click();
-  await page.getByTestId("drawing-purpose-select").click();
-  await page.getByTestId("drawing-purpose-field_boundary").click();
-  await page.getByTestId("drawing-classification-confirm").click();
-  await expect(page.getByTestId("drawing-classification-dialog")).toHaveCount(0);
+  await page.getByTestId("drawing-purpose-select").selectOption("field_boundary");
+  await page.getByTestId("drawing-classification-keep").click();
+  if (await page.getByTestId("drawing-classification-confirm").isVisible()) await page.getByTestId("drawing-classification-confirm").click();
+  await expect(page.getByTestId("drawing-classification-inline")).toHaveCount(0);
   await expect(page.getByTestId("draft-error")).toHaveCount(0);
   await page.getByTestId("draft-save").click();
   await expect(page.getByTestId("draft-save-state")).toContainText("Saved");
@@ -453,13 +453,13 @@ test("map-first catalog tree creates client projects and field maps without hidd
   await expect(page.getByTestId("design-action-polygon")).toHaveCount(0);
   await expect(page.getByText("North Quarter Concept Layout")).toBeHidden();
   await expect(page.getByText("Base Design")).toBeHidden();
-  await expect(page.getByTestId("project-tree-rail")).toContainText("0 design files");
+  await expect(page.getByTestId("project-tree-rail")).toContainText("0 designs");
   await expectNoSavedProjectDocuments(page);
 
   await createCatalogItem(page, "Field Map", "North Quarter", "Saved under: Adams Farms > Adams North Unit");
   await expect(page.getByRole("button", { name: "North Quarter", exact: true })).toBeVisible();
   await expect(page.getByTestId("project-tree-rail")).toContainText("North Quarter");
-  await expect(page.getByTestId("project-tree-rail")).toContainText("0 design files");
+  await expect(page.getByTestId("project-tree-rail")).toContainText("0 designs");
   await expect(page.getByTestId("browser-map-workbench")).toContainText(/Client\/project catalog view|Catalog/);
   await expectNoSavedProjectDocuments(page);
   await createCatalogItem(page, "Design", "RTK Layout Pass", "Saved under: Adams Farms > Adams North Unit > North Quarter");
@@ -493,13 +493,14 @@ test("catalog creation modal cancel leaves the tree unchanged", async ({ page },
 
   await page.goto("/");
   await openProjectDrawerIfCollapsed(page);
-  await expect(page.getByText("No client folders yet.")).toBeVisible();
+  await expect(page.getByText("No customers yet.")).toBeVisible();
   await clickProjectTreeAction(page, "client");
   await expect(page.getByTestId("client-profile-dialog")).toBeVisible();
   await page.getByTestId("client-profile-cancel").click();
   await expect(page.getByTestId("client-profile-dialog")).toBeHidden();
-  await expect(page.getByText("No client folders yet.")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Client 1" })).toBeHidden();
+  await expect(page.getByText("No customers yet.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Customer 1" })).toBeHidden();
+  expect((await readWorkspace(page)).catalog.clients).toEqual([]);
   expect(nativeDialogs).toEqual([]);
   await saveScreen(page, testInfo, "catalog-modal-cancel-unchanged");
 });
@@ -507,14 +508,15 @@ test("catalog creation modal cancel leaves the tree unchanged", async ({ page },
 test("catalog creation modal validates blank names without creating records", async ({ page }, testInfo) => {
   await page.goto("/");
   await openProjectDrawerIfCollapsed(page);
-  await expect(page.getByText("No client folders yet.")).toBeVisible();
+  await expect(page.getByText("No customers yet.")).toBeVisible();
   await clickProjectTreeAction(page, "client");
   await expect(page.getByTestId("client-profile-dialog")).toBeVisible();
   await page.getByLabel("Company name").fill("   ");
   await page.getByTestId("client-profile-save").click();
-  await expect(page.getByTestId("client-profile-error")).toHaveText("Enter primary contact first and last name before saving.");
+  await expect(page.getByTestId("client-profile-first-name-input-error")).toHaveText("Enter the contact\'s first name.");
+  await expect(page.getByTestId("client-profile-last-name-input-error")).toHaveText("Enter the contact\'s last name.");
   await expect(page.getByTestId("client-profile-dialog")).toBeVisible();
-  await expect(page.getByText("No client folders yet.")).toBeVisible();
+  await expect(page.getByText("No customers yet.")).toBeVisible();
   await page.getByTestId("client-profile-cancel").click();
   await saveScreen(page, testInfo, "catalog-modal-blank-validation");
 });
@@ -555,8 +557,9 @@ test("client detail manages profile and contained project lifecycle", async ({ p
   await expect(page.getByTestId("client-detail-panel")).toContainText("Adams Farms");
   await expect(page.getByText("Operator, Ana J. Jr.")).toBeVisible();
 
-  await page.getByRole("button", { name: "Edit Client" }).click();
+  await page.getByRole("button", { name: "Edit Customer" }).click();
   await expect(page.getByTestId("client-profile-dialog")).toBeVisible();
+  await page.getByTestId("client-profile-details-toggle").click();
   await page.getByLabel("Location").fill("North Adams County");
   await page.getByTestId("client-profile-save").click();
   await expect(page.getByTestId("client-profile-dialog")).toBeHidden();
@@ -566,7 +569,7 @@ test("client detail manages profile and contained project lifecycle", async ({ p
   await openCatalogFromFile(page);
   await openInspectorIfCollapsed(page);
   await expect(page.getByTestId("client-detail-projects")).toContainText("North Unit");
-  await expect(page.getByRole("button", { name: "Delete Client" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Delete Customer" })).toBeDisabled();
 
   const beforeRename = await readWorkspace(page);
   const originalKeys = (await workspaceStorageBytes(page)).slice(1);
@@ -606,7 +609,7 @@ test("client detail manages profile and contained project lifecycle", async ({ p
   await expect(page.getByTestId("delete-project-dialog")).toBeHidden();
   await expect(page.getByTestId("client-detail-projects")).not.toContainText("North Unit Renamed");
 
-  await page.getByRole("button", { name: "Delete Client" }).click();
+  await page.getByRole("button", { name: "Delete Customer" }).click();
   await expect(page.getByTestId("delete-client-dialog")).toBeVisible();
   await page.getByTestId("delete-client-dialog-confirm").click();
   await expect(page.getByRole("button", { name: "Beta Farms", exact: true })).toBeHidden();
@@ -633,7 +636,14 @@ test("public proof map features can select the side-panel editor without geometr
     await saveScreen(page, testInfo, "public-proof-feature-mobile-map-visible");
     return;
   }
-  await workbench.click({ position: { x: box.width * 0.61, y: box.height * 0.68 } });
+  const storedBefore = await workspaceStorageBytes(page);
+  const sourceProject = parseProjectDocument((await readWorkspace(page)).projectDocuments[0].document);
+  const powerFeed = sourceProject.mapFeatures?.find(feature => feature.id === "power-feed-from-112th");
+  expect(powerFeed?.geometry.type).toBe("LineString");
+  if (!powerFeed || powerFeed.geometry.type !== "LineString") throw new Error("Public proof power feed is missing");
+  const [start, end] = powerFeed.geometry.vertices;
+  await closeInspectorIfOpen(page);
+  await clickWorkbenchProjectedPoint(page, { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 });
   await expect(page.getByText(/Selected map feature/)).toBeVisible();
   await expect(page.getByLabel("Selected map feature name")).toHaveValue("Power feed from 112th Avenue");
   await expect(page.getByText("Saved")).toBeVisible();
@@ -648,6 +658,7 @@ test("public proof map features can select the side-panel editor without geometr
   await expect(workbench).toHaveAttribute("data-map-camera", camera!);
   await page.getByTestId("workflow-sidebar-tab-feature").click();
   await expect(page.getByLabel("Selected map feature name")).toHaveValue("Power feed from 112th Avenue");
+  expect(await workspaceStorageBytes(page)).toEqual(storedBefore);
 });
 
 test("workspace rail exposes the selected view state", async ({ page }, testInfo) => {
@@ -790,23 +801,24 @@ test("survey rtk receiver starts closed without mutating the project", async ({ 
   await page.getByTestId("workspace-nav-survey").click();
   await expect(page.getByTestId("survey-view")).toBeVisible();
   await expect(page.getByTestId("rtk-gate-badge").getByText("Gate closed")).toBeVisible();
-  await expect(page.getByTestId("rtk-gate-reasons")).toHaveText(/receiver is not connected/);
-  await expect(page.getByTestId("rtk-status")).toHaveText(/No receiver connected|Web Serial is unavailable/);
+  await expect(page.getByTestId("receiver-collection-readiness")).toHaveText("Connect a receiver to collect a position.");
+  await expect(page.getByTestId("receiver-status")).toHaveText("No receiver connected.");
   await expect(page.getByRole("button", { name: "Capture Survey Point" })).toBeDisabled();
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
   await saveScreen(page, testInfo, "survey-rtk-gate-closed");
 });
 
-test("survey rtk capture requires coherent current serial evidence and closes on disconnect", async ({ page }, testInfo) => {
+test("survey rtk capture requires current fixed GGA and closes on disconnect", async ({ page }, testInfo) => {
   await openControlledRtkReceiver(page);
   await expect(page.getByTestId("rtk-gate-badge").getByText("Collection eligible")).toBeVisible();
-  await expect(page.getByText("3D field accuracy", { exact: true }).locator("..")).toContainText("Unverified");
-  await expect(page.getByText("rtk_fixed", { exact: true })).toBeVisible();
+  await expect(page.getByText(/Measured field accuracy remains unverified/)).toBeVisible();
+  await expect(page.getByText("Fix: RTK Fixed — receiver reported", { exact: true })).toBeVisible();
+  await expect(page.getByText("Sentence: GNGGA", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Capture Survey Point" })).toBeEnabled();
   await page.getByRole("button", { name: "Capture Survey Point" }).click();
   await expect(page.getByTestId("rtk-status")).toContainText("Captured control survey point with RTK fixed confidence.");
   await expect(page.getByText("Unsaved edits")).toBeVisible();
-  await page.getByRole("button", { name: "Disconnect" }).click();
+  await page.getByRole("button", { name: "Disconnect receiver", exact: true }).click();
   await expect(page.getByTestId("rtk-gate-badge").getByText("Gate closed")).toBeVisible();
   await expect(page.getByRole("button", { name: "Capture Survey Point" })).toBeDisabled();
   await saveScreen(page, testInfo, "survey-rtk-coherent-capture");
@@ -827,100 +839,53 @@ test("survey rtk closed gate disables geometry capture controls", async ({ page 
   await saveScreen(page, testInfo, "survey-rtk-geometry-disabled");
 });
 
-type ControlledRtkWindow = Window & {
-  cplayoutRtkFixture: { nowMs: number; emit(payload: string): void };
-};
-
-async function installControlledRtkStream(page: Page): Promise<void> {
-  await page.addInitScript((initialPayload: string) => {
-    let controller: ReadableStreamDefaultController<Uint8Array>;
-    const fixture = {
-      nowMs: 1000,
-      emit(payload: string) { controller.enqueue(new TextEncoder().encode(payload)); },
-    };
-    (window as ControlledRtkWindow).cplayoutRtkFixture = fixture;
-    Object.defineProperty(performance, "now", { configurable: true, value: () => fixture.nowMs });
-    Object.defineProperty(navigator, "serial", {
-      configurable: true,
-      value: {
-        async requestPort() {
-          const readable = new ReadableStream<Uint8Array>({
-            start(nextController) {
-              controller = nextController;
-              fixture.emit(initialPayload);
-            },
-          });
-          return {
-            readable, writable: null, async open() {},
-            async close() { if (!readable.locked) await readable.cancel(); },
-          };
-        },
-      },
-    });
-  }, controlledRtkPayload());
-}
-
 function controlledNmeaSentence(body: string): string {
   const checksum = [...body].reduce((value, character) => value ^ character.charCodeAt(0), 0);
   return `$${body}*${checksum.toString(16).padStart(2, "0")}\r\n`;
 }
 
-function controlledRtkPayload(time = "123519.00"): string {
-  return [
-    `GNGGA,${time},3900.000000,N,10400.000000,W,4,18,0.6,1600.0,M,-20.0,M,0.5,0000`,
-    `GNGST,${time},0.01,0.01,0.01,0.0,0.01,0.01,0.02`,
-    `GNRMC,${time},A,3900.000000,N,10400.000000,W,0.0,0.0,130926,,,A`,
-  ].map(controlledNmeaSentence).join("");
-}
-
 async function openControlledRtkReceiver(page: Page): Promise<void> {
-  await installControlledRtkStream(page);
+  await installOperationalReceiver(page, gga());
   await page.goto("/");
   await openBaselineSample(page);
   await page.getByTestId("workspace-nav-survey").click();
-  await page.getByRole("textbox", { name: "Receiver source CRS" }).fill("EPSG:4326");
-  await fillSyntheticGnssReferenceDeclaration(page);
-  await page.getByRole("button", { name: "Open Serial" }).click();
+  await expect(page.getByRole("textbox", { name: "Receiver source CRS" })).toHaveCount(0);
+  await connectOperationalReceiver(page);
   await expect(page.getByTestId("rtk-gate-badge")).toContainText("Collection eligible");
 }
 
 test("survey rtk invalid latest fix and replayed epoch cannot revive capture", async ({ page }, testInfo) => {
   await openControlledRtkReceiver(page);
-  await expect(page.getByText("Horizontal uncertainty", { exact: true })).toBeVisible();
-  await expect(page.getByText("0.014 m", { exact: true })).toBeVisible();
-  await page.evaluate((payload) => {
-    (window as ControlledRtkWindow).cplayoutRtkFixture.emit(payload);
-  }, controlledNmeaSentence("GNGGA,123520.00,,,,,0,0,,,,,,,"));
+  const storedBefore = await workspaceStorageBytes(page);
+  await expect(page.getByText("Sentence: GNGGA", { exact: true })).toBeVisible();
+  await emitGga(page, controlledNmeaSentence("GNGGA,120001.00,,,,,0,0,,,,,,,"));
   await expect(page.getByTestId("rtk-gate-badge")).toContainText("Gate closed");
   await expect(page.getByRole("button", { name: "Capture Survey Point" })).toBeDisabled();
-  await page.evaluate((payload) => {
-    const fixture = (window as ControlledRtkWindow).cplayoutRtkFixture;
-    fixture.nowMs = 6000;
-    fixture.emit(payload);
-  }, controlledRtkPayload());
-  await expect(page.getByTestId("rtk-gate-reasons")).toContainText("observation age");
+  await emitGga(page, gga(), 0);
+  await expect(page.getByTestId("receiver-collection-readiness")).toContainText("Duplicate GGA epoch");
   await expect(page.getByRole("button", { name: "Capture Survey Point" })).toBeDisabled();
   await expect(page.getByTestId("project-save-state")).toContainText("Saved");
   await saveScreen(page, testInfo, "rtk-invalid-and-replayed-epoch-blocked");
-  await page.evaluate((payload) => {
-    (window as ControlledRtkWindow).cplayoutRtkFixture.emit(payload);
-  }, controlledRtkPayload("123521.00"));
+  await emitGga(page, gga("120002.00"));
   await expect(page.getByTestId("rtk-gate-badge")).toContainText("Collection eligible");
   await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+  expect(await workspaceStorageBytes(page)).toEqual(storedBefore);
 });
 
 for (const [kind, name] of [["survey", "Capture Survey Point"], ["geometry", "Add Boundary (0)"]] as const) {
   test(`survey rtk ${kind} capture rechecks age before the next display timer`, async ({ page }, testInfo) => {
     await openControlledRtkReceiver(page);
+    const storedBefore = await workspaceStorageBytes(page);
     const capture = page.getByRole("button", { name, exact: true });
     await expect(capture).toBeEnabled();
     await capture.evaluate((element) => {
-      (window as ControlledRtkWindow).cplayoutRtkFixture.nowMs += 3000;
+      (window as ReceiverFixtureWindow).operationalReceiver.nowMs += 3000;
       (element as HTMLElement).click();
     });
-    await expect(page.getByTestId("rtk-status")).toContainText("capture was blocked");
+    await expect(page.getByTestId("rtk-status")).toContainText("Collection blocked: Receiver position is stale");
     await expect(page.getByTestId("project-save-state")).toContainText("Saved");
     await expect(page.getByRole("button", { name: "Add Boundary (0)", exact: true })).toBeVisible();
+    expect(await workspaceStorageBytes(page)).toEqual(storedBefore);
     await saveScreen(page, testInfo, `rtk-${kind}-capture-time-gate`);
   });
 }
@@ -1709,9 +1674,12 @@ test("browser map edit vertices resizes selected circle map feature through radi
   await expect(page.getByTestId("browser-map-workbench")).toBeVisible();
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
 
+  const sourceProject = parseProjectDocument((await readWorkspace(page)).projectDocuments[0].document);
   await selectEndGunCircleTool(page);
-  await clickWorkbenchMap(page, { x: 180, y: 330 });
-  await clickWorkbenchMap(page, { x: 250, y: 370 });
+  await closeInspectorIfOpen(page);
+  // Draw safely inside the saved field; screen offsets depend on the current camera.
+  await clickWorkbenchProjectedPoint(page, sourceProject.pivotCenter);
+  await clickWorkbenchProjectedPoint(page, { x: sourceProject.pivotCenter.x + 40, y: sourceProject.pivotCenter.y });
   await page.getByTestId("browser-action-save-feature").click();
   await choosePendingDraftPurpose(page, "End-Gun Circle");
   await expect(page.getByTestId("project-save-state").getByText("Unsaved edits")).toBeVisible();
@@ -2343,7 +2311,7 @@ test("settings custom imagery rejects credentialed tile templates", async ({ pag
   await page.getByRole("button", { name: "Custom open" }).click();
   await page.getByLabel("Source name").fill("Open County Tiles");
   await page.getByLabel("Tile URL").fill("https://example.org/tiles/{z}/{x}/{y}.png?token=secret");
-  await page.getByLabel("Coverage").fill("County open imagery coverage");
+  await page.getByRole("textbox", { name: "Coverage", exact: true }).fill("County open imagery coverage");
   await page.getByLabel("Attribution").fill("County GIS imagery");
   await page.getByLabel("License").fill("Open imagery license");
   await expect(page.getByText(/cannot include hidden API keys, tokens, signatures, or subscription credentials/)).toBeVisible();
@@ -2365,7 +2333,7 @@ test("settings rejected credentialed imagery never reaches map requests", async 
   await page.getByRole("button", { name: "Custom open" }).click();
   await page.getByLabel("Source name").fill("Rejected Token Tiles");
   await page.getByLabel("Tile URL").fill("https://tiles.example.com/{z}/{x}/{y}.png?token=secret");
-  await page.getByLabel("Coverage").fill("Credentialed source should not be accepted");
+  await page.getByRole("textbox", { name: "Coverage", exact: true }).fill("Credentialed source should not be accepted");
   await page.getByLabel("Attribution").fill("Rejected attribution");
   await page.getByLabel("License").fill("Rejected license");
   await expect(page.getByRole("button", { name: "Apply custom open imagery source" })).toBeDisabled();
@@ -2395,7 +2363,7 @@ test("settings custom imagery applies no-key local tile templates", async ({ pag
   await page.getByRole("button", { name: "Custom open" }).click();
   await page.getByLabel("Source name").fill("Local Open Tiles");
   await page.getByLabel("Tile URL").fill("http://127.0.0.1:8088/tiles/{z}/{x}/{y}.png");
-  await page.getByLabel("Coverage").fill("Operator-hosted local tile cache");
+  await page.getByRole("textbox", { name: "Coverage", exact: true }).fill("Operator-hosted local tile cache");
   await page.getByLabel("Attribution").fill("Operator open imagery");
   await page.getByLabel("License").fill("Open local imagery license");
   await expect(page.getByText("Custom source ready")).toBeVisible();
@@ -2555,7 +2523,7 @@ test("settings browser-local imagery settings stay out of project zip", async ({
   await page.getByRole("button", { name: "Custom open" }).click();
   await page.getByLabel("Source name").fill("Local Open Tiles");
   await page.getByLabel("Tile URL").fill("http://127.0.0.1:8088/tiles/{z}/{x}/{y}.png");
-  await page.getByLabel("Coverage").fill("Operator-hosted local tile cache");
+  await page.getByRole("textbox", { name: "Coverage", exact: true }).fill("Operator-hosted local tile cache");
   await page.getByLabel("Attribution").fill("Operator open imagery");
   await page.getByLabel("License").fill("Open local imagery license");
   await page.getByRole("button", { name: "Apply custom open imagery source" }).click();
@@ -2584,6 +2552,7 @@ test("settings browser-local imagery settings stay out of project zip", async ({
 test("dashboard walkthrough progress stays out of project zip", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
+  await page.getByTestId("workspace-nav-dashboard").click();
   await page.getByTestId("walkthrough-module-imagery").click();
   await page.getByTestId("walkthrough-module-export").click();
   await expect(page.getByTestId("dashboard-card-walkthrough").getByText("2/9 modules")).toBeVisible();
@@ -2611,6 +2580,7 @@ test("dashboard walkthrough progress stays out of project zip", async ({ page },
 test("Will Rhea guided demo exposes evidence status and blocked corner-arm calculation", async ({ page }, testInfo) => {
   await page.goto("/");
   await openWillRheaExample(page);
+  await page.getByTestId("workspace-nav-dashboard").click();
   await expect(page.getByTestId("will-rhea-guided-demo-panel")).toBeVisible();
   await expect(page.getByTestId("will-rhea-guided-demo-panel")).toContainText("EPSG:32614");
   await expect(page.getByTestId("will-rhea-evidence-status")).toContainText("Field boundary");
@@ -2673,6 +2643,7 @@ test("dashboard offline imagery path advances after imagery walkthrough progress
 test("dashboard next step advances after imagery walkthrough progress", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
+  await page.getByTestId("workspace-nav-dashboard").click();
   await expect(page.getByText("Next: confirm imagery attribution and source status.")).toBeVisible();
   await page.getByTestId("walkthrough-module-imagery").click();
   await expect(page.getByText("Next: trace or inspect the field boundary in Design mode.")).toBeVisible();
@@ -3142,6 +3113,7 @@ test("dashboard dirty geometry priority outranks imagery-off guidance", async ({
 test("dashboard walkthrough progress stays local and export-ready", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
+  await page.getByTestId("workspace-nav-dashboard").click();
   await expect(page.getByTestId("dashboard-card-walkthrough").getByText("0/9 modules")).toBeVisible();
   await page.getByTestId("walkthrough-module-imagery").click();
   await expect(page.getByTestId("dashboard-card-walkthrough").getByText("1/9 modules")).toBeVisible();
@@ -3154,6 +3126,7 @@ test("dashboard walkthrough progress stays local and export-ready", async ({ pag
 test("dashboard walkthrough modules expose checkbox state and keyboard activation", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
+  await page.getByTestId("workspace-nav-dashboard").click();
   const imagery = page.getByRole("checkbox", { name: "Complete Setup Imagery walkthrough checkpoint" });
   await expect(imagery).toBeVisible();
   await expect(imagery).not.toBeChecked();
@@ -3172,6 +3145,7 @@ test("dashboard walkthrough modules expose checkbox state and keyboard activatio
 test("dashboard walkthrough progress is scoped to the active project", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
+  await page.getByTestId("workspace-nav-dashboard").click();
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("North Quarter Concept Layout");
   await page.getByTestId("walkthrough-module-imagery").click();
   await expect(page.getByTestId("dashboard-card-walkthrough").getByText("1/9 modules")).toBeVisible();
@@ -3180,6 +3154,7 @@ test("dashboard walkthrough progress is scoped to the active project", async ({ 
   await expect(page.getByText("Public Adams County Center Pivot Proof", { exact: true }).first()).toBeVisible();
   await expect(page.getByTestId("dashboard-card-walkthrough").getByText("0/9 modules")).toBeVisible();
   await openBaselineSample(page, false);
+  await page.getByTestId("workspace-nav-dashboard").click();
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("North Quarter Concept Layout");
   await expect(page.getByTestId("dashboard-card-walkthrough").getByText("1/9 modules")).toBeVisible();
   await saveScreen(page, testInfo, "dashboard-walkthrough-project-scope");
@@ -3188,6 +3163,7 @@ test("dashboard walkthrough progress is scoped to the active project", async ({ 
 test("dashboard walkthrough reset only clears the active project", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
+  await page.getByTestId("workspace-nav-dashboard").click();
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("North Quarter Concept Layout");
   await page.getByTestId("walkthrough-module-imagery").click();
   await page.getByTestId("walkthrough-module-boundary").click();
@@ -3199,6 +3175,7 @@ test("dashboard walkthrough reset only clears the active project", async ({ page
   await page.getByRole("button", { name: "Reset walkthrough progress for active project" }).click();
   await expect(page.getByTestId("dashboard-card-walkthrough").getByText("0/9 modules")).toBeVisible();
   await openBaselineSample(page, false);
+  await page.getByTestId("workspace-nav-dashboard").click();
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("North Quarter Concept Layout");
   await expect(page.getByTestId("dashboard-card-walkthrough").getByText("2/9 modules")).toBeVisible();
   await saveScreen(page, testInfo, "dashboard-walkthrough-reset-project-scope");
@@ -3207,6 +3184,7 @@ test("dashboard walkthrough reset only clears the active project", async ({ page
 test("dashboard layout warnings expose actionable map guidance", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
+  await page.getByTestId("workspace-nav-dashboard").click();
   const warnings = page.getByTestId("dashboard-layout-warnings");
   await expect(warnings.getByText("Layout Warnings")).toBeVisible();
   await expect(warnings.getByText("1 no-spray obstacle or exclusion zone removes modeled wet coverage.")).toBeVisible();
@@ -3219,6 +3197,7 @@ test("dashboard layout warnings expose actionable map guidance", async ({ page }
 test("dashboard layout warnings can inspect the map without geometry mutation", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
+  await page.getByTestId("workspace-nav-dashboard").click();
   await page.getByTestId("dashboard-layout-warnings").getByRole("button", { name: "Inspect Map" }).click();
   await expect(page.getByTestId("map-view")).toBeVisible();
   await expect(page.getByTestId("browser-map-workbench")).toBeVisible();
@@ -3230,6 +3209,7 @@ test("dashboard layout warnings can inspect the map without geometry mutation", 
 test("dashboard recent-project empty state keeps start actions visible", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page, false);
+  await page.getByTestId("workspace-nav-dashboard").click();
   const recentProjects = page.getByTestId("dashboard-recent-projects");
   await expect(recentProjects.getByText("Recent Projects")).toBeVisible();
   await expect(recentProjects.getByText("No saved browser projects yet.")).toBeVisible();
@@ -3243,15 +3223,17 @@ test("dashboard recent-project empty state keeps start actions visible", async (
 test("dashboard recent-project row can reopen a saved browser project", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
+  await page.getByTestId("workspace-nav-dashboard").click();
   await page.getByRole("button", { name: /^Save$/ }).click();
   const recentProjects = page.getByTestId("dashboard-recent-projects");
   const sampleRow = recentProjects.getByRole("button", { name: "Open recent project North Quarter Concept Layout" });
   await expect(sampleRow).toBeVisible();
   await recentProjects.getByRole("button", { name: "Create New" }).click();
   await openInspectorIfCollapsed(page);
-  await expect(page.getByTestId("catalog-notice")).toContainText("Select or create a client folder");
+  await expect(page.getByTestId("catalog-notice")).toContainText("Select or create a customer");
   await expect(page.getByText("Untitled Field Layout", { exact: true })).toBeHidden();
   await openBaselineSample(page, false);
+  await page.getByTestId("workspace-nav-dashboard").click();
   await page.getByTestId("dashboard-recent-projects").getByRole("button", { name: "Open recent project North Quarter Concept Layout" }).click();
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("North Quarter Concept Layout");
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
@@ -3511,6 +3493,7 @@ async function createClientFolder(
   await page.getByLabel("Company name").fill(name);
   await page.getByLabel("Last name").fill(profile.lastName ?? "Contact");
   await page.getByLabel("First name").fill(profile.firstName ?? "Primary");
+  if (Object.keys(profile).length) await page.getByTestId("client-profile-details-toggle").click();
   if (profile.middleInitial !== undefined) await page.getByLabel("M.I.").fill(profile.middleInitial);
   if (profile.suffix !== undefined) await page.getByLabel("Suffix").fill(profile.suffix);
   if (profile.email !== undefined) await page.getByLabel("Email").fill(profile.email);
@@ -3523,7 +3506,7 @@ async function createClientFolder(
 
 async function createProjectForSelectedClient(page: Page, itemName: string, contextText?: string | RegExp): Promise<void> {
   await openInspectorIfCollapsed(page);
-  await page.getByRole("button", { name: "New Project", exact: true }).click();
+  await page.getByTestId("inspector-scroll").getByRole("button", { name: "New Project", exact: true }).click();
   await expect(page.getByTestId("catalog-dialog")).toBeVisible();
   if (contextText) await expect(page.getByTestId("catalog-dialog-context")).toContainText(contextText);
   await page.getByLabel("Catalog item name").fill(itemName);
@@ -3672,7 +3655,8 @@ async function selectCornerFootprintTool(page: Page): Promise<void> {
 async function choosePendingDraftPurpose(page: Page, label: string): Promise<void> {
   const panel = page.getByTestId("pending-draft-purpose-panel");
   await expect(panel).toBeVisible();
-  await panel.getByRole("button", { name: label, exact: true }).click();
+  await panel.getByTestId("pending-draft-purpose-select").selectOption({ label });
+  await panel.getByTestId("pending-draft-keep").click();
 }
 
 async function selectPanTool(page: Page): Promise<void> {

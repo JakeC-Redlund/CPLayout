@@ -3,6 +3,7 @@ import type { ReadStream } from "node:fs";
 import { createServer } from "node:http";
 import type { ServerResponse } from "node:http";
 import { basename, extname, isAbsolute, join, normalize, relative, resolve, sep } from "node:path";
+import { createReceiverCompanion } from "./receiverCompanion";
 
 const [rootArg = "apps/mobile/dist", portArg = "19006"] = process.argv.slice(2);
 const root = resolve(rootArg);
@@ -83,7 +84,9 @@ export function staticHealthResponse(exportRoot: string): { statusCode: number; 
   return { statusCode: body.ok ? 200 : 503, body };
 }
 
+const receiver = createReceiverCompanion({ allowedOrigin: `http://127.0.0.1:${port}` });
 const server = createServer((request, response) => {
+  if (receiver.handle(request, response)) return;
   const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "127.0.0.1"}`);
   if (url.pathname === healthPath) {
     const health = staticHealthResponse(root);
@@ -92,7 +95,7 @@ const server = createServer((request, response) => {
       "cache-control": "no-store",
       "content-type": "application/json; charset=utf-8",
     });
-    response.end(JSON.stringify({ app: "cplayout", server: "serveStaticWeb", root, port, ...health.body }));
+    response.end(JSON.stringify({ app: "cplayout", server: "serveStaticWeb", root, port, receiver: receiver.status(), ...health.body }));
     return;
   }
 
@@ -130,6 +133,18 @@ if (basename(process.argv[1] ?? "") === "serveStaticWeb.ts") {
   server.listen(port, "127.0.0.1", () => {
     console.log(`Serving ${root} at http://127.0.0.1:${port}`);
   });
+
+  let shuttingDown = false;
+  const shutdown = () => {
+    if (shuttingDown) return;
+    shuttingDown = true;
+    void receiver.close().finally(() => {
+      server.close(() => process.exit(0));
+      server.closeIdleConnections();
+    });
+  };
+  process.once("SIGTERM", shutdown);
+  process.once("SIGINT", shutdown);
 
   server.on("error", (error: NodeJS.ErrnoException) => {
     if (error.code === "EADDRINUSE") {

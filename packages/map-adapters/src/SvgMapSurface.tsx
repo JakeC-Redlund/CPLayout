@@ -56,6 +56,7 @@ import type { MapSurfaceProps } from "./types";
 import { useMapInteractionController } from "./useMapInteractionController";
 import { finitePointBounds, fitProjectedBounds, viewportForScreen } from "./mapFit";
 import { trackMapPointers } from "./mapPointerGuard";
+import { createSvgMapCameraSession, type MapCameraFrame, type MapCameraFrameIdentity } from "./mapCameraSession";
 import { anchoredPixelBox, createSvgSymbolScale, MAP_LABEL_FONT_PIXELS, placeMapLabels, visibleCircleLabelPoint, visiblePathLabelPoint, type MapLabelCandidate, type PixelBox } from "./svgMapLabels";
 
 type MapPalette = ReturnType<typeof paletteForMapStyle>;
@@ -158,6 +159,12 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
   const [labelObstructions, setLabelObstructions] = useState<Record<string, PixelBox>>({});
   const externalDraftBottom = bottomOverlay ? (labelObstructions.bottom?.height ?? 0) + 16 : 8;
   const [localSelectedMapFeatureId, setLocalSelectedMapFeatureId] = useState<string | null>(null);
+  const [cameraSession] = useState(createSvgMapCameraSession);
+  const cameraFrameRef = useRef<MapCameraFrame | null>(null);
+  const committedCameraIdentity = useRef<MapCameraFrameIdentity | null>(null);
+  const cameraIdentity = useMemo(() => ({ projectId: project.id, projectCrs: project.projectCrs,
+    projectGeneration: props.projectGeneration ?? 0, homeView: catalogHomeView, projectionAvailable: true }),
+  [project.id, project.projectCrs, props.projectGeneration, catalogHomeView]);
   const [legendOpen, setLegendOpen] = useState(false);
   const activeSelectedMapFeatureId = selectedMapFeatureId === undefined ? localSelectedMapFeatureId : selectedMapFeatureId;
   const controller = useMapInteractionController(
@@ -260,11 +267,13 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
       onStartShouldSetPanResponderCapture: (event) => { startMapTouch(event); return false; },
       onMoveShouldSetPanResponder: (_event, gesture) => gestureAllowed.current && Math.abs(gesture.dx) + Math.abs(gesture.dy) > 6,
       onPanResponderGrant: () => {
+        if (!ownsCamera()) return;
         panAllowed.current = gestureAllowed.current;
         suppressTapUntil.current = Infinity;
       },
       onPanResponderTerminate: () => { panAllowed.current = false; suppressTapUntil.current = Date.now() + 350; },
       onPanResponderRelease: (_event, gesture) => {
+        if (!ownsCamera()) return;
         suppressTapUntil.current = Date.now() + 350;
         if (!panAllowed.current) return;
         panAllowed.current = false;
@@ -277,7 +286,7 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
         });
       },
     }),
-    [designMode, mapPixelHeight, mapPixelWidth, mapState.mode, mapState.viewport, selectedVertex],
+    [cameraIdentity, designMode, mapPixelHeight, mapPixelWidth, mapState.mode, mapState.viewport, selectedVertex],
   );
   const panHandlers = panResponder.panHandlers;
   // react-native-svg maps onPress to the DOM click handler on web.
@@ -291,10 +300,22 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
     && Boolean(props.activeMapFeatureKind ? props.onAddMapFeature : props.onCreateMapFeatureDraft));
   const mapClickLayerActive = designMode && mapState.mode !== "pan" && mapState.mode !== "edit_vertices";
   useLayoutEffect(() => {
-    cancelMapGesture();
-    setViewport(initialViewport);
-    setLocalSelectedMapFeatureId(null);
-  }, [project.id, project.projectCrs, props.projectGeneration, catalogHomeView]);
+    const previous = cameraFrameRef.current;
+    if (previous && cameraSession.isCurrent(previous)) {
+      cameraSession.remember(previous, { viewport, selectedMapFeatureId: localSelectedMapFeatureId });
+    }
+    const current = cameraSession.useFrame(cameraIdentity);
+    cameraFrameRef.current = current;
+    committedCameraIdentity.current = cameraIdentity;
+    if (current !== previous) {
+      cancelMapGesture();
+      const restored = cameraSession.restore(current);
+      setViewport(restored?.viewport ?? initialViewport);
+      const selected = restored?.selectedMapFeatureId;
+      setLocalSelectedMapFeatureId(selected && mapFeatures.some(feature => feature.id === selected) ? selected : null);
+      setLastSnap(null);
+    }
+  });
   useLayoutEffect(cancelMapGesture, [mapPixelWidth, mapPixelHeight]);
   useLayoutEffect(() => {
     if (Platform.OS !== "web" || typeof ResizeObserver === "undefined") return;
@@ -331,6 +352,11 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
     pointerTracking.current?.cancel();
   }
 
+  function ownsCamera(): boolean {
+    const frame = cameraFrameRef.current;
+    return committedCameraIdentity.current === cameraIdentity && frame !== null && cameraSession.isCurrent(frame);
+  }
+
   function startMapTouch(event: GestureResponderEvent): void {
     if (Platform.OS === "web") return;
     if (event.nativeEvent.touches.length === 1) gestureAllowed.current = true;
@@ -338,7 +364,7 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
   }
 
   function fitField(): void {
-    if (catalogHomeView || !fieldBounds) return;
+    if (!ownsCamera() || catalogHomeView || !fieldBounds) return;
     const obstruction = fitObstructions.current;
     const topVisible = !deferMapNotices && (imageryPlan || referenceOverlayNotice || externalHudLayout);
     const insets = {
@@ -382,6 +408,7 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
   }
 
   function dispatch(action: DrawingMapAction): void {
+    if (!ownsCamera()) return;
     switch (action.type) {
       case "pan":
         cancelMapGesture();
@@ -542,6 +569,7 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
   }
 
   function selectMapFeature(featureId: string): void {
+    if (!ownsCamera()) return;
     const nextId = activeSelectedMapFeatureId === featureId ? null : featureId;
     setLocalSelectedMapFeatureId(nextId);
     onSelectMapFeature?.(nextId);

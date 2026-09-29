@@ -30,6 +30,7 @@ async function seed(context: BrowserContext) {
   await store.initializeAsync();
   values.set(workspaceKey, serializeWorkspaceDocument(fixture()));
   await context.addInitScript(({ key, entries }) => {
+    if (location.protocol !== "http:" && location.protocol !== "https:") return;
     if (localStorage.getItem(key) === null) for (const [name, value] of entries) localStorage.setItem(name, value);
   }, { key: workspaceKey, entries: [...values] });
 }
@@ -41,10 +42,12 @@ async function openDrawer(page: Page) {
 
 async function open(page: Page) {
   await page.goto("/");
-  await openDrawer(page);
-  const command = page.getByTestId("catalog-design-draft-design-open");
-  if (test.info().project.use.hasTouch) await command.tap();
-  else await command.click();
+  const resume = await page.evaluate(() => JSON.parse(localStorage.getItem("cplayout-desktop-context-v1") ?? "null"));
+  if (!resume?.editorOpen || resume?.context?.designId !== "draft-design") {
+    await openDrawer(page);
+    const command = page.getByTestId("catalog-design-draft-design-open");
+    if (test.info().project.use.hasTouch) await command.tap(); else await command.click();
+  }
   await expect(page.getByTestId("design-draft-workspace")).toBeVisible();
 }
 
@@ -454,9 +457,7 @@ async function drawPoints(page: Page, positions: readonly (readonly [number, num
   }
 }
 async function choosePurpose(page: Page, purpose: string) {
-  const option = page.getByTestId(`drawing-purpose-${purpose}`);
-  if (!await option.isVisible()) await page.getByTestId("drawing-purpose-select").click();
-  await option.click();
+  await page.getByTestId("drawing-purpose-select").selectOption(purpose);
 }
 
 test("draft map finishes then classifies polygons lines and points with durable autosave", async ({ page }, info) => {
@@ -472,20 +473,22 @@ test("draft map finishes then classifies polygons lines and points with durable 
     await page.getByTestId(`design-draft-${tool}`).click();
     await drawPoints(page, positions);
     await page.getByTestId("design-draft-commit").click();
-    await expect(page.getByTestId("drawing-classification-dialog")).toBeVisible();
+    await expect(page.getByTestId("drawing-classification-inline")).toBeVisible();
     await choosePurpose(page, purpose);
+    await page.getByTestId("drawing-details-toggle").click();
     await page.getByTestId("drawing-name").fill(`Mapped ${tool}`);
     if (tool === "polygon") {
       await page.getByTestId("drawing-notes").fill("Retain this selection");
       await page.getByTestId("drawing-classification-cancel").click();
       await expect(page.getByTestId("design-draft-capture-summary")).toContainText("3 points");
       await page.getByTestId("design-draft-commit").click();
-      await expect(page.getByTestId("drawing-purpose-select")).toContainText("Area measurement");
+      await expect(page.getByTestId("drawing-purpose-select")).toHaveValue("area_measurement");
+      await page.getByTestId("drawing-details-toggle").click();
       await expect(page.getByTestId("drawing-name")).toHaveValue("Mapped polygon");
       await expect(page.getByTestId("drawing-notes")).toHaveValue("Retain this selection");
     }
-    await page.getByTestId("drawing-classification-confirm").click();
-    await expect(page.getByTestId("drawing-classification-dialog")).toHaveCount(0);
+    await page.getByTestId("drawing-classification-keep").click();
+    await expect(page.getByTestId("drawing-classification-inline")).toHaveCount(0);
     await expect(page.getByTestId("draft-save-state")).toContainText("Saved");
   }
   const saved = await readWorkspace(page);
@@ -509,8 +512,8 @@ test("classified boundaries save and require explicit replacement with undo", as
   await drawPoints(page, [[0.25, 0.2], [0.65, 0.2], [0.5, 0.7]]);
   await page.getByTestId("design-draft-commit").click();
   await choosePurpose(page, "field_boundary");
-  await page.getByTestId("drawing-classification-confirm").click();
-  await expect(page.getByTestId("drawing-classification-dialog")).toHaveCount(0);
+  await page.getByTestId("drawing-classification-keep").click();
+  await expect(page.getByTestId("drawing-classification-inline")).toHaveCount(0);
   await expect(page.getByTestId("draft-error")).toHaveCount(0);
   await expect(page.getByTestId("draft-save-state")).toContainText("Saved");
   const original = JSON.parse((await readWorkspace(page)).draftDocuments[0].document).draft.fieldBoundary;
@@ -519,11 +522,11 @@ test("classified boundaries save and require explicit replacement with undo", as
   await drawPoints(page, [[0.3, 0.25], [0.6, 0.25], [0.45, 0.6]]);
   await page.getByTestId("design-draft-commit").click();
   await choosePurpose(page, "field_boundary");
-  await expect(page.getByTestId("drawing-replace-existing")).toBeVisible();
+  await page.getByTestId("drawing-classification-keep").click();
+  await expect(page.getByTestId("drawing-replacement-review")).toBeVisible();
   expect(JSON.parse((await readWorkspace(page)).draftDocuments[0].document).draft.fieldBoundary).toEqual(original);
-  await page.getByTestId("drawing-replace-existing").getByRole("switch").check();
   await page.getByTestId("drawing-classification-confirm").click();
-  await expect(page.getByTestId("drawing-classification-dialog")).toHaveCount(0);
+  await expect(page.getByTestId("drawing-classification-inline")).toHaveCount(0);
   await expect(page.getByTestId("draft-save-state")).toContainText("Saved");
   expect(JSON.parse((await readWorkspace(page)).draftDocuments[0].document).draft.fieldBoundary).not.toEqual(original);
   await page.getByTestId("draft-undo").click();
@@ -552,7 +555,7 @@ test("paused drawing saves with autosave off and resumes after reopening", async
   await drawPoints(page, [[0.6, 0.6]]);
   await page.getByTestId("design-draft-commit").click();
   await choosePurpose(page, "reference_line");
-  await page.getByTestId("drawing-classification-confirm").click();
+  await page.getByTestId("drawing-classification-keep").click();
   await page.getByTestId("draft-save").click();
   await expect(page.getByTestId("draft-save-state")).toContainText("Saved");
   const finished = JSON.parse((await readWorkspace(page)).draftDocuments[0].document).draft;

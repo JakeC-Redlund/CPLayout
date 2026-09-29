@@ -21,6 +21,7 @@ import {
 import { maplibregl, maplibreErrorMessage } from "./maplibreRuntime.web";
 import { createVertexDragSession } from "./vertexDragSession";
 import { createMapCameraSession, type MapCameraFrame } from "./mapCameraSession";
+import { createInitialMapCameraAdmission, hasVisibleMapSize } from "./initialMapCamera";
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 
@@ -77,6 +78,8 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
+  const cameraAdmissionRef = useRef<ReturnType<typeof createInitialMapCameraAdmission> | null>(null);
+  const [readyCamera, setReadyCamera] = useState<ReturnType<typeof createInitialMapCameraAdmission> | null>(null);
   const disposeVertexDragRef = useRef<(() => void) | null>(null);
   const cancelVertexDragRef = useRef<(() => void) | null>(null);
   const cancelMapTapRef = useRef<(() => void) | null>(null);
@@ -202,6 +205,15 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
   const renderStateRef = useRef({ project, homeView, canEditOnMap, projectionFrame, activeImagery,
     referenceOverlay, referencePreferences: settings.referenceOverlay, overlay: overlayState.featureCollection });
   useLayoutEffect(() => {
+    // Snapshot the outgoing view before retiring its frame, including navigation during movement.
+    const previousFrame = cameraFrameRef.current;
+    const previousMap = mapRef.current;
+    if (previousFrame && previousMap && cameraSession.isCurrent(previousFrame)
+      && previousMap.getContainer().dataset.mapCameraReady === "true") {
+      const center = previousMap.getCenter();
+      cameraSession.remember(previousFrame, { center: [center.lng, center.lat], zoom: previousMap.getZoom(),
+        bearing: previousMap.getBearing(), pitch: previousMap.getPitch() });
+    }
     // Commit ownership before passive cleanup; an abandoned render must not retire a live camera.
     cameraFrameRef.current = cameraSession.useFrame(cameraIdentity);
     interactionRef.current = controller;
@@ -220,19 +232,12 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
       registerPmtilesProtocolOnce();
       map = new maplibregl.Map({
         attributionControl: false,
-        // Bounds are only for a new project frame, never a same-frame style replacement.
-        ...(restoredCamera ?? { bounds: [
-          [current.projectionFrame.bounds[0], current.projectionFrame.bounds[1]],
-          [current.projectionFrame.bounds[2], current.projectionFrame.bounds[3]],
-        ] as [[number, number], [number, number]] }),
+        // Initial bounds fitting happens only after measuring the actual visible container.
+        ...(restoredCamera ?? { center: current.projectionFrame.center, zoom: 0 }),
         container: containerRef.current,
         // One owned observer captures visibility before resizing, including large panel changes.
         trackResize: typeof ResizeObserver === "undefined",
         dragRotate: false,
-        fitBoundsOptions: {
-          maxZoom: current.activeImagery ? Math.min(17, current.activeImagery.maxzoom) : 17,
-          padding: 48,
-        },
         pitchWithRotate: false,
         style: buildWorkbenchStyle(current.activeImagery, current.overlay, current.referenceOverlay, current.referencePreferences),
       });
@@ -245,19 +250,52 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
     mapRef.current = map;
     let disposed = false;
     const ownsMap = () => !disposed && mapRef.current === map && cameraSession.isCurrent(cameraFrame);
+    const cameraAdmission = createInitialMapCameraAdmission(restoredCamera !== null, ownsMap);
+    cameraAdmissionRef.current = cameraAdmission;
     const container = map.getContainer();
+    let styleLoaded = false;
     container.dataset.mapLoaded = "false";
+    container.dataset.mapCameraReady = "false";
+    delete container.dataset.mapCamera;
     container.dataset.mapInstance = String(++mapSequenceRef.current);
-    const recordCamera = () => {
-      if (!ownsMap()) return;
+    const recordCamera = (retiring = false) => {
+      if (!ownsMap() || !cameraAdmission.isReady()
+        || (!retiring && !hasVisibleMapSize({ width: container.clientWidth, height: container.clientHeight }))) return;
       const center = map.getCenter();
       const view = { center: [center.lng, center.lat] as [number, number], zoom: map.getZoom(), bearing: map.getBearing(), pitch: map.getPitch() };
       cameraSession.remember(cameraFrame, view);
       container.dataset.mapCamera = JSON.stringify([...view.center, view.zoom, view.bearing, view.pitch]);
     };
-    recordCamera();
-    map.on("moveend", recordCamera);
-    map.once("load", () => { if (ownsMap()) container.dataset.mapLoaded = "true"; });
+    const initializeCamera = () => {
+      if (!ownsMap()) return;
+      try {
+        const initialized = cameraAdmission.initialize({ width: container.clientWidth, height: container.clientHeight }, padding => {
+          map.resize();
+          const camera = restoredCamera ?? map.cameraForBounds([
+            [current.projectionFrame.bounds[0], current.projectionFrame.bounds[1]],
+            [current.projectionFrame.bounds[2], current.projectionFrame.bounds[3]],
+          ], { padding, maxZoom: current.activeImagery ? Math.min(17, current.activeImagery.maxzoom) : 17 });
+          if (!camera) return null;
+          map.jumpTo({ ...camera, pitch: restoredCamera?.pitch ?? 0, padding: { top: 0, right: 0, bottom: 0, left: 0 } });
+          const center = map.getCenter();
+          return { center: [center.lng, center.lat], zoom: map.getZoom(), bearing: map.getBearing(), pitch: map.getPitch() };
+        });
+        if (initialized) {
+          container.dataset.mapCameraReady = "true";
+          recordCamera();
+          // A retained selection can attach its marker only after this renderer's
+          // initial fit/restoration succeeds, including a later resize retry.
+          setReadyCamera(cameraAdmission);
+        }
+        container.dataset.mapLoaded = String(styleLoaded && cameraAdmission.isReady());
+      } catch (error) {
+        if (ownsMap()) setRuntimeError(maplibreErrorMessage(error instanceof Error ? error : { message: String(error) }));
+      }
+    };
+    map.on("moveend", () => recordCamera());
+    map.on("resize", initializeCamera);
+    map.once("load", () => { if (ownsMap()) { styleLoaded = true; initializeCamera(); } });
+    initializeCamera();
 
     let lastTouchHandledAt = 0;
     let touchStartPoint: { x: number; y: number } | null = null;
@@ -270,7 +308,7 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
       lngLat: { lng: number; lat: number },
       closeRequested: boolean,
     ): void => {
-      if (!ownsMap() || !tapAllowed) return;
+      if (!ownsMap() || !cameraAdmission.isReady() || !tapAllowed) return;
       const current = interactionRef.current;
       const rendered = renderStateRef.current;
       if (rendered.homeView) {
@@ -319,7 +357,7 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
       applyMapEvent(event.point, event.lngLat, false);
     });
     map.on("dblclick", (event) => {
-      if (!ownsMap() || !tapAllowed) return;
+      if (!ownsMap() || !cameraAdmission.isReady() || !tapAllowed) return;
       event.preventDefault();
       const current = interactionRef.current;
       if (renderStateRef.current.homeView) return;
@@ -333,8 +371,10 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
 
     setMapInstance(map);
     return () => {
-      recordCamera();
+      recordCamera(true);
       disposed = true;
+      if (cameraAdmissionRef.current === cameraAdmission) cameraAdmissionRef.current = null;
+      setReadyCamera(current => current === cameraAdmission ? null : current);
       cancelMapTap();
       pointerTracking.dispose();
       if (cancelMapTapRef.current === cancelMapTap) cancelMapTapRef.current = null;
@@ -343,6 +383,7 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
       setMapInstance(null);
       map.remove();
       delete container.dataset.mapLoaded;
+      delete container.dataset.mapCameraReady;
       delete container.dataset.mapCamera;
       delete container.dataset.mapInstance;
     };
@@ -377,6 +418,7 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
       previous = next;
       cancelVertexDragRef.current?.();
       cancelMapTapRef.current?.();
+      if (!hasVisibleMapSize(next)) return;
       const wasVisible = selectedVertexVisibleRef.current?.() ?? false;
       map.resize();
       map.redraw();
@@ -394,10 +436,14 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
       return undefined;
     }
     if (!cameraFrame || !map || map !== mapRef.current || !cameraSession.isCurrent(cameraFrame)) return undefined;
+    const cameraAdmission = cameraAdmissionRef.current;
+    if (!cameraAdmission || readyCamera !== cameraAdmission || !cameraAdmission.canUseCamera()) return undefined;
     const selectedPoint = selectedProjectVertexPoint(project, selectedVertex);
     if (!selectedPoint) return undefined;
     const coordinate = projectXyToLonLat(selectedPoint, project.projectCrs);
-    const ownsSelection = () => map === mapRef.current && cameraSession.isCurrent(cameraFrame)
+    let disposed = false;
+    const ownsSelection = () => !disposed && cameraAdmissionRef.current === cameraAdmission && cameraAdmission.canUseCamera()
+      && map === mapRef.current && cameraSession.isCurrent(cameraFrame)
       && renderStateRef.current.project === project && renderStateRef.current.canEditOnMap
       && interactionRef.current.mode === "edit_vertices" && interactionRef.current.selectedVertex === selectedVertex;
     const element = document.createElement("button");
@@ -434,6 +480,7 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
     };
     const session = createVertexDragSession({
       preview: (point) => {
+        if (!ownsSelection()) { session.cancel(); return; }
         const canvas = map.getCanvas().getBoundingClientRect();
         marker.setLngLat(map.unproject([point.x - canvas.left - grabOffset.x, point.y - canvas.top - grabOffset.y]));
       },
@@ -443,14 +490,15 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
         const target = map.unproject([point.x - canvas.left - grabOffset.x, point.y - canvas.top - grabOffset.y]);
         element.dataset.dragState = "finished";
         restoreNavigation();
+        if (!ownsSelection()) return;
         // The preview is never canonical, including when reducer admission rejects the move.
         marker.setLngLat([coordinate.longitude, coordinate.latitude]);
-        interactionRef.current.moveSelectedVertexToPoint(projectLonLatToXy({ longitude: target.lng, latitude: target.lat }, project.projectCrs));
+        if (ownsSelection()) interactionRef.current.moveSelectedVertexToPoint(projectLonLatToXy({ longitude: target.lng, latitude: target.lat }, project.projectCrs));
       },
       cancel: () => {
         element.dataset.dragState = "cancelled";
         restoreNavigation();
-        marker.setLngLat([coordinate.longitude, coordinate.latitude]);
+        if (ownsSelection()) marker.setLngLat([coordinate.longitude, coordinate.latitude]);
       },
     });
     const selectedVertexVisible = (): boolean => {
@@ -519,7 +567,6 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
     const revealed = revealedSelectionRef.current;
     if (revealed?.frame !== cameraFrame || revealed.selection !== selectedVertex) revealSelectedVertex(true);
     revealedSelectionRef.current = { frame: cameraFrame, selection: selectedVertex };
-    let disposed = false;
     const dispose = (): void => {
       if (disposed) return;
       disposed = true;
@@ -542,7 +589,7 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
     };
     disposeVertexDragRef.current = dispose;
     return dispose;
-  }, [cameraIdentity, cameraSession, mapInstance, canEditOnMap, compactLayout, externalHudLayout, mode, project, selectedVertex]);
+  }, [cameraIdentity, cameraSession, mapInstance, readyCamera, canEditOnMap, compactLayout, externalHudLayout, mode, project, selectedVertex]);
 
   if (projectionError || mapInitializationError || svgRecoveryRequested) {
     return (
@@ -581,7 +628,7 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
         <View style={[styles.headerTitle, compactHud && styles.compactHeaderTitle]}>
           {!compactHud ? <Text style={styles.title}>{homeView ? "North America Map" : "Imagery Workbench"}</Text> : null}
           <Text style={styles.subtitle}>{compactHud ? homeView ? "Catalog" : project.projectCrs
-            : `${homeView ? "Client/project catalog view" : `${project.projectCrs} canonical geometry`} · ${activeImagery?.name ?? "offline overlay"}`}</Text>
+            : `${homeView ? "Customer/project catalog view" : `${project.projectCrs} canonical geometry`} · ${activeImagery?.name ?? "offline overlay"}`}</Text>
         </View>
         <Pressable
           accessibilityRole="button"

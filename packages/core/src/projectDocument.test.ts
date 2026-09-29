@@ -475,7 +475,7 @@ assert.throws(
 );
 
 // Refuse unsupported future documents before any bare-project normalization.
-for (const documentVersion of ["pivot-project-v3", "", null, undefined, 2]) {
+for (const documentVersion of ["pivot-project-v999", "", null, undefined, 2]) {
   for (const source of [
     { documentVersion, project: sampleProject },
     { ...sampleProject, documentVersion, machines: [{ id: "second-pivot" }] },

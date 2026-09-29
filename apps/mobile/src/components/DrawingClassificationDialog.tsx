@@ -1,110 +1,78 @@
 import React, { useState } from "react";
-import { Modal, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from "react-native";
-import { DRAWING_CLASSIFICATION_VERSION, drawingPurposesForGeometry, drawingPurpose, parseDrawingClassification,
-  type DesignDraft, type DraftDrawingCapture, type DrawingClassification, type DrawingPlacement } from "@cplayout/core";
+import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { drawingPurpose, type DesignDraft, type DraftDrawingCapture, type DrawingClassification } from "@cplayout/core";
+import { classificationForSelection, drawingSelectionReplaces, drawingSelections } from "./drawingClassificationSelection";
 
+/** Kept at the existing import boundary; this is one inline selector, never a modal. */
 export function DrawingClassificationDialog({ capture, draft, error, onCancel, onConfirm }: {
   capture: DraftDrawingCapture; draft: DesignDraft; error: string | null;
   onCancel: (proposal: DraftDrawingCapture["classification"]) => void; onConfirm: (classification: DrawingClassification, replaceExisting: boolean) => void;
 }): React.JSX.Element {
-  const options = drawingPurposesForGeometry(capture.geometryType);
-  const suggested = capture.classification.purposeId ?? (capture.name === "Field boundary" ? "field_boundary" : "");
-  const [purposeId, setPurposeId] = useState(suggested);
-  const purpose = drawingPurpose(purposeId);
-  const [choicesOpen, setChoicesOpen] = useState(!purpose);
-  const [name, setName] = useState(capture.classification.name);
+  const options = drawingSelections(capture.geometryType);
+  const [selectionId, setSelectionId] = useState(options.some(option => option.id === capture.classification.purposeId) ? capture.classification.purposeId! : "");
+  const [name, setName] = useState(capture.classification.purposeId === null && capture.classification.name === capture.name ? "" : capture.classification.name);
   const [notes, setNotes] = useState(capture.classification.notes);
-  const [customLabel, setCustomLabel] = useState("");
-  const [assetStatus, setAssetStatus] = useState<DrawingClassification["assetStatus"]>("unknown");
-  const [placement, setPlacement] = useState<DrawingPlacement>(purpose?.placements[0] ?? "not_applicable");
-  const [exclusion, setExclusion] = useState(false);
-  const [noSpray, setNoSpray] = useState(false);
-  const [hardConflict, setHardConflict] = useState(false);
-  const [buffer, setBuffer] = useState("0");
-  const [replace, setReplace] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [choicesOpen, setChoicesOpen] = useState(false);
+  const [replacement, setReplacement] = useState<DrawingClassification | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
-  const exclusionAllowed = capture.geometryType === "Polygon" && purpose?.destination === "feature";
-  const replacing = purpose?.destination === "field_boundary" ? draft.fieldBoundary.length > 0
-    : purpose?.destination === "pivot_center" ? draft.pivotCenter !== null
-    : purpose?.destination === "water_source" ? draft.waterSource !== null
-    : purpose?.destination === "power_source" ? draft.powerSource !== null : false;
-  const cancel = () => onCancel({ purposeId: purposeId || null, name, notes });
-  function submit() {
+  function choose(id: string) {
+    setSelectionId(id); setChoicesOpen(false); setReplacement(null); setLocalError(null);
+  }
+  function submit(replaceExisting = false) {
     try {
-      if (replacing && !replace) throw new Error("Confirm replacement of the existing design location or boundary.");
-      if (exclusion && (!buffer.trim() || !Number.isFinite(Number(buffer)))) throw new Error("Enter a valid buffer in meters.");
-      const value = parseDrawingClassification({ schemaVersion: DRAWING_CLASSIFICATION_VERSION,
-        geometryType: capture.geometryType, purposeId, name, notes, assetStatus, placement,
-        customLabel: purpose?.custom ? customLabel : null,
-        effect: exclusion ? { mode: "exclusion", noSpray, hardConflict, bufferMeters: Number(buffer) } : { mode: "informational" } });
-      setLocalError(null); onConfirm(value, replacing && replace);
+      const classification = classificationForSelection({ ...capture, classification: { ...capture.classification, name, notes } }, selectionId);
+      if (drawingSelectionReplaces(draft, classification) && !replaceExisting) setReplacement(classification);
+      else onConfirm(classification, replaceExisting);
     } catch (failure) { setLocalError(failure instanceof Error ? failure.message : String(failure)); }
   }
-  return <Modal transparent animationType="fade" visible onRequestClose={cancel}>
-    <View style={styles.backdrop}>
-      <View accessibilityViewIsModal style={styles.dialog} testID="drawing-classification-dialog">
-        <View style={styles.header}><Text style={styles.title}>What did you draw?</Text>
-          <Text style={styles.helper}>{capture.geometryType === "LineString" ? "Line" : capture.geometryType} · {capture.vertices.length} points. Choose its purpose and effects.</Text></View>
-        <ScrollView keyboardShouldPersistTaps="handled" style={styles.body} contentContainerStyle={styles.content}>
-          <Text style={styles.label}>Purpose</Text>
-          <Pressable accessibilityRole="button" accessibilityLabel="Choose drawing purpose" onPress={() => setChoicesOpen(!choicesOpen)} style={styles.input} testID="drawing-purpose-select">
-            <Text>{purpose?.label ?? "Choose a purpose"} ▾</Text></Pressable>
-          {choicesOpen && <View style={styles.choices}>{options.map(option => <Pressable key={option.id} accessibilityRole="radio"
-            accessibilityState={{ checked: purposeId === option.id }} testID={`drawing-purpose-${option.id}`} style={styles.choice}
-            onPress={() => { setPurposeId(option.id); setPlacement(option.placements[0]); setExclusion(option.id === "exclusion_area");
-              setNoSpray(false); setHardConflict(false); setReplace(false); setChoicesOpen(false); setLocalError(null); }}>
-            <Text>{option.label}</Text></Pressable>)}</View>}
-          <Field label="Name" value={name} onChange={setName} id="drawing-name" />
-          {purpose?.custom && <Field label="Other purpose" value={customLabel} onChange={setCustomLabel} id="drawing-custom-label" />}
-          <Field label="Notes" value={notes} onChange={setNotes} id="drawing-notes" multiline />
-          <Text style={styles.label}>Asset status</Text>
-          <View style={styles.row}>{(["unknown", "existing", "proposed"] as const).map(value => <Choice key={value} label={value} selected={assetStatus === value} onPress={() => setAssetStatus(value)} />)}</View>
-          {purpose && purpose.placements[0] !== "not_applicable" && <><Text style={styles.label}>Placement</Text>
-            <View style={styles.row}>{purpose.placements.map(value => <Choice key={value} label={value} selected={placement === value} onPress={() => setPlacement(value)} />)}</View></>}
-          {exclusionAllowed && <Toggle label="Apply exclusion effects" value={exclusion} onChange={value => { setExclusion(value); setNoSpray(false); setHardConflict(false); }} id="drawing-exclusion" />}
-          {exclusion && <>
-            <Toggle label="No spray" value={noSpray} onChange={setNoSpray} id="drawing-no-spray" />
-            <Toggle label="Machine conflict" value={hardConflict} onChange={setHardConflict} id="drawing-hard-conflict" />
-            <Field label="Buffer (meters)" value={buffer} onChange={setBuffer} id="drawing-buffer" />
-          </>}
-          <Text style={styles.helper} testID="drawing-effect-summary">{exclusion ? "The selected exclusion effects apply to this polygon and its buffer."
-            : purpose?.destination === "field_boundary" ? "Sets the operational field boundary used in design calculations."
-            : purpose && purpose.destination !== "feature" ? `Sets the ${purpose.label.toLowerCase()} used in design calculations.`
-            : "Informational map feature. No no-spray area or machine conflict is added."}</Text>
-          {replacing && <Toggle label={`Replace existing ${purpose?.label.toLowerCase()}`} value={replace} onChange={setReplace} id="drawing-replace-existing" />}
-          <Text style={styles.helper}>Map-drawn coordinates; GPS and elevation are unknown.</Text>
-          {(localError || error) && <Text accessibilityRole="alert" style={styles.error} testID="drawing-classification-error">{localError || error}</Text>}
-        </ScrollView>
-        <View style={styles.footer}>
-          <Pressable accessibilityRole="button" onPress={cancel} style={styles.secondary} testID="drawing-classification-cancel"><Text style={styles.secondaryText}>Back to drawing</Text></Pressable>
-          <Pressable accessibilityRole="button" onPress={submit} style={styles.primary} testID="drawing-classification-confirm"><Text style={styles.primaryText}>Keep drawing</Text></Pressable>
-        </View>
-      </View>
+  return <View style={styles.container} testID="drawing-classification-inline">
+    <View style={styles.row}><Text style={styles.label}>What did you draw?</Text>
+      {Platform.OS === "web" ? React.createElement("select", {
+        "aria-label": "Drawing purpose", "data-testid": "drawing-purpose-select", value: selectionId,
+        onChange: (event: React.ChangeEvent<HTMLSelectElement>) => choose(event.target.value),
+        style: { minHeight: 44, minWidth: 0, width: "100%", maxWidth: 390, padding: 10, fontSize: 15,
+          color: "#1d2c22", background: "white", border: "1px solid #97aea1", borderRadius: 5 },
+      }, React.createElement("option", { value: "" }, "Choose a purpose…"), ...options.map(option =>
+        React.createElement("option", { key: option.id, value: option.id }, option.label)))
+        : <View style={styles.nativeSelect}><Pressable accessibilityRole="button" accessibilityLabel="Choose drawing purpose"
+          onPress={() => setChoicesOpen(!choicesOpen)} style={styles.select} testID="drawing-purpose-select">
+          <Text>{options.find(option => option.id === selectionId)?.label ?? "Choose a purpose…"} ▾</Text></Pressable>
+          {choicesOpen && <ScrollView style={styles.choices}>{options.map(option => <Pressable key={option.id}
+            accessibilityRole="button" onPress={() => choose(option.id)} style={styles.choice} testID={`drawing-purpose-${option.id}`}>
+            <Text>{option.label}</Text></Pressable>)}</ScrollView>}</View>}
+      <Pressable accessibilityRole="button" onPress={() => onCancel({ purposeId: options.find(option => option.id === selectionId)?.purposeId ?? capture.classification.purposeId, name, notes })} style={styles.back} testID="drawing-classification-cancel">
+        <Text style={styles.label}>Back to drawing</Text></Pressable>
     </View>
-  </Modal>;
-}
-function Field({ label, value, onChange, id, multiline = false }: { label: string; value: string; onChange: (value: string) => void; id: string; multiline?: boolean }) {
-  return <View style={styles.field}><Text style={styles.label}>{label}</Text><TextInput accessibilityLabel={label} value={value} onChangeText={onChange}
-    multiline={multiline} style={[styles.input, multiline && styles.multiline]} testID={id} /></View>;
-}
-function Choice({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
-  return <Pressable accessibilityRole="radio" accessibilityLabel={label} accessibilityState={{ checked: selected }} onPress={onPress}
-    style={[styles.secondary, selected && styles.selected]}><Text style={styles.secondaryText}>{label[0].toUpperCase() + label.slice(1)}</Text></Pressable>;
-}
-function Toggle({ label, value, onChange, id }: { label: string; value: boolean; onChange: (value: boolean) => void; id: string }) {
-  return <View style={styles.toggle}><Text style={styles.label}>{label}</Text><Switch accessibilityLabel={label} value={value} onValueChange={onChange} testID={id} /></View>;
+    <View style={styles.row}>
+      <Pressable accessibilityRole="button" accessibilityState={{ expanded: detailsOpen }} onPress={() => setDetailsOpen(open => !open)} style={styles.back} testID="drawing-details-toggle">
+        <Text style={styles.label}>{detailsOpen ? "Hide optional details" : "Optional name and notes"}</Text>
+      </Pressable>
+      <Pressable accessibilityRole="button" disabled={!selectionId} onPress={() => submit()} style={[styles.confirm, !selectionId && styles.disabled]} testID="drawing-classification-keep">
+        <Text style={styles.confirmText}>Keep drawing</Text>
+      </Pressable>
+    </View>
+    <View style={!detailsOpen && styles.hidden}>
+      <Text style={styles.label}>Name (optional)</Text>
+      <TextInput accessibilityLabel="Drawing name" value={name} onChangeText={setName} style={styles.select} testID="drawing-name" />
+      <Text style={styles.label}>Notes (optional)</Text>
+      <TextInput accessibilityLabel="Drawing notes" value={notes} onChangeText={setNotes} multiline style={styles.select} testID="drawing-notes" />
+    </View>
+    {replacement && <View style={styles.row} testID="drawing-replacement-review">
+      <Text style={styles.helper}>Replace the saved {drawingPurpose(replacement.purposeId)!.label.toLowerCase()} with this drawing?</Text>
+      <Pressable accessibilityRole="button" onPress={() => submit(true)} style={styles.confirm} testID="drawing-classification-confirm">
+        <Text style={styles.confirmText}>Replace saved {drawingPurpose(replacement.purposeId)!.label.toLowerCase()}</Text></Pressable>
+    </View>}
+    {(localError || error) && <Text accessibilityRole="alert" style={styles.error} testID="drawing-classification-error">{localError || error}</Text>}
+  </View>;
 }
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(19,33,27,0.58)", padding: 12 },
-  dialog: { width: "100%", maxWidth: 540, maxHeight: "92%", backgroundColor: "#fbfcf8", borderRadius: 8, borderWidth: 1, borderColor: "#d6ded3", overflow: "hidden" },
-  header: { padding: 16, gap: 6, backgroundColor: "#f4f8f1", borderBottomWidth: 1, borderColor: "#d6ded3" },
-  title: { fontSize: 18, fontWeight: "900", color: "#14221b" }, helper: { fontSize: 13, lineHeight: 18, color: "#526257" },
-  body: { flexShrink: 1 }, content: { padding: 16, gap: 12 }, field: { gap: 7 }, label: { fontSize: 13, fontWeight: "700", color: "#3c4f43", flexShrink: 1 },
-  input: { backgroundColor: "#fff", borderColor: "#cdd8ca", borderWidth: 1, borderRadius: 8, minHeight: 44, padding: 11, color: "#1d2c22", fontSize: 15 },
-  multiline: { minHeight: 72, textAlignVertical: "top" }, choices: { borderWidth: 1, borderColor: "#cdd8ca", borderRadius: 8 }, choice: { minHeight: 44, padding: 12 },
-  row: { flexDirection: "row", flexWrap: "wrap", gap: 8 }, toggle: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
-  footer: { padding: 12, gap: 8, flexDirection: "row", justifyContent: "flex-end", flexWrap: "wrap", backgroundColor: "#f4f8f1", borderTopWidth: 1, borderColor: "#d6ded3" },
-  primary: { backgroundColor: "#254234", borderRadius: 8, padding: 12, minHeight: 44 }, primaryText: { color: "#fff", fontSize: 13, fontWeight: "900" },
-  secondary: { backgroundColor: "#f1f5ee", borderColor: "#cdd8ca", borderWidth: 1, borderRadius: 8, padding: 12, minHeight: 44 },
-  secondaryText: { color: "#254234", fontSize: 13, fontWeight: "700" }, selected: { borderColor: "#14734b", backgroundColor: "#e8f5ed" }, error: { color: "#922c24", fontSize: 14 },
+  hidden: { display: "none" }, disabled: { opacity: 0.5 },
+  container: { padding: 10, gap: 8, backgroundColor: "#f4f8f1", borderBottomWidth: 1, borderColor: "#cdd8d1" },
+  row: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 10 },
+  label: { color: "#254234", fontWeight: "600", fontSize: 14 }, helper: { color: "#526257", fontSize: 13, flexShrink: 1 },
+  nativeSelect: { flex: 1, minWidth: 180, maxWidth: 390 }, select: { minHeight: 44, padding: 10, borderWidth: 1, borderColor: "#97aea1", backgroundColor: "white", borderRadius: 5 },
+  choices: { maxHeight: 180, borderWidth: 1, borderColor: "#97aea1" }, choice: { minHeight: 44, padding: 12, backgroundColor: "white" },
+  back: { minHeight: 44, padding: 10, justifyContent: "center" }, confirm: { padding: 12, backgroundColor: "#254234", borderRadius: 5 },
+  confirmText: { color: "white", fontWeight: "600" }, error: { color: "#922c24", fontSize: 14 },
 });

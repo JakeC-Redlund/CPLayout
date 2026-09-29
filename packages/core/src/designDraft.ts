@@ -1,3 +1,4 @@
+import { hasOperationalGnssEvidence, refuseOperationalGnssEvidence } from "./operationalGnssEvidence";
 import { z } from "zod";
 import { DraftDrawingWorkflowSchema } from "./draftDrawingWorkflow";
 import { PROJECT_DRAWING_METADATA_VERSION, validateProjectDrawingMetadata } from "./drawingMetadata";
@@ -17,7 +18,8 @@ import { assertProjectedCrs } from "./units";
 export const LEGACY_DESIGN_DRAFT_DOCUMENT_VERSION = "design-draft-v1";
 export const DRAWING_WORKFLOW_DESIGN_DRAFT_DOCUMENT_VERSION = "design-draft-v2";
 export const DESIGN_DRAFT_DOCUMENT_VERSION = "design-draft-v3";
-export const DESIGN_DRAFT_DOCUMENT_VERSIONS = [LEGACY_DESIGN_DRAFT_DOCUMENT_VERSION, DRAWING_WORKFLOW_DESIGN_DRAFT_DOCUMENT_VERSION, DESIGN_DRAFT_DOCUMENT_VERSION] as const;
+export const OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION = "design-draft-v4";
+export const DESIGN_DRAFT_DOCUMENT_VERSIONS = [LEGACY_DESIGN_DRAFT_DOCUMENT_VERSION, DRAWING_WORKFLOW_DESIGN_DRAFT_DOCUMENT_VERSION, DESIGN_DRAFT_DOCUMENT_VERSION, OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION] as const;
 
 const projectShape = PivotProjectSchema.shape;
 const machineShape = projectShape.machine.shape;
@@ -97,6 +99,7 @@ export function parseDesignDraftDocument(input: string | unknown): DesignDraft {
     documentVersion: z.enum(DESIGN_DRAFT_DOCUMENT_VERSIONS),
     draft: z.unknown(),
   }).strict().parse(snapshot);
+  if (envelope.documentVersion !== OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION) refuseOperationalGnssEvidence(envelope.draft);
   if (envelope.documentVersion === LEGACY_DESIGN_DRAFT_DOCUMENT_VERSION) LegacyDraftSchema.parse(envelope.draft);
   if (envelope.documentVersion === DRAWING_WORKFLOW_DESIGN_DRAFT_DOCUMENT_VERSION) WorkflowDraftSchema.parse(envelope.draft);
   return validateDesignDraft(envelope.draft);
@@ -112,7 +115,7 @@ export function parseDesignDraftDocumentV2(input: string | unknown): DesignDraft
 export function serializeDesignDraftDocument(draft: DesignDraft): string {
   const validated = validateDesignDraft(draft);
   return JSON.stringify({
-    documentVersion: validated.drawingMetadata !== undefined ? DESIGN_DRAFT_DOCUMENT_VERSION
+    documentVersion: hasOperationalGnssEvidence(validated) ? OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION : validated.drawingMetadata !== undefined ? DESIGN_DRAFT_DOCUMENT_VERSION
       : validated.drawingWorkflow !== undefined ? DRAWING_WORKFLOW_DESIGN_DRAFT_DOCUMENT_VERSION : LEGACY_DESIGN_DRAFT_DOCUMENT_VERSION,
     draft: validated,
   } satisfies DesignDraftDocument, null, 2);
@@ -300,4 +303,11 @@ function assertSameFields(input: unknown, parsed: unknown, path = "draft"): void
   for (const key of Object.keys(validated)) {
     if (!Object.hasOwn(original, key) && validated[key] !== undefined) throw new Error(`${path}.${key}: Supply this component value explicitly; draft validation cannot insert defaults.`);
   }
+}
+
+export function parseDesignDraftDocumentV3(input: string | unknown): DesignDraft {
+  const raw = snapshotJsonValue(typeof input === "string" ? JSON.parse(input) : input, "document");
+  refuseOperationalGnssEvidence(raw);
+  if (raw && typeof raw === "object" && "documentVersion" in raw && raw.documentVersion === OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION) throw new Error("Draft version requires an operational-evidence-aware reader.");
+  return parseDesignDraftDocument(raw);
 }

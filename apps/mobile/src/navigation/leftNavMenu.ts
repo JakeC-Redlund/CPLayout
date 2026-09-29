@@ -86,7 +86,7 @@ export const DEFAULT_LEFT_NAV_MENU_XML = `<?xml version="1.0" encoding="UTF-8"?>
     <menu id="file" label="File" icon="folder-open" testID="command-menu-file">
       <item id="catalog" label="Catalog home" description="Return to the local project catalog map." action="open_catalog" icon="home" testID="command-file-catalog"/>
       <slot id="sample-designs" source="sample_designs"/>
-      <item id="blank" label="Start Blank Design" description="Create an empty design draft under the selected field map." action="start_blank_design" icon="wrench" testID="command-file-blank-design"/>
+      <item id="blank" label="Start Blank Design" description="Create an empty design draft under the selected field." action="start_blank_design" icon="wrench" testID="command-file-blank-design"/>
       <item id="files" label="Files / GIS Exchange" description="Open ZIP, GeoJSON, KML/KMZ, CSV, and map package tools." action="open_files" icon="download" testID="command-file-files"/>
     </menu>
     <menu id="inspect" label="Inspect" icon="clipboard-list" testID="command-menu-inspect">
@@ -123,9 +123,9 @@ export const DEFAULT_LEFT_NAV_MENU_XML = `<?xml version="1.0" encoding="UTF-8"?>
     <item id="settings" label="Settings" action="navigate_settings" icon="sliders-horizontal" testID="workspace-nav-settings"/>
   </rail>
   <catalogActions section="create">
-    <item id="client" label="Client" action="create_client" icon="user-round" testID="project-tree-action-client"/>
+    <item id="client" label="Customer" action="create_client" icon="user-round" testID="project-tree-action-client"/>
     <item id="project" label="Project" action="create_project" disabledWhen="no_client" icon="database" testID="project-tree-action-project"/>
-    <item id="field-map" label="Field Map" action="create_field_map" disabledWhen="no_project" icon="map" testID="project-tree-action-field-map"/>
+    <item id="field-map" label="Field" action="create_field_map" disabledWhen="no_project" icon="map" testID="project-tree-action-field-map"/>
     <item id="design" label="Design" action="create_design" disabledWhen="no_field_map" icon="layers" testID="project-tree-action-design"/>
   </catalogActions>
   <catalogActions section="utility">

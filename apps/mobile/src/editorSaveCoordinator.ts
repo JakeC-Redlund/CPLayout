@@ -4,6 +4,9 @@ import {
   type DesignDraft, type PivotProject, type FieldDesign,
 } from "@cplayout/core";
 
+import type { WorkspaceDocument } from "@cplayout/project-store";
+import { captureProjectSourceProof, verifyRetainedProjectSource, type ProjectSourceProof } from "./projectReceiptReconciliation";
+
 export type EditorPersistenceRevision = number | null | undefined;
 export type EditorSavePayload = { kind: "project"; project: PivotProject } | { kind: "draft"; draft: DesignDraft }
   | { kind: "field"; field: FieldDesign };
@@ -25,6 +28,18 @@ export interface EditorSaveCompletion extends EditorWriteOutcome {
   editorRevision: number;
 }
 
+/** Opaque coordinator-owned proof; cloning this token does not transfer its authority. */
+export interface RetainedProjectReceipt {
+  readonly session: EditorSaveSession;
+  readonly workspaceRevision: number;
+  readonly sourceStored: boolean;
+}
+interface RetainedProjectProof {
+  targetRevision: number | null;
+  lastWorkspaceRevision: number;
+  source: ProjectSourceProof;
+}
+
 interface ProjectSiblingWriteRequest<T> {
   session: EditorSaveSession;
   sourceId: string;
@@ -35,6 +50,7 @@ interface ProjectSiblingWriteRequest<T> {
 
 export function createEditorSaveCoordinator() {
   const targets = new WeakMap<EditorSaveSession, EditorSaveTarget>();
+  const retainedProjects = new WeakMap<RetainedProjectReceipt, RetainedProjectProof>();
   let active: EditorSaveSession | null = null;
   let generation = 0;
   let tail: Promise<void> = Promise.resolve();
@@ -112,6 +128,49 @@ export function createEditorSaveCoordinator() {
             : { ...target, workspaceRevision: outcome.persistenceRevision });
         }
         return { ...outcome, session, editorRevision };
+      });
+    },
+
+    /** Drain earlier saves before retaining the exact stored source around independent sibling writes. */
+    async captureRetainedProject(request: { session: EditorSaveSession; read: () => Promise<WorkspaceDocument> }): Promise<RetainedProjectReceipt> {
+      const { session, read } = request;
+      requireActive(session);
+      return enqueue(async () => {
+        requireActive(session);
+        const target = targetFor(session);
+        if (target.kind !== "project" || target.workspaceRevision === undefined) throw new Error("Retained project reconciliation requires a versioned project editor.");
+        const snapshot = await read();
+        requireActive(session);
+        if (targetFor(session) !== target) throw new Error("The project save receipt changed while retaining its source. Try again after saving finishes.");
+        const proof = captureProjectSourceProof(snapshot, { payloadId: target.payloadId, designId: target.designId, workspaceRevision: target.workspaceRevision });
+        const baseline = Object.freeze({ session: session, workspaceRevision: proof.workspaceRevision, sourceStored: proof.source.document !== null });
+        retainedProjects.set(baseline, { targetRevision: target.workspaceRevision, lastWorkspaceRevision: proof.workspaceRevision, source: proof.source });
+        return baseline;
+      });
+    },
+
+    /** Advance only the workspace receipt; never load/reset the editor, fabricate a save, or replace its session. */
+    async reconcileRetainedProject(request: { baseline: RetainedProjectReceipt; read: () => Promise<WorkspaceDocument> }): Promise<boolean> {
+      const { baseline, read } = request;
+      const proof = retainedProjects.get(baseline);
+      if (!proof) throw new Error("Retained project proof is not owned by this editor coordinator.");
+      const session = baseline.session;
+      requireActive(session);
+      return enqueue(async () => {
+        requireActive(session);
+        const target = targetFor(session);
+        if (target.kind !== "project" || target.payloadId !== proof.source.payloadId || target.designId !== proof.source.designId
+          || target.workspaceRevision !== proof.targetRevision) throw new Error("The project's save receipt changed after its source was retained. Capture its current saved source before continuing.");
+        const snapshot = await read();
+        requireActive(session);
+        if (targetFor(session) !== target) throw new Error("The project save receipt changed during reconciliation. Keep your edits and retry.");
+        const workspaceRevision = verifyRetainedProjectSource(snapshot, proof.source, proof.lastWorkspaceRevision);
+        // An absent unsaved project stays create-only. The proof must never bless it as an update.
+        const targetRevision = target.workspaceRevision === null ? null : workspaceRevision;
+        targets.set(session, { ...target, workspaceRevision: targetRevision });
+        proof.targetRevision = targetRevision;
+        proof.lastWorkspaceRevision = workspaceRevision;
+        return true;
       });
     },
 

@@ -1,5 +1,6 @@
+import { parseLayoutSessionDocument } from "@cplayout/core";
 import { migrateLegacyWorkspace, type LegacyWorkspaceSources } from "./legacyWorkspaceMigration";
-import { parseWorkspaceDocument, serializeWorkspaceDocument, WorkspaceDocumentError, FIELD_WORKSPACE_DOCUMENT_VERSION, WORKSPACE_DOCUMENT_VERSION, type WorkspaceDocument } from "./workspaceDocument";
+import { assertRetainedOperationalEvidence, parseWorkspaceDocument, serializeWorkspaceDocument, WorkspaceDocumentError, FIELD_WORKSPACE_DOCUMENT_VERSION, LAYOUT_WORKSPACE_DOCUMENT_VERSION, WORKSPACE_DOCUMENT_VERSION, type WorkspaceDocument } from "./workspaceDocument";
 
 export const WEB_WORKSPACE_KEY = "center-pivot-layout-workspace-v1";
 export const WEB_WORKSPACE_BACKUP_KEY = "center-pivot-layout-workspace-legacy-backup-v1";
@@ -133,14 +134,28 @@ export function createWebWorkspaceStore(dependencies: WebWorkspaceStoreDependenc
           // Publish v2 and its exact original v1 bytes together in the same atomic localStorage value.
           candidate.originalV1Document = current;
         }
+        if (latest.workspaceVersion !== LAYOUT_WORKSPACE_DOCUMENT_VERSION && candidate.workspaceVersion === LAYOUT_WORKSPACE_DOCUMENT_VERSION) {
+          const retained = { ...candidate, workspaceVersion: latest.workspaceVersion, revision: latest.revision };
+          delete retained.layoutSessions; delete retained.originalPreviousWorkspaceDocument;
+          if (latest.fieldDocuments === undefined) delete retained.fieldDocuments;
+          if ((candidate.layoutSessions?.length ?? -1) !== 0 || JSON.stringify(retained) !== JSON.stringify(latest)) {
+            throw new WorkspaceDocumentError("conflict", "A Layout workspace upgrade must preserve every existing record and begin with no sessions.");
+          }
+          candidate.originalPreviousWorkspaceDocument = current;
+        }
+        if (latest.workspaceVersion === LAYOUT_WORKSPACE_DOCUMENT_VERSION
+          && (candidate.workspaceVersion !== LAYOUT_WORKSPACE_DOCUMENT_VERSION || candidate.originalPreviousWorkspaceDocument !== latest.originalPreviousWorkspaceDocument || candidate.originalV1Document !== latest.originalV1Document)) {
+          throw new WorkspaceDocumentError("conflict", "A transaction cannot downgrade v3 or replace its retained previous workspace.");
+        }
         if (latest.workspaceVersion === FIELD_WORKSPACE_DOCUMENT_VERSION
-          && (candidate.workspaceVersion !== FIELD_WORKSPACE_DOCUMENT_VERSION || candidate.originalV1Document !== latest.originalV1Document)) {
+          && (candidate.workspaceVersion === WORKSPACE_DOCUMENT_VERSION || candidate.originalV1Document !== latest.originalV1Document)) {
           throw new WorkspaceDocumentError("conflict", "A transaction cannot downgrade v2 or replace its retained original v1 document.");
         }
         const encoded = serializeWorkspaceDocument(candidate);
         const next = parseWorkspaceDocument(encoded);
         if (next.revision !== nextRevision) throw new WorkspaceDocumentError("conflict", "A workspace transaction must advance exactly one revision.");
         requireDeletionHistory(latest, next);
+        assertRetainedOperationalEvidence(latest, next);
         // Detect observable nonparticipating/reentrant writers; this is not a substitute for Web Locks.
         if (store.getItem(WEB_WORKSPACE_KEY) !== current) throw new WorkspaceDocumentError("conflict", "Workspace changed outside the active transaction.");
         requireUnchangedLegacy(store);
@@ -164,6 +179,13 @@ function requireDeletionHistory(previous: WorkspaceDocument, next: WorkspaceDocu
     if (retained && retained.originalProjectDocument !== old.originalProjectDocument) {
       throw new WorkspaceDocumentError("conflict", "A field save cannot remove or rewrite its original project source.");
     }
+  }
+  for (const entry of previous.layoutSessions ?? []) {
+    const retained = next.layoutSessions?.find(item => item.id === entry.id);
+    if (!retained) throw new WorkspaceDocumentError("conflict", "Layout sessions must be archived, not removed.");
+    const old = parseLayoutSessionDocument(entry.document), session = parseLayoutSessionDocument(retained.document);
+    if (session.targetDocument !== old.targetDocument || session.targetHash !== old.targetHash || session.fieldMapId !== old.fieldMapId || session.createdAt !== old.createdAt) throw new WorkspaceDocumentError("conflict", "A Layout session cannot replace its immutable target or ownership.");
+    if (session.observations.length < old.observations.length || old.observations.some((item, i) => JSON.stringify(item) !== JSON.stringify(session.observations[i]))) throw new WorkspaceDocumentError("conflict", "Previously collected Layout observations cannot be changed or removed.");
   }
   const collections = [
     { entity: "design", previous: previous.catalog.designs.map(item => item.id), next: next.catalog.designs.map(item => item.id) },

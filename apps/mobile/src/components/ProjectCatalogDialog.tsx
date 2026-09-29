@@ -1,6 +1,6 @@
 import type { ClientRecord } from "@cplayout/project-store";
 import { AlertTriangle, CheckCircle2, Database, FolderOpen, FolderPlus, Layers, Map as MapIcon, MoveRight, UserRound } from "lucide-react-native";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Modal,
   Pressable,
@@ -22,10 +22,11 @@ interface ProjectCatalogDialogProps {
   cancelButtonLabel?: string;
   contextPreview: string;
   defaultName: string;
+  defaultFieldName?: string;
   helper?: string;
   mode: ProjectCatalogDialogMode;
   onCancel: () => void;
-  onCreate: (name: string) => void | Promise<void>;
+  onCreate: (name: string, initialFieldName?: string) => void | Promise<void>;
   submitting?: boolean;
   title?: string;
   visible: boolean;
@@ -41,19 +42,19 @@ const dialogCopy: Record<ProjectCatalogDialogMode, {
   title: string;
 }> = {
   client: {
-    createLabel: "client folder",
-    helper: "Adds a client folder for a farm, grower, or service account in the catalog rail.",
-    title: "Add Client Folder",
+    createLabel: "customer",
+    helper: "Adds a customer for a farm, grower, or service account in the catalog rail.",
+    title: "Add Customer",
   },
   project: {
     createLabel: "project",
-    helper: "Creates a project folder where field maps and design passes stay together.",
+    helper: "Creates a project with its first field. Each field keeps its saved machine designs together.",
     title: "Create Project",
   },
   fieldMap: {
-    createLabel: "field map",
-    helper: "Adds a field map under the selected project for boundaries, roads, and obstacles.",
-    title: "Create Field Map",
+    createLabel: "field",
+    helper: "Adds a field to this project. Create machine designs inside the field.",
+    title: "Create Field",
   },
   design: {
     createLabel: "design",
@@ -70,6 +71,7 @@ export function ProjectCatalogDialog({
   cancelButtonLabel,
   contextPreview,
   defaultName,
+  defaultFieldName,
   helper,
   mode,
   onCancel,
@@ -96,6 +98,7 @@ export function ProjectCatalogDialog({
           allowCancelWhileSubmitting={allowCancelWhileSubmitting}
           cancelButtonLabel={cancelButtonLabel}
           defaultName={defaultName}
+          defaultFieldName={defaultFieldName}
           helper={helper}
           mode={mode}
           onCancel={onCancel}
@@ -116,6 +119,7 @@ export function CatalogItemForm({
   cancelButtonLabel,
   contextPreview,
   defaultName,
+  defaultFieldName,
   embedded = false,
   helper,
   mode,
@@ -127,23 +131,37 @@ export function CatalogItemForm({
   const { width } = useWindowDimensions();
   const compact = !embedded && width < 520;
   const [name, setName] = useState(defaultName);
+  const [fieldName, setFieldName] = useState(defaultFieldName ?? "");
+  const [fieldError, setFieldError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const submitInFlight = useRef(false);
+  const [localSubmitting, setLocalSubmitting] = useState(false);
+  const busy = submitting || localSubmitting;
   const [error, setError] = useState<string | null>(null);
   const copy = dialogCopy[mode];
   const icon = useMemo(() => catalogDialogIcon(mode), [mode]);
 
   useEffect(() => {
     setName(defaultName);
+    setFieldName(defaultFieldName ?? "");
     setError(null);
-  }, [defaultName]);
+    setFieldError(null);
+    setSaveError(null);
+  }, [mode, defaultName, defaultFieldName]);
 
   async function submit(): Promise<void> {
+    if (busy || submitInFlight.current) return;
     const trimmedName = name.trim();
-    if (!trimmedName) {
-      setError("Enter a name before creating this item.");
-      return;
-    }
-    setError(null);
-    await onCreate(trimmedName);
+    const needsField = mode === "project" && defaultFieldName !== undefined;
+    setError(trimmedName ? null : "Enter a name before creating this item.");
+    setFieldError(needsField && !fieldName.trim() ? "Enter a name for the first field." : null);
+    if (!trimmedName || (needsField && !fieldName.trim())) return;
+    submitInFlight.current = true;
+    setLocalSubmitting(true);
+    setSaveError(null);
+    try { await onCreate(trimmedName, needsField ? fieldName.trim() : undefined); }
+    catch (failure) { setSaveError(failure instanceof Error ? failure.message : String(failure)); }
+    finally { submitInFlight.current = false; setLocalSubmitting(false); }
   }
 
   return (
@@ -167,7 +185,7 @@ export function CatalogItemForm({
           {contextPreview}
         </Text>
         <View style={styles.field}>
-          <Text style={styles.fieldLabel}>Name</Text>
+          <Text style={styles.fieldLabel}>{mode === "project" ? "Project name (required)" : "Name (required)"}</Text>
           <TextInput
             accessibilityLabel="Catalog item name"
             autoFocus={!embedded}
@@ -184,15 +202,20 @@ export function CatalogItemForm({
           />
           {error ? <Text style={styles.errorText} testID="catalog-dialog-error">{error}</Text> : null}
         </View>
+        {mode === "project" && defaultFieldName !== undefined && <>
+          <DialogField label="First field name (required)" value={fieldName} onChangeText={text => { setFieldName(text); setFieldError(null); }} error={fieldError} testID="catalog-dialog-first-field-input" />
+          <Text style={styles.helper}>The field is a container for its boundary and saved machine designs. You can add more fields later.</Text>
+        </>}
+        {saveError && <Text accessibilityRole="alert" style={styles.errorText} testID="catalog-dialog-save-error">{saveError}</Text>}
       </ScrollView>
 
       <View style={styles.footer}>
         <Pressable
           accessibilityLabel={cancelButtonLabel ?? `Cancel ${copy.createLabel} creation`}
           accessibilityRole="button"
-          disabled={submitting && !allowCancelWhileSubmitting}
+          disabled={busy && !allowCancelWhileSubmitting}
           onPress={onCancel}
-          style={[styles.secondaryButton, submitting && !allowCancelWhileSubmitting && styles.disabledButton]}
+          style={[styles.secondaryButton, busy && !allowCancelWhileSubmitting && styles.disabledButton]}
           testID="catalog-dialog-cancel"
         >
           <Text style={styles.secondaryButtonText}>{cancelButtonLabel ?? "Cancel"}</Text>
@@ -200,12 +223,12 @@ export function CatalogItemForm({
         <Pressable
           accessibilityLabel={createAccessibilityLabel ?? `Create ${copy.createLabel}`}
           accessibilityRole="button"
-          disabled={submitting}
+          disabled={busy}
           onPress={() => void submit()}
-          style={[styles.primaryButton, submitting && styles.disabledButton]}
+          style={[styles.primaryButton, busy && styles.disabledButton]}
           testID="catalog-dialog-create"
         >
-          <Text style={styles.primaryButtonText}>{submitting ? "Working" : (createButtonLabel ?? "Create")}</Text>
+          <Text style={styles.primaryButtonText}>{busy ? "Working" : (createButtonLabel ?? "Create")}</Text>
         </Pressable>
       </View>
     </View>
@@ -284,25 +307,36 @@ export function ClientProfileForm({
   const { width } = useWindowDimensions();
   const compact = !embedded && width < 520;
   const [value, setValue] = useState<ClientProfileDialogValue>(() => clientDialogValue(initialClient, defaultDisplayName));
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Partial<Record<keyof ClientProfileDialogValue, string>>>({});
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const submitInFlight = useRef(false);
+  const [localSubmitting, setLocalSubmitting] = useState(false);
+  const busy = submitting || localSubmitting;
 
   useEffect(() => {
     setValue(clientDialogValue(initialClient, defaultDisplayName));
-    setError(null);
-  }, [defaultDisplayName, initialClient]);
+    setErrors({});
+    setSaveError(null);
+  }, [initialClient?.id, mode]);
 
   function updateField(field: keyof ClientProfileDialogValue, nextValue: string): void {
     setValue((current) => ({ ...current, [field]: nextValue }));
-    if (error) setError(null);
+    setErrors(current => ({ ...current, [field]: undefined }));
   }
 
   async function submit(): Promise<void> {
-    if (!value.primaryContactFirstName.trim() || !value.primaryContactLastName.trim()) {
-      setError("Enter primary contact first and last name before saving.");
-      return;
-    }
-    setError(null);
-    await onSave({
+    if (busy || submitInFlight.current) return;
+    const required = {
+      primaryContactFirstName: value.primaryContactFirstName.trim() ? undefined : "Enter the contact's first name.",
+      primaryContactLastName: value.primaryContactLastName.trim() ? undefined : "Enter the contact's last name.",
+    };
+    setErrors(required);
+    if (required.primaryContactFirstName || required.primaryContactLastName) return;
+    submitInFlight.current = true;
+    setLocalSubmitting(true);
+    setSaveError(null);
+    try { await onSave({
       companyName: value.companyName.trim(),
       primaryContactFirstName: value.primaryContactFirstName.trim(),
       primaryContactMiddleInitial: value.primaryContactMiddleInitial.trim().replace(/\./g, "").slice(0, 1).toUpperCase(),
@@ -312,7 +346,9 @@ export function ClientProfileForm({
       phone: value.phone.trim(),
       location: value.location.trim(),
       notes: value.notes.trim(),
-    });
+    }); }
+    catch (failure) { setSaveError(failure instanceof Error ? failure.message : String(failure)); }
+    finally { submitInFlight.current = false; setLocalSubmitting(false); }
   }
 
   return (
@@ -320,30 +356,36 @@ export function ClientProfileForm({
       <View style={styles.header}>
         <View style={styles.iconBadge}><UserRound size={22} color="#eef7f1" /></View>
         <View style={styles.headerText}>
-          <Text style={styles.title}>{mode === "create" ? "Add Client" : "Edit Client"}</Text>
-          <Text style={styles.helper}>Company is optional; primary contact first and last name are required. Client profile details stay in the local catalog and are not written into project ZIP packages.</Text>
+          <Text style={styles.title}>{mode === "create" ? "Add Customer" : "Edit Customer"}</Text>
+          <Text style={styles.helper}>Enter the primary contact. Company and contact details are optional and stay in this local customer catalog.</Text>
         </View>
       </View>
 
       {feedback}
       <ScrollView keyboardShouldPersistTaps="handled" style={styles.body} contentContainerStyle={styles.bodyContent} testID="client-profile-dialog-body">
         <DialogField label="Company name" value={value.companyName} onChangeText={(text) => updateField("companyName", text)} testID="client-profile-company-input" />
-        <DialogField label="Last name" value={value.primaryContactLastName} onChangeText={(text) => updateField("primaryContactLastName", text)} error={error} testID="client-profile-last-name-input" />
-        <DialogField label="First name" value={value.primaryContactFirstName} onChangeText={(text) => updateField("primaryContactFirstName", text)} testID="client-profile-first-name-input" />
+        <DialogField label="Last name (required)" value={value.primaryContactLastName} onChangeText={(text) => updateField("primaryContactLastName", text)} error={errors.primaryContactLastName} testID="client-profile-last-name-input" />
+        <DialogField label="First name (required)" value={value.primaryContactFirstName} onChangeText={(text) => updateField("primaryContactFirstName", text)} error={errors.primaryContactFirstName} testID="client-profile-first-name-input" />
+        <Pressable accessibilityRole="button" accessibilityState={{ expanded: detailsOpen }} onPress={() => setDetailsOpen(open => !open)} style={styles.secondaryButton} testID="client-profile-details-toggle">
+          <Text style={styles.secondaryButtonText}>{detailsOpen ? "Hide optional contact details" : "Optional contact details"}</Text>
+        </Pressable>
+        <View style={!detailsOpen && styles.hidden}>
         <DialogField label="M.I." value={value.primaryContactMiddleInitial} onChangeText={(text) => updateField("primaryContactMiddleInitial", text)} testID="client-profile-middle-initial-input" />
         <DialogField label="Suffix" value={value.primaryContactSuffix} onChangeText={(text) => updateField("primaryContactSuffix", text)} testID="client-profile-suffix-input" />
         <DialogField label="Email" value={value.email} onChangeText={(text) => updateField("email", text)} testID="client-profile-email-input" />
         <DialogField label="Phone" value={value.phone} onChangeText={(text) => updateField("phone", text)} testID="client-profile-phone-input" />
         <DialogField label="Location" value={value.location} onChangeText={(text) => updateField("location", text)} testID="client-profile-location-input" />
         <DialogField label="Notes" multiline value={value.notes} onChangeText={(text) => updateField("notes", text)} testID="client-profile-notes-input" />
+        </View>
+        {saveError && <Text accessibilityRole="alert" style={styles.errorText} testID="client-profile-save-error">{saveError}</Text>}
       </ScrollView>
 
       <View style={styles.footer}>
-        <Pressable accessibilityRole="button" disabled={submitting} onPress={onCancel} style={[styles.secondaryButton, submitting && styles.disabledButton]} testID="client-profile-cancel">
+        <Pressable accessibilityRole="button" disabled={busy} onPress={onCancel} style={[styles.secondaryButton, busy && styles.disabledButton]} testID="client-profile-cancel">
           <Text style={styles.secondaryButtonText}>Cancel</Text>
         </Pressable>
-        <Pressable accessibilityRole="button" disabled={submitting} onPress={() => void submit()} style={[styles.primaryButton, submitting && styles.disabledButton]} testID="client-profile-save">
-          <Text style={styles.primaryButtonText}>{submitting ? "Saving" : "Save"}</Text>
+        <Pressable accessibilityRole="button" disabled={busy} onPress={() => void submit()} style={[styles.primaryButton, busy && styles.disabledButton]} testID="client-profile-save">
+          <Text style={styles.primaryButtonText}>{busy ? "Saving" : "Save"}</Text>
         </Pressable>
       </View>
     </View>
@@ -513,13 +555,13 @@ export function MoveProjectForm({
         <View style={styles.iconBadge}><MoveRight size={22} color="#eef7f1" /></View>
         <View style={styles.headerText}>
           <Text style={styles.title}>Move Project</Text>
-          <Text style={styles.helper}>Move {projectName} to another client folder. Project geometry and archive contents are unchanged.</Text>
+          <Text style={styles.helper}>Move {projectName} to another customer. Project geometry and archive contents are unchanged.</Text>
         </View>
       </View>
       {feedback}
       <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent} testID="move-project-dialog-body">
         {targets.length === 0 ? (
-          <Text style={styles.errorText}>Create another client folder before moving this project.</Text>
+          <Text style={styles.errorText}>Create another customer before moving this project.</Text>
         ) : targets.map((client) => {
           const selected = selectedClientId === client.id;
           return (
@@ -535,7 +577,7 @@ export function MoveProjectForm({
               {selected ? <CheckCircle2 size={18} color="#0f5e3d" /> : <FolderOpen size={18} color="#53645a" />}
               <View style={styles.choiceText}>
                 <Text style={styles.choiceTitle}>{client.displayName}</Text>
-                <Text style={styles.choiceMeta}>{client.location || client.contactName || "Client folder"}</Text>
+                <Text style={styles.choiceMeta}>{client.location || client.contactName || "Customer"}</Text>
               </View>
             </Pressable>
           );
@@ -579,13 +621,14 @@ function DialogField({
       <Text style={styles.fieldLabel}>{label}</Text>
       <TextInput
         accessibilityLabel={label}
+        accessibilityHint={error ?? undefined}
         multiline={multiline}
         onChangeText={onChangeText}
         style={[styles.input, multiline && styles.textArea, error && styles.inputError]}
         testID={testID}
         value={value}
       />
-      {error ? <Text style={styles.errorText} testID="client-profile-error">{error}</Text> : null}
+      {error ? <Text style={styles.errorText} testID={`${testID}-error`} accessibilityRole="alert">{error}</Text> : null}
     </View>
   );
 }
@@ -682,6 +725,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     lineHeight: 18,
   },
+  hidden: { display: "none" },
   body: {
     flexShrink: 1,
   },

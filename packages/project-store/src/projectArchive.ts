@@ -10,6 +10,7 @@ import {
   LEGACY_PROJECT_DOCUMENT_VERSION,
   PROJECT_DOCUMENT_VERSIONS,
   serializeProjectDocument,
+  sha256Text,
 } from "@cplayout/core";
 import type {
   LayoutResult,
@@ -31,6 +32,19 @@ export const PROJECT_ARCHIVE_MAX_UNCOMPRESSED_BYTES = 100 * 1024 * 1024;
 export const PROJECT_ARCHIVE_MAX_ENTRY_BYTES = 50 * 1024 * 1024;
 export const PROJECT_ARCHIVE_MAX_FILE_COUNT = 16;
 
+/** Saved design identity and local edit revision are separate output labels. */
+export interface ProjectArchiveOutputContext {
+  designId: string | null;
+  designRevision: number | null;
+  editRevision: number;
+  includesUnsavedEdits: boolean;
+}
+
+export interface ProjectArchiveSource extends ProjectArchiveOutputContext {
+  machineId: string;
+  canonicalSnapshotSha256: string;
+}
+
 export interface ProjectArchiveManifest {
   archiveVersion: typeof PROJECT_ARCHIVE_VERSION;
   createdAt: string;
@@ -41,6 +55,8 @@ export interface ProjectArchiveManifest {
   offlineFirst: true;
   paidServicesRequired: false;
   projectDocumentVersion: typeof PROJECT_DOCUMENT_VERSIONS[number];
+  source?: ProjectArchiveSource;
+  notes?: string[];
 }
 
 export interface ProjectArchiveBundle {
@@ -48,6 +64,16 @@ export interface ProjectArchiveBundle {
   files: Record<string, string>;
 }
 
+const ProjectArchiveOutputContextSchema = z.object({
+  designId: z.string().min(1).nullable(),
+  designRevision: z.number().int().nonnegative().nullable(),
+  editRevision: z.number().int().nonnegative(),
+  includesUnsavedEdits: z.boolean(),
+}).strict();
+const ProjectArchiveSourceSchema = ProjectArchiveOutputContextSchema.extend({
+  machineId: z.string().min(1),
+  canonicalSnapshotSha256: z.string().regex(/^[0-9a-f]{64}$/),
+});
 const ProjectArchiveManifestSchema = z.object({
   archiveVersion: z.literal(PROJECT_ARCHIVE_VERSION),
   createdAt: z.string().min(1),
@@ -58,14 +84,25 @@ const ProjectArchiveManifestSchema = z.object({
   offlineFirst: z.literal(true),
   paidServicesRequired: z.literal(false),
   projectDocumentVersion: z.enum(PROJECT_DOCUMENT_VERSIONS),
+  source: ProjectArchiveSourceSchema.optional(),
+  notes: z.array(z.string().min(1)).optional(),
 });
 
 /** A recovery package needs neither calculated metrics nor a WGS84 transform. */
 export function buildProjectRecoveryArchiveBundle(
   project: PivotProject,
   createdAt = new Date().toISOString(),
+  outputContext?: ProjectArchiveOutputContext,
 ): ProjectArchiveBundle {
-  const document = serializeProjectDocument(project);
+  return canonicalProjectArchive(project, serializeProjectDocument(project), createdAt, outputContext);
+}
+
+function canonicalProjectArchive(
+  project: PivotProject,
+  document: string,
+  createdAt: string,
+  outputContext?: ProjectArchiveOutputContext,
+): ProjectArchiveBundle {
   const manifest: ProjectArchiveManifest = {
     archiveVersion: PROJECT_ARCHIVE_VERSION,
     createdAt,
@@ -76,6 +113,7 @@ export function buildProjectRecoveryArchiveBundle(
     offlineFirst: true,
     paidServicesRequired: false,
     projectDocumentVersion: projectDocumentVersion(document),
+    ...(outputContext === undefined ? {} : { source: archiveSource(project, document, outputContext) }),
   };
   return {
     manifest,
@@ -91,8 +129,21 @@ export function buildProjectArchiveBundle(
   result: LayoutResult,
   geoJson: object,
   createdAt = new Date().toISOString(),
+  outputContext?: ProjectArchiveOutputContext,
 ): ProjectArchiveBundle {
   const document = serializeProjectDocument(project);
+  // Exchange companions cannot retain classified drawing metadata or operational
+  // evidence. Keep the exact canonical document instead of stripping those fields
+  // or failing the very ZIP export recommended by the exchange-format refusal.
+  if (projectDocumentVersion(document) !== LEGACY_PROJECT_DOCUMENT_VERSION) {
+    const bundle = canonicalProjectArchive(project, document, createdAt, outputContext);
+    bundle.manifest.notes = [
+      "Canonical project.json retains all geometry, drawing metadata, and recorded evidence. Reopen this ZIP in CPLayout.",
+      "GIS, KML, XML, and CSV exchange companions are omitted because they cannot retain this document's full metadata and evidence. No calculated companion files are included.",
+    ];
+    bundle.files[PROJECT_MANIFEST_FILENAME] = JSON.stringify(bundle.manifest, null, 2);
+    return bundle;
+  }
   const manifest: ProjectArchiveManifest = {
     archiveVersion: PROJECT_ARCHIVE_VERSION,
     createdAt,
@@ -112,6 +163,7 @@ export function buildProjectArchiveBundle(
     offlineFirst: true,
     paidServicesRequired: false,
     projectDocumentVersion: projectDocumentVersion(document),
+    ...(outputContext === undefined ? {} : { source: archiveSource(project, document, outputContext) }),
   };
 
   return {
@@ -155,7 +207,17 @@ export function importProjectArchiveZip(data: Uint8Array): PivotProject {
   if (manifest.projectDocumentVersion !== projectDocumentVersion(document)) throw new Error("Project archive manifest version does not match project.json.");
   if (manifest.projectId !== project.id) throw new Error("Project archive manifest projectId does not match project.json.");
   if (manifest.projectCrs !== project.projectCrs) throw new Error("Project archive manifest projectCrs does not match project.json.");
+  if (manifest.source?.machineId !== undefined && manifest.source.machineId !== project.machine.id) {
+    throw new Error("Project archive manifest source machineId does not match project.json.");
+  }
+  if (manifest.source && manifest.source.canonicalSnapshotSha256 !== sha256Text(document)) {
+    throw new Error("Project archive manifest source snapshot hash does not match project.json.");
+  }
   return project;
+}
+
+function archiveSource(project: PivotProject, document: string, context: ProjectArchiveOutputContext): ProjectArchiveSource {
+  return { ...ProjectArchiveOutputContextSchema.parse(context), machineId: project.machine.id, canonicalSnapshotSha256: sha256Text(document) };
 }
 
 function projectDocumentVersion(document: string): typeof PROJECT_DOCUMENT_VERSIONS[number] {
