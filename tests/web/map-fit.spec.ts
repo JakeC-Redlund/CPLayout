@@ -133,12 +133,16 @@ async function usableRect(page: Page, renderer: Renderer, forClicks = false): Pr
   let left = frame.x + 20;
   let top = frame.y + 20;
   let right = frame.x + frame.width - 20, bottom = frame.y + frame.height - 20;
-  const bottomIds = renderer === "browser" ? ["browser-map-bottom-dock"] : ["map-bottom-hud", "svg-map-draft-hud"];
+  const bottomIds = renderer === "browser"
+    ? ["browser-map-bottom-dock", "browser-map-status-hud", "right-workflow-sidebar"]
+    : ["map-bottom-hud", "svg-map-draft-hud"];
   for (const id of bottomIds) {
     const item = page.getByTestId(id);
     if (await item.isVisible()) {
+      if (id === "right-workflow-sidebar" && await item.evaluate(element => getComputedStyle(element).position !== "absolute")) continue;
       const hud = await box(item);
-      if (hud.y > frame.y && hud.y < frame.y + frame.height) bottom = Math.min(bottom, hud.y - 8);
+      if (hud.x < frame.x + frame.width && hud.x + hud.width > frame.x
+        && hud.y > frame.y && hud.y < frame.y + frame.height) bottom = Math.min(bottom, hud.y - 8);
     }
   }
   if (renderer === "svg") {
@@ -438,13 +442,14 @@ for (const renderer of ["browser", "svg"] as const) {
     sameView(await fit(page, renderer), fitted);
     if (renderer === "svg" && page.viewportSize()!.width < 700) {
       const legendButton = page.getByTestId("svg-map-legend-open");
-      await expect(legendButton).toHaveAccessibleName("Map legend");
+      await expect(legendButton).toHaveAccessibleName("Map legend and layer status");
       await legendButton.click();
       const dialog = page.getByTestId("svg-map-legend-dialog");
       await expect(dialog).toBeVisible();
       for (const label of ["Allowed wet area", "Tower / LRDU path", "Machine-end path", "End-gun reach",
         "Configured corner-arm preview", "Outside field", "Generated advisory plan", "Obstacle/no-spray",
         "Survey/object point", "Utility map feature"]) await expect(dialog.getByText(label, { exact: true })).toBeVisible();
+      await expect(dialog.getByTestId("svg-map-status-notices")).toBeVisible();
       await page.screenshot({ path: testInfo.outputPath("svg-map-legend.png"), animations: "disabled" });
       await dialog.getByRole("button", { name: "Close map legend" }).click();
       await expect(dialog).toHaveCount(0);

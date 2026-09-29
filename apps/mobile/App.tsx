@@ -3152,8 +3152,9 @@ function DesignConsolePanel({
 function AdvisoryCalculationStatus({ message, failed, onRetry, testID }: {
   message: string; failed: boolean; onRetry: () => void; testID?: string;
 }): React.JSX.Element {
+  const empty = !message && !failed;
   return (
-    <View style={{ minHeight: 28, flexDirection: "row", alignItems: "center", paddingHorizontal: 12 }}>
+    <View style={{ minHeight: empty ? 0 : 28, height: empty ? 0 : undefined, overflow: empty ? "hidden" : "visible", flexDirection: "row", alignItems: "center", paddingHorizontal: 12 }}>
       <Text accessibilityLiveRegion="polite" testID={testID} style={{ flex: 1, fontSize: 12, color: failed ? "#a32828" : "#46564b" }}>{message}</Text>
       {failed ? (
         <Pressable accessibilityRole="button" accessibilityLabel="Retry advisory calculation" onPress={onRetry} style={{ width: 28, height: 28, alignItems: "center", justifyContent: "center" }}>

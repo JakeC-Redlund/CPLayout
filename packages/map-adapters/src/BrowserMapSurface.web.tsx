@@ -67,8 +67,9 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
     onMappingWorkflowModeChange, onSelectMapFeature, onSettingsChange,
   } = props;
   const homeView = props.homeView === true;
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const compactLayout = width < 760;
+  const shortFallback = width > height && height < 500;
   const [panelWidth, setPanelWidth] = useState<number | null>(null);
   const [panelHeight, setPanelHeight] = useState<number | null>(null);
   const [sheetInsetBottom, setSheetInsetBottom] = useState(0);
@@ -597,8 +598,8 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
 
   if (projectionError || mapInitializationError || svgRecoveryRequested) {
     return (
-      <View style={styles.fallbackShell} testID="browser-map-renderer-fallback">
-        <Text style={styles.fallbackText} testID="browser-map-renderer-fallback-notice">
+      <View style={[styles.fallbackShell, shortFallback && styles.fallbackShellShort]} testID="browser-map-renderer-fallback">
+        <Text style={[styles.fallbackText, shortFallback && styles.fallbackTextShort]} testID="browser-map-renderer-fallback-notice">
           {projectionError
             ? `Browser imagery is unavailable for this project view: ${projectionError}`
             : mapInitializationError ?? "SVG map selected. Imagery preview is disabled."}
@@ -1560,6 +1561,8 @@ const styles = StyleSheet.create({
     minHeight: 0,
     minWidth: 0,
   },
+  fallbackShellShort: { gap: 2 },
+  fallbackTextShort: { paddingVertical: 2, paddingHorizontal: 8 },
   fallbackText: {
     backgroundColor: "#fff2df",
     borderColor: "#e4b56d",

@@ -49,7 +49,11 @@ test("workspace remains usable through the SVG map fallback when WebGL is unavai
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("North Quarter Concept Layout");
   await page.getByTestId("workspace-nav-map").click();
   await expect(page.getByTestId("layout-map-svg")).toBeVisible();
-  await expect(page.getByTestId("svg-map-status-notices")).toBeVisible();
+  if (await page.getByTestId("svg-map-legend-open").isVisible()) {
+    await expect(page.getByTestId("svg-map-legend-open")).toHaveAccessibleName("Map legend and layer status");
+  } else {
+    await expect(page.getByTestId("svg-map-status-notices")).toBeVisible();
+  }
   await expect(page.getByTestId("maplibre-preview-fallback")).toHaveCount(0);
   await expectNoOverlapIfVisible(page, "svg-map-status-notices", "map-bottom-hud");
   await selectEditTool(page);
@@ -111,6 +115,15 @@ test("workspace remains usable through the SVG map fallback when WebGL is unavai
       await layerStatus.screenshot({ path: testInfo.outputPath("svg-layer-status-details.png"), animations: "disabled" });
       await layerStatus.getByRole("button", { name: "Close map layer status", exact: true }).click();
       await expect(layerStatus).toHaveCount(0);
+    } else if (await page.getByTestId("svg-map-legend-open").isVisible()) {
+      await page.getByRole("button", { name: "Map legend and layer status", exact: true }).click();
+      const legend = page.getByTestId("svg-map-legend-dialog");
+      await expect(legend).toContainText("Imagery unavailable");
+      await expect(legend).toContainText("Reference overlays unavailable");
+      await expect.poll(() => legend.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
+      await legend.screenshot({ path: testInfo.outputPath("svg-layer-status-details.png"), animations: "disabled" });
+      await legend.getByRole("button", { name: "Close map legend", exact: true }).click();
+      await expect(legend).toHaveCount(0);
     } else {
       const inlineStatus = page.getByTestId("svg-map-status-notices");
       await expect(inlineStatus).toContainText("Imagery unavailable");

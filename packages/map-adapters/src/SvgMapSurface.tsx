@@ -377,8 +377,12 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
     if (Platform.OS === "web") {
       const surface = surfaceRef.current as unknown as Element | null;
       const svg = surface?.querySelector("svg");
-      if (svg) {
-        const frame = svg.getBoundingClientRect();
+      const frame = svg?.getBoundingClientRect();
+      if (frame && frame.width > 0 && frame.height > 0) {
+        // onLayout can retain old positions after an overlay moves without resizing.
+        // Current web rectangles replace that cache; native keeps the layout fallback.
+        insets.top = deferMapNotices ? 68 : 12;
+        insets.bottom = 20;
         const obstructionRect = (testId: string) => surface?.querySelector(`[data-testid="${testId}"]`)?.getBoundingClientRect();
         const reserveTop = (testId: string) => {
           const rect = obstructionRect(testId);
@@ -579,6 +583,7 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
   const shortInspectView = externalHudLayout && windowHeight < 500 && mapState.mode === "pan" && mapState.draftVertices.length === 0;
   const shortLandscapeDraftHud = shortLandscape && designMode && !shortInspectView;
   const deferMapNotices = externalHudLayout && (compactLayout || shortLandscape || mapPixelWidth < 560 || shortInspectView);
+  const legendIncludesNotices = deferMapNotices && Boolean(imageryPlan || referenceOverlayNotice);
   const visibleLabelObstructions = Object.entries(labelObstructions).filter(([id]) => id === "zoom"
     || (id === "legend" && deferMapNotices && !catalogHomeView)
     || (id === "pan" && !deferMapNotices)
@@ -867,7 +872,7 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
         </View>
         {deferMapNotices && !catalogHomeView ? <View style={styles.compactLegendControl}
           onLayout={event => recordLabelObstruction("legend", event.nativeEvent.layout)}>
-          <IconControl icon={<Layers size={20} />} label="Map legend" tooltipPlacement="belowStart" onPress={() => setLegendOpen(true)} testID="svg-map-legend-open" />
+          <IconControl icon={<Layers size={20} />} label={legendIncludesNotices ? "Map legend and layer status" : "Map legend"} tooltipPlacement="belowStart" onPress={() => setLegendOpen(true)} testID="svg-map-legend-open" />
         </View> : null}
 
         {!deferMapNotices ? <View style={styles.panControls}
@@ -908,10 +913,15 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
         <View style={styles.compactToolbarSlot} testID="svg-map-bottom-overlay">{bottomOverlay}</View>
       ) : null}
 
-      {deferMapNotices && !shortLandscape && !shortInspectView && (imageryPlan || referenceOverlayNotice) ? (
+      {deferMapNotices && catalogHomeView && !shortLandscape && !shortInspectView && (imageryPlan || referenceOverlayNotice) ? (
         <View style={styles.compactMapNoticeBand}>
           <SvgMapNotices compact imageryPlan={imageryPlan} referenceOverlayNotice={referenceOverlayNotice} />
         </View>
+      ) : null}
+      {deferMapNotices && !catalogHomeView && imageryPlan && !imageryPlan.error ? (
+        <Text style={styles.compactImageryCredit} testID="svg-map-imagery-credit">
+          {imageryPlan.provider.attribution} · {imageryPlan.provider.licenseText}
+        </Text>
       ) : null}
 
       <MapLibreImageryPreview
@@ -961,14 +971,14 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
         <View style={styles.noticeBackdrop}>
           <View accessibilityViewIsModal style={styles.noticeDialog} testID="svg-map-legend-dialog">
             <View style={styles.noticeDialogHeader}>
-              <Text style={styles.noticeDialogTitle}>Map Legend</Text>
+              <Text style={styles.noticeDialogTitle}>{legendIncludesNotices ? "Map Legend and Layer Status" : "Map Legend"}</Text>
               <Pressable accessibilityRole="button" accessibilityLabel="Close map legend" onPress={() => setLegendOpen(false)} style={styles.noticeClose}>
                 <X size={20} color="#26392f" />
               </Pressable>
             </View>
             <ScrollView contentContainerStyle={styles.noticeDialogBody}>
               <FullMapLegend palette={palette} />
-              {shortInspectView || shortLandscape ? <SvgMapNotices imageryPlan={imageryPlan} referenceOverlayNotice={referenceOverlayNotice} /> : null}
+              {legendIncludesNotices ? <SvgMapNotices imageryPlan={imageryPlan} referenceOverlayNotice={referenceOverlayNotice} /> : null}
             </ScrollView>
           </View>
         </View>
@@ -2300,6 +2310,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     padding: 8,
   },
+  compactImageryCredit: { color: "#405448", fontSize: 11, lineHeight: 14, paddingHorizontal: 8, paddingBottom: 4, flexShrink: 0 },
   compactNoticeButton: { flexDirection: "row", alignItems: "center", gap: 8, minHeight: 44 },
   compactNoticeSummary: { flex: 1, color: "#26392f", fontSize: 12, lineHeight: 16 },
   noticeBackdrop: { flex: 1, justifyContent: "center", alignItems: "center", padding: 16, backgroundColor: "rgba(19,33,27,0.58)" },
