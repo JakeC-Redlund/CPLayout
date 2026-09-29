@@ -94,3 +94,52 @@ export interface LayoutSearchResult {
   rejected: LayoutSearchRejection[];
   warnings: string[];
 }
+
+/** V2 changes scheduling and numerical comparison, independently of the field document. */
+export const LAYOUT_SEARCH_REQUEST_VERSION_V2 = "layout-search-request-v2";
+export const LAYOUT_SEARCH_RESULT_VERSION_V2 = "layout-search-result-v2";
+export const LAYOUT_SEARCH_MODEL_VERSION_V2 = "standard-pivot-search-v2";
+export const LAYOUT_SEARCH_DEEP_BUDGET: Readonly<Required<LayoutSearchBudget>> = Object.freeze({
+  maxCandidateCenters: 128, maxEvaluations: 25000, refinementLevels: 6,
+});
+export interface LayoutSearchRequestV2 extends Omit<LayoutSearchRequest, "schemaVersion" | "modelVersion"> {
+  schemaVersion: typeof LAYOUT_SEARCH_REQUEST_VERSION_V2;
+  modelVersion: typeof LAYOUT_SEARCH_MODEL_VERSION_V2;
+}
+export interface LayoutSearchDiagnosticsV2 {
+  seedProbes: number;
+  candidateAttempts: number;
+  candidateCacheHits: number;
+  combinationAttempts: number;
+  combinationCacheHits: number;
+  pairChecks: number;
+  pairCacheHits: number;
+  pairCacheEvictions: number;
+  unionCalls: number;
+  scenariosMaterialized: number;
+  registryCandidates: number;
+  pendingJobs: number;
+  workSteps: number;
+  peakCandidateCacheEntries: number;
+  peakCombinationCacheEntries: number;
+  peakPairCacheEntries: number;
+}
+export interface LayoutSearchResultV2 extends Omit<LayoutSearchResult, "schemaVersion"> {
+  schemaVersion: typeof LAYOUT_SEARCH_RESULT_VERSION_V2;
+  diagnostics: LayoutSearchDiagnosticsV2;
+  terminationReason: string;
+  /** Area comparison guard based on local extent and absolute-coordinate floating precision. Not a certified error bound. */
+  comparisonToleranceSquareMeters: number;
+}
+export interface LayoutSearchProgressV2 {
+  phase: LayoutSearchPhase | "generation" | "finished";
+  best: LayoutSearchScenario | null;
+  greedyBaseline: LayoutSearchScenario | null;
+  evaluations: LayoutSearchResult["evaluations"];
+  diagnostics: LayoutSearchDiagnosticsV2;
+  termination: LayoutSearchTermination | null;
+}
+export interface LayoutSearchControlV2 extends LayoutSearchControl {
+  /** Detached snapshots. Observers cannot mutate search state. */
+  onProgress?: (progress: LayoutSearchProgressV2) => void;
+}

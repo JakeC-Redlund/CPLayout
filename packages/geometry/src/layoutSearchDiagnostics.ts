@@ -8,8 +8,9 @@ export function layoutSearchPriceMatches(price: LayoutSearchPrice, machine: Fiel
   return Number.isFinite(price.amount) && price.amount >= 0 && /^[A-Z]{3}$/.test(price.currencyCode)
     && projectDataKey(configuration) === projectDataKey(machine.configuration);
 }
-export function layoutSearchScenario(request: LayoutSearchRequest, selected: LayoutSearchCandidate[], pairs: LayoutSearchPairClearance[]): LayoutSearchScenario {
-  const { coverage, areaSquareMeters, overlapSquareMeters } = layoutSearchCoverage(selected.map(candidate => candidate.layout.allowedCoverage));
+export function layoutSearchScenario(request: LayoutSearchRequest, selected: LayoutSearchCandidate[], pairs: LayoutSearchPairClearance[],
+  measured = layoutSearchCoverage(selected.map(candidate => candidate.layout.allowedCoverage))): LayoutSearchScenario {
+  const { coverage, areaSquareMeters, overlapSquareMeters } = measured;
   const sorted = [...selected].sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
   const usedIds = new Set(request.field.machines.map(machine => machine.id));
   const templateCounts = new Map<string, number>();

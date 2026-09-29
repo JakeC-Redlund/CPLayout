@@ -10,6 +10,8 @@ import {
   type CornerArmKinematicInputs,
 } from "./cornerArmKinematics";
 import { createCirclePolygon } from "./geometry";
+import { cornerGuidanceEvents } from "./cornerContinuousModel";
+import { memberFieldClearanceMargin, memberObstacleClearanceMargin } from "./cornerMemberClearance";
 
 const model = {
   ...VALLEY_CORNER_ARM_SCAFFOLD_CATALOG[0],
@@ -518,7 +520,7 @@ const gunPoints = gun.wettedEndGunEnvelope.flat(2);
 assert.equal(Math.min(...gunPoints.map(point => point.x)), 95);
 assert.equal(Math.max(...gunPoints.map(point => point.y)), 85);
 const expectedDiscArea = 32 * 25 * Math.sin(2 * Math.PI / 64);
-assert.ok(Math.abs(gun.footprintAccounting.potentialFootprintAcres * 4046.8564224 - expectedDiscArea) < 1e-8);
+assert.ok(Math.abs(gun.footprintAccounting.potentialFootprintAcres! * 4046.8564224 - expectedDiscArea) < 1e-8);
 assert.equal(gun.footprintAccounting.netAdditionalFootprintAcres, gun.footprintAccounting.potentialFootprintAcres);
 const coveredGun = evaluateCornerArmKinematics({ ...gunInput, baselineFootprints: [gun.wettedEndGunEnvelope] });
 assert.equal(coveredGun.footprintAccounting.netAdditionalFootprintAcres, 0);
@@ -554,3 +556,146 @@ for (const patch of [
   { crsOptions: null }, { crsOptions: [] }, { crsOptions: { localMetricDeclaration: null } },
   { sweep: null }, { sweep: "full_circle" }, { sweep: {} }, { sweep: { mode: "bad" } },
 ]) assertAdmissionBlocked({ ...readyInput, ...patch }, ["geometry_invalid"]);
+
+// Advanced model uses independently derived horizontal-line roots.
+const v2Model = { ...model, spanLengthMeters: 100, overhangLengthMeters: 0 };
+const v2Input: CornerArmKinematicInputs = { ...readyInput, modelVersion: "corner-kinematics-v2", modelSpec: v2Model,
+  initialGuidance: { distanceMeters: 400 - Math.sqrt(100 ** 2 - 55 ** 2), direction: "reverse" },
+  refinement: { maxAdditionalSamples: 16 }, baselineFootprints: [] };
+const advanced = evaluateCornerArmKinematics(v2Input);
+assert.equal(advanced.status, "unresolved", "Geometric bounds never authorize physical safety or omitted drive constraints.");
+assert.ok(advanced.sampledStates.length >= 3 && advanced.sampling.addedSampleCount <= 16);
+assert.equal(advanced.sampling.betweenPoseClearance, "conditionally_clear");
+assert.equal(advanced.continuousModel?.completeness, "bounded_centerline_intervals");
+assert.equal(advanced.footprintAccounting.reachStatus, "missing");
+assert.equal(advanced.footprintAccounting.potentialFootprintAcres, null);
+for (const state of advanced.sampledStates) {
+  const x = 100 * Math.cos(state.thetaRadians) - Math.sqrt(100 ** 2 - (55 - 100 * Math.sin(state.thetaRadians)) ** 2);
+  assert.ok(Math.abs(state.sdu.x - x) < 1e-10);
+  assert.equal(state.guidanceRoot, -1);
+  assert.equal(state.guidanceBranchId, "0:-1");
+  assert.ok(state.clearanceMargins.every(margin => margin.marginMeters > 250));
+  assert.ok(state.instantaneousSduToLrduSpeedRatio !== null);
+}
+for (const interval of advanced.continuousModel!.intervals) {
+  assert.equal(interval.status, "conditionally_clear");
+  const start = advanced.sampledStates[interval.startStateIndex], end = advanced.sampledStates[interval.endStateIndex];
+  // Independent dense probes audit the enclosure against the closed-form root, not interpolation.
+  for (let index = 0; index <= 37; index += 1) {
+    const theta = start.thetaRadians + (end.thetaRadians - start.thetaRadians) * index / 37;
+    const lrdu = { x: 100 * Math.cos(theta), y: 100 * Math.sin(theta) };
+    const sdu = { x: lrdu.x - Math.sqrt(100 ** 2 - (55 - lrdu.y) ** 2), y: 55 };
+    assert.ok(Math.hypot(sdu.x - start.sdu.x, sdu.y - start.sdu.y) <= interval.displacementBoundMeters!);
+    for (const point of [lrdu, sdu, { x: 0, y: 0 }]) {
+      const box = interval.centerlineEnclosure!;
+      assert.ok(point.x >= box.minX && point.x <= box.maxX && point.y >= box.minY && point.y <= box.maxY);
+    }
+  }
+}
+const ambiguous = evaluateCornerArmKinematics({ ...v2Input, initialGuidance: undefined });
+assert.equal(ambiguous.status, "unresolved");
+assert.ok(ambiguous.infeasibleDiagnostics.some(item => item.code === "guidance_branch_ambiguous"));
+const wrongPosition = evaluateCornerArmKinematics({ ...v2Input, initialGuidance: { distanceMeters: 1, direction: "reverse" } });
+assert.equal(wrongPosition.status, "blocked");
+assert.ok(wrongPosition.infeasibleDiagnostics.some(item => item.code === "guidance_initial_position_mismatch"));
+const forwardConflict = evaluateCornerArmKinematics({ ...v2Input, initialGuidance: { ...v2Input.initialGuidance!, direction: "forward" } });
+assert.ok(forwardConflict.infeasibleDiagnostics.some(item => item.code === "guidance_direction_reversal"));
+const reversePath = evaluateCornerArmKinematics({ ...v2Input, guidancePath: [...guidancePath].reverse(),
+  initialGuidance: { distanceMeters: 600 - v2Input.initialGuidance!.distanceMeters, direction: "forward" } });
+assert.equal(reversePath.sampledStates.length, advanced.sampledStates.length);
+reversePath.sampledStates.forEach((state, index) => {
+  assert.ok(Math.abs(state.sdu.x - advanced.sampledStates[index].sdu.x) < 1e-10);
+  assert.equal(state.guidanceRoot, 1);
+});
+
+// A hard obstacle lies between the two clear base samples, on the main member at 10 degrees.
+const obstacleCenter = { x: 50 * Math.cos(Math.PI / 18), y: 50 * Math.sin(Math.PI / 18) };
+const intervalObstacle: ObstacleZone = { id: "hidden-midinterval", name: "Synthetic hidden obstacle", kind: "building", hardConflict: true,
+  noSpray: false, bufferMeters: 0, confidence: "user_estimated", polygon: [
+    { x: obstacleCenter.x - 0.2, y: obstacleCenter.y - 0.2 }, { x: obstacleCenter.x + 0.2, y: obstacleCenter.y - 0.2 },
+    { x: obstacleCenter.x + 0.2, y: obstacleCenter.y + 0.2 }, { x: obstacleCenter.x - 0.2, y: obstacleCenter.y + 0.2 },
+  ] };
+const coarseHidden = evaluateCornerArmKinematics({ ...v2Input, obstacles: [intervalObstacle], sampleAngleStepDegrees: 20, refinement: { maxAdditionalSamples: 0 } });
+assert.ok(coarseHidden.sampledStates.every(state => state.feasible));
+assert.equal(coarseHidden.sampling.betweenPoseClearance, "unresolved");
+assert.equal(coarseHidden.sampling.budgetExhausted, true);
+const refinedHidden = evaluateCornerArmKinematics({ ...v2Input, obstacles: [intervalObstacle], sampleAngleStepDegrees: 20, refinement: { maxAdditionalSamples: 1 } });
+assert.equal(refinedHidden.sampling.addedSampleCount, 1);
+assert.equal(refinedHidden.status, "blocked");
+assert.ok(refinedHidden.sampledStates.some(state => state.thetaDegrees === 10
+  && state.clearanceMargins.some(margin => margin.constraintId === intervalObstacle.id && margin.marginMeters < 0)));
+
+// The selected root traverses a declared collinear guidance vertex exactly at 10 degrees.
+const vertexTheta = Math.PI / 18;
+const vertexX = 100 * Math.cos(vertexTheta) - Math.sqrt(100 ** 2 - (55 - 100 * Math.sin(vertexTheta)) ** 2);
+const vertexInput = { ...v2Input, guidancePath: [guidancePath[0], { x: vertexX, y: 55 }, guidancePath[1]], sampleAngleStepDegrees: 20,
+  refinement: { maxAdditionalSamples: 1 } };
+const vertexResult = evaluateCornerArmKinematics(vertexInput);
+assert.equal(vertexResult.sampledStates.length, 3);
+assert.ok(vertexResult.continuousModel!.events.some(event => event.kind === "guidance_vertex" && event.sampled && Math.abs(event.thetaDegrees - 10) < 1e-8));
+assert.notEqual(vertexResult.sampledStates[0].guidanceSegmentIndex, vertexResult.sampledStates.at(-1)!.guidanceSegmentIndex);
+assert.equal(vertexResult.sampling.betweenPoseClearance, "unresolved", "A guidance turn/vertex is not a certified straight-segment interval.");
+const tangent = evaluateCornerArmKinematics({ ...v2Input, guidancePath: [{ x: -300, y: 100 }, { x: 300, y: 100 }],
+  initialGuidance: { distanceMeters: 400, direction: "reverse" } });
+assert.equal(tangent.status, "unresolved");
+assert.ok(tangent.infeasibleDiagnostics.some(item => item.code === "guidance_branch_ambiguous"));
+for (const offset of [{ x: 500000, y: 4500000 }, { x: 524288, y: 4194304 }]) {
+  const move = (point: XY) => ({ x: point.x + offset.x, y: point.y + offset.y });
+  const translated = evaluateCornerArmKinematics({ ...v2Input, pivotCenter: move(v2Input.pivotCenter!),
+    guidancePath: v2Input.guidancePath!.map(move), fieldBoundary: v2Input.fieldBoundary!.map(move) });
+  assert.equal(translated.sampling.betweenPoseClearance, advanced.sampling.betweenPoseClearance);
+  translated.sampledStates.forEach((state, index) => assert.ok(Math.hypot(state.sdu.x - offset.x - advanced.sampledStates[index].sdu.x,
+    state.sdu.y - offset.y - advanced.sampledStates[index].sdu.y) < 1e-8));
+}
+const missingReach = evaluateCornerArmKinematics({ ...v2Input, endGunThrowMeters: undefined });
+const zeroReach = evaluateCornerArmKinematics({ ...v2Input, endGunThrowMeters: 0 });
+assert.equal(missingReach.footprintAccounting.areasSquareMeters.grossPotential, null);
+assert.equal(zeroReach.footprintAccounting.areasSquareMeters.grossPotential, 0);
+
+const positiveRoot = evaluateCornerArmKinematics({ ...v2Input, refinement: { maxAdditionalSamples: 0 },
+  initialGuidance: { distanceMeters: 400 + Math.sqrt(100 ** 2 - 55 ** 2), direction: "forward" } });
+for (const state of positiveRoot.sampledStates) {
+  const expectedX = 100 * Math.cos(state.thetaRadians) + Math.sqrt(100 ** 2 - (55 - 100 * Math.sin(state.thetaRadians)) ** 2);
+  assert.ok(Math.abs(state.sdu.x - expectedX) < 1e-10);
+  assert.equal(state.guidanceRoot, 1);
+}
+assert.ok(positiveRoot.infeasibleDiagnostics.some(item => item.code === "guidance_direction_reversal"),
+  "The plus root reverses within this interval even though its average may still point forward.");
+const tangencyEvents = cornerGuidanceEvents({ x: 0, y: 0 }, 100, 80, [{ x: -300, y: 120 }, { x: 300, y: 120 }], [0, 50]);
+assert.ok(tangencyEvents.some(event => event.kind === "guidance_tangency" && Math.abs(event.thetaDegrees - Math.asin(0.4) * 180 / Math.PI) < 1e-10));
+assert.ok(tangent.continuousModel!.events.some(event => event.kind === "guidance_tangency"));
+
+// Signed whole-member margins use the edge nearest the member interior, not just endpoints.
+const marginRing = [{ x: 4, y: -1 }, { x: 6, y: -1 }, { x: 6, y: 1 }, { x: 4, y: 1 }];
+assert.equal(memberObstacleClearanceMargin({ x: 0, y: 0 }, { x: 10, y: 0 }, marginRing, 0.5), -0.5);
+assert.equal(memberObstacleClearanceMargin({ x: 0, y: 2 }, { x: 10, y: 2 }, marginRing, 0.5), 0.5);
+assert.equal(memberFieldClearanceMargin({ x: 0, y: 0 }, { x: 100, y: 0 }, boundary, 1), 399);
+assert.ok(memberFieldClearanceMargin({ x: 0, y: 0 }, { x: 600, y: 0 }, boundary, 1) < 0);
+
+const withOverhang = evaluateCornerArmKinematics({ ...v2Input, modelSpec: { ...v2Model, overhangLengthMeters: 30 } });
+for (const interval of withOverhang.continuousModel!.intervals) {
+  const start = withOverhang.sampledStates[interval.startStateIndex], end = withOverhang.sampledStates[interval.endStateIndex];
+  assert.ok(interval.displacementBoundMeters !== null);
+  for (let index = 0; index <= 37; index += 1) {
+    const theta = start.thetaRadians + (end.thetaRadians - start.thetaRadians) * index / 37;
+    const x = 100 * Math.cos(theta), y = 100 * Math.sin(theta);
+    const sx = x - Math.sqrt(100 ** 2 - (55 - y) ** 2);
+    const endpoint = { x: x + 1.3 * (sx - x), y: y + 1.3 * (55 - y) };
+    assert.ok(Math.hypot(endpoint.x - start.overhangEndpoint.x, endpoint.y - start.overhangEndpoint.y) <= interval.displacementBoundMeters!);
+  }
+}
+
+// Spray exclusions use their declared polygon, never the obstacle's mechanical clearance buffer.
+const noSprayFarAway: ObstacleZone = { id: "far-spray-exclusion", name: "Synthetic spray exclusion", kind: "exclusion",
+  hardConflict: false, noSpray: true, bufferMeters: 10000, confidence: "user_estimated", polygon: [
+    { x: 400, y: 400 }, { x: 410, y: 400 }, { x: 410, y: 410 }, { x: 400, y: 410 },
+  ] };
+const wetDeclared = evaluateCornerArmKinematics({ ...v2Input, endGunThrowMeters: 5, refinement: { maxAdditionalSamples: 0 } });
+const wetWithFarExclusion = evaluateCornerArmKinematics({ ...v2Input, endGunThrowMeters: 5,
+  refinement: { maxAdditionalSamples: 0 }, obstacles: [noSprayFarAway] });
+assert.deepEqual(wetWithFarExclusion.footprintAccounting.areasSquareMeters, wetDeclared.footprintAccounting.areasSquareMeters);
+const wetFullyExcluded = evaluateCornerArmKinematics({ ...v2Input, endGunThrowMeters: 5,
+  refinement: { maxAdditionalSamples: 0 }, obstacles: [{ ...noSprayFarAway, polygon: boundary }] });
+assert.equal(wetFullyExcluded.footprintAccounting.potentialFootprintAcres, 0);
+assert.ok(wetFullyExcluded.footprintAccounting.areasSquareMeters.excludedNoSpray! > 0);
+assert.equal(wetFullyExcluded.status, "unresolved", "A spray exclusion does not fabricate a hard structural conflict.");

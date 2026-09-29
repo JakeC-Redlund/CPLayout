@@ -42,6 +42,16 @@ function fixture() {
   return applyWorkspaceCommand(workspace, { type: "save_field_design", now, designId, expectedDesignRevision: 0,
     field: { ...field, machines: [first, second] } }).workspace;
 }
+function searchFixture() {
+  let workspace = fixture();
+  const loaded = parseFieldDesignDocument(workspace.fieldDocuments![0].document);
+  const field = { ...loaded, obstacles: [], machines: loaded.machines.map((machine, index) => ({
+    ...machine, pivotCenter: { x: loaded.machines[0].pivotCenter.x + index * 200, y: loaded.machines[0].pivotCenter.y },
+    configuration: { ...machine.configuration, spanLengthsMeters: [index ? 25 : 40], overhangMeters: 0, endGunThrowMeters: 0,
+      machineClearanceBufferMeters: 2, towerClearanceBufferMeters: 2, sweep: { mode: "full_circle" as const }, endGunAngleRanges: [] },
+  })) };
+  return applyWorkspaceCommand(workspace, { type: "save_field_design", now, designId, expectedDesignRevision: 1, field }).workspace;
+}
 async function seed(context: BrowserContext) {
   const values = new Map<string, string>();
   const store = createWebWorkspaceStore({ getStorage: () => ({ getItem: key => values.get(key) ?? null, setItem: (key, value) => { values.set(key, value); } }),
@@ -140,6 +150,19 @@ test("independent edits autosave, reopen, undo, redo and export without changing
   await page.getByTestId(page.viewportSize()!.width < 850 ? "field-machine-form" : "field-location-diagram").evaluate(node => node.scrollIntoView({ block: "start" }));
   await page.screenshot({ path: info.outputPath("independent-field-saved.png"), fullPage: true });
   await writeFigureMarks(page, info.outputPath("independent-field-saved.json"), ["field-save-state", "field-machine-machine-b", "field-input-spans"]);
+});
+
+test("field forms use feet and preserve exact saved values when untouched", async ({ page }) => {
+  await openField(page);
+  const before = await storedField(page);
+  await expect(page.getByLabel("Center X (ft)")).toBeVisible();
+  await expect(page.getByLabel("Span lengths (ft), separated by commas")).toBeVisible();
+  await page.getByTestId("field-apply-machine").click();
+  await save(page);
+  expect(await storedField(page)).toEqual(before);
+  await page.getByTestId("field-search-details-toggle").click();
+  await expect(page.getByTestId("field-search-details")).toContainText("128 starting locations, 25,000 evaluations, 6 refinement levels");
+  expect(await page.getByTestId("field-design-workspace").innerText()).not.toMatch(/\b(?:meters|metres|metric)\b|m²|\(m\)/i);
 });
 
 test("copy selected exactly creates a separate machine whose later edits and removal retain both siblings", async ({ page }) => {
@@ -268,21 +291,14 @@ test("saved project command creates a field copy and retains the original projec
 
 test("field search keeps saved machines pinned, requires adoption and rejects an earlier revision", async ({ page }, info) => {
   await page.goto("/");
-  let workspace = fixture();
-  const loaded = parseFieldDesignDocument(workspace.fieldDocuments![0].document);
-  const field = { ...loaded, obstacles: [], machines: loaded.machines.map((machine, index) => ({
-    ...machine, pivotCenter: { x: loaded.machines[0].pivotCenter.x + index * 200, y: loaded.machines[0].pivotCenter.y },
-    configuration: { ...machine.configuration, spanLengthsMeters: [index ? 25 : 40], overhangMeters: 0, endGunThrowMeters: 0,
-      machineClearanceBufferMeters: 2, towerClearanceBufferMeters: 2, sweep: { mode: "full_circle" as const }, endGunAngleRanges: [] },
-  })) };
-  workspace = applyWorkspaceCommand(workspace, { type: "save_field_design", now, designId, expectedDesignRevision: 1, field }).workspace;
+  const workspace = searchFixture();
   await page.evaluate(({ key, document }) => localStorage.setItem(key, document), { key: workspaceKey, document: serializeWorkspaceDocument(workspace) });
   await openField(page);
   const before = await storedField(page);
   await page.getByTestId("field-search-run").click();
   await expect(page.getByTestId("field-search-result")).toContainText("Search completed");
   await expect(page.getByTestId("field-search-result")).toContainText("2 machines");
-  await expect(page.getByTestId("field-search-result")).toContainText("Equipment cost: Unavailable");
+  await expect(page.getByTestId("field-search-result")).toContainText("Equipment cost: Not available");
   expect(await storedField(page)).toEqual(before);
   await expect(page.getByTestId("field-search-adopt")).toBeEnabled();
   await applyInputs(page, { name: "Changed after layout review" });
@@ -301,6 +317,36 @@ test("field search keeps saved machines pinned, requires adoption and rejects an
   await page.getByTestId("field-search-result").evaluate(node => node.scrollIntoView({ block: "end" }));
   await page.screenshot({ path: info.outputPath("field-layout-review.png"), fullPage: true });
   await writeFigureMarks(page, info.outputPath("field-layout-review.json"), ["field-search-result", "field-search-adopt"]);
+});
+
+test("deep search shows its best layout while running and stopping does not change saved machines", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(({ key, document }) => localStorage.setItem(key, document), { key: workspaceKey, document: serializeWorkspaceDocument(searchFixture()) });
+  await openField(page);
+  const before = await storedField(page);
+  await page.getByTestId(`field-search-count-${before.machines[0].id}`).fill("2");
+  await page.getByTestId("field-search-run").click();
+  await expect(page.getByTestId("field-search-progress")).toBeVisible();
+  await expect(page.getByTestId("field-search-best")).toContainText("watered acres");
+  await expect(page.getByTestId("field-search-adopt")).toBeDisabled();
+  await page.getByTestId("field-search-cancel").click();
+  await expect(page.getByTestId("field-search-result")).toContainText("Search stopped");
+  await expect(page.getByTestId("field-search-best")).toContainText("watered acres");
+  await expect(page.getByTestId("field-search-adopt")).toBeEnabled();
+  expect(await storedField(page)).toEqual(before);
+});
+
+test("machine clearance review is read-only and requires a new check after a field change", async ({ page }) => {
+  await openField(page);
+  const before = await storedField(page);
+  await page.getByTestId("field-machine-clearance-check").click();
+  await expect(page.getByTestId("field-machine-clearance-result")).toBeVisible();
+  expect(await storedField(page)).toEqual(before);
+  await applyInputs(page, { name: "Newer clearance review" });
+  await expect(page.getByTestId("field-machine-clearance-result")).toHaveCount(0);
+  await expect(page.getByTestId("field-machine-clearance")).toContainText("Check clearance again");
+  await page.getByTestId("field-machine-clearance-check").click();
+  await expect(page.getByTestId("field-machine-clearance-result")).toBeVisible();
 });
 
 test("saved lateral uses its explicit straight travel model and stays outside pivot search", async ({ page }) => {

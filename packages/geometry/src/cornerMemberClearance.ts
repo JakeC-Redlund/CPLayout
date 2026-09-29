@@ -19,6 +19,18 @@ function memberRingDistance(start: XY, end: XY, ring: XY[]): number {
   return minimum;
 }
 
+/** Positive means the complete centerline has the requested clearance. Values are
+ * signed geometric margins, not a maximum penetration-depth calculation. */
+export function memberFieldClearanceMargin(start: XY, end: XY, ring: XY[], clearanceMeters: number): number {
+  const separation = memberRingDistance(start, end, ring);
+  return (pointInsideRing(start, ring) && pointInsideRing(end, ring) ? separation : -separation) - clearanceMeters;
+}
+
+export function memberObstacleClearanceMargin(start: XY, end: XY, ring: XY[], clearanceMeters: number): number {
+  const separation = memberRingDistance(start, end, ring);
+  return (pointInsideRing(start, ring) || pointInsideRing(end, ring) ? -separation : separation) - clearanceMeters;
+}
+
 function segmentDistance(a: XY, b: XY, c: XY, d: XY): number {
   // Differences keep the determinant local even for large projected coordinates.
   const cross = (start: XY, end: XY, point: XY) =>

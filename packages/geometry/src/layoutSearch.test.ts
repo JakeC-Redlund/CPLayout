@@ -413,3 +413,204 @@ test("fields containing straight laterals cannot silently receive pivot-only fea
   assert.equal(result.termination, "unsupported_inputs"); assert.equal(result.best, null);
   assert(result.rejected.some(row => row.reason === "lateral_machine_envelopes_unsupported"));
 });
+
+// V2 regression expectations are analytic or compare a frozen v1 lane. They do
+// not infer field safety or a global optimum from heuristic search results.
+import { searchFieldLayoutV2, searchFieldLayoutV2Steps, LAYOUT_SEARCH_REQUEST_VERSION_V2,
+  LAYOUT_SEARCH_MODEL_VERSION_V2, type LayoutSearchRequestV2 } from "./layoutSearch";
+const v2 = (input: LayoutSearchRequest): LayoutSearchRequestV2 => ({ ...input,
+  schemaVersion: LAYOUT_SEARCH_REQUEST_VERSION_V2, modelVersion: LAYOUT_SEARCH_MODEL_VERSION_V2 });
+
+function boundedFixture(): LayoutSearchRequest {
+  const input = request(); input.field = field(1000, 800); input.maxMachines = 8;
+  delete input.candidateCenters;
+  input.budget = { maxCandidateCenters: 24, maxEvaluations: 1500, refinementLevels: 3 };
+  input.templates = [120, 90, 70, 50].map((radius, index) => ({ id: `template-${index}`, machine: machine(`machine-${index}`, radius),
+    maximumCount: 8, waterSourceId: "water", powerSourceId: "power" }));
+  return input;
+}
+
+test("v2 reuses initial positions when assembling later combinations", () => {
+  const input = request(); input.field = field(200, 200); input.candidateCenters = [xy(140, 100)];
+  input.initialIncumbent = { optionalMachines: [{ templateId: "pivot", pivotCenter: xy(40, 100) }] };
+  const old = searchFieldLayout(input), result = searchFieldLayoutV2(v2(input));
+  assert.equal(old.best!.machineCount, 1, "Frozen v1 reproduction remains explicit.");
+  assert.equal(result.best!.machineCount, 2);
+  close(result.best!.irrigatedUnionSquareMeters, 2 * regularArea(20));
+  assert.equal(result.termination, "completed");
+});
+
+test("v2 reuses refined positions after the final base prefix", () => {
+  const input = request(); input.field = field(400, 200); input.candidateCenters = [xy(200, 100)];
+  input.budget = { maxCandidateCenters: 1, maxEvaluations: 3000, refinementLevels: 1 };
+  const old = searchFieldLayout(input), result = searchFieldLayoutV2(v2(input));
+  assert.equal(old.best!.machineCount, 1);
+  assert.equal(result.best!.machineCount, 2);
+  close(result.best!.irrigatedUnionSquareMeters, 2 * regularArea(20));
+  assert(result.diagnostics.registryCandidates > result.evaluations.baseCenters);
+});
+
+test("v2 solves the independent tiny greedy trap and reports cached expensive work", () => {
+  const input = trap(), result = searchFieldLayoutV2(v2(input));
+  close(result.best!.irrigatedUnionSquareMeters, exhaustiveCircleOracle(input));
+  // The baseline may itself improve as later prefixes are admitted. Retain the
+  // independent central large-machine result to demonstrate the original trap.
+  assert(result.best!.irrigatedUnionSquareMeters > regularArea(31) + 300);
+  assert(result.diagnostics.combinationCacheHits > 0);
+  assert(result.diagnostics.unionCalls < result.evaluations.combinations);
+  assert(result.diagnostics.scenariosMaterialized <= result.incumbentHistory.length + result.evaluations.baseCenters + 1);
+  assert.equal(result.diagnostics.combinationAttempts, result.evaluations.combinations);
+  assert(result.diagnostics.peakPairCacheEntries <= input.budget.maxEvaluations);
+  assert(result.diagnostics.peakCombinationCacheEntries <= input.budget.maxEvaluations);
+});
+
+test("v2 admits at least eight centers in the frozen four-template budget without losing baseline coverage", () => {
+  const input = boundedFixture(), old = searchFieldLayout(input), result = searchFieldLayoutV2(v2(input));
+  assert(result.evaluations.baseCenters >= 8, JSON.stringify(result.evaluations));
+  assert(result.best!.irrigatedUnionSquareMeters + result.comparisonToleranceSquareMeters >= old.best!.irrigatedUnionSquareMeters,
+    `${result.best!.irrigatedUnionSquareMeters} < frozen v1 ${old.best!.irrigatedUnionSquareMeters}`);
+});
+
+test("v2 nested prefix/evaluation budgets retain the same earlier incumbent history", () => {
+  const input = boundedFixture(); input.budget.refinementLevels = 1;
+  for (const centers of [2, 4, 8]) {
+    const full = searchFieldLayoutV2(v2({ ...input, budget: { ...input.budget, maxCandidateCenters: centers, maxEvaluations: 1500 } }));
+    for (const evaluations of [1, 10, 100, 300, 800]) {
+      const limited = searchFieldLayoutV2(v2({ ...input, budget: { ...input.budget, maxCandidateCenters: centers, maxEvaluations: evaluations } }));
+      assert.deepEqual(limited.incumbentHistory, full.incumbentHistory.filter(row => row.evaluation <= evaluations));
+      assert((limited.best?.irrigatedUnionSquareMeters ?? 0) <= (full.best?.irrigatedUnionSquareMeters ?? 0));
+    }
+  }
+  let prior: ReturnType<typeof searchFieldLayoutV2> | undefined;
+  for (const centers of [1, 2, 4, 8, 16, 24]) {
+    const result = searchFieldLayoutV2(v2({ ...input, budget: { ...input.budget, maxCandidateCenters: centers } }));
+    if (prior) {
+      assert((result.best?.irrigatedUnionSquareMeters ?? 0) >= (prior.best?.irrigatedUnionSquareMeters ?? 0));
+      assert.deepEqual(result.incumbentHistory.slice(0, prior.incumbentHistory.length), prior.incumbentHistory);
+    }
+    prior = result;
+  }
+  const finite = trap(); let finiteArea = 0;
+  for (const centers of [1, 2, 3, 5]) {
+    const result = searchFieldLayoutV2(v2({ ...finite, budget: { ...finite.budget, maxCandidateCenters: centers } }));
+    assert((result.best?.irrigatedUnionSquareMeters ?? 0) >= finiteArea);
+    finiteArea = result.best?.irrigatedUnionSquareMeters ?? 0;
+  }
+});
+
+test("v2 has deterministic cooperative snapshots, progress isolation and cancellation", () => {
+  const input = v2(trap()), expected = searchFieldLayoutV2(input);
+  let callbacks = 0, sawBest = false;
+  const steps = searchFieldLayoutV2Steps(input, { onProgress(progress) {
+    callbacks += 1;
+    if (progress.best) { sawBest = true; progress.best.irrigatedUnionSquareMeters = -999; }
+    progress.evaluations.total = -999;
+  } });
+  input.field.fieldBoundary[0].x -= 200;
+  assert.deepEqual(completeCalculation(steps), expected); assert(callbacks > 2); assert(sawBest);
+  let cancelled = false;
+  const live = searchFieldLayoutV2Steps(v2(boundedFixture()), { isCancelled: () => cancelled });
+  for (let index = 0; index < 40; index += 1) assert.equal(live.next().done, false);
+  cancelled = true;
+  const result = live.next(); assert(result.done); assert.equal(result.value.termination, "cancelled");
+  const closed = searchFieldLayoutV2Steps(v2(trap())); closed.next();
+  assert.equal(closed.return(undefined as never).value!.termination, "cancelled");
+});
+
+test("v2 bounds tiny-grid probes and can cancel during candidate generation", () => {
+  const input = request(); delete input.candidateCenters; input.budget.maxCandidateCenters = 8;
+  input.field.fieldBoundary = [xy(524288, 4194304), xy(524288.0000000001, 4194304),
+    xy(524288.0000000001, 4194304.000000001), xy(524288, 4194304.000000001)];
+  const result = searchFieldLayoutV2(v2(input));
+  assert.equal(result.terminationReason, "candidate_probe_limit_reached");
+  assert.equal(result.diagnostics.seedProbes, 8192);
+  let cancelled = false;
+  const steps = searchFieldLayoutV2Steps(v2(input), { isCancelled: () => cancelled,
+    onProgress(progress) { if (progress.diagnostics.seedProbes > 0) cancelled = true; } });
+  assert.equal(completeCalculation(steps).termination, "cancelled");
+});
+
+test("v2 interior seeds find a concave U arm within 24 centers and remain order stable", () => {
+  const input = request(); input.field = field(300, 300); delete input.candidateCenters;
+  input.field.fieldBoundary = [xy(0, 0), xy(300, 0), xy(300, 300), xy(220, 300), xy(220, 80), xy(80, 80), xy(80, 300), xy(0, 300)];
+  input.maxMachines = 1; input.budget = { maxCandidateCenters: 24, maxEvaluations: 1500, refinementLevels: 0 };
+  const result = searchFieldLayoutV2(v2(input)); assert(result.best); close(result.best.irrigatedUnionSquareMeters, regularArea(20));
+  assert(result.evaluations.baseCenters <= 24);
+  input.field.fieldBoundary = [...input.field.fieldBoundary.slice(3), ...input.field.fieldBoundary.slice(0, 3)].reverse();
+  assert.deepEqual(searchFieldLayoutV2(v2(input)).best, result.best);
+});
+
+test("v2 supplied ordering and large coordinate translation do not create false improvements", () => {
+  const input = trap(), original = searchFieldLayoutV2(v2(input));
+  input.templates!.reverse(); input.candidateCenters!.reverse(); input.field.infrastructure.reverse();
+  assert.deepEqual(searchFieldLayoutV2(v2(input)), original);
+  const shift = xy(500000.125, 4400000.25);
+  const translate = (point: XY) => { point.x += shift.x; point.y += shift.y; };
+  input.field.fieldBoundary.forEach(translate); input.field.infrastructure.forEach(value => translate(value.point)); input.candidateCenters!.forEach(translate);
+  const shifted = searchFieldLayoutV2(v2(input));
+  close(shifted.best!.irrigatedUnionSquareMeters, original.best!.irrigatedUnionSquareMeters, 1e-5);
+  assert.deepEqual(shifted.incumbentHistory.map(row => row.machineCount), original.incumbentHistory.map(row => row.machineCount));
+  assert(shifted.comparisonToleranceSquareMeters >= original.comparisonToleranceSquareMeters);
+});
+
+test("v2 retains mandatory identities, metric qualification and below/at/above physical separation", () => {
+  for (const delta of [-(2 ** -20), 0, 2 ** -20]) {
+    const input = request(); input.templates = [];
+    input.field.machines = [saved("left", 10.125, xy(50, 50)), saved("right", 20.0625, xy(87.3125 + delta, 50))];
+    input.field.machines[0].configuration.machineClearanceBufferMeters = 7.125;
+    input.field.machines[1].configuration.machineClearanceBufferMeters = 3;
+    const result = searchFieldLayoutV2(v2(input));
+    if (delta < 0) assert.equal(result.best, null);
+    else {
+      assert(result.best!.machines.every(row => row.pinned));
+      for (const row of result.best!.machines) assert.deepEqual(row.machine, input.field.machines.find(item => item.id === row.machine.id));
+      close(result.best!.minimumPairClearanceMeters!, delta);
+      assert.equal(result.best!.pairClearances[0].minimumRequiredSeparationMeters, 37.3125);
+    }
+  }
+  const local = request(); local.field.projectCrs = "LOCAL:unknown";
+  assert.equal(searchFieldLayoutV2(v2(local)).termination, "unsupported_inputs");
+  local.crsOptions = { localMetricDeclaration: { projectCrs: local.field.projectCrs, unit: "metre", axes: "orthogonal_xy", evidenceReference: "Synthetic declaration" } };
+  assert(searchFieldLayoutV2(v2(local)).best);
+  const stale = searchFieldLayoutV2(v2({ ...request(), expectedRevision: 6 }));
+  assert.equal(stale.terminationReason, "stale_field_revision");
+});
+
+test("v2 explicitly revalidates and retains a v1 comparison result within its own work budget", () => {
+  const input = boundedFixture(), prior = searchFieldLayout(input);
+  input.initialIncumbent = { optionalMachines: prior.best!.machines.map(row => ({ templateId: row.source.id, pivotCenter: row.machine.pivotCenter })) };
+  const result = searchFieldLayoutV2(v2(input));
+  assert.equal(result.incumbentHistory[0].phase, "initial");
+  assert(result.best!.irrigatedUnionSquareMeters + result.comparisonToleranceSquareMeters >= prior.best!.irrigatedUnionSquareMeters);
+  assert(result.evaluations.total <= input.budget.maxEvaluations);
+  assert(result.evaluations.candidates >= prior.best!.machineCount);
+  input.initialIncumbent.optionalMachines![0].pivotCenter = xy(1, 1);
+  const rejected = searchFieldLayoutV2(v2(input));
+  assert(rejected.rejected.some(row => row.reason === "initial_incumbent_rejected"));
+});
+
+test("v2 no-spray, missing prices and invalid initial pinned moves stay explicit", () => {
+  const input = request(); input.maxMachines = 1; input.candidateCenters = [xy(100, 50)];
+  input.field.obstacles = [{ id: "no-spray", name: "No spray", kind: "exclusion", confidence: "user_estimated", hardConflict: false,
+    noSpray: true, bufferMeters: 0, polygon: [xy(98, 48), xy(102, 48), xy(102, 52), xy(98, 52)] }];
+  const result = searchFieldLayoutV2(v2(input)); close(result.best!.irrigatedUnionSquareMeters, regularArea(20) - 16);
+  assert.deepEqual(result.best!.cost, { amount: null, currencyCode: null, costPerIrrigatedAcre: null });
+  input.templates = []; input.field.machines = [saved("pinned", 20, xy(50, 50))];
+  input.initialIncumbent = { existingCenters: [{ machineId: "pinned", pivotCenter: xy(100, 50) }] };
+  const pinned = searchFieldLayoutV2(v2(input));
+  assert(pinned.rejected.some(row => row.reason === "initial_incumbent_moves_pinned_machine"));
+  assert.deepEqual(pinned.best!.machines[0].machine.pivotCenter, xy(50, 50));
+});
+
+test("v2 equal coverage at large projected offsets retains the first feasible incumbent", () => {
+  const input = request(); input.field = field(1000, 800); input.maxMachines = 1;
+  input.templates![0].machine = machine("exact", 80); input.templates![0].maximumCount = 1;
+  input.budget = { maxCandidateCenters: 12, maxEvaluations: 3000, refinementLevels: 0 };
+  input.candidateCenters = Array.from({ length: 12 }, (_, index) => xy(200.0107 + index * 3.1237, 300.0471 + index * 7.5671));
+  const offset = xy(536870600.125, 440000000.25);
+  const translate = (point: XY) => { point.x += offset.x; point.y += offset.y; };
+  input.field.fieldBoundary.forEach(translate); input.field.infrastructure.forEach(row => translate(row.point)); input.candidateCenters.forEach(translate);
+  const result = searchFieldLayoutV2(v2(input));
+  assert(result.best);
+  assert.equal(result.incumbentHistory.length, 1, JSON.stringify(result.incumbentHistory));
+});

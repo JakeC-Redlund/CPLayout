@@ -8,7 +8,8 @@ import { planAdvisoryPivotTemplates } from "./advisoryPivotPlacement";
 import { performance } from "node:perf_hooks";
 import type { FieldDesign, PivotMachine, XY } from "@cplayout/core";
 import { searchFieldLayout, searchFieldLayoutSteps, LAYOUT_SEARCH_MODEL_VERSION, LAYOUT_SEARCH_REQUEST_VERSION,
-  type LayoutSearchRequest, type LayoutSearchResult } from "./layoutSearch";
+  searchFieldLayoutV2, searchFieldLayoutV2Steps, LAYOUT_SEARCH_REQUEST_VERSION_V2, LAYOUT_SEARCH_MODEL_VERSION_V2,
+  type LayoutSearchRequest, type LayoutSearchRequestV2, type LayoutSearchResult, type LayoutSearchResultV2 } from "./layoutSearch";
 
 function fixture(width: number, height: number, radii: number[], centers?: XY[]): LayoutSearchRequest {
   const field: FieldDesign = { id: "benchmark", name: "Synthetic benchmark", projectCrs: "EPSG:32613", unitSystem: "metric",
@@ -25,7 +26,7 @@ function fixture(width: number, height: number, radii: number[], centers?: XY[])
       return { id: `template-${index}`, machine, maximumCount: 8, waterSourceId: "water", powerSourceId: "power" };
     }) };
 }
-function summary(result: LayoutSearchResult) {
+function summary(result: LayoutSearchResult | LayoutSearchResultV2) {
   return { termination: result.termination, evaluations: result.evaluations, machines: result.best?.machineCount ?? 0,
     bestSquareMeters: result.best?.irrigatedUnionSquareMeters ?? 0,
     greedySquareMeters: result.greedyBaseline?.irrigatedUnionSquareMeters ?? 0,
@@ -66,6 +67,7 @@ const retainedLegacyResult = searchFieldLayout(legacyRetentionRequest);
 assert(retainedLegacyResult.best && retainedLegacyResult.best.irrigatedUnionAcres >= retainedLegacy.modeledIrrigatedUnionAcres);
 const legacyRetention = { legacyUnionAcres: retainedLegacy.modeledIrrigatedUnionAcres,
   retainedBestUnionAcres: retainedLegacyResult.best.irrigatedUnionAcres, initialIncumbentAccepted: retainedLegacyResult.incumbentHistory[0]?.phase === "initial" };
+const toV2 = (input: LayoutSearchRequest): LayoutSearchRequestV2 => ({ ...input, schemaVersion: LAYOUT_SEARCH_REQUEST_VERSION_V2, modelVersion: LAYOUT_SEARCH_MODEL_VERSION_V2 });
 const fixtureNames = ["greedy_trap", "four_templates_eight_machines_bounded", "will_rhea_original_pinned", "will_rhea_hypothetical_optional_exact_source_template"];
 const reports = [trap, bounded, originalWillRequest, hypotheticalWillRequest].map((input, index) => {
   const before = process.memoryUsage();
@@ -83,6 +85,53 @@ const willRheaComparison = { sourceSha256: createHash("sha256").update(originalW
   legacyRuntimeMs: legacyWillRuntimeMs, legacyGreedyUnionAcres: legacyWill.modeledIrrigatedUnionAcres,
   retainedLegacyInitialIncumbent: legacyWill.candidates.length > 0,
   limitation: "Original geometry is retained. Optional copies are hypothetical uses of the supplied radius template, not verified installed equipment or a field design." };
+const v2Reports = [trap, bounded, originalWillRequest, hypotheticalWillRequest].map((input, index) => {
+  const trials = Array.from({ length: 5 }, () => {
+    const before = process.memoryUsage(), start = performance.now();
+    const result = searchFieldLayoutV2(toV2(input));
+    const runtimeMs = performance.now() - start, after = process.memoryUsage();
+    return { result, runtimeMs, heapDeltaBytes: after.heapUsed - before.heapUsed, rssAfterBytes: after.rss };
+  });
+  const times = trials.map(row => row.runtimeMs).sort((a, b) => a - b);
+  const result = trials[0].result;
+  for (const trial of trials.slice(1)) assert.deepEqual(trial.result, result, "Repeated v2 outcomes must match exactly.");
+  return { fixture: fixtureNames[index], runtimeMedianMs: times[2], runtimeP95Ms: times[4],
+    trials: trials.map(({ result: _result, ...observation }) => observation),
+    ...summary(result), diagnostics: result.diagnostics, terminationReason: result.terminationReason,
+    comparisonToleranceSquareMeters: result.comparisonToleranceSquareMeters,
+    differenceFromV1SquareMeters: (result.best?.irrigatedUnionSquareMeters ?? 0) - reports[index].bestSquareMeters };
+});
+assert(v2Reports[1].evaluations.baseCenters >= 8);
+assert(v2Reports[1].differenceFromV1SquareMeters >= -v2Reports[1].comparisonToleranceSquareMeters);
+// A direct retained-result comparison is explicit and charged to the V2 budget.
+const deepInput = toV2({ ...bounded, budget: { maxCandidateCenters: 128, maxEvaluations: 25000, refinementLevels: 6 } });
+const deepBefore = process.memoryUsage(), deepStart = performance.now();
+const deepResult = searchFieldLayoutV2(deepInput);
+const deepRuntimeMs = performance.now() - deepStart, deepAfter = process.memoryUsage();
+const deepReport = { ...summary(deepResult), runtimeMs: deepRuntimeMs, heapDeltaBytes: deepAfter.heapUsed - deepBefore.heapUsed,
+  rssAfterBytes: deepAfter.rss, processPeakRssBytes: process.resourceUsage().maxRSS * 1024,
+  diagnostics: deepResult.diagnostics, terminationReason: deepResult.terminationReason };
+assert(deepResult.evaluations.total <= 25000);
+const previous = searchFieldLayout(bounded);
+const previousMachines = previous.best!.machines;
+const retentionInput = { ...bounded, initialIncumbent: {
+  optionalMachines: previousMachines.filter(row => row.source.kind === "template")
+    .map(row => ({ templateId: row.source.id, pivotCenter: row.machine.pivotCenter })),
+} };
+const retainedV2 = searchFieldLayoutV2(toV2(retentionInput));
+assert(retainedV2.best!.irrigatedUnionSquareMeters + retainedV2.comparisonToleranceSquareMeters >= previous.best!.irrigatedUnionSquareMeters);
+let cancelledV2 = false;
+const v2Steps = searchFieldLayoutV2Steps(toV2(bounded), { isCancelled: () => cancelledV2 });
+let v2MaxStepMs = 0, v2Yields = 0;
+for (let i = 0; i < 150; i += 1) {
+  const start = performance.now(); const step = v2Steps.next();
+  v2MaxStepMs = Math.max(v2MaxStepMs, performance.now() - start);
+  if (step.done) break;
+  v2Yields += 1;
+}
+cancelledV2 = true;
+const v2CancelStart = performance.now(), v2Cancellation = v2Steps.next();
+const v2CancelResponseMs = performance.now() - v2CancelStart;
 let cancelled = false;
 const steps = searchFieldLayoutSteps(bounded, { isCancelled: () => cancelled });
 let maxObservedStepMs = 0, yieldedSteps = 0;
@@ -96,8 +145,12 @@ for (let i = 0; i < 50; i += 1) {
 cancelled = true;
 const cancelStart = performance.now();
 const cancellation = steps.next();
-console.log(JSON.stringify({ version: "layout-search-benchmark-v1", timestamp: new Date().toISOString(),
-  node: process.version, platform: process.platform, reports, willRheaComparison, legacyRetention,
+console.log(JSON.stringify({ version: "layout-search-benchmark-v2", timestamp: new Date().toISOString(),
+  node: process.version, platform: process.platform, reports, v2Reports, deepReport, willRheaComparison, legacyRetention,
+  v2PriorResultRetention: { priorSquareMeters: previous.best!.irrigatedUnionSquareMeters,
+    retainedSquareMeters: retainedV2.best!.irrigatedUnionSquareMeters, evaluations: retainedV2.evaluations.total },
+  v2Cancellation: { requestedAfterYields: v2Yields, responseMs: v2CancelResponseMs, maxObservedStepMs: v2MaxStepMs,
+    termination: v2Cancellation.done ? v2Cancellation.value.termination : "not_finished" },
   cancellation: { requestedAfterYields: yieldedSteps, responseMs: performance.now() - cancelStart,
     maxObservedStepMs, termination: cancellation.done ? cancellation.value.termination : "not_finished" },
   limits: ["Memory deltas include garbage collection and are observations, not isolated allocations.",

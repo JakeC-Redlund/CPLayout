@@ -14,14 +14,14 @@ export * from "./layoutSearchTypes";
 /** Captures caller data now, before the first cooperative next()/scheduler yield. */
 export function searchFieldLayoutSteps(request: LayoutSearchRequest, control: LayoutSearchControl = {}): Calculation<LayoutSearchResult> {
   const owned = snapshotJsonValue(request, "layout search") as LayoutSearchRequest;
-  validateRequest(owned);
+  validateLayoutSearchRequest(owned);
   return searchOwned(owned, control);
 }
 export function searchFieldLayout(request: LayoutSearchRequest, control: LayoutSearchControl = {}): LayoutSearchResult {
   return completeCalculation(searchFieldLayoutSteps(request, control));
 }
 /** A delayed result is advisory only; adoption needs the editor's own atomic revision check. */
-export function layoutSearchResultMatches(result: LayoutSearchResult, current: { fieldId: string; fieldRevision: number; modelVersion: string }): boolean {
+export function layoutSearchResultMatches(result: Pick<LayoutSearchResult, "requestKey">, current: { fieldId: string; fieldRevision: number; modelVersion: string }): boolean {
   return Number.isSafeInteger(current.fieldRevision) && current.fieldRevision >= 0
     && result.requestKey.fieldId === current.fieldId && result.requestKey.fieldRevision === current.fieldRevision
     && result.requestKey.modelVersion === current.modelVersion;
@@ -208,7 +208,7 @@ function* searchOwned(request: LayoutSearchRequest, control: LayoutSearchControl
   }
 }
 
-function validateRequest(request: LayoutSearchRequest): void {
+export function validateLayoutSearchRequest(request: LayoutSearchRequest): void {
   exactKeys(request, ["schemaVersion", "modelVersion", "field", "fieldRevision", "expectedRevision", "crsOptions", "templates", "unlockedMachineIds", "existingMachinePrices", "maxMachines", "budget", "candidateCenters", "initialIncumbent", "collisionBufferMeters", "minimumMachineSeparationMeters", "boundaryEpsilonSquareMeters"]);
   if (request.schemaVersion !== LAYOUT_SEARCH_REQUEST_VERSION) throw new Error("Unsupported layout search request version.");
   if (typeof request.modelVersion !== "string" || !request.modelVersion) throw new Error("Explicit modelVersion is required.");
@@ -290,3 +290,5 @@ function validatePoint(point: XY) {
   exactKeys(point, ["x", "y"]);
   if (!Number.isFinite(point.x) || !Number.isFinite(point.y)) throw new Error("Candidate center must be finite XY.");
 }
+
+export { searchFieldLayoutV2, searchFieldLayoutV2Steps } from "./layoutSearchV2";

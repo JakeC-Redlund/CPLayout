@@ -18,6 +18,7 @@ import { ConfirmActionDialog } from "./ProjectCatalogDialog";
 import { assertSameFieldPlanContext, fieldCoordinatesInFeet, fieldMachineInputs, parseFieldMachineInputs, type FieldMachineInputs } from "./fieldMachineInputs";
 import { FieldLayoutSearchPanel } from "./FieldLayoutSearchPanel";
 import { FieldLateralReview } from "./FieldLateralReview";
+import { FieldMachinePairReview } from "./FieldMachinePairReview";
 import { captureFieldReceiptBaseline, reconcileFieldReceipt, layoutTargetSavedMatches, type FieldReceiptBaseline, type LayoutTargetSaved } from "./fieldReceiptReconciliation";
 import { editorOutputIdentity } from "./editorOutputIdentity";
 
@@ -321,6 +322,7 @@ export function FieldDesignWorkspace({ initial, onClose, onOpenLayout, visible =
       </View>
       <FieldLayoutSearchPanel field={editor.field} revision={editor.revision} blocked={blocked || saving} onAdopt={(machines, expectedRevision, allowedReplacementMachineIds) => dispatch({ type: "adopt_plan", machines, expectedRevision, allowedReplacementMachineIds })} />
       <FieldLateralReview field={editor.field} revision={editor.revision} blocked={blocked || saving} />
+      <FieldMachinePairReview field={editor.field} revision={editor.revision} blocked={blocked || saving} />
       {plan && <View style={styles.card} testID="field-plan-review"><Text style={styles.heading}>Review imported machine plan</Text>
         <Text style={styles.meta}>{plan.field.machines.length} proposed machines. Adoption replaces the complete machine list. Existing machines stay unchanged unless you allow replacement below.</Text>
         {plan.field.machines.map(machine => {
