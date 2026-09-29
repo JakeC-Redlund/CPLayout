@@ -1,19 +1,23 @@
 # Development Status
 
-Updated 2026-09-28. Current resumption index; not release acceptance.
+Updated 2026-09-29. Current resumption index; not release acceptance.
 Read after `AGENTS.md` and `agent-tree-protocol.md` when resuming broad work.
 Use one linked task contract, not the complete historical logs.
 
 ## Current State
 
-- The [complete desktop workflow pass](complete-workflow-improvement.md) is being
-  implemented and verified in isolated branch `codex/complete-workflow-20260928`,
-  based on `a70a6ebd81bcef1c11ca2fef6cdc57442f143689`. Customer/field creation,
-  draft completion, immutable Layout sessions, operational fixed-GGA collection,
-  serial and local TCP/UDP connections, and retained editor navigation are implemented.
-  Final software review and the consolidated human review remain pending. The
-  canonical publication checkpoint and its browser-test edit remain untouched;
-  this work has not been integrated or published. Continue with that task record.
+- The canonical publication candidate combines the [complete desktop workflow](complete-workflow-improvement.md),
+  preserved continuous-corner/search-v2/machine-pair improvements, and the
+  18-file VFlex research handoff. The original worktrees and private evidence are
+  retained. Workflow candidate10 also contains the resumed map-camera ownership
+  correction. Integrated validation and publication are being completed; prior
+  isolated checks do not establish acceptance of the combined source.
+- Model questionnaire revision 34 completed with M01–M03 requesting compact
+  inputs, a visual layout thumbnail and a simpler polygon-type dropdown. Retain
+  those answers as requested rework, not approval. The consolidated complete
+  workflow human review remains outstanding.
+- Source publication does not qualify physical receiver transports, native
+  storage/rendering, OEM controllers or measured field accuracy.
 
 ### Preserved 2026-09-27 checkpoint
 
@@ -57,7 +61,7 @@ The following facts describe the preceding checkpoint, not this isolated build.
 
 ## Next Queue
 
-Complete the isolated desktop workflow acceptance and consolidated human review
+Complete the integrated desktop workflow acceptance and consolidated human review
 first. The preceding drawing and field questionnaires below are historical input;
 their approvals do not apply to the changed workflow. Native, physical transport
 and field-accuracy gates remain independent.

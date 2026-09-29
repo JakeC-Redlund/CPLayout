@@ -4,7 +4,139 @@ Active task contract, 2026-09-27. Owner order: correctness → complete drawing 
 saved independent machines → iterative standard-pivot search → physical models.
 The current queue remains [development status](development-status.md).
 
-## Execution contract
+## Integration and human review — 2026-09-29
+
+The preserved model packet is integrated with the complete desktop workflow and
+VFlex research handoff in the canonical publication candidate. Overlapping UI
+changes retain current save/undo behavior, explicit machine identities and the
+single drawing-purpose control. Older isolated-build results below remain
+historical; integrated validation and Git publication have separate receipts.
+
+The authoritative model questionnaire revision 34 completed on 2026-09-28.
+M01–M03 all requested changes: compact input boxes, a visual layout thumbnail,
+and a simpler polygon-type dropdown. Earlier pending-status snapshots are stale.
+The completed answers and figures are retained privately; source publication does
+not establish human acceptance. Resolve the requested presentation changes in the
+complete workflow review and obtain new disk-acknowledged answers.
+
+## Preserved model improvement cycle — 2026-09-28
+
+Owner priority now alternates deeper layout search with physical-model accuracy.
+Depth takes priority over short waits; progress, cancellation and the best feasible
+layout remain available. The earlier packet evidence below is historical.
+
+Implementation is isolated in `/home/cyber/cplayout-worktrees/model-search-20260928`
+while the publication coordinator preserves the canonical checkpoint. Base HEAD
+is `96ba2e90aed79efae0b44ab7190a53a2bd677700`, plus the frozen dirty snapshot and
+the coordinator's bounded 8,192-probe candidate-generation correction. Exact base
+hashes and recovery are in
+`/home/cyber/cplayout-recovery/model-search-20260928T050001Z/isolated-base.json`.
+No shared branch, publication or native-storage activation is part of this cycle.
+
+Complexity: high; selected effort: high. Subagent decision: required. Disjoint
+high-effort writers own search modules, corner geometry/accounting, and the field
+and drawing interface. The coordinator owns pair assessment, integration, docs,
+aggregate validation and visible review. Accepted fallback: the runtime thread
+limit prevented an additional pair-assessment worker; the coordinator owns that
+implementation and its independent analytic tests. Independent cross-review
+follows file freezes; mixed-version test runs are diagnostic only.
+
+1. Retain the bounded-generation fix; reuse validated initial/refined positions.
+   Add v2 search with deterministic work scheduling, bounded caches, interior
+   seeds, explicit operation counts and nested-budget retention. Keep v1 callers.
+2. Distinguish missing/zero reach, no-spray exclusions, gross/outside/eligible
+   footprint and baseline-subtracted net acres. Missing baseline stays unknown.
+3. Track corner branches and transition events; refine by full-member clearance
+   margins. Between-sample clearance requires a conservative continuous-branch
+   bound; unresolved intervals and footprint convergence remain explicit.
+4. Assess complete pivot and straight-lateral mechanical sweeps independently of
+   wet coverage and search. Apply one explicit pair gap. Possible swept overlap
+   is not evidence of simultaneous collision; unsupported corner motion remains
+   unresolved.
+5. Apply received human feedback: I01-I04 request US units and simpler language;
+   D01-D02 request a single classification dropdown, while D03-D04 accept recovery.
+   Preserve exact canonical XY and unchanged input values. Use the deeper default
+   of 128 centers, 25,000 evaluations and six refinement levels, with the existing
+   four-template/eight-machine limits and explicit revision-checked adoption.
+
+Acceptance requires focused analytic and greedy-trap tests, ordering/translation
+and budget matrices, cancellation and sync/cooperative parity, comparative
+operation/runtime/memory evidence, then one frozen `npm run validate`, audit,
+diff and relevant skill checks. Changed UI also requires `npm run proof:web` and
+visible Windows Edge desktop/narrow figures with a new disk-backed human review.
+Native operation, hydraulic delivery, continuous field safety and positioning
+accuracy remain separate evidence gates. No paid solver or dependency upgrade.
+
+## Historical isolated cycle evidence
+
+Implementation is frozen and source-accepted in the isolated worktree. Canonical
+integration remains assigned to the publication coordinator after its checkpoint;
+human presentation acceptance is pending M01–M03. Source identity:
+`reports/model-improvement-20260928/acceptance-source-r2.json` (586 files,
+SHA-256 `cea2fe0d3f0e4a1942d34fcc4dda00b3094f31e95e38a6855d62cc9f6c1b105e`).
+
+- Search v2 retains validated initial/refined positions, schedules bounded work
+  across candidate prefixes, caches repeated exact combinations, and preserves
+  supplied feasible incumbents. V1 remains available. Numerical ties cannot
+  silently displace a better incumbent. Versioned progress snapshots are detached
+  from internal state; cancellation does not adopt or save the result.
+- Corner v2 is an explicit API opt-in with branch/direction selection, event
+  samples, whole-member margins and conditional straight-branch clearance bounds.
+  Missing footprint reach and missing baseline remain unknown, separately from
+  explicit zero. Gross, outside, excluded, eligible and additional areas remain
+  separate. Legacy kinematics stays the default for existing callers.
+- Independent pair review covers full physical pivot circles and oriented lateral
+  travel rectangles, applying one explicit pair gap. It uses unrounded geometry
+  independent of water reach or field clipping. Unsupported corner motion stays
+  unresolved. Potential sweep overlap does not establish simultaneous collision.
+- Feet-based field editing preserves exact untouched values. One inline purpose
+  menu replaces the drawing dialog. Explicit boundary replacement and undo now
+  work: browser proof found and repaired the older unconditional feature-ID
+  handoff for operational targets. No storage or dependency upgrades were added.
+
+Frozen benchmark: `reports/model-improvement-20260928/layout-search-benchmark.json`.
+At 1,500 evaluations, v2 found five machines and 82,931.47 m² (about 20.49 acres)
+more eligible coverage than v1's three machines on the bounded synthetic fixture.
+Five-run v2 median was 443 ms and p95 510 ms. The deep 128-center/25,000-evaluation
+case reached six machines in 2,536 ms with 852 union computations; 22,315 of 24,440
+combination attempts reused cached results. Peak RSS was 449,101,824 bytes across
+the cumulative benchmark process, not isolated per-run memory. Cancellation was
+observed at 0.081 ms with a 2.784 ms maximum yielded step in that fixture; individual
+polygon operations remain noninterruptible. The greedy-trap improvement of
+304.71 m² is retained. Will Rhea's original pinned case still has no eligible
+result; its geometry was unchanged. These measurements do not establish universal
+v2 superiority, field accuracy, or global optimality.
+
+Validation receipts and raw logs are in `reports/model-improvement-20260928/`:
+59 focused cases passed; search specialist's 37-case matrix and independent
+corner/pair reviews found no blocker. `npm run validate` passed in 531.804
+monotonic seconds with all 586 source files unchanged. `proof:web` passed 80 cases
+with four explicit skips. Visible Windows Edge passed 16 desktop/narrow cases and
+two supplemental drawing captures; Windows-served index and bundle hashes matched
+the frozen export. Review-tooling tests passed 96 cases. Audit reports zero
+vulnerabilities; skills/context and diff checks pass. Failed-run logs remain retained:
+the first browser run exposed the operational-target defect; aggregate r1 was
+intentionally terminated before source correction, so it is not acceptance.
+
+Fresh annotated figures and disk-backed questions M01–M03 are visible in the
+owned Windows Edge review session `reports/model-improvement-20260928/human-session-r2/`.
+Earlier I/D answers were exported and verified separately; no approval was copied
+forward. Completed test windows and launcher servers were closed. The active
+human review remains intentionally open. Review startup initially failed because
+raw question-property ordering differed from the stored normalized catalog; the
+failed empty session is retained, and the replacement uses the normalized packet.
+A focused drawing-control tooltip can overlap the point count in the retained
+narrow figures; this existing presentation issue is a follow-up, not a geometry
+mutation or an accepted human response.
+
+Remaining limits: corner area is a sampled approximation without a continuous
+upper bound or convergence certificate; clearance bounds are conditional planar
+calculations, not certified floating-point intervals or field safety. Advanced
+corner-v2 API controls are not activated by existing legacy UI calls. Native
+operation, hydraulic delivery, terrain/drive/steering qualification, bender water
+states and strict maximum 3D error below 10 cm remain unverified.
+
+## Prior packet execution contract
 
 Complexity band: xhigh; selected coordinator reasoning: xhigh (geometry,
 versioned storage and UI contracts). Subagent decision: required. Read-only
@@ -105,7 +237,7 @@ not adopted. Polylabel remains an optional isolated/pinned seed experiment after
 license, dependency, bundling and offline checks; no new package in this task.
 Application uniformity stays outside acreage ranking without physical inputs.
 
-## Current packet evidence
+## Prior packet evidence
 
 Owner steering on 2026-09-27: all active iterative visual-improvement workflows
 remain visible in Windows Edge, including the current app, annotated review

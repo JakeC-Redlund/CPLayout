@@ -1,7 +1,7 @@
 # Complete desktop workflow implementation
 
 Started 2026-09-28 in isolated branch `codex/complete-workflow-20260928`, based on
-`a70a6ebd81bcef1c11ca2fef6cdc57442f143689`. Implementation and acceptance are in progress.
+`a70a6ebd81bcef1c11ca2fef6cdc57442f143689`. The preserved candidate10 source is now integrated into the canonical publication candidate; acceptance remains in progress.
 The canonical checkout's publication checkpoint and browser correction are preserved.
 The correction was copied into this worktree before adapting its UI selectors.
 
@@ -58,8 +58,8 @@ human answers remain distinct from software tests.
 
 No acceptance is claimed by this planning/implementation record. Native activation,
 physical receiver verification, independent field accuracy, machine control, VFlex
-qualification and new irrigation solvers remain outside this pass. Canonical integration
-remains subject to the separate publication checkpoint.
+qualification and new irrigation solvers remain outside this pass. The owner explicitly
+authorized canonical Git integration and main-only publication on 2026-09-29.
 
 ## Internal review findings retained
 

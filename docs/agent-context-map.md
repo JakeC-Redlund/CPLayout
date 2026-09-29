@@ -112,11 +112,11 @@ This record provides compact route-to-context references for hooks, coordinators
 - `docs/codex-managed-hook-deployment.md`: `bd161d4ec4e88bec9df30e419e798a75801e465398ad0039e0aab63d515c6b5b`
 - `docs/kml-kmz-google-earth-source-ledger.md`: `f7005f48fde5a880d0cbdf584212cc009f564adbe58eb29295d4e437c33f3d08`
 - `docs/rtk-gnss-integration-plan.md`: `355a83416053732bf62969ecc23d539e54e0aabd118e50e76fe9a1b10e21ee44`
-- `package.json`: `bdb799da2fe221a4685edd93a60c2f11d4be7ea147ba39cdb9c5f3209505c80e`
+- `package.json`: `24d6e71d78a7f9030e14c768159aa75910283c3b5e5fae8f9e0c177be2ea8e70`
 - `packages/core/src/cornerGpsMapImport.ts`: `35e170203a5bdf5669b3bfd088f549c7e2326ad05891c319fa9ce717a19a258f`
-- `packages/core/src/index.ts`: `8862cc22533bd7a63b17d00759570e6dbd19ddec282484619764dd80bbe61910`
+- `packages/core/src/index.ts`: `adfd8fca345ca4e88fd0b0879ec7e74d12052ae233211969e7963c2aa9abbb1a`
 - `packages/core/src/projectDocument.ts`: `6c881dfd0825f72753efc42cb123f890173c34822480f5ef660a4aa33ade9778`
-- `packages/geometry/src/index.ts`: `15e3f996cf2dcde2822edb14abccdc2b3b3db2aa54f524849bfcdfb33f88b419`
+- `packages/geometry/src/index.ts`: `e9f8e5192cc2bdb559110dd0ab12d867d2687e8b230ba1eb905fa3442d7b1d78`
 - `packages/gnss/src/index.ts`: `ad5cb41391985ad957fcf5cf7ab4cf666f2830d68d7082dffef07f77110ef0d0`
 - `packages/project-store/src/index.ts`: `ef37669d2319f393d1a093222e73e8a5cd4794f76e3c9ec4bcc0784346495b5f`
 - `tools/build_cplayout_context_map.py`: `a25adf5da411a7ce7c4b188e54f43eb1ce41d4b5f00e3eccfce4812ffdad3889`
