@@ -375,8 +375,10 @@ for (const renderer of ["browser", "svg"] as const) {
 
     await drawTool(page, "polygon");
     await fit(page, renderer);
-    for (const point of points) await clickPoint(point);
+    await expect(measurement).toContainText("XY area");
+    await expect(finish()).toBeEnabled();
     await finish().click();
+    await expect(purpose).toBeVisible();
     await purpose.getByTestId("pending-draft-purpose-select").selectOption({ label: "Keep-Out / No-Spray" });
     await purpose.getByTestId("pending-draft-keep").click();
     await expect(purpose).toHaveCount(0);
