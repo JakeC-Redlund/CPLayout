@@ -7244,6 +7244,7 @@ function PendingDraftPurposePanel({ draft, retentionKey, projectCrs, error, onCa
   const selected = options.find(option => optionKey(option) === selection);
   return <View style={styles.pendingDraftPurposePanel} testID="pending-draft-purpose-panel">
     <Text style={styles.mapFeatureTitle}>What did you draw?</Text>
+    {error ? <Text accessibilityRole="alert" style={styles.formError} testID="pending-draft-error">{error}</Text> : null}
     <Text style={styles.mapFeatureMeta}>{draftGeometrySummary(draft, unitSystem, projectCrs)}</Text>
     {Platform.OS === "web" ? React.createElement("select", {
       "aria-label": "Drawing purpose", "data-testid": "pending-draft-purpose-select", value: selection,
@@ -7264,7 +7265,6 @@ function PendingDraftPurposePanel({ draft, retentionKey, projectCrs, error, onCa
         <TextInput accessibilityLabel="Drawing notes" value={notes} onChangeText={setNotes} multiline style={styles.textInput} />
       </View>
     </> : null}
-    {error ? <Text accessibilityRole="alert" style={styles.formError} testID="pending-draft-error">{error}</Text> : null}
     <View style={styles.inlineActions}>
       <SmallActionButton label="Keep drawing" disabled={!selected} testID="pending-draft-keep" onPress={() => selected && onSave(selected, { name, notes })} />
       <SmallActionButton label="Back to drawing" onPress={onCancel} testID="pending-draft-cancel" />

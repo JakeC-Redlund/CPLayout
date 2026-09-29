@@ -157,7 +157,7 @@ test("field forms use feet and preserve exact saved values when untouched", asyn
   const before = await storedField(page);
   await expect(page.getByLabel("Center X (ft)")).toBeVisible();
   await expect(page.getByLabel("Span lengths (ft), separated by commas")).toBeVisible();
-  await page.getByTestId("field-apply-machine").click();
+  await expect(page.getByTestId("field-apply-machine")).toBeDisabled();
   await save(page);
   expect(await storedField(page)).toEqual(before);
   await page.getByTestId("field-search-details-toggle").click();

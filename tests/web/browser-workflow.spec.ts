@@ -1113,9 +1113,10 @@ test("pending map purpose reports rejection retry and cancellation without stale
   await closeInspectorIfOpen(page);
   if (testInfo.project.name === "mobile-390") await expect(page.getByTestId("map-bottom-hud")).toBeVisible();
   await selectPumpFeatureTool(page);
-  await expect(page.getByTestId("browser-map-action-status")).not.toContainText(/cancelled|committed|must be inside/i);
+  await expect(page.getByText(/measure .* 1 draft pts .* capture point, then choose purpose/)).toBeVisible();
   await clickWorkbenchMap(page, { x: 180, y: 250 });
   await expect(page.getByTestId("pending-draft-purpose-panel")).toBeVisible();
+  await expect(page.getByTestId("browser-map-action-status")).not.toContainText(/cancelled|committed|must be inside/i);
   await choosePendingDraftPurpose(page, "Pump");
   await expect(page.getByTestId("browser-map-action-status")).toContainText("Pump committed in projected XY");
   await closeInspectorIfOpen(page);

@@ -70,8 +70,12 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
   const { width } = useWindowDimensions();
   const compactLayout = width < 760;
   const [panelWidth, setPanelWidth] = useState<number | null>(null);
+  const [panelHeight, setPanelHeight] = useState<number | null>(null);
   const [sheetInsetBottom, setSheetInsetBottom] = useState(0);
   const compactHud = panelWidth === null ? compactLayout : panelWidth < 600;
+  const shortLandscapeHud = panelWidth !== null && panelWidth >= 400
+    && panelHeight !== null && panelHeight > 0 && panelHeight < 400;
+  const navigationClearanceStyle = shortLandscapeHud ? { maxWidth: panelWidth - 120 } : undefined;
   const externalHudLayout = controlLayout === "externalHud";
   const designMode = settings.mappingWorkflowMode === "design";
   const canEditOnMap = designMode && !homeView;
@@ -663,7 +667,10 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
       </View>
 
       <View style={[styles.mapFrame, compactLayout && styles.mapFrameCompact]} testID="browser-map-frame"
-        onLayout={event => setPanelWidth(event.nativeEvent.layout.width)}>
+        onLayout={event => {
+          setPanelWidth(event.nativeEvent.layout.width);
+          setPanelHeight(event.nativeEvent.layout.height);
+        }}>
         {React.createElement("div", {
           "aria-label": "CPLayout MapLibre imagery workbench",
           ref: containerRef,
@@ -821,7 +828,7 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
           ) : null}
           <Pressable accessibilityRole="button" accessibilityLabel="Map source details"
             onPress={() => { cancelVertexDragRef.current?.(); setSourceDetailsOpen(true); }}
-            style={[styles.attributionHud, compactHud && styles.attributionHudCompact]} testID="browser-map-attribution-hud">
+            style={[styles.attributionHud, compactHud && styles.attributionHudCompact, navigationClearanceStyle]} testID="browser-map-attribution-hud">
             <Satellite size={13} color="#173428" />
             <Text style={styles.attributionText} testID="browser-map-attribution-credit">
               {attributionCredit}
@@ -829,7 +836,7 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
             <Info size={16} color="#173428" />
           </Pressable>
           <View pointerEvents={showHudActions ? "box-none" : "none"}
-            style={[styles.statusHud, compactHud && styles.statusHudCompact,
+            style={[styles.statusHud, compactHud && styles.statusHudCompact, navigationClearanceStyle,
               sheetInsetBottom > 0 && [styles.statusHudAboveSheet, { bottom: sheetInsetBottom }]]}
             testID="browser-map-status-hud">
             <View pointerEvents="none" style={styles.statusTextGroup}>
