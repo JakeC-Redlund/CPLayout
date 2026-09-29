@@ -367,15 +367,14 @@ test("catalog blank design starts empty and requires explicit coordinates before
   await page.getByRole("button", { name: "Apply CRS", exact: true }).click();
   await page.getByTestId("draft-inputs-toggle").click();
   await page.getByTestId("design-draft-polygon").click();
-  await page.getByTestId("design-draft-purpose-boundary").click();
   const map = page.getByTestId("design-draft-map-svg");
   for (const [x, y] of [[0.3, 0.35], [0.65, 0.35], [0.6, 0.6]]) {
     const box = (await map.boundingBox())!;
     const overlay = (await page.getByTestId("design-draft-capture-status").boundingBox())!;
     const camera = (await page.getByTestId("design-draft-camera-controls").boundingBox())!;
-    const clearTop = 10;
-    const clearWidth = Math.min(box.width - 20, camera.x - box.x - 20);
-    const clearHeight = Math.min(box.height, overlay.y - box.y) - clearTop - 10;
+    const clearTop = camera.y + camera.height + 8 - box.y;
+    const clearWidth = box.width - 20;
+    const clearHeight = overlay.y - box.y - clearTop - 8;
     expect(clearWidth).toBeGreaterThan(20);
     expect(clearHeight).toBeGreaterThan(20);
     const position = { x: 10 + clearWidth * x, y: clearTop + clearHeight * y };
@@ -386,6 +385,11 @@ test("catalog blank design starts empty and requires explicit coordinates before
     await map.click({ position });
   }
   await page.getByTestId("design-draft-commit").click();
+  await page.getByTestId("drawing-purpose-select").click();
+  await page.getByTestId("drawing-purpose-field_boundary").click();
+  await page.getByTestId("drawing-classification-confirm").click();
+  await expect(page.getByTestId("drawing-classification-dialog")).toHaveCount(0);
+  await expect(page.getByTestId("draft-error")).toHaveCount(0);
   await page.getByTestId("draft-save").click();
   await expect(page.getByTestId("draft-save-state")).toContainText("Saved");
   const draft = JSON.parse((await readWorkspace(page)).draftDocuments[0].document).draft;
