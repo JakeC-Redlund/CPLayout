@@ -5,7 +5,7 @@ import { ArrowLeft, FileUp, FolderOpen, RefreshCw } from "lucide-react-native";
 import { useProjectRepository, type OpenedDesign } from "../hooks/useProjectRepository";
 import { IconCommandButton } from "./CommandSurface";
 import { ConfirmActionDialog } from "./ProjectCatalogDialog";
-import { CATALOG_IMPORT_MAX_BYTES, previewCatalogImport, type CatalogImportPreview } from "./catalogArchiveImport";
+import { CATALOG_IMPORT_MAX_BYTES, previewCatalogImport, type CatalogImportPreview } from "./catalogArchivePayload";
 
 export function CatalogArchiveImport({ fieldMapId, onOpenDesign, onClose }: {
   fieldMapId: string | null;

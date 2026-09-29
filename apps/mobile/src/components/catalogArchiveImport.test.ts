@@ -9,7 +9,7 @@ import {
   exportDesignDraftArchiveZip, buildFieldDesignArchiveBundle, exportFieldDesignArchiveZip,
 } from "@cplayout/project-store";
 import { newDesignDraft } from "../newDesignDraft";
-import { previewCatalogImport } from "./catalogArchiveImport";
+import { previewCatalogImport } from "./catalogArchivePayload";
 const bytes = (value: string) => new TextEncoder().encode(value);
 const draft = newDesignDraft("original-draft", "Partial field", "us_survey_feet");
 const original = ` \n${serializeProjectDocument(sampleProject)}\n `;
