@@ -26,9 +26,12 @@ for (const protocol of ["tcp", "udp"] as const) {
     const send = (sentence: string) => protocol === "tcp"
       ? Promise.resolve([...sockets][0]!.write(sentence))
       : new Promise<void>((resolve, reject) => udp.send(sentence, port, "127.0.0.1", error => error ? reject(error) : resolve()));
-    // Advance receiver UTC with actual elapsed time. Hard-coded one-second
-    // increments after slow UI work correctly look like queued receiver data.
-    const currentGga = (quality = 4) => gga(new Date().toISOString().slice(11, 23).replace(/:/g, ""), quality);
+    // Advance synthetic receiver UTC with elapsed time, independent of host
+    // wall-clock corrections, without masking queued or stale observations.
+    const utcOriginMs = Date.now();
+    const monotonicOriginMs = performance.now();
+    const currentGga = (quality = 4) => gga(new Date(utcOriginMs + performance.now() - monotonicOriginMs)
+      .toISOString().slice(11, 23).replace(/:/g, ""), quality);
     try {
       await page.goto("/");
       await page.getByTestId("command-menu-file").click();
