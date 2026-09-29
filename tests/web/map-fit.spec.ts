@@ -263,8 +263,12 @@ async function importBoundary(page: Page, renderer: Renderer) {
   const project = await saveProject(page);
   expect(project.fieldBoundary).toEqual(ring.slice(0, -1).map(([x, y]) => ({ x, y })));
   await page.getByTestId("workspace-nav-map").click();
-  // Files navigation unmounts the renderer, so request fallback on the new instance.
-  if (renderer === "svg") await useSvg(page);
+  // Route changes retain the selected renderer.
+  if (renderer === "svg") {
+    await expect(page.getByTestId("browser-map-renderer-fallback")).toBeVisible();
+    await expect(surface(page, "svg")).toBeVisible();
+    await expect(page.locator(".maplibregl-canvas")).toHaveCount(0);
+  }
   await closePanels(page);
   return project;
 }
@@ -823,8 +827,25 @@ test("SVG vertex clicks select without mutation and background placement follows
     y: points.reduce((sum, p) => sum + p.y, 0) / points.length };
   const start = points[1];
   const fraction = Math.min(0.6, Math.max(0.25, 28 / Math.hypot(center.x - start.x, center.y - start.y)));
-  const screen = { x: Math.round(start.x + (center.x - start.x) * fraction),
-    y: Math.round(start.y + (center.y - start.y) * fraction) };
+  // This fixture has no custom features. Choose actual background, avoiding
+  // canonical vertex handles and labels that correctly consume selection clicks.
+  expect(original.mapFeatures ?? []).toHaveLength(0);
+  const candidates = [fraction, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85].map(value => ({
+    x: Math.round(start.x + (center.x - start.x) * value),
+    y: Math.round(start.y + (center.y - start.y) * value),
+  }));
+  const screen = await surface(page, "svg").evaluate((element, points) => {
+    return points.find(point => {
+      const hit = document.elementFromPoint(point.x, point.y);
+      if (!hit || !element.contains(hit) || !["svg", "path", "rect"].includes(hit.tagName.toLowerCase())) return false;
+      for (let node: Element | null = hit; node && node !== element; node = node.parentElement) {
+        if (node.matches('[aria-label], [role="button"], text, [data-testid="svg-map-labels"]')) return false;
+      }
+      return true;
+    }) ?? null;
+  }, candidates);
+  expect(screen, "a visible SVG background point must be available for vertex placement").not.toBeNull();
+  if (!screen) throw new Error("No visible SVG background placement point");
   const expected = await surface(page, "svg").evaluate((element, point) => {
     const matrix = (element as unknown as SVGSVGElement).getScreenCTM();
     if (!matrix) throw new Error("Missing SVG placement transform");

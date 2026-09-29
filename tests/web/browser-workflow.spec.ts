@@ -680,6 +680,8 @@ test("workspace rail exposes the selected view state", async ({ page }, testInfo
 });
 
 test("workspace compact rail stays within the viewport while switching routes", async ({ page }, testInfo) => {
+  // Rail geometry is independent of live imagery availability.
+  await page.route("https://basemap.nationalmap.gov/**", route => route.abort("blockedbyclient"));
   await page.goto("/");
   await openBaselineSample(page);
   const viewport = page.viewportSize();
