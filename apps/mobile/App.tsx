@@ -2439,7 +2439,7 @@ function AppContent({ primaryTask, onTaskPresentationReady, taskSequence, editor
         </WorkspaceTopToolbar>
         {!compactMapContext && <View style={styles.workflowContext} testID="workflow-context">
           <Text style={styles.mapFeatureMeta}>{catalogContextPath}</Text>
-          <SmallActionButton label="Layout sessions" testID="open-layout-sessions" onPress={openLayoutWorkspace} />
+          <SmallActionButton label="Layout sessions" testID="open-layout-sessions" onPress={() => openLayoutWorkspace()} />
         </View>}
         {activeCatalogForm ? null : storageNotice}
         {!homeMapView ? importNotice : null}

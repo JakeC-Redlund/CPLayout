@@ -457,21 +457,40 @@ test("completed design converts explicitly to an immutable Layout session, colle
 
 test("unsupported Layout import creates nothing and leaves the selected field intact", async ({ page, context }) => {
   await seed(context, completeDraftWorkspace()); await openDraft(page);
-  await completeAndOpenLayout(page);
+  const initial = await completeAndOpenLayout(page);
   await page.getByTestId("layout-workspace-back").click();
-  const before = await page.evaluate(key => localStorage.getItem(key), workspaceKey);
+  await expect(page.getByTestId("layout-import-review")).toHaveCount(0);
+  await expect(page.getByTestId("layout-save-new")).toHaveCount(0);
+  await expect(page.getByTestId("layout-cancel-import")).toHaveCount(0);
+  const association = page.getByTestId("layout-associate-workflow-field");
+  await expect(association).toHaveAttribute("aria-pressed", "true");
+  const upload = page.waitForEvent("filechooser"); await page.getByTestId("layout-import").click();
+  await (await upload).setFiles({ name: "retained-target.json", mimeType: "application/json", buffer: Buffer.from(initial.targetDocument) });
+  await expect(page.getByTestId("layout-catalog-feedback")).toContainText("File checked");
   await expect(page.getByTestId("layout-import-review")).toBeVisible();
-  const retainedName = await page.getByTestId("layout-new-name").inputValue();
+  const retainedName = "  Pending replacement review  ";
+  await page.getByTestId("layout-new-name").fill(retainedName);
+  await expect(association).toHaveAttribute("aria-pressed", "true");
+  const before = await page.evaluate(key => localStorage.getItem(key), workspaceKey);
+  const beforeWorkspace = await readWorkspace(page);
+  expect(await session(page, initial.id)).toEqual(initial);
   const canceled = page.waitForEvent("filechooser"); await page.getByTestId("layout-import").click();
   await (await canceled).setFiles([]); // A chooser with no selected file preserves the current review.
   await expect(page.getByTestId("layout-import-review")).toBeVisible();
   await expect(page.getByTestId("layout-new-name")).toHaveValue(retainedName);
+  await expect(association).toHaveAttribute("aria-pressed", "true");
+  expect(await page.evaluate(key => localStorage.getItem(key), workspaceKey)).toBe(before);
+  expect(await readWorkspace(page)).toEqual(beforeWorkspace);
   const chooser = page.waitForEvent("filechooser"); await page.getByTestId("layout-import").click();
   await (await chooser).setFiles({ name: "unsupported.json", mimeType: "application/json", buffer: Buffer.from('{"documentVersion":"future-layout-v99"}') });
   await expect(page.getByTestId("layout-catalog-feedback")).toContainText("Choose a frozen Layout target JSON");
   await expect(page.getByTestId("layout-import-review")).toHaveCount(0);
   await expect(page.getByTestId("layout-save-new")).toHaveCount(0);
+  await expect(page.getByTestId("layout-cancel-import")).toHaveCount(0);
+  await expect(association).toHaveAttribute("aria-pressed", "true");
   expect(await page.evaluate(key => localStorage.getItem(key), workspaceKey)).toBe(before);
+  expect(await readWorkspace(page)).toEqual(beforeWorkspace);
+  expect(await session(page, initial.id)).toEqual(initial);
 });
 
 
@@ -601,7 +620,9 @@ test("catalog import checks unsupported files and requires a destination before 
 
 async function returnToField(page: Page) {
   await page.getByTestId("layout-workspace-back").click();
-  await page.getByTestId("layout-cancel-import").click();
+  await expect(page.getByTestId("layout-import-review")).toHaveCount(0);
+  await expect(page.getByTestId("layout-cancel-import")).toHaveCount(0);
+  await expect(page.getByTestId("layout-save-new")).toHaveCount(0);
   await page.getByTestId("layout-catalog-back").click();
   await expect(page.getByTestId("field-design-workspace")).toBeVisible();
 }
@@ -1284,6 +1305,9 @@ test("Survey and Layout share active receiver configuration errors and unfinishe
   const readiness = page.locator('[data-testid="receiver-collection-readiness"]:visible');
   async function toLayout() {
     await page.getByTestId("open-layout-sessions").click();
+    await expect(page.getByTestId("task-layout")).toHaveAttribute("aria-current", "page");
+    await expect(page.getByTestId("layout-session-catalog")).toBeVisible();
+    await expect(page.getByTestId(`layout-open-${initial.id}`)).toBeEnabled();
     await page.getByTestId(`layout-open-${initial.id}`).click();
     await expect(page.getByTestId("layout-session-workspace")).toBeVisible();
   }
