@@ -74,7 +74,7 @@ async function setup(page: Page, baseURL: string | undefined, renderer: Renderer
   await page.getByTestId("command-file-sample-baseline-needs-review").click();
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("North Quarter Concept Layout");
   const project = await saveProject(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await closePanels(page);
   if (renderer === "svg") {
     await expect.poll(() => workerFailures).toBeGreaterThan(0);
@@ -133,12 +133,16 @@ async function usableRect(page: Page, renderer: Renderer, forClicks = false): Pr
   let left = frame.x + 20;
   let top = frame.y + 20;
   let right = frame.x + frame.width - 20, bottom = frame.y + frame.height - 20;
-  const bottomIds = renderer === "browser" ? ["browser-map-bottom-dock"] : ["map-bottom-hud", "svg-map-draft-hud"];
+  const bottomIds = renderer === "browser"
+    ? ["browser-map-bottom-dock", "browser-map-status-hud", "right-workflow-sidebar"]
+    : ["map-bottom-hud", "svg-map-draft-hud"];
   for (const id of bottomIds) {
     const item = page.getByTestId(id);
     if (await item.isVisible()) {
+      if (id === "right-workflow-sidebar" && await item.evaluate(element => getComputedStyle(element).position !== "absolute")) continue;
       const hud = await box(item);
-      if (hud.y > frame.y && hud.y < frame.y + frame.height) bottom = Math.min(bottom, hud.y - 8);
+      if (hud.x < frame.x + frame.width && hud.x + hud.width > frame.x
+        && hud.y > frame.y && hud.y < frame.y + frame.height) bottom = Math.min(bottom, hud.y - 8);
     }
   }
   if (renderer === "svg") {
@@ -262,9 +266,13 @@ async function importBoundary(page: Page, renderer: Renderer) {
   await expect(page.getByTestId("project-save-state")).toContainText("Unsaved edits");
   const project = await saveProject(page);
   expect(project.fieldBoundary).toEqual(ring.slice(0, -1).map(([x, y]) => ({ x, y })));
-  await page.getByTestId("workspace-nav-map").click();
-  // Files navigation unmounts the renderer, so request fallback on the new instance.
-  if (renderer === "svg") await useSvg(page);
+  await page.getByTestId("task-design").click();
+  // Route changes retain the selected renderer.
+  if (renderer === "svg") {
+    await expect(page.getByTestId("browser-map-renderer-fallback")).toBeVisible();
+    await expect(surface(page, "svg")).toBeVisible();
+    await expect(page.locator(".maplibregl-canvas")).toHaveCount(0);
+  }
   await closePanels(page);
   return project;
 }
@@ -317,14 +325,14 @@ for (const renderer of ["browser", "svg"] as const) {
     await page.screenshot({ path: testInfo.outputPath(`${renderer}-overlay-design.png`) });
     expect(await workspaceStorageBytes(page)).toEqual(before);
     await toolbar.getByRole("button", { name: "Close tool options" }).click();
-    await (renderer === "browser" ? page.getByTestId("browser-workflow-layout") : page.getByRole("button", { name: "Layout", exact: true })).click();
+    await (renderer === "browser" ? page.getByTestId("browser-workflow-layout") : page.getByRole("button", { name: "Inspect map", exact: true })).click();
     await toolbar.getByTestId("design-action-polygon").click();
     for (const id of ["design-action-polygon-start", "map-tool-field-boundary", "map-tool-keep-out"]) await expect(toolbar.getByTestId(id)).toBeDisabled();
     await expect(toolbar.getByTestId("map-tool-rtk")).toBeEnabled();
     await page.screenshot({ path: testInfo.outputPath(`${renderer}-overlay-layout.png`) });
     await toolbar.getByTestId("map-tool-rtk").click();
     await expect(page.getByRole("button", { name: "Capture Survey Point", exact: true })).toBeDisabled();
-    await expect(page.getByTestId("rtk-gate-badge")).toContainText("Gate closed");
+    await expect(page.getByTestId("rtk-gate-badge")).toContainText("Live capture unavailable");
   });
 
   test(`${renderer}: standard drawing tools measure, undo, cancel and save polygon line point purposes`, async ({ page, baseURL }, testInfo) => {
@@ -375,9 +383,12 @@ for (const renderer of ["browser", "svg"] as const) {
 
     await drawTool(page, "polygon");
     await fit(page, renderer);
-    for (const point of points) await clickPoint(point);
+    await expect(measurement).toContainText("XY area");
+    await expect(finish()).toBeEnabled();
     await finish().click();
-    await purpose.getByRole("button", { name: "Keep-Out / No-Spray", exact: true }).click();
+    await expect(purpose).toBeVisible();
+    await purpose.getByTestId("pending-draft-purpose-select").selectOption({ label: "Keep-Out / No-Spray" });
+    await purpose.getByTestId("pending-draft-keep").click();
     await expect(purpose).toHaveCount(0);
     const withPolygon = await saveProject(page);
     expect(withPolygon.obstacles).toHaveLength(project.obstacles.length + 1);
@@ -389,7 +400,8 @@ for (const renderer of ["browser", "svg"] as const) {
     for (const point of points.slice(0, 2)) await clickPoint(point);
     await expect(measurement).toContainText("XY length");
     await finish().click();
-    await purpose.getByRole("button", { name: "Measurement Line", exact: true }).click();
+    await purpose.getByTestId("pending-draft-purpose-select").selectOption({ label: "Measurement Line" });
+    await purpose.getByTestId("pending-draft-keep").click();
     const withLine = await saveProject(page);
     expect(withLine.mapFeatures?.at(-1)?.geometry.type).toBe("LineString");
     expect(withLine.mapFeatures?.at(-1)?.kind).toBe("measurement_line");
@@ -397,7 +409,8 @@ for (const renderer of ["browser", "svg"] as const) {
     await drawTool(page, "point");
     await fit(page, renderer);
     await clickPoint(center);
-    await purpose.getByRole("button", { name: "Well", exact: true }).click();
+    await purpose.getByTestId("pending-draft-purpose-select").selectOption({ label: "Well" });
+    await purpose.getByTestId("pending-draft-keep").click();
     const final = await saveProject(page);
     expect(final.mapFeatures?.at(-1)?.geometry.type).toBe("Point");
     expect(final.mapFeatures?.at(-1)?.kind).toBe("well_location");
@@ -429,13 +442,14 @@ for (const renderer of ["browser", "svg"] as const) {
     sameView(await fit(page, renderer), fitted);
     if (renderer === "svg" && page.viewportSize()!.width < 700) {
       const legendButton = page.getByTestId("svg-map-legend-open");
-      await expect(legendButton).toHaveAccessibleName("Map legend");
+      await expect(legendButton).toHaveAccessibleName("Map legend and layer status");
       await legendButton.click();
       const dialog = page.getByTestId("svg-map-legend-dialog");
       await expect(dialog).toBeVisible();
       for (const label of ["Allowed wet area", "Tower / LRDU path", "Machine-end path", "End-gun reach",
         "Configured corner-arm preview", "Outside field", "Generated advisory plan", "Obstacle/no-spray",
         "Survey/object point", "Utility map feature"]) await expect(dialog.getByText(label, { exact: true })).toBeVisible();
+      await expect(dialog.getByTestId("svg-map-status-notices")).toBeVisible();
       await page.screenshot({ path: testInfo.outputPath("svg-map-legend.png"), animations: "disabled" });
       await dialog.getByRole("button", { name: "Close map legend" }).click();
       await expect(dialog).toHaveCount(0);
@@ -818,8 +832,25 @@ test("SVG vertex clicks select without mutation and background placement follows
     y: points.reduce((sum, p) => sum + p.y, 0) / points.length };
   const start = points[1];
   const fraction = Math.min(0.6, Math.max(0.25, 28 / Math.hypot(center.x - start.x, center.y - start.y)));
-  const screen = { x: Math.round(start.x + (center.x - start.x) * fraction),
-    y: Math.round(start.y + (center.y - start.y) * fraction) };
+  // This fixture has no custom features. Choose actual background, avoiding
+  // canonical vertex handles and labels that correctly consume selection clicks.
+  expect(original.mapFeatures ?? []).toHaveLength(0);
+  const candidates = [fraction, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85].map(value => ({
+    x: Math.round(start.x + (center.x - start.x) * value),
+    y: Math.round(start.y + (center.y - start.y) * value),
+  }));
+  const screen = await surface(page, "svg").evaluate((element, points) => {
+    return points.find(point => {
+      const hit = document.elementFromPoint(point.x, point.y);
+      if (!hit || !element.contains(hit) || !["svg", "path", "rect"].includes(hit.tagName.toLowerCase())) return false;
+      for (let node: Element | null = hit; node && node !== element; node = node.parentElement) {
+        if (node.matches('[aria-label], [role="button"], text, [data-testid="svg-map-labels"]')) return false;
+      }
+      return true;
+    }) ?? null;
+  }, candidates);
+  expect(screen, "a visible SVG background point must be available for vertex placement").not.toBeNull();
+  if (!screen) throw new Error("No visible SVG background placement point");
   const expected = await surface(page, "svg").evaluate((element, point) => {
     const matrix = (element as unknown as SVGSVGElement).getScreenCTM();
     if (!matrix) throw new Error("Missing SVG placement transform");
@@ -917,7 +948,8 @@ test("SVG label presses select their feature without moving the selected boundar
     y: -(editView[1] + editView[3] / 2),
   }]);
   await page.mouse.click(point.x, point.y);
-  await page.getByTestId("pending-draft-purpose-panel").getByRole("button", { name: "Well", exact: true }).click();
+  await page.getByTestId("pending-draft-purpose-select").selectOption({ label: "Well" });
+  await page.getByTestId("pending-draft-keep").click();
   const saved = await saveProject(page);
   const feature = saved.mapFeatures!.at(-1)!;
   await selectBoundary(page, "svg");

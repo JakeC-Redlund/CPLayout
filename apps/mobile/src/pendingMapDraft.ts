@@ -11,6 +11,8 @@ export interface PendingMapDraftScope {
   projectCrs: string;
   projectGeneration: number;
   editable: boolean;
+  /** Catalog may retain the current owner's draft while all draft commands are disabled. */
+  suspended?: boolean;
 }
 
 export interface PendingMapDraftState {
@@ -38,7 +40,7 @@ export function createPendingMapDraftSession(getScope: () => PendingMapDraftScop
 
   function current(): PendingMapDraftState | null {
     const scope = getScope();
-    if (pending && (!scope.editable
+    if (pending && ((!scope.editable && !scope.suspended)
       || pending.owner.projectId !== scope.projectId
       || pending.owner.projectCrs !== scope.projectCrs
       || pending.owner.projectGeneration !== scope.projectGeneration)) {
@@ -63,8 +65,9 @@ export function createPendingMapDraftSession(getScope: () => PendingMapDraftScop
 
     begin(draft: PendingMapFeatureDraft, expectedScope: PendingMapDraftScope): MapDraftHandoffResult {
       const scope = getScope();
-      // Reject retained render callbacks before touching any pending ownership.
-      if (!scope.editable || !expectedScope.editable) {
+      current();
+      // Reject retained render callbacks before adopting any pending ownership.
+      if (!scope.editable || scope.suspended || !expectedScope.editable || expectedScope.suspended) {
         return { ok: false, error: "Map drafts cannot be edited in the current view." };
       }
       if (scope.projectId !== expectedScope.projectId
@@ -89,7 +92,8 @@ export function createPendingMapDraftSession(getScope: () => PendingMapDraftScop
       successMessage: string,
     ): MapDraftPurposeReceipt | null {
       const state = current();
-      if (!state || !sameOwner(state.owner, owner) || applying.has(state)) return null;
+      const scope = getScope();
+      if (!scope.editable || scope.suspended || !state || !sameOwner(state.owner, owner) || applying.has(state)) return null;
       let result: ProjectMutationResult;
       applying.add(state);
       try {
@@ -111,7 +115,8 @@ export function createPendingMapDraftSession(getScope: () => PendingMapDraftScop
 
     cancel(owner: MapDraftOwner): MapDraftPurposeReceipt | null {
       const state = current();
-      if (!state || !sameOwner(state.owner, owner) || applying.has(state)) return null;
+      const scope = getScope();
+      if (!scope.editable || scope.suspended || !state || !sameOwner(state.owner, owner) || applying.has(state)) return null;
       pending = null;
       return receipt(state, "cancelled", "Map draft cancelled. Project unchanged.");
     },

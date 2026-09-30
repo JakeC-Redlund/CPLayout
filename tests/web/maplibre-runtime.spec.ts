@@ -75,7 +75,7 @@ test("loaded map updates edited geometry while later raster requests remain pend
     await page.goto("/");
     await page.getByTestId("command-menu-file").click();
     await page.getByTestId("command-file-sample-baseline-needs-review").click();
-    await page.getByTestId("workspace-nav-map").click();
+    await page.getByTestId("task-design").click();
     await activateMapTool(page, "edit");
     await page.getByTestId("browser-edit-select-boundary").click();
     const map = page.getByLabel("CPLayout MapLibre imagery workbench");
@@ -147,7 +147,7 @@ test("delayed imagery preserves a panned camera and a four-vertex boundary draft
     const documents = (await readWorkspace(page)).projectDocuments;
     expect(documents).toHaveLength(1);
     const projectCrs = parseProjectDocument(documents[0].document).projectCrs;
-    await page.getByTestId("workspace-nav-map").click();
+    await page.getByTestId("task-design").click();
     const openInspector = page.getByRole("button", { name: /Open (map inspector|right workflow sidebar)/ });
     if (await openInspector.first().isVisible()) await openInspector.first().click();
     await page.getByTestId("workflow-sidebar-tab-tools").click();
@@ -243,7 +243,7 @@ test("offline MapLibre worker modules render and move projected layout overlays"
   await page.getByTestId("command-menu-file").click();
   await page.getByTestId("command-file-sample-baseline-needs-review").click();
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("North Quarter Concept Layout");
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   const canvas = page.locator(".maplibregl-canvas").first();
   await expect(canvas).toBeVisible();
   await expect(canvas).toHaveCSS("position", "absolute");

@@ -1,4 +1,4 @@
-import { parseDesignDraftDocument, parseProjectDocument } from "@cplayout/core";
+import { parseDesignDraftDocument, parseFieldDesignDocument, parseProjectDocument } from "@cplayout/core";
 import { sortProjectCatalog } from "./projectCatalog";
 import { parseEditableProjectDocument } from "./projectDocumentEditing";
 import type {
@@ -28,6 +28,11 @@ export function readWorkspaceDesign(workspace: WorkspaceDocument, designId: stri
     workspaceRevision: current.revision,
     context: { clientId: project.clientId, projectId: project.id, fieldMapId: field.id, designId: design.id },
   };
+  if (design.kind === "field") {
+    const entry = current.fieldDocuments!.find(item => item.id === design.fieldDesignId)!;
+    return { ...shared, kind: "field", design, document: entry.document, field: parseFieldDesignDocument(entry.document),
+      ...(entry.originalProjectDocument === undefined ? {} : { originalProjectDocument: entry.originalProjectDocument }) };
+  }
   if (design.kind === "draft") {
     const document = current.draftDocuments.find(item => item.id === design.draftId)!.document;
     return { ...shared, kind: "draft", design, document, draft: parseDesignDraftDocument(document) };
@@ -38,7 +43,9 @@ export function readWorkspaceDesign(workspace: WorkspaceDocument, designId: stri
 
 export function workspaceProjectCatalog(workspace: WorkspaceDocument): ProjectCatalog {
   const designs = workspace.catalog.designs.map(design => {
-    if (design.kind !== "project") throw new WorkspaceDocumentError("unsupported_version", "This workspace contains incomplete designs; a draft-aware catalog is required. Export recovery data before changing it.");
+    if (design.kind !== "project") throw new WorkspaceDocumentError("unsupported_version", design.kind === "draft"
+      ? "This workspace contains incomplete designs; a draft-aware catalog is required. Export recovery data before changing it."
+      : "This workspace contains field designs; a version-aware catalog is required. Export recovery data before changing it.");
     const { kind: _kind, revision: _revision, ...record } = design;
     return record;
   });
@@ -60,10 +67,11 @@ export function createVersionedProjectRepository(dependencies: WebWorkspaceStore
   const versionedWorkspace: VersionedWorkspaceRepository = {
     readAsync: () => store.initializeAsync(),
     async readDesignAsync(designId) { return readWorkspaceDesign(await store.initializeAsync(), designId); },
-    async executeAsync(expectedRevision, command) {
+    async executeAsync(expectedRevision, command, isCurrent) {
       const captured = parseWorkspaceCommand(command);
       let value: WorkspaceCommandValue = undefined;
       const workspace = await store.transactAsync(expectedRevision, current => {
+        if (isCurrent && !isCurrent()) throw new WorkspaceDocumentError("conflict", "The active editor or live observation changed before saving; retry from the current screen.");
         const result = applyWorkspaceCommand(current, captured);
         value = result.value;
         return result.workspace;
@@ -76,7 +84,7 @@ export function createVersionedProjectRepository(dependencies: WebWorkspaceStore
     throw new WorkspaceDocumentError("conflict", "Reload the project or catalog and save with its original workspace revision.");
   };
   return {
-    backendLabel: "Browser local storage", versionedWorkspace,
+    backendLabel: "Browser local storage", versionedWorkspace, describeWorkspace: workspaceBackendInfo,
     async getBackendInfoAsync() { return workspaceBackendInfo(await versionedWorkspace.readAsync()); },
     async listProjectsAsync() { return (await versionedWorkspace.readAsync()).projectDocuments.map(entry => entry.summary).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)); },
     async listProjectCatalogAsync() { return workspaceProjectCatalog(await versionedWorkspace.readAsync()); },
@@ -88,7 +96,7 @@ export function createVersionedProjectRepository(dependencies: WebWorkspaceStore
       const workspace = await versionedWorkspace.readAsync();
       const design = workspace.catalog.designs.find(item => item.id === designId);
       if (!design) return null;
-      if (design.kind !== "project") throw new WorkspaceDocumentError("unsupported_version", "Open this document with the incomplete-design editor.");
+      if (design.kind !== "project") throw new WorkspaceDocumentError("unsupported_version", design.kind === "draft" ? "Open this document with the incomplete-design editor." : "Open this document with the field editor.");
       return parseProjectDocument(workspace.projectDocuments.find(item => item.summary.id === design.pivotProjectId)!.document);
     },
     saveProjectAsync: revisionRequired, saveDesignProjectAsync: revisionRequired, deleteProjectAsync: revisionRequired,

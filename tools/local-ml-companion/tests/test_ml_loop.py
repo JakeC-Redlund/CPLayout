@@ -8,13 +8,42 @@ from unittest.mock import patch
 
 from cplayout_ml.ml_loop import (
     detect_dvc_metadata,
+    log_local_mlflow_run,
     prepare_vision_dataset,
     run_boundary_experiment,
+    run_boundary_variants,
     summarize_boundary_experiments,
 )
 
 
 class LocalMlLoopTests(unittest.TestCase):
+    def test_missing_mlflow_is_optional_for_local_experiment(self) -> None:
+        with TemporaryDirectory() as temp, patch.dict(sys.modules, {"mlflow": None}):
+            status = log_local_mlflow_run("local", {"schemaVersion": "v1"}, Path(temp), {}, {})
+        self.assertFalse(status["available"])
+        self.assertEqual(status["trackingMode"], "local_unavailable")
+
+    def test_boundary_variant_accepts_null_candidate_and_iteration(self) -> None:
+        with TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "map.png").write_bytes(b"fixture")
+
+            def fake_improve(*args: object) -> int:
+                output_dir = args[7]
+                assert isinstance(output_dir, Path)
+                output_dir.mkdir(parents=True)
+                (output_dir / "boundary-improvement-loop.json").write_text(json.dumps({
+                    "schemaVersion": "cplayout-boundary-improvement-loop-v2",
+                    "acceptance": {"accepted": False, "gpuBacked": False},
+                    "detections": {"cvCandidateBoundary": None},
+                    "bestIteration": None,
+                }), encoding="utf-8")
+                return 0
+
+            variants = run_boundary_variants(root, [{"id": "empty", "runBoundaryImprovement": True, "mapCanvasCrop": "map.png"}], root / "out", fake_improve)
+            self.assertEqual(variants[0]["metrics"], {"confidence": None, "bestOperatorIoU": None})
+            self.assertFalse(variants[0]["accepted"])
+
     def test_prepare_vision_dataset_records_hashes_and_deterministic_splits(self) -> None:
         with TemporaryDirectory() as temp:
             root = Path(temp)

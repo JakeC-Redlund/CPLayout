@@ -27,6 +27,8 @@ export interface ServerState {
   cwd: string;
   command: string[];
   logPath: string;
+  processStartIdentity?: string;
+  stopRequestedAt?: string;
 }
 
 export interface HealthCheck {
@@ -78,10 +80,13 @@ export function readStateFile(path: string): ServerState | null {
       parsed.app !== "cplayout" ||
       parsed.manager !== "tools/devServerManager.ts" ||
       parsed.version !== 1 ||
-      !parsed.mode ||
+      !["ui-test", "dev-web"].includes(parsed.mode ?? "") ||
       !Number.isInteger(parsed.pid) ||
       !Number.isInteger(parsed.port) ||
+      parsed.port! <= 0 ||
       typeof parsed.cwd !== "string" ||
+      typeof parsed.startedAt !== "string" ||
+      parsed.url !== `http://127.0.0.1:${parsed.port}` ||
       !Array.isArray(parsed.command)
     ) {
       return null;
@@ -108,6 +113,10 @@ export function isProcessRunning(pid: number): boolean {
   if (!Number.isInteger(pid) || pid <= 0) return false;
   try {
     process.kill(pid, 0);
+    if (existsSync(`/proc/${pid}/stat`)) {
+      const stat = readFileSync(`/proc/${pid}/stat`, "utf8");
+      if (stat.slice(stat.lastIndexOf(")") + 2).startsWith("Z")) return false;
+    }
     return true;
   } catch {
     return false;
@@ -116,6 +125,7 @@ export function isProcessRunning(pid: number): boolean {
 
 export function processMatchesState(state: ServerState): boolean {
   if (!isProcessRunning(state.pid)) return false;
+  if (!state.processStartIdentity || processStartIdentity(state.pid) !== state.processStartIdentity) return false;
   const procDir = `/proc/${state.pid}`;
   if (existsSync(procDir)) {
     try {
@@ -132,6 +142,14 @@ export function processMatchesState(state: ServerState): boolean {
     }
   }
   return false;
+}
+
+export function processStartIdentity(pid: number): string | null {
+  if (!Number.isSafeInteger(pid) || pid <= 0) return null;
+  try {
+    const stat = readFileSync(`/proc/${pid}/stat`, "utf8");
+    return stat.slice(stat.lastIndexOf(")") + 2).trim().split(/\s+/)[19] ?? null;
+  } catch { return null; }
 }
 
 export async function isPortFree(port: number): Promise<boolean> {
@@ -235,14 +253,82 @@ export async function selectPort(mode: ServerMode, preferredPort: number, lastPo
   throw new Error(`No available ${mode} port in ${preferredPort}-${lastPort}`);
 }
 
-export function stopOwnedState(state: ServerState): "stopped" | "stale" | "skipped" {
-  if (!processMatchesState(state)) return "stale";
+export function stopOwnedState(state: ServerState): "stop-requested" | "identity-mismatch" | "failed" {
+  if (!processMatchesState(state)) return "identity-mismatch";
   try {
     process.kill(state.pid, "SIGTERM");
-    return "stopped";
+    return "stop-requested";
   } catch {
-    return "skipped";
+    return "failed";
   }
+}
+
+function verifiedLegacyStaticGroup(state: ServerState): number[] | null {
+  if (process.platform !== "linux" || state.mode !== "ui-test" || state.command[0] !== "npx" ||
+      !state.processStartIdentity || !existsSync("/proc")) return null;
+  const members: number[] = [];
+  for (const entry of readdirSync("/proc", { withFileTypes: true })) {
+    if (!entry.isDirectory() || !/^\d+$/.test(entry.name)) continue;
+    const pid = Number(entry.name);
+    try {
+      const procDir = `/proc/${pid}`;
+      const statText = readFileSync(join(procDir, "stat"), "utf8");
+      const stat = statText.slice(statText.lastIndexOf(")") + 2).trim().split(/\s+/);
+      if (Number(stat[2]) !== state.pid || stat[0] === "Z") continue;
+      const args = readFileSync(join(procDir, "cmdline"), "utf8").split("\0");
+      if (realpathSync(join(procDir, "cwd")) !== realpathSync(state.cwd) ||
+          !args.some((arg) => arg.endsWith("tools/serveStaticWeb.ts")) ||
+          !args.includes(String(state.port)) || Number(stat[19]) < Number(state.processStartIdentity)) return null;
+      members.push(pid);
+    } catch { return null; }
+  }
+  return members.length ? members : null;
+}
+
+async function stopLegacyStaticGroup(state: ServerState, statePath: string, repoRoot: string, timeoutMs: number): Promise<StopResult> {
+  const members = verifiedLegacyStaticGroup(state);
+  if (!members || !(await checkStaticHealth(state.port, repoRoot)).ok) return "unknown";
+  writeFileSync(statePath, `${JSON.stringify({ ...state, stopRequestedAt: new Date().toISOString() }, null, 2)}\n`, "utf8");
+  try { process.kill(-state.pid, "SIGTERM"); } catch { return "failed"; }
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (!verifiedLegacyStaticGroup(state) && await isPortFree(state.port)) {
+      rmSync(statePath, { force: true });
+      return "verified-stopped";
+    }
+    await new Promise((resolveResult) => setTimeout(resolveResult, 100));
+  }
+  return "failed";
+}
+
+export type StopResult = "verified-stopped" | "failed" | "unknown";
+
+export async function stopTargetedState(state: ServerState, repoRoot = REPO_ROOT, timeoutMs = 5_000): Promise<StopResult> {
+  const statePath = statePathFor(state.mode, state.port, repoRoot);
+  const current = readStateFile(statePath);
+  if (!current || current.pid !== state.pid || current.startedAt !== state.startedAt ||
+      current.processStartIdentity !== state.processStartIdentity ||
+      resolve(current.cwd) !== resolve(repoRoot)) return "unknown";
+  if (current.mode === "ui-test" && current.command[0] === "npx" && !(await isPortFree(current.port))) {
+    return stopLegacyStaticGroup(current, statePath, repoRoot, timeoutMs);
+  }
+  if (!isProcessRunning(current.pid)) {
+    if (!(await isPortFree(current.port))) return "unknown";
+    rmSync(statePath, { force: true });
+    return "verified-stopped";
+  }
+  if (!processMatchesState(current)) return "unknown";
+  writeFileSync(statePath, `${JSON.stringify({ ...current, stopRequestedAt: new Date().toISOString() }, null, 2)}\n`, "utf8");
+  if (stopOwnedState(current) !== "stop-requested") return "failed";
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (!isProcessRunning(current.pid) && await isPortFree(current.port)) {
+      rmSync(statePath, { force: true });
+      return "verified-stopped";
+    }
+    await new Promise((resolveResult) => setTimeout(resolveResult, 100));
+  }
+  return "failed";
 }
 
 async function start(options: StartOptions): Promise<void> {
@@ -266,10 +352,9 @@ async function start(options: StartOptions): Promise<void> {
   }
 
   if (classified.kind === "ownedStale") {
-    const result = stopOwnedState(classified.state);
-    rmSync(statePathFor(mode, classified.port), { force: true });
-    console.log(`Removed stale launcher state for port ${classified.port}; process cleanup result: ${result}.`);
-    classified = await selectPort(mode, classified.port, lastPort);
+    const result = await stopTargetedState(classified.state);
+    console.log(`Launcher state for port ${classified.port}: ${result}.`);
+    classified = await selectPort(mode, result === "verified-stopped" ? classified.port : classified.port + 1, lastPort);
   }
 
   if (classified.kind !== "free") {
@@ -287,7 +372,7 @@ async function start(options: StartOptions): Promise<void> {
 
 async function startStaticServer(port: number, openBrowser: boolean): Promise<void> {
   const logPath = logPathFor("ui-test", port);
-  const command = ["npx", "tsx", "tools/serveStaticWeb.ts", "apps/mobile/dist", String(port)];
+  const command = [process.execPath, "--import", "tsx", "tools/serveStaticWeb.ts", "apps/mobile/dist", String(port)];
   const child = spawn(command[0], command.slice(1), {
     cwd: REPO_ROOT,
     detached: true,
@@ -302,8 +387,7 @@ async function startStaticServer(port: number, openBrowser: boolean): Promise<vo
   console.log(`Health: ${health.ok ? "healthy" : `unhealthy (${health.reason ?? health.statusCode ?? "unknown"})`}`);
   console.log(`Log: ${logPath}`);
   if (!health.ok) {
-    stopOwnedState(state);
-    rmSync(statePathFor("ui-test", port), { force: true });
+    await stopTargetedState(state);
     throw new Error(`Static UI test server did not become healthy: ${health.reason ?? health.statusCode ?? "unknown"}`);
   }
   if (openBrowser) openUrl(url);
@@ -340,6 +424,7 @@ function buildState(mode: ServerMode, pid: number, port: number, command: string
     cwd: REPO_ROOT,
     command,
     logPath,
+    processStartIdentity: processStartIdentity(pid) ?? undefined,
   };
 }
 
@@ -371,23 +456,30 @@ async function status(): Promise<void> {
   }
 }
 
-function stop(): void {
+async function stop(selector?: { mode?: ServerMode; port?: number }): Promise<void> {
   const files = listStateFiles();
   if (files.length === 0) {
     console.log("No launcher-owned CPLayout servers are recorded.");
     return;
   }
+  let failed = false;
   for (const path of files) {
+    const name = basename(path);
+    if (selector?.mode && !name.startsWith(`${selector.mode}-`)) continue;
+    if (selector?.port && !name.endsWith(`-${selector.port}.json`)) continue;
     const state = readStateFile(path);
     if (!state) {
-      console.log(`${path}: invalid state; removing metadata only.`);
-      rmSync(path, { force: true });
+      console.log(`${path}: invalid state; metadata retained for inspection.`);
+      failed = true;
       continue;
     }
-    const result = stopOwnedState(state);
-    if (result === "stopped" || result === "stale") rmSync(path, { force: true });
+    if (selector?.mode && state.mode !== selector.mode) continue;
+    if (selector?.port && state.port !== selector.port) continue;
+    const result = await stopTargetedState(state);
     console.log(`${state.mode} ${state.url}: ${result}`);
+    if (result !== "verified-stopped") failed = true;
   }
+  if (failed) throw new Error("One or more launcher resources were not verified stopped; retained state needs review.");
 }
 
 async function runExportWeb(): Promise<void> {
@@ -431,7 +523,7 @@ function openLog(path: string): number {
   return openSync(path, "a");
 }
 
-function parseArgs(argv: string[]): { command: string; options: StartOptions } {
+function parseArgs(argv: string[]): { command: string; options: StartOptions; stopMode?: ServerMode } {
   const [command = "status", ...rest] = argv;
   const mode: ServerMode = command === "dev-web-smart" ? "dev-web" : "ui-test";
   const options: StartOptions = {
@@ -439,19 +531,25 @@ function parseArgs(argv: string[]): { command: string; options: StartOptions } {
     reuseExport: false,
     openBrowser: process.env.CPLAYOUT_NO_OPEN !== "1",
   };
+  let stopMode: ServerMode | undefined;
   for (let i = 0; i < rest.length; i += 1) {
     const arg = rest[i];
     if (arg === "--reuse-export") options.reuseExport = true;
     else if (arg === "--no-open") options.openBrowser = false;
     else if (arg === "--port") options.port = Number(rest[++i]);
     else if (arg.startsWith("--port=")) options.port = Number(arg.slice("--port=".length));
+    else if (arg === "--mode") stopMode = rest[++i] as ServerMode;
+    else if (arg.startsWith("--mode=")) stopMode = arg.slice("--mode=".length) as ServerMode;
     else throw new Error(`Unknown argument: ${arg}`);
   }
-  return { command, options };
+  if (stopMode && !["ui-test", "dev-web"].includes(stopMode)) throw new Error(`Invalid stop mode: ${stopMode}`);
+  if (command !== "stop" && stopMode) throw new Error("--mode is only valid for stop");
+  if (options.port !== undefined && (!Number.isSafeInteger(options.port) || options.port <= 0)) throw new Error("Invalid port");
+  return { command, options, stopMode };
 }
 
 async function main(): Promise<void> {
-  const { command, options } = parseArgs(process.argv.slice(2));
+  const { command, options, stopMode } = parseArgs(process.argv.slice(2));
   if (command === "start") {
     await withWebBuildLease("ui:test:start", async (token) => {
       const previous = process.env[WEB_BUILD_LEASE_TOKEN];
@@ -466,7 +564,7 @@ async function main(): Promise<void> {
   }
   else if (command === "dev-web-smart") await start(options);
   else if (command === "status") await status();
-  else if (command === "stop") stop();
+  else if (command === "stop") await stop({ mode: stopMode, port: options.port });
   else throw new Error(`Unknown dev server manager command: ${command}`);
 }
 

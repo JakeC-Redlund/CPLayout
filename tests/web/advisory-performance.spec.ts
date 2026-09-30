@@ -45,7 +45,7 @@ test("pending advisory jobs do not prevent leaving the map", async ({ page }) =>
   await page.goto("/");
   await page.getByTestId("command-menu-file").click();
   await page.getByTestId("command-file-sample-baseline-needs-review").click();
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await expect(page.getByTestId("advisory-map-job-status")).toContainText("Calculating");
   await page.getByTestId("workspace-nav-files").click();
   await expect(page.getByTestId("files-view")).toBeVisible();
@@ -59,7 +59,7 @@ test("advisory overlay completion preserves the stored project", async ({ page }
   await page.getByTestId("workspace-nav-files").click();
   await page.getByTestId("files-action-save-local").click();
   await expect.poll(async () => (await readWorkspace(page)).projectDocuments.length).toBe(1);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await expect(page.getByTestId("advisory-map-job-status")).toContainText("Calculating");
   const before = await workspaceStorageBytes(page);
   expect((await readWorkspace(page)).projectDocuments[0].summary.name).toBe("North Quarter Concept Layout");

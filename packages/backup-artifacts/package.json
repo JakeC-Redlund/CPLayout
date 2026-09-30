@@ -1,0 +1,14 @@
+{
+  "name": "@cplayout/backup-artifacts",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "peerDependencies": {
+    "expo": "55.0.31",
+    "expo-modules-core": "55.0.26",
+    "react-native": "0.83.10"
+  }
+}

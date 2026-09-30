@@ -1,0 +1,152 @@
+{
+  "schemaVersion": "cplayout-vflex-trimble-pilot-evidence-v1",
+  "recordedAt": "2026-09-28",
+  "sourcePolicy": "existing_local_windows_pc_files_only",
+  "status": "missing_evidence",
+  "machine": {
+    "manufacturer": "Valley",
+    "family": "VFlex",
+    "guidance": "Trimble GGS",
+    "identity": null,
+    "serialNumber": null,
+    "selectedLocalDesignId": null,
+    "nominalDimensions": {
+      "spanFeet": 205,
+      "overhangFeet": 82,
+      "provenance": "owner_supplied_plan",
+      "physicalReferencePointsVerified": false
+    },
+    "installation": null,
+    "operatingDirections": null,
+    "sequencingOptions": null,
+    "measuredReferencePoints": {
+      "pivotToMainTower": null,
+      "mainTowerToHinge": null,
+      "hingeToSdu": null,
+      "sduToOverhangEnd": null,
+      "steeringAxisAndWheelContacts": null,
+      "antennaPhaseCenterOffset": null,
+      "memberWidths": null,
+      "measurementUncertainty": null
+    },
+    "steeringLimitsAndMechanism": null,
+    "measuredSpeedsAndStartStopDwell": null,
+    "terrainAndClearanceUncertainty": null
+  },
+  "controller": {
+    "ggsHardwareIdentity": null,
+    "ggsFirmware": null,
+    "roverModelSerialFirmware": null,
+    "baseModelSerialFirmware": null,
+    "baseCoordinatesAndDatum": null,
+    "correctionSource": null,
+    "terrainCompensationSettings": null,
+    "coordinateReference": null,
+    "knownGoodConfigurationBackup": null,
+    "knownGoodGgsSha256": null,
+    "mappingVersionSupportedByThisController": null,
+    "generation": null
+  },
+  "installedMappingSoftware": {
+    "product": "Valley FLT",
+    "fileVersion": "4.4.4.0",
+    "observedWindowVersion": "4.4.4",
+    "helpSha256": "b4785b3d4b0db98dc45ad80e714316d2dfd52cbdba5104478ba5cd4b61024f67",
+    "runtimeObservation": "login_required_access_unavailable",
+    "machineCompatibilityEstablished": false
+  },
+  "separateDimensionEvidence": [
+    {
+      "sourceId": "local-vflex-design-guide-0998325",
+      "sha256": "ecd9ec9b4e81a9725471faee88e70d4ebfba5fce644e9f6b350df0be9a8fb95c",
+      "pdfPage": 9,
+      "nominalSpanFeet": 205,
+      "actualCornerSpanFeet": 204.9,
+      "availableOverhangFeet": 82.2,
+      "adoptedAsMachineMeasurements": false
+    },
+    {
+      "sourceId": "installed-flt-gpsmapconfig",
+      "sha256": "3e95dfa16b1406a5cf52f9201a364a9ac9ffcc5385561839e33dbc42c5fd32d1",
+      "modelIds": [
+        12,
+        16,
+        20
+      ],
+      "nominalLabel": "205 VFlex, 82 OH",
+      "rawCornerLength": 201,
+      "rawOverhangLength": 86,
+      "physicalReferenceDefinitions": null,
+      "selectedVariant": null,
+      "adoptedAsMachineMeasurements": false
+    }
+  ],
+  "localDesignCandidates": [
+    {
+      "id": "local-vflex-design-001",
+      "kmlSha256": "2c255a84ab2a009e0f8375ec09353a9ca3fe6cfa5cbe9f3664b2addf5df2dea8",
+      "bpfSha256": "4fabe3895958586fd327c0db54f377f8f23c6c71c7954763aa902d5efafa9d73",
+      "cornerModel": "205 VFlex, 82 OH",
+      "rawCornerLength": 201,
+      "rawOverhangLength": 86,
+      "rawPivotLength": 850,
+      "rawStartAngle": 260,
+      "rawEndAngle": 80,
+      "installationLabel": "Standard",
+      "rawGuidanceTowerSpeed": 10,
+      "rawSafetyZone": 15,
+      "rawEndGunReach": 50,
+      "rawMinArcRadius": 450,
+      "rawMaxEtRatio": 1.5,
+      "geometryRoles": [
+        "field_boundary",
+        "pivot_point",
+        "lrdu_circle",
+        "pivot_offset_line"
+      ],
+      "standaloneGuidanceTrajectoryPresent": false,
+      "matchingControllerFilePresent": false,
+      "identifiedAsPilotMachine": false
+    }
+  ],
+  "exchange": {
+    "frozenOemLayout": null,
+    "ggsSha256": null,
+    "initialPathSha256": null,
+    "initialCsvSha256": null,
+    "reimportedGgsSha256": null,
+    "useImportedGuidancePathObserved": false,
+    "finalPathSha256": null,
+    "finalCsvSha256": null,
+    "units": null,
+    "crsAndDatum": null,
+    "physicalReferencePoint": null,
+    "ordering": null,
+    "closure": null,
+    "interpolation": null,
+    "rounding": null,
+    "differenceExplanation": null,
+    "predeclaredComparisonTolerance": null,
+    "association": "unverified"
+  },
+  "qualification": {
+    "predeclaredTrackingSteeringTimingSynchronizationCoverageClearanceTolerances": null,
+    "benchConfigurationReadbackRestartRestoreEvidence": null,
+    "calibrationRuns": [],
+    "independentlyInitializedValidationTraversals": [],
+    "independentReferencePointMeasurements": null,
+    "operatingEnvelope": null,
+    "acceptedGgsSha256": null,
+    "acceptedMachineConfigurationSha256": null,
+    "acceptedBaseCoordinates": null,
+    "status": "missing_evidence"
+  },
+  "standaloneMappingSoftware": {
+    "product": "Valley Corner GPS Mapping",
+    "fileVersion": "1.0.7.0",
+    "runtimeObservation": "opened_field_form_no_exchange_no_controller_interface",
+    "fileOnlyExchangeEstablished": false,
+    "machineCompatibilityEstablished": false,
+    "evidence": "standalone-runtime-20260928.json"
+  }
+}

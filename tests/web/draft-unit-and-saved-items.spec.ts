@@ -35,17 +35,20 @@ async function seed(context: BrowserContext, unitSystem: string, savedItems = fa
   await store.initializeAsync();
   values.set(workspaceKey, serializeWorkspaceDocument(fixture(unitSystem, savedItems)));
   await context.addInitScript(({ key, entries }) => {
+    if (location.protocol !== "http:" && location.protocol !== "https:") return;
     if (localStorage.getItem(key) === null) for (const [name, value] of entries) localStorage.setItem(name, value);
   }, { key: workspaceKey, entries: [...values] });
 }
 
 async function openSavedDraft(page: Page): Promise<void> {
   await page.goto("/");
-  const drawer = page.getByRole("button", { name: "Open project drawer" });
-  if (await drawer.isVisible()) await drawer.click();
-  const command = page.getByTestId("catalog-design-saved-design-open");
-  if (test.info().project.use.hasTouch) await command.tap();
-  else await command.click();
+  const resume = await page.evaluate(() => JSON.parse(localStorage.getItem("cplayout-desktop-context-v1") ?? "null"));
+  if (!resume?.editorOpen || resume?.context?.designId !== "saved-design") {
+    const drawer = page.getByRole("button", { name: "Open project drawer" });
+    if (await drawer.isVisible()) await drawer.click();
+    const command = page.getByTestId("catalog-design-saved-design-open");
+    if (test.info().project.use.hasTouch) await command.tap(); else await command.click();
+  }
   await expect(page.getByTestId("design-draft-workspace")).toBeVisible();
   if (!await page.getByTestId("design-draft-inputs").isVisible()) await page.getByTestId("draft-inputs-toggle").click();
 }

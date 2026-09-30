@@ -1,0 +1,158 @@
+[
+  {
+    "id": "roomy-circle",
+    "file": "roomy-circle.json",
+    "expected": "verified_within_model",
+    "purpose": "Full-circle baseline and deterministic graph/SciPy comparison; hinge-coincident synthetic dimensions."
+  },
+  {
+    "id": "square-layout",
+    "file": "square-layout.json",
+    "expected": "verified_within_model",
+    "purpose": "Full-circle baseline and deterministic graph/SciPy comparison; hinge-coincident synthetic dimensions."
+  },
+  {
+    "id": "rectangle-open",
+    "file": "rectangle-open.json",
+    "expected": "verified_within_model",
+    "purpose": "Open partial sweep with buffered full members in a rectangle."
+  },
+  {
+    "id": "reverse-open-offsets",
+    "file": "reverse-open-offsets.json",
+    "expected": "verified_within_model",
+    "purpose": "Clockwise partial sweep; asymmetric antenna and wheel offsets."
+  },
+  {
+    "id": "reverse-full-circle",
+    "file": "reverse-full-circle.json",
+    "expected": "verified_within_model",
+    "purpose": "Clockwise full revolution and derivative closure."
+  },
+  {
+    "id": "straight-sdu-knot-guide",
+    "file": "straight-sdu-knot-guide.json",
+    "expected": "verified_within_model",
+    "purpose": "Analytic y=0 SDU guide supplies reachable angle knots only; linear interpolation is not claimed to follow that guide between knots."
+  },
+  {
+    "id": "concave-clear",
+    "file": "concave-clear.json",
+    "expected": "verified_within_model",
+    "purpose": "Concave field remains clear throughout the partial sweep."
+  },
+  {
+    "id": "concave-interior-exit",
+    "file": "concave-interior-exit.json",
+    "expected": "constraint_violated",
+    "purpose": "Both member endpoints are inside but the main segment crosses a concave notch."
+  },
+  {
+    "id": "hole-interior-collision",
+    "file": "hole-interior-collision.json",
+    "expected": "constraint_violated",
+    "purpose": "Main member crosses a field hole although hinge and pivot are outside it."
+  },
+  {
+    "id": "obstacle-main-interior",
+    "file": "obstacle-main-interior.json",
+    "expected": "constraint_violated",
+    "purpose": "Whole-member interior obstacle collision."
+  },
+  {
+    "id": "obstacle-overhang",
+    "file": "obstacle-overhang.json",
+    "expected": "constraint_violated",
+    "purpose": "Overhang hits obstacle beyond SDU."
+  },
+  {
+    "id": "between-sample-collision",
+    "file": "between-sample-collision.json",
+    "expected": "constraint_violated",
+    "purpose": "Endpoints and original interval midpoint are clear; recursive proof finds collision near pi/8."
+  },
+  {
+    "id": "offset-only-collision",
+    "file": "offset-only-collision.json",
+    "expected": "constraint_violated",
+    "purpose": "Buffered offset point collides outside the structural member centerlines."
+  },
+  {
+    "id": "close-positive-gap",
+    "file": "close-positive-gap.json",
+    "expected": "verified_within_model",
+    "purpose": "A small positive clearance is proven without relaxing the requested buffer."
+  },
+  {
+    "id": "tangent-buffer",
+    "file": "tangent-buffer.json",
+    "expected": "numerically_unresolved",
+    "purpose": "Exact tangent at the midpoint must never pass by epsilon slack."
+  },
+  {
+    "id": "budget-unresolved",
+    "file": "budget-unresolved.json",
+    "expected": "numerically_unresolved",
+    "purpose": "Insufficient subdivision depth is an unresolved result, not infeasibility."
+  },
+  {
+    "id": "joint-cycle-open",
+    "file": "joint-cycle-open.json",
+    "expected": "constraint_violated",
+    "purpose": "Full-cycle articulation seam remains open."
+  },
+  {
+    "id": "derivative-cycle-open",
+    "file": "derivative-cycle-open.json",
+    "expected": "constraint_violated",
+    "purpose": "Full-cycle positions close but first derivatives do not."
+  },
+  {
+    "id": "partial-no-closure-required",
+    "file": "partial-no-closure-required.json",
+    "expected": "verified_within_model",
+    "purpose": "An open partial sweep may end at a different articulation."
+  },
+  {
+    "id": "large-translated-coordinates",
+    "file": "large-translated-coordinates.json",
+    "expected": "verified_within_model",
+    "purpose": "Same local problem translated to large projected coordinates."
+  },
+  {
+    "id": "invalid-bowtie",
+    "file": "invalid-bowtie.json",
+    "expected": "missing_evidence",
+    "purpose": "Reject a self-intersecting ring."
+  },
+  {
+    "id": "invalid-knot-order",
+    "file": "invalid-knot-order.json",
+    "expected": "missing_evidence",
+    "purpose": "Reject unordered unwrapped theta knots."
+  },
+  {
+    "id": "invalid-missing-sweep-end",
+    "file": "invalid-missing-sweep-end.json",
+    "expected": "missing_evidence",
+    "purpose": "No epsilon-based omission of final sweep coverage."
+  },
+  {
+    "id": "slope-limit",
+    "file": "slope-limit.json",
+    "expected": "constraint_violated",
+    "purpose": "Hard articulation-slope bound."
+  },
+  {
+    "id": "articulation-limit",
+    "file": "articulation-limit.json",
+    "expected": "constraint_violated",
+    "purpose": "Hard articulation bounds."
+  },
+  {
+    "id": "clipped-endpoint-negative",
+    "file": "clipped-endpoint-negative.json",
+    "expected": "constraint_violated",
+    "purpose": "Illustrates why clipping visible endpoint/envelope to field cannot validate physical reach."
+  }
+]

@@ -11,6 +11,8 @@ This is the compact first read after `AGENTS.md` for non-trivial CPLayout work. 
 
 Schedule leaves as a dependency graph: start only tasks whose inputs are available; parallelize independent read-only evidence, serialize writers by path, and keep one integration owner. Do not occupy a slot with a leaf waiting on another leaf's result. Re-scope or cancel stale work when its base changes, then run independent QA against the integrated diff. The local concurrent-agent cap is a ceiling, not a target.
 
+For broad resumes, select one user-facing deliverable from `docs/development-status.md`; retain the larger scope without reopening every lane. Default to the coordinator plus the smallest useful independent scope. Freeze implementation and test files before independent execution; read-only implementation review can precede that freeze. One coordinator owns aggregate validation/export, and any changed inputs invalidate their matching acceptance. Record command handles, source identity, results and the next action once in the current handoff. Use raw logs only to investigate failures. Confirmed quota failure gets a documented fallback, not repeated spawn attempts. Byte counts are context proxies; record actual usage when exposed and leave unavailable metrics explicit.
+
 | Leaf | First entrypoint | Typical boundary |
 | --- | --- | --- |
 | Interface | `.agents/skills/cplayout-interface-development-agent/SKILL.md` | Expo UI and web proof; no native parity claim from browser tests. |

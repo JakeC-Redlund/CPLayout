@@ -1,0 +1,4 @@
+# Preserve the reviewed patch bytes, including blank-line context markers.
+patches/expo-sqlite+55.0.20.patch -text -whitespace
+# Retain the hash-bound empty-token test output exactly as captured.
+docs/evidence/native-artifacts-20260927/service-tests.txt -whitespace

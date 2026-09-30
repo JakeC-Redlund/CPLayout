@@ -6,7 +6,7 @@
   "types": "src/index.ts",
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
-    "test": "tsx src/mapOverlayGeoJson.test.ts && tsx src/referenceOverlayStyle.test.ts && tsx src/mapAttribution.test.ts && tsx src/browserMapInteraction.test.ts && tsx src/projectVertexEditing.test.ts && tsx src/mapTools.test.ts && tsx src/mapInteractionController.test.ts && tsx src/mapViewport.test.ts && tsx src/mapCameraSession.test.ts && tsx src/mapFit.test.ts && tsx src/mapPointerGuard.test.ts && tsx src/vertexDragSession.test.ts && tsx src/svgMapLabels.test.ts && tsx src/designDraftMap.test.ts",
+    "test": "tsx src/mapOverlayGeoJson.test.ts && tsx src/referenceOverlayStyle.test.ts && tsx src/mapAttribution.test.ts && tsx src/browserMapInteraction.test.ts && tsx src/projectVertexEditing.test.ts && tsx src/mapTools.test.ts && tsx src/mapInteractionController.test.ts && tsx src/mapViewport.test.ts && tsx src/mapCameraSession.test.ts && tsx src/initialMapCamera.test.ts && tsx src/mapFit.test.ts && tsx src/mapPointerGuard.test.ts && tsx src/vertexDragSession.test.ts && tsx src/svgMapLabels.test.ts && tsx src/designDraftMap.test.ts",
     "validate": "npm run typecheck"
   },
   "dependencies": {

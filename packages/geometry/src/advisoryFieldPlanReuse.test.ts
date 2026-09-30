@@ -79,6 +79,8 @@ const fixtures: { name: string; project: PivotProject; options: AdvisoryFieldPiv
 ];
 
 // Complete pre-reuse JSON digests and yield counts, captured from the dirty checkout.
+// near-coordinate-ids updated after common 1% hard eligibility: its theoretical
+// coverage is only 0.00012828%, so the former 25 grid admissions were incorrect.
 const expected: Record<string, { plan: string; standalone: string; yields: number; standaloneYields: number }> = {
   baseline: {
     plan: "677d6944de8e06d31e44a406e905da2ffd55dbe09ecf4ddeaad0be426961a77a",
@@ -97,8 +99,8 @@ const expected: Record<string, { plan: string; standalone: string; yields: numbe
     standalone: "8dcb33be62eaba6d575ac39498b79fec944c160bf4105e94f8de8c18b48f6c9d", yields: 315, standaloneYields: 75,
   },
   "near-coordinate-ids": {
-    plan: "4899a4e6a64534716d40a7fa261f2dde4a9e29d8eb54c45e535144913e14e4c8",
-    standalone: "d09422f658d8f7c7319f1027376a272e3617eac64f52bd45b60c4d2dac4fe18e", yields: 204, standaloneYields: 156,
+    plan: "18c798b46011dbdbcd7580f4df4c0f53721e447dfcaf363f74a9c2c08dcfab6a",
+    standalone: "7bb982e8191f4acca08e0bba502db67fbeb2cb5572b21ee4977bf3921513f22e", yields: 129, standaloneYields: 156,
   },
   "changed-machine": {
     plan: "24fbb96408dd13e1f880d1fbf35809499bf6d42f2d97b7c559be91de9e8b2bf3",
@@ -169,6 +171,9 @@ for (const fixture of fixtures) {
   completePlans.set(fixture.name, sync);
   if (fixture.name === "multi-machine") assert.equal(sync.selectedMachineCount, 3);
   if (fixture.name === "near-coordinate-ids") {
+    assert.equal(sync.selectedMachineCount, 0);
+    assert.equal(sync.feasibleCandidateCount, 0);
+    assert.ok(standalone.every(candidate => !candidate.feasible && candidate.metrics.coveragePercent < 1));
     assert.ok(standalone.some((candidate, index) => standalone.some((other, otherIndex) =>
       index !== otherIndex && candidate.id === other.id
       && (candidate.pivotCenter.x !== other.pivotCenter.x || candidate.pivotCenter.y !== other.pivotCenter.y))),

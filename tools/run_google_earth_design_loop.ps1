@@ -1,4 +1,5 @@
 param(
+  [string]$Distro = 'Ubuntu-24.04',
   [string]$ProjectId = "public-adams-county-center-pivot-proof",
   [string]$ProjectCrs = "EPSG:32613",
   [string]$ProjectReferencePath = "",
@@ -23,26 +24,20 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot 'windows/CPLayoutPaths.ps1')
+. (Join-Path $PSScriptRoot 'windows/GoogleEarthIdentity.ps1')
 
 function Convert-ToWindowsPath([string]$Path) {
+  if ([string]::IsNullOrWhiteSpace($Path)) { return $Path }
   $resolved = Resolve-Path -LiteralPath $Path -ErrorAction SilentlyContinue
-  if ($resolved) {
-    $Path = $resolved.Path
-  }
-  if ($Path -match "^/mnt/([a-z])/(.*)$") {
-    $drive = $matches[1].ToUpperInvariant()
-    $tail = $matches[2] -replace "/", "\"
-    return "${drive}:\$tail"
-  }
+  if ($resolved) { $Path = $resolved.Path }
+  if ($Path.StartsWith('/') -or $Path -match '^[A-Za-z]:' -or $Path.StartsWith('\\')) { return ConvertTo-CPLayoutWindowsPath $Path $Distro }
   return $Path
 }
 
 function Convert-ToWslPath([string]$Path) {
-  if ($Path -match "^([a-zA-Z]):[\\/](.*)$") {
-    $drive = $matches[1].ToLowerInvariant()
-    $tail = $matches[2] -replace "\\", "/"
-    return "/mnt/$drive/$tail"
-  }
+  if ([string]::IsNullOrWhiteSpace($Path)) { return $Path }
+  if ($Path.StartsWith('/') -or $Path -match '^[A-Za-z]:' -or $Path.StartsWith('\\')) { return ConvertTo-CPLayoutWslPath $Path $Distro }
   return $Path
 }
 
@@ -104,9 +99,9 @@ function Invoke-PythonVisionReview([string]$RepoRoot, [string[]]$Arguments) {
   if (-not $wsl) {
     throw "python3 was not found, and wsl.exe is unavailable for the local ML companion."
   }
-  $quotedArgs = @($Arguments | ForEach-Object { Quote-BashPath (Convert-ToWslPath $_) })
-  $command = "cd $(Quote-BashPath (Convert-ToWslPath $RepoRoot)) && PYTHONPATH=$(Quote-BashPath (Convert-ToWslPath $pythonModuleRoot)) python3 -m cplayout_ml.cli $($quotedArgs -join ' ')"
-  & wsl.exe bash -lc $command
+  $wslArguments = @($Arguments | ForEach-Object { Convert-ToWslPath $_ })
+  'exec env PYTHONPATH="$1" python3 -m cplayout_ml.cli "${@:2}" # CRLF-safe' |
+    & wsl.exe -d $Distro --cd (Convert-ToWslPath $RepoRoot) -- bash -l -s -- (Convert-ToWslPath $pythonModuleRoot) @wslArguments
   if ($LASTEXITCODE -ne 0) {
     throw "WSL Python vision review failed with exit code $LASTEXITCODE."
   }
@@ -148,6 +143,7 @@ if ($DisableForceCleanup) {
   $captureArgs.DisableForceCleanup = $true
 }
 $captureArgs.CleanupTimeoutSeconds = $CleanupTimeoutSeconds
+$captureArgs.Distro = $Distro
 
 $manifestPath = Join-Path $runOutputPath "visual-fidelity-manifest.json"
 $captureFailed = $false

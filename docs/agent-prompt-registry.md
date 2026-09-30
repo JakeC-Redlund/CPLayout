@@ -1,8 +1,23 @@
 # CPLayout Agent Prompt Registry
 
+For explicit local CUDA jobs, use the [managed companion integration](cuda-companion-workspace-2026-09-27.md)
+and the shared CV catalog/profile by reference. Require explicit asset hashes and
+prompts, keep resource/readiness failures visible, and preserve CPLayout-owned
+calibration and projected-XY review policy. Synthetic runtime evidence does not
+authorize geometry mutation or imply native-device/Google Earth proof.
+
+For toolkit 0.3.0 OCR/detection reviews, preserve the selected runtime profile,
+source/model hashes and bounded PDF/video selection. Treat provisional track IDs,
+memory-reserve stops and stale evidence as explicit observations. Review notes
+remain separate from predictions and do not establish human authorship. Use the
+owned Windows launcher and stop command; a startup timeout also requires verified
+cleanup of its tagged WSL worker.
+
 This registry records the repo-local specialist prompt surfaces and the session-level skill inventory that informed them. Verify the active Codex skill list in each future session before relying on this snapshot.
 
 Start with [the agent tree protocol](agent-tree-protocol.md) for coordinator/leaf ownership and the [rollout record](agent-tree-rollout.md) for phase gates. This registry is a deeper routing reference, not an unconditional first read.
+
+For local CV capability discovery, use the canonical CV repository's `records/governance/portable-cv-skill-catalog.json` and `records/governance/portable-cv-host-compatibility.md` by reference. A source file or plugin cache entry does not prove host invocation or runtime inference. CPLayout imagery review still routes through the imagery mapper and GIS guardian; projected/local `XY` remains canonical, while WGS84 and KML/KMZ styling are input/display or visual interchange only. Packet-declaration validation, independently verified bytes, measured pixels, human review, and device/Google Earth proof are distinct evidence classes.
 
 ## Repo-Local Skills
 

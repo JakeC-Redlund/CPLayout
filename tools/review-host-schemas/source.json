@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "codexVersion": "0.157.1",
+  "generatedBy": "codex app-server generate-json-schema",
+  "source": "https://learn.chatgpt.com/docs/app-server",
+  "files": [
+    {
+      "file": "ToolRequestUserInputParams.json",
+      "sha256": "fda15b62e7446105b59c8ed85c908abed2a47db70653e57c92c47a2f204fa77a"
+    },
+    {
+      "file": "ToolRequestUserInputResponse.json",
+      "sha256": "5073b245f741fa8ce62ec52e4dd1809b7831f9c4284c279a78abc9b171f8e3f2"
+    },
+    {
+      "file": "ServerRequestResolvedNotification.json",
+      "sha256": "4f03d586a5af04edd912cad08cc97eceb658e7e06744565e6d41a93e04a55966"
+    }
+  ]
+}

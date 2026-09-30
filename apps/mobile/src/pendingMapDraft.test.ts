@@ -170,6 +170,62 @@ test("noneditable scope blocks handoff, and returning to editing does not revive
   assert.ok(begin().draftId > owner.draftId);
 });
 
+test("Catalog suspension preserves the owner's exact vertices and error while refusing all draft commands", () => {
+  const { session, begin, changeScope, captureScope } = harness();
+  const editableScope = captureScope();
+  const owner = begin();
+  session.save(owner, () => ({ ok: false, error: rejection }), successMessage);
+  const original = session.getSnapshot();
+  changeScope({ editable: false, suspended: true });
+  assert.deepEqual(session.getSnapshot(), original);
+  assert.equal(session.begin(draft(), editableScope).ok, false);
+  assert.equal(session.begin(draft(), captureScope()).ok, false);
+  assert.equal(session.save(owner, () => assert.fail("suspended draft dispatched"), successMessage), null);
+  assert.equal(session.cancel(owner), null);
+  assert.deepEqual(session.getSnapshot(), original);
+  changeScope({ editable: true, suspended: false });
+  assert.deepEqual(session.getSnapshot(), original);
+  assert.equal(session.save(owner, value => {
+    assert.deepEqual(value, original?.draft);
+    return accepted;
+  }, successMessage)?.outcome, "committed");
+  assert.equal(session.getSnapshot(), null);
+});
+
+test("suspension refuses commands even with editable true and a retained suspended begin stays blocked after resume", () => {
+  const { session, begin, changeScope, captureScope } = harness();
+  const owner = begin();
+  const original = session.getSnapshot();
+  changeScope({ suspended: true });
+  const suspendedScope = captureScope();
+  assert.equal(session.save(owner, () => assert.fail("suspended editable scope dispatched"), successMessage), null);
+  assert.equal(session.cancel(owner), null);
+  assert.equal(session.begin(draft(), suspendedScope).ok, false);
+  assert.deepEqual(session.getSnapshot(), original);
+  changeScope({ suspended: false });
+  assert.equal(session.cancel(owner)?.outcome, "cancelled");
+  assert.equal(session.begin(draft(), suspendedScope).ok, false);
+  assert.equal(session.getSnapshot(), null);
+});
+
+for (const [label, change] of scopeChanges.filter(([, change]) => change.editable !== false)) {
+  test(`Catalog suspension cannot preserve ownership across ${label}`, () => {
+    for (const operation of ["save", "cancel", "snapshot", "begin"] as const) {
+      const { session, begin, changeScope, captureScope } = harness();
+      const originalScope = captureScope();
+      const owner = begin();
+      changeScope({ editable: false, suspended: true, ...change });
+      if (operation === "save") assert.equal(session.save(owner, () => assert.fail("changed owner dispatched"), successMessage), null);
+      if (operation === "cancel") assert.equal(session.cancel(owner), null);
+      if (operation === "snapshot") assert.equal(session.getSnapshot(), null);
+      if (operation === "begin") assert.equal(session.begin(draft(), originalScope).ok, false);
+      changeScope(originalScope);
+      changeScope({ suspended: false });
+      assert.equal(session.getSnapshot(), null, "returning to the old scope cannot revive invalidated ownership");
+    }
+  });
+}
+
 test("retained A handlers cannot save or cancel B after retirement, reload, or project switch", () => {
   for (const transition of ["cancel", "commit", "invalidate", "reload", "new project"]) {
     const { session, begin, changeScope } = harness();
