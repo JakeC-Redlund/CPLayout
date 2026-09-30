@@ -23,6 +23,10 @@ Build and review CPLayout interfaces as offline-first work surfaces for repeated
 
 - Make the first screen the actual useful tool surface unless the task explicitly asks for a landing page.
 - Keep operational screens dense, scannable, and restrained.
+- Include customer, machine, file and design management in every complete improvement review: creation/naming, selected context, editing, save/reopen, copy/import/export and recovery. Review whole journeys and actual choices as well as individual controls.
+- Before adopting machine changes, show Current and Proposed locations on the same frame, added/moved/removed machines, changed configuration and proposal identity. Keep adoption explicit and preserve locks, stale-result checks and exact stored values; previews do not mutate geometry.
+- Organize task destinations separately from supporting operations. Design presents drawing, machine inputs and calculation choices; RTK Layout presents frozen targets and separate observations. Check that labels open their actual destination and consolidate identical misleading shortcuts.
+- Keep connection status, failure and cleanup/retry actions visible when communications settings are collapsed. Verify usable working areas and ordinary actions at narrow and short sizes while retaining mounted state, focus and unfinished input.
 - Use icons, segmented controls, toggles, sliders, tabs, and menus where they are the expected control shape.
 - For visible UI changes, run `npm run validate`, launch browser checks through `npm run ui:test:start -- --no-open` when needed, and capture Playwright evidence from the printed URL when available. Keep `npm run proof:web` as the deterministic proof command.
 - Do not report Android/iOS runtime behavior as verified without the device or emulator checklist.
@@ -54,3 +58,11 @@ never turn a missing-input status into a numeric zero or a user approval.
 ## Outputs
 
 Return affected modules, UX risks, implementation sequence, integration dependencies, validation commands, the exact launched URL when a server was used, cleanup status, screenshots or screenshot blockers, and unverified native/web claims.
+
+- During responsive review, measure an unobstructed working rectangle as well as the canvas or scroll container. Open navigation must have an explicit collapse action; compact catalog navigation must not divide a short workspace into two unusable scrolling panes. Inspect intermediate action states from screenshot attachments, since a final screenshot may show a different view.
+
+When changing compact navigation, test entering the presentation separately from resizing within it. Reveal the destination on entry, preserve deliberate drawer state through width/orientation classification changes, and verify both hidden retained content and normal reopening with exact saved bytes.
+
+Review the opening screen before scrolling: Create/Import and recent work precede backend/context diagnostics. Check supported SVG fallback clear drawing area with tool options open, and restore drawing/edit commands after any idle-control suppression. Keep original clearance and persistence assertions.
+
+When both map renderers lose compact drawing space, inspect shared context rows before changing renderer controls. Consolidate existing context actions through a visible trigger, retain full operation/error feedback and ordinary keyboard focus, and keep drawing-clearance thresholds. Distinguish tree selection from explicit Open: Open reveals its destination while selection preserves browsing. Guard unfinished forms before changing context, and use actual hit-tested map clicks rather than fixed offsets covered by controls.

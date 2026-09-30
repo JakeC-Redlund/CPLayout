@@ -1,6 +1,6 @@
 import { CheckCircle2, CircleAlert, Satellite } from "lucide-react-native";
 import React, { useEffect, useState, useSyncExternalStore } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 
 import {
   type AppSettings,
@@ -90,6 +90,7 @@ export function BrowserRtkReceiverPanel({
   const state = useSyncExternalStore(owner.subscribe, owner.getSnapshot, owner.getSnapshot);
   const [, setTick] = useState(0);
   const [status, setStatus] = useState("");
+  const [purpose, setPurpose] = useState<"point" | "boundary" | "obstacle" | "feature">("point");
   const [, refreshDrafts] = useState(0);
   const view = owner.collectionView(project.id, project.projectCrs);
   const { surveyRole, obstacleKind, mapFeatureKind, boundaryDraft, obstacleDraft, mapFeatureDraft } = view;
@@ -109,7 +110,8 @@ export function BrowserRtkReceiverPanel({
   const connected = state.phase === "connected";
   const mapFeatureOption = MAP_FEATURE_OPTIONS.find(option => option.kind === mapFeatureKind) ?? MAP_FEATURE_OPTIONS[0];
   const canSaveMapFeature = mapFeatureOption.geometry === "Point" ? canCapture
-    : mapFeatureDraft.length >= (mapFeatureOption.geometry === "Polygon" ? 3 : 2);
+    : mapFeatureDraft.length >= (mapFeatureOption.geometry === "Polygon" ? 3 : 2)
+      && captureDraftMatchesProject(mapFeatureDraft, project) && canCommitCapturedDraft(settings.mappingWorkflowMode, true, mapFeatureDraft);
   const mapFeatureGeometryLabel = mapFeatureOption.geometry === "LineString" ? "Line" : mapFeatureOption.geometry;
   useEffect(() => { const timer = setInterval(() => setTick(value => value + 1), 200); return () => clearInterval(timer); }, []);
   useEffect(() => { onStatusChange?.({ connected, gateAccepted: gate.accepted, quality, sentenceCount: state.sentenceCount, status: status || state.status }); }, [connected, gate.accepted, onStatusChange, quality, state.sentenceCount, state.status, status]);
@@ -249,55 +251,71 @@ export function BrowserRtkReceiverPanel({
         </View>
         <View style={[styles.gateBadge, gate.accepted ? styles.gateBadgeAccepted : styles.gateBadgeBlocked]} testID="rtk-gate-badge">
           {gate.accepted ? <CheckCircle2 size={16} color="#1f5f39" /> : <CircleAlert size={16} color="#8b1e18" />}
-          <Text style={[styles.gateText, gate.accepted ? styles.gateTextAccepted : styles.gateTextBlocked]}>{gate.accepted ? "Collection eligible" : "Gate closed"}</Text>
+          <Text style={[styles.gateText, gate.accepted ? styles.gateTextAccepted : styles.gateTextBlocked]}>{gate.accepted ? "Live capture available" : "Live capture unavailable"}</Text>
         </View>
       </View>
 
+      <View style={styles.captureBlock} testID="survey-purpose">
+        <Text style={styles.groupTitle}>What are you collecting?</Text>
+        <View style={styles.choiceRow}>
+          {([{ id: "point", label: "Point" }, { id: "boundary", label: "Boundary" }, { id: "obstacle", label: "Obstacle" }, { id: "feature", label: "Feature" }] as const).map(option =>
+            <ChoiceButton key={option.id} active={purpose === option.id} label={option.label} testID={`survey-purpose-${option.id}`} onPress={() => setPurpose(option.id)} />)}
+        </View>
+        <Text style={styles.statusText}>Changing purpose keeps your captured points and unfinished shapes.</Text>
+      </View>
       <ReceiverConnectionPanel owner={owner} projectCrs={project.projectCrs} />
+      {purpose !== "point" && <Text style={styles.statusText} testID="survey-recorded-shape-help">Live capture is needed to add new vertices. A complete captured shape with valid recorded evidence can still be applied while the receiver is disconnected.</Text>}
       {status ? <Text style={styles.statusText} testID="rtk-status">{status}</Text> : null}
 
-      <View style={styles.captureBlock}>
-        <Text style={styles.groupTitle}>Survey Point</Text>
+      {purpose === "point" && <View style={styles.captureBlock} testID="survey-point-controls">
+        <Text style={styles.groupTitle}>Point purpose</Text>
         <View style={styles.choiceRow}>
           {SURVEY_ROLE_OPTIONS.map((option) => (
             <ChoiceButton key={option.role} active={surveyRole === option.role} label={option.label} onPress={() => setSurveyRole(option.role)} />
           ))}
         </View>
         <PanelButton disabled={!canCapture} label="Capture Survey Point" primary onPress={captureSurveyPoint} />
-      </View>
+      </View>}
 
-      <View style={styles.captureBlock}>
-        <Text style={styles.groupTitle}>Ordered Rings</Text>
+      {purpose === "boundary" && <View style={styles.captureBlock} testID="survey-boundary-controls">
+        <Text style={styles.groupTitle}>Field boundary · {boundaryDraft.length} captured vertices</Text>
+        <Text style={styles.statusText}>Capture the corners in order. Applying the captured boundary replaces the current design boundary; it does not capture a new receiver position.</Text>
         <View style={styles.actionRow}>
           <PanelButton disabled={!canCapture} label={`Add Boundary (${boundaryDraft.length})`} onPress={addBoundaryVertex} />
-          <PanelButton disabled={boundaryDraft.length < 3 || !canCommitCapturedDraft(settings.mappingWorkflowMode, true, boundaryDraft)} label="Commit Boundary" primary onPress={commitBoundary} />
+          <PanelButton disabled={boundaryDraft.length < 3 || !captureDraftMatchesProject(boundaryDraft, project) || !canCommitCapturedDraft(settings.mappingWorkflowMode, true, boundaryDraft)} label="Use captured boundary in this design" primary onPress={commitBoundary} />
           <PanelButton disabled={boundaryDraft.length === 0} label="Clear Boundary" onPress={() => setBoundaryDraft([])} />
         </View>
+      </View>}
+      {purpose === "obstacle" && <View style={styles.captureBlock} testID="survey-obstacle-controls">
+        <Text style={styles.groupTitle}>Obstacle · {obstacleDraft.length} captured vertices</Text>
+        <Text style={styles.statusText}>Capture the outline in order, then apply the recorded shape to this design.</Text>
+        {obstacleDraft.length > 0 && <Text style={styles.statusText}>The captured outline keeps its obstacle type. Apply or explicitly clear it before choosing another type.</Text>}
         <View style={styles.choiceRow}>
           {OBSTACLE_KIND_OPTIONS.map((option) => (
-            <ChoiceButton key={option.kind} active={obstacleKind === option.kind} label={option.label} onPress={() => setObstacleKind(option.kind)} />
+            <ChoiceButton key={option.kind} disabled={obstacleDraft.length > 0 && obstacleKind !== option.kind} active={obstacleKind === option.kind} label={option.label} onPress={() => setObstacleKind(option.kind)} />
           ))}
         </View>
         <View style={styles.actionRow}>
           <PanelButton disabled={!canCapture} label={`Add Obstacle (${obstacleDraft.length})`} onPress={addObstacleVertex} />
-          <PanelButton disabled={obstacleDraft.length < 3 || !canCommitCapturedDraft(settings.mappingWorkflowMode, true, obstacleDraft)} label="Commit Obstacle" primary onPress={commitObstacle} />
+          <PanelButton disabled={obstacleDraft.length < 3 || !captureDraftMatchesProject(obstacleDraft, project) || !canCommitCapturedDraft(settings.mappingWorkflowMode, true, obstacleDraft)} label="Use captured obstacle in this design" primary onPress={commitObstacle} />
           <PanelButton disabled={obstacleDraft.length === 0} label="Clear Obstacle" onPress={() => setObstacleDraft([])} />
         </View>
-      </View>
+      </View>}
 
-      <View style={styles.captureBlock}>
-        <Text style={styles.groupTitle}>Map Feature</Text>
+      {purpose === "feature" && <View style={styles.captureBlock} testID="survey-feature-controls">
+        <Text style={styles.groupTitle}>Map feature · {mapFeatureDraft.length} captured vertices</Text>
+        {mapFeatureDraft.length > 0 && <Text style={styles.statusText}>The captured shape keeps its feature type. Save or explicitly clear it before choosing another type.</Text>}
         <View style={styles.choiceRow}>
           {MAP_FEATURE_OPTIONS.map((option) => (
-            <ChoiceButton key={option.kind} active={mapFeatureKind === option.kind} label={option.label} onPress={() => setMapFeatureKind(option.kind)} />
+            <ChoiceButton key={option.kind} disabled={mapFeatureDraft.length > 0 && mapFeatureKind !== option.kind} active={mapFeatureKind === option.kind} label={option.label} onPress={() => setMapFeatureKind(option.kind)} />
           ))}
         </View>
         <View style={styles.actionRow}>
-          <PanelButton disabled={!canCapture || mapFeatureOption.geometry === "Point"} label={`Add Feature Vertex (${mapFeatureDraft.length})`} onPress={addMapFeatureVertex} />
+          {mapFeatureOption.geometry !== "Point" && <PanelButton disabled={!canCapture} label={`Add Feature Vertex (${mapFeatureDraft.length})`} onPress={addMapFeatureVertex} />}
           <PanelButton disabled={!canSaveMapFeature} label={`Save ${mapFeatureGeometryLabel} Feature`} primary onPress={saveMapFeature} />
           <PanelButton disabled={mapFeatureDraft.length === 0} label="Clear Feature" onPress={() => setMapFeatureDraft([])} />
         </View>
-      </View>
+      </View>}
     </View>
   );
 }
@@ -322,9 +340,9 @@ function RtkMetric({ label, value }: { label: string; value: string }): React.JS
   );
 }
 
-function ChoiceButton({ active, label, onPress }: { active: boolean; label: string; onPress: () => void }): React.JSX.Element {
+function ChoiceButton({ active, label, onPress, disabled = false, testID }: { active: boolean; label: string; onPress: () => void; disabled?: boolean; testID?: string }): React.JSX.Element {
   return (
-    <Pressable accessibilityRole="button" onPress={onPress} style={[styles.choiceButton, active && styles.choiceButtonActive]}>
+    <Pressable accessibilityRole="button" accessibilityState={{ selected: active, disabled }} {...(Platform.OS === "web" ? { "aria-pressed": active } : {})} testID={testID} disabled={disabled} onPress={onPress} style={[styles.choiceButton, active && styles.choiceButtonActive, disabled && styles.panelButtonDisabled]}>
       <Text style={[styles.choiceText, active && styles.choiceTextActive]}>{label}</Text>
     </Pressable>
   );
@@ -332,7 +350,7 @@ function ChoiceButton({ active, label, onPress }: { active: boolean; label: stri
 
 function PanelButton({ disabled = false, icon, label, onPress, primary = false }: { disabled?: boolean; icon?: React.ReactNode; label: string; onPress: () => void; primary?: boolean }): React.JSX.Element {
   return (
-    <Pressable accessibilityRole="button" disabled={disabled} onPress={onPress} style={[styles.panelButton, primary && styles.panelButtonPrimary, disabled && styles.panelButtonDisabled]}>
+    <Pressable accessibilityRole="button" accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={[styles.panelButton, primary && styles.panelButtonPrimary, disabled && styles.panelButtonDisabled]}>
       {icon}
       <Text style={[styles.panelButtonText, primary && styles.panelButtonTextPrimary, disabled && styles.panelButtonTextDisabled]}>{label}</Text>
     </Pressable>
@@ -504,6 +522,7 @@ const styles = StyleSheet.create({
     color: "#ffffff",
   },
   panelButton: {
+    maxWidth: "100%",
     alignItems: "center",
     backgroundColor: "#f1f5ee",
     borderColor: "#cdd8ca",
@@ -523,6 +542,7 @@ const styles = StyleSheet.create({
     opacity: 0.45,
   },
   panelButtonText: {
+    flexShrink: 1,
     color: "#254234",
     fontSize: 12,
     fontWeight: "900",

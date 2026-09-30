@@ -9,7 +9,7 @@ export function fieldCoordinatesInFeet(context?: FieldCoordinateContext): boolea
 const feet = (value: number | undefined) => value === undefined ? "" : formatDistanceInputValue(value, "us_survey_feet");
 
 export interface FieldMachineInputs {
-  name: string; x: string; y: string; spans: string; overhang: string; endGun: string;
+  name: string; x: string; y: string; spans: string[]; overhang: string; endGun: string;
   towerClearance: string; machineClearance: string;
   sweep: "full_circle" | "partial_circle"; start: string; stop: string;
   direction: "clockwise" | "counterclockwise";
@@ -19,7 +19,7 @@ export function fieldMachineInputs(machine?: FieldPivotMachine, context?: FieldC
   const config = machine?.configuration;
   const sweep = config?.sweep;
   return { name: config?.name ?? "", x: fieldCoordinatesInFeet(context) ? feet(machine?.pivotCenter.x) : "", y: fieldCoordinatesInFeet(context) ? feet(machine?.pivotCenter.y) : "",
-    spans: config?.spanLengthsMeters.map(feet).join(", ") ?? "", overhang: feet(config?.overhangMeters),
+    spans: config?.spanLengthsMeters.map(feet) ?? [""], overhang: feet(config?.overhangMeters),
     endGun: feet(config?.endGunThrowMeters), towerClearance: feet(config?.towerClearanceBufferMeters),
     machineClearance: feet(config?.machineClearanceBufferMeters), sweep: sweep?.mode ?? "full_circle",
     start: sweep?.mode === "partial_circle" ? String(sweep.startAngleDegrees) : "",
@@ -40,11 +40,12 @@ export function parseFieldMachineInputs(values: FieldMachineInputs, id: string, 
     if (!fieldCoordinatesInFeet(context)) throw new Error("Confirm the location units before entering a new machine location.");
     return parseDistanceInput(values[key], "us_survey_feet", `Center ${key.toUpperCase()}`);
   };
+  if (values.spans.length === 0) throw new Error("Enter at least one span length.");
   if (!values.name.trim()) throw new Error("Enter a machine name.");
   const machine: FieldPivotMachine = {
     ...existing, id, kind: "center_pivot", pivotCenter: { x: coordinate("x"), y: coordinate("y") },
     configuration: { ...existing?.configuration, name: values.name,
-      spanLengthsMeters: values.spans.split(",").map((value, index) => distance(value.trim(), existing?.configuration.spanLengthsMeters[index], "Every span length")),
+      spanLengthsMeters: values.spans.map((value, index) => distance(value.trim(), existing?.configuration.spanLengthsMeters[index], "Every span length")),
       overhangMeters: distance(values.overhang, existing?.configuration.overhangMeters, "Overhang"), endGunThrowMeters: distance(values.endGun, existing?.configuration.endGunThrowMeters, "End gun"),
       towerClearanceBufferMeters: distance(values.towerClearance, existing?.configuration.towerClearanceBufferMeters, "Tower clearance"), machineClearanceBufferMeters: distance(values.machineClearance, existing?.configuration.machineClearanceBufferMeters, "Machine clearance"),
       sweep: values.sweep === "full_circle" ? { mode: "full_circle" } : { mode: "partial_circle", startAngleDegrees: number(values.start, "Start angle"),

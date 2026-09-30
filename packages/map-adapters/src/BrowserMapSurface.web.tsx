@@ -74,6 +74,7 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
   const [panelHeight, setPanelHeight] = useState<number | null>(null);
   const [sheetInsetBottom, setSheetInsetBottom] = useState(0);
   const compactHud = panelWidth === null ? compactLayout : panelWidth < 600;
+  const compactHeader = compactHud || shortFallback;
   const shortLandscapeHud = panelWidth !== null && panelWidth >= 400
     && panelHeight !== null && panelHeight > 0 && panelHeight < 400;
   const navigationClearanceStyle = shortLandscapeHud ? { maxWidth: panelWidth - 120 } : undefined;
@@ -91,7 +92,7 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
   const bottomDockHeightRef = useRef(0);
   const toolHudBoundsRef = useRef({ x: 0, y: 0, width: 0, height: 0 });
   const revealSelectedVertexRef = useRef<((explicitSelection?: boolean) => void) | null>(null);
-  const selectedVertexVisibleRef = useRef<(() => boolean) | null>(null);
+  const selectedVertexVisibleRef = useRef<((size?: { width: number; height: number }) => boolean) | null>(null);
   useLayoutEffect(() => {
     if (!compactLayout || !externalHudLayout) {
       setSheetInsetBottom(0);
@@ -115,6 +116,7 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
   const cameraFrameRef = useRef<MapCameraFrame | null>(null);
   const mapSequenceRef = useRef(0);
   const revealedSelectionRef = useRef<{ frame: MapCameraFrame; selection: typeof selectedVertex } | null>(null);
+  const pendingSelectionRevealRef = useRef<{ frame: MapCameraFrame; selection: typeof selectedVertex } | null>(null);
   const referenceView = useMemo(() => buildMapReferenceViewModel({
     settings, mapPackages: project.mapPackages ?? [],
     target: "web_maplibre_gl_js", surface: "workbench",
@@ -416,15 +418,27 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
     if (!cameraFrame || !map || map !== mapRef.current || typeof ResizeObserver === "undefined") return undefined;
     const container = map.getContainer();
     let previous = { width: map.getCanvas().clientWidth, height: map.getCanvas().clientHeight };
+    let hiddenSelection: typeof interactionRef.current.selectedVertex = null;
+    let visibleBeforeHide = false;
     const observer = new ResizeObserver(() => {
       if (map !== mapRef.current || !cameraSession.isCurrent(cameraFrame)) return;
       const next = { width: container.clientWidth, height: container.clientHeight };
       if (next.width === previous.width && next.height === previous.height) return;
+      const currentSelection = interactionRef.current.selectedVertex;
+      const wasVisible = hasVisibleMapSize(previous)
+        ? selectedVertexVisibleRef.current?.(previous) ?? false
+        : hiddenSelection === currentSelection && visibleBeforeHide;
       previous = next;
       cancelVertexDragRef.current?.();
       cancelMapTapRef.current?.();
-      if (!hasVisibleMapSize(next)) return;
-      const wasVisible = selectedVertexVisibleRef.current?.() ?? false;
+      if (!hasVisibleMapSize(next)) {
+        hiddenSelection = currentSelection;
+        visibleBeforeHide = wasVisible;
+        return;
+      }
+      hiddenSelection = null;
+      visibleBeforeHide = false;
+      if (wasVisible && currentSelection) pendingSelectionRevealRef.current = { frame: cameraFrame, selection: currentSelection };
       map.resize();
       map.redraw();
       if (wasVisible) revealSelectedVertexRef.current?.(true);
@@ -438,6 +452,7 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
     const cameraFrame = cameraFrameRef.current;
     if (!canEditOnMap || mode !== "edit_vertices" || !selectedVertex) {
       revealedSelectionRef.current = null;
+      pendingSelectionRevealRef.current = null;
       return undefined;
     }
     if (!cameraFrame || !map || map !== mapRef.current || !cameraSession.isCurrent(cameraFrame)) return undefined;
@@ -506,24 +521,31 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
         if (ownsSelection()) marker.setLngLat([coordinate.longitude, coordinate.latitude]);
       },
     });
-    const selectedVertexVisible = (): boolean => {
+    const selectedVertexVisible = (size?: { width: number; height: number }): boolean => {
       if (!ownsSelection()) return false;
-      const canvas = map.getCanvas().getBoundingClientRect();
+      const canvas = size ?? map.getCanvas().getBoundingClientRect();
       const point = map.project(marker.getLngLat());
       return point.x + 22 >= 0 && point.y + 22 >= 0 && point.x - 22 <= canvas.width && point.y - 22 <= canvas.height;
     };
     const revealSelectedVertex = (explicitSelection = false): void => {
       if (session.activePointerId !== null || !ownsSelection()) return;
-      if (!explicitSelection && !selectedVertexVisible()) return;
+      const pending = pendingSelectionRevealRef.current;
+      const requested = explicitSelection || (pending?.frame === cameraFrame && pending.selection === selectedVertex);
+      if (!requested && !selectedVertexVisible()) return;
+      if (requested) pendingSelectionRevealRef.current = { frame: cameraFrame, selection: selectedVertex };
       const canvas = map.getCanvas().getBoundingClientRect();
       const toolHud = toolHudBoundsRef.current;
-      const offset = panOffsetToRevealPoint(map.project(marker.getLngLat()), canvas, {
+      const insets = {
         left: !externalHudLayout && compactLayout ? toolHud.x + toolHud.width : 0,
         top: !externalHudLayout && !compactLayout ? toolHud.y + toolHud.height : 0,
         right: 96,
         bottom: Math.max(bottomDockHeightRef.current + 8,
           visibleBottomMapInset(canvas, map.getContainer().parentElement, compactLayout, externalHudLayout)),
-      }, 26);
+      };
+      // Keep resize eligibility until the responsive dock has a usable rectangle.
+      if (canvas.width < insets.left + insets.right + 52 || canvas.height < insets.top + insets.bottom + 52) return;
+      const offset = panOffsetToRevealPoint(map.project(marker.getLngLat()), canvas, insets, 26);
+      pendingSelectionRevealRef.current = null;
       if (offset) map.panBy([offset.x, offset.y], { duration: 0 });
     };
     const moveMarker = (event: PointerEvent): void => {
@@ -551,7 +573,10 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
       for (const handler of enabledNavigation) handler.disable();
     };
     const cancelPointer = (event: PointerEvent): void => session.cancel(event.pointerId);
-    const cancelDrag = (): void => session.cancel();
+    const cancelDrag = (event?: unknown): void => {
+      session.cancel();
+      if (event && typeof event === "object" && "originalEvent" in event && event.originalEvent) pendingSelectionRevealRef.current = null;
+    };
     const cancelHiddenDrag = (): void => { if (document.hidden) session.cancel(); };
     const cancelWithEscape = (event: KeyboardEvent): void => { if (event.key === "Escape") session.cancel(); };
     const stopHandleClick = (event: Event): void => { event.stopPropagation(); };
@@ -621,19 +646,38 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
   const editStepMeters = Math.max(1, settings.drawing.panStepMeters / 4);
   const canToggleReferenceOverlay = Boolean(onSettingsChange && referenceOverlay.canRender);
   const advisoryFieldPivotPlanVisible = !homeView && (advisoryFieldPivotPlan?.selectedMachineCount ?? 0) > 0;
-  const showHudActions = !compactLayout
+  const shortAdvisoryHeader = shortLandscapeHud && advisoryFieldPivotPlanVisible;
+  const advisoryPlanDescription = advisoryFieldPivotPlan
+    ? `Generated advisory plan · ${advisoryFieldPivotPlan.selectedMachineCount}/${advisoryFieldPivotPlan.requestedMachineCount} centers · review only`
+    : "";
+  const showHudActions = (!compactLayout && !shortLandscapeHud)
     || canCommitDraft
     || canSaveFeature
     || mode === "edit_vertices"
     || draftVertices.length > 0;
 
+  const sourceControl = <Pressable accessibilityRole="button" accessibilityLabel="Map source details"
+    onPress={() => { cancelVertexDragRef.current?.(); setSourceDetailsOpen(true); }}
+    style={[styles.attributionHud, compactHud && styles.attributionHudCompact,
+      shortLandscapeHud ? styles.attributionHeader : navigationClearanceStyle]} testID="browser-map-attribution-hud">
+    <Satellite size={13} color="#173428" />
+    <Text numberOfLines={shortLandscapeHud ? 1 : undefined} style={styles.attributionText} testID="browser-map-attribution-credit">{attributionCredit}</Text>
+    <Info size={16} color="#173428" />
+  </Pressable>;
   return (
-    <View style={styles.shell} testID="browser-map-workbench">
-      <View style={[styles.headerRow, compactHud && styles.headerRowCompact]}>
-        <View style={[styles.headerTitle, compactHud && styles.compactHeaderTitle]}>
-          {!compactHud ? <Text style={styles.title}>{homeView ? "North America Map" : "Imagery Workbench"}</Text> : null}
-          <Text style={styles.subtitle}>{compactHud ? homeView ? "Catalog" : project.projectCrs
-            : `${homeView ? "Customer/project catalog view" : `${project.projectCrs} canonical geometry`} · ${activeImagery?.name ?? "offline overlay"}`}</Text>
+    <View style={[styles.shell, shortLandscapeHud && styles.shellShort]} testID="browser-map-workbench">
+      <View style={[styles.headerRow, compactHeader && styles.headerRowCompact, shortFallback && styles.headerRowShort]}>
+        <View style={[styles.headerTitle, compactHeader && styles.compactHeaderTitle,
+          shortAdvisoryHeader && styles.advisoryHeaderTitle]}>
+          {!compactHeader ? <Text style={styles.title}>{homeView ? "North America Map" : "Imagery Workbench"}</Text> : null}
+          {shortAdvisoryHeader && advisoryFieldPivotPlan ?
+            <View pointerEvents="none" accessibilityLabel={advisoryPlanDescription}
+              testID="browser-advisory-generated-field-pivot-layer">
+              <Text numberOfLines={1} style={styles.advisoryPlanHeader}>Advisory {advisoryFieldPivotPlan.selectedMachineCount}/{advisoryFieldPivotPlan.requestedMachineCount}</Text>
+              <Text numberOfLines={1} style={styles.advisoryPlanHeader}>review only</Text>
+            </View> :
+            <Text numberOfLines={compactHeader ? 1 : undefined} style={styles.subtitle}>{compactHeader ? homeView ? "Catalog" : project.projectCrs
+              : `${homeView ? "Customer/project catalog view" : `${project.projectCrs} canonical geometry`} · ${activeImagery?.name ?? "offline overlay"}`}</Text>}
         </View>
         <Pressable
           accessibilityRole="button"
@@ -644,23 +688,24 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
           onPress={() => setSvgRecoveryRequested(true)}
           onHoverIn={() => setRecoveryHovered(true)} onHoverOut={() => setRecoveryHovered(false)}
           onFocus={() => setRecoveryHovered(true)} onBlur={() => setRecoveryHovered(false)}
-          style={[styles.toolButton, styles.recoveryButton, compactHud && styles.recoveryButtonCompact, draftVertices.length > 0 && styles.hudButtonDisabled]}
+          style={[styles.toolButton, styles.recoveryButton, compactHeader && styles.recoveryButtonCompact, draftVertices.length > 0 && styles.hudButtonDisabled]}
           testID="browser-map-use-svg"
         >
           <MapPinned size={17} color="#173428" />
-          {!compactHud ? <Text style={styles.toolButtonText}>Use SVG map</Text> : null}
-          {compactHud && recoveryHovered ? <Text style={styles.recoveryTooltip}>Use SVG map</Text> : null}
+          {!compactHeader ? <Text style={styles.toolButtonText}>Use SVG map</Text> : null}
+          {compactHeader && recoveryHovered ? <Text style={styles.recoveryTooltip}>Use SVG map</Text> : null}
         </Pressable>
+        {shortLandscapeHud ? sourceControl : null}
         <View style={styles.segmented}>
           <ModeSwitch
             active={settings.mappingWorkflowMode === "design"}
-            label="Design"
+            label="Edit map"
             onPress={() => onMappingWorkflowModeChange?.("design")}
             testID="browser-workflow-design"
           />
           <ModeSwitch
             active={settings.mappingWorkflowMode === "layout"}
-            label="Layout"
+            label="Inspect map"
             onPress={() => onMappingWorkflowModeChange?.("layout")}
             testID="browser-workflow-layout"
           />
@@ -809,7 +854,7 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
         {!canEditOnMap ? (
           <View style={[styles.layoutHud, compactLayout && styles.layoutHudCompact]} testID="browser-map-layout-hud">
             <MapPinned size={17} color="#173428" />
-            <Text style={styles.layoutHudText}>{homeView ? "Catalog map: open a field map or design before editing." : "Layout mode: RTK-only geometry changes; pointer gestures inspect only."}</Text>
+            <Text style={styles.layoutHudText}>{homeView ? "Catalog map: open a field map or design before editing." : "Inspect map: pointer gestures select and view. Form edits remain available."}</Text>
           </View>
         ) : null}
 
@@ -819,33 +864,26 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
           bottomDockHeightRef.current = height;
           revealSelectedVertexRef.current?.();
         }}>
-          {advisoryFieldPivotPlanVisible && advisoryFieldPivotPlan ? (
-            <View pointerEvents="none" style={[styles.advisoryPlanHud, compactLayout && styles.advisoryPlanHudCompact]} testID="browser-advisory-generated-field-pivot-layer">
+          {advisoryFieldPivotPlanVisible && advisoryFieldPivotPlan && !shortLandscapeHud ? (
+            <View pointerEvents="none" accessibilityLabel={advisoryPlanDescription}
+              style={[styles.advisoryPlanHud, compactLayout && styles.advisoryPlanHudCompact]} testID="browser-advisory-generated-field-pivot-layer">
               <MapPinned size={13} color="#5b21b6" />
               <Text numberOfLines={compactLayout ? 1 : undefined} style={styles.advisoryPlanText}>
                 Generated advisory plan · {advisoryFieldPivotPlan.selectedMachineCount}/{advisoryFieldPivotPlan.requestedMachineCount} centers · review only
               </Text>
             </View>
           ) : null}
-          <Pressable accessibilityRole="button" accessibilityLabel="Map source details"
-            onPress={() => { cancelVertexDragRef.current?.(); setSourceDetailsOpen(true); }}
-            style={[styles.attributionHud, compactHud && styles.attributionHudCompact, navigationClearanceStyle]} testID="browser-map-attribution-hud">
-            <Satellite size={13} color="#173428" />
-            <Text style={styles.attributionText} testID="browser-map-attribution-credit">
-              {attributionCredit}
-            </Text>
-            <Info size={16} color="#173428" />
-          </Pressable>
+          {!shortLandscapeHud ? sourceControl : null}
           <View pointerEvents={showHudActions ? "box-none" : "none"}
-            style={[styles.statusHud, compactHud && styles.statusHudCompact, navigationClearanceStyle,
+            style={[styles.statusHud, compactHud && styles.statusHudCompact, shortLandscapeHud && styles.statusHudShort, navigationClearanceStyle,
               sheetInsetBottom > 0 && [styles.statusHudAboveSheet, { bottom: sheetInsetBottom }]]}
             testID="browser-map-status-hud">
             <View pointerEvents="none" style={styles.statusTextGroup}>
               <Text style={styles.statusText} testID="browser-map-action-status">{status}</Text>
-              <Text style={styles.statusMeta}>{statusMetaText}</Text>
+              {!(shortLandscapeHud && mode === "edit_vertices") && <Text style={styles.statusMeta}>{statusMetaText}</Text>}
               {draftVertices.length > 1 ? <Text style={styles.statusMeta} testID="browser-map-draft-measurement">{draftMeasurementText(mode === "measure" ? controller.activeFeatureGeometry : "Polygon", draftVertices, project.projectCrs, settings.unitSystem)}</Text> : null}
             </View>
-            {showHudActions ? <HudActionRow compact={compactHud}>
+            {showHudActions ? <HudActionRow compact={compactHud || shortLandscapeHud}>
               {mode !== "edit_vertices" ? <>
                 {mode !== "measure" ? <HudButton disabled={!canCommitDraft} icon={<Check size={15} color={canCommitDraft ? "#ffffff" : "#718077"} />} label="Commit" onPress={commitDraft} primary={canCommitDraft} testID="browser-action-commit" /> : null}
                 {mode === "measure" ? <HudButton disabled={!canSaveFeature} icon={<Check size={15} color={canSaveFeature ? "#ffffff" : "#718077"} />} label={activeMapFeatureKind ? "Save Feature" : "Finish"} onPress={saveMapFeatureFromDraft} primary={canSaveFeature} testID="browser-action-save-feature" /> : null}
@@ -1110,6 +1148,7 @@ const styles = StyleSheet.create({
     minWidth: 0,
     overflow: "hidden",
   },
+  shellShort: { gap: 4 },
   headerRow: {
     alignItems: "center",
     backgroundColor: "#fbfdf9",
@@ -1128,7 +1167,9 @@ const styles = StyleSheet.create({
     fontWeight: "900",
   },
   headerRowCompact: { paddingHorizontal: 8, paddingVertical: 6, gap: 6 },
+  headerRowShort: { paddingVertical: 2, flexWrap: "nowrap" },
   compactHeaderTitle: { flex: 1, minWidth: 0 },
+  advisoryHeaderTitle: { minWidth: 72 },
   recoveryButtonCompact: { flexBasis: 44, width: 44, paddingHorizontal: 0 },
   recoveryTooltip: { position: "absolute", top: 44, right: 0, width: 100, padding: 6, borderRadius: 4,
     backgroundColor: "#26392f", color: "#ffffff", fontSize: 12, zIndex: 10 },
@@ -1377,6 +1418,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 9,
     paddingVertical: 7,
   },
+  advisoryPlanHeader: { lineHeight: 14, color: "#4c1d95", backgroundColor: "#faf5ff", fontSize: 10, fontWeight: "800" },
   advisoryPlanHudCompact: {
     maxWidth: "100%",
     overflow: "hidden",
@@ -1406,6 +1448,7 @@ const styles = StyleSheet.create({
     gap: 6,
     maxWidth: "100%",
   },
+  statusHudShort: { padding: 4, gap: 4 },
   statusHudAboveSheet: {
     left: 0,
     position: "absolute",
@@ -1520,6 +1563,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 9,
     paddingVertical: 7,
   },
+  attributionHeader: { alignSelf: "center", maxWidth: "40%", flexShrink: 1, paddingHorizontal: 6 },
   attributionHudCompact: {
     maxWidth: "100%",
     paddingVertical: 5,

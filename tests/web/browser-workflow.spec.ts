@@ -5,13 +5,14 @@ import { unobstructedMapPoint } from "./map-hit-point";
 import { connectOperationalReceiver, emitGga, gga, installOperationalReceiver, type ReceiverFixtureWindow } from "./operational-receiver-fixture";
 import { strFromU8, unzipSync } from "fflate";
 import { readFile } from "node:fs/promises";
-import { defaultAppSettings, parseProjectDocument, projectXyToLonLat } from "../../packages/core/src";
+import { defaultAppSettings, parseProjectDocument, projectLonLatToXy, projectXyToLonLat } from "../../packages/core/src";
+import { encodeRgbaPng } from "../../tools/pngMetrics";
 
 const routeScreens = [
   { nav: "workspace-nav-dashboard", screen: "dashboard-workspace" },
   { nav: "workspace-nav-help", screen: "help-view" },
-  { nav: "workspace-nav-map", screen: "map-view" },
-  { nav: "workspace-nav-survey", screen: "survey-view" },
+  { nav: "task-design", screen: "map-view" },
+  { nav: "task-survey", screen: "survey-view" },
   { nav: "workspace-nav-files", screen: "files-view" },
   { nav: "workspace-nav-settings", screen: "settings-view" },
 ] as const;
@@ -47,7 +48,7 @@ test("workspace remains usable through the SVG map fallback when WebGL is unavai
   await expect(page.getByTestId("layout-map-svg")).toBeVisible();
   await openBaselineSample(page);
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("North Quarter Concept Layout");
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await expect(page.getByTestId("layout-map-svg")).toBeVisible();
   if (await page.getByTestId("svg-map-legend-open").isVisible()) {
     await expect(page.getByTestId("svg-map-legend-open")).toHaveAccessibleName("Map legend and layer status");
@@ -135,6 +136,59 @@ test("workspace remains usable through the SVG map fallback when WebGL is unavai
   await saveScreen(page, testInfo, "webgl-svg-map-fallback");
 });
 
+test("Survey shortcuts open collection directly and retain unfinished design choices", async ({ page }) => {
+  const pixels = new Uint8Array(256 * 256 * 4);
+  for (let offset = 0; offset < pixels.length; offset += 4) pixels.set([20, 40, 60, 255], offset);
+  const tile = Buffer.from(encodeRgbaPng(256, 256, pixels));
+  await page.route(/\/USGSImagery(?:Only|Topo)\/MapServer\/tile\/\d+\/\d+\/\d+(?:\?.*)?$/, route =>
+    route.fulfill({ contentType: "image/png", body: tile }));
+  await page.goto("/");
+  await openBaselineSample(page);
+  await page.getByTestId("task-design").click();
+  await openInspectorIfCollapsed(page);
+  await page.getByTestId("workflow-sidebar-tab-tools").click();
+  const manual = page.getByTestId("manual-design-transaction");
+  await manual.getByTestId("manual-design-step-last_wheel").click();
+  const span = manual.getByRole("textbox", { name: /^Span 1 \(/ });
+  await span.fill("-");
+  const retainedInput = await span.elementHandle();
+  const saved = await workspaceStorageBytes(page);
+  await manual.getByTestId("manual-design-open-survey").click();
+  await expect(page.getByTestId("task-survey")).toHaveAttribute("aria-current", "page");
+  await expect(page.locator('[data-testid="survey-view"]:visible')).toContainText("Survey Capture Readiness");
+  await expect(page.getByRole("button", { name: "Connect receiver", exact: true })).toBeVisible();
+  await page.getByTestId("task-design").click();
+  await expect(span).toHaveValue("-");
+  expect(await retainedInput!.evaluate(node => node.isConnected)).toBe(true);
+  await expect(span).toBeFocused();
+  await closeInspectorIfOpen(page);
+  const drawer = page.getByRole("button", { name: "Collapse project drawer", exact: true });
+  if (await drawer.isVisible()) await drawer.click();
+  await selectBoundaryTool(page);
+  const map = page.getByLabel("CPLayout MapLibre imagery workbench");
+  await expect(map).toHaveAttribute("data-map-loaded", "true");
+  let previousCamera: string | null = null;
+  await expect.poll(async () => {
+    const current = await map.getAttribute("data-map-camera");
+    const settled = current !== null && current === previousCamera;
+    previousCamera = current;
+    return settled;
+  }, { intervals: [200] }).toBe(true);
+  await clickWorkbenchMapFraction(page, { x: 0.5, y: 0.45 });
+  await expect(page.getByTestId("browser-map-status-hud")).toContainText("1 draft pts");
+  const retainedMap = await map.elementHandle();
+  const camera = await map.getAttribute("data-map-camera");
+  await page.getByTestId("map-bottom-hud").getByTestId("design-action-point").click();
+  await page.getByTestId("map-tool-rtk").click();
+  await expect(page.getByTestId("task-survey")).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("button", { name: "Connect receiver", exact: true })).toBeVisible();
+  await page.getByTestId("task-design").click();
+  await expect(page.getByTestId("browser-map-status-hud")).toContainText("1 draft pts");
+  await expect(map).toHaveAttribute("data-map-camera", camera!);
+  expect(await retainedMap!.evaluate(node => node.isConnected)).toBe(true);
+  expect(await workspaceStorageBytes(page)).toEqual(saved);
+});
+
 test("launcher and workspace route sweep stay usable without paid APIs or hidden keys", async ({ page }, testInfo) => {
   test.slow();
   const networkLog: string[] = [];
@@ -145,7 +199,16 @@ test("launcher and workspace route sweep stay usable without paid APIs or hidden
 
   await page.goto("/");
   await expect(page.getByTestId("workspace-screen")).toBeVisible();
-  await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("CPLayout");
+  const viewport = page.viewportSize();
+  expect(viewport, "startup map viewport").not.toBeNull();
+  if (!viewport) throw new Error("Missing startup map viewport");
+  const compactMapContext = viewport.width < 760 || (viewport.width > viewport.height && viewport.height < 500);
+  if (compactMapContext) {
+    await expect(page.getByTestId("design-context-open")).toBeVisible();
+  } else {
+    await expect(page.getByTestId("design-context-open")).toHaveCount(0);
+    await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("CPLayout");
+  }
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("Project Catalog");
   await expect(page.getByTestId("browser-map-workbench")).toContainText(/Client\/project catalog view|Catalog/);
   await expect(page.locator(".maplibregl-canvas").first()).toHaveCSS("position", "absolute");
@@ -173,7 +236,7 @@ test("launcher and workspace route sweep stay usable without paid APIs or hidden
     await saveScreen(page, testInfo, routeScreen.screen);
   }
 
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await expect(page.getByTestId("browser-map-workbench")).toBeVisible();
   await expect(page.getByTestId("design-builder-panel")).toHaveCount(0);
   await openInspectorIfCollapsed(page);
@@ -207,13 +270,15 @@ test("launcher and workspace route sweep stay usable without paid APIs or hidden
     await expectNoOverlap(page, "workspace-bottom-status-bar", "browser-map-status-hud");
     await expectNoOverlap(page, "workspace-bottom-status-bar", "browser-map-attribution-hud");
     await saveScreen(page, testInfo, "mobile-map-route-sweep-compact");
+    const disallowed = networkLog.filter((url) => !isAllowedExternalProofRequest(url));
+    expect(disallowed).toEqual([]);
     return;
   }
   await selectPanTool(page);
   await page.getByTestId("browser-workflow-layout").click();
-  await expect(page.getByText("Layout mode: RTK-only geometry changes; pointer gestures inspect only.")).toBeVisible();
+  await expect(page.getByText("Inspect map: pointer gestures select and view. Form edits remain available.")).toBeVisible();
   await clickWorkbenchMap(page, { x: 120, y: 160 });
-  await expect(page.getByText("Layout mode is RTK-only; switch to Design for pointer-based geometry edits.")).toBeVisible();
+  await expect(page.getByText("Inspect map: switch to Edit map for pointer-based geometry edits.")).toBeVisible();
   await expect(page.getByText("Saved")).toBeVisible();
   await expectNoOverlap(page, "browser-map-status-hud", "browser-map-attribution-hud");
   await expectNoOverlapIfVisible(page, "workspace-bottom-status-bar", "map-bottom-hud");
@@ -254,6 +319,10 @@ test("workspace command menus open without overflow across responsive viewports"
     await expect(page.getByTestId(`command-menu-${menuId}-panel`)).toBeVisible();
     if (menuId === "file") {
       await expect(page.getByTestId("command-file-save")).toHaveCount(0);
+      await expect(page.getByTestId("command-file-catalog")).toContainText("Catalog map");
+    }
+    if (menuId === "settings") {
+      await expect(page.getByTestId("command-menu-settings-panel").locator('[data-testid^="command-settings-"]')).toHaveCount(1);
     }
     if (menuId === "inspect") {
       await expect(page.getByTestId("command-reports-export")).toHaveCount(0);
@@ -267,11 +336,17 @@ test("workspace command menus open without overflow across responsive viewports"
 
 test("workspace command menu routes preserve existing views and local boundaries", async ({ page }, testInfo) => {
   await page.goto("/");
+  await expect(page.getByTestId("catalog-save-state")).toContainText("Catalog ready");
+  await expect.poll(async () => (await workspaceStorageBytes(page))[0]).not.toBeNull();
+  const storedBefore = await workspaceStorageBytes(page);
   await openCommandMenu(page, "file");
   await page.getByTestId("command-file-files").click();
   await expect(page.getByTestId("files-view")).toBeVisible();
   await navigateToSurvey(page);
-  await expect(page.getByTestId("survey-view")).toBeVisible();
+  const survey = page.locator('[data-testid="survey-view"]:visible');
+  await expect(survey).toHaveCount(1);
+  await expect(survey).toContainText("Open a completed design to collect survey evidence");
+  await expect(page.getByTestId("survey-metric-points")).toBeHidden();
   await openCommandMenu(page, "settings");
   await page.getByTestId("command-settings-open").click();
   await expect(page.getByTestId("settings-view")).toBeVisible();
@@ -280,29 +355,37 @@ test("workspace command menu routes preserve existing views and local boundaries
   await expect(page.getByTestId("help-view")).toBeVisible();
   await expect(page.getByTestId("catalog-save-state").getByText("Catalog ready")).toBeVisible();
   await expect(page.getByTestId("project-save-state")).toHaveCount(0);
+  expect(await workspaceStorageBytes(page)).toEqual(storedBefore);
   await saveScreen(page, testInfo, "workspace-command-menu-routes");
 });
 
-test("catalog home readiness replaces global count metrics", async ({ page }, testInfo) => {
+test("catalog home puts actions and recent work before compact storage details", async ({ page }, testInfo) => {
   await page.goto("/");
   await openCatalogFromFile(page);
   await openInspectorIfCollapsed(page);
   const readiness = page.getByTestId("catalog-home-readiness");
-  await expect(readiness).toContainText("Storage");
-  await expect(readiness).toContainText("Active context");
-  await expect(readiness).toContainText("Next action");
-  await expect(readiness).toContainText("Imagery");
-  await expect(readiness).not.toContainText("Customers");
-  await expect(readiness).not.toContainText("Projects");
-  await expect(readiness).not.toContainText("Field maps");
-  await expect(readiness).not.toContainText("Designs");
-  await saveScreen(page, testInfo, "catalog-home-readiness-no-counts");
+  await expect(readiness.getByTestId("catalog-home-status")).toContainText("Storage details");
+  await expect(readiness.getByTestId("catalog-home-status")).toContainText(/Browser local storage/);
+  for (const label of ["Storage", "Active context", "Next action", "Imagery"]) {
+    await expect(readiness.getByText(label, { exact: true })).toHaveCount(0);
+  }
+  expect(await readiness.evaluate(element => {
+    const owner = element.parentElement;
+    if (!owner) return false;
+    return ["start-create-customer", "start-import", "recent-work", "start-preferences"].every(id => {
+      const control = owner.querySelector(`[data-testid="${id}"]`);
+      return control !== null && Boolean(control.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING);
+    });
+  }), "Create, Import, Recent work and preferences precede storage details").toBe(true);
+  await saveScreen(page, testInfo, "catalog-home-compact-storage-after-actions");
 });
 
 test("catalog home routes stay navigation-only and non-project-backed", async ({ page }, testInfo) => {
   await page.goto("/");
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("Project Catalog");
   await expect(page.getByTestId("catalog-save-state")).toContainText("Catalog ready");
+  await expect.poll(async () => (await workspaceStorageBytes(page))[0]).not.toBeNull();
+  const storedBefore = await workspaceStorageBytes(page);
   await expect(page.getByTestId("project-save-state")).toHaveCount(0);
   await expect(page.getByTestId("workspace-power-evidence-status")).toHaveCount(0);
   await expect(page.getByText("Will Rhea / Jason Harmelink Example Map")).toHaveCount(0);
@@ -310,14 +393,17 @@ test("catalog home routes stay navigation-only and non-project-backed", async ({
   await page.getByTestId("workspace-nav-dashboard").click();
   await expect(page.getByTestId("dashboard-workspace")).toBeVisible();
   await expect(page.getByTestId("dashboard-workspace").getByTestId("catalog-home-readiness")).toBeVisible();
+  await expect(page.getByTestId("dashboard-workspace").getByTestId("catalog-home-status")).toContainText("Storage details");
+  await expect(page.getByTestId("dashboard-workspace").getByTestId("catalog-home-readiness").getByText("Active context", { exact: true })).toHaveCount(0);
   await expect(page.getByText("Coverage")).toHaveCount(0);
   await expect(page.getByText("Irrigated")).toHaveCount(0);
   await expect(page.getByText("Will Rhea / Jason Harmelink Example Map")).toHaveCount(0);
 
-  await page.getByTestId("workspace-nav-survey").click();
-  await expect(page.getByTestId("survey-view")).toBeVisible();
-  await expect(page.getByText("No Project Open")).toBeVisible();
-  await expect(page.getByTestId("survey-metric-points")).toHaveCount(0);
+  await page.getByTestId("task-survey").click();
+  const survey = page.locator('[data-testid="survey-view"]:visible');
+  await expect(survey).toHaveCount(1);
+  await expect(survey).toContainText("Open a completed design to collect survey evidence");
+  await expect(page.getByTestId("survey-metric-points")).toBeHidden();
 
   await page.getByTestId("workspace-nav-files").click();
   await expect(page.getByTestId("files-view")).toBeVisible();
@@ -330,6 +416,7 @@ test("catalog home routes stay navigation-only and non-project-backed", async ({
   await expect(page.getByTestId("catalog-save-state")).toContainText("Catalog ready");
   await expect(page.getByTestId("project-save-state")).toHaveCount(0);
   await expect(page.getByText("Unsaved edits")).toHaveCount(0);
+  expect(await workspaceStorageBytes(page)).toEqual(storedBefore);
   await saveScreen(page, testInfo, "catalog-home-navigation-only");
 });
 
@@ -366,7 +453,7 @@ test("catalog blank design starts empty and requires explicit coordinates before
   await createClientFolder(page, "Empty Design Farm");
   await createProjectFromRail(page, "Empty field");
   await startBlankDesignFromFile(page);
-  await page.getByLabel("Catalog item name").fill("Blank Field Design");
+  await page.getByTestId("catalog-dialog-name-input").fill("Blank Field Design");
   await page.getByTestId("catalog-dialog-create").click();
   await expect(page.getByTestId("design-draft-workspace")).toBeVisible();
   await expect(page.getByTestId("design-draft-polygon")).toBeDisabled();
@@ -415,7 +502,7 @@ test("catalog blank design starts empty and requires explicit coordinates before
 test("design console pivot entry defaults to decimal GPS with expert XY hidden", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await openPivotGpsSheet(page);
   await expect(page.getByTestId("design-console-dialog")).toBeVisible();
   await expect(page.getByLabel("Pivot latitude and longitude decimal degrees")).toBeVisible();
@@ -490,7 +577,7 @@ test("map-first catalog tree creates client projects and field maps without hidd
   await closeProjectDrawerIfOpen(page);
   await openBaselineSample(page);
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("North Quarter Concept Layout");
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await openInspectorIfCollapsed(page);
   await expect(page.getByTestId("design-action-polygon")).toBeVisible();
   expect(nativeDialogs).toEqual([]);
@@ -566,7 +653,7 @@ test("client detail manages profile and contained project lifecycle", async ({ p
     phone: "555-0100",
     location: "Adams County",
   });
-  await openInspectorIfCollapsed(page);
+  await openCustomerDetails(page, "Adams Farms");
   await expect(page.getByTestId("client-detail-panel")).toContainText("Adams Farms");
   await expect(page.getByText("Operator, Ana J. Jr.")).toBeVisible();
 
@@ -580,7 +667,7 @@ test("client detail manages profile and contained project lifecycle", async ({ p
 
   await createProjectForSelectedClient(page, "North Unit", "Saved under: Adams Farms");
   await openCatalogFromFile(page);
-  await openInspectorIfCollapsed(page);
+  await openCustomerDetails(page, "Adams Farms");
   await expect(page.getByTestId("client-detail-projects")).toContainText("North Unit");
   await expect(page.getByRole("button", { name: "Delete Customer" })).toBeDisabled();
 
@@ -588,7 +675,7 @@ test("client detail manages profile and contained project lifecycle", async ({ p
   const originalKeys = (await workspaceStorageBytes(page)).slice(1);
   await page.getByRole("button", { name: "Rename" }).click();
   await expect(page.getByTestId("catalog-dialog")).toBeVisible();
-  await page.getByLabel("Catalog item name").fill("North Unit Renamed");
+  await page.getByTestId("catalog-dialog-name-input").fill("North Unit Renamed");
   await page.getByTestId("catalog-dialog-create").click();
   await expect(page.getByTestId("catalog-dialog")).toBeHidden();
   await expect(page.getByTestId("client-detail-projects")).toContainText("North Unit Renamed");
@@ -606,14 +693,13 @@ test("client detail manages profile and contained project lifecycle", async ({ p
   expect((await workspaceStorageBytes(page)).slice(1)).toEqual(originalKeys);
 
   await createClientFolder(page, "Beta Farms");
-  await page.getByRole("button", { name: "Adams Farms", exact: true }).click();
+  await openCustomerDetails(page, "Adams Farms");
   await page.getByRole("button", { name: "Move", exact: true }).click();
   await expect(page.getByTestId("move-project-dialog")).toBeVisible();
   await page.getByRole("radio", { name: "Move to Beta Farms" }).click();
   await page.getByTestId("move-project-confirm").click();
   await expect(page.getByTestId("move-project-dialog")).toBeHidden();
-  await page.getByRole("button", { name: "Beta Farms", exact: true }).click();
-  await openInspectorIfCollapsed(page);
+  await openCustomerDetails(page, "Beta Farms");
   await expect(page.getByTestId("client-detail-projects")).toContainText("North Unit Renamed");
 
   await page.getByRole("button", { name: "Delete", exact: true }).click();
@@ -636,7 +722,7 @@ test("public proof map features can select the side-panel editor without geometr
   await page.getByTestId("command-file-real-proof").click();
   await expect(page.getByTestId("workspace-screen")).toBeVisible();
   await page.getByTestId("command-icon-save").click();
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await expect(page.getByTestId("browser-map-workbench")).toBeVisible();
   await expect(page.getByText("Saved")).toBeVisible();
 
@@ -678,17 +764,27 @@ test("workspace rail exposes the selected view state", async ({ page }, testInfo
   await page.goto("/");
   await openBaselineSample(page);
   await expect(page.getByTestId("workspace-nav-dashboard")).toHaveAttribute("aria-selected", "true");
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await expect(page.getByTestId("workspace-nav-dashboard")).toHaveAttribute("aria-selected", "false");
-  await expect(page.getByTestId("workspace-nav-map")).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByTestId("task-design")).toHaveAttribute("aria-current", "page");
+  await expect(page.getByTestId("primary-task-navigation").locator('[aria-current="page"]')).toHaveCount(1);
   await expect(page.getByTestId("workspace-nav-review")).toHaveCount(0);
   await page.getByTestId("workspace-nav-files").click();
-  await expect(page.getByTestId("workspace-nav-map")).toHaveAttribute("aria-selected", "false");
+  await expect(page.getByTestId("task-design")).toHaveAttribute("aria-current", "page");
+  await expect(page.getByTestId("primary-task-navigation").locator('[aria-current="page"]')).toHaveCount(1);
   await expect(page.getByTestId("workspace-nav-files")).toHaveAttribute("aria-selected", "true");
   await page.getByTestId("workspace-nav-help").click();
   await expect(page.getByTestId("workspace-nav-files")).toHaveAttribute("aria-selected", "false");
   await expect(page.getByTestId("workspace-nav-help")).toHaveAttribute("aria-selected", "true");
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
+  await expect(page.getByTestId("task-design")).toHaveAttribute("aria-current", "page");
+  await expect(page.getByTestId("primary-task-navigation").locator('[aria-current="page"]')).toHaveCount(1);
+  await page.getByTestId("task-projects").click();
+  await expect(page.getByTestId("task-projects")).toHaveAttribute("aria-current", "page");
+  await expect(page.getByTestId("task-design")).not.toHaveAttribute("aria-current");
+  await expect(page.getByTestId("primary-task-navigation").locator('[aria-current="page"]')).toHaveCount(1);
+  await expect(page.getByTestId("dashboard-workspace")).toBeVisible();
+  await expect(page.getByTestId("workspace-nav-help")).toHaveAttribute("aria-selected", "false");
   await saveScreen(page, testInfo, "workspace-rail-selected-state");
 });
 
@@ -760,7 +856,7 @@ test("tablet portrait map console keeps drawers collapsed and HUD above the view
   await page.setViewportSize({ width: 768, height: 1024 });
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await expect(page.getByTestId("map-view")).toBeVisible();
   await expect(page.getByTestId("left-drawer-handle")).toBeVisible();
   await expect(page.getByTestId("right-drawer-handle")).toBeVisible();
@@ -791,7 +887,7 @@ test("tablet landscape map console has fixed page bounds and drawer handles", as
   await page.setViewportSize({ width: 1024, height: 768 });
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await expect(page.getByTestId("map-view")).toBeVisible();
   await expect(page.getByTestId("left-drawer-handle")).toBeVisible();
   await expect(page.getByTestId("right-drawer-handle")).toBeVisible();
@@ -800,7 +896,9 @@ test("tablet landscape map console has fixed page bounds and drawer handles", as
   await expect(page.getByTestId("map-bottom-hud-toggle")).toHaveCount(0);
   await expectNoPageScroll(page);
   await expectNoHorizontalOverflow(page);
-  await expectMinTargetSize(page, "workspace-nav-map", 48, 48);
+  for (const task of ["projects", "design", "survey", "layout"]) {
+    await expectMinTargetSize(page, `task-${task}`, 48, 48);
+  }
   await expectMinTargetSize(page, "left-drawer-handle", 56, 56);
   await expectMinTargetSize(page, "right-drawer-handle", 56, 56);
   await expectInsideContainer(page, "browser-map-bottom-dock", "browser-map-frame");
@@ -813,9 +911,9 @@ test("tablet landscape map console has fixed page bounds and drawer handles", as
 test("survey rtk receiver starts closed without mutating the project", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-survey").click();
+  await page.getByTestId("task-survey").click();
   await expect(page.getByTestId("survey-view")).toBeVisible();
-  await expect(page.getByTestId("rtk-gate-badge").getByText("Gate closed")).toBeVisible();
+  await expect(page.getByTestId("rtk-gate-badge").getByText("Live capture unavailable")).toBeVisible();
   await expect(page.getByTestId("receiver-collection-readiness")).toHaveText("Connect a receiver to collect a position.");
   await expect(page.getByTestId("receiver-status")).toHaveText("No receiver connected.");
   await expect(page.getByRole("button", { name: "Capture Survey Point" })).toBeDisabled();
@@ -825,7 +923,7 @@ test("survey rtk receiver starts closed without mutating the project", async ({ 
 
 test("survey rtk capture requires current fixed GGA and closes on disconnect", async ({ page }, testInfo) => {
   await openControlledRtkReceiver(page);
-  await expect(page.getByTestId("rtk-gate-badge").getByText("Collection eligible")).toBeVisible();
+  await expect(page.getByTestId("rtk-gate-badge").getByText("Live capture available")).toBeVisible();
   await expect(page.getByText(/Measured field accuracy remains unverified/)).toBeVisible();
   await expect(page.getByText("Fix: RTK Fixed — receiver reported", { exact: true })).toBeVisible();
   await expect(page.getByText("Sentence: GNGGA", { exact: true })).toBeVisible();
@@ -834,7 +932,7 @@ test("survey rtk capture requires current fixed GGA and closes on disconnect", a
   await expect(page.getByTestId("rtk-status")).toContainText("Captured control survey point with RTK fixed confidence.");
   await expect(page.getByText("Unsaved edits")).toBeVisible();
   await page.getByRole("button", { name: "Disconnect receiver", exact: true }).click();
-  await expect(page.getByTestId("rtk-gate-badge").getByText("Gate closed")).toBeVisible();
+  await expect(page.getByTestId("rtk-gate-badge").getByText("Live capture unavailable")).toBeVisible();
   await expect(page.getByRole("button", { name: "Capture Survey Point" })).toBeDisabled();
   await saveScreen(page, testInfo, "survey-rtk-coherent-capture");
 });
@@ -842,17 +940,25 @@ test("survey rtk capture requires current fixed GGA and closes on disconnect", a
 test("survey rtk closed gate disables geometry capture controls", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-survey").click();
-  await expect(page.getByTestId("rtk-gate-badge").getByText("Gate closed")).toBeVisible();
+  await page.getByTestId("task-survey").click();
+  await expect(page.getByTestId("rtk-gate-badge").getByText("Live capture unavailable")).toBeVisible();
+  await selectSurveyPurpose(page, "boundary");
   await expect(page.getByRole("button", { name: "Add Boundary (0)" })).toBeDisabled();
-  await expect(page.getByRole("button", { name: "Commit Boundary" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Use captured boundary in this design" })).toBeDisabled();
+  await selectSurveyPurpose(page, "obstacle");
   await expect(page.getByRole("button", { name: "Add Obstacle (0)" })).toBeDisabled();
-  await expect(page.getByRole("button", { name: "Commit Obstacle" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Use captured obstacle in this design" })).toBeDisabled();
+  await selectSurveyPurpose(page, "feature");
   await expect(page.getByRole("button", { name: "Add Feature Vertex (0)" })).toBeDisabled();
   await expect(page.getByRole("button", { name: "Save Line Feature" })).toBeDisabled();
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
   await saveScreen(page, testInfo, "survey-rtk-geometry-disabled");
 });
+
+async function selectSurveyPurpose(page: Page, purpose: "point" | "boundary" | "obstacle" | "feature"): Promise<void> {
+  await page.getByTestId(`survey-purpose-${purpose}`).click();
+  await expect(page.getByTestId(`survey-${purpose}-controls`)).toBeVisible();
+}
 
 async function mockLocalImageryTiles(page: Page): Promise<void> {
   // This operator-hosted source is a fixture, not a running external tile server.
@@ -871,10 +977,10 @@ async function openControlledRtkReceiver(page: Page): Promise<void> {
   await installOperationalReceiver(page, gga());
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-survey").click();
+  await page.getByTestId("task-survey").click();
   await expect(page.getByRole("textbox", { name: "Receiver source CRS" })).toHaveCount(0);
   await connectOperationalReceiver(page);
-  await expect(page.getByTestId("rtk-gate-badge")).toContainText("Collection eligible");
+  await expect(page.getByTestId("rtk-gate-badge")).toContainText("Live capture available");
 }
 
 test("survey rtk invalid latest fix and replayed epoch cannot revive capture", async ({ page }, testInfo) => {
@@ -882,7 +988,7 @@ test("survey rtk invalid latest fix and replayed epoch cannot revive capture", a
   const storedBefore = await workspaceStorageBytes(page);
   await expect(page.getByText("Sentence: GNGGA", { exact: true })).toBeVisible();
   await emitGga(page, controlledNmeaSentence("GNGGA,120001.00,,,,,0,0,,,,,,,"));
-  await expect(page.getByTestId("rtk-gate-badge")).toContainText("Gate closed");
+  await expect(page.getByTestId("rtk-gate-badge")).toContainText("Live capture unavailable");
   await expect(page.getByRole("button", { name: "Capture Survey Point" })).toBeDisabled();
   await emitGga(page, gga(), 0);
   await expect(page.getByTestId("receiver-collection-readiness")).toContainText("Duplicate GGA epoch");
@@ -890,7 +996,7 @@ test("survey rtk invalid latest fix and replayed epoch cannot revive capture", a
   await expect(page.getByTestId("project-save-state")).toContainText("Saved");
   await saveScreen(page, testInfo, "rtk-invalid-and-replayed-epoch-blocked");
   await emitGga(page, gga("120002.00"));
-  await expect(page.getByTestId("rtk-gate-badge")).toContainText("Collection eligible");
+  await expect(page.getByTestId("rtk-gate-badge")).toContainText("Live capture available");
   await expect(page.getByTestId("project-save-state")).toContainText("Saved");
   expect(await workspaceStorageBytes(page)).toEqual(storedBefore);
 });
@@ -899,6 +1005,7 @@ for (const [kind, name] of [["survey", "Capture Survey Point"], ["geometry", "Ad
   test(`survey rtk ${kind} capture rechecks age before the next display timer`, async ({ page }, testInfo) => {
     await openControlledRtkReceiver(page);
     const storedBefore = await workspaceStorageBytes(page);
+    await selectSurveyPurpose(page, kind === "geometry" ? "boundary" : "point");
     const capture = page.getByRole("button", { name, exact: true });
     await expect(capture).toBeEnabled();
     await capture.evaluate((element) => {
@@ -907,6 +1014,7 @@ for (const [kind, name] of [["survey", "Capture Survey Point"], ["geometry", "Ad
     });
     await expect(page.getByTestId("rtk-status")).toContainText("Collection blocked: Receiver position is stale");
     await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+    await selectSurveyPurpose(page, "boundary");
     await expect(page.getByRole("button", { name: "Add Boundary (0)", exact: true })).toBeVisible();
     expect(await workspaceStorageBytes(page)).toEqual(storedBefore);
     await saveScreen(page, testInfo, `rtk-${kind}-capture-time-gate`);
@@ -916,11 +1024,11 @@ for (const [kind, name] of [["survey", "Capture Survey Point"], ["geometry", "Ad
 test("survey rtk role selection stays local while gate is closed", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-survey").click();
+  await page.getByTestId("task-survey").click();
   await page.getByRole("button", { name: "Pivot", exact: true }).click();
   await page.getByRole("button", { name: "Water", exact: true }).click();
   await page.getByRole("button", { name: "Power", exact: true }).click();
-  await expect(page.getByTestId("rtk-gate-badge").getByText("Gate closed")).toBeVisible();
+  await expect(page.getByTestId("rtk-gate-badge").getByText("Live capture unavailable")).toBeVisible();
   await expect(page.getByRole("button", { name: "Capture Survey Point" })).toBeDisabled();
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
   await expect(page.getByText("Unsaved edits")).toHaveCount(0);
@@ -930,13 +1038,15 @@ test("survey rtk role selection stays local while gate is closed", async ({ page
 test("survey rtk map feature selection stays local while gate is closed", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-survey").click();
+  await page.getByTestId("task-survey").click();
+  await selectSurveyPurpose(page, "feature");
   await page.getByRole("button", { name: "Pump point" }).click();
   await expect(page.getByRole("button", { name: "Save Point Feature" })).toBeDisabled();
   await page.getByRole("button", { name: "Power line" }).click();
+  await selectSurveyPurpose(page, "feature");
   await expect(page.getByRole("button", { name: "Add Feature Vertex (0)" })).toBeDisabled();
   await expect(page.getByRole("button", { name: "Save Line Feature" })).toBeDisabled();
-  await expect(page.getByTestId("rtk-gate-badge").getByText("Gate closed")).toBeVisible();
+  await expect(page.getByTestId("rtk-gate-badge").getByText("Live capture unavailable")).toBeVisible();
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
   await expect(page.getByText("Unsaved edits")).toHaveCount(0);
   await saveScreen(page, testInfo, "survey-rtk-feature-local");
@@ -946,7 +1056,7 @@ test("browser boundary commit keeps projected geometry status explicit", async (
   test.slow();
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await expect(page.getByTestId("browser-map-workbench")).toBeVisible();
   await selectBoundaryTool(page);
   await clickWorkbenchMap(page, { x: 160, y: 180 });
@@ -965,7 +1075,7 @@ test("browser utility line save keeps projected feature status explicit", async 
   test.slow();
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await expect(page.getByTestId("browser-map-workbench")).toBeVisible();
   await selectPipelineTool(page);
   await clickWorkbenchMap(page, { x: 170, y: 330 });
@@ -982,7 +1092,7 @@ test("browser utility line save keeps projected feature status explicit", async 
 test("browser utility point save keeps projected feature status explicit", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await expect(page.getByTestId("browser-map-workbench")).toBeVisible();
   await selectPumpFeatureTool(page);
   await expect(page.getByText("measure · 0 draft pts · capture point, then choose purpose")).toBeVisible();
@@ -1008,7 +1118,7 @@ test("design console selects end-gun circle and corner footprint utility tools",
   await expect(page.getByTestId("project-save-state")).toContainText("Unsaved edits");
   await page.getByTestId("command-icon-save").click();
   await expect(page.getByTestId("project-save-state")).toContainText("Saved");
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await expect(page.getByTestId("browser-map-workbench")).toBeVisible();
 
   const map = page.getByLabel("CPLayout MapLibre imagery workbench");
@@ -1036,32 +1146,23 @@ test("design console selects end-gun circle and corner footprint utility tools",
   await map.scrollIntoViewIfNeeded();
   await expect(page.getByTestId("design-action-polygon")).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByTestId("advisory-map-job-status")).toHaveText("", { timeout: 60000 });
-  if (testInfo.project.name === "mobile-390") {
-    await expect(page.getByTestId("advisory-map-job-status")).toHaveText("", { timeout: 60000 });
-    const bounds = await map.boundingBox();
-    if (!bounds) throw new Error("Missing map bounds");
-    const beforePan = await map.getAttribute("data-map-camera");
-    await page.mouse.move(bounds.x + 60, bounds.y + 140);
-    await page.mouse.down();
-    await page.mouse.move(bounds.x + 60, bounds.y + 60, { steps: 8 });
-    await page.mouse.up();
-    await expect(map).not.toHaveAttribute("data-map-camera", beforePan!);
-    let previousCamera: string | null = null;
-    await expect.poll(async () => {
-      const current = await map.getAttribute("data-map-camera");
-      const stable = current !== null && current === previousCamera;
-      previousCamera = current;
-      return stable;
-    }, { intervals: [200] }).toBe(true);
-  }
-  const desktopFootprint = testInfo.project.name === "desktop";
-  if (desktopFootprint) await page.getByTestId("browser-map-fit-field").click();
-  const footprintPoints = desktopFootprint
-    ? [{ x: x + 1300, y: y + 1300 }, { x: x + 1700, y: y + 1300 }, { x: x + 1300, y: y + 1700 }]
-    : [{ x: 140, y: 420 }, { x: 220, y: 420 }, { x: 180, y: 470 }];
+  const footprintPoints = [
+    { x: x + 1300, y: y + 1300 },
+    { x: x + 1700, y: y + 1300 },
+    { x: x + 1300, y: y + 1700 },
+  ];
   for (const point of footprintPoints) {
-    if (desktopFootprint) await clickWorkbenchProjectedPoint(page, point);
-    else await clickWorkbenchMap(page, point);
+    // The pending-action dock grows after the first vertex; fit using its current measured size.
+    let previousDock: string | null = null;
+    await expect.poll(async () => {
+      const dock = JSON.stringify(await page.getByTestId("browser-map-bottom-dock").boundingBox());
+      const stable = dock !== "null" && dock === previousDock;
+      previousDock = dock;
+      return stable;
+    }, { intervals: [200], message: "drawing dock must settle before fitting the footprint field" }).toBe(true);
+    await page.getByTestId("browser-map-fit-field").click();
+    const click = await clickWorkbenchProjectedPoint(page, point, { strict: true });
+    expect(click, "strict projected footprint click receipt").toBeDefined();
     const feedback = await page.getByTestId("browser-map-action-status").innerText();
     const coordinates = feedback.match(/draft vertex (-?\d+(?:\.\d+)?), (-?\d+(?:\.\d+)?)/);
     expect(coordinates, "Each footprint point must report projected XY").not.toBeNull();
@@ -1070,9 +1171,10 @@ test("design console selects end-gun circle and corner footprint utility tools",
     expect(px).toBeLessThan(x + 3000);
     expect(py).toBeGreaterThan(y);
     expect(py).toBeLessThan(y + 3000);
-    if (desktopFootprint) {
-      expect(Math.hypot(px - point.x, py - point.y), "projected click must land near its requested XY").toBeLessThan(250);
-    }
+    expect(Math.hypot(px - point.x, py - point.y), "projected click must land near its requested XY").toBeLessThan(250);
+    expect(click!.toleranceMeters, "pixel-derived click tolerance must retain the 250 m accuracy gate").toBeLessThanOrEqual(250);
+    expect(Math.hypot(px - click!.projected.x, py - click!.projected.y), "footprint vertex must match the actual rounded canvas click")
+      .toBeLessThanOrEqual(click!.toleranceMeters);
   }
   await expect(page.getByText(/measure .* 3 draft pts .* polygon needs 3 pts/)).toBeVisible();
   await page.getByTestId("browser-action-save-feature").click();
@@ -1098,7 +1200,7 @@ test("pending map purpose reports rejection retry and cancellation without stale
   await page.getByTestId("files-action-import-geojson").click();
   await page.getByTestId("command-icon-save").click();
   await expect(page.getByTestId("project-save-state")).toContainText("Saved");
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await selectCornerFootprintTool(page);
   for (const point of [{ x: 140, y: 240 }, { x: 210, y: 240 }, { x: 175, y: 320 }]) {
     await clickWorkbenchMap(page, point);
@@ -1163,7 +1265,7 @@ test("pending map purpose reports rejection retry and cancellation without stale
 test("full-screen calculation preserves unfinished map drawing and camera", async ({ page }) => {
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await activateMapTool(page, "polygon");
   await clickWorkbenchMap(page, { x: 180, y: 240 });
   await clickWorkbenchMap(page, { x: 200, y: 270 });
@@ -1190,9 +1292,10 @@ test("placement review applies advisory pivot candidates only after confirmation
   test.slow();
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await expect(page.getByTestId("advisory-map-job-status")).toHaveText("", { timeout: 60000 });
-  await expect(page.getByTestId("browser-advisory-generated-field-pivot-layer")).toContainText("Generated advisory plan");
+  await expect(page.getByTestId("browser-advisory-generated-field-pivot-layer")).toContainText(/advisory/i);
+  await expect(page.getByTestId("browser-advisory-generated-field-pivot-layer")).toHaveAttribute("aria-label", /^Generated advisory plan · \d+\/\d+ centers · review only$/);
   await expect(page.getByTestId("browser-advisory-generated-field-pivot-layer")).toContainText("review only");
   await clickHudAction(page, "design-action-calculate");
   await expect(page.getByTestId("design-console-dialog")).toBeVisible();
@@ -1226,7 +1329,7 @@ test("generated field pivot plan saves advisory machine-zone review features aft
   test.slow();
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await clickHudAction(page, "design-action-calculate");
   await expect(page.getByTestId("design-console-dialog")).toBeVisible();
   await expect(page.getByTestId("advisory-calculation-status")).toHaveCount(0, { timeout: 60000 });
@@ -1254,7 +1357,7 @@ test("advisory cost review uses local assumptions without dirtying geometry", as
   test.slow();
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await clickHudAction(page, "design-action-calculate");
   await expect(page.getByTestId("design-console-dialog")).toBeVisible();
   await expect(page.getByTestId("advisory-calculation-status")).toHaveCount(0, { timeout: 60000 });
@@ -1321,7 +1424,7 @@ test("full-scope demo compares cost versus acres across advisory strategies", as
   test.slow();
   await page.goto("/");
   await openFullScopeCostDemoSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await expect(page.getByTestId("browser-map-workbench")).toBeVisible();
 
   await clickHudAction(page, "design-action-calculate");
@@ -1389,7 +1492,7 @@ test("partial-sweep sample exposes advisory sweep efficiency comparison", async 
   test.slow();
   await page.goto("/");
   await openPartialSweepSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await clickHudAction(page, "design-action-calculate");
   await expect(page.getByTestId("design-console-dialog")).toBeVisible();
 
@@ -1421,7 +1524,7 @@ test("partial-sweep sample exposes advisory sweep efficiency comparison", async 
 test("corner arm advisory save requires confirmation and remains advisory", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await openCornerArmAdvisorySheet(page);
   await expect(page.getByTestId("design-console-dialog")).toBeVisible();
   await expect(page.getByTestId("corner-arm-advisory-badges")).toContainText("advisory");
@@ -1446,7 +1549,7 @@ test("corner arm advisory save requires confirmation and remains advisory", asyn
 test("browser map tool buttons expose active state", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await openInspectorIfCollapsed(page);
   await expectToolPressed(page, "design-action-pan", true);
   await expectToolPressed(page, "design-action-polygon", false);
@@ -1485,7 +1588,7 @@ for (const renderer of ["SVG", "MapLibre"] as const) {
     await page.getByTestId("command-icon-save").click();
     await expect(page.getByTestId("project-save-state")).toContainText("Saved");
     const stored = await workspaceStorageBytes(page);
-    await page.getByTestId("workspace-nav-map").click();
+    await page.getByTestId("task-design").click();
     await selectEditTool(page);
     if (renderer === "SVG") await page.getByRole("button", { name: "Select first boundary vertex", exact: true }).click();
     else await activateMapControl(page.getByTestId("browser-edit-select-boundary"), testInfo);
@@ -1553,7 +1656,7 @@ test("text clipping probe distinguishes visible overflow from trailing wrap whit
 test("browser map source details preserve camera, selection and saved geometry", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await selectEditTool(page);
   await activateMapControl(page.getByTestId("browser-edit-select-boundary"), testInfo);
   await expect(page.getByTestId("advisory-map-job-status")).toHaveText("", { timeout: 60000 });
@@ -1606,7 +1709,7 @@ test("browser map panel resize keeps feedback visible and cancels an active drag
   await page.setViewportSize({ width: 1024, height: 900 });
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await selectEditTool(page);
   await activateMapControl(page.getByTestId("browser-edit-select-boundary"), testInfo);
   await expect(page.getByTestId("advisory-map-job-status")).toHaveText("", { timeout: 60000 });
@@ -1653,7 +1756,7 @@ test("browser map panel resize keeps feedback visible and cancels an active drag
 test("browser map edit vertices nudges projected boundary through reducer actions", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await expect(page.getByTestId("browser-map-workbench")).toBeVisible();
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
 
@@ -1676,7 +1779,7 @@ test("browser map edit vertices nudges selected map feature through reducer acti
   test.slow();
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await expect(page.getByTestId("browser-map-workbench")).toBeVisible();
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
 
@@ -1704,7 +1807,7 @@ test("browser map edit vertices resizes selected circle map feature through radi
   test.slow();
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await expect(page.getByTestId("browser-map-workbench")).toBeVisible();
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
 
@@ -1736,7 +1839,7 @@ test("browser map edit inserts and drags a selected boundary vertex through redu
   await page.goto("/");
   await openBaselineSample(page);
   const originalBoundary = parseProjectDocument((await readWorkspace(page)).projectDocuments[0].document).fieldBoundary;
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await selectEditTool(page);
 
   await page.getByTestId("browser-edit-select-boundary").click();
@@ -1770,7 +1873,7 @@ test("cancelled browser vertex drag preserves saved geometry", async ({ page }, 
   await page.goto("/");
   await openBaselineSample(page);
   const savedBefore = await workspaceStorageBytes(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await selectEditTool(page);
   await page.getByTestId("browser-edit-select-boundary").click();
   const handle = page.getByTestId("browser-edit-drag-handle");
@@ -1796,7 +1899,7 @@ test("browser vertex handle tap and secondary buttons do not edit geometry", asy
   await page.goto("/");
   await openBaselineSample(page);
   const stored = await workspaceStorageBytes(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await selectEditTool(page);
   await activateMapControl(page.getByTestId("browser-edit-select-boundary"), testInfo);
   const handle = page.getByTestId("browser-edit-drag-handle");
@@ -1828,7 +1931,7 @@ test("browser rejected vertex drag restores its marker and permits correction", 
   await expect(page.getByTestId("project-save-state")).toContainText("Saved");
   const stored = await workspaceStorageBytes(page);
   const originalBoundary = parseProjectDocument((await readWorkspace(page)).projectDocuments[0].document).fieldBoundary;
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await selectEditTool(page);
   await activateMapControl(page.getByTestId("browser-edit-select-boundary"), testInfo);
   await expect(page.getByTestId("advisory-map-job-status")).toHaveText("", { timeout: 60000 });
@@ -1885,7 +1988,7 @@ test("browser vertex drag ignores foreign pointers and cancels on focus or captu
   await page.goto("/");
   await openBaselineSample(page);
   const stored = await workspaceStorageBytes(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await selectEditTool(page);
   await activateMapControl(page.getByTestId("browser-edit-select-boundary"), testInfo);
   await expect(page.getByTestId("browser-advisory-generated-field-pivot-layer")).toBeVisible();
@@ -1931,7 +2034,7 @@ test("browser vertex selection survives imagery replacement and SVG teardown can
   await page.goto("/");
   await openBaselineSample(page);
   const originalBoundary = parseProjectDocument((await readWorkspace(page)).projectDocuments[0].document).fieldBoundary;
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await selectEditTool(page);
   await activateMapControl(page.getByTestId("browser-edit-select-boundary"), testInfo);
   const handle = page.getByTestId("browser-edit-drag-handle");
@@ -1965,7 +2068,7 @@ test("browser camera controls cancel an active vertex drag before accepting late
   await page.goto("/");
   await openBaselineSample(page);
   const stored = await workspaceStorageBytes(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await selectEditTool(page);
   await activateMapControl(page.getByTestId("browser-edit-select-boundary"), testInfo);
   await expect(page.getByTestId("browser-advisory-generated-field-pivot-layer")).toBeVisible();
@@ -1994,7 +2097,7 @@ test.describe("touch vertex ownership", () => {
     await page.goto("/");
     await openBaselineSample(page);
     const stored = await workspaceStorageBytes(page);
-    await page.getByTestId("workspace-nav-map").click();
+    await page.getByTestId("task-design").click();
     await selectEditTool(page);
     await page.getByTestId("browser-edit-select-boundary").tap();
     await expect(page.getByTestId("browser-advisory-generated-field-pivot-layer")).toBeVisible();
@@ -2031,7 +2134,7 @@ test("browser boundary vertex selection keeps handles clear of the editing dock 
   await page.goto("/");
   await openBaselineSample(page);
   const savedBefore = await workspaceStorageBytes(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await selectEditTool(page);
   await page.getByTestId("browser-edit-select-boundary").click();
   const handle = page.getByTestId("browser-edit-drag-handle");
@@ -2052,7 +2155,7 @@ test("browser boundary vertex selection keeps handles clear of the editing dock 
 test("reselecting a drawing tool and opening machine settings preserve active drafts", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await expect(page.getByTestId("browser-map-workbench")).toBeVisible();
   await selectBoundaryTool(page);
   await expect(page.getByTestId("design-action-polygon")).toHaveAttribute("aria-pressed", "true");
@@ -2074,13 +2177,13 @@ test("reselecting a drawing tool and opening machine settings preserve active dr
 test("browser map workflow modes expose active state", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await expect(page.getByTestId("browser-workflow-design")).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByTestId("browser-workflow-layout")).toHaveAttribute("aria-pressed", "false");
   await page.getByTestId("browser-workflow-layout").click();
   await expect(page.getByTestId("browser-workflow-design")).toHaveAttribute("aria-pressed", "false");
   await expect(page.getByTestId("browser-workflow-layout")).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByText("Layout mode: RTK-only geometry changes; pointer gestures inspect only.")).toBeVisible();
+  await expect(page.getByText("Inspect map: pointer gestures select and view. Form edits remain available.")).toBeVisible();
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
   await saveScreen(page, testInfo, "browser-map-workflow-active-state");
 });
@@ -2089,7 +2192,7 @@ test("compact warnings navigation reveals its tab without blocking map controls"
   test.skip(testInfo.project.name !== "mobile-390");
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await page.getByTestId("command-menu-inspect").click();
   await page.getByTestId("command-inspect-warnings").click();
   const tabs = page.getByTestId("workflow-sidebar-tabs");
@@ -2117,7 +2220,7 @@ test("compact warnings navigation reveals its tab without blocking map controls"
 test("guided manual design stages required geometry without mutating until apply", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await openInspectorIfCollapsed(page);
   await page.getByTestId("workflow-sidebar-tab-tools").click();
 
@@ -2192,7 +2295,7 @@ test("guided manual design stages required geometry without mutating until apply
 test("browser map utility sheets expose active state", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await selectPipelineTool(page);
   await expect(page.getByTestId("design-action-line")).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByTestId("map-hud-active-tool-chip")).toContainText("Draw line");
@@ -2207,14 +2310,16 @@ test("browser map utility sheets expose active state", async ({ page }, testInfo
 test("browser map HUD actions expose disabled state", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   const commit = page.getByTestId("browser-action-commit");
   const saveFeature = page.getByTestId("browser-action-save-feature");
   const clear = page.getByTestId("browser-action-clear");
-  if (testInfo.project.name === "mobile-390") {
+  if (await idleMapHudActionsOmitted(page)) {
+    await expect(page.getByTestId("browser-map-hud-actions")).toHaveCount(0);
     await expect(commit).toHaveCount(0);
     await expect(saveFeature).toHaveCount(0);
     await expect(clear).toHaveCount(0);
+    await expect(page.getByTestId("browser-map-status-hud")).toHaveCSS("pointer-events", "none");
   } else {
     await expect(commit).toHaveAttribute("aria-disabled", "true");
     await expect(saveFeature).toHaveCount(0);
@@ -2247,7 +2352,7 @@ test("browser map HUD actions expose disabled state", async ({ page }, testInfo)
 test("browser map compact HUD actions stay inside the status panel", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await selectBoundaryTool(page);
   await clickWorkbenchMap(page, { x: 160, y: 180 });
   await clickWorkbenchMap(page, { x: 200, y: 240 });
@@ -2274,27 +2379,33 @@ test("browser map compact HUD actions stay inside the status panel", async ({ pa
   await saveScreen(page, testInfo, "browser-map-compact-hud-actions");
 });
 
-test("layout mode keeps map clicks read-only and actions disabled", async ({ page }, testInfo) => {
+test("Inspect map keeps map clicks read-only and actions disabled", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await page.getByTestId("browser-workflow-layout").click();
-  await expect(page.getByText("Layout mode: RTK-only geometry changes; pointer gestures inspect only.")).toBeVisible();
-  const canvas = page.locator(".maplibregl-canvas");
-  await canvas.click({ position: { x: 24, y: 180 } });
-  await canvas.click({ position: { x: 32, y: 220 } });
-  await canvas.click({ position: { x: 40, y: 190 } });
-  await expect(page.getByText("Layout mode is RTK-only; switch to Design for pointer-based geometry edits.")).toBeVisible();
+  await expect(page.getByText("Inspect map: pointer gestures select and view. Form edits remain available.")).toBeVisible();
+  const before = await readWorkspace(page), stored = await workspaceStorageBytes(page);
+  await clickWorkbenchMap(page, { x: 160, y: 180 });
+  await clickWorkbenchMap(page, { x: 200, y: 240 });
+  await clickWorkbenchMap(page, { x: 230, y: 185 });
+  await expect(page.getByText("Inspect map: switch to Edit map for pointer-based geometry edits.")).toBeVisible();
   await expect(page.getByText("pan · 0 draft pts")).toBeVisible();
-  if (testInfo.project.name === "mobile-390") {
+  if (await idleMapHudActionsOmitted(page)) {
     await expect(page.getByTestId("browser-map-hud-actions")).toHaveCount(0);
+    await expect(page.getByTestId("browser-action-commit")).toHaveCount(0);
+    await expect(page.getByTestId("browser-action-save-feature")).toHaveCount(0);
+    await expect(page.getByTestId("browser-action-clear")).toHaveCount(0);
+    await expect(page.getByTestId("browser-map-status-hud")).toHaveCSS("pointer-events", "none");
   } else {
     await expect(page.getByTestId("browser-action-commit")).toHaveAttribute("aria-disabled", "true");
     await expect(page.getByTestId("browser-action-save-feature")).toHaveCount(0);
     await expect(page.getByTestId("browser-action-clear")).toHaveAttribute("aria-disabled", "true");
   }
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
-  await saveScreen(page, testInfo, "layout-mode-actions-disabled");
+  expect(await workspaceStorageBytes(page)).toEqual(stored);
+  expect(await readWorkspace(page)).toEqual(before);
+  await saveScreen(page, testInfo, "inspect-map-actions-disabled");
 });
 
 test("offline browser map workbench stays usable with external requests blocked", async ({ page }, testInfo) => {
@@ -2313,7 +2424,7 @@ test("offline browser map workbench stays usable with external requests blocked"
   await page.getByRole("button", { name: "Aerial Off" }).click();
   await expect(page.getByText(/project exports keep projected\/local XY geometry/)).toBeVisible();
   externalRequests.length = 0;
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await expect(page.getByTestId("browser-map-workbench")).toBeVisible();
   await expect(page.getByText(testInfo.project.name === "mobile-390"
     ? "EPSG:32613" : "EPSG:32613 canonical geometry · offline overlay", { exact: true })).toBeVisible();
@@ -2371,7 +2482,7 @@ test("settings rejected credentialed imagery never reaches map requests", async 
   await page.getByLabel("Attribution").fill("Rejected attribution");
   await page.getByLabel("License").fill("Rejected license");
   await expect(page.getByRole("button", { name: "Apply custom open imagery source" })).toBeDisabled();
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await expect(page.getByText(/Aerial imagery is off/)).toBeVisible();
   expect(requestedUrls.filter((url) => url.includes("tiles.example.com"))).toEqual([]);
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
@@ -2519,7 +2630,7 @@ test("settings map style changes do not enable online imagery", async ({ page },
   await page.getByRole("button", { name: "Imagery", exact: true }).click();
   await expect(page.getByTestId("settings-imagery-source-summary")).toHaveText(/No connected aerial provider selected/);
   await expect(page.getByTestId("settings-imagery-guardrail-summary")).toHaveText(/project exports keep projected\/local XY geometry/);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await expect(page.getByText(testInfo.project.name === "mobile-390"
     ? "EPSG:32613" : "EPSG:32613 canonical geometry · offline overlay", { exact: true })).toBeVisible();
   await expect(page.getByText(/Aerial imagery is off/)).toBeVisible();
@@ -2543,7 +2654,7 @@ test("settings offline imagery off blocks map tile requests after live source is
   await page.getByRole("button", { name: "Aerial Off" }).click();
   await expect(page.getByTestId("settings-imagery-source-summary")).toHaveText(/No connected aerial provider selected/);
   externalRequests.length = 0;
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await expect(page.getByText(/Aerial imagery is off/)).toBeVisible();
   expect(externalRequests).toEqual([]);
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
@@ -2631,7 +2742,7 @@ test("Will Rhea guided demo exposes evidence status and blocked corner-arm calcu
   await expect(page.getByTestId("dashboard-card-walkthrough").getByText("2/9 modules")).toBeVisible();
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
 
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await clickHudAction(page, "design-action-calculate");
   await expect(page.getByTestId("corner-input-missing")).toContainText("Positive last regular drive tower speed in ft/min");
   await expect(page.getByTestId("corner-input-missing")).toContainText("Corner model");
@@ -2690,7 +2801,7 @@ test("dashboard next step advances after imagery walkthrough progress", async ({
 test("dashboard export readiness reflects unsaved browser geometry edits", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await selectBoundaryTool(page);
   await clickWorkbenchMap(page, { x: 160, y: 180 });
   await clickWorkbenchMap(page, { x: 240, y: 180 });
@@ -3031,7 +3142,7 @@ test("survey view reflects imported projected survey csv evidence", async ({ pag
   await page.getByTestId("files-survey-csv-import-input").fill("id,label,role,x,y,source,confidence\nsurvey-import-rtk-float,Imported Float,water_source,501030,4506030,imported,rtk_float\n");
   await page.getByRole("button", { name: "Import CSV" }).click();
   await expect(page.getByTestId("files-status").getByText(/Imported 1 survey point/)).toBeVisible();
-  await page.getByTestId("workspace-nav-survey").click();
+  await page.getByTestId("task-survey").click();
   await expect(page.getByTestId("survey-metric-points")).toContainText("3");
   await expect(page.getByTestId("survey-metric-rtk-fixed")).toContainText("1");
   await expect(page.getByTestId("survey-metric-draft-inputs")).toContainText("2");
@@ -3049,7 +3160,7 @@ test("survey point promotion writes projected water source after explicit action
   await page.getByRole("button", { name: "Import CSV" }).click();
   await page.getByTestId("files-action-save-local").click();
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
-  await page.getByTestId("workspace-nav-survey").click();
+  await page.getByTestId("task-survey").click();
   const importedPoint = page.getByTestId("survey-point-survey-water-promote");
   await expect(importedPoint.getByText("Imported Water")).toBeVisible();
   await importedPoint.getByRole("button", { name: "Set Water from Imported Water" }).click();
@@ -3078,7 +3189,7 @@ test("survey point delete removes imported evidence from canonical export", asyn
   await page.getByRole("button", { name: "Import CSV" }).click();
   await page.getByTestId("files-action-save-local").click();
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
-  await page.getByTestId("workspace-nav-survey").click();
+  await page.getByTestId("task-survey").click();
   const importedPoint = page.getByTestId("survey-point-survey-delete-me");
   await expect(importedPoint.getByText("Delete Me")).toBeVisible();
   await importedPoint.getByRole("button", { name: "Delete survey point Delete Me" }).click();
@@ -3108,7 +3219,7 @@ test("survey rtk float import counts as draft input", async ({ page }, testInfo)
   await page.getByTestId("workspace-nav-files").click();
   await page.getByTestId("files-survey-csv-import-input").fill("id,label,role,x,y,source,confidence\nfloat-only,Float Only,control,501010,4506010,imported,rtk_float\n");
   await page.getByRole("button", { name: "Import CSV" }).click();
-  await page.getByTestId("workspace-nav-survey").click();
+  await page.getByTestId("task-survey").click();
   await expect(page.getByTestId("survey-metric-points")).toContainText("3");
   await expect(page.getByTestId("survey-metric-rtk-fixed")).toContainText("1");
   await expect(page.getByTestId("survey-metric-draft-inputs")).toContainText("2");
@@ -3120,7 +3231,7 @@ test("survey rtk float import counts as draft input", async ({ page }, testInfo)
 test("survey point row actions expose point-specific accessible names", async ({ page }, testInfo) => {
   await page.goto("/");
   await openBaselineSample(page);
-  await page.getByTestId("workspace-nav-survey").click();
+  await page.getByTestId("task-survey").click();
   await expect(page.getByRole("button", { name: "Set Pivot from Pivot center repeated shot" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Delete survey point Pivot center repeated shot" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Delete survey point Road digitized from imagery" })).toBeVisible();
@@ -3133,7 +3244,7 @@ test("dashboard dirty geometry priority outranks imagery-off guidance", async ({
   await openBaselineSample(page);
   await page.getByTestId("workspace-nav-settings").click();
   await page.getByRole("button", { name: "Aerial Off" }).click();
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await selectBoundaryTool(page);
   await clickWorkbenchMap(page, { x: 160, y: 180 });
   await clickWorkbenchMap(page, { x: 240, y: 180 });
@@ -3238,7 +3349,7 @@ test("dashboard layout warnings can inspect the map without geometry mutation", 
   await expect(page.getByTestId("map-view")).toBeVisible();
   await expect(page.getByTestId("browser-map-workbench")).toBeVisible();
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
-  await expect(page.getByText("Layout mode: RTK-only geometry changes; pointer gestures inspect only.")).toBeVisible();
+  await expect(page.getByText("Inspect map: pointer gestures select and view. Form edits remain available.")).toBeVisible();
   await saveScreen(page, testInfo, "dashboard-layout-warning-inspect-map");
 });
 
@@ -3324,6 +3435,26 @@ async function closeProjectDrawerIfOpen(page: Page): Promise<void> {
   const closeButton = page.getByRole("button", { name: "Collapse project drawer" });
   if (await closeButton.count() === 0) return;
   if (await closeButton.first().isVisible()) await closeButton.first().click();
+}
+
+async function openCustomerDetails(page: Page, name: string): Promise<void> {
+  const before = await readWorkspace(page), stored = await workspaceStorageBytes(page);
+  const customer = before.catalog.clients.find(client => client.displayName === name);
+  expect(customer, `Saved customer ${name}`).toBeDefined();
+  if (!customer) throw new Error(`Missing saved customer ${name}`);
+  await openProjectDrawerIfCollapsed(page);
+  const open = page.getByTestId(`catalog-client-${customer.id}-open`);
+  await expect(open).toHaveAccessibleName(`Open customer details for ${name}`);
+  await open.click();
+  await expect(page.getByTestId("client-detail-panel")).toBeVisible();
+  await expect(page.getByTestId("client-detail-panel")).toContainText(name);
+  // Reveal the selected row through its normal drawer control, including foreground phone drawers.
+  await openProjectDrawerIfCollapsed(page);
+  await expect(page.getByTestId(`catalog-client-${customer.id}`)).toHaveAttribute("aria-selected", "true");
+  if (await page.getByTestId("workspace-main-content").isHidden()) await closeProjectDrawerIfOpen(page);
+  await expect(page.getByTestId("client-detail-panel")).toBeVisible();
+  expect(await workspaceStorageBytes(page)).toEqual(stored);
+  expect(await readWorkspace(page)).toEqual(before);
 }
 
 async function openInspectorIfCollapsed(page: Page): Promise<void> {
@@ -3429,7 +3560,7 @@ async function navigateToSurvey(page: Page): Promise<void> {
     await page.getByTestId("command-view-survey").click();
     return;
   }
-  await page.getByTestId("workspace-nav-survey").click();
+  await page.getByTestId("task-survey").click();
 }
 
 async function expectTopToolbarSingleRow(page: Page): Promise<void> {
@@ -3545,7 +3676,7 @@ async function createProjectForSelectedClient(page: Page, itemName: string, cont
   await page.getByTestId("inspector-scroll").getByRole("button", { name: "New Project", exact: true }).click();
   await expect(page.getByTestId("catalog-dialog")).toBeVisible();
   if (contextText) await expect(page.getByTestId("catalog-dialog-context")).toContainText(contextText);
-  await page.getByLabel("Catalog item name").fill(itemName);
+  await page.getByTestId("catalog-dialog-name-input").fill(itemName);
   await page.getByTestId("catalog-dialog-create").click();
   await expect(page.getByTestId("catalog-dialog")).toBeHidden();
 }
@@ -3555,7 +3686,7 @@ async function createProjectFromRail(page: Page, itemName: string, contextText?:
   await clickProjectTreeAction(page, "project");
   await expect(page.getByTestId("catalog-dialog")).toBeVisible();
   if (contextText) await expect(page.getByTestId("catalog-dialog-context")).toContainText(contextText);
-  await page.getByLabel("Catalog item name").fill(itemName);
+  await page.getByTestId("catalog-dialog-name-input").fill(itemName);
   await page.getByTestId("catalog-dialog-create").click();
   await expect(page.getByTestId("catalog-dialog")).toBeHidden();
 }
@@ -3565,7 +3696,7 @@ async function createCatalogItem(page: Page, actionName: string, itemName: strin
   await clickProjectTreeAction(page, projectTreeActionId(actionName));
   await expect(page.getByTestId("catalog-dialog")).toBeVisible();
   if (contextText) await expect(page.getByTestId("catalog-dialog-context")).toContainText(contextText);
-  await page.getByLabel("Catalog item name").fill(itemName);
+  await page.getByTestId("catalog-dialog-name-input").fill(itemName);
   await page.getByTestId("catalog-dialog-create").click();
   await expect(page.getByTestId("catalog-dialog")).toBeHidden();
 }
@@ -3777,6 +3908,15 @@ async function dragBrowserVertex(page: Page, testInfo: TestInfo, delta: { x: num
   return box;
 }
 
+async function idleMapHudActionsOmitted(page: Page): Promise<boolean> {
+  const viewport = page.viewportSize();
+  expect(viewport, "viewport for idle HUD presentation").not.toBeNull();
+  const frame = await page.getByTestId("browser-map-frame").boundingBox();
+  expect(frame, "map frame for idle HUD presentation").not.toBeNull();
+  if (!viewport || !frame) throw new Error("Missing map presentation dimensions");
+  return viewport.width < 760 || (frame.width >= 400 && frame.height > 0 && frame.height < 400);
+}
+
 async function clickWorkbenchMap(page: Page, position: { x: number; y: number }): Promise<void> {
   const map = page.getByLabel("CPLayout MapLibre imagery workbench");
   await map.scrollIntoViewIfNeeded();
@@ -3804,7 +3944,11 @@ async function clickWorkbenchMap(page: Page, position: { x: number; y: number })
   await page.mouse.click(hit.x, hit.y);
 }
 
-async function clickWorkbenchProjectedPoint(page: Page, position: { x: number; y: number }): Promise<void> {
+async function clickWorkbenchProjectedPoint(
+  page: Page,
+  position: { x: number; y: number },
+  options: { strict?: boolean } = {},
+): Promise<{ projected: { x: number; y: number }; toleranceMeters: number } | undefined> {
   const map = page.getByLabel("CPLayout MapLibre imagery workbench");
   await map.scrollIntoViewIfNeeded();
   let previousCamera: string | null = null;
@@ -3829,6 +3973,24 @@ async function clickWorkbenchProjectedPoint(page: Page, position: { x: number; y
     x: frame.x + frame.width / 2 + (target.longitude - longitude) / 360 * worldSize,
     y: frame.y + frame.height / 2 + (mercatorY(target.latitude) - mercatorY(latitude)) * worldSize,
   };
+  if (options.strict) {
+    const hit = { x: Math.round(requested.x), y: Math.round(requested.y) };
+    expect(await map.evaluate((element, point) => {
+      const bounds = element.getBoundingClientRect();
+      const target = document.elementFromPoint(point.x, point.y);
+      return point.x >= bounds.left + 8 && point.x <= bounds.right - 8
+        && point.y >= bounds.top + 8 && point.y <= bounds.bottom - 8
+        && target instanceof HTMLCanvasElement && element.contains(target);
+    }, hit), "the exact rounded projected target must hit its own unobstructed canvas").toBe(true);
+    // Independently invert the actual rounded pixel, following the runtime projection proof.
+    const clickedLongitude = longitude + (hit.x - frame.x - frame.width / 2) * 360 / worldSize;
+    const clickedMercatorY = mercatorY(latitude) + (hit.y - frame.y - frame.height / 2) / worldSize;
+    const clickedLatitude = Math.atan(Math.sinh(Math.PI * (1 - 2 * clickedMercatorY))) * 180 / Math.PI;
+    const projected = projectLonLatToXy({ longitude: clickedLongitude, latitude: clickedLatitude }, "EPSG:32613");
+    const toleranceMeters = Math.max(2, 2 * 40_075_016.686 * Math.cos(clickedLatitude * Math.PI / 180) / worldSize);
+    await page.mouse.click(hit.x, hit.y);
+    return { projected, toleranceMeters };
+  }
   const hit = await unobstructedMapPoint(map, requested, "canvas");
   await page.mouse.click(hit.x, hit.y);
 }

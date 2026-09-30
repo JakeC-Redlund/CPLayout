@@ -4,7 +4,7 @@ import { createSocket } from "node:dgram";
 import { once } from "node:events";
 import { readFile } from "node:fs/promises";
 import { unzipSync, strFromU8 } from "fflate";
-import { gga } from "./operational-receiver-fixture";
+import { connectOperationalReceiver, gga, installOperationalReceiver, type ReceiverFixtureWindow } from "./operational-receiver-fixture";
 
 // Real local TCP/UDP + owned HTTP companion + browser adapter, with synthetic NMEA.
 // This proves software integration only, not a physical receiver or field accuracy.
@@ -36,7 +36,7 @@ for (const protocol of ["tcp", "udp"] as const) {
       await page.goto("/");
       await page.getByTestId("command-menu-file").click();
       await page.getByTestId("command-file-sample-baseline-needs-review").click();
-      await page.getByTestId("workspace-nav-survey").click();
+      await page.getByTestId("task-survey").click();
       await page.getByRole("button", { name: "Wi-Fi / network", exact: true }).click();
       await page.getByRole("button", { name: protocol === "tcp" ? "TCP client" : "UDP receive", exact: true }).click();
       await page.getByRole("textbox", { name: protocol === "tcp" ? "Receiver IP address" : "Local listening IP address", exact: true }).fill("127.0.0.1");
@@ -46,6 +46,11 @@ for (const protocol of ["tcp", "udp"] as const) {
       await page.screenshot({ path: info.outputPath(`${protocol}-communications-settings.png`) });
       await page.getByRole("button", { name: "Connect receiver", exact: true }).click();
       await expect(page.getByText("Connection: connected", { exact: true })).toBeVisible();
+      await page.getByTestId("receiver-settings-toggle").click();
+      await expect(page.getByTestId("receiver-settings")).toHaveCount(0);
+      await expect(page.getByText("Connection: connected", { exact: true })).toBeVisible();
+      await expect(page.getByTestId("receiver-status")).toBeVisible();
+      await expect(page.getByRole("button", { name: "Disconnect receiver", exact: true })).toBeEnabled();
       const collect = page.getByRole("button", { name: "Capture Survey Point", exact: true });
       await expect(collect).toBeDisabled();
       await send(currentGga()); await expect(collect).toBeEnabled(); await collect.click();
@@ -53,12 +58,17 @@ for (const protocol of ["tcp", "udp"] as const) {
       await send(currentGga()); await expect(collect).toBeEnabled();
       await expect(collect).toBeDisabled({ timeout: 5000 }); // includes bridge buffering and browser delivery age
       await page.getByTestId("workspace-nav-files").click();
-      await page.getByTestId("workspace-nav-survey").click();
+      await page.getByTestId("task-survey").click();
+      await expect(page.getByTestId("receiver-settings")).toHaveCount(0);
       await expect(page.getByText("Connection: connected", { exact: true })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Disconnect receiver", exact: true })).toBeEnabled();
       await expect(collect).toBeDisabled();
       await send(currentGga()); await expect(collect).toBeEnabled();
       await page.getByRole("button", { name: "Disconnect receiver", exact: true }).click();
       await expect(page.getByRole("button", { name: "Connect receiver", exact: true })).toBeEnabled();
+      await expect(page.getByTestId("receiver-settings")).toHaveCount(0);
+      await expect(page.getByText("Connection: idle", { exact: true })).toBeVisible();
+      await expect(page.getByTestId("receiver-status")).toHaveText("Receiver disconnected.");
       await expect(collect).toBeDisabled();
       if (protocol === "tcp") await expect.poll(() => sockets.size).toBe(0);
       else {
@@ -83,3 +93,86 @@ for (const protocol of ["tcp", "udp"] as const) {
     }
   });
 }
+
+test("collapsed receiver settings keep cleanup failure and ordinary Disconnect retry available", async ({ page, baseURL }) => {
+  const failures: string[] = []; page.on("pageerror", error => failures.push(error.message));
+  await page.route("**/*", route => new URL(route.request().url()).origin === new URL(baseURL!).origin ? route.continue() : route.abort("blockedbyclient"));
+  // Reuse the transport-boundary fault fixture; application state and cleanup
+  // transitions still run through the actual shared receiver owner.
+  await installOperationalReceiver(page, gga());
+  try {
+    await page.goto("/");
+    await page.getByTestId("command-menu-file").click();
+    await page.getByTestId("command-file-sample-baseline-needs-review").click();
+    await page.getByTestId("task-survey").click();
+    await page.getByRole("textbox", { name: "Baud rate", exact: true }).fill("57600");
+    await connectOperationalReceiver(page);
+    await expect(page.getByRole("button", { name: "Capture Survey Point", exact: true })).toBeEnabled();
+    await page.getByTestId("receiver-settings-toggle").click();
+    await expect(page.getByTestId("receiver-settings-toggle")).toHaveAttribute("aria-expanded", "false");
+    await expect(page.getByTestId("receiver-settings")).toHaveCount(0);
+    await expect(page.getByText("Connection: connected", { exact: true })).toBeVisible();
+    await expect(page.getByTestId("receiver-status")).toBeVisible();
+    const disconnect = page.getByRole("button", { name: "Disconnect receiver", exact: true });
+    await expect(disconnect).toBeEnabled();
+    await page.evaluate(() => { (window as ReceiverFixtureWindow).operationalReceiver.failCloseCount = 1; });
+    await disconnect.focus();
+    await disconnect.click();
+    await expect(page.getByText("Connection: cleanup_failed", { exact: true })).toBeVisible();
+    await expect(page.getByTestId("receiver-status")).toHaveText("Synthetic port cleanup failure");
+    await expect(page.getByTestId("receiver-status")).toBeVisible();
+    await expect(page.getByTestId("receiver-settings")).toHaveCount(0);
+    await expect(page.getByTestId("receiver-settings-toggle")).toHaveAttribute("aria-expanded", "false");
+    await expect(disconnect).toBeEnabled();
+    await expect(disconnect).toBeFocused();
+    await expect(page.getByRole("button", { name: "Connect receiver", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Capture Survey Point", exact: true })).toBeDisabled();
+    expect(await page.evaluate(() => {
+      const fixture = (window as ReceiverFixtureWindow).operationalReceiver;
+      return { openPorts: fixture.openPorts, closeCalls: fixture.closeCalls, requestCount: fixture.requestCount };
+    })).toEqual({ openPorts: 1, closeCalls: 1, requestCount: 1 });
+    await disconnect.click();
+    await expect(page.getByText("Connection: idle", { exact: true })).toBeVisible();
+    await expect(page.getByTestId("receiver-status")).toHaveText("Receiver disconnected.");
+    await expect(page.getByRole("button", { name: "Connect receiver", exact: true })).toBeEnabled();
+    await expect(page.getByRole("button", { name: "Connect receiver", exact: true })).toBeFocused();
+    await expect(page.getByTestId("receiver-settings")).toHaveCount(0);
+    expect(await page.evaluate(() => {
+      const fixture = (window as ReceiverFixtureWindow).operationalReceiver;
+      return { openPorts: fixture.openPorts, closeCalls: fixture.closeCalls, requestCount: fixture.requestCount };
+    })).toEqual({ openPorts: 0, closeCalls: 2, requestCount: 1 });
+    await page.getByTestId("receiver-settings-toggle").click();
+    await expect(page.getByRole("textbox", { name: "Baud rate", exact: true })).toHaveValue("57600");
+    expect(await page.evaluate(() => (window as ReceiverFixtureWindow).operationalReceiver.requestCount)).toBe(1);
+    // A later user focus takes precedence while cleanup is still pending.
+    await connectOperationalReceiver(page, 2);
+    await page.getByTestId("receiver-settings-toggle").click();
+    await page.evaluate(() => {
+      const fixture = (window as ReceiverFixtureWindow).operationalReceiver;
+      fixture.failCloseCount = 1; fixture.deferClose = true;
+    });
+    await disconnect.click();
+    await expect(page.getByRole("button", { name: "Disconnecting…", exact: true })).toBeDisabled();
+    const settingsToggle = page.getByTestId("receiver-settings-toggle");
+    await settingsToggle.focus();
+    await page.evaluate(() => {
+      const fixture = (window as ReceiverFixtureWindow).operationalReceiver;
+      fixture.deferClose = false; fixture.releaseClose();
+    });
+    await expect(page.getByTestId("receiver-status")).toHaveText("Synthetic port cleanup failure");
+    await expect(settingsToggle).toBeFocused();
+    await expect(disconnect).not.toBeFocused();
+    await disconnect.click();
+    await expect(page.getByRole("button", { name: "Connect receiver", exact: true })).toBeEnabled();
+    expect(await page.evaluate(() => (window as ReceiverFixtureWindow).operationalReceiver.openPorts)).toBe(0);
+    expect(await page.evaluate(() => (window as ReceiverFixtureWindow).operationalReceiver.requestCount)).toBe(2);
+    expect(failures).toEqual([]);
+  } finally {
+    await page.evaluate(() => {
+      const fixture = (window as ReceiverFixtureWindow).operationalReceiver;
+      if (fixture) { fixture.failCloseCount = 0; fixture.deferClose = false; fixture.releaseClose(); }
+    });
+    const disconnect = page.getByRole("button", { name: "Disconnect receiver", exact: true });
+    if (await disconnect.isVisible() && await disconnect.isEnabled()) await disconnect.click();
+  }
+});

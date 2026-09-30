@@ -290,7 +290,7 @@ test("canceling new draft creation preserves a saved project's revision and subs
   await openDrawer(page);
   await page.getByTestId("project-tree-action-more").click();
   await page.getByTestId("project-tree-action-design").click();
-  await page.getByLabel("Catalog item name").fill("Canceled draft");
+  await page.getByTestId("catalog-dialog-name-input").fill("Canceled draft");
   await page.getByTestId("catalog-dialog-create").click();
   await expect(page.getByTestId("project-to-draft-discard")).toBeVisible();
   expect(await readWorkspace(page)).toEqual(before);
@@ -317,7 +317,7 @@ test("failed confirmed draft creation restores its name and leaves storage uncha
   await openDrawer(page);
   await page.getByTestId("project-tree-action-more").click();
   await page.getByTestId("project-tree-action-design").click();
-  await page.getByLabel("Catalog item name").fill("Retry retained draft");
+  await page.getByTestId("catalog-dialog-name-input").fill("Retry retained draft");
   const before = await readWorkspace(page);
   await page.evaluate(key => {
     const set = Storage.prototype.setItem;
@@ -333,7 +333,7 @@ test("failed confirmed draft creation restores its name and leaves storage uncha
     await expect(page.getByTestId("catalog-dialog")).toHaveCount(0);
     await page.getByTestId("project-to-draft-discard-confirm").click();
     await expect(page.getByTestId("catalog-dialog")).toBeVisible();
-    await expect(page.getByLabel("Catalog item name")).toHaveValue("Retry retained draft");
+    await expect(page.getByTestId("catalog-dialog-name-input")).toHaveValue("Retry retained draft");
     await expect(page.getByTestId("workspace-storage-error")).toContainText("quota");
     expect(await readWorkspace(page)).toEqual(before);
   } finally {
@@ -345,8 +345,8 @@ test("failed confirmed draft creation restores its name and leaves storage uncha
   expect((await readWorkspace(page)).draftDocuments).toHaveLength(2);
 });
 
-test("Undo during desktop draft creation retains the edited project and its next save", async ({ page }, info) => {
-  test.skip(info.project.name !== "desktop", "This race uses the desktop inline form; compact forms are modal.");
+test("synthetic concurrent Undo during modal draft creation retains the edited project and its next save", async ({ page }, info) => {
+  test.skip(info.project.name !== "desktop", "The concurrent-command fixture uses the desktop command bar.");
   await page.goto("/");
   await page.getByTestId("command-menu-file").click();
   await page.getByTestId("command-file-sample-baseline-needs-review").click();
@@ -359,7 +359,7 @@ test("Undo during desktop draft creation retains the edited project and its next
   await page.getByTestId("catalog-design-draft-design").click();
   await page.getByTestId("project-tree-action-more").click();
   await page.getByTestId("project-tree-action-design").click();
-  await page.getByLabel("Catalog item name").fill("Saved sibling draft");
+  await page.getByTestId("catalog-dialog-name-input").fill("Saved sibling draft");
   await page.evaluate(async () => {
     await new Promise<void>(acquired => {
       void navigator.locks.request("cplayout:workspace:writer:v1", async () => {
@@ -374,7 +374,15 @@ test("Undo during desktop draft creation retains the edited project and its next
     await page.getByTestId("catalog-dialog-create").click();
     await expect.poll(() => page.evaluate(async () => (await navigator.locks.query()).pending
       ?.some(lock => lock.name === "cplayout:workspace:writer:v1") ?? false)).toBe(true);
-    await page.getByTestId("command-icon-undo").click();
+    await expect(page.getByTestId("catalog-dialog-backdrop")).toBeVisible();
+    const undo = page.getByTestId("command-icon-undo");
+    expect(await undo.evaluate(element => {
+      const bounds = element.getBoundingClientRect();
+      const hit = document.elementFromPoint(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+      return hit === element || element.contains(hit);
+    }), "the modal must block pointer access to the underlying Undo command").toBe(false);
+    // Inject a concurrent command for stale-write coverage; this is not a user click through the modal.
+    await undo.evaluate(element => (element as HTMLElement).click());
   } finally {
     await page.evaluate(() => (window as Window & { releaseDraftTestLock?: () => void }).releaseDraftTestLock?.());
   }
@@ -392,14 +400,14 @@ test("Undo during desktop draft creation retains the edited project and its next
 });
 
 test("late desktop draft creation failures cannot report on a newer editor", async ({ page }, info) => {
-  test.skip(info.project.name !== "desktop", "Navigation during a pending inline form is desktop-specific.");
+  test.skip(info.project.name !== "desktop", "The concurrent navigation fixture uses the desktop command bar.");
   await page.goto("/");
   await page.getByTestId("command-menu-file").click();
   await page.getByTestId("command-file-sample-baseline-needs-review").click();
   await page.getByTestId("catalog-design-draft-design").click();
   await page.getByTestId("project-tree-action-more").click();
   await page.getByTestId("project-tree-action-design").click();
-  await page.getByLabel("Catalog item name").fill("Abandoned failing draft");
+  await page.getByTestId("catalog-dialog-name-input").fill("Abandoned failing draft");
   const before = await readWorkspace(page);
   await page.evaluate(async key => {
     const set = Storage.prototype.setItem;
@@ -583,7 +591,7 @@ test("a newer create form supersedes an older draft open waiting for storage", a
     await page.getByTestId("catalog-design-draft-design-open").click();
     await page.getByTestId("project-tree-action-more").click();
     await page.getByTestId("project-tree-action-design").click();
-    await page.getByLabel("Catalog item name").fill("Newer design request");
+    await page.getByTestId("catalog-dialog-name-input").fill("Newer design request");
     await page.getByTestId("catalog-dialog-create").click();
     await expect(page.getByTestId("catalog-dialog-create")).toBeDisabled();
   } finally {

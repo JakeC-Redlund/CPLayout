@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { createServer as createHttpServer } from "node:http";
+import { createServer as createHttpServer, request as requestHttp } from "node:http";
 import { createServer as createTcpServer, type Socket } from "node:net";
 import { createSocket } from "node:dgram";
 import { once } from "node:events";
@@ -14,11 +14,23 @@ async function harness() {
   const address = server.address(); assert.ok(address && typeof address === 'object');
   const origin = `http://127.0.0.1:${address.port}`;
   companion = createReceiverCompanion({ allowedOrigin: origin });
-  async function request(action: string, body: object = {}, token?: string, extraHeaders: Record<string, string> = {}) {
-    const response = await fetch(`${origin}/__cplayout_receiver/v1/${action}`, { method: 'POST', headers: { origin, 'content-type': 'application/json', 'x-cplayout-receiver': protocol, ...(token ? { 'x-cplayout-receiver-token': token } : {}), ...extraHeaders }, body: JSON.stringify(body) });
-    return { status: response.status, body: await response.json() as Record<string, any> };
+  async function request(action: string, body: object | string = {}, token?: string, extraHeaders: Record<string, string> = {}) {
+    // node:http preserves an explicitly supplied Host header; fetch may replace it with the URL host.
+    return new Promise<{ status: number; body: Record<string, any> }>((resolve, reject) => {
+      const outgoing = requestHttp(`${origin}/__cplayout_receiver/v1/${action}`, { method: 'POST', headers: { origin, 'content-type': 'application/json', 'x-cplayout-receiver': protocol, ...(token ? { 'x-cplayout-receiver-token': token } : {}), ...extraHeaders } }, response => {
+        const chunks: Buffer[] = [];
+        response.on('data', chunk => chunks.push(Buffer.from(chunk)));
+        response.on('error', reject);
+        response.on('end', () => {
+          try { resolve({ status: response.statusCode!, body: JSON.parse(Buffer.concat(chunks).toString('utf8')) }); }
+          catch (error) { reject(error); }
+        });
+      });
+      outgoing.on('error', reject);
+      outgoing.end(typeof body === 'string' ? body : JSON.stringify(body));
+    });
   }
-  return { companion, request, async close() { await companion.close(); await new Promise<void>(resolve => server.close(() => resolve())); } };
+  return { companion, request, origin, async close() { await companion.close(); await new Promise<void>(resolve => server.close(() => resolve())); } };
 }
 async function delay(ms = 20) { await new Promise(resolve => setTimeout(resolve, ms)); }
 
@@ -34,6 +46,85 @@ test("companion refuses wrong origin/protocol/token without opening hardware", a
     assert.equal(h.companion.status().connected, false);
   } finally { await h.close(); }
 });
+test("exact Host and UTF-8 body limits reject connect before opening a receiver socket", async () => {
+  const peers: Socket[] = [];
+  const tcp = createTcpServer(socket => { peers.push(socket); });
+  tcp.listen(0, '127.0.0.1'); await once(tcp, 'listening');
+  const address = tcp.address(); assert.ok(address && typeof address === 'object');
+  const h = await harness();
+  try {
+    const token = (await h.request('hello')).body.token;
+    const body = { config: { method: 'network', protocol: 'tcp', address: '127.0.0.1', port: address.port }, padding: '' };
+    const { port } = new URL(h.origin);
+    for (const host of [`localhost:${port}`, '127.0.0.1', `127.0.0.1:${address.port}`]) {
+      const result = await h.request('connect', body, token, { host });
+      assert.equal(result.status, 403, `Host ${host} must match the companion origin exactly`);
+      assert.equal(peers.length, 0);
+      assert.deepEqual(h.companion.status(), { protocol, connected: false, sessionId: null });
+    }
+    const remainingBytes = 4096 - Buffer.byteLength(JSON.stringify(body), 'utf8');
+    const atLimit = JSON.stringify({ ...body, padding: 'a'.repeat(remainingBytes) });
+    const overLimit = JSON.stringify({ ...body, padding: 'a'.repeat(remainingBytes - 1) + 'é' });
+    assert.equal(Buffer.byteLength(atLimit, 'utf8'), 4096);
+    assert.equal(overLimit.length, 4096);
+    assert.equal(Buffer.byteLength(overLimit, 'utf8'), 4097);
+    const rejected = await h.request('connect', overLimit, token);
+    assert.equal(rejected.status, 400);
+    assert.match(rejected.body.error, /too large/i);
+    assert.equal(peers.length, 0);
+    assert.deepEqual(h.companion.status(), { protocol, connected: false, sessionId: null });
+    const opened = await h.request('connect', atLimit, token);
+    assert.equal(opened.status, 200);
+    assert.equal(peers.length, 1);
+    assert.equal((await h.request('disconnect', { sessionId: opened.body.sessionId }, token)).status, 200);
+  } finally { peers.forEach(peer => peer.destroy()); await h.close(); await new Promise<void>(resolve => tcp.close(() => resolve())); }
+});
+
+test("an abandoned owner lease closes TCP and allows another tab to reuse the companion", { timeout: 18000 }, async () => {
+  const peers: Socket[] = [];
+  const tcp = createTcpServer(socket => { peers.push(socket); });
+  tcp.listen(0, '127.0.0.1'); await once(tcp, 'listening');
+  const address = tcp.address(); assert.ok(address && typeof address === 'object');
+  const h = await harness();
+  try {
+    const owner = (await h.request('hello')).body.token;
+    const config = { method: 'network', protocol: 'tcp', address: '127.0.0.1', port: address.port };
+    const initialAcceptance = once(tcp, 'connection', { signal: AbortSignal.timeout(2000) });
+    const [opened, [initialPeer]] = await Promise.all([h.request('connect', { config }, owner), initialAcceptance]);
+    assert.equal(opened.status, 200);
+    assert.equal(peers.length, 1);
+    assert.strictEqual(peers[0], initialPeer);
+    const successor = (await h.request('hello')).body.token;
+    assert.equal((await h.request('connect', { config }, successor)).status, 409);
+    // No owner polls or disconnects: observe the real lease expiring and the transport closing.
+    let deadline: ReturnType<typeof setTimeout> | undefined;
+    try {
+      await Promise.race([
+        once(peers[0], 'close'),
+        new Promise<never>((_resolve, reject) => { deadline = setTimeout(() => reject(new Error('Abandoned TCP receiver remained open beyond its lease')), 13000); }),
+      ]);
+    } finally { clearTimeout(deadline); }
+    assert.deepEqual(h.companion.status(), { protocol, connected: false, sessionId: null });
+    assert.equal((await h.request('poll', { sessionId: opened.body.sessionId }, owner)).status, 409);
+    const successorAcceptance = once(tcp, 'connection', { signal: AbortSignal.timeout(2000) });
+    const [reused, [successorPeer]] = await Promise.all([h.request('connect', { config }, successor), successorAcceptance]);
+    assert.equal(reused.status, 200);
+    assert.notEqual(reused.body.sessionId, opened.body.sessionId);
+    assert.equal(peers.length, 2);
+    assert.strictEqual(peers[1], successorPeer);
+    assert.equal((await h.request('disconnect', { sessionId: opened.body.sessionId }, owner)).status, 200);
+    assert.equal(h.companion.status().sessionId, reused.body.sessionId);
+    peers[1].write(line); await delay();
+    const polled = await h.request('poll', { sessionId: reused.body.sessionId }, successor);
+    assert.equal(polled.status, 200);
+    assert.deepEqual(polled.body.lines.map((entry: any) => entry.sentence), [line.trim()]);
+    const closed = once(peers[1], 'close');
+    assert.equal((await h.request('disconnect', { sessionId: reused.body.sessionId }, successor)).status, 200);
+    await closed;
+    assert.equal(h.companion.status().connected, false);
+  } finally { peers.forEach(peer => peer.destroy()); await h.close(); await new Promise<void>(resolve => tcp.close(() => resolve())); }
+});
+
 test("TCP explicit connect, session ownership, bounded NMEA buffering, ingress age and cleanup", async () => {
   let peer: Socket | undefined;
   const tcp = createTcpServer(socket => { peer = socket; }); tcp.listen(0, '127.0.0.1'); await once(tcp, 'listening');

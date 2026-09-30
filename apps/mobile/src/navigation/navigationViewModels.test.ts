@@ -13,7 +13,7 @@ import {
 
 const menu = parseCplayoutLeftNavMenuXml();
 assert.deepEqual(menu.commandMenus.map((entry) => entry.id), ["file", "inspect", "view", "settings", "help"]);
-assert.deepEqual(menu.railItems.map((entry) => entry.id), ["map", "dashboard", "files", "survey", "help", "settings"]);
+assert.deepEqual(menu.railItems.map((entry) => entry.id), ["dashboard", "files", "help", "settings"]);
 assert.deepEqual(menu.catalogActions.map((entry) => entry.action), [
   "create_client",
   "create_project",

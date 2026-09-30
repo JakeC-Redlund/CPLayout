@@ -108,6 +108,10 @@ import { DesignDraftWorkspace } from "./src/components/DesignDraftWorkspace";
 import { FieldDesignWorkspace } from "./src/components/FieldDesignWorkspace";
 import { CatalogArchiveImport } from "./src/components/CatalogArchiveImport";
 import { LayoutSessionCatalog } from "./src/components/LayoutSessionCatalog";
+import { SavedDesignPreview } from "./src/components/SavedDesignPreview";
+import { assertCatalogFormContextUnchanged } from "./src/catalogFormRecovery";
+import { ReceiverConnectionPanel } from "./src/components/ReceiverConnectionPanel";
+import { PrimaryTaskNavigation, type PrimaryTask } from "./src/components/PrimaryTaskNavigation";
 import { LayoutSessionWorkspace } from "./src/components/LayoutSessionWorkspace";
 import { createBrowserReceiverSessionOwner, type ReceiverSessionOwner } from "./src/gnss/receiverSessionOwner";
 import { newDesignDraft } from "./src/newDesignDraft";
@@ -241,9 +245,10 @@ const leftNavMenuDefinition = parseCplayoutLeftNavMenuXml();
 
 type WorkspaceView = "dashboard" | "map" | "survey" | "files" | "settings" | "help";
 type Screen = "projects" | "workspace";
+type TaskPresentation = { task: PrimaryTask; sequence: number; editorGeneration: number };
 type WalkthroughModuleId = "imagery" | "boundary" | "obstacles" | "pivot" | "survey" | "cornerArmInputs" | "cornerArmCalculation" | "validation" | "export";
 type DesignConsoleModal = DrawingToolPaletteModal;
-type RightWorkflowSidebarPage = "overview" | "tools" | "purpose" | "toolForm" | "layers" | "rtk" | "feature" | "warnings" | "catalog" | "catalogForm";
+type RightWorkflowSidebarPage = "overview" | "tools" | "purpose" | "toolForm" | "layers" | "feature" | "warnings" | "catalog" | "catalogForm";
 type PendingPlacementAction =
   | { kind: "pivot"; candidate: PivotPlacementCandidate }
   | { kind: "cornerArm"; config: AdvisoryCornerArmConfig };
@@ -258,6 +263,19 @@ const DEFAULT_CORNER_ARM_WHEEL_TRACK_LENGTH_METERS = 66;
 const DEFAULT_CORNER_ARM_OVERHANG_LENGTH_METERS = 25;
 
 export default function App(): React.JSX.Element {
+  const [task, setTask] = useState<PrimaryTask>("projects");
+  const [taskRequest, setTaskRequest] = useState<{ task: PrimaryTask; sequence: number } | null>(null);
+  const [navigationNotice, setNavigationNotice] = useState<string | null>(null);
+  const layoutCatalogGuard = useRef<(() => { dirty: boolean; busy: boolean }) | null>(null);
+  const taskRef = useRef(task); taskRef.current = task;
+  const focusedInputs = useRef<Partial<Record<PrimaryTask, { element: HTMLElement; generation: number }>>>({});
+  const taskGeneration = useRef(0);
+  const pendingFocusRestore = useRef<TaskPresentation | null>(null);
+  const contentPresentation = useRef<TaskPresentation | null>(null);
+  const contentCovered = useRef(false);
+  const editorOwner = useRef<{ generation: number; draft: OpenedDraft | null; field: OpenedField | null }>({ generation: 0, draft: null, field: null });
+  const layoutGuard = useRef<(() => { dirty: boolean; busy: boolean }) | null>(null);
+  const childGuard = useRef<(() => { dirty: boolean; busy: boolean }) | null>(null);
   const [draft, setDraft] = useState<OpenedDraft | null>(null);
   const [field, setField] = useState<OpenedField | null>(null);
   const [completed, setCompleted] = useState<Extract<OpenedDesign, { kind: "project" }> | null>(null);
@@ -274,40 +292,164 @@ export default function App(): React.JSX.Element {
     const opened = draft ?? field;
     if (opened) writeWorkspaceResume({ version: 1, context: opened.context, editorOpen: true, view: "map" });
   }, [draft, field]);
-  const covered = Boolean(field || draft || layout || layoutCatalog || archiveImport);
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+    const recordFocus = (event: FocusEvent) => {
+      const element = event.target;
+      if (element instanceof HTMLElement && element.matches("input,textarea,select,[contenteditable=true]") && element.getClientRects().length) {
+        focusedInputs.current[taskRef.current] = { element, generation: editorOwner.current.generation };
+      }
+    };
+    document.addEventListener("focusin", recordFocus);
+    return () => document.removeEventListener("focusin", recordFocus);
+  }, []);
+  const restorePresentedFocus = useCallback(() => {
+    if (Platform.OS !== "web") return;
+    const pending = pendingFocusRestore.current;
+    if (!pending || pending.task !== taskRef.current || pending.sequence !== taskGeneration.current
+      || pending.editorGeneration !== editorOwner.current.generation) return;
+    const presented = contentPresentation.current;
+    if (!contentCovered.current && (!presented || presented.task !== pending.task
+      || presented.sequence !== pending.sequence || presented.editorGeneration !== pending.editorGeneration)) return;
+    const saved = focusedInputs.current[pending.task];
+    if (!saved || saved.generation !== pending.editorGeneration || !saved.element.isConnected) {
+      pendingFocusRestore.current = null;
+      return;
+    }
+    if (!saved.element.getClientRects().length) return;
+    pendingFocusRestore.current = null;
+    saved.element.focus();
+  }, []);
+  const onTaskPresentationReady = useCallback((presented: TaskPresentation) => {
+    contentPresentation.current = presented;
+    restorePresentedFocus();
+  }, [restorePresentedFocus]);
+  function navigateTask(next: PrimaryTask): void {
+    setNavigationNotice(null);
+    // A task switch suspends a screen. It never closes an editor or changes its stored mode.
+    if (next !== "layout" || layout || layoutCatalog) setTask(next);
+    setTaskRequest({ task: next, sequence: ++taskGeneration.current });
+  }
+  function selectContentTask(next: PrimaryTask): void { taskGeneration.current++; setTask(next); }
+  function beforeReplaceEditor(expectedGeneration?: number): boolean {
+    const current = editorOwner.current;
+    if (expectedGeneration !== undefined && expectedGeneration !== current.generation) return false;
+    if (current.draft || current.field) {
+      const state = childGuard.current?.();
+      if (!state || state.busy || state.dirty) {
+        setTask("design");
+        setNavigationNotice(state?.busy ? "An operation is in progress. Try opening the other design when it finishes."
+          : "Your open design has unfinished work. Save or discard it with Close design before opening another design.");
+        return false;
+      }
+      childGuard.current = null; setDraft(null); setField(null);
+    }
+    editorOwner.current = { generation: current.generation + 1, draft: null, field: null };
+    taskGeneration.current++; setTask("design");
+    return true;
+  }
+  function openDraftEditor(opened: OpenedDraft, expectedGeneration?: number): void {
+    if (expectedGeneration !== undefined && expectedGeneration !== editorOwner.current.generation) return;
+    if (editorOwner.current.draft?.context.designId === opened.context.designId) { setTask("design"); return; }
+    if (!beforeReplaceEditor(expectedGeneration)) return;
+    editorOwner.current = { ...editorOwner.current, draft: opened }; childGuard.current = null; setDraft(opened); setField(null);
+  }
+  function openFieldEditor(opened: OpenedField, expectedGeneration?: number): void {
+    if (expectedGeneration !== undefined && expectedGeneration !== editorOwner.current.generation) return;
+    if (editorOwner.current.field?.context.designId === opened.context.designId) { setTask("design"); return; }
+    if (!beforeReplaceEditor(expectedGeneration)) return;
+    editorOwner.current = { ...editorOwner.current, field: opened }; childGuard.current = null; setField(opened); setDraft(null);
+  }
+  const retainedDesign = draft ?? field;
+  const covered = Boolean((archiveImport && task === "projects") || task === "layout" || (retainedDesign && task !== "projects"));
+  contentCovered.current = covered;
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+    // A retained surface becomes visible in this commit; AppContent acknowledges
+    // its own view after the task request has committed. Neither uses a timing delay.
+    pendingFocusRestore.current = { task, sequence: taskGeneration.current, editorGeneration: editorOwner.current.generation };
+    const id = requestAnimationFrame(restorePresentedFocus);
+    return () => cancelAnimationFrame(id);
+  }, [task, taskRequest?.sequence, covered, restorePresentedFocus]);
+  const leaveEditor = () => { editorOwner.current = { generation: editorOwner.current.generation + 1, draft: null, field: null }; childGuard.current = null; setDraft(null); setField(null); navigateTask("projects"); };
   return (
     <SafeAreaProvider>
+      <PrimaryTaskNavigation task={task} onNavigate={navigateTask} />
+      {navigationNotice ? <Text accessibilityRole="alert" style={{ padding: 8, color: "#8b3b21", backgroundColor: "#fff5df" }}>{navigationNotice}</Text> : null}
       <View style={{ flex: 1, display: covered ? "none" : "flex" }}>
         <InputRetentionProvider><AppContent visible={!covered} completed={completed} receiverOwner={receiverOwner}
-          onOpenLayoutCatalog={fieldMapId => setLayoutCatalog({ fieldMapId })}
-          onOpenArchiveImport={fieldMapId => setArchiveImport({ fieldMapId })}
-          onOpenDraft={setDraft} onOpenField={setField} onRequestDiscard={(onConfirm, onCancel) => setPendingDraft({ onConfirm, onCancel })} /></InputRetentionProvider>
+          primaryTask={task} onTaskPresentationReady={onTaskPresentationReady} taskSequence={taskGeneration.current} editorGeneration={editorOwner.current.generation} onNavigateTask={navigateTask} taskRequest={taskRequest} onTaskChange={selectContentTask} getTaskGeneration={() => taskGeneration.current} beforeReplaceEditor={beforeReplaceEditor}
+          retainedEditorContext={retainedDesign?.context ?? null} getEditorGeneration={() => editorOwner.current.generation}
+          onOpenLayoutCatalog={(fieldMapId, requestedTaskGeneration) => {
+            const review = layoutCatalogGuard.current?.();
+            setLayoutCatalog(current => current && (layout || review?.dirty || review?.busy) ? current : { fieldMapId });
+            if (!layout && layoutCatalog && layoutCatalog.fieldMapId !== fieldMapId && (review?.dirty || review?.busy)) setNavigationNotice("Resuming the retained Layout review with its original field selection. Save or cancel that review before preparing a target for another field.");
+            if (requestedTaskGeneration === undefined || requestedTaskGeneration === taskGeneration.current) {
+              setTask("layout");
+              if (layout && layout.session.fieldMapId !== fieldMapId) setNavigationNotice("Resuming the open Layout session in its original field. Use Layout sessions to choose another field target.");
+            }
+          }}
+          onOpenArchiveImport={(fieldMapId, requestedTaskGeneration) => { setArchiveImport(current => current ?? { fieldMapId }); if (requestedTaskGeneration === taskGeneration.current) setTask("projects"); }}
+          onOpenDraft={openDraftEditor} onOpenField={openFieldEditor} onRequestDiscard={(onConfirm, onCancel) => setPendingDraft({ onConfirm, onCancel })} /></InputRetentionProvider>
       </View>
-      {field ? <View style={{ flex: 1, display: layout || layoutCatalog ? "none" : "flex" }}>
-        <FieldDesignWorkspace key={field.context.designId} initial={field} visible={!layout && !layoutCatalog} layoutTargetSaved={layoutTargetSaved} onClose={() => setField(null)}
+      {field ? <View style={{ flex: 1, display: task === "design" ? "flex" : "none" }}>
+        <FieldDesignWorkspace key={field.context.designId} initial={field} visible={task === "design"} navigationGuardRef={childGuard} layoutTargetSaved={layoutTargetSaved} onClose={leaveEditor}
           onOpenLayout={async (targetDocument, fieldMapId, expectedWorkspaceRevision) => {
+            const review = layoutCatalogGuard.current?.();
+            if (review?.busy || review?.dirty) {
+              setNavigationNotice("Your RTK Layout import review is still open. Return to RTK Layout to save or cancel that review before preparing another target.");
+              return false;
+            }
+            const retained = layoutGuard.current?.();
+            if (layout && (!retained || retained.busy || retained.dirty)) {
+              setNavigationNotice("Finish the open Layout session's operation or save or clear its entered text before preparing another target.");
+              return false;
+            }
+            setLayout(null);
             setLayoutCatalog({ fieldMapId, pendingTarget: { targetDocument, fieldMapId, expectedWorkspaceRevision } });
+            setTask("layout");
             return true;
           }} />
       </View> : null}
-      {draft ? <View style={{ flex: 1, display: layout || layoutCatalog ? "none" : "flex" }}>
-        <DesignDraftWorkspace key={draft.context.designId} initial={draft} onClose={() => setDraft(null)}
-          onOpenComplete={opened => { setCompleted(opened); setDraft(null); }} />
+      {draft ? <View style={{ flex: 1, display: task === "design" ? "flex" : "none" }}>
+        <DesignDraftWorkspace key={draft.context.designId} initial={draft} visible={task === "design"} navigationGuardRef={childGuard} onClose={leaveEditor}
+          getTaskGeneration={() => taskGeneration.current}
+          onOpenComplete={(opened, requestedTaskGeneration) => {
+            if (taskRef.current !== "design" || requestedTaskGeneration !== taskGeneration.current
+              || editorOwner.current.draft?.context.designId !== draft.context.designId) return false;
+            editorOwner.current = { generation: editorOwner.current.generation + 1, draft: null, field: null };
+            childGuard.current = null; setCompleted(opened); setDraft(null); setTask("design");
+            return true;
+          }} />
       </View> : null}
-      {layoutCatalog ? <View style={{ flex: 1, display: layout ? "none" : "flex" }}>
-        <LayoutSessionCatalog {...layoutCatalog} visible={!layout} onOpenSession={opened => {
+      {layoutCatalog ? <View style={{ flex: 1, display: task === "layout" && !layout ? "flex" : "none" }}>
+        <LayoutSessionCatalog key={layoutCatalog.fieldMapId ?? "unassigned"} {...layoutCatalog} navigationGuardRef={layoutCatalogGuard} visible={task === "layout" && !layout} onOpenSession={opened => {
           setLayoutTargetSaved({ fieldMapId: opened.session.fieldMapId, targetDocument: opened.session.targetDocument });
           setLayout(opened);
-        }} onClose={() => setLayoutCatalog(null)} />
+        }} onReviewSaved={(opened, submittedTarget) => {
+          setLayoutTargetSaved({ fieldMapId: opened.session.fieldMapId, targetDocument: opened.session.targetDocument });
+          setLayoutCatalog(current => current?.pendingTarget && current.pendingTarget === submittedTarget
+            ? { fieldMapId: current.fieldMapId } : current);
+        }} onClose={() => {
+          layoutCatalogGuard.current = null;
+          setLayoutCatalog(null);
+          navigateTask("design");
+        }} />
       </View> : null}
-      {archiveImport ? <CatalogArchiveImport {...archiveImport} onClose={() => setArchiveImport(null)} onOpenDesign={opened => {
-        setArchiveImport(null);
-        if (opened.kind === "draft") setDraft(opened);
-        else if (opened.kind === "field") setField(opened);
-        else setCompleted(opened);
-      }} /> : null}
-      {layout ? <LayoutSessionWorkspace key={layout.session.id} initial={layout} receiverOwner={receiverOwner}
-        onClose={() => setLayout(null)} onOpenCopy={setLayout} /> : null}
+      {archiveImport ? <View style={{ flex: 1, display: task === "projects" ? "flex" : "none" }}><CatalogArchiveImport {...archiveImport} visible={task === "projects"} getEditorGeneration={() => editorOwner.current.generation} onClose={() => setArchiveImport(null)} onOpenDesign={opened => {
+        if (opened.kind === "draft") openDraftEditor(opened);
+        else if (opened.kind === "field") openFieldEditor(opened);
+        else if (beforeReplaceEditor()) setCompleted(opened);
+        else return;
+        if (editorOwner.current.draft?.context.designId === opened.context.designId || editorOwner.current.field?.context.designId === opened.context.designId || opened.kind === "project") setArchiveImport(null);
+      }} /></View> : null}
+      {retainedDesign && task === "survey" ? <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }} testID="retained-design-survey">
+        <Text style={{ fontSize: 20, fontWeight: "700" }}>Survey · {draft?.draft.name ?? field?.field.name}</Text>
+        <Text>{draft ? "Complete this draft to collect survey evidence into its completed design." : "Survey capture for this independent-machine field is not available. Its saved geometry remains unchanged. You can connect and inspect the receiver here."}</Text>
+        <ReceiverConnectionPanel owner={receiverOwner} projectCrs={draft?.draft.projectCrs ?? field!.field.projectCrs} />
+      </ScrollView> : null}
+      {layout ? <View style={{ flex: 1, display: task === "layout" ? "flex" : "none" }}><LayoutSessionWorkspace key={layout.session.id} initial={layout} receiverOwner={receiverOwner} visible={task === "layout"} navigationGuardRef={layoutGuard}
+        onClose={() => setLayout(null)} onOpenCopy={setLayout} /></View> : null}
       <ConfirmActionDialog visible={pendingDraft !== null} title="Leave unsaved project?"
         message="Changes since the last save will be discarded when you open the selected design."
         confirmLabel="Discard changes" testID="project-to-draft-discard"
@@ -334,14 +476,25 @@ function ProjectImportStatus({ kind }: { kind: "saving" | "saved" | "error" }): 
   );
 }
 
-function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, completed, receiverOwner, onOpenLayoutCatalog, onOpenArchiveImport }: {
+function AppContent({ primaryTask, onTaskPresentationReady, taskSequence, editorGeneration, onNavigateTask, retainedEditorContext, getEditorGeneration, getTaskGeneration, taskRequest, onTaskChange, beforeReplaceEditor, onOpenDraft, onOpenField, onRequestDiscard, visible, completed, receiverOwner, onOpenLayoutCatalog, onOpenArchiveImport }: {
+  primaryTask: PrimaryTask;
+  onTaskPresentationReady: (presentation: TaskPresentation) => void;
+  taskSequence: number;
+  editorGeneration: number;
+  onNavigateTask: (task: PrimaryTask) => void;
+  retainedEditorContext: OpenedDraft["context"] | null;
+  getEditorGeneration: () => number;
+  getTaskGeneration: () => number;
+  taskRequest: { task: PrimaryTask; sequence: number } | null;
+  onTaskChange: (task: PrimaryTask) => void;
+  beforeReplaceEditor: (expectedGeneration?: number) => boolean;
   visible: boolean;
   completed: Extract<OpenedDesign, { kind: "project" }> | null;
   receiverOwner: ReceiverSessionOwner;
-  onOpenLayoutCatalog: (fieldMapId: string | null) => void;
-  onOpenArchiveImport: (fieldMapId: string | null) => void;
-  onOpenDraft: (draft: OpenedDraft) => void;
-  onOpenField: (field: OpenedField) => void;
+  onOpenLayoutCatalog: (fieldMapId: string | null, requestedTaskGeneration?: number) => void;
+  onOpenArchiveImport: (fieldMapId: string | null, requestedTaskGeneration: number) => void;
+  onOpenDraft: (draft: OpenedDraft, expectedGeneration?: number) => void;
+  onOpenField: (field: OpenedField, expectedGeneration?: number) => void;
   onRequestDiscard: (onConfirm: () => void, onCancel: () => void) => void;
 }): React.JSX.Element {
   const inputRetention = useInputRetention();
@@ -450,6 +603,10 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
   const [movingProjectId, setMovingProjectId] = useState<string | null>(null);
   const [deletingProjectId, setDeletingProjectId] = useState<string | null>(null);
   const [deletingClientId, setDeletingClientId] = useState<string | null>(null);
+  const [catalogRefreshMessage, setCatalogRefreshMessage] = useState<string | null>(null);
+  const [mapModeNotice, setMapModeNotice] = useState(false);
+  const [prepareLayoutOpen, setPrepareLayoutOpen] = useState(false);
+  const [designContextOpen, setDesignContextOpen] = useState(false);
   const [catalogNotice, setCatalogNotice] = useState<string | null>(null);
   const [catalogDialogSubmitting, setCatalogDialogSubmitting] = useState(false);
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
@@ -459,11 +616,25 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
   const desktopConsole = Platform.OS === "web" && windowWidth >= 1180;
   const landscapeConsole = windowWidth > windowHeight;
   const shortLandscapeMap = activeView === "map" && landscapeConsole && windowHeight < 500;
+  const compactMapContext = activeView === "map" && (compactLayout || shortLandscapeMap);
+  useEffect(() => {
+    if (!compactMapContext) setDesignContextOpen(false);
+  }, [compactMapContext]);
   const safeBottomGutter = Math.max(insets.bottom, Platform.OS === "android" ? 24 : 0) + 10;
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(() => desktopConsole);
+  const projectDrawerConsole = activeView === "map" || compactLayout;
+  const projectDrawerForeground = projectDrawerConsole && leftDrawerOpen
+    && (windowWidth < 700 || (shortLandscapeMap && windowWidth < 1180));
   const [rightDrawerOpen, setRightDrawerOpen] = useState(() => desktopConsole);
+  const compactMapSidebar = compactLayout && !(shortLandscapeMap && !rightDrawerOpen);
   const [activeSidebarPage, setActiveSidebarPage] = useState<RightWorkflowSidebarPage>("catalog");
   const repository = useProjectRepository();
+  const catalogContextPath = [
+    repository.catalog.clients.find(item => item.id === activeCatalogContext.clientId)?.displayName ?? "Customer",
+    repository.catalog.projects.find(item => item.id === activeCatalogContext.projectId)?.name ?? "Project",
+    repository.catalog.fieldMaps.find(item => item.id === activeCatalogContext.fieldMapId)?.name ?? "Field",
+    (repository.designCatalog?.designs ?? repository.catalog.designs).find(item => item.id === activeCatalogContext.designId)?.name ?? "Design",
+  ].join(" → ");
   useEffect(() => {
     if (resumeStarted.current || repository.catalogRevision === null) return;
     resumeStarted.current = true;
@@ -542,7 +713,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
     ? formCatalog.clients.find((client) => client.id === deletingClientId) ?? null
     : null;
   const sidebarInlineWorkflow = !compactLayout && !nativeMapLibreProofEnabled;
-  const inlineCatalogForms = sidebarInlineWorkflow;
+  const inlineCatalogForms = false; // Catalog dialogs leave the active editor and task mounted.
   const activeCatalogForm = Boolean(catalogDialogMode || clientProfileDialogMode || renamingProject || movingProject || deletingProject || deletingClient);
   const warningCount = (calculation.result?.warnings.length ?? calculation.reasons.length) + (editor.lastError ? 1 : 0);
   const powerEvidenceStatus = useMemo(() => projectPowerLineEvidenceStatus(project), [project]);
@@ -632,9 +803,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
     setPlacementCandidates(null);
   }, [advisoryCostInput]);
 
-  useEffect(() => {
-    if (homeMapView) setDesignConsoleModal(null);
-  }, [homeMapView]);
+
 
   const previousFeatureConsoleModal = useRef(designConsoleModal);
   useEffect(() => {
@@ -653,10 +822,18 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
     }
     if (pendingMapDraftState) { setActiveSidebarPage("purpose"); return; }
     if (selectedMapFeatureId) return;
-    setActiveSidebarPage(settings.mappingWorkflowMode === "layout" ? "rtk" : "tools");
+    setActiveSidebarPage(settings.mappingWorkflowMode === "layout" ? "overview" : "tools");
   }, [homeMapView, selectedMapFeatureId, settings.mappingWorkflowMode, pendingMapDraftState]);
 
+  const compactProjects = compactLayout && activeView === "dashboard";
+  const previousCompactProjects = useRef(compactProjects);
   useEffect(() => {
+    if (compactProjects) {
+      if (!previousCompactProjects.current) setLeftDrawerOpen(false);
+      previousCompactProjects.current = true;
+      return;
+    }
+    previousCompactProjects.current = false;
     if (desktopConsole) {
       setLeftDrawerOpen(true);
       setRightDrawerOpen(true);
@@ -666,7 +843,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
       setLeftDrawerOpen(false);
       setRightDrawerOpen(false);
     }
-  }, [desktopConsole, landscapeConsole, tabletConsole]);
+  }, [compactProjects, desktopConsole, landscapeConsole, tabletConsole]);
 
   function applyPivotCoordinate(coordinate: XY, wgs84?: LonLat): void {
     dispatchProject({ type: "place_pivot", point: coordinate, wgs84 });
@@ -719,6 +896,10 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
   }
 
   function setWorkflowMode(mappingWorkflowMode: AppSettings["mappingWorkflowMode"]): void {
+    if (mappingWorkflowMode !== "design" && (pendingMapDraftState || unfinishedControllerDrawing.current)) {
+      setMapModeNotice(true);
+      return;
+    }
     if (mappingWorkflowMode !== "design") pendingMapScopeRef.current = { ...pendingMapScopeRef.current, editable: false };
     setSettings((current) => parseAppSettings({ ...current, mappingWorkflowMode }));
     if (mappingWorkflowMode !== "design") {
@@ -728,7 +909,10 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
     }
   }
 
-  function loadProject(nextProject: PivotProject, context?: Partial<typeof activeCatalogContext>, persisted = false, persistenceRevision: PersistenceRevision = null): void {
+  function loadProject(nextProject: PivotProject, context?: Partial<typeof activeCatalogContext>, persisted = false, persistenceRevision: PersistenceRevision = null, expectedGeneration?: number): boolean {
+    if (!beforeReplaceEditor(expectedGeneration)) return false;
+    setPrepareLayoutOpen(false);
+    setDesignContextOpen(false);
     inputRetention.reset();
     unfinishedControllerDrawing.current = false;
     invalidateCatalogForm();
@@ -762,16 +946,19 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
     setHomeMapView(false);
     setActiveView("map");
     setWorkflowMode("design");
+    if (windowWidth < 700 || (landscapeConsole && windowHeight < 500 && windowWidth < 1180)) setLeftDrawerOpen(false);
     setActiveSidebarPage("tools");
     setActiveCatalogContext({ clientId: null, projectId: null, fieldMapId: null, designId: null, ...context });
     setScreen("workspace");
+    return true;
   }
 
-  function loadIndependentProject(nextProject: PivotProject): void {
-    loadProject(nextProject, { clientId: null, projectId: null, fieldMapId: null, designId: null });
+  function loadIndependentProject(nextProject: PivotProject, expectedGeneration?: number): boolean {
+    return loadProject(nextProject, { clientId: null, projectId: null, fieldMapId: null, designId: null }, false, null, expectedGeneration);
   }
 
   async function importIndependentProjectZip(owner: object, asCopy = false): Promise<{ name: string; saved: boolean } | null> {
+    const expectedGeneration = getEditorGeneration();
     const accepted: { value: { project: PivotProject; generation: number; session: EditorSaveSession } | null } = { value: null };
     await projectOpenRequests.open(async () => {
       if (asCopy && !repository.canCopyProject) throw new Error("Import Copy requires revision-checked local storage.");
@@ -780,7 +967,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
       const imported = importProjectArchiveZip(bytes);
       return asCopy ? { ...imported, id: `project-copy-${globalThis.crypto.randomUUID()}` } : imported;
     }, (imported) => {
-      loadIndependentProject(imported);
+      if (!loadIndependentProject(imported, expectedGeneration)) return;
       const generation = projectLoadSequenceRef.current;
       accepted.value = { project: editorRef.current.project, generation, session: projectSaveSessionRef.current };
       setProjectImportStatus({ generation, kind: "saving" });
@@ -830,6 +1017,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
   }
 
   function openCatalogHome(): void {
+    onTaskChange("projects");
     invalidateCatalogForm();
     pendingMapScopeRef.current = { ...pendingMapScopeRef.current, editable: false, suspended: true };
     projectOpenRequests.invalidate();
@@ -893,13 +1081,51 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
     finally { siblingOpening.current = false; }
   }
 
-  function openArchiveWorkspace(): void { void openRetainedWorkspace(() => onOpenArchiveImport(activeCatalogContext.fieldMapId)); }
-  function openLayoutWorkspace(): void { void openRetainedWorkspace(() => onOpenLayoutCatalog(activeCatalogContext.fieldMapId)); }
+  const designPresentation = useRef<{ sidebar: RightWorkflowSidebarPage; context: typeof activeCatalogContext } | null>(null);
+  useEffect(() => {
+    if (!taskRequest) return;
+    const next = taskRequest.task;
+    if (compactLayout || (next === "design" && landscapeConsole && windowHeight < 500 && windowWidth < 1180)) setLeftDrawerOpen(false);
+    if (next === "layout") { openLayoutWorkspace(taskRequest.sequence); return; }
+    if (retainedEditorContext && next !== "projects") return;
+    if (next === "projects") {
+      if (retainedEditorContext) setActiveCatalogContext(retainedEditorContext);
+      if (!homeMapView) designPresentation.current = { sidebar: activeSidebarPage, context: activeCatalogContext };
+      pendingMapScopeRef.current = { ...pendingMapScopeRef.current, editable: false, suspended: true };
+      setHomeMapView(true); setActiveView("dashboard");
+    } else {
+      if (projectLoadSequenceRef.current > 0) {
+        setHomeMapView(false);
+        if (designPresentation.current) setActiveSidebarPage(designPresentation.current.sidebar);
+        const target = saveCoordinator.receipt(projectSaveSessionRef.current);
+        const design = repository.catalog.designs.find(item => item.id === target.designId);
+        const field = repository.catalog.fieldMaps.find(item => item.id === design?.fieldMapId);
+        const folder = repository.catalog.projects.find(item => item.id === field?.projectId);
+        setActiveCatalogContext({ clientId: folder?.clientId ?? null, projectId: folder?.id ?? null, fieldMapId: field?.id ?? null, designId: design?.id ?? null });
+      }
+      setActiveView(next === "survey" ? "survey" : "map");
+    }
+  }, [taskRequest?.sequence]);
+  useEffect(() => {
+    const presented = primaryTask === "projects" ? activeView === "dashboard" && homeMapView
+      : primaryTask === "survey" ? activeView === "survey"
+      : primaryTask === "design" && activeView === "map" && (projectLoadSequenceRef.current === 0 || !homeMapView);
+    if (visible && presented) onTaskPresentationReady({ task: primaryTask, sequence: taskSequence, editorGeneration });
+  }, [visible, primaryTask, activeView, homeMapView, taskSequence, editorGeneration, onTaskPresentationReady]);
+  function navigateUtility(view: WorkspaceView): void {
+    if (view === "map" || view === "survey") { onNavigateTask(view === "map" ? "design" : "survey"); return; }
+    if (compactLayout) setLeftDrawerOpen(false);
+    setActiveView(view);
+  }
+
+  function openArchiveWorkspace(): void { const generation = getTaskGeneration(); void openRetainedWorkspace(() => onOpenArchiveImport(activeCatalogContext.fieldMapId, generation)); }
+  function openLayoutWorkspace(requestedTaskGeneration = getTaskGeneration()): void { void openRetainedWorkspace(() => onOpenLayoutCatalog(retainedEditorContext?.fieldMapId ?? activeCatalogContext.fieldMapId, requestedTaskGeneration)); }
 
   async function openSavedProject(projectId: string): Promise<void> {
+    const expectedGeneration = getEditorGeneration();
     try {
       await projectOpenRequests.open(() => repository.openProject(projectId), (loaded) => {
-        const proceed = () => loadProject(loaded.project, loaded.context, true, loaded.persistenceRevision);
+        const proceed = () => loadProject(loaded.project, loaded.context, true, loaded.persistenceRevision, expectedGeneration);
         if (hasUnsavedProjectWork()) onRequestDiscard(proceed, restoreRetainedProjectView);
         else proceed();
       });
@@ -907,19 +1133,20 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
   }
 
   async function openDesignProject(designId: string): Promise<void> {
+    const expectedGeneration = getEditorGeneration();
     try {
       await projectOpenRequests.open(() => repository.openDesignProject(designId), (loaded) => {
         if (loaded.kind === "draft" || loaded.kind === "field") {
           if (saveOwnerMountedRef.current) {
             const proceed = () => {
               setActiveCatalogContext(loaded.context);
-              void openRetainedWorkspace(() => { if (loaded.kind === "draft") onOpenDraft(loaded); else onOpenField(loaded); });
+              void openRetainedWorkspace(() => { if (loaded.kind === "draft") onOpenDraft(loaded, expectedGeneration); else onOpenField(loaded, expectedGeneration); });
             };
             if (hasUnsavedProjectWork()) onRequestDiscard(proceed, restoreRetainedProjectView);
             else proceed();
           }
         } else {
-          const proceed = () => loadProject(loaded.project, loaded.context, true, loaded.persistenceRevision);
+          const proceed = () => loadProject(loaded.project, loaded.context, true, loaded.persistenceRevision, expectedGeneration);
         if (hasUnsavedProjectWork()) onRequestDiscard(proceed, restoreRetainedProjectView);
         else proceed();
         }
@@ -937,6 +1164,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
   }
 
   async function createIndependentField(): Promise<void> {
+    const expectedGeneration = getEditorGeneration();
     let baseline: RetainedProjectReceipt | null = null;
     try {
       const designId = activeCatalogContext.designId;
@@ -958,7 +1186,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
       const opened = await repository.createFieldFromSavedProject(designId, receipt.workspaceRevision);
       if (saveOwnerMountedRef.current && saveCoordinator.isCurrent(projectSaveSession)) {
         retainedProjectReceipt.current = baseline;
-        onOpenField(opened);
+        onOpenField(opened, expectedGeneration);
       }
     } catch (error) {
       const versioned = projectRepository.versionedWorkspace;
@@ -1208,13 +1436,18 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
     openCatalogFormSidebar();
   }
 
+  const catalogOwnerTask = useRef<PrimaryTask>(primaryTask);
+  const catalogLauncher = useRef<HTMLElement | null>(null);
   function beginCatalogForm(): boolean {
     if (catalogDialogSubmitting) return false;
+    catalogOwnerTask.current = primaryTask;
+    if (Platform.OS === "web") catalogLauncher.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     projectOpenRequests.invalidate();
     invalidateCatalogForm();
     repository.clearCatalogError();
+    setCatalogRefreshMessage(null);
     catalogFormRef.current = { revision: repository.catalogRevision, catalog: repository.catalog, projects: repository.projects,
-      context: { ...activeCatalogContext }, clientDefaultName: `Customer ${repository.catalog.clients.length + 1}` };
+      context: { ...activeCatalogContext }, clientDefaultName: "" };
     return true;
   }
 
@@ -1251,7 +1484,11 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
 
   function closeInlineCatalogForm(): void {
     catalogFormRef.current = null;
-    setActiveSidebarPage(homeMapView ? "catalog" : (settings.mappingWorkflowMode === "layout" ? "rtk" : "tools"));
+    if (inlineCatalogForms) setActiveSidebarPage(homeMapView ? "catalog" : "tools");
+    if (Platform.OS === "web") requestAnimationFrame(() => {
+      const launcher = catalogLauncher.current;
+      if (launcher?.isConnected && launcher.getClientRects().length) launcher.focus();
+    });
   }
 
   function invalidateCatalogForm(): void {
@@ -1277,6 +1514,27 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
     } finally {
       if (catalogFormRef.current === session) setCatalogDialogSubmitting(false);
     }
+  }
+
+  async function reviewCatalogFormContext(): Promise<void> {
+    const session = catalogFormRef.current;
+    if (!session || catalogDialogSubmitting || !projectRepository.versionedWorkspace) return;
+    setCatalogDialogSubmitting(true); setCatalogRefreshMessage(null);
+    try {
+      if (movingProjectId || deletingProjectId || deletingClientId) throw new Error("Cancel this action and review the latest saved folder before moving or deleting it. No entered customer or project details will be changed.");
+      const current = await projectRepository.versionedWorkspace.readAsync();
+      if (catalogFormRef.current !== session) return;
+      const context = clientProfileDialogMode === "create" ? { clientId: null, projectId: null, fieldMapId: null }
+        : clientProfileDialogMode === "edit" ? { clientId: editingClientId, projectId: null, fieldMapId: null }
+        : catalogDialogMode === "project" ? { ...session.context, projectId: null, fieldMapId: null }
+        : catalogDialogMode === "fieldMap" ? { ...session.context, fieldMapId: null } : session.context;
+      assertCatalogFormContextUnchanged(session.catalog, current.catalog, context, editingClientId, renamingProjectId);
+      session.revision = current.revision;
+      await repository.refreshProjects();
+      if (catalogFormRef.current === session) setCatalogRefreshMessage("Saved context checked. Your entries are unchanged; use the save button to retry.");
+    } catch (error) {
+      if (catalogFormRef.current === session) setCatalogRefreshMessage(error instanceof Error ? error.message : String(error));
+    } finally { if (catalogFormRef.current === session) setCatalogDialogSubmitting(false); }
   }
 
   function closeCatalogDialog(): void {
@@ -1415,6 +1673,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
   }
 
   async function createDesignForFieldMap(name: string, fieldMapId = activeCatalogContext.fieldMapId): Promise<void> {
+    const expectedGeneration = getEditorGeneration();
     const session = catalogFormRef.current;
     if (!session) return;
     const designName = name.trim();
@@ -1455,7 +1714,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
       });
       if (created && saveOwnerMountedRef.current && catalogFormRef.current === session) {
         invalidateCatalogForm();
-        if (departureIsCurrent()) await openRetainedWorkspace(() => onOpenDraft(created));
+        if (departureIsCurrent()) await openRetainedWorkspace(() => onOpenDraft(created, expectedGeneration));
         else restoreRetainedProjectView();
       }
     } catch (error) {
@@ -1466,6 +1725,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
   }
 
   function hasUnsavedProjectWork(): boolean {
+    if (retainedEditorContext) return false; // The root checks the actual retained editor before replacement.
     return unfinishedControllerDrawing.current || inputRetention.hasDirty() || pendingMapDraftSession.getSnapshot() !== null
       || ((projectLoadSequenceRef.current > 0 || editorRef.current.revision > 0)
         && editorRef.current.revision !== savedRevision);
@@ -1473,6 +1733,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
 
   function restoreRetainedProjectView(): void {
     if (!saveOwnerMountedRef.current) return;
+    onTaskChange("design");
     projectOpenRequests.invalidate();
     invalidateCatalogForm();
     const target = saveCoordinator.receipt(projectSaveSessionRef.current);
@@ -1483,7 +1744,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
       fieldMapId: field?.id ?? null, designId: design?.id ?? null });
     setHomeMapView(false);
     setActiveView("map");
-    setActiveSidebarPage(pendingMapDraftState ? "purpose" : settings.mappingWorkflowMode === "layout" ? "rtk" : "tools");
+    setActiveSidebarPage(pendingMapDraftState ? "purpose" : settings.mappingWorkflowMode === "layout" ? "overview" : "tools");
   }
 
   async function openFieldMap(fieldMapId: string): Promise<void> {
@@ -1570,6 +1831,21 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
     showCatalogMap({ clientId, projectId: null, fieldMapId: null, designId: null });
   }
 
+  function openClientDetails(clientId: string): void {
+    if (!repository.catalog.clients.some(client => client.id === clientId)) return;
+    const foregroundNavigation = windowWidth < 700
+      || (landscapeConsole && windowHeight < 500 && windowWidth < 1180);
+    if (activeCatalogForm || catalogDialogSubmitting) {
+      setCatalogNotice("Finish or cancel the open customer or project form before opening another customer.");
+      if (foregroundNavigation) setLeftDrawerOpen(false);
+      setRightDrawerOpen(true);
+      return;
+    }
+    selectClientFolder(clientId);
+    if (foregroundNavigation) setLeftDrawerOpen(false);
+    setRightDrawerOpen(true);
+  }
+
   function selectProjectCatalogOnly(projectId: string): void {
     const record = repository.catalog.projects.find((candidate) => candidate.id === projectId) ?? null;
     showCatalogMap({
@@ -1614,6 +1890,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
   }
 
   function showCatalogMap(context: Partial<typeof activeCatalogContext>, notice: string | null = null): void {
+    onTaskChange("projects");
     pendingMapScopeRef.current = { ...pendingMapScopeRef.current, editable: false, suspended: true };
     invalidateCatalogForm();
     projectOpenRequests.invalidate();
@@ -1641,7 +1918,13 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
 
   const importNotice = projectImportStatus?.generation === projectGeneration
     ? <ProjectImportStatus kind={projectImportStatus.kind} /> : null;
-  const storageNotice = <WorkspaceStorageNotice repository={repository} />;
+  const storageNotice = <>
+    <WorkspaceStorageNotice repository={repository} />
+    {activeCatalogForm && projectRepository.versionedWorkspace ? <View style={{ gap: 6 }}>
+      {catalogRefreshMessage ? <Text accessibilityLiveRegion="polite" style={styles.mapFeatureMeta} testID="catalog-context-review-result">{catalogRefreshMessage}</Text> : null}
+      <SmallActionButton label="Review latest saved context" disabled={catalogDialogSubmitting} onPress={() => { void reviewCatalogFormContext(); }} testID="catalog-review-context" />
+    </View> : null}
+  </>;
 
   // All hooks stay mounted across CRS transitions; no calculated view mounts without a result.
   if (calculation.result === null) {
@@ -1795,7 +2078,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
           </View>
           <View style={styles.mapFeatureEditor} testID="design-console-status">
             <Text style={styles.mapFeatureTitle}>Workflow Sidebar</Text>
-            <Text style={styles.mapFeatureMeta}>Drawing tools, focused inputs, layers, RTK capture, selected features, and warnings are managed from this right sidebar. Draft vertices and save/clear actions remain on the map.</Text>
+            <Text style={styles.mapFeatureMeta}>Choose drawing and machine inputs in Design. Review coverage and warnings here, collect receiver positions in Survey, and work against a frozen target in RTK Layout.</Text>
           </View>
           {advisoryMachineRenderModel && advisoryMultiMachineReview ? <AdvisoryEvidenceStatusPanel
             advisoryMachineRenderModel={advisoryMachineRenderModel}
@@ -1830,10 +2113,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
               mapCapture={manualDesignMapCapture}
               onApply={(draft) => dispatchProjectWithResult({ type: "apply_manual_design", draft })}
               onRequestMapCapture={requestManualDesignMapCapture}
-              onOpenRtk={() => {
-                setActiveSidebarPage("rtk");
-                setRightDrawerOpen(true);
-              }}
+              onOpenRtk={() => navigateUtility("survey")}
               project={project}
               projectRevision={editor.revision}
               unitSystem={settings.unitSystem}
@@ -1848,8 +2128,8 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
           </View>
           {settings.mappingWorkflowMode === "layout" ? (
             <View style={styles.mapFeatureEditor}>
-              <Text style={styles.mapFeatureTitle}>Layout mode</Text>
-              <Text style={styles.mapFeatureMeta}>Pointer geometry edits stay read-only in Layout. Use RTK capture for survey-controlled geometry changes or switch to Design for map-click drafting.</Text>
+              <Text style={styles.mapFeatureTitle}>Inspect map</Text>
+              <Text style={styles.mapFeatureMeta}>Map clicks select and inspect. Choose Edit map to draw, or Survey to collect receiver positions. Form edits remain available.</Text>
             </View>
           ) : null}
         </>
@@ -1956,28 +2236,6 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
       );
     }
 
-    if (page === "rtk") {
-      if (activeView !== "map") return <View />;
-      return (
-        <>
-          <Text style={styles.sectionTitle}>{settings.mappingWorkflowMode === "design" ? "RTK Design Evidence" : "RTK Layout Capture"}</Text>
-          <BrowserRtkReceiverPanel
-            owner={receiverOwner}
-            onAddMapFeature={addMapFeature}
-            onAddSurveyPoint={(point) => dispatchProjectTransaction({ type: "add_survey_point", point })}
-            onCommitBoundaryDraft={(vertices, captureEvidence) => dispatchProjectTransaction({ type: "commit_boundary_draft", vertices, captureEvidence })}
-            onCommitObstacleDraft={(vertices, kind, confidence, captureEvidence) => dispatchProjectTransaction({ type: "commit_obstacle_draft", vertices, kind, confidence, captureEvidence })}
-            onStatusChange={setRtkReceiverStatus}
-            project={project}
-            settings={settings}
-          />
-          {settings.mappingWorkflowMode === "design" ? (
-            <Text style={styles.mapFeatureMeta}>Accepted captures remain explicit survey or map-feature evidence. Return to the guided transaction to select an input source and apply canonical geometry atomically.</Text>
-          ) : null}
-        </>
-      );
-    }
-
     if (page === "feature") {
       return (
         <>
@@ -2055,7 +2313,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
         <CatalogItemForm
           feedback={storageNotice}
           contextPreview={formatCatalogPath(catalogPathForProject(renamingProject.id))}
-          createButtonLabel="Rename"
+          createButtonLabel="Save changes"
           defaultName={renamingProject.name}
           embedded
           helper="Project folder name"
@@ -2144,7 +2402,8 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
       <AndroidNativeProofRunner enabled={androidNativeProofEnabled} />
       <StatusBar style="dark" />
       <View style={[styles.app, { paddingBottom: safeBottomGutter }]}>
-        <WorkspaceTopToolbar compact={compactLayout} short={shortLandscapeMap} currentLabel={homeMapView ? "Project Catalog" : project.name}>
+        <WorkspaceTopToolbar compact={compactLayout} short={shortLandscapeMap} currentLabel={homeMapView ? "Project Catalog" : project.name}
+          contextLabel={catalogContextPath} onOpenContext={compactMapContext ? () => setDesignContextOpen(true) : undefined}>
           <WorkspaceCommandSurface
             activeView={activeView}
             canRedo={editor.future.length > 0}
@@ -2153,9 +2412,9 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
             dirty={isDirty}
             homeMapView={homeMapView}
             leftDrawerOpen={leftDrawerOpen}
-            onNavigate={setActiveView}
+            onNavigate={navigateUtility}
             onOpenCatalog={openCatalogHome}
-            onOpenFiles={() => setActiveView("files")}
+            onOpenFiles={() => navigateUtility("files")}
             onOpenSample={(nextProject) => loadProjectDashboard(nextProject)}
             onRedo={() => dispatchProject({ type: "redo" })}
             onResetWalkthrough={resetWalkthrough}
@@ -2178,34 +2437,34 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
             rightDrawerOpen={rightDrawerOpen}
           />
         </WorkspaceTopToolbar>
-        <View style={styles.workflowContext} testID="workflow-context">
-          <Text style={styles.mapFeatureMeta}>{[
-            repository.catalog.clients.find(item => item.id === activeCatalogContext.clientId)?.displayName ?? "Customer",
-            repository.catalog.projects.find(item => item.id === activeCatalogContext.projectId)?.name ?? "Project",
-            repository.catalog.fieldMaps.find(item => item.id === activeCatalogContext.fieldMapId)?.name ?? "Field",
-            (repository.designCatalog?.designs ?? repository.catalog.designs).find(item => item.id === activeCatalogContext.designId)?.name ?? "Design",
-          ].join(" → ")}</Text>
+        {!compactMapContext && <View style={styles.workflowContext} testID="workflow-context">
+          <Text style={styles.mapFeatureMeta}>{catalogContextPath}</Text>
           <SmallActionButton label="Layout sessions" testID="open-layout-sessions" onPress={openLayoutWorkspace} />
-        </View>
+        </View>}
         {activeCatalogForm ? null : storageNotice}
         {!homeMapView ? importNotice : null}
 
-        <View style={[styles.workspaceShell, activeView !== "map" && compactLayout && styles.workspaceShellCompact, activeView === "map" && styles.workspaceShellConsole]} testID="workspace-shell">
+        {!homeMapView && activeView === "map" && !compactMapContext ? <View style={{ flexDirection: "row", justifyContent: "flex-end", paddingHorizontal: 10, paddingVertical: 3 }}>
+          <SmallActionButton label="Prepare for RTK Layout" onPress={() => setPrepareLayoutOpen(true)} testID="prepare-rtk-layout" />
+        </View> : null}
+        <View style={[styles.workspaceShell, !projectDrawerConsole && compactLayout && styles.workspaceShellCompact, projectDrawerConsole && styles.workspaceShellConsole]} testID="workspace-shell">
           <ProjectTreeRail
             activeContext={activeCatalogContext}
             activeView={activeView}
             catalog={repository.catalog}
             designCatalog={repository.designCatalog}
             compact={compactLayout}
-            consoleMode={activeView === "map"}
-            drawerOpen={activeView === "map" ? leftDrawerOpen : true}
+            consoleMode={projectDrawerConsole}
+            drawerOpen={projectDrawerConsole ? leftDrawerOpen : true}
+            foreground={projectDrawerForeground}
             menuDefinition={leftNavMenuDefinition}
             onCreateClient={openClientCreateDialog}
             onCreateDesign={() => openCatalogDialog("design")}
             onCreateFieldMap={() => openCatalogDialog("fieldMap")}
             onCreateProject={() => openCatalogDialog("project")}
-            onNavigate={setActiveView}
+            onNavigate={navigateUtility}
             onOpenDesign={openDesignProject}
+            onOpenClient={openClientDetails}
             onOpenFieldMap={openFieldMap}
             onOpenProject={(projectId) => {
               selectProjectCatalogOnly(projectId);
@@ -2221,7 +2480,9 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
 
           <ScrollView
             scrollEnabled={activeView !== "map" || windowWidth < 700}
-            style={[styles.workspaceScroll, activeView === "map" && windowWidth >= 700 && styles.workspaceScrollConsole]}
+            style={[styles.workspaceScroll, activeView === "map" && windowWidth >= 700 && styles.workspaceScrollConsole,
+              projectDrawerForeground && { display: "none" }]}
+            testID="workspace-main-content"
             contentContainerStyle={activeView === "map" ? styles.contentConsole : [styles.content, styles.contentWithAndroidReviewInset, compactLayout && styles.contentCompact]}
           >
           {activeView === "dashboard" && (homeMapView ? (
@@ -2244,7 +2505,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
               dirty={isDirty}
               mode="workspace"
               onCreate={routeToClientSelection}
-              onOpenFiles={() => setActiveView("files")}
+              onOpenFiles={() => navigateUtility("files")}
               onOpenImprovedProof={() => loadProjectDashboard(improvedCenterPivotProofProject)}
               onInspectMap={() => {
                 setWorkflowMode("layout");
@@ -2265,7 +2526,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
           ))}
 
           <View style={{ display: activeView === "map" ? "flex" : "none", flex: activeView === "map" ? 1 : undefined }}>
-            <WorkspaceConsoleShell compact={compactLayout} short={shortLandscapeMap} rightDrawerOpen={nativeMapLibreProofEnabled ? false : rightDrawerOpen} testID="map-view">
+            <WorkspaceConsoleShell compact={compactMapSidebar} short={shortLandscapeMap} rightDrawerOpen={nativeMapLibreProofEnabled ? false : rightDrawerOpen} testID="map-view">
               <View style={styles.mapConsoleFrame}>
                 <AdvisoryCalculationStatus
                   message={!homeMapView && (advisoryError || !advisoryFieldPivotPlan || !advisoryMachineRenderModel) ? advisoryStatus : ""}
@@ -2291,14 +2552,12 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
                       onCalculate={calculateAndOpenPanel}
                       onOpenModal={openDesignConsolePanel}
                       onToggleLayers={toggleLayersPanel}
-                      onOpenReceiver={() => {
-                        setActiveSidebarPage("rtk");
-                        setRightDrawerOpen(true);
-                      }}
+                      onOpenReceiver={() => navigateUtility("survey")}
                       settings={settings}
                     />
                   ) : null}
-                  homeView={homeMapView}
+                  // Reuse the map's existing suspension boundary; hidden tasks retain draft ownership and camera.
+                  homeView={homeMapView || !visible || activeView !== "map"}
                   project={runtimeProject}
                   projectGeneration={projectLoadSequenceRef.current}
                   draftPurposeReceipt={draftPurposeReceipt}
@@ -2334,7 +2593,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
                 <RightWorkflowSidebar
                   activePage={effectiveSidebarPage}
                   purposeRejectionSequence={draftPurposeReceipt?.outcome === "rejected" ? draftPurposeReceipt.sequence : null}
-                  compact={compactLayout}
+                  compact={compactMapSidebar}
                   onToggle={() => setRightDrawerOpen((open) => !open)}
                   open={rightDrawerOpen}
                   pages={visibleSidebarPages}
@@ -2346,17 +2605,14 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
             </WorkspaceConsoleShell>
           </View>
 
-            {activeView === "survey" && (homeMapView ? (
-              <Section title="Survey Capture Readiness" icon={<Satellite size={20} color="#254234" />} testID="survey-view">
-                <View style={styles.mapFeatureEditor}>
-                  <Text style={styles.mapFeatureTitle}>No Project Open</Text>
-                  <Text style={styles.mapFeatureMeta}>Open a saved design, sample, or blank design before capturing survey points. Catalog navigation stays separate from project geometry.</Text>
-                </View>
-              </Section>
-            ) : (
+          {activeView === "survey" && homeMapView ? <Section title="Survey" icon={<Satellite size={20} color="#254234" />} testID="survey-view">
+            <Text style={styles.mapFeatureTitle}>Open a completed design to collect survey evidence</Text>
+            <Text style={styles.mapFeatureMeta}>Choose a saved design in Projects. Your receiver connection is shared across Survey and RTK Layout.</Text>
+          </Section> : null}
+          <View style={{ display: activeView === "survey" && !homeMapView ? "flex" : "none" }}>
               <Section title="Survey Capture Readiness" icon={<Satellite size={20} color="#254234" />} testID="survey-view">
                 <BrowserRtkReceiverPanel
-            owner={receiverOwner}
+            key={`${project.id}:${projectGeneration}`} owner={receiverOwner}
                   onAddMapFeature={addMapFeature}
                   onAddSurveyPoint={(point) => dispatchProjectTransaction({ type: "add_survey_point", point })}
                   onCommitBoundaryDraft={(vertices, captureEvidence) => dispatchProjectTransaction({ type: "commit_boundary_draft", vertices, captureEvidence })}
@@ -2386,7 +2642,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
                 </View>
               ))}
             </Section>
-          ))}
+          </View>
 
           {activeView === "settings" && (
             <SettingsPanel mapPackages={runtimeProject.mapPackages ?? []} settings={settings} onChange={commitSettings} />
@@ -2395,7 +2651,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
           {activeView === "help" && (
             <Section title="Help and Training" icon={<ListChecks size={20} color="#254234" />} testID="help-view">
               <HelpTrainingPanel
-                onNavigate={setActiveView}
+                onNavigate={navigateUtility}
                 onResetWalkthrough={resetWalkthrough}
                 onToggleWalkthrough={updateWalkthrough}
                 progress={walkthroughProgress}
@@ -2524,9 +2780,40 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
             project={runtimeProject}
             result={result}
           settings={settings}
-          visible={designConsoleModal !== null}
+          visible={visible && activeView === "map" && !homeMapView && designConsoleModal !== null}
         />
       ) : null}
+      <ConfirmActionDialog visible={mapModeNotice && visible && primaryTask === "design" && activeView === "map"} title="Your drawing is still open"
+        message="Finish or cancel this drawing before switching to Inspect map. All entered vertices and details are retained."
+        confirmLabel="Return to drawing" testID="inspect-pending-drawing"
+        onCancel={() => setMapModeNotice(false)} onConfirm={() => setMapModeNotice(false)} />
+      <Modal transparent animationType="fade" accessibilityLabel="Design context" visible={designContextOpen && compactMapContext && visible} onRequestClose={() => setDesignContextOpen(false)}>
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 16, backgroundColor: "rgba(20,35,25,0.35)" }}>
+          <View accessibilityViewIsModal style={{ width: "100%", maxWidth: 540, maxHeight: "90%", backgroundColor: "white", borderRadius: 10, padding: 16, gap: 12 }} testID="design-context-panel">
+            <Text style={styles.sectionTitle}>Design context</Text>
+            <ScrollView contentContainerStyle={{ gap: 12 }}>
+              <Text style={styles.mapFeatureTitle}>{catalogContextPath}</Text>
+              <SmallActionButton label="Layout sessions" testID="open-layout-sessions" onPress={() => { setDesignContextOpen(false); openLayoutWorkspace(); }} />
+              {!homeMapView && <SmallActionButton label="Prepare for RTK Layout" testID="prepare-rtk-layout" onPress={() => { setDesignContextOpen(false); setPrepareLayoutOpen(true); }} />}
+            </ScrollView>
+            <SmallActionButton label="Back to map" onPress={() => setDesignContextOpen(false)} testID="design-context-close" />
+          </View>
+        </View>
+      </Modal>
+      <Modal transparent animationType="fade" visible={prepareLayoutOpen && visible && activeView === "map" && !homeMapView} onRequestClose={() => setPrepareLayoutOpen(false)}>
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 16, backgroundColor: "rgba(20,35,25,0.35)" }}>
+          <View accessibilityViewIsModal style={{ width: "100%", maxWidth: 540, maxHeight: "90%", backgroundColor: "white", borderRadius: 10, padding: 16, gap: 12 }} testID="prepare-layout-panel">
+            <Text style={styles.sectionTitle}>Prepare for RTK Layout</Text>
+            <ScrollView contentContainerStyle={{ gap: 12 }}>
+              <Text style={styles.mapFeatureTitle}>{project.name} · {project.machine.name}</Text>
+              <Text style={styles.mapFeatureMeta}>Saved editor revision: {savedRevision === null ? "not saved" : savedRevision}. A Layout session uses a frozen target; later design edits cannot move it.</Text>
+              <Text style={styles.mapFeatureMeta}>{!activeCatalogContext.designId ? "Next: save this design inside a field in Projects." : inputRetention.hasDirty() || pendingMapDraftState || unfinishedControllerDrawing.current ? "Next: apply or discard unfinished design inputs and drawing before preparing a field copy." : "Next: save an independent-machine field copy. Your source design stays available. In the field workspace, calculate a preview, freeze the selected machine target, then create a Layout session."}</Text>
+              <SmallActionButton label="Save as independent-machine field" disabled={!activeCatalogContext.designId || inputRetention.hasDirty() || !!pendingMapDraftState || unfinishedControllerDrawing.current} onPress={() => { void createIndependentField(); }} testID="prepare-create-field" />
+            </ScrollView>
+            <SmallActionButton label="Back to Design" onPress={() => setPrepareLayoutOpen(false)} testID="prepare-layout-close" />
+          </View>
+        </View>
+      </Modal>
       {catalogDialogMode && !inlineCatalogForms ? (
         <ProjectCatalogDialog
           feedback={storageNotice}
@@ -2537,7 +2824,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
           onCancel={closeCatalogDialog}
           onCreate={submitCatalogDialog}
           submitting={catalogDialogSubmitting}
-          visible
+          visible={visible && catalogOwnerTask.current === primaryTask}
         />
       ) : null}
       {clientProfileDialogMode && !inlineCatalogForms ? (
@@ -2549,14 +2836,14 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
           onCancel={closeClientProfileDialog}
           onSave={submitClientProfile}
           submitting={catalogDialogSubmitting}
-          visible
+          visible={visible && catalogOwnerTask.current === primaryTask}
         />
       ) : null}
       {renamingProject && !inlineCatalogForms ? (
         <ProjectCatalogDialog
           feedback={storageNotice}
           contextPreview={formatCatalogPath(catalogPathForProject(renamingProject.id))}
-          createButtonLabel="Rename"
+          createButtonLabel="Save changes"
           defaultName={renamingProject.name}
           helper="Project folder name"
           mode="project"
@@ -2569,7 +2856,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
           onCreate={(name) => renameProjectFolder(renamingProject.id, name)}
           submitting={catalogDialogSubmitting}
           title="Rename Project"
-          visible
+          visible={visible && catalogOwnerTask.current === primaryTask}
         />
       ) : null}
       {movingProject && !inlineCatalogForms ? (
@@ -2586,7 +2873,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
           onMove={(clientId) => moveProjectFolder(movingProject.id, clientId)}
           projectName={movingProject.name}
           submitting={catalogDialogSubmitting}
-          visible
+          visible={visible && catalogOwnerTask.current === primaryTask}
         />
       ) : null}
       {deletingProject && !inlineCatalogForms ? (
@@ -2604,7 +2891,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
           submitting={catalogDialogSubmitting}
           testID="delete-project-dialog"
           title="Delete Project"
-          visible
+          visible={visible && catalogOwnerTask.current === primaryTask}
         />
       ) : null}
       {deletingClient && !inlineCatalogForms ? (
@@ -2622,7 +2909,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
           submitting={catalogDialogSubmitting}
           testID="delete-client-dialog"
           title="Delete Customer"
-          visible
+          visible={visible && catalogOwnerTask.current === primaryTask}
         />
       ) : null}
       {pendingPlacementAction && designConsoleModal !== "calculate" ? (
@@ -2634,7 +2921,7 @@ function AppContent({ onOpenDraft, onOpenField, onRequestDiscard, visible, compl
           submitting={false}
           testID="placement-confirm-dialog"
           title={pendingPlacementAction.kind === "pivot" ? "Apply Advisory Pivot Center" : "Save Advisory Corner Arm"}
-          visible
+          visible={visible && primaryTask === "design" && activeView === "map" && !homeMapView}
         />
       ) : null}
     </SafeAreaView>
@@ -2662,12 +2949,16 @@ const WALKTHROUGH_MODULES: Array<{
 function WorkspaceTopToolbar({
   children,
   compact,
+  contextLabel,
   currentLabel,
+  onOpenContext,
   short,
 }: {
   children: React.ReactNode;
   compact: boolean;
+  contextLabel: string;
   currentLabel: string;
+  onOpenContext?: () => void;
   short: boolean;
 }): React.JSX.Element {
   const commandSurface = compact ? (
@@ -2687,10 +2978,15 @@ function WorkspaceTopToolbar({
     <View style={[styles.workspaceTopToolbar, compact && styles.workspaceTopToolbarCompact,
       short && styles.workspaceTopToolbarShortLandscape]} testID="workspace-top-toolbar">
       <View style={[styles.workspaceBreadcrumb, compact && styles.workspaceBreadcrumbCompact]} testID="workspace-breadcrumb">
-        <Text numberOfLines={1} style={styles.workspaceBreadcrumbText} testID="workspace-breadcrumb-current">
+        {onOpenContext ? <Pressable accessibilityRole="button" accessibilityLabel={`Design context: ${contextLabel}`}
+          onPress={onOpenContext} style={styles.workspaceContextTrigger} testID="design-context-open">
+          <FolderOpen size={17} color="#254234" />
+          <Text numberOfLines={1} style={[styles.workspaceBreadcrumbText, { flex: 1, minWidth: 0 }]} testID="workspace-breadcrumb-current">{currentLabel}</Text>
+          <ChevronDown size={15} color="#254234" />
+        </Pressable> : <Text numberOfLines={1} style={styles.workspaceBreadcrumbText} testID="workspace-breadcrumb-current">
           <Text style={styles.workspaceBreadcrumbRoot}>CPLayout</Text>
           <Text style={styles.workspaceBreadcrumbCurrent}> / {currentLabel}</Text>
-        </Text>
+        </Text>}
       </View>
       {commandSurface}
     </View>
@@ -4754,7 +5050,7 @@ function ManualDesignTransactionPanel({
           {sourceOptions.map((option) => (
             <ActionButton key={option.id} label={option.label} selected={selectedSource() === option.id} onPress={() => selectSource(option.id)} testID={`manual-design-source-${activeStep}-${option.id}`} />
           ))}
-          {sourceOptions.some((option) => option.id === "rtk_evidence") ? <SmallActionButton label="Open Receiver" onPress={onOpenRtk} /> : null}
+          {sourceOptions.some((option) => option.id === "rtk_evidence") ? <SmallActionButton label="Open Survey" onPress={onOpenRtk} testID="manual-design-open-survey" /> : null}
         </View>
       ) : null}
 
@@ -5889,26 +6185,11 @@ function CatalogHomePanel({
   repository: ProjectWorkspaceStatus;
   settings: AppSettings;
 }): React.JSX.Element {
-  const hasCatalogRecords = catalog.clients.length > 0 || catalog.projects.length > 0 || catalog.fieldMaps.length > 0 || catalog.designs.length > 0;
   const storageLabel = repository.backendInfo?.backendLabel ?? repository.backendLabel;
-  const nextAction = hasCatalogRecords ? "Open design" : "Create customer";
-  const imageryState = settings.onlineImagery.enabled ? "No-key preview" : "Off";
 
   return (
     <>
       <Text style={styles.sectionTitle}>Start or resume your work</Text>
-      <View style={styles.metricGrid} testID="catalog-home-readiness">
-        <MetricTile label="Storage" value={storageLabel} />
-        <MetricTile label="Active context" value="Catalog" />
-        <MetricTile label="Next action" value={nextAction} tone={hasCatalogRecords ? "neutral" : "warn"} />
-        <MetricTile label="Imagery" value={imageryState} tone={settings.onlineImagery.enabled ? "neutral" : "good"} />
-      </View>
-      <View style={styles.mapFeatureEditor} testID="catalog-home-status">
-        <Text style={styles.mapFeatureTitle}>{storageLabel}</Text>
-        <Text style={styles.mapFeatureMeta}>
-          {repository.statusMessage} · {settings.onlineImagery.enabled ? "USGS live reference is enabled with attribution on the map." : "No external imagery is requested."}
-        </Text>
-      </View>
       {notice ? (
         <View style={styles.warningItem} testID="catalog-notice">
           <AlertTriangle size={17} color="#9a4c1c" />
@@ -5918,17 +6199,31 @@ function CatalogHomePanel({
       <View style={styles.inlineActions}>
         <SmallActionButton label="Create customer" onPress={onCreateClient} testID="start-create-customer" />
         <SmallActionButton label="Import" onPress={onImport} testID="start-import" />
-        <SmallActionButton label="Units and preferences" onPress={onPreferences} testID="start-preferences" />
       </View>
       <View style={styles.mapFeatureEditor} testID="recent-work">
         <Text style={styles.mapFeatureTitle}>Recent work</Text>
         {[...(repository.designCatalog?.designs ?? catalog.designs)].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, 6).map(design =>
-          <SmallActionButton key={design.id} label={design.name} onPress={() => onOpenDesign(design.id)} testID={`recent-design-${design.id}`} />)}
+          <Pressable key={design.id} accessibilityRole="button" accessibilityLabel={`Open ${design.name}`} onPress={() => { void onOpenDesign(design.id); }} style={{ padding: 10, borderWidth: 1, borderColor: "#ccd7c9", borderRadius: 8, gap: 5 }} testID={`recent-design-${design.id}`}>
+            <SavedDesignPreview designId={design.id} revision={"revision" in design ? design.revision : undefined} fieldName={catalog.fieldMaps.find(item => item.id === design.fieldMapId)?.name} />
+            <Text style={styles.mapFeatureTitle}>{design.name}</Text><Text style={styles.mapFeatureMeta}>Open</Text>
+          </Pressable>)}
         {(repository.designCatalog?.designs ?? catalog.designs).length === 0 ? <Text style={styles.mapFeatureMeta}>Your saved drafts and designs will appear here.</Text> : null}
       </View>
       <View style={styles.warningItem}>
         <MapPinned size={17} color="#9a4c1c" />
         <Text style={styles.warningText}>Create a customer and project, name your first field, then add a design. You can return to any saved item from the list.</Text>
+      </View>
+      <View style={styles.inlineActions}>
+        <SmallActionButton label="Units and preferences" onPress={onPreferences} testID="start-preferences" />
+      </View>
+      <View testID="catalog-home-readiness">
+        <View style={styles.mapFeatureEditor} testID="catalog-home-status">
+          <Text style={styles.mapFeatureTitle}>Storage details</Text>
+          <Text style={styles.mapFeatureMeta}>{storageLabel} · {repository.statusMessage}</Text>
+          <Text style={styles.mapFeatureMeta}>
+            {settings.onlineImagery.enabled ? "USGS live reference is enabled with attribution on the map." : "No external imagery is requested."}
+          </Text>
+        </View>
       </View>
     </>
   );
@@ -6652,7 +6947,7 @@ function walkthroughStorageKey(projectId: string): string {
 }
 
 function workflowModeLabel(mode: AppSettings["mappingWorkflowMode"]): string {
-  return mode === "design" ? "Design" : "Layout RTK";
+  return mode === "design" ? "Edit map" : "Inspect map";
 }
 
 function pendingPlacementMessage(action: PendingPlacementAction): string {
@@ -6759,7 +7054,6 @@ function rightWorkflowSidebarPages({
     ...(mappingWorkflowMode === "design" && activePurposeForm ? [{ id: "purpose" as const, label: "Drawing purpose", shortLabel: "PURPOSE" }] : []),
     ...(mappingWorkflowMode === "design" && activeToolForm ? [{ id: "toolForm" as const, label: toolFormLabel, shortLabel: "INPUTS" }] : []),
     { id: "layers", label: "Layers", shortLabel: "LAY" },
-    { id: "rtk", label: "RTK", shortLabel: "RTK" },
     ...(selectedMapFeature ? [{ id: "feature" as const, label: "Feature", shortLabel: "FEAT" }] : []),
     { id: "warnings", label: "Warnings", shortLabel: "WARN", count: warningCount },
   ];
@@ -6871,12 +7165,14 @@ function ProjectTreeRail({
   compact,
   consoleMode,
   drawerOpen,
+  foreground,
   menuDefinition,
   onCreateClient,
   onCreateDesign,
   onCreateFieldMap,
   onCreateProject,
   onNavigate,
+  onOpenClient,
   onOpenDesign,
   onOpenFieldMap,
   onOpenProject,
@@ -6900,12 +7196,14 @@ function ProjectTreeRail({
   compact: boolean;
   consoleMode: boolean;
   drawerOpen: boolean;
+  foreground: boolean;
   menuDefinition: CplayoutLeftNavMenuDefinition;
   onCreateClient: () => void | Promise<void>;
   onCreateDesign: () => void | Promise<void>;
   onCreateFieldMap: () => void | Promise<void>;
   onCreateProject: () => void | Promise<void>;
   onNavigate: (view: WorkspaceView) => void;
+  onOpenClient: (clientId: string) => void;
   onOpenDesign: (designId: string) => void | Promise<void>;
   onOpenFieldMap: (fieldMapId: string) => void | Promise<void>;
   onOpenProject: (projectId: string) => void | Promise<void>;
@@ -6998,7 +7296,8 @@ function ProjectTreeRail({
   }
 
   return (
-    <ScrollView style={[styles.leftRail, compact && !consoleMode && styles.leftRailCompact, consoleMode && styles.leftRailConsole, consoleMode && !drawerOpen && styles.leftRailConsoleCollapsed]}
+    <ScrollView style={[styles.leftRail, compact && !consoleMode && styles.leftRailCompact, consoleMode && styles.leftRailConsole,
+      consoleMode && !drawerOpen && styles.leftRailConsoleCollapsed, foreground && styles.leftRailForeground]}
       contentContainerStyle={[styles.leftRailContent, consoleMode && !drawerOpen && { alignItems: "center" }]} testID="workspace-rail">
       {consoleMode ? (
         <Pressable
@@ -7048,7 +7347,7 @@ function ProjectTreeRail({
               </ScrollView>
             </View>
           ) : null}
-          <ScrollView style={[styles.projectTreeScroll, compact && styles.projectTreeScrollCompact]} contentContainerStyle={styles.projectTreeContent} testID="project-tree-scroll">
+          <ScrollView style={[styles.projectTreeScroll, compact && !foreground && styles.projectTreeScrollCompact]} contentContainerStyle={styles.projectTreeContent} testID="project-tree-scroll">
             {catalog.clients.length === 0 ? (
               <Text style={styles.projectTreeEmpty}>No customers yet.</Text>
             ) : null}
@@ -7061,7 +7360,7 @@ function ProjectTreeRail({
                     icon={<FolderOpen size={15} color="#d5e2db" />}
                     label={client.label}
                     meta={client.meta}
-                    onOpen={() => onSelectClient(client.id)}
+                    onOpen={() => onOpenClient(client.id)}
                     onSelect={() => onSelectClient(client.id)}
                     testID={`catalog-client-${client.id}`}
                   />
@@ -7174,7 +7473,7 @@ function ProjectTreeNode({
           <Text style={styles.projectTreeNodeMeta} numberOfLines={1}>{meta}</Text>
         </View>
       </Pressable>
-      <Pressable accessibilityRole="button" accessibilityLabel={`Open ${["customer", "project", "field", "design"][depth]} ${label} in project tree`} testID={`${testID}-open`}
+      <Pressable accessibilityRole="button" accessibilityLabel={depth === 0 ? `Open customer details for ${label}` : `Open ${["customer", "project", "field", "design"][depth]} ${label} in project tree`} testID={`${testID}-open`}
         onPress={() => void onOpen()} onHoverIn={() => setOpenHovered(true)} onHoverOut={() => setOpenHovered(false)}
         style={styles.projectTreeNodeOpen}>
         <FolderOpen size={17} color="#e5f0e8" />
@@ -7804,7 +8103,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   workspaceTopToolbarShortLandscape: {
-    height: 44,
+    height: 49,
     paddingVertical: 0,
   },
   workspaceBreadcrumb: {
@@ -7814,6 +8113,13 @@ const styles = StyleSheet.create({
   workspaceBreadcrumbCompact: {
     flexBasis: 118,
     flexGrow: 0,
+  },
+  workspaceContextTrigger: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 5,
+    minHeight: 48,
+    minWidth: 48,
   },
   workspaceBreadcrumbText: {
     color: "#526257",
@@ -7837,6 +8143,7 @@ const styles = StyleSheet.create({
   workspaceCommandScrollContent: {
     alignItems: "center",
     flexGrow: 0,
+    paddingRight: 1,
   },
   statusRow: {
     flexDirection: "row",
@@ -7898,10 +8205,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     width: 64,
   },
+  leftRailForeground: { flexGrow: 1, flexShrink: 1, flexBasis: "auto", width: "100%", maxWidth: "100%", minWidth: 0 },
   leftRailCompact: {
     borderRightWidth: 0,
     flexShrink: 0,
-    maxHeight: 360,
+    maxHeight: "45%",
     paddingHorizontal: 8,
     width: "100%",
   },
@@ -7982,6 +8290,7 @@ const styles = StyleSheet.create({
   },
   projectTreeScrollCompact: {
     flexGrow: 0,
+    flexBasis: "auto",
     maxHeight: 120,
     minHeight: 30,
   },

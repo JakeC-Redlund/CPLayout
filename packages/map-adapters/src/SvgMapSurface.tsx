@@ -581,6 +581,8 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
   }
 
   const shortInspectView = externalHudLayout && windowHeight < 500 && mapState.mode === "pan" && mapState.draftVertices.length === 0;
+  const idleCompactPan = externalHudLayout && compactLayout && mapState.mode === "pan"
+    && mapState.draftVertices.length === 0 && !selectedVertex;
   const shortLandscapeDraftHud = shortLandscape && designMode && !shortInspectView;
   const deferMapNotices = externalHudLayout && (compactLayout || shortLandscape || mapPixelWidth < 560 || shortInspectView);
   const legendIncludesNotices = deferMapNotices && Boolean(imageryPlan || referenceOverlayNotice);
@@ -666,7 +668,7 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
         style={[styles.draftHudText, shortLandscapeDraftHud && styles.draftHudTextShortLandscape]}>
         {designMode
           ? `${mapState.mode === "measure" ? activeFeatureGeometry.replace("String", "") : mapState.activeLayer.replaceAll("_", " ")} \u00b7 ${mapState.draftVertices.length} pts${selectedVertex ? ` \u00b7 ${selectedProjectVertexText(project, selectedVertex)}` : ""}`
-          : catalogHomeView ? "Catalog view \u00b7 open a saved design to edit projected XY geometry" : "Layout \u00b7 RTK-only mutation \u00b7 pointer editing controls hidden"}
+          : catalogHomeView ? "Catalog view \u00b7 open a saved design to edit projected XY geometry" : "Inspect map \u00b7 pointer gestures select and view"}
       </Text>
       {designMode && mapState.draftVertices.length > 1 ? <Text numberOfLines={shortLandscapeDraftHud ? 1 : undefined}
         style={[styles.draftHudText, shortLandscapeDraftHud && styles.draftHudTextShortLandscape]} testID="svg-map-draft-measurement">{draftMeasurementText(mapState.mode === "measure" ? activeFeatureGeometry : "Polygon", mapState.draftVertices, project.projectCrs, settings.unitSystem)}</Text> : null}
@@ -908,7 +910,7 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
         ) : null}
       </View>
 
-      {deferMapNotices && !shortInspectView && !shortLandscapeDraftHud && !shortLandscape ? draftHud : null}
+      {deferMapNotices && !shortInspectView && !shortLandscapeDraftHud && !shortLandscape && !idleCompactPan ? draftHud : null}
       {bottomOverlay && externalCompactToolbar ? (
         <View style={styles.compactToolbarSlot} testID="svg-map-bottom-overlay">{bottomOverlay}</View>
       ) : null}
@@ -1780,7 +1782,7 @@ function WorkflowSegmentedControl({ mode, onChange, short = false }: { mode: Map
 }
 
 function workflowModeLabel(mode: MappingWorkflowMode): string {
-  return mode === "design" ? "Design" : "Layout";
+  return mode === "design" ? "Edit map" : "Inspect map";
 }
 
 function ToolButton({ active, disabled = false, icon, label, onPress }: { active: boolean; disabled?: boolean; icon: React.ReactNode; label: string; onPress: () => void }): React.JSX.Element {

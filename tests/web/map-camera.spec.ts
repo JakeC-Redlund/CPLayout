@@ -127,7 +127,7 @@ test("offscreen accepted vertex edit and undo/redo preserve camera and canonical
   await page.goto("/");
   await openSample(page);
   const original = await saveProject(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await selectBoundary(page);
   const camera = await panAndZoom(page, true);
   const instance = await page.getByLabel(mapLabel).getAttribute("data-map-instance");
@@ -152,7 +152,7 @@ test("explicit same-vertex reselect reveals the panned-offscreen selection witho
   await page.goto("/");
   await openSample(page);
   await saveProject(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await selectBoundary(page);
   const away = await panAndZoom(page, true);
   const selection = await page.getByTestId("browser-edit-drag-handle").getAttribute("aria-label");
@@ -177,7 +177,7 @@ test("rejected duplicate vertex edit preserves panned zoomed camera, selection a
   await page.getByTestId("files-action-import-geojson").click();
   await expect(page.getByTestId("project-save-state")).toContainText("Unsaved edits");
   const original = await saveProject(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await selectBoundary(page);
   const camera = await panAndZoom(page, true);
   const instance = await page.getByLabel(mapLabel).getAttribute("data-map-instance");
@@ -196,18 +196,18 @@ test("reopening the same project ID discards the previous camera and freshly fit
   await page.goto("/");
   await openSample(page);
   const original = await saveProject(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await closePanels(page);
   // Establish the reference fit at the same panel dimensions as the later reopen.
   await openSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   const fit = await stableCamera(page);
   const away = await panAndZoom(page);
   const instance = await page.getByLabel(mapLabel).getAttribute("data-map-instance");
   const oldCanvas = await page.getByLabel(mapLabel).locator("canvas").elementHandle();
   expect(oldCanvas).not.toBeNull();
   await openSample(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await closePanels(page);
   const reopened = await stableCamera(page);
   expect(reopened).not.toEqual(away);
@@ -225,7 +225,7 @@ test("same-frame imagery replacement preserves a deliberately panned and zoomed 
   await page.goto("/");
   await openSample(page);
   const original = await saveProject(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await closePanels(page);
   const camera = await panAndZoom(page);
   const instance = await page.getByLabel(mapLabel).getAttribute("data-map-instance");
@@ -257,7 +257,7 @@ test("large viewport shrink reveals a visible selection but leaves an offscreen 
   await page.goto("/");
   await openSample(page);
   await saveProject(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await selectBoundary(page);
   await expect.poll(() => handleIsOnMap(page)).toBe(true);
   const stored = await workspaceStorageBytes(page);

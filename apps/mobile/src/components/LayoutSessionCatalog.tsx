@@ -18,19 +18,31 @@ export interface LayoutSessionCatalogProps {
   fieldMapId: string | null;
   /** The catalog can remain mounted behind an open session to retain import review input. */
   visible?: boolean;
+  navigationGuardRef?: React.MutableRefObject<(() => { dirty: boolean; busy: boolean }) | null>;
   onOpenSession: (opened: OpenedLayoutSession) => void;
+  /** Reports committed review persistence, including completion while this catalog is hidden. */
+  onReviewSaved?: (opened: OpenedLayoutSession, submittedTarget?: PendingLayoutTarget) => void;
   onClose: () => void;
   pendingTarget?: PendingLayoutTarget;
 }
 type ImportCandidate = { kind: "target" | "session"; document: string; target: FieldLayoutTarget; name: string };
 
 /** Owns import review and association. No document is written before the explicit save action. */
-export function LayoutSessionCatalog({ fieldMapId, visible = true, onOpenSession, onClose, pendingTarget }: LayoutSessionCatalogProps): React.JSX.Element {
+export function LayoutSessionCatalog({ fieldMapId, visible = true, onOpenSession, onReviewSaved, onClose, pendingTarget, navigationGuardRef }: LayoutSessionCatalogProps): React.JSX.Element {
   const repository = useProjectRepository();
+  const visibleRef = useRef(visible); visibleRef.current = visible;
   const wasVisible = useRef(visible);
-  const [association, setAssociation] = useState(pendingTarget?.fieldMapId ?? fieldMapId);
-  const [candidate, setCandidate] = useState<ImportCandidate | null>(null);
-  const [name, setName] = useState("");
+  const [association, setAssociationState] = useState(pendingTarget?.fieldMapId ?? fieldMapId);
+  const [candidate, setCandidateState] = useState<ImportCandidate | null>(null);
+  const [name, setNameState] = useState("");
+  const associationRef = useRef(association);
+  const candidateRef = useRef(candidate);
+  const nameRef = useRef(name);
+  const pendingReviewRef = useRef(!!pendingTarget);
+  const importOpenRef = useRef(false);
+  function setAssociation(value: string | null) { associationRef.current = value; setAssociationState(value); }
+  function setCandidate(value: ImportCandidate | null) { candidateRef.current = value; pendingReviewRef.current = !!value; setCandidateState(value); }
+  function setName(value: string) { nameRef.current = value; setNameState(value); }
   const [showArchived, setShowArchived] = useState(false);
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false);
@@ -39,7 +51,21 @@ export function LayoutSessionCatalog({ fieldMapId, visible = true, onOpenSession
   const [failed, setFailed] = useState(false);
   const [confirmClose, setConfirmClose] = useState(false);
   const [expectedTargetRevision, setExpectedTargetRevision] = useState<number | null>(pendingTarget?.expectedWorkspaceRevision ?? null);
-  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  function reviewDirty(): boolean {
+    return pendingReviewRef.current || candidateRef.current !== null || nameRef.current.length > 0
+      || importOpenRef.current;
+  }
+  function mayStart(): boolean { return mounted.current && visibleRef.current && !busyRef.current; }
+  const readNavigationState = useRef(() => ({ dirty: reviewDirty(), busy: busyRef.current || importOpenRef.current }));
+  if (navigationGuardRef) navigationGuardRef.current = readNavigationState.current;
+  useEffect(() => {
+    mounted.current = true;
+    if (navigationGuardRef) navigationGuardRef.current = readNavigationState.current;
+    return () => {
+      mounted.current = false;
+      if (navigationGuardRef?.current === readNavigationState.current) navigationGuardRef.current = null;
+    };
+  }, [navigationGuardRef]);
   useEffect(() => {
     const returningToCatalog = visible && !wasVisible.current;
     wasVisible.current = visible;
@@ -49,6 +75,7 @@ export function LayoutSessionCatalog({ fieldMapId, visible = true, onOpenSession
   }, [visible, repository.refreshProjects]);
   useEffect(() => {
     if (!pendingTarget) return;
+    pendingReviewRef.current = true;
     try {
       const target = parseFieldLayoutTarget(pendingTarget.targetDocument);
       const nextName = `${target.field.name} Layout`;
@@ -61,11 +88,11 @@ export function LayoutSessionCatalog({ fieldMapId, visible = true, onOpenSession
   const project = repository.catalog.projects.find(item => item.id === field?.projectId);
   const customer = repository.catalog.clients.find(item => item.id === project?.clientId);
   const upgradeNeeded = repository.workspaceVersion !== "cplayout-workspace-v3";
-  const canWrite = repository.canSaveLayout && !upgradeNeeded && !!field && !busy;
+  const canWrite = visible && repository.canSaveLayout && !upgradeNeeded && !!field && !busy;
   const sessions = repository.layoutSessions.filter(session => session.fieldMapId === association && (showArchived || !session.archived));
 
   async function run(operation: () => Promise<void>): Promise<void> {
-    if (busyRef.current || !mounted.current) return;
+    if (!mayStart()) return;
     busyRef.current = true; setBusy(true); setMessage(null); setFailed(false);
     try { await operation(); }
     catch (error) { if (mounted.current) { setMessage(layoutErrorMessage(error)); setFailed(true); } }
@@ -77,12 +104,16 @@ export function LayoutSessionCatalog({ fieldMapId, visible = true, onOpenSession
   }
   async function pickImport(): Promise<void> {
     await run(async () => {
-      const picked = await pickLayoutFile(() => {
+      importOpenRef.current = true;
+      let picked: Awaited<ReturnType<typeof pickLayoutFile>>;
+      try { picked = await pickLayoutFile(() => {
         if (!mounted.current) return;
         // A chosen replacement retires the old review before reading or validating it.
         // Canceling the chooser never invokes this callback and keeps the old review.
         setCandidate(null); setName(""); setExpectedTargetRevision(null);
-      });
+        // Choosing a file starts an explicit review even if reading or validation fails.
+        pendingReviewRef.current = true;
+      }); } finally { importOpenRef.current = false; }
       if (!picked || !mounted.current) return;
       let next: ImportCandidate;
       if (/\.zip$/i.test(picked.name)) {
@@ -105,27 +136,37 @@ export function LayoutSessionCatalog({ fieldMapId, visible = true, onOpenSession
     });
   }
   async function saveCandidate(): Promise<void> {
-    if (!candidate || !canWrite || !association) return;
-    if (!name.trim()) { setMessage("Enter a Layout session name."); setFailed(true); return; }
-    const capturedCandidate = candidate;
-    const capturedAssociation = association;
+    const capturedCandidate = candidateRef.current;
+    const capturedAssociation = associationRef.current;
+    const capturedName = nameRef.current;
+    const submittedTarget = pendingTarget;
+    if (!mayStart() || !capturedCandidate || !canWrite || !capturedAssociation) return;
+    if (!capturedName.trim()) { setMessage("Enter a Layout session name."); setFailed(true); return; }
     await run(async () => {
       const expectedRevision = expectedTargetRevision ?? revision();
       const opened = capturedCandidate.kind === "target"
-        ? await repository.createLayoutSession({ fieldMapId: capturedAssociation, targetDocument: capturedCandidate.document, name: name.trim() }, expectedRevision)
+        ? await repository.createLayoutSession({ fieldMapId: capturedAssociation, targetDocument: capturedCandidate.document, name: capturedName.trim() }, expectedRevision)
         : await repository.importLayoutSession(capturedCandidate.document, capturedAssociation, expectedRevision);
-      if (mounted.current) onOpenSession(opened);
+      if (!mounted.current) return;
+      // Persistence owns the submitted review even if the operator has switched tasks.
+      // Never retire a newer review or clear a review merely for opening an existing session.
+      if (candidateRef.current === capturedCandidate && associationRef.current === capturedAssociation && nameRef.current === capturedName) {
+        setCandidate(null); setName(""); setExpectedTargetRevision(null); setConfirmClose(false);
+        setMessage("Layout session saved. Open it from Saved for this field.");
+      }
+      onReviewSaved?.(opened, submittedTarget);
+      if (visibleRef.current) onOpenSession(opened);
     });
   }
   return <SafeAreaView style={styles.root} testID="layout-session-catalog">
     <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
       <View style={styles.header}><View style={styles.grow}><Text style={styles.title}>Layout sessions</Text>
         <Text style={styles.meta}>{field ? `${customer?.displayName ?? "Customer"} → ${project?.name ?? "Project"} → ${field.name}` : "Choose the field where this Layout session belongs."}</Text></View>
-        <IconCommandButton id="layout-back" label="Back" icon={<ArrowLeft />} showLabel disabled={busy} onPress={() => candidate ? setConfirmClose(true) : onClose()} testID="layout-catalog-back" /></View>
+        <IconCommandButton id="layout-back" label="Back" icon={<ArrowLeft />} showLabel disabled={!visible || busy} onPress={() => { if (mayStart()) { if (reviewDirty()) setConfirmClose(true); else onClose(); } }} testID="layout-catalog-back" /></View>
       <Text style={styles.meta}>Keep a frozen design target and save field observations alongside it. Collecting observations cannot move the target.</Text>
       <View style={styles.toolbar}>
-        <IconCommandButton id="layout-import" label="Import layout target or session" icon={<Upload />} showLabel disabled={busy || Platform.OS !== "web"} onPress={pickImport} testID="layout-import" />
-        <IconCommandButton id="layout-refresh" label="Reload saved work" icon={<RefreshCw />} showLabel disabled={busy} onPress={() => run(async () => { await repository.refreshProjects(); setExpectedTargetRevision(null); setMessage("Saved work reloaded. Review your field and try again."); })} testID="layout-catalog-reload" />
+        <IconCommandButton id="layout-import" label="Import layout target or session" icon={<Upload />} showLabel disabled={!visible || busy || Platform.OS !== "web"} onPress={pickImport} testID="layout-import" />
+        <IconCommandButton id="layout-refresh" label="Reload saved work" icon={<RefreshCw />} showLabel disabled={!visible || busy} onPress={() => run(async () => { await repository.refreshProjects(); setExpectedTargetRevision(null); setMessage("Saved work reloaded. Review your field and try again."); })} testID="layout-catalog-reload" />
       </View>
       {Platform.OS !== "web" && <Text style={styles.notice}>Layout session storage and import are available in the desktop browser. This device has not enabled this workspace format.</Text>}
       {(message || repository.storageError) && <Text accessibilityLiveRegion="polite" style={[styles.notice, failed && styles.error]} testID="layout-catalog-feedback">{message ?? repository.storageError}</Text>}
@@ -133,14 +174,14 @@ export function LayoutSessionCatalog({ fieldMapId, visible = true, onOpenSession
         <Text style={styles.meta}>Choose the saved field that owns this session. The target’s original field identity stays unchanged.</Text>
         <View style={styles.toolbar}>{repository.catalog.fieldMaps.map(item => {
           const folder = repository.catalog.projects.find(value => value.id === item.projectId);
-          return <IconCommandButton key={item.id} id={`layout-field-${item.id}`} label={`${folder?.name ?? "Project"} / ${item.name}`} icon={<FolderOpen />} showLabel selected={association === item.id} disabled={busy}
-            onPress={() => setAssociation(item.id)} testID={`layout-associate-${item.id}`} />;
+          return <IconCommandButton key={item.id} id={`layout-field-${item.id}`} label={`${folder?.name ?? "Project"} / ${item.name}`} icon={<FolderOpen />} showLabel selected={association === item.id} disabled={!visible || busy}
+            onPress={() => { if (mayStart()) setAssociation(item.id); }} testID={`layout-associate-${item.id}`} />;
         })}</View>
         {!repository.catalog.fieldMaps.length && <Text style={styles.notice}>Create a customer, project, and field in the catalog before saving a Layout session.</Text>}
       </View>
       {upgradeNeeded && <View style={styles.card} testID="layout-upgrade"><Text style={styles.heading}>Enable saved Layout sessions</Text>
         <Text style={styles.meta}>This adds Layout sessions to your workspace and retains the exact previous workspace for recovery. Older app versions cannot open the new workspace.</Text>
-        <IconCommandButton id="layout-upgrade" label="Enable Layout sessions" icon={<Check />} showLabel disabled={busy || Platform.OS !== "web" || repository.catalogRevision === null}
+        <IconCommandButton id="layout-upgrade" label="Enable Layout sessions" icon={<Check />} showLabel disabled={!visible || busy || Platform.OS !== "web" || repository.catalogRevision === null}
           onPress={() => run(async () => { const nextRevision = await repository.upgradeLayoutWorkspace(revision()); setExpectedTargetRevision(nextRevision); setMessage("Layout sessions enabled. The previous workspace has been retained."); })} testID="layout-upgrade-confirm" />
       </View>}
       {candidate && <View style={styles.card} testID="layout-import-review"><Text style={styles.heading}>{candidate.kind === "target" ? "Create session from frozen target" : "Import saved Layout session"}</Text>
@@ -148,21 +189,24 @@ export function LayoutSessionCatalog({ fieldMapId, visible = true, onOpenSession
         <Text selectable style={styles.meta}>Source field ID: {candidate.target.source.fieldId}</Text>
         {candidate.target.source.selectedMachineIds.map(id => <Text key={id} selectable style={styles.label}>Machine: {candidate.target.field.machines.find(machine => machine.id === id)?.configuration.name ?? id} · {id}</Text>)}
         <Text style={styles.label}>Save under: {field ? `${project?.name ?? "Project"} / ${field.name}` : "Choose a field above"}</Text>
-        <Text style={styles.label}>Layout session name</Text><TextInput value={name} editable={!busy && candidate.kind === "target"} onChangeText={setName} accessibilityLabel="Layout session name" style={styles.input} testID="layout-new-name" />
+        <Text style={styles.label}>Layout session name</Text><TextInput value={name} editable={visible && !busy && candidate.kind === "target"} onChangeText={value => { if (mayStart()) setName(value); }} accessibilityLabel="Layout session name" style={styles.input} testID="layout-new-name" />
         {candidate.kind === "session" && <Text style={styles.meta}>The imported session retains its name, identity, target, and observations. If it already exists, open it and use Copy to create an empty session.</Text>}
         <View style={styles.toolbar}><IconCommandButton id="layout-save-new" label={busy ? "Saving…" : candidate.kind === "target" ? "Save and open in Layout" : "Import and open session"} icon={<Check />} showLabel disabled={!canWrite || !name.trim()} onPress={saveCandidate} testID="layout-save-new" />
-          <IconCommandButton id="layout-cancel-import" label="Cancel import" icon={<ArrowLeft />} showLabel disabled={busy} onPress={() => { setCandidate(null); setMessage(null); }} testID="layout-cancel-import" /></View>
+          <IconCommandButton id="layout-cancel-import" label="Cancel import" icon={<ArrowLeft />} showLabel disabled={!visible || busy} onPress={() => {
+            if (!mayStart()) return;
+            setCandidate(null); setName(""); setExpectedTargetRevision(null); setMessage(null); setConfirmClose(false);
+          }} testID="layout-cancel-import" /></View>
       </View>}
-      <View style={styles.header}><Text style={styles.heading}>Saved for this field</Text><IconCommandButton id="layout-show-archived" label={showArchived ? "Hide archived" : "Show archived"} icon={<ArchiveRestore />} showLabel selected={showArchived} disabled={busy} onPress={() => setShowArchived(value => !value)} testID="layout-show-archived" /></View>
+      <View style={styles.header}><Text style={styles.heading}>Saved for this field</Text><IconCommandButton id="layout-show-archived" label={showArchived ? "Hide archived" : "Show archived"} icon={<ArchiveRestore />} showLabel selected={showArchived} disabled={!visible || busy} onPress={() => { if (mayStart()) setShowArchived(value => !value); }} testID="layout-show-archived" /></View>
       {sessions.length === 0 && <Text style={styles.meta}>No {showArchived ? "" : "active "}Layout sessions for this field. Open a frozen target from a completed design, or import one above.</Text>}
       {sessions.map(session => <View style={styles.card} key={session.id} testID={`layout-session-row-${session.id}`}><Text style={styles.heading}>{session.name}{session.archived ? " · Archived" : ""}</Text>
         <Text style={styles.meta}>{session.observations.length} saved observations · Session revision {session.revision}</Text>
         <Text selectable style={styles.meta}>Session ID: {session.id}</Text>
-        <IconCommandButton id={`layout-open-${session.id}`} label={session.archived ? "Open archived session" : "Open in Layout"} icon={<FolderOpen />} showLabel disabled={busy}
-          onPress={() => run(async () => { const opened = await repository.openLayoutSession(session.id); if (mounted.current) onOpenSession(opened); })} testID={`layout-open-${session.id}`} />
+        <IconCommandButton id={`layout-open-${session.id}`} label={session.archived ? "Open archived session" : "Open in Layout"} icon={<FolderOpen />} showLabel disabled={!visible || busy}
+          onPress={() => run(async () => { const opened = await repository.openLayoutSession(session.id); if (mounted.current && visibleRef.current) onOpenSession(opened); })} testID={`layout-open-${session.id}`} />
       </View>)}
     </ScrollView>
-    <ConfirmActionDialog visible={confirmClose} title="Leave this import review?" message="No session has been created. The selected target and entered name will leave this screen; your source file stays unchanged." confirmLabel="Leave import review" onCancel={() => setConfirmClose(false)} onConfirm={onClose} testID="layout-catalog-close-confirm" />
+    <ConfirmActionDialog visible={visible && confirmClose} title="Leave this import review?" message="No session has been created. The selected target and entered name will leave this screen; your source file stays unchanged." confirmLabel="Leave import review" onCancel={() => setConfirmClose(false)} onConfirm={() => { if (mayStart()) onClose(); }} testID="layout-catalog-close-confirm" />
   </SafeAreaView>;
 }
 

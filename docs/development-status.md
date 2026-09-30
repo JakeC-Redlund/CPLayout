@@ -1,6 +1,6 @@
 # Development Status
 
-Updated 2026-09-29. Current resumption index; not release acceptance.
+Updated 2026-09-30. Current resumption index; not release acceptance.
 Read after `AGENTS.md` and `agent-tree-protocol.md` when resuming broad work.
 Use one linked task contract, not the complete historical logs.
 
@@ -14,8 +14,29 @@ Use one linked task contract, not the complete historical logs.
   isolated checks do not establish acceptance of the combined source.
 - Model questionnaire revision 34 completed with M01–M03 requesting compact
   inputs, a visual layout thumbnail and a simpler polygon-type dropdown. Retain
-  those answers as requested rework, not approval. The consolidated complete
-  workflow human review remains outstanding.
+  those answers as requested rework, not approval. The owner subsequently delegated
+  decisions to researched, weighted specialist review; no further questionnaire
+  is required for this pass. The [human workflow improvement loop](human-workflow-improvement-2026-09-29.md)
+  organizes Projects, Design, Survey and RTK Layout, customer/project/field entry,
+  independent-machine comparison and file/design management. It preserves mounted
+  editors, raw input, camera/selection/undo, saved-document identity and immutable
+  Layout targets. Resizing Projects into compact presentation reveals the dashboard;
+  deliberate compact drawer opening remains explicit and retained. Create and Import
+  precede Recent work and compact storage details; idle SVG Pan controls yield space
+  without changing active drawing/edit commands or canonical geometry.
+  Compact map context uses the visible breadcrumb and existing dialog to recover
+  drawing space in both renderers. Customer Open reveals details directly while
+  row selection preserves tree browsing; unfinished forms remain guarded.
+- Dated validation counts in the workflow record describe historical candidates.
+  Final acceptance requires all source/browser/preservation gates and two complete
+  unchanged-candidate reviews; use [the exact-revision publication review](https://github.com/JakeC-Redlund/CPLayout/pull/2)
+  for the final source and publication outcome. Automated specialist decisions are
+  delegated engineering review, not a new human usability approval.
+- The independent numerical/advisory modeling packet is frozen outside canonical
+  source. Its owner may reconcile overlapping files only against the accepted
+  workflow main checkpoint after the coordinator explicitly transfers integration
+  and build ownership. No timer grants that transfer; preserve historical manifests
+  and do not replay pending historical patches.
 - Source publication does not qualify physical receiver transports, native
   storage/rendering, OEM controllers or measured field accuracy.
 
@@ -61,17 +82,17 @@ The following facts describe the preceding checkpoint, not this isolated build.
 
 ## Next Queue
 
-Complete the integrated desktop workflow acceptance and consolidated human review
-first. The preceding drawing and field questionnaires below are historical input;
+Complete the integrated desktop workflow and autonomous human-workflow improvement
+acceptance first. The preceding drawing and field questionnaires below are historical input;
 their approvals do not apply to the changed workflow. Native, physical transport
 and field-accuracy gates remain independent.
 
 | Order | Deliverable and owner boundary | Exit evidence |
 | --- | --- | --- |
-| 0 | Complete human review of the implemented and source-verified [iterative layout task](iterative-layout-improvement.md). Coordinator owns response-driven iterations, receipts and review-resource cleanup. | Use the verified completed receipts; isolated owner tasks implement requested revisions, repeat scoped proof and retain native/physical gates. |
-| 1 | Review the implemented drawing workflow and respond to D01-D04: finish -> classify -> autosave; pause -> reopen -> resume. | Existing source/browser checks plus disk-acknowledged human answers and any requested visual iteration. Use [drawing contract](drawing-workflow-contract.md). |
-| 2 | Review independently saved machines, immutable target export and layout search; respond to I01-I04. | Unequal pivots survive save/reopen/export/undo; human acceptance remains separate. Use [field contract](field-design-contract.md). |
-| 3 | Complete Design-to-Layout handoff and plain-language report/help integration, including generated US-unit labels. | Immutable target revision, edits cannot silently move layout targets; precision-dependent actions stay blocked without qualified live evidence. Fresh Edge review. Use [workflow review](mapping-workflow-review.md). |
+| 0 | Finish the integrated human-workflow software acceptance and main-only publication. Coordinator owns exact source/build identity, two complete reviews, preservation receipts and runtime cleanup. | Passing current-candidate source/browser gates, independent review and exact hosted/main identity; delegated review is separate from historical human acceptance. |
+| 1 | Serial handoff of the frozen advisory modeling packet, including overlapping UI and scenario persistence. | Explicit accepted-main checkpoint and owner transfer, freshly reconciled delta, separate source/browser/model qualification evidence. |
+| 2 | Continue customer, machine, file and design organization review as part of each subsequent interface iteration. | Clear task-specific controls, named design choices, exact raw-input and saved-record preservation, desktop/narrow/short visible Edge evidence. |
+| 3 | Retain Design-to-Layout and report/help regression coverage. | Explicit machine/revision handoff, immutable targets and qualified live evidence gates; existing [workflow review](mapping-workflow-review.md). |
 | 4 | Activate native storage and prove supported Android workflows, then later iOS. | Current installed-build identity; bridge/JNI, migration/recovery, SQLite/ZIP and renderer tests on identified device/emulator. Use [native contract](native-workspace-integration.md). |
 | 5 | Commission receiver/relay/radio transports and independently verify strict maximum 3D error <0.10 m. | Identified physical fixture, inspected electrical/netlist/level-shifting contract, receiver data, independent surveyed controls and complete error evidence. Use [hardware gates](receiver-hardware-qualification.md). |
 

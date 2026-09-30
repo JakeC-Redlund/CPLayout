@@ -10,7 +10,7 @@ test("Will Rhea requested-pivot preview stays transient and separates missing co
   await page.getByTestId("command-menu-file").click();
   await page.getByTestId("command-file-will-rhea-jason-harmelink-example").click();
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("Will Rhea");
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   const initialSaveState = await page.getByTestId("project-save-state").textContent();
   const expectedSaveState = initialSaveState?.includes("Unsaved edits") ? "Project: Unsaved edits" : "Project: Saved";
   const inspector = page.getByRole("button", { name: /Open (map inspector|right workflow sidebar)/ });
@@ -99,7 +99,7 @@ test("report cost form keeps clear, missing, invalid and complete states distinc
   await page.goto("/");
   await page.getByTestId("command-menu-file").click();
   await page.getByTestId("command-file-will-rhea-jason-harmelink-example").click();
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   const inspector = page.getByRole("button", { name: /Open (map inspector|right workflow sidebar)/ });
   if (await inspector.count() && await inspector.first().isVisible()) await inspector.first().click();
   await page.getByTestId("workflow-sidebar-tab-tools").click();
@@ -146,7 +146,7 @@ test("pivot quote and length estimate retain separate raw amounts until same-ID 
     await page.getByTestId("command-menu-file").click();
     await page.getByTestId("command-file-will-rhea-jason-harmelink-example").click();
     await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("Will Rhea");
-    await page.getByTestId("workspace-nav-map").click();
+    await page.getByTestId("task-design").click();
   };
   const open = async () => {
     const inspector = page.getByRole("button", { name: /Open (map inspector|right workflow sidebar)/ });
@@ -223,7 +223,7 @@ test("changing pivot equipment excludes the old price until re-entry", async ({ 
   await page.getByTestId("command-menu-file").click();
   await page.getByTestId("command-file-sample-full-scope-multi-pivot-cost-demo").click();
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("Full-Scope Multi-Pivot Cost Demo");
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   const tools = async () => {
     const inspector = page.getByRole("button", { name: /Open (map inspector|right workflow sidebar)/ });
     if (await inspector.count() && await inspector.first().isVisible()) await inspector.first().click();
@@ -264,7 +264,7 @@ test("corner inputs require explicit choices, stay temporary, and invalidate old
   await page.goto("/");
   await page.getByTestId("command-menu-file").click();
   await page.getByTestId("command-file-will-rhea-jason-harmelink-example").click();
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   const open = async () => {
     const inspector = page.getByRole("button", { name: /Open (map inspector|right workflow sidebar)/ });
     if (await inspector.count() && await inspector.first().isVisible()) await inspector.first().click();
@@ -349,7 +349,7 @@ test("corner inputs require explicit choices, stay temporary, and invalidate old
   await expect(page.getByTestId("calculation-screen")).toHaveCount(0);
   await page.getByTestId("command-menu-file").click();
   await page.getByTestId("command-file-will-rhea-jason-harmelink-example").click();
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await open();
   await expect(page.getByTestId("corner-input-speed")).toHaveValue("");
   await expect(page.getByTestId("corner-input-model")).toContainText("Not selected");

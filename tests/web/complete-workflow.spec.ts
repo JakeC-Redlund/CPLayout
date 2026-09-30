@@ -4,6 +4,7 @@ import { encodeRgbaPng } from "../../tools/pngMetrics";
 import { sampleProject, projectXyToLonLat, convertPivotProjectToFieldDesign, formatDistanceInputValue, serializeProjectDocument, parseFieldDesignDocument, parseFieldLayoutTarget, parseLayoutSessionDocument, tryBuildPivotProject } from "../../packages/core/src";
 import { buildFieldDesignArchiveBundle, exportFieldDesignArchiveZip } from "../../packages/project-store/src/fieldDesignArchive";
 import { importProjectArchiveZip } from "../../packages/project-store/src/projectArchive";
+import { importDesignDraftArchiveZip } from "../../packages/project-store/src/designDraftArchive";
 import { activateMapTool } from "./map-toolbar";
 import { importLayoutSessionArchiveZip } from "../../packages/project-store/src/layoutSessionArchive";
 import { applyWorkspaceCommand } from "../../packages/project-store/src/workspaceCommands";
@@ -84,7 +85,17 @@ async function holdWriter(page: Page) {
   });
 }
 async function releaseWriter(page: Page) { await page.evaluate(() => (window as Window & { releaseWorkflowLock?: () => void }).releaseWorkflowLock?.()); }
+async function openSessionActions(page: Page): Promise<void> {
+  if (!await page.getByTestId("layout-session-actions").isVisible()) await page.getByTestId("layout-session-actions-toggle").click();
+  await expect(page.getByTestId("layout-session-actions")).toBeVisible();
+}
+async function openReceiverSettings(page: Page): Promise<void> {
+  const settings = page.locator('[data-testid="receiver-settings"]:visible');
+  if (!await settings.isVisible()) await page.locator('[data-testid="receiver-settings-toggle"]:visible').click();
+  await expect(settings).toBeVisible();
+}
 async function bytes(page: Page, command: string): Promise<Buffer> {
+  if (command.startsWith("layout-export-")) await openSessionActions(page);
   const pending = page.waitForEvent("download"); await page.getByTestId(command).click();
   return readFile((await (await pending).path())!);
 }
@@ -233,6 +244,171 @@ test("completion quota failure commits nothing and retains applied changes for a
   expect((await readWorkspace(page)).projectDocuments).toHaveLength(1);
 });
 
+for (const returnBeforeRelease of [false, true]) test(`delayed completion ${returnBeforeRelease ? "does not activate after an away-and-back task change" : "stays in Projects"} and retains a saveable source draft before explicit complete-design open`, async ({ page, context }, info) => {
+  await seed(context, completeDraftWorkspace()); await openDraft(page); await inputs(page);
+  await page.getByTestId("draft-name").fill("Delayed complete source");
+  await page.getByRole("button", { name: "Apply name", exact: true }).click();
+  const applied = importDesignDraftArchiveZip(await bytes(page, "draft-export"));
+  const before = await readWorkspace(page);
+  await holdWriter(page);
+  try {
+    await page.getByTestId("draft-create-complete").click();
+    await expect.poll(() => page.evaluate(async () => (await navigator.locks.query()).pending?.some(item => item.name === "cplayout:workspace:writer:v1") ?? false)).toBe(true);
+    await page.getByTestId("task-projects").click();
+    await expect(page.getByTestId("task-projects")).toHaveAttribute("aria-current", "page");
+    await expect(page.getByTestId("dashboard-workspace")).toBeVisible();
+    expect(await readWorkspace(page)).toEqual(before);
+    if (returnBeforeRelease) {
+      await page.getByTestId("task-design").click();
+      await expect(page.getByTestId("design-draft-workspace")).toBeVisible();
+      await expect(page.getByTestId("draft-save-state")).toContainText("Creating complete design");
+    }
+  } finally { await releaseWriter(page); }
+  await expect.poll(async () => (await readWorkspace(page)).projectDocuments.length).toBe(1);
+  await expect(page.getByTestId("draft-success")).toContainText("Complete design saved separately");
+  await expect(page.getByTestId(returnBeforeRelease ? "task-design" : "task-projects")).toHaveAttribute("aria-current", "page");
+  if (returnBeforeRelease) await expect(page.getByTestId("design-draft-workspace")).toBeVisible();
+  else await expect(page.getByTestId("design-draft-workspace")).toBeHidden();
+  await expect(page.getByTestId("project-save-state")).toBeHidden();
+  const completed = await readWorkspace(page);
+  expect(completed.revision).toBe(before.revision + 1);
+  expect(completed.draftDocuments).toHaveLength(1);
+  expect(completed.projectDocuments).toHaveLength(1);
+  expect(completed.catalog.designs).toHaveLength(2);
+  expect(JSON.parse(completed.draftDocuments[0].document).draft).toEqual(applied);
+  const completeDocument = completed.projectDocuments[0];
+  const built = tryBuildPivotProject(applied);
+  expect(built.ok).toBe(true); if (!built.ok) throw new Error("Expected complete source draft");
+  const completeProject = JSON.parse(completeDocument.document).project;
+  expect(completeProject.id).not.toBe(applied.id);
+  expectProjectContent({ ...completeProject, id: built.project.id, name: built.project.name }, JSON.parse(serializeProjectDocument(built.project)).project);
+  await page.screenshot({ path: info.outputPath("delayed-completion-retains-projects.png") });
+
+  if (!returnBeforeRelease) await page.getByTestId("task-design").click();
+  await expect(page.getByTestId("design-draft-workspace")).toBeVisible();
+  await expect(page.getByTestId("draft-save-state")).toHaveText("Saved | Design draft");
+  await expect(page.getByTestId("draft-open-saved-complete")).toBeEnabled();
+  await expect(page.getByTestId("draft-create-complete")).toBeDisabled();
+  await inputs(page);
+  await page.getByTestId("draft-name").fill("Source edited after completion");
+  await expect(page.getByTestId("draft-open-saved-complete")).toBeDisabled();
+  await page.getByRole("button", { name: "Apply name", exact: true }).click();
+  await expect(page.getByTestId("draft-open-saved-complete")).toBeDisabled();
+  await page.getByTestId("draft-save").click();
+  await expect(page.getByTestId("draft-save-state")).toHaveText("Saved | Design draft");
+  await expect(page.getByTestId("draft-open-saved-complete")).toBeEnabled();
+  const resaved = await readWorkspace(page);
+  expect(resaved.revision).toBe(completed.revision + 1);
+  expect(resaved.catalog.designs.find(item => item.id === "workflow-draft")!.revision).toBe(completed.catalog.designs.find(item => item.id === "workflow-draft")!.revision + 1);
+  expect(resaved.projectDocuments).toEqual(completed.projectDocuments);
+  expect(resaved.catalog.designs.filter(item => item.kind === "project")).toEqual(completed.catalog.designs.filter(item => item.kind === "project"));
+  expect(JSON.parse(resaved.draftDocuments[0].document).draft).toEqual({ ...applied, name: "Source edited after completion" });
+  const resavedBytes = await page.evaluate(key => localStorage.getItem(key), workspaceKey);
+  await page.getByTestId("draft-open-saved-complete").click();
+  await expect(page.getByTestId("design-draft-workspace")).toHaveCount(0);
+  await expect(page.getByTestId("project-save-state")).toHaveText("Saved");
+  await expect(page.getByTestId("task-design")).toHaveAttribute("aria-current", "page");
+  await page.getByTestId("workspace-nav-files").click();
+  expectProjectContent(importProjectArchiveZip(await bytes(page, "files-action-export-zip")) as unknown as Record<string, unknown>, completeProject);
+  expect(await page.evaluate(key => localStorage.getItem(key), workspaceKey)).toBe(resavedBytes);
+  expect(await readWorkspace(page)).toEqual(resaved);
+});
+
+test("saved complete-design reads cannot activate after navigation or reopen a changed copy", async ({ page, context }) => {
+  await seed(context, completeDraftWorkspace()); await openDraft(page);
+  await holdWriter(page);
+  try {
+    await page.getByTestId("draft-create-complete").click();
+    await expect.poll(() => page.evaluate(async () => (await navigator.locks.query()).pending?.some(item => item.name === "cplayout:workspace:writer:v1") ?? false)).toBe(true);
+    await page.getByTestId("task-projects").click();
+  } finally { await releaseWriter(page); }
+  await expect(page.getByTestId("draft-success")).toContainText("Complete design saved separately");
+  await page.getByTestId("task-design").click();
+  await expect(page.getByTestId("draft-open-saved-complete")).toBeEnabled();
+  const before = await readWorkspace(page);
+  const beforeBytes = await page.evaluate(key => localStorage.getItem(key), workspaceKey);
+  await holdWriter(page);
+  try {
+    await page.getByTestId("draft-open-saved-complete").click();
+    await expect(page.getByTestId("draft-save-state")).toContainText("Opening saved complete design");
+    await expect.poll(() => page.evaluate(async () => (await navigator.locks.query()).pending?.some(item => item.name === "cplayout:workspace:writer:v1") ?? false)).toBe(true);
+    await page.getByTestId("task-projects").click();
+    await expect(page.getByTestId("dashboard-workspace")).toBeVisible();
+  } finally { await releaseWriter(page); }
+  await expect(page.getByTestId("draft-save-state")).toHaveText("Saved | Design draft");
+  await expect(page.getByTestId("task-projects")).toHaveAttribute("aria-current", "page");
+  await expect(page.getByTestId("project-save-state")).toBeHidden();
+  expect(await page.evaluate(key => localStorage.getItem(key), workspaceKey)).toBe(beforeBytes);
+  await page.getByTestId("task-design").click();
+  await expect(page.getByTestId("draft-open-saved-complete")).toBeEnabled();
+  const completedDesign = before.catalog.designs.find(item => item.kind === "project")!;
+  const completeProject = JSON.parse(before.projectDocuments[0].document).project;
+  const changed = applyWorkspaceCommand(before, { type: "save_design_project", now, designId: completedDesign.id,
+    project: { ...completeProject, name: "Complete copy changed independently" } }).workspace;
+  expect(changed.revision).toBe(before.revision + 1);
+  expect(changed.draftDocuments).toEqual(before.draftDocuments);
+  const other = await context.newPage();
+  try {
+    await other.goto("/");
+    await other.evaluate(({ key, document }) => localStorage.setItem(key, document), { key: workspaceKey, document: serializeWorkspaceDocument(changed) });
+    const changedBytes = await page.evaluate(key => localStorage.getItem(key), workspaceKey);
+    await page.getByTestId("draft-open-saved-complete").click();
+    await expect(page.getByTestId("draft-error")).toContainText("saved complete design changed");
+    await expect(page.getByTestId("design-draft-workspace")).toBeVisible();
+    await expect(page.getByTestId("task-design")).toHaveAttribute("aria-current", "page");
+    await expect(page.getByTestId("project-save-state")).toBeHidden();
+    await expect(page.getByTestId("draft-open-saved-complete")).toBeEnabled();
+    expect(await page.evaluate(key => localStorage.getItem(key), workspaceKey)).toBe(changedBytes);
+    expect(await readWorkspace(page)).toEqual(changed);
+  } finally { await other.close(); }
+});
+
+test("delayed completion quota failure stays in Projects and returns to unchanged source inputs for retry", async ({ page, context }, info) => {
+  await seed(context, completeDraftWorkspace()); await openDraft(page); await inputs(page);
+  await page.getByTestId("draft-name").fill("Hidden quota retry source");
+  await page.getByRole("button", { name: "Apply name", exact: true }).click();
+  const applied = importDesignDraftArchiveZip(await bytes(page, "draft-export"));
+  const before = await readWorkspace(page);
+  const beforeBytes = await page.evaluate(key => localStorage.getItem(key), workspaceKey);
+  await page.evaluate(key => {
+    const original = Storage.prototype.setItem;
+    (window as Window & { restoreWorkflowStorage?: () => void }).restoreWorkflowStorage = () => { Storage.prototype.setItem = original; };
+    Storage.prototype.setItem = function(name, value) { if (name === key) throw new DOMException("Synthetic hidden completion quota", "QuotaExceededError"); original.call(this, name, value); };
+  }, workspaceKey);
+  await holdWriter(page);
+  try {
+    await page.getByTestId("draft-create-complete").click();
+    await expect.poll(() => page.evaluate(async () => (await navigator.locks.query()).pending?.some(item => item.name === "cplayout:workspace:writer:v1") ?? false)).toBe(true);
+    await page.getByTestId("task-projects").click();
+    await expect(page.getByTestId("dashboard-workspace")).toBeVisible();
+    await releaseWriter(page);
+    await expect(page.getByTestId("draft-error")).toContainText("quota");
+    await expect(page.getByTestId("task-projects")).toHaveAttribute("aria-current", "page");
+    await expect(page.getByTestId("design-draft-workspace")).toBeHidden();
+    expect(await page.evaluate(key => localStorage.getItem(key), workspaceKey)).toBe(beforeBytes);
+    expect(await readWorkspace(page)).toEqual(before);
+  } finally {
+    await releaseWriter(page);
+    await page.evaluate(() => (window as Window & { restoreWorkflowStorage?: () => void }).restoreWorkflowStorage?.());
+  }
+  await page.getByTestId("task-design").click();
+  await expect(page.getByTestId("design-draft-workspace")).toBeVisible();
+  await expect(page.getByTestId("draft-name")).toHaveValue("Hidden quota retry source");
+  await expect(page.getByTestId("draft-open-saved-complete")).toHaveCount(0);
+  await expect(page.getByTestId("draft-create-complete")).toBeEnabled();
+  expect(importDesignDraftArchiveZip(await bytes(page, "draft-export"))).toEqual(applied);
+  await page.screenshot({ path: info.outputPath("hidden-completion-failure-retry.png") });
+  await page.getByTestId("draft-create-complete").click();
+  await expect(page.getByTestId("project-save-state")).toHaveText("Saved");
+  await expect(page.getByTestId("task-design")).toHaveAttribute("aria-current", "page");
+  const retried = await readWorkspace(page);
+  expect(retried.revision).toBe(before.revision + 1);
+  expect(retried.draftDocuments).toHaveLength(1);
+  expect(retried.projectDocuments).toHaveLength(1);
+  expect(retried.catalog.designs).toHaveLength(2);
+  expect(JSON.parse(retried.draftDocuments[0].document).draft).toEqual(applied);
+});
+
 test("completed design converts explicitly to an immutable Layout session, collects separately, reopens and copies empty", async ({ page, context }, info) => {
   await seed(context, completeDraftWorkspace()); await installOperationalReceiver(page); await openDraft(page);
   const initial = await completeAndOpenLayout(page);
@@ -259,7 +435,9 @@ test("completed design converts explicitly to an immutable Layout session, colle
   expect((await readWorkspace(page)).fieldDocuments).toEqual(stored.fieldDocuments);
   expect(parseLayoutSessionDocument((await bytes(page, "layout-export-json")).toString("utf8"))).toEqual(collected);
   expect(importLayoutSessionArchiveZip(await bytes(page, "layout-export-zip"))).toEqual(collected);
+  await openReceiverSettings(page);
   await page.getByRole("button", { name: "Disconnect receiver", exact: true }).click();
+  await openSessionActions(page);
   await page.getByTestId("layout-copy-name").fill("Independent empty staking");
   await page.getByTestId("layout-copy").click();
   await expect(page.getByTestId("layout-session-workspace")).toContainText("Independent empty staking");
@@ -338,6 +516,7 @@ test("Layout collection waiting on storage rechecks freshness and preserves the 
 });
 
 async function disconnectReceiver(page: Page) {
+  await openReceiverSettings(page);
   await page.getByRole("button", { name: "Disconnect receiver", exact: true }).click();
   await expect(page.getByRole("button", { name: "Connect receiver", exact: true })).toBeEnabled();
 }
@@ -360,15 +539,20 @@ test("Layout target import requires review and retains exact bytes through renam
   expect(imported.targetDocument).toBe(targetDocument);
   expect(imported.targetHash).not.toBe(initial.targetHash);
   expect(parseFieldLayoutTarget(imported.targetDocument)).toEqual(parseFieldLayoutTarget(initial.targetDocument));
+  await openSessionActions(page);
   await page.getByTestId("layout-rename-input").fill("Renamed imported field");
   await page.getByTestId("layout-rename").click();
   await expect(page.getByTestId("layout-save-state")).toContainText("Saved");
+  await openSessionActions(page);
   await page.getByTestId("layout-archive").click();
   await page.getByTestId("layout-archive-confirm-confirm").click();
+  await expect(page.getByTestId("layout-archive-confirm-backdrop")).toHaveCount(0);
   await expect(page.getByTestId("layout-save-state")).toContainText("Archived");
   await expect(page.getByTestId("layout-collect")).toBeDisabled();
+  await openSessionActions(page);
   await page.getByTestId("layout-archive").click();
   await expect(page.getByTestId("layout-save-state")).not.toContainText("Archived");
+  await openSessionActions(page);
   await page.getByTestId("layout-reload").click();
   const restored = await session(page, imported.id);
   expect(restored.name).toBe("Renamed imported field");
@@ -429,6 +613,7 @@ test("Layout writes refresh catalog counts and returning field can save a later 
   await page.getByTestId("layout-collect").click();
   await expect.poll(async () => (await session(page, initial.id)).observations.length).toBe(1);
   await disconnectReceiver(page);
+  await openSessionActions(page);
   await page.getByTestId("layout-rename-input").fill("Observed field session");
   await page.getByTestId("layout-rename").click();
   await expect(page.getByTestId("layout-save-state")).toContainText("Saved");
@@ -437,6 +622,7 @@ test("Layout writes refresh catalog counts and returning field can save a later 
   await expect(page.getByTestId(`layout-session-row-${initial.id}`)).toContainText("Observed field session");
   await expect(page.getByTestId(`layout-session-row-${initial.id}`)).toContainText("1 saved observations");
   await page.getByTestId(`layout-open-${initial.id}`).click();
+  await openSessionActions(page);
   await page.getByTestId("layout-archive").click();
   await page.getByTestId("layout-archive-confirm-confirm").click();
   await expect(page.getByTestId("layout-archive-confirm-backdrop")).toHaveCount(0);
@@ -447,9 +633,11 @@ test("Layout writes refresh catalog counts and returning field can save a later 
   await page.getByTestId("layout-show-archived").click();
   await expect(page.getByTestId(`layout-session-row-${initial.id}`)).toContainText("Archived");
   await page.getByTestId(`layout-open-${initial.id}`).click();
+  await openSessionActions(page);
   await page.getByTestId("layout-archive").click();
   await expect(page.getByTestId("layout-save-state")).not.toContainText("Archived");
   retainedSession = await session(page, initial.id);
+  await openSessionActions(page);
   await page.getByTestId("layout-copy-name").fill("Empty catalog copy");
   await page.getByTestId("layout-copy").click();
   await expect(page.getByTestId("layout-session-workspace")).toContainText("Empty catalog copy");
@@ -556,7 +744,7 @@ test("unapplied complete-machine input survives panel navigation and canceled im
   const original = before.projectDocuments[0];
   const pendingSpan = "173.125";
   async function openMachine() {
-    await page.getByTestId("workspace-nav-map").click();
+    await page.getByTestId("task-design").click();
     const openInspector = page.getByRole("button", { name: /Open (map inspector|right workflow sidebar)/ }).first();
     if (await openInspector.isVisible()) await openInspector.click();
     await page.getByTestId("workflow-sidebar-tab-tools").click();
@@ -616,7 +804,7 @@ async function importSiblingAndCancelActivation(page: Page, name: string) {
   await page.getByTestId("project-to-draft-discard-cancel").click();
 }
 async function drawingMap(page: Page) {
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   const map = page.getByLabel("CPLayout MapLibre imagery workbench");
   await expect(map).toHaveAttribute("data-map-loaded", "true");
   await expect(page.getByTestId("advisory-map-job-status")).toHaveText("", { timeout: 60_000 });
@@ -702,7 +890,7 @@ test("unsubmitted CSV and GeoJSON text survive panel navigation and File Catalog
   await page.getByTestId("workspace-nav-files").click();
   await page.getByTestId("files-survey-csv-import-input").fill(csv);
   await page.getByTestId("files-geojson-import-input").fill(geojson);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await page.getByTestId("workspace-nav-files").click();
   await expect(page.getByTestId("files-survey-csv-import-input")).toHaveValue(csv);
   await expect(page.getByTestId("files-geojson-import-input")).toHaveValue(geojson);
@@ -934,8 +1122,10 @@ test("reload restores an imported saved field in its selected customer project a
     await page.getByTestId(`field-machine-${machine.id}`).click();
     await expect(page.getByTestId("field-selected-machine")).toContainText(machine.configuration.name);
     await expect(page.getByTestId("field-machine-form")).toContainText("Showing the applied machine values.");
-    await expect(page.getByTestId("field-input-spans")).toHaveValue(machine.configuration.spanLengthsMeters.map(value => formatDistanceInputValue(value, "us_survey_feet")).join(", "));
-    await page.getByTestId("field-input-spans").scrollIntoViewIfNeeded();
+    for (const [spanIndex, length] of machine.configuration.spanLengthsMeters.entries()) {
+      await expect(page.getByTestId(`field-input-span-${spanIndex}`)).toHaveValue(formatDistanceInputValue(length, "us_survey_feet"));
+    }
+    await page.getByTestId("field-input-span-0").scrollIntoViewIfNeeded();
     await page.screenshot({ path: info.outputPath(`field-machine-${index + 1}-applied-imperial.png`) });
   }
   expect(saved.projectDocuments).toEqual(sourceDocuments);
@@ -1073,7 +1263,7 @@ test("Survey and Layout share active receiver configuration errors and unfinishe
   const initial = await completeAndOpenLayout(page);
   await returnToField(page);
   await page.getByTestId("field-catalog").click();
-  await page.getByTestId("workspace-nav-survey").click();
+  await page.getByTestId("task-survey").click();
   const baseline = await readWorkspace(page);
   await page.evaluate(() => {
     type Port = { open(options: { baudRate: number }): Promise<void> };
@@ -1100,16 +1290,18 @@ test("Survey and Layout share active receiver configuration errors and unfinishe
   async function toSurvey() {
     await page.getByTestId("layout-workspace-back").click();
     await page.getByTestId("layout-catalog-back").click();
-    await page.getByTestId("workspace-nav-survey").click();
+    await page.getByTestId("task-survey").click();
     await expect(page.getByRole("button", { name: "Capture Survey Point", exact: true })).toBeVisible();
   }
   async function expectSerial(method: "Bluetooth serial" | "COM / USB", baud: string) {
+    await openReceiverSettings(page);
     await expect(page.getByRole("button", { name: method, exact: true })).toHaveAttribute("aria-pressed", "true");
     await expect(page.getByRole("textbox", { name: "Baud rate", exact: true })).toHaveValue(baud);
     await expect(page.getByRole("textbox", { name: "Baud rate", exact: true })).not.toBeEditable();
     await expect(page.getByRole("button", { name: "Disconnect receiver", exact: true })).toBeEnabled();
   }
   async function expectNetwork(address: string, port: string, filter: string) {
+    await openReceiverSettings(page);
     await expect(page.getByRole("button", { name: "Wi-Fi / network", exact: true })).toHaveAttribute("aria-pressed", "true");
     await expect(page.getByRole("button", { name: "UDP receive", exact: true })).toHaveAttribute("aria-pressed", "true");
     await expect(page.getByRole("textbox", { name: "Local listening IP address", exact: true })).toHaveValue(address);
@@ -1120,13 +1312,14 @@ test("Survey and Layout share active receiver configuration errors and unfinishe
   await page.getByRole("textbox", { name: "Baud rate", exact: true }).fill("57600");
   await connectOperationalReceiver(page);
   await emitGga(page, gga());
-  await expect(readiness).toHaveText("Ready to collect");
+  await expect(readiness).toHaveText("Receiver position available");
   await expectSerial("Bluetooth serial", "57600");
   await toLayout();
   await expectSerial("Bluetooth serial", "57600");
-  await expect(readiness).toHaveText("Ready to collect");
+  await expect(readiness).toHaveText("Receiver position available");
   expect(await page.evaluate(() => (window as ReceiverFixtureWindow).operationalReceiver.requestCount)).toBe(1);
   expect(await page.evaluate(() => (window as ReceiverFixtureWindow).operationalReceiver.openPorts)).toBe(1);
+  await openReceiverSettings(page);
   await page.getByRole("button", { name: "Disconnect receiver", exact: true }).click();
   await expect(page.getByRole("button", { name: "Connect receiver", exact: true })).toBeEnabled();
   await page.getByRole("button", { name: "Wi-Fi / network", exact: true }).click();
@@ -1155,16 +1348,17 @@ test("Survey and Layout share active receiver configuration errors and unfinishe
   await expect(page.getByRole("textbox", { name: "Baud rate", exact: true })).toHaveValue("57600");
   await page.getByRole("textbox", { name: "Baud rate", exact: true }).fill("38400");
   await connectOperationalReceiver(page, 2);
-  await expect(readiness).not.toHaveText("Ready to collect");
+  await expect(readiness).not.toHaveText("Receiver position available");
   await emitGga(page, gga("120000.00", 4, "GPGGA"));
-  await expect(readiness).toHaveText("Ready to collect");
+  await expect(readiness).toHaveText("Receiver position available");
   await toLayout();
   await expectSerial("COM / USB", "38400");
-  await expect(readiness).toHaveText("Ready to collect");
+  await expect(readiness).toHaveText("Receiver position available");
   await toSurvey();
   await expectSerial("COM / USB", "38400");
   expect(await page.evaluate(() => (window as Window & { recordedReceiverBauds: number[] }).recordedReceiverBauds)).toEqual([57600, 38400]);
   expect(await page.evaluate(() => (window as ReceiverFixtureWindow).operationalReceiver.requestCount)).toBe(2);
+  await openReceiverSettings(page);
   await page.getByRole("button", { name: "Disconnect receiver", exact: true }).click();
   await expect(page.getByRole("button", { name: "Connect receiver", exact: true })).toBeEnabled();
   expect(await page.evaluate(() => (window as ReceiverFixtureWindow).operationalReceiver.openPorts)).toBe(0);

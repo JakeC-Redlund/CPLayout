@@ -84,8 +84,8 @@ function canEdit(props: MapSurfaceProps): boolean {
 function workflowStatus(props: MapSurfaceProps): string {
   if (props.homeView) return "Catalog map: open a field map or design before editing projected XY geometry.";
   return canEdit(props)
-    ? "Design mode: projected XY edits require Commit before they change the project."
-    : "Layout mode is RTK-only; switch to Design for pointer-based geometry edits.";
+    ? "Edit map: finish and classify your drawing before it changes the design."
+    : "Inspect map: switch to Edit map for pointer-based geometry edits.";
 }
 
 export function createMapInteractionState(props: MapSurfaceProps): MapInteractionState {

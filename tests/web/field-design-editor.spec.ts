@@ -86,7 +86,13 @@ async function applyInputs(page: Page, values: Record<string, string>) {
   const lengths = new Set(["x", "y", "spans", "overhang", "endGun", "towerClearance", "machineClearance"]);
   for (const [key, value] of Object.entries(values)) {
     const entered = lengths.has(key) ? value.split(",").map(part => String(metersToFeet(Number(part.trim())))).join(", ") : value;
-    await page.getByTestId(`field-input-${key}`).fill(entered);
+    if (key === "spans") {
+      const spans = entered.split(",").map(part => part.trim());
+      const rows = page.getByTestId(/^field-input-span-\d+$/);
+      while (await rows.count() < spans.length) await page.getByTestId("field-add-span").click();
+      while (await rows.count() > spans.length) await page.getByTestId("field-remove-last-span").click();
+      for (const [index, value] of spans.entries()) await page.getByTestId(`field-input-span-${index}`).fill(value);
+    } else await page.getByTestId(`field-input-${key}`).fill(entered);
   }
   await page.getByTestId("field-apply-machine").click();
 }
@@ -129,7 +135,9 @@ test("independent edits autosave, reopen, undo, redo and export without changing
   expect((await readWorkspace(page)).projectDocuments).toEqual(originalWorkspace.projectDocuments);
   await openField(page);
   await page.getByTestId(`field-machine-${secondId}`).click();
-  await expect(page.getByTestId("field-input-spans")).toHaveValue([35.125, 44.375, 29.0625].map(value => formatDistanceInputValue(value, "us_survey_feet")).join(", "));
+  for (const [index, value] of [35.125, 44.375, 29.0625].entries()) {
+    await expect(page.getByTestId(`field-input-span-${index}`)).toHaveValue(formatDistanceInputValue(value, "us_survey_feet"));
+  }
   await expect(page.getByTestId("field-input-x")).toHaveValue(formatDistanceInputValue(editedCenter.x, "us_survey_feet"));
   await page.getByTestId("field-autosave").getByRole("switch").uncheck();
   await applyInputs(page, { endGun: "22.625" });
@@ -156,7 +164,7 @@ test("field forms use feet and preserve exact saved values when untouched", asyn
   await openField(page);
   const before = await storedField(page);
   await expect(page.getByLabel("Center X (ft)")).toBeVisible();
-  await expect(page.getByLabel("Span lengths (ft), separated by commas")).toBeVisible();
+  await expect(page.getByLabel("Span 1 (ft)", { exact: true })).toBeVisible();
   await expect(page.getByTestId("field-apply-machine")).toBeDisabled();
   await save(page);
   expect(await storedField(page)).toEqual(before);

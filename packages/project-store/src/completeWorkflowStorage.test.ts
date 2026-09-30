@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
-  convertPivotProjectToFieldDesign, createFieldLayoutTarget, defaultProjectSettings, parseDesignDraftDocument,
+  convertPivotProjectToFieldDesign, createFieldLayoutTarget, createLayoutSessionDocument, defaultProjectSettings, parseDesignDraftDocument,
   parseLayoutSessionDocument, parseProjectDocument, projectLonLatToXy, sampleProject,
   serializeDesignDraftDocument, serializeFieldDesignDocument, serializeFieldLayoutTarget, serializeLayoutSessionDocument, serializeProjectDocument,
   type DesignDraft, type LayoutObservation, type LayoutSession, type OperationalFixedGgaEvidence,
@@ -45,8 +45,8 @@ async function fixture() {
 }
 const completion = (draft = completeDraft()): WorkspaceCommand => ({ type: "create_complete_design_from_draft", now,
   sourceDesignId: "draft-design", expectedDesignRevision: 0, draft, designId: "complete-design", projectId: "complete", name: "Complete design" });
-function targetDocument() {
-  const field = convertPivotProjectToFieldDesign(serializeProjectDocument(sampleProject), { fieldId: "frozen-field", waterSourceId: "water", powerSourceId: "power" }).field;
+function targetDocument(project = sampleProject) {
+  const field = convertPivotProjectToFieldDesign(serializeProjectDocument(project), { fieldId: "frozen-field", waterSourceId: "water", powerSourceId: "power" }).field;
   return `\n${serializeFieldLayoutTarget(createFieldLayoutTarget(field, { inputRevision: 12, expectedRevision: 12, selectedMachineIds: [field.machines[0].id] }))}\n`;
 }
 function observation(id = "observation"): LayoutObservation {
@@ -223,6 +223,43 @@ test("Layout CRUD preserves target and evidence, copies empty, refuses duplicate
   const imported = (await other.execute({ type: "import_layout_session", now, fieldMapId: "catalog-field", document: serializeLayoutSessionDocument(roundTrip) })).value as LayoutSession;
   assert.deepEqual(imported, roundTrip);
   await assert.rejects(other.execute({ type: "import_layout_session", now, fieldMapId: "catalog-field", document: serializeLayoutSessionDocument(roundTrip) }), /used/i);
+});
+
+test("valid rehashed Layout targets and existing field ownership cannot replace a stored session", async () => {
+  const f = await fixture();
+  await f.execute({ type: "create_field_map_record", now, input: { id: "other-field", projectId: "folder", name: "Other field" } });
+  await f.execute({ type: "upgrade_workspace_to_v3", now });
+  await f.execute({ type: "create_layout_session", now, sessionId: "layout", fieldMapId: "catalog-field", name: "Layout", targetDocument: targetDocument() });
+  await f.execute({ type: "append_layout_observation", now, sessionId: "layout", expectedSessionRevision: 0, observation: observation() });
+  const before = await f.api.readAsync(), saved = [...f.storage.values], writes = f.storage.writes;
+  const original = parseLayoutSessionDocument(before.layoutSessions![0].document);
+  const changedProject = structuredClone(sampleProject);
+  changedProject.pivotCenter.x += 5;
+  const replacement = createLayoutSessionDocument({ id: original.id, name: original.name, fieldMapId: original.fieldMapId,
+    targetDocument: targetDocument(changedProject), now });
+  assert.notEqual(replacement.targetDocument, original.targetDocument);
+  assert.notEqual(replacement.targetHash, original.targetHash);
+  const mutations: Partial<LayoutSession>[] = [
+    { targetDocument: replacement.targetDocument, targetHash: replacement.targetHash },
+    { fieldMapId: "other-field" },
+  ];
+  for (const mutation of mutations) {
+    const candidate = structuredClone(before);
+    const changed = { ...original, ...mutation, revision: original.revision + 1 };
+    candidate.layoutSessions![0].document = serializeLayoutSessionDocument(changed);
+    candidate.revision++;
+    // Both candidates are valid documents; only retention against the saved session may refuse them.
+    assert.deepEqual(parseWorkspaceDocument(JSON.stringify(candidate)), candidate);
+    await assert.rejects(f.store.transactAsync(before.revision, () => candidate), /immutable target or ownership/i);
+    assert.equal(f.storage.writes, writes);
+    assert.deepEqual([...f.storage.values], saved);
+    assert.deepEqual(await f.api.readAsync(), before);
+  }
+  const receipt = await f.execute({ type: "rename_layout_session", now, sessionId: "layout", expectedSessionRevision: original.revision, name: "Still usable" });
+  assert.equal(receipt.workspace.revision, before.revision + 1);
+  assert.equal(f.storage.writes, writes + 1);
+  assert.deepEqual((receipt.value as LayoutSession).observations, original.observations);
+  assert.equal((receipt.value as LayoutSession).targetDocument, original.targetDocument);
 });
 
 test("supported imports create fresh identities atomically and field provenance survives explicit upgrade", async () => {

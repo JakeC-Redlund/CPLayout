@@ -7,11 +7,15 @@ import { IconCommandButton } from "./CommandSurface";
 import { ConfirmActionDialog } from "./ProjectCatalogDialog";
 import { CATALOG_IMPORT_MAX_BYTES, previewCatalogImport, type CatalogImportPreview } from "./catalogArchivePayload";
 
-export function CatalogArchiveImport({ fieldMapId, onOpenDesign, onClose }: {
+export function CatalogArchiveImport({ fieldMapId, onOpenDesign, onClose, visible = true, getEditorGeneration }: {
   fieldMapId: string | null;
+  visible?: boolean;
+  getEditorGeneration?: () => number;
   onOpenDesign: (opened: OpenedDesign) => void;
   onClose: () => void;
 }): React.JSX.Element {
+  const visibleRef = useRef(visible); visibleRef.current = visible;
+  const [savedCopy, setSavedCopy] = useState<OpenedDesign | null>(null);
   const repository = useProjectRepository();
   const [candidate, setCandidate] = useState<CatalogImportPreview | null>(null);
   const [filename, setFilename] = useState("");
@@ -21,6 +25,7 @@ export function CatalogArchiveImport({ fieldMapId, onOpenDesign, onClose }: {
   const [busy, setBusy] = useState(false);
   const [confirmClose, setConfirmClose] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [messageKind, setMessageKind] = useState<"error" | "success">("error");
   const mounted = useRef(true);
   const operation = useRef(0);
   const busyRef = useRef(false);
@@ -32,14 +37,14 @@ export function CatalogArchiveImport({ fieldMapId, onOpenDesign, onClose }: {
   const kindLabel = candidate?.kind === "draft" ? "Design draft" : candidate?.kind === "field" ? "Field design" : "Complete design";
   const hasUnfinishedReview = candidate !== null || filename !== "" || name !== "" || association !== "";
   function closeImport(): void {
-    if (busyRef.current || !mounted.current) return;
+    if (!visibleRef.current || busyRef.current || !mounted.current) return;
     // Retire file-reader and transaction callbacks before the parent can unmount this review.
     operation.current++;
     setConfirmClose(false);
     onClose();
   }
   function requestClose(): void {
-    if (busyRef.current || !mounted.current) return;
+    if (!visibleRef.current || busyRef.current || !mounted.current) return;
     if (hasUnfinishedReview) setConfirmClose(true);
     else closeImport();
   }
@@ -55,10 +60,10 @@ export function CatalogArchiveImport({ fieldMapId, onOpenDesign, onClose }: {
     setMessage(null);
   }
   async function run(action: (isCurrent: () => boolean) => Promise<void>): Promise<void> {
-    if (busyRef.current || !mounted.current) return;
+    if (!visibleRef.current || busyRef.current || !mounted.current) return;
     const sequence = ++operation.current;
     const isCurrent = () => mounted.current && sequence === operation.current;
-    busyRef.current = true; setBusy(true); setMessage(null);
+    busyRef.current = true; setBusy(true); setMessage(null); setMessageKind("error");
     try { await action(isCurrent); }
     catch (error) { if (isCurrent()) setMessage(error instanceof Error ? error.message : String(error)); }
     finally { busyRef.current = false; if (isCurrent()) setBusy(false); }
@@ -69,7 +74,7 @@ export function CatalogArchiveImport({ fieldMapId, onOpenDesign, onClose }: {
     catch (error) { if (isCurrent()) { setCandidate(null); setFilename(""); } throw error; }
     if (!file || !isCurrent()) return;
     // Retire the previous candidate before validation: a failed replacement cannot import an older file by mistake.
-    setCandidate(null); setFilename(file.name);
+    setSavedCopy(null); setCandidate(null); setFilename(file.name);
     const next = previewCatalogImport(file.bytes, file.name);
     if (!isCurrent()) return;
     setCandidate(next); setName(`${next.name} copy`);
@@ -78,14 +83,34 @@ export function CatalogArchiveImport({ fieldMapId, onOpenDesign, onClose }: {
   async function importCopy(isCurrent: () => boolean): Promise<void> {
     if (!candidate || !field || reviewRevision === null || stale || upgradeNeeded) throw new Error("Review a valid file and select its destination field before importing.");
     if (!name.trim()) throw new Error("Enter a name for the imported copy.");
+    const generation = getEditorGeneration?.();
     const opened = await repository.importDesignDocument({ fieldMapId: field.id, document: candidate.document, name: name.trim(),
       ...(candidate.originalProjectDocument === undefined ? {} : { originalProjectDocument: candidate.originalProjectDocument }) }, reviewRevision, { isCurrent });
-    if (isCurrent()) onOpenDesign(opened);
+    if (isCurrent()) {
+      setSavedCopy(opened);
+      setMessageKind("success");
+      setMessage("Copy saved in the selected field. Your import is complete; open the saved copy when ready.");
+      if (visibleRef.current && generation === getEditorGeneration?.()) onOpenDesign(opened);
+    }
   }
+  async function openSavedCopy(isCurrent: () => boolean): Promise<void> {
+    if (!savedCopy?.context.designId) throw new Error("The saved copy has no catalog identity. Reopen it from Projects.");
+    const generation = getEditorGeneration?.();
+    const opened = await repository.openDesignProject(savedCopy.context.designId);
+    if (!isCurrent()) return;
+    setSavedCopy(opened); setMessageKind("success");
+    setMessage("Copy saved in its field. Open the saved copy when your current design is ready to close.");
+    if (visibleRef.current && generation === getEditorGeneration?.()) onOpenDesign(opened);
+  }
+  const feedback = repository.storageError ?? message;
+  const feedbackIsError = Boolean(repository.storageError) || messageKind === "error";
+  const feedbackAccessibility: Record<string, unknown> = Platform.OS === "web"
+    ? { role: feedbackIsError ? "alert" : "status", "aria-live": feedbackIsError ? "assertive" : "polite" }
+    : { accessibilityRole: feedbackIsError ? "alert" : undefined, accessibilityLiveRegion: "polite" };
   return <SafeAreaView style={styles.root} testID="catalog-archive-import"><ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
     <View style={styles.header}><View style={styles.grow}><Text style={styles.title}>Import a design</Text>
       <Text style={styles.meta}>Choose a CPLayout JSON or ZIP, review it, then save a new copy in a field.</Text></View>
-      <IconCommandButton id="import-back" label="Back" icon={<ArrowLeft />} showLabel disabled={busy} onPress={requestClose} testID="catalog-import-back" />
+      <IconCommandButton id="import-back" label={savedCopy ? "Close import review" : "Back"} icon={<ArrowLeft />} showLabel disabled={busy} onPress={requestClose} testID="catalog-import-back" />
     </View>
     {!desktop && <Text accessibilityRole="alert" style={styles.notice}>Open CPLayout in the desktop browser to import design copies. This operation is unavailable in this native runtime.</Text>}
     <View style={styles.card}>
@@ -102,23 +127,23 @@ export function CatalogArchiveImport({ fieldMapId, onOpenDesign, onClose }: {
       <Text style={styles.meta}>The copy keeps the source geometry and recorded evidence. Import does not calculate, complete a draft, or verify field accuracy.</Text>
       {candidate.originalProjectDocument !== undefined && <Text style={styles.meta}>The original single-pivot design is retained with this field design.</Text>}
       <Text style={styles.label}>Name for the copy (required)</Text>
-      <TextInput value={name} onChangeText={setName} editable={!busy} accessibilityLabel="Imported design name" style={styles.input} testID="catalog-import-name" />
+      <TextInput value={name} onChangeText={setName} editable={!busy && !savedCopy} accessibilityLabel="Imported design name" style={styles.input} testID="catalog-import-name" />
     </View>}
     <View style={styles.card}>
       <Text style={styles.heading}>2. Select the destination field</Text>
       <Text style={styles.meta}>Customer → Project → Field</Text>
       {desktop ? React.createElement("select", {
-        value: association, disabled: busy, "aria-label": "Destination field", "data-testid": "catalog-import-field",
+        value: association, disabled: busy || Boolean(savedCopy), "aria-label": "Destination field", "data-testid": "catalog-import-field",
         onChange: (event: React.ChangeEvent<HTMLSelectElement>) => chooseField(event.target.value),
         style: { width: "100%", minWidth: 0, minHeight: 44, padding: 10, fontSize: 15, borderRadius: 6, border: "1px solid #aabaaa", color: "#173428", background: "white" },
       }, React.createElement("option", { value: "" }, "Select a field…"), ...repository.catalog.fieldMaps.map(item =>
         React.createElement("option", { key: item.id, value: item.id }, `${fieldLabel(item.id)}${item.id === fieldMapId ? " (current field)" : ""}`)))
-        : repository.catalog.fieldMaps.map(item => <Pressable key={item.id} accessibilityRole="radio" accessibilityState={{ checked: association === item.id }} disabled={busy}
+        : repository.catalog.fieldMaps.map(item => <Pressable key={item.id} accessibilityRole="radio" accessibilityState={{ checked: association === item.id }} disabled={busy || Boolean(savedCopy)}
           onPress={() => chooseField(item.id)} style={styles.fieldChoice}><Text style={styles.label}>{fieldLabel(item.id)}</Text></Pressable>)}
       {!repository.catalog.fieldMaps.length && <Text style={styles.notice}>Create a customer, project, and field from Start, then return here to import the design.</Text>}
-      {field && <Text style={styles.meta} testID="catalog-import-destination">New copy will be saved in {fieldLabel(field.id)}.</Text>}
+      {field && <Text style={styles.meta} testID="catalog-import-destination">{savedCopy ? "Copy saved in" : "New copy will be saved in"} {fieldLabel(savedCopy?.context.fieldMapId ?? field.id)}.</Text>}
       <IconCommandButton id="import-refresh" label="Refresh fields" icon={<RefreshCw />} showLabel disabled={busy} onPress={() => run(async () => { await repository.refreshProjects(); })} testID="catalog-import-refresh" />
-      {stale && <View style={styles.noticeBox}><Text style={styles.meta}>Saved work changed during this review. Confirm the destination field again before importing.</Text>
+      {stale && !savedCopy && <View style={styles.noticeBox}><Text style={styles.meta}>Saved work changed during this review. Confirm the destination field again before importing.</Text>
         <IconCommandButton id="import-review-destination" label="Use this destination" icon={<FolderOpen />} showLabel disabled={busy || !field}
           onPress={() => chooseField(association)} testID="catalog-import-review-destination" /></View>}
     </View>
@@ -132,14 +157,14 @@ export function CatalogArchiveImport({ fieldMapId, onOpenDesign, onClose }: {
           if (isCurrent()) setReviewRevision(revision);
         })} testID="catalog-import-upgrade-confirm" />
     </View>}
-    {(message || repository.storageError) && <Text accessibilityRole="alert" style={[styles.notice, styles.error]} testID="catalog-import-error">{message ?? repository.storageError}</Text>}
-    <View style={styles.toolbar}><IconCommandButton id="import-copy" label={busy ? "Working" : "Import copy"} icon={<FileUp />} showLabel
-      disabled={!desktop || busy || !candidate || !field || !name.trim() || reviewRevision === null || stale || upgradeNeeded}
-      onPress={() => run(importCopy)} testID="catalog-import-copy" /></View>
+    {feedback && <Text {...feedbackAccessibility} style={[styles.notice, feedbackIsError && styles.error]} testID="catalog-import-error">{feedback}</Text>}
+    <View style={styles.toolbar}><IconCommandButton id="import-copy" label={busy ? "Working" : savedCopy ? "Open saved copy" : "Import copy"} icon={<FileUp />} showLabel
+      disabled={!visible || !desktop || busy || (!savedCopy && (!candidate || !field || !name.trim() || reviewRevision === null || stale || upgradeNeeded))}
+      onPress={() => run(savedCopy ? openSavedCopy : importCopy)} testID="catalog-import-copy" /></View>
   </ScrollView>
-    <ConfirmActionDialog visible={confirmClose} title="Discard this import review?"
-      message="The selected file, copy name, and destination will be cleared. No design has been imported; your source file stays unchanged."
-      confirmLabel="Discard import review" onCancel={() => setConfirmClose(false)} onConfirm={closeImport} testID="catalog-import-discard" />
+    <ConfirmActionDialog visible={visible && confirmClose} title={savedCopy ? "Close import review" : "Discard this import review?"}
+      message={savedCopy ? "Close this completed import review? The imported copy remains saved in its field." : "The selected file, copy name, and destination will be cleared. No design has been imported; your source file stays unchanged."}
+      confirmLabel={savedCopy ? "Close review" : "Discard import review"} onCancel={() => setConfirmClose(false)} onConfirm={closeImport} testID="catalog-import-discard" />
   </SafeAreaView>;
 }
 

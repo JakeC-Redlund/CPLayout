@@ -74,7 +74,7 @@ async function setup(page: Page, baseURL: string | undefined, renderer: Renderer
   await page.getByTestId("command-file-sample-baseline-needs-review").click();
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("North Quarter Concept Layout");
   const project = await saveProject(page);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   await closePanels(page);
   if (renderer === "svg") {
     await expect.poll(() => workerFailures).toBeGreaterThan(0);
@@ -266,7 +266,7 @@ async function importBoundary(page: Page, renderer: Renderer) {
   await expect(page.getByTestId("project-save-state")).toContainText("Unsaved edits");
   const project = await saveProject(page);
   expect(project.fieldBoundary).toEqual(ring.slice(0, -1).map(([x, y]) => ({ x, y })));
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   // Route changes retain the selected renderer.
   if (renderer === "svg") {
     await expect(page.getByTestId("browser-map-renderer-fallback")).toBeVisible();
@@ -325,14 +325,14 @@ for (const renderer of ["browser", "svg"] as const) {
     await page.screenshot({ path: testInfo.outputPath(`${renderer}-overlay-design.png`) });
     expect(await workspaceStorageBytes(page)).toEqual(before);
     await toolbar.getByRole("button", { name: "Close tool options" }).click();
-    await (renderer === "browser" ? page.getByTestId("browser-workflow-layout") : page.getByRole("button", { name: "Layout", exact: true })).click();
+    await (renderer === "browser" ? page.getByTestId("browser-workflow-layout") : page.getByRole("button", { name: "Inspect map", exact: true })).click();
     await toolbar.getByTestId("design-action-polygon").click();
     for (const id of ["design-action-polygon-start", "map-tool-field-boundary", "map-tool-keep-out"]) await expect(toolbar.getByTestId(id)).toBeDisabled();
     await expect(toolbar.getByTestId("map-tool-rtk")).toBeEnabled();
     await page.screenshot({ path: testInfo.outputPath(`${renderer}-overlay-layout.png`) });
     await toolbar.getByTestId("map-tool-rtk").click();
     await expect(page.getByRole("button", { name: "Capture Survey Point", exact: true })).toBeDisabled();
-    await expect(page.getByTestId("rtk-gate-badge")).toContainText("Gate closed");
+    await expect(page.getByTestId("rtk-gate-badge")).toContainText("Live capture unavailable");
   });
 
   test(`${renderer}: standard drawing tools measure, undo, cancel and save polygon line point purposes`, async ({ page, baseURL }, testInfo) => {

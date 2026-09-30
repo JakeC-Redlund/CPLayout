@@ -14,23 +14,36 @@ async function prepare(page: Page, baseURL: string, initialPayload = "", mapRece
   await page.getByTestId("command-menu-file").click();
   await page.getByTestId("command-file-sample-baseline-needs-review").click();
   if (mapReceiver) {
-    await page.getByTestId("workspace-nav-map").click();
-    const open = page.getByRole("button", { name: /Open (map inspector|right workflow sidebar)/ }).first();
-    if (await open.isVisible()) await open.click();
-    await page.getByTestId("workflow-sidebar-tab-rtk").click();
-  } else await page.getByTestId("workspace-nav-survey").click();
+    await page.getByTestId("task-design").click();
+    const close = page.getByRole("button", { name: /Collapse (map inspector|right workflow sidebar)/ }).first();
+    if (await close.isVisible()) await close.click();
+    await page.getByTestId("map-bottom-hud").getByTestId("design-action-point").click();
+    await page.getByTestId("map-tool-rtk").click();
+  } else await page.getByTestId("task-survey").click();
+}
+async function selectPurpose(page: Page, purpose: "point" | "boundary" | "obstacle" | "feature") {
+  await page.getByTestId(`survey-purpose-${purpose}`).click();
+  await expect(page.getByTestId(`survey-${purpose}-controls`)).toBeVisible();
+}
+async function openReceiverSettings(page: Page) {
+  if (!await page.getByTestId("receiver-settings").isVisible()) await page.getByTestId("receiver-settings-toggle").click();
+  await expect(page.getByTestId("receiver-settings")).toBeVisible();
 }
 async function ready(page: Page) {
-  await expect(page.getByTestId("rtk-gate-badge")).toContainText("Collection eligible");
+  await selectPurpose(page, "point");
+  await expect(page.getByTestId("rtk-gate-badge")).toContainText("Live capture available");
   await expect(page.getByRole("button", { name: "Capture Survey Point", exact: true })).toBeEnabled();
 }
 async function blocked(page: Page) {
-  await expect(page.getByTestId("rtk-gate-badge")).toContainText("Gate closed");
-  for (const name of ["Capture Survey Point", "Add Boundary (0)", "Add Obstacle (0)", "Add Feature Vertex (0)"]) {
+  await expect(page.getByTestId("rtk-gate-badge")).toContainText("Live capture unavailable");
+  for (const [purpose, name] of [["point", "Capture Survey Point"], ["boundary", "Add Boundary (0)"], ["obstacle", "Add Obstacle (0)"], ["feature", "Add Feature Vertex (0)"]] as const) {
+    await selectPurpose(page, purpose);
     await expect(page.getByRole("button", { name, exact: true })).toBeDisabled();
   }
+  await selectPurpose(page, "point");
 }
 async function disconnect(page: Page) {
+  await openReceiverSettings(page);
   await page.getByRole("button", { name: "Disconnect receiver", exact: true }).click();
   await expect(page.getByRole("button", { name: "Connect receiver", exact: true })).toBeEnabled();
 }
@@ -46,18 +59,20 @@ async function exportProject(page: Page) {
 test("shared receiver survives Survey, Files and map navigation with one owned port", async ({ page, baseURL }) => {
   await prepare(page, baseURL!, gga(), true);
   await connectOperationalReceiver(page); await ready(page);
+  await selectPurpose(page, "boundary");
   await page.getByRole("button", { name: "Add Boundary (0)", exact: true }).click();
+  await page.getByTestId("task-design").click();
   const closeSidebar = page.getByRole("button", { name: /Collapse (map inspector|right workflow sidebar)/ }).first();
   if (await closeSidebar.isVisible()) await closeSidebar.click();
   const toolbar = page.getByTestId("map-bottom-hud");
   await toolbar.getByTestId("design-action-pan").click();
   await toolbar.getByTestId("design-action-pan-start").click();
-  const openSidebar = page.getByRole("button", { name: /Open (map inspector|right workflow sidebar)/ }).first();
-  if (await openSidebar.isVisible()) await openSidebar.click();
+  await page.getByTestId("task-survey").click();
+  await selectPurpose(page, "boundary");
   await expect(page.getByRole("button", { name: "Add Boundary (1)", exact: true })).toBeEnabled();
   await page.getByTestId("workspace-nav-files").click();
   expect(await page.evaluate(() => (window as ReceiverFixtureWindow).operationalReceiver.openPorts)).toBe(1);
-  await page.getByTestId("workspace-nav-survey").click(); await ready(page);
+  await page.getByTestId("task-survey").click(); await ready(page);
   expect(await page.evaluate(() => (window as ReceiverFixtureWindow).operationalReceiver.requestCount)).toBe(1);
   await disconnect(page);
   expect(await page.evaluate(() => (window as ReceiverFixtureWindow).operationalReceiver.openPorts)).toBe(0);
@@ -66,20 +81,27 @@ test("shared receiver survives Survey, Files and map navigation with one owned p
 for (const geometry of ["Line", "Polygon"]) {
   test(`captured ${geometry} vertices retain evidence while live collection closes after disconnect`, async ({ page, baseURL }) => {
     await prepare(page, baseURL!);
+    await selectPurpose(page, "feature");
     if (geometry === "Polygon") await page.getByRole("button", { name: "Planning boundary", exact: true }).click();
     await connectOperationalReceiver(page);
     for (let index = 0; index < 3; index++) {
       await emitGga(page, gga(`12000${index}.00`, 4, "GNGGA", index === 0 ? "4042.5900" : "4042.5960", index === 2 ? "10458.9940" : "10459.0000"));
       await ready(page);
+      await selectPurpose(page, "obstacle");
       await page.getByRole("button", { name: `Add Obstacle (${index})`, exact: true }).click();
+      await selectPurpose(page, "feature");
       await page.getByRole("button", { name: `Add Feature Vertex (${index})`, exact: true }).click();
     }
     await disconnect(page);
+    await selectPurpose(page, "obstacle");
     await expect(page.getByRole("button", { name: "Add Obstacle (3)", exact: true })).toBeDisabled();
+    await selectPurpose(page, "feature");
     await expect(page.getByRole("button", { name: "Add Feature Vertex (3)", exact: true })).toBeDisabled();
     // Saving already captured work remains possible without inventing a fresh observation.
-    await page.getByRole("button", { name: "Commit Obstacle", exact: true }).click();
+    await selectPurpose(page, "obstacle");
+    await page.getByRole("button", { name: "Use captured obstacle in this design", exact: true }).click();
     await expect(page.getByTestId("rtk-status")).toContainText("obstacle ring committed");
+    await selectPurpose(page, "feature");
     await page.getByRole("button", { name: `Save ${geometry} Feature`, exact: true }).click();
     await expect(page.getByTestId("rtk-status")).toContainText("saved as projected XY");
     const { document } = await exportProject(page);
@@ -179,7 +201,7 @@ test("permission denial and rapid repeated connect requests never create a secon
   await expect(page.getByRole("textbox", { name: "Baud rate", exact: true })).not.toBeEditable();
   await page.getByTestId("workspace-nav-files").click();
   await page.evaluate(() => (window as ReceiverFixtureWindow).operationalReceiver.grant());
-  await page.getByTestId("workspace-nav-survey").click();
+  await page.getByTestId("task-survey").click();
   await expect(page.getByRole("button", { name: "Disconnect receiver", exact: true })).toBeEnabled();
   await blocked(page);
   expect(await page.evaluate(() => (window as ReceiverFixtureWindow).operationalReceiver.openPorts)).toBe(1);
@@ -190,6 +212,7 @@ for (const deferred of [false, true]) {
   test(`cleanup failure remains owned across navigation until explicit retry: deferred=${deferred}`, async ({ page, baseURL }) => {
     await prepare(page, baseURL!, gga()); await connectOperationalReceiver(page); await ready(page);
     await page.evaluate(defer => { const fixture = (window as ReceiverFixtureWindow).operationalReceiver; fixture.failCloseCount = 1; fixture.deferClose = defer; }, deferred);
+    await openReceiverSettings(page);
     await page.getByRole("button", { name: "Disconnect receiver", exact: true }).click();
     if (deferred) {
       await expect(page.getByRole("button", { name: "Disconnecting…", exact: true })).toBeDisabled();
@@ -198,7 +221,7 @@ for (const deferred of [false, true]) {
     await expect(page.getByTestId("receiver-status")).toContainText("Synthetic port cleanup failure");
     await blocked(page);
     await expect(page.getByRole("button", { name: "Connect receiver", exact: true })).toHaveCount(0);
-    await page.getByTestId("workspace-nav-files").click(); await page.getByTestId("workspace-nav-survey").click();
+    await page.getByTestId("workspace-nav-files").click(); await page.getByTestId("task-survey").click();
     expect(await page.evaluate(() => (window as ReceiverFixtureWindow).operationalReceiver.openPorts)).toBe(1);
     expect(await page.evaluate(() => (window as ReceiverFixtureWindow).operationalReceiver.closeCalls)).toBe(1);
     await disconnect(page);
