@@ -250,6 +250,129 @@ Full browser execution then exposed two older Layout fixtures that expected a su
 
 The corrected Layout lifecycle fixtures passed their focused desktop, narrow and compact checks. The shared receiver route then exposed a product defect: the ordinary Layout sessions button forwarded its press event into the optional numeric navigation generation. The root correctly refused that generation and left the catalog hidden. Two independent reviews confirmed the cause. The button now calls the navigation function without forwarding the event; compact context and primary-task routes already used the correct form. The generation guard, retained editor, unfinished review and shared receiver owner remain intact. The same ordinary button route now explicitly checks the active RTK Layout destination, visible catalog and enabled saved-session action. R33 failed and interrupted evidence is retained. A new frozen candidate and all matching source/browser gates are required; complete acceptance count remains zero.
 
+## Iteration 18 — saved unfinished drawing and passive map reveal
+
+The resumed full desktop shard completed with 316 passing cases, five failures and
+three declared profile exclusions. Source validation passed; the failures are
+preserved as failed evidence. A saved active drawing capture was incorrectly
+reported as unsaved because save status shared the unfinished-navigation guard.
+Status now follows acknowledged persisted inputs, while incomplete capture,
+foreign revision and pending input still guard navigation and completion. The
+stale-tab fixture checks disabled Save, explicit recheck, retained raw values and
+undo instead of clicking a deliberately refused action again. Undo and quota-retry
+checks retain exact saved captures and reopen bytes.
+
+A selected offscreen handle moved partly into view during a geometry nudge. A later
+advisory-row resize incorrectly authorized automatic reveal and changed the camera.
+Passive visibility now requires the full handle inside the canvas; explicit
+reselection retains its own reveal intent. The delayed-imagery fixture resolves each
+actual canvas hit immediately before the click and verifies counts two, three and
+four, preserving its original camera, geometry and late-delivery assertions.
+Focused source checks pass; fresh served-build browser evidence is still required.
+
+The new audit reports 21 high findings for two upstream advisories. Published
+versions currently have no patched release. Exact-version defensive patches and
+strict installed-source audit verification are being checked, retaining the raw
+report and refusing every unknown or unverified finding. This does not establish
+zero raw findings, native runtime or measured field accuracy. See the
+[dependency mitigation record](dependency-security-mitigations.md). Complete
+acceptance remains zero until all current gates and two unchanged complete reviews.
+
+## Iteration 19 — camera intent ownership and complete audit coverage
+
+A second independent review found that post-edit visibility still allowed passive
+camera reveal, including a formerly offscreen vertex moved fully inside the canvas.
+Reveal now requires explicit selection or a genuine previously-visible layout
+rescue. Geometry, advisory and status reflow cannot create that intent. Requests
+belong to their renderer; retirement clears only that renderer's request, and Fit
+retires prior intent before adjusting the camera. Initial explicit selections may
+wait for their first renderer. Browser cases retain the original exact camera/XY
+assertions and add edit-to-fully-visible, Fit-after-rescue and imagery-after-rescue
+routes, including a usable reveal rectangle after dock reflow. Source checks and
+independent source review close the demonstrated branches; real browser acceptance
+remains required.
+
+The complete audit exposed additional sprintf and source-map findings. The official
+source-map 1.2.2 and shell-quote 1.12.0 fixes stay within their existing parent
+ranges. A bounded precision
+patch for sprintf joins the exact braces and forge guards. The fresh isolated npm
+install applies all three guards and 45 focused checks pass. The verification gate
+also checks installed source for zero-finding reports and explicitly fixes prefix,
+dependency includes and workspace coverage. Raw results remain 21 high and five
+moderate findings, with only three exact verified local mitigations admitted.
+Unknown findings still refuse admission. Full current-source/browser/CI gates and
+two complete unchanged-candidate reviews remain pending; acceptance count is zero.
+
+## Iteration 20 — contextual feedback and reachable drawing controls
+
+The camera/save candidate passed aggregate source validation, qualified audit and
+36 focused cases in both Linux browsers and visible Windows Edge. Independent
+pixel review nevertheless found stale Catalog guidance on an open design, the
+internal `drawingWorkflow` name in completeness actions, and a Save Local
+instruction beside an acknowledged Saved state. The full browser run was stopped
+for these corrections after 37 passing cases; it is not a completed acceptance run.
+
+The controller refreshes only an untouched previous default workflow message when
+the applicable context changes, preserving operation, rejection and retry feedback.
+Accepted vertex movement no longer instructs a save independently of the existing
+save-state display. Completeness presents Drawing and finish/discard guidance; its
+action reveals existing mounted drawing controls or the purpose selector without
+issuing a geometry command. Raw pending input, unfinished-capture navigation and
+completion guards, selection, undo and camera ownership remain acceptance criteria.
+Scoped controller checks pass 55 cases; Drawing source syntax and whitespace checks
+pass. Independent review and browser execution of these repairs remain required.
+Complete acceptance count is still zero. The relocation checkpoint preserves all
+source changes and prior evidence; resumption does not convert interrupted checks
+into passes.
+
+## Iteration 21 — exact draft span identity
+
+The broader independent review reproduced an inherited draft machine defect:
+removing an earlier span reindexed surviving rounded input text, allowing Apply
+to change an untouched exact source value. A 52.987654321 m survivor became
+52.98643200021194 m; two different source values with the same displayed feet
+could instead recover the deleted slot's original value. This contradicted the
+existing append/remove-last and original-index precision contract. The current
+source/browser checks were stopped before mutation and retained as interrupted
+evidence, with no acceptance count.
+
+The selected bounded repair applies the field form's append/remove-last workflow
+to the draft form, keeping surviving positions stable and removing redundant
+per-row deletion controls. Empty incomplete drafts remain valid. Actual parser
+and browser checks must prove unchanged high-precision values, raw-input retry,
+explicit discard, Apply, saving and reopening. Source, browser, visible Edge,
+CI and complete reviews must match the corrected frozen candidate.
+
+## Iteration 22 — map stability evidence and visible span controls
+
+The span correction passed independent source review, aggregate validation, all
+42 Linux focused cases, all six new span cases in visible Edge, and three open
+Drawing/customer/Layout checks in both browsers. The full Edge focused batch
+failed one tablet delayed-imagery check. Two isolated diagnostic runs reproduced
+the failure while application and test sources stayed unchanged. Retained camera,
+canvas and raw PNG evidence shows 58 settled captures with identical camera and
+bounds alternating between two images: seven of 172,848 pixels differ by one
+channel level on the advisory MapPinned and attribution Info icon edges. Every
+other decoded pixel is identical. Independent analysis confirmed the finding.
+
+The selected test-only correction makes exactly those decorative SVGs temporarily
+invisible during inertia screenshots, preserving layout and strict PNG byte
+comparison. Loading uses a fresh unstyled baseline and the original unstyled
+contrast, exact camera, four projected-XY clicks and storage assertions. No
+application change or arbitrary pixel tolerance is justified. See the
+[Playwright screenshot stylesheet contract](https://playwright.dev/docs/api/class-locator#locator-screenshot).
+Using proof identity/preservation/simplicity weights 45/35/20, independent review
+scored this correction 4.80 versus 4.10 for unchanged full-HUD byte comparison and
+2.20 for a noise tolerance. SVG wrapper/order changes require selector review.
+
+Pixel review cleared the three original misleading messages and the supplied
+Drawing/customer/Layout states. Earlier span screenshots showed the top input
+section rather than Machine rows; targeted numbered-row and Add/Remove-last
+figures are added. Supplemental pending-input figures now capture the raw value
+before discard, separately from enabled Resume afterward. These changes require
+matching frozen-test/browser gates. The prior failed Edge batch remains failed;
+complete acceptance remains zero until the full gates and two unchanged reviews.
+
 ## Iteration and acceptance contract
 
 Each cycle inspects actual user tasks, researches unresolved behavior, records alternatives and weighted decisions where needed, implements bounded changes, reviews the exact served build visibly in Windows Edge, runs appropriate validation, and obtains independent usability/preservation review.
@@ -268,6 +391,7 @@ npm run validate:skills
 npm run context-map:check
 npm run test:visual-review
 npm audit
+npm run audit:verified
 git diff --check
 npm run ui:test:start -- --no-open
 npm run ui:test:status

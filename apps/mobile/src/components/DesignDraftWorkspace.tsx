@@ -51,6 +51,8 @@ export function DesignDraftWorkspace({ initial, onClose, onOpenComplete, getTask
   const openingCompleteRef = useRef(false);
   const inputsRef = useRef<DesignDraftInputsHandle>(null);
   const inputsScrollRef = useRef<ScrollView>(null);
+  const drawingControlsRef = useRef<View>(null);
+  const classificationScrollRef = useRef<ScrollView>(null);
   const sectionPositions = useRef<Record<string, number>>({});
   const savingCount = useRef(0);
   const queuedRevisions = useRef(new Set<number>());
@@ -70,7 +72,8 @@ export function DesignDraftWorkspace({ initial, onClose, onOpenComplete, getTask
   const pending = pendingInputs;
   const autosave = editor.draft.drawingWorkflow?.autosaveEnabled ?? true;
   const activeCapture = editor.draft.drawingWorkflow?.captures.find(item => item.id === editor.draft.drawingWorkflow?.activeCaptureId);
-  const dirty = editor.revision !== savedRevision || pending || !!activeCapture;
+  const unsavedChanges = editor.revision !== savedRevision || pending;
+  const dirty = unsavedChanges || !!activeCapture;
   if (navigationGuardRef) navigationGuardRef.current = () => ({
     dirty: editorRef.current.revision !== savedRevision || pendingInputsRef.current || !!editorRef.current.draft.drawingWorkflow?.activeCaptureId,
     busy: savingCount.current > 0 || completingRef.current || openingCompleteRef.current || reconcilingRef.current,
@@ -258,6 +261,21 @@ export function DesignDraftWorkspace({ initial, onClose, onOpenComplete, getTask
   }
 
   function openMissingInput(section: string): void {
+    if (section === "drawingWorkflow") {
+      setInputsOpen(false);
+      requestAnimationFrame(() => {
+        if (activeCapture?.stage === "classification") classificationScrollRef.current?.scrollTo({ y: 0, animated: false });
+        if (Platform.OS !== "web") return;
+        const controls = (activeCapture?.stage === "classification"
+          ? classificationScrollRef.current?.getScrollableNode() : drawingControlsRef.current) as HTMLElement | null;
+        const target = activeCapture?.stage === "classification" ? controls?.querySelector<HTMLElement>('[data-testid="drawing-purpose-select"]')
+          : activeCapture ? controls?.querySelector<HTMLElement>('[data-testid="design-draft-commit"]:not([aria-disabled="true"])')
+            ?? controls?.querySelector<HTMLElement>('[data-testid="design-draft-pause"]:not([aria-disabled="true"])')
+          : controls?.querySelector<HTMLElement>('[data-testid^="design-draft-resume-"]:not([aria-disabled="true"])');
+        target?.focus({ preventScroll: true });
+      });
+      return;
+    }
     setInputsOpen(true);
     requestAnimationFrame(() => {
       inputsScrollRef.current?.scrollTo({ y: sectionPositions.current[section] ?? 0, animated: false });
@@ -292,7 +310,7 @@ export function DesignDraftWorkspace({ initial, onClose, onOpenComplete, getTask
     : [...admission.completeness.blockers, ...admission.completeness.calculationBlockers];
   const missingFields = [...new Set(missing.map(item => item.path.split(".")[0]))];
   const fieldLabels: Record<string, string> = { projectCrs: "Coordinate system", fieldBoundary: "Field boundary",
-    pivotCenter: "Pivot", waterSource: "Water", powerSource: "Power", machine: "Machine" };
+    pivotCenter: "Pivot", waterSource: "Water", powerSource: "Power", machine: "Machine", drawingWorkflow: "Drawing" };
   const error = receiptConflict ?? editor.lastError ?? repository.storageError ?? (message?.error ? message.text : null);
 
   return <SafeAreaView style={styles.root} testID="design-draft-workspace">
@@ -301,9 +319,9 @@ export function DesignDraftWorkspace({ initial, onClose, onOpenComplete, getTask
       <View style={styles.identity}>
         <Text numberOfLines={1} style={styles.title}>{editor.draft.name}</Text>
         <View style={styles.statusLine} accessibilityLiveRegion="polite">
-          {saveFailed ? <TriangleAlert size={20} color="#922c24" /> : dirty || saving ? <Save size={20} color="#85520d" /> : <CheckCircle2 size={20} color="#14734b" />}
-          <Text style={[styles.stateText, { color: saveFailed ? "#922c24" : dirty || saving ? "#85520d" : "#14734b" }]} testID="draft-save-state">
-            {openingComplete ? "Opening saved complete design" : completing ? "Creating complete design" : saving ? "Saving" : saveFailed ? "Unsaved changes — save failed" : dirty ? "Unsaved changes" : "Saved"} | Design draft
+          {saveFailed ? <TriangleAlert size={20} color="#922c24" /> : unsavedChanges || saving ? <Save size={20} color="#85520d" /> : <CheckCircle2 size={20} color="#14734b" />}
+          <Text style={[styles.stateText, { color: saveFailed ? "#922c24" : unsavedChanges || saving ? "#85520d" : "#14734b" }]} testID="draft-save-state">
+            {openingComplete ? "Opening saved complete design" : completing ? "Creating complete design" : saving ? "Saving" : saveFailed ? "Unsaved changes — save failed" : unsavedChanges ? "Unsaved changes" : "Saved"} | Design draft
           </Text>
         </View>
       </View>
@@ -352,7 +370,7 @@ export function DesignDraftWorkspace({ initial, onClose, onOpenComplete, getTask
         {savedRevision >= pausedRevision ? "Paused drawing saved — resume anytime" : "Drawing paused — save pending"}
       </Text>}
     </View>
-    {activeCapture?.stage === "classification" && <ScrollView keyboardShouldPersistTaps="handled" style={[styles.classificationScroll, !visible && styles.hidden]}><DrawingClassificationDialog key={activeCapture.id}
+    {activeCapture?.stage === "classification" && <ScrollView ref={classificationScrollRef} keyboardShouldPersistTaps="handled" style={[styles.classificationScroll, !visible && styles.hidden]}><DrawingClassificationDialog key={activeCapture.id}
       capture={activeCapture} draft={editor.draft} error={editor.lastError}
       onCancel={classification => {
         drawing({ type: "set_classification", id: activeCapture.id, classification });
@@ -363,7 +381,7 @@ export function DesignDraftWorkspace({ initial, onClose, onOpenComplete, getTask
         ...(drawingPurpose(classification.purposeId)?.destination === "feature"
           ? { entityId: `feature-${Date.now()}-${activeCapture.id}` } : {}), replaceExisting })} /></ScrollView>}
     <View style={[styles.body, compact && styles.compactBody, height < 650 && styles.shortBody]}>
-      <View style={[styles.map, height < 650 && styles.shortMap, inputsTakeBody && styles.hidden]}><DesignDraftMapSurface draft={editor.draft} onDrawing={drawing} disabled={pendingInputs || completing || openingComplete} /></View>
+      <View ref={drawingControlsRef} style={[styles.map, height < 650 && styles.shortMap, inputsTakeBody && styles.hidden]}><DesignDraftMapSurface draft={editor.draft} onDrawing={drawing} disabled={pendingInputs || completing || openingComplete} /></View>
       <View style={[styles.inputs, compact && styles.compactInputs, inputsTakeBody && styles.inputsTakeBody, !inputsOpen && styles.hidden]}>
         <ScrollView ref={inputsScrollRef} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.inputContent} testID="draft-inputs-scroll">
           <DesignDraftInputs ref={inputsRef} editor={editor} onAction={dispatch} onRawInputChange={() => { pendingInputsRef.current = true; }} onPendingChange={value => { pendingInputsRef.current = value; setPendingInputs(value); }} disabled={!!activeCapture || completing || openingComplete} onSectionLayout={(section, y) => { sectionPositions.current[section] = y; }} />
@@ -374,10 +392,10 @@ export function DesignDraftWorkspace({ initial, onClose, onOpenComplete, getTask
       <View style={styles.statusLine}>
         {admission.ok ? <CheckCircle2 size={20} color="#14734b" /> : <TriangleAlert size={20} color="#85520d" />}
         <Text style={[styles.stateText, admission.ok ? styles.successText : styles.warningText]} testID="draft-completeness">{admission.ok ? "Calculation inputs complete"
-          : `Missing or invalid: ${missingFields.map(path => fieldLabels[path] ?? path).join(", ")}`}</Text>
+          : `Missing or invalid: ${missingFields.map(path => fieldLabels[path] ?? path).join(", ")}${missingFields.includes("drawingWorkflow") ? ". Finish or discard unfinished drawings." : ""}`}</Text>
       </View>
       {missingFields.length > 0 && <View style={styles.missingLinks}>{missingFields.map(section => <Pressable key={section}
-        accessibilityRole="button" accessibilityLabel={`Open ${fieldLabels[section] ?? section} inputs`} onPress={() => openMissingInput(section)}
+        accessibilityRole="button" accessibilityLabel={`Open ${fieldLabels[section] ?? section} ${section === "drawingWorkflow" ? "controls" : "inputs"}`} onPress={() => openMissingInput(section)}
         style={styles.missingLink} testID={`draft-missing-${section}`}><Text style={styles.linkText}>Open {fieldLabels[section] ?? section}</Text></Pressable>)}</View>}
       <View style={styles.completionActions}>
         <IconCommandButton id="complete" label="Create complete design" icon={<CheckCircle2 />} showLabel

@@ -12,7 +12,7 @@
     "packages/*"
   ],
   "scripts": {
-    "postinstall": "node tools/patch_xcode_uuid_dependency.cjs && node tools/patchExpoSqliteOwnership.cjs",
+    "postinstall": "node tools/patch_xcode_uuid_dependency.cjs && node tools/patchExpoSqliteOwnership.cjs && node tools/patchDependencySecurity.cjs",
     "patch:sqlite-ownership": "node tools/patchExpoSqliteOwnership.cjs",
     "test:sqlite-ownership": "node --test tools/patchExpoSqliteOwnership.test.cjs",
     "test:visual-review": "node --test tools/visualReviewAnswers.test.cjs tools/visualReviewQuestionnaire.test.cjs tools/buildVisualReviewReceipt.test.cjs tools/interactiveReview*.test.cjs tools/review*.test.cjs",
@@ -43,7 +43,7 @@
     "validate:corner-service-manuals": "python3 tools/validate_corner_service_manuals.py",
     "validate:design-guides": "python3 tools/validate_design_guides.py",
     "validate:skills": "python3 tools/validate_cplayout_skills.py",
-    "validate": "npm run typecheck && npm run test:sqlite-ownership && npm test",
+    "validate": "npm run typecheck && npm run test:sqlite-ownership && npm run test:dependency-security && npm test",
     "audit:moderate": "npm audit --audit-level=moderate",
     "check:android-tools": "tsx tools/check_android_tools.ts",
     "gnss:inspect": "tsx tools/inspectReceiverLog.ts",
@@ -56,7 +56,10 @@
     "verify:roadmap": "tsx tools/roadmapCompletion.ts --full",
     "verify:roadmap:fast": "tsx tools/roadmapCompletion.ts --fast",
     "verify:release": "tsx tools/roadmapCompletion.ts --release",
-    "inspect:flt-review": "tsx tools/inspectFltLayoutReview.ts"
+    "inspect:flt-review": "tsx tools/inspectFltLayoutReview.ts",
+    "patch:dependency-security": "node tools/patchDependencySecurity.cjs",
+    "test:dependency-security": "node --test tools/patchDependencySecurity.test.cjs tools/dependencyAudit.test.cjs",
+    "audit:verified": "node tools/dependencyAudit.cjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",
@@ -68,6 +71,11 @@
   "overrides": {
     "xcode": {
       "uuid": "11.1.1"
-    }
+    },
+    "braces": "3.0.3",
+    "node-forge": "1.4.0",
+    "source-map-js": "1.2.2",
+    "sprintf-js": "1.0.3",
+    "shell-quote": "1.12.0"
   }
 }

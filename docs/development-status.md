@@ -1,10 +1,35 @@
 # Development Status
 
-Updated 2026-09-30. Current resumption index; not release acceptance.
+Updated 2026-10-06. Current resumption index; not release acceptance.
 Read after `AGENTS.md` and `agent-tree-protocol.md` when resuming broad work.
 Use one linked task contract, not the complete historical logs.
 
 ## Current State
+
+- The workflow proposal `350da1c` is committed, pushed and synchronized on the
+  temporary publication branch. Protected main remains at the earlier checkpoint;
+  this synchronization is not software acceptance or a modeling-owner transfer.
+  The following camera/save repairs passed source validation and 36 focused cases
+  in both Linux browsers and visible Windows Edge. Independent pixel review found
+  three misleading interface messages: stale Catalog guidance, an exposed schema
+  key and a save instruction beside Saved. Bounded feedback and Drawing-control
+  corrections passed bounded independent source review. Broader review then
+  reproduced exact-value loss when arbitrary earlier draft spans were removed.
+  The bounded draft append/remove-last correction passed source validation and
+  six precision cases across Linux and visible Edge. One tablet imagery test
+  reproduced decorative SVG pixel quantization after actual map/camera settling;
+  an independently reviewed screenshot-only correction retains strict map-pixel,
+  loading, camera and XY checks. Interrupted/failed evidence is preserved.
+  Full current-candidate source/browser/visible/CI and two complete reviews remain due.
+- The current registry audit reports 21 high and five moderate dependency findings
+  rooted in three advisories without a published fixed release. Exact-version
+  defensive local patches and the separate installed-source verification gate
+  pass a fresh isolated install and 45 focused checks. Compatible published
+  source-map and shell-quote releases close further high/critical findings. Raw audit results
+  remain visible and archived; the gate must verify installed source and every
+  audit path, and reject unknown advisories, incomplete evidence or altered
+  dependencies. Historical zero-audit results below describe their dated runs.
+  See [the dependency mitigation record](dependency-security-mitigations.md).
 
 - The canonical publication candidate combines the [complete desktop workflow](complete-workflow-improvement.md),
   preserved continuous-corner/search-v2/machine-pair improvements, and the

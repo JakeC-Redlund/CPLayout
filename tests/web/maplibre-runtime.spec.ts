@@ -172,15 +172,26 @@ test("delayed imagery preserves a panned camera and a four-vertex boundary draft
     await page.mouse.move(panEnd.x, panEnd.y, { steps: 8 });
     await page.mouse.up();
     // Let pan inertia settle while tile responses remain held.
+    // Clipped canvas screenshots also include overlapping HUD SVGs. These two
+    // decorative icons can alternate one colour level in Edge after the map
+    // settles; exclude only their paint during the strict inertia comparison.
+    const inertiaCaptureStyle = `
+      [data-testid="browser-map-workbench"] [data-testid="browser-advisory-generated-field-pivot-layer"] > svg,
+      [data-testid="browser-map-workbench"] [data-testid="browser-map-attribution-hud"] > svg:last-of-type {
+        visibility: hidden !important;
+      }
+    `;
+    await expect(page.getByTestId("browser-map-attribution-hud").locator(":scope > svg:last-of-type")).toHaveCount(1);
     let previousImage: Buffer | undefined;
     let stableFrames = 0;
     await expect.poll(async () => {
-      const current = await canvas.screenshot();
+      const current = await canvas.screenshot({ style: inertiaCaptureStyle });
       stableFrames = previousImage?.equals(current) ? stableFrames + 1 : 0;
       previousImage = current;
       return stableFrames;
     }, { intervals: [200], timeout: 20_000 }).toBeGreaterThanOrEqual(2);
-    const beforeTileMean = analyzePngPixels(previousImage!).grayMean;
+    // Loading evidence uses the complete unstyled image, including both icons.
+    const beforeTileMean = analyzePngPixels(await canvas.screenshot()).grayMean;
     expect(beforeTileMean).toBeGreaterThan(150);
     const pannedCamera = await map.getAttribute("data-map-camera");
     expect(pannedCamera).not.toBeNull();
@@ -203,10 +214,14 @@ test("delayed imagery preserves a panned camera and a four-vertex boundary draft
     await expect(boundaryInput).toHaveValue(firstVertex);
     const latePoints = [];
     for (const [x, y] of [[0.8, 0.25], [0.8, 0.45], [0.2, 0.45]]) {
-      latePoints.push(await unobstructedMapPoint(map,
-        { x: box!.x + box!.width * x, y: box!.y + box!.height * y }, "canvas"));
+      // Each accepted vertex can grow the dock. Resolve the next physical hit
+      // against the current canvas rather than reusing pre-growth coordinates.
+      const point = await unobstructedMapPoint(map,
+        { x: box!.x + box!.width * x, y: box!.y + box!.height * y }, "canvas");
+      await page.mouse.click(point.x, point.y);
+      latePoints.push(point);
+      await expect(page.getByTestId("manual-design-status")).toContainText(`${latePoints.length + 1} map-click boundary vertices staged`);
     }
-    for (const point of latePoints) await page.mouse.click(point.x, point.y);
     await expect(page.getByTestId("manual-design-status")).toContainText("4 map-click boundary vertices staged");
     const fourVertices = await boundaryInput.inputValue();
     expect(fourVertices.split("\n")[0]).toBe(firstVertex);

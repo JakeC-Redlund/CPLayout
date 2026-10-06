@@ -86,3 +86,39 @@ test("section payloads remain incomplete through the actual reducer and domain e
   assert.equal(edited.spanLengthsMeters![2], original.spanLengthsMeters![2]);
   assert.equal(edited.spanLengthsMeters![1], feetToMeters(150.5));
 });
+
+test("draft append and remove-last preserve exact original slots even when feet displays match", () => {
+  for (const spans of [[41.123456789, 52.987654321], [41.123456789, 41.123456790], [null, 41.123456789, 52.987654321]]) {
+    const original: DesignDraftMachine = { spanLengthsMeters: spans, overhangMeters: 3.123456789 };
+    const before = JSON.stringify(original);
+    const input = machineInputValues(original);
+    if (spans[1] === 41.123456790) {
+      assert.equal(input.spans![0], input.spans![1], "distinct exact spans must exercise identical rounded feet text");
+      assert.notEqual(spans[0], spans[1]);
+    }
+    input.spans = [...input.spans!, "100"];
+    assert.deepEqual(parseDraftMachine(input, original), { ...original, spanLengthsMeters: [...spans, feetToMeters(100)] });
+    input.spans = input.spans.slice(0, -1);
+    assert.deepEqual(parseDraftMachine(input, original), original, "removing an appended row must leave every original exact value");
+    input.spans = input.spans.slice(0, -1);
+    assert.deepEqual(parseDraftMachine(input, original), { ...original, spanLengthsMeters: spans.slice(0, -1) });
+    assert.equal(JSON.stringify(original), before);
+  }
+});
+
+test("draft remove-last allows empty span lists without adding complete-machine defaults", () => {
+  const original: DesignDraftMachine = {};
+  const input = machineInputValues(original);
+  input.spans = [""];
+  assert.deepEqual(parseDraftMachine(input, original), { spanLengthsMeters: [null] });
+  input.spans = input.spans.slice(0, -1);
+  const machine = parseDraftMachine(input, original);
+  assert.deepEqual(machine, { spanLengthsMeters: [] });
+  const settings = defaultProjectSettings();
+  const editor = createDesignDraftEditorState({ id: "empty-span-draft", name: "Empty spans", projectCrs: null,
+    settings, unitSystem: settings.unitSystem, fieldBoundary: [], pivotCenter: null, waterSource: null, powerSource: null,
+    machine: original, obstacles: [], surveyPoints: [] });
+  const applied = reduceDesignDraftEditorState(editor, { type: "set_machine", machine });
+  assert.equal(applied.lastError, null);
+  assert.deepEqual(applied.draft.machine, { spanLengthsMeters: [] });
+});

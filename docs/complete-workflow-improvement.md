@@ -11,6 +11,12 @@ core/storage/hook contracts; receiver/runtime/companion; interface components;
 Layout components; browser tests; coordinator App/navigation/launcher/integration.
 Independent source review is read-only. Aggregate validation and exports are serialized.
 
+The later owner delegation in [the human-workflow contract](human-workflow-improvement-2026-09-29.md)
+supersedes this record's earlier human-questionnaire gate. No further questionnaire
+is required for this pass; two complete unchanged-candidate specialist reviews and
+all current software/preservation gates remain required. Automated decisions do
+not constitute a new human usability approval.
+
 ## Intended behavior
 
 Customer → Project → Field → Design guides initial creation. The first field is

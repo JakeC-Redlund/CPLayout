@@ -166,6 +166,10 @@ export function reconcileMapInteractionState(
     || previous.activeLayer !== props.activeLayer
     || previous.activeMapFeatureKind !== props.activeMapFeatureKind;
   let next = projectChanged ? { ...createMapInteractionState(props), mode: "pan" as const } : state;
+  // Refresh inherited guidance without replacing operation feedback or suspended work.
+  if (next.status === workflowStatus(previous) && next.status !== workflowStatus(props)) {
+    next = { ...next, status: workflowStatus(props) };
+  }
   if (manualChanged || workflowChanged) next = resetDraft(next, workflowStatus(props));
   if (props.settings.mappingWorkflowMode !== "design") return resetDraft({ ...next, mode: "pan" }, workflowStatus(props));
   if (commandChanged || workflowChanged) {
@@ -548,7 +552,7 @@ export function createMapInteractionController(initialProps: MapSurfaceProps, in
     if (!requireEditing() || !finitePoint(point) || !snapshot.canEditSelectedVertex || !state.selectedVertex) return;
     const movedVertexText = selectedProjectVertexText(props.project, state.selectedVertex);
     if (editRejected(editCallback(props, state.selectedVertex)?.({ ...point }))) return;
-    setStatus(`Moved ${movedVertexText} in projected XY. Save Local to persist.`);
+    setStatus(`Moved ${movedVertexText} in projected XY.`);
   }
 
   const methods: MapInteractionMethods = {

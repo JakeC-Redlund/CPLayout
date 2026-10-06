@@ -7,7 +7,7 @@ import { createWebWorkspaceStore } from "../../packages/project-store/src/webWor
 import { readWorkspace, workspaceKey } from "./workspace-fixtures";
 
 const now = "2026-09-29T00:00:00.000Z";
-function fixture(draft: boolean, classification: boolean | "capture" = false) {
+function fixture(draft: boolean, classification: boolean | "capture" = false, draftSpans?: number[]) {
   let workspace = emptyWorkspaceDocument();
   workspace = applyWorkspaceCommand(workspace, { type: "create_client", now, id: "human-client",
     input: { companyName: "Human input farm", primaryContactFirstName: "Test", primaryContactLastName: "Operator" } }).workspace;
@@ -16,6 +16,7 @@ function fixture(draft: boolean, classification: boolean | "capture" = false) {
       unitSystem: "us_survey_feet", fieldMapId: "human-map" } }).workspace;
   if (draft) {
     let state = createDesignDraftEditorState(newDesignDraft("human-draft-payload", "Incomplete human draft", "us_survey_feet"));
+    if (draftSpans) state = reduceDesignDraftEditorState(state, { type: "set_machine", machine: { spanLengthsMeters: draftSpans } });
     if (classification) {
       state = reduceDesignDraftEditorState(state, { type: "set_crs", projectCrs: "LOCAL:METERS" });
       const commands: DraftDrawingCommand[] = classification === "capture" ? [
@@ -46,12 +47,12 @@ function fixture(draft: boolean, classification: boolean | "capture" = false) {
   return applyWorkspaceCommand(workspace, { type: "convert_project_to_field_design", now, sourceDesignId: "human-source", expectedDesignRevision: 0,
     designId: "human-field", fieldMapId: "human-map", name: "Human field design", fieldId: "human-field-payload", waterSourceId: "human-water", powerSourceId: "human-power" }).workspace;
 }
-async function open(context: BrowserContext, page: Page, draft = false, classification: boolean | "capture" = false) {
+async function open(context: BrowserContext, page: Page, draft = false, classification: boolean | "capture" = false, draftSpans?: number[]) {
   const values = new Map<string, string>();
   const store = createWebWorkspaceStore({ getStorage: () => ({ getItem: key => values.get(key) ?? null,
     setItem: (key, value) => { values.set(key, value); } }), getLocks: () => ({ request: async (_name, _options, action) => action() }) });
   await store.initializeAsync();
-  values.set(workspaceKey, serializeWorkspaceDocument(fixture(draft, classification)));
+  values.set(workspaceKey, serializeWorkspaceDocument(fixture(draft, classification, draftSpans)));
   await context.addInitScript(({ key, entries }) => {
     if (location.protocol === "http:" && localStorage.getItem(key) === null) {
       for (const [name, value] of entries) localStorage.setItem(name, value);
@@ -96,6 +97,79 @@ test("numbered field spans retain raw text through failed apply, discard and app
   expect(parseFieldDesignDocument(after.fieldDocuments![0].document).machines[0].configuration.spanLengthsMeters)
     .toEqual([51.123456789123, 40.000000001]);
 });
+
+for (const [label, spans] of [
+  ["distinct feet displays", [41.123456789, 52.987654321]],
+  ["equal rounded feet displays", [41.123456789, 41.123456790]],
+] as const) {
+  test(`draft append/remove-last retains raw input and exact surviving spans with ${label}`, async ({ context, page }, info) => {
+    await open(context, page, true, false, [...spans]);
+    await page.getByTestId("draft-autosave").getByRole("switch").uncheck();
+    await page.getByTestId("draft-save").click();
+    await expect(page.getByTestId("draft-save-state")).toContainText("Saved");
+    if (!await page.getByTestId("design-draft-inputs").isVisible()) await page.getByTestId("draft-inputs-toggle").click();
+    const before = await readWorkspace(page);
+    const first = page.getByTestId("draft-machine-span-0");
+    const second = page.getByTestId("draft-machine-span-1");
+    const add = page.getByTestId("draft-machine-add-span");
+    const remove = page.getByTestId("draft-machine-remove-last-span");
+    const apply = page.getByRole("button", { name: "Apply machine", exact: true });
+    const originalFirstText = await first.inputValue();
+    const originalSecondText = await second.inputValue();
+    if (label === "equal rounded feet displays") expect(originalFirstText).toBe(originalSecondText);
+    await expect(add).toHaveAccessibleName("Add span");
+    await expect(remove).toHaveAccessibleName("Remove last span");
+    await expect(page.locator('[data-testid^="draft-machine-remove-span-"]')).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /^Remove span \d+$/ })).toHaveCount(0);
+    await first.scrollIntoViewIfNeeded();
+    await page.screenshot({ path: info.outputPath(`draft-spans-${label}-numbered-rows.png`) });
+    await remove.scrollIntoViewIfNeeded();
+    await expect(add).toBeInViewport();
+    await expect(remove).toBeInViewport();
+    await page.screenshot({ path: info.outputPath(`draft-spans-${label}-add-remove-last.png`) });
+
+    await first.fill("150' ");
+    await second.focus();
+    await expect(first).toHaveValue("150' ");
+    await first.fill("-");
+    await add.click();
+    await page.getByTestId("draft-machine-span-2").fill("12.");
+    await remove.click();
+    await expect(first).toHaveValue("-");
+    await expect(second).toHaveValue(originalSecondText);
+    await expect(page.getByTestId("draft-machine-span-2")).toHaveCount(0);
+    await apply.click();
+    await expect(page.getByTestId("design-draft-inputs").getByRole("alert")).toContainText("Span 1");
+    await expect(first).toHaveValue("-");
+    await expect(page.getByTestId("draft-save")).toBeDisabled();
+    expect(await readWorkspace(page)).toEqual(before);
+    await page.getByTestId("draft-inputs-discard").click();
+    await expect(first).toHaveValue(originalFirstText);
+    await expect(second).toHaveValue(originalSecondText);
+    await expect(page.getByTestId("design-draft-inputs").getByRole("alert")).toHaveCount(0);
+
+    await remove.click();
+    await expect(first).toHaveValue(originalFirstText);
+    await expect(second).toHaveCount(0);
+    await page.getByTestId("draft-machine-name").fill("Retained precise first span");
+    await apply.click();
+    await page.getByTestId("draft-save").click();
+    await expect(page.getByTestId("draft-save-state")).toContainText("Saved");
+    const saved = await readWorkspace(page);
+    expect(parseDesignDraftDocument(saved.draftDocuments[0].document).machine.spanLengthsMeters).toEqual([spans[0]]);
+    expect(saved.projectDocuments).toHaveLength(0);
+    await page.getByTestId("draft-catalog").click();
+    const drawer = page.getByRole("button", { name: "Open project drawer" });
+    if (await drawer.isVisible()) await drawer.click();
+    await page.getByTestId("catalog-design-human-draft-open").click();
+    await expect(page.getByTestId("design-draft-workspace")).toBeVisible();
+    if (!await page.getByTestId("design-draft-inputs").isVisible()) await page.getByTestId("draft-inputs-toggle").click();
+    await expect(first).toHaveValue(originalFirstText);
+    await expect(second).toHaveCount(0);
+    expect(await readWorkspace(page)).toEqual(saved);
+    expect(parseDesignDraftDocument((await readWorkspace(page)).draftDocuments[0].document).machine.spanLengthsMeters).toEqual([spans[0]]);
+  });
+}
 
 test("Layout preparation names matching preview and retains an earlier frozen revision", async ({ context, page }) => {
   await open(context, page);

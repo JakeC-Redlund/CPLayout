@@ -207,12 +207,12 @@ function MachineSection({ machine, onAction, reportPending }: { machine: DesignD
         <View key={index} style={styles.spanRow}>
           <Input label={`Span ${index + 1} (ft)`} value={span} testID={`draft-machine-span-${index}`}
             onChange={(value) => change("spans", values.spans?.map((item, slot) => slot === index ? value : item))} />
-          <IconCommandButton id={`remove-span-${index}`} label={`Remove span ${index + 1}`} icon={<Trash2 />} disabled={disabled}
-            onPress={() => change("spans", values.spans?.filter((_, slot) => slot !== index))} testID={`draft-machine-remove-span-${index}`} />
         </View>
       ))}
       <View style={styles.commands}>
         <IconCommandButton id="add-span" label="Add span" icon={<Plus />} showLabel disabled={disabled} onPress={() => change("spans", [...(values.spans ?? []), ""])} testID="draft-machine-add-span" />
+        <IconCommandButton id="remove-last-span" label="Remove last span" icon={<Trash2 />} showLabel disabled={disabled || !values.spans?.length}
+          onPress={() => change("spans", values.spans?.slice(0, -1))} testID="draft-machine-remove-last-span" />
       </View>
       <Options label="Sweep" value={values.mode} onChange={(value) => change("mode", value)} options={[
         { value: "", label: "Not supplied" }, { value: "full_circle", label: "Full circle" }, { value: "partial_circle", label: "Sector" },

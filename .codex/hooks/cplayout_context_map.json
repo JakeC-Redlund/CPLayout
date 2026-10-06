@@ -824,7 +824,7 @@
     "docs/codex-managed-hook-deployment.md": "bd161d4ec4e88bec9df30e419e798a75801e465398ad0039e0aab63d515c6b5b",
     "docs/kml-kmz-google-earth-source-ledger.md": "f7005f48fde5a880d0cbdf584212cc009f564adbe58eb29295d4e437c33f3d08",
     "docs/rtk-gnss-integration-plan.md": "355a83416053732bf62969ecc23d539e54e0aabd118e50e76fe9a1b10e21ee44",
-    "package.json": "24d6e71d78a7f9030e14c768159aa75910283c3b5e5fae8f9e0c177be2ea8e70",
+    "package.json": "9efc9dd9721fc0a34376c89f2129a79e8ce0341d0413e3a8269fb81455bf4387",
     "packages/core/src/cornerGpsMapImport.ts": "35e170203a5bdf5669b3bfd088f549c7e2326ad05891c319fa9ce717a19a258f",
     "packages/core/src/index.ts": "adfd8fca345ca4e88fd0b0879ec7e74d12052ae233211969e7963c2aa9abbb1a",
     "packages/core/src/projectDocument.ts": "6c881dfd0825f72753efc42cb123f890173c34822480f5ef660a4aa33ade9778",
