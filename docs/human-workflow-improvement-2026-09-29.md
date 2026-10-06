@@ -373,6 +373,24 @@ before discard, separately from enabled Resume afterward. These changes require
 matching frozen-test/browser gates. The prior failed Edge batch remains failed;
 complete acceptance remains zero until the full gates and two unchanged reviews.
 
+## Iteration 23 — move feedback and separate save state
+
+The corrected source and all 42 focused cases passed in Linux and visible Edge
+without skips or retries. Independent span pixel review closed the missing
+numbered-row/control figures. The proposal was committed, pushed and synchronized
+normally as `269454b`, with full browser and exact-head CI gates still pending.
+The full desktop run then found three older expectations requiring the removed
+Save Local imperative after boundary, pipeline and circle-handle movement. Each
+retained snapshot shows the correct neutral operation message, Unsaved edits
+and Save action. Independent source/snapshot review confirms a fixture mismatch.
+
+Exactly the obsolete suffixes are removed from those three expectations; all
+separate save-state, selection, geometry and save checks remain. Source code and
+calculation behavior are unchanged. Failed/interrupted full runs and canceled
+owned CI remain historical evidence, never partial acceptance. Matching corrected
+focused and complete browser/visible/CI gates and two unchanged complete reviews
+are still required. No modeling integration or main acceptance is claimed.
+
 ## Iteration and acceptance contract
 
 Each cycle inspects actual user tasks, researches unresolved behavior, records alternatives and weighted decisions where needed, implements bounded changes, reviews the exact served build visibly in Windows Edge, runs appropriate validation, and obtains independent usability/preservation review.

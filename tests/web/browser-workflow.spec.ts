@@ -1770,7 +1770,7 @@ test("browser map edit vertices nudges projected boundary through reducer action
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
 
   await activateBrowserNudgeEast(page);
-  await expect(page.getByText(/Moved boundary vertex 1 of \d+ in projected XY\. Save Local to persist\./)).toBeVisible();
+  await expect(page.getByText(/Moved boundary vertex 1 of \d+ in projected XY\./)).toBeVisible();
   await expect(page.getByTestId("project-save-state").getByText("Unsaved edits")).toBeVisible();
   await saveScreen(page, testInfo, "browser-edit-vertices-nudge");
 });
@@ -1799,7 +1799,7 @@ test("browser map edit vertices nudges selected map feature through reducer acti
   await expect(page.getByTestId("project-save-state").getByText("Saved")).toBeVisible();
 
   await activateBrowserNudgeEast(page);
-  await expect(page.getByText("Moved underground pipeline line vertex 1 of 3 in projected XY. Save Local to persist.")).toBeVisible();
+  await expect(page.getByText("Moved underground pipeline line vertex 1 of 3 in projected XY.")).toBeVisible();
   await expect(page.getByTestId("project-save-state").getByText("Unsaved edits")).toBeVisible();
 });
 
@@ -1831,7 +1831,7 @@ test("browser map edit vertices resizes selected circle map feature through radi
   await page.getByTestId("browser-edit-next-vertex").click();
   await expect(page.getByText("Selected end gun arc circle radius handle 2 of 2 for projected XY editing.")).toBeVisible();
   await activateBrowserNudgeEast(page);
-  await expect(page.getByText("Moved end gun arc circle radius handle 2 of 2 in projected XY. Save Local to persist.")).toBeVisible();
+  await expect(page.getByText("Moved end gun arc circle radius handle 2 of 2 in projected XY.")).toBeVisible();
   await expect(page.getByTestId("project-save-state").getByText("Unsaved edits")).toBeVisible();
 });
 

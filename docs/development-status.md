@@ -6,7 +6,7 @@ Use one linked task contract, not the complete historical logs.
 
 ## Current State
 
-- The workflow proposal `350da1c` is committed, pushed and synchronized on the
+- The workflow proposal `269454b` is committed, pushed and synchronized on the
   temporary publication branch. Protected main remains at the earlier checkpoint;
   this synchronization is not software acceptance or a modeling-owner transfer.
   The following camera/save repairs passed source validation and 36 focused cases
@@ -20,7 +20,11 @@ Use one linked task contract, not the complete historical logs.
   reproduced decorative SVG pixel quantization after actual map/camera settling;
   an independently reviewed screenshot-only correction retains strict map-pixel,
   loading, camera and XY checks. Interrupted/failed evidence is preserved.
-  Full current-candidate source/browser/visible/CI and two complete reviews remain due.
+  Source validation and 42 focused cases subsequently passed in Linux and Edge.
+  Full execution found three obsolete move-message suffix expectations; retained
+  snapshots confirm correct neutral messages and Unsaved state. A test-only
+  correction preserves geometry/save checks. Full current-candidate source,
+  browser, visible, CI and two unchanged complete reviews remain due.
 - The current registry audit reports 21 high and five moderate dependency findings
   rooted in three advisories without a published fixed release. Exact-version
   defensive local patches and the separate installed-source verification gate
