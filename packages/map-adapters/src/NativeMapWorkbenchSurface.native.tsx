@@ -174,7 +174,7 @@ export function NativeMapWorkbenchSurface(props: MapSurfaceProps): React.JSX.Ele
       {!canEditOnMap ? (
         <View style={[styles.layoutHud, compactLayout && styles.layoutHudCompact]} testID="native-map-layout-hud">
           <MapPinned size={17} color="#173428" />
-          <Text style={styles.layoutHudText}>{homeView ? "Catalog map: open a field map or design before editing." : "Layout mode: RTK-only geometry changes; pointer gestures inspect only."}</Text>
+          <Text style={styles.layoutHudText}>{homeView ? "Catalog map: open a field map or design before editing." : "Inspect map: pointer gestures select and view. Form edits remain available."}</Text>
         </View>
       ) : null}
 

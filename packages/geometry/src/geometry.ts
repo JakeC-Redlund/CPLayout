@@ -1,4 +1,4 @@
-import { assertLayoutResultFinite, assertMetricCalculationCrs, assertProjectCalculationSafe, PROJECT_CALCULATION_NUMERIC_BUDGET } from "@cplayout/core";
+import { assertLayoutResultFinite, assertMetricCalculationCrs, assertProjectCalculationSafe, PROJECT_CALCULATION_NUMERIC_BUDGET, type CrsQualificationOptions } from "@cplayout/core";
 import * as polygonClipping from "polygon-clipping";
 
 import {
@@ -286,6 +286,13 @@ function mechanicalSweepClip(project: PivotProject, bufferMeters: number): ClipM
   return clip;
 }
 
+/** Unclipped conservative mechanical sweep; never use field-clipped acreage for collision tests. */
+export function buildMechanicalSweepEnvelope(project: PivotProject, crsOptions: CrsQualificationOptions = {}): MultiPolygonXY {
+  assertMetricCalculationCrs(project.projectCrs, crsOptions);
+  assertProjectCalculationSafe(project);
+  return fromClipMultiPolygon(mechanicalSweepClip(project, Math.max(0.5, project.machine.machineClearanceBufferMeters)));
+}
+
 export function createAnnularSector(center: XY, innerRadius: number, outerRadius: number, sweep: PivotSweep): MultiPolygonXY {
   if (outerRadius <= innerRadius) return [];
   if (innerRadius <= 0) return [[createSectorPolygon(center, outerRadius, sweep)]];
@@ -306,8 +313,8 @@ export function calculateTowerPoints(center: XY, machine: PivotMachine, angleDeg
   });
 }
 
-export function evaluateLayout(project: PivotProject): LayoutResult {
-  assertMetricCalculationCrs(project.projectCrs);
+export function evaluateLayout(project: PivotProject, crsOptions: CrsQualificationOptions = {}): LayoutResult {
+  assertMetricCalculationCrs(project.projectCrs, crsOptions);
   assertProjectCalculationSafe(project);
 
   const coverage = calculateWetCoverage(project);
@@ -336,7 +343,7 @@ export function evaluateLayout(project: PivotProject): LayoutResult {
       ? polygonClipping.difference(insideField, noSprayObstacleMulti) as ClipMultiPolygon
       : insideField)
     : [];
-  const mechanicalConflicts = evaluateMechanicalConflicts(project);
+  const mechanicalConflicts = evaluateMechanicalConflicts(project, crsOptions);
 
   const fieldArea = polygonAreaSquareMeters(project.fieldBoundary);
   const allowedArea = multiPolygonAreaSquareMeters(fromClipMultiPolygon(allowed));
@@ -390,8 +397,8 @@ export function evaluateLayout(project: PivotProject): LayoutResult {
   return result;
 }
 
-export function evaluateMechanicalConflicts(project: PivotProject): LayoutMechanicalConflict[] {
-  assertMetricCalculationCrs(project.projectCrs);
+export function evaluateMechanicalConflicts(project: PivotProject, crsOptions: CrsQualificationOptions = {}): LayoutMechanicalConflict[] {
+  assertMetricCalculationCrs(project.projectCrs, crsOptions);
   assertProjectCalculationSafe(project);
   const hardObstacles = project.obstacles.filter((obstacle) => obstacle.hardConflict);
   if (hardObstacles.length === 0) return [];
@@ -577,8 +584,8 @@ export function* evaluateCornerArmPathSteps(project: PivotProject, options: Layo
     maxOverhangEndRadius,
     hasEvidence ? evidence.multiPolygon : [],
   );
-  const wheelTrackCenterlineSegments = cornerArmCenterlineSegments(project.pivotCenter, sampledPath.points, "wheel");
-  const overhangEndCenterlineSegments = cornerArmCenterlineSegments(project.pivotCenter, sampledPath.points, "overhang");
+  const wheelTrackCenterlineSegments = cornerArmCenterlineSegments(project.pivotCenter, sampledPath.traversalPoints, "wheel");
+  const overhangEndCenterlineSegments = cornerArmCenterlineSegments(project.pivotCenter, sampledPath.traversalPoints, "overhang");
   const constraintSummary = buildCornerArmConstraintSummary(project, config, overhangEndCenterlineSegments, options.settings);
   const warnings = [
     "Corner-arm path is advisory projected/local XY geometry and does not mutate canonical project geometry.",
@@ -695,8 +702,9 @@ export interface BoundaryConstraintResult {
 export function validateWetCoverageWithinField(
   project: PivotProject,
   epsilonSquareMeters = DEFAULT_BOUNDARY_EPSILON_SQUARE_METERS,
+  crsOptions: CrsQualificationOptions = {},
 ): BoundaryConstraintResult {
-  assertMetricCalculationCrs(project.projectCrs);
+  assertMetricCalculationCrs(project.projectCrs, crsOptions);
   assertProjectCalculationSafe(project);
   if (!Number.isFinite(epsilonSquareMeters) || epsilonSquareMeters < 0) {
     throw new RangeError("Boundary area tolerance must be finite and nonnegative.");
@@ -1220,6 +1228,7 @@ function* sampleCornerArmPath(
   evidenceMultiPolygon: MultiPolygonXY,
 ): Calculation<{
   points: SampledCornerArmPathPoint[];
+  traversalPoints: SampledCornerArmPathPoint[];
   wheelTrackEnvelope: MultiPolygonXY;
   overhangEndEnvelope: MultiPolygonXY;
   extensionSlopeSummary: CornerArmExtensionSlopeSummary;
@@ -1255,21 +1264,27 @@ function* sampleCornerArmPath(
     }];
   });
 
+  // Only the cyclic neighbors can close a full sweep; missing support stays a gap.
+  // Keep public samples unique while all path calculations share this traversal.
+  const traversalPoints = project.machine.sweep.mode === "full_circle"
+    && points[0]?.sequenceIndex === 0
+    && points[points.length - 1]?.sequenceIndex === angles.length - 1
+    ? [...points, { ...points[0], sequenceIndex: angles.length, sequenceDegrees: 360 }]
+    : points;
   return {
     points,
+    traversalPoints,
     wheelTrackEnvelope: yield* bufferedSampledPathEnvelope(
         project.pivotCenter,
-        points.map((point) => ({ ...point, radiusMeters: point.wheelTrackRadiusMeters })),
+        traversalPoints.map((point) => ({ ...point, radiusMeters: point.wheelTrackRadiusMeters })),
         Math.max(0.5, project.machine.towerClearanceBufferMeters),
-        false,
       ),
     overhangEndEnvelope: yield* bufferedSampledPathEnvelope(
         project.pivotCenter,
-        points.map((point) => ({ ...point, radiusMeters: point.overhangEndRadiusMeters })),
+        traversalPoints.map((point) => ({ ...point, radiusMeters: point.overhangEndRadiusMeters })),
         Math.max(0.5, project.machine.machineClearanceBufferMeters),
-        false,
       ),
-    extensionSlopeSummary: cornerArmSlopeSummary(points),
+    extensionSlopeSummary: cornerArmSlopeSummary(traversalPoints, points.length),
   };
 }
 
@@ -1293,16 +1308,6 @@ function cornerArmCenterlineSegments(
     previous = point;
   }
   if (active.length >= 2) segments.push(active);
-
-  if (
-    segments.length === 1
-    && points.length === DEFAULT_SEGMENTS
-    && points[0]?.sequenceIndex === 0
-    && points[points.length - 1]?.sequenceIndex === DEFAULT_SEGMENTS - 1
-  ) {
-    const [segment] = segments;
-    return [[...segment, segment[0]]];
-  }
 
   return segments;
 }
@@ -1596,7 +1601,6 @@ function* bufferedSampledPathEnvelope(
   center: XY,
   samples: Array<SampledCornerArmPathPoint & { radiusMeters: number }>,
   bufferMeters: number,
-  closeLoop: boolean,
 ): Calculation<MultiPolygonXY> {
   if (samples.length === 0) return [];
   const clips: ClipMultiPolygon[] = [];
@@ -1613,13 +1617,6 @@ function* bufferedSampledPathEnvelope(
         bufferMeters,
       )]]));
     }
-  }
-  if (closeLoop && samples.length > 2) {
-    clips.push(toClipMultiPolygon([[lineSegmentBufferPolygon(
-      polarOffset(center, samples[samples.length - 1].radiusMeters, samples[samples.length - 1].angleDegrees),
-      polarOffset(center, samples[0].radiusMeters, samples[0].angleDegrees),
-      bufferMeters,
-    )]]));
   }
   return fromClipMultiPolygon(yield* unionClipMultiPolygons(clips));
 }
@@ -1662,7 +1659,7 @@ function createCornerArmExtensionEnvelope(
   return fromClipMultiPolygon(polygonClipping.intersection(envelope, evidence) as ClipMultiPolygon | null ?? []);
 }
 
-function cornerArmSlopeSummary(points: SampledCornerArmPathPoint[]): CornerArmExtensionSlopeSummary {
+function cornerArmSlopeSummary(points: SampledCornerArmPathPoint[], sampleCount: number): CornerArmExtensionSlopeSummary {
   let maxExtension = 0;
   let maxRetraction = 0;
   for (let index = 1; index < points.length; index += 1) {
@@ -1680,7 +1677,7 @@ function cornerArmSlopeSummary(points: SampledCornerArmPathPoint[]): CornerArmEx
     maxExtensionMetersPerDegree: round(maxExtension),
     maxRetractionMetersPerDegree: round(maxRetraction),
     maxAbsoluteMetersPerDegree: round(Math.max(maxExtension, maxRetraction)),
-    sampleCount: points.length,
+    sampleCount,
   };
 }
 

@@ -56,3 +56,18 @@ assert.equal(hardBoundaryRanked.at(-1)?.feasible, false);
 assert.ok((hardBoundaryRanked.at(-1)?.disqualificationReasons.length ?? 0) > 0);
 
 console.log("layout scoring tests passed");
+
+// Coverage above an eligibility floor must keep earning coverage credit.
+const smallMachine = { ...comparisonProject.machine, spanLengthsMeters: [50], overhangMeters: 0, endGunThrowMeters: 0 };
+const scoreCoverage = (radius: number, minimum: number) => scoreLayoutAlternative({
+  id: String(radius), source: "deterministic", confidence: 0.5,
+  project: { ...comparisonProject, pivotCenter: { x: 0, y: 0 },
+    fieldBoundary: [{ x: -200, y: -200 }, { x: 200, y: -200 }, { x: 200, y: 200 }, { x: -200, y: 200 }],
+    machine: { ...smallMachine, spanLengthsMeters: [radius] } },
+}, { minCoveragePercent: minimum, maxOutsideFieldAcres: 0 });
+const small = scoreCoverage(50, 1), large = scoreCoverage(100, 1);
+assert.equal(small.feasible, true);
+assert.equal(large.feasible, true);
+assert.ok(large.breakdown.coverage > small.breakdown.coverage);
+assert.ok(large.score > small.score);
+assert.equal(large.breakdown.coverage, scoreCoverage(100, 10).breakdown.coverage);

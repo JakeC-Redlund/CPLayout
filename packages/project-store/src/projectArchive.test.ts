@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { createHash } from "node:crypto";
 import { strToU8, unzipSync, Zip, ZipDeflate, ZipPassThrough, zipSync } from "fflate";
 
 import { evaluateLayout, exportScenarioGeoJson, validateCenterPivotProofGeometry } from "@cplayout/geometry";
@@ -22,7 +23,7 @@ import {
   surveyPointsToCsv,
   type ProjectArchiveBundle,
 } from "./projectArchive";
-import { defaultAppSettings, GnssCaptureEvidenceV2Schema, parseProjectDocument, qualifyProjectCrs, realCenterPivotProofProject, sampleProject, willRheaJasonHarmelinkExampleProject, type PivotProject } from "@cplayout/core";
+import { defaultAppSettings, GnssCaptureEvidenceV2Schema, parseProjectDocument, projectLonLatToXy, qualifyProjectCrs, realCenterPivotProofProject, sampleProject, serializeProjectDocument, willRheaJasonHarmelinkExampleProject, type OperationalFixedGgaEvidence, type PivotProject } from "@cplayout/core";
 import { assertNoStrippedFields, parseEditableProjectDocument } from "./projectDocumentEditing";
 
 for (const projectCrs of ["EPSG:26741", "LOCAL:FIELD", "EPSG:3857", "EPSG:26913", " epsg : 26741 "]) {
@@ -653,6 +654,28 @@ function rejectsArchiveUnchanged(bytes: Uint8Array, message: RegExp): void {
   assert.deepEqual(bytes, before);
 }
 
+test("v1 recovery and archive admission refuse reserved multi-machine data without loss", () => {
+  const recovery = buildProjectRecoveryArchiveBundle(sampleProject);
+  for (const extra of [{ machines: [] }, { machines: [{ id: "second-pivot" }] }, { selectedMachineId: "second-pivot" }]) {
+    const project = { ...sampleProject, ...extra };
+    const before = JSON.stringify(project);
+    assert.throws(() => buildProjectRecoveryArchiveBundle(project), /unsupported/);
+    assert.throws(() => buildProjectArchiveBundle(project, result, {}), /unsupported/);
+    assert.equal(JSON.stringify(project), before);
+    for (const raw of [
+      project,
+      { documentVersion: "pivot-project-v1", project },
+      { documentVersion: "pivot-project-v1", project: sampleProject, ...extra },
+    ]) {
+      const document = JSON.stringify(raw);
+      assert.throws(() => parseEditableProjectDocument(document), /unsupported/);
+      for (const stored of [false, true]) {
+        rejectsArchiveUnchanged(archiveBytes({ ...recovery.files, [PROJECT_JSON_FILENAME]: document }, stored), /unsupported/);
+      }
+    }
+  }
+});
+
 test("editable archive admission rejects unknown wrapper, project and deeply nested fields without changing bytes", () => {
   const recovery = buildProjectRecoveryArchiveBundle(evidenceArchiveProject);
   for (const mutate of [
@@ -840,4 +863,110 @@ test("streamed project and recovery archives preserve geometry and exact byte-vi
       assert.deepEqual(padded, before);
     }
   }
+});
+
+test("classified project v2 recovery archives preserve typed metadata and declare actual payload version", () => {
+  const project = { ...structuredClone(sampleProject), drawingMetadata: {
+    schemaVersion: "project-drawing-metadata-v1" as const, autosaveEnabled: false, records: [],
+  } };
+  const archive = buildProjectRecoveryArchiveBundle(project);
+  assert.equal(archive.manifest.projectDocumentVersion, "pivot-project-v2");
+  assert.deepEqual(importProjectArchiveZip(exportProjectArchiveZip(archive)), parseProjectDocument(archive.files[PROJECT_JSON_FILENAME]));
+  const wrong = structuredClone(archive);
+  wrong.manifest.projectDocumentVersion = "pivot-project-v1";
+  wrong.files[PROJECT_MANIFEST_FILENAME] = JSON.stringify(wrong.manifest);
+  assert.throws(() => importProjectArchiveZip(exportProjectArchiveZip(wrong)), /manifest version/);
+});
+
+test("normal ZIP export preserves classified and operational documents without invoking lossy exchange exporters", () => {
+  const classified: PivotProject = { ...structuredClone(sampleProject), drawingMetadata: {
+    schemaVersion: "project-drawing-metadata-v1", autosaveEnabled: false, records: [{
+      target: { kind: "field_boundary" },
+      classification: { schemaVersion: "agricultural-feature-classification-v1", purposeId: "field_boundary", geometryType: "Polygon",
+        name: "North field boundary", notes: "Preserve this classified drawing.\nLiteral <notes>.", assetStatus: "proposed",
+        placement: "not_applicable", customLabel: null, effect: { mode: "informational" } },
+      capture: { captureId: "classified-boundary-capture", source: "map_digitized",
+        vertexRecordedAt: sampleProject.fieldBoundary.map(() => "2026-09-28T12:00:00.000Z"), wgs84: null, elevation: null },
+    }],
+  } };
+  const payload = "GNGGA,120000.00,4000.0000,N,10500.0000,W,4,12,0.8,1600.0,M,-20.0,M,1.0,42";
+  const checksum = [...payload].reduce((value, character) => value ^ character.charCodeAt(0), 0).toString(16).padStart(2, "0");
+  const evidence: OperationalFixedGgaEvidence = {
+    schemaVersion: "gnss-operational-fixed-v1", observationId: "archive-operational-observation", sessionId: "archive-operational-session",
+    transport: "web_serial", receivedAt: "2026-09-28T12:00:00.000Z", receivedMonotonicMs: 1000,
+    sourceCoordinateFrame: "EPSG:4326", antennaReference: "unknown", coherent: true, sentenceTypes: ["GGA"],
+    gga: { sentence: `$${payload}*${checksum}`, sentenceIdentifier: "GNGGA", utcTime: "120000.00", qualityCode: 4, latitude: 40, longitude: -105 },
+    receipt: { sequence: 1, browserReceivedMonotonicMs: 1000, ingressAgeAtReceiptMs: 0, provenance: "browser_serial" },
+    capture: { evaluatedMonotonicMs: 1500, ageMs: 500, maxAgeMs: 2000 },
+    projection: { id: `wgs84-projection-v1:${sampleProject.projectCrs}`, projectCrs: sampleProject.projectCrs }, physicalQualification: "unverified",
+  };
+  const operational: PivotProject = { ...structuredClone(sampleProject), surveyPoints: [{
+    id: "archive-operational-point", label: "Recorded point", role: "control",
+    projected: projectLonLatToXy({ longitude: -105, latitude: 40 }, sampleProject.projectCrs),
+    observedAt: evidence.receivedAt, source: "external_gnss", confidence: "rtk_fixed", captureEvidence: evidence,
+  }] };
+  for (const project of [classified, operational, { ...operational, drawingMetadata: classified.drawingMetadata }]) {
+    const before = structuredClone(project);
+    const document = serializeProjectDocument(project);
+    const result = evaluateLayout(project);
+    const archive = buildProjectArchiveBundle(project, result, exportScenarioGeoJson(project, result), "2026-09-28T12:00:00.000Z");
+    assert.deepEqual(project, before);
+    assert.equal(archive.files[PROJECT_JSON_FILENAME], document);
+    assert.equal(archive.manifest.projectDocumentVersion, project === classified ? "pivot-project-v2" : "pivot-project-v3");
+    assert.deepEqual(archive.manifest.files, [PROJECT_MANIFEST_FILENAME, PROJECT_JSON_FILENAME]);
+    assert.deepEqual(Object.keys(archive.files), archive.manifest.files);
+    assert.match(archive.manifest.notes!.join(" "), /companions are omitted/);
+    const zip = exportProjectArchiveZip(archive);
+    assert.equal(new TextDecoder().decode(unzipSync(zip)[PROJECT_JSON_FILENAME]), document);
+    const restored = importProjectArchiveZip(zip);
+    assert.deepEqual(restored, parseProjectDocument(document));
+    assert.deepEqual(restored.surveyPoints, project.surveyPoints);
+    assert.deepEqual(restored.drawingMetadata, project.drawingMetadata);
+    const context = { designId: "complete-design", designRevision: 8, editRevision: 2, includesUnsavedEdits: true };
+    const labeled = buildProjectArchiveBundle(project, result, {}, "2026-09-28T12:00:00.000Z", context);
+    assert.deepEqual(labeled.manifest.source, { ...context, machineId: project.machine.id,
+      canonicalSnapshotSha256: createHash("sha256").update(document).digest("hex") });
+    assert.deepEqual(importProjectArchiveZip(exportProjectArchiveZip(labeled)), restored);
+  }
+});
+
+test("optional archive output context binds saved and edit identities to the exact canonical snapshot", () => {
+  for (const context of [
+    { designId: "saved-design", designRevision: 3, editRevision: 5, includesUnsavedEdits: true },
+    { designId: null, designRevision: null, editRevision: 0, includesUnsavedEdits: false },
+  ]) {
+    for (const archive of [
+      buildProjectArchiveBundle(sampleProject, result, exportScenarioGeoJson(sampleProject, result), "2026-09-28T12:00:00.000Z", context),
+      buildProjectRecoveryArchiveBundle(sampleProject, "2026-09-28T12:00:00.000Z", context),
+    ]) {
+      assert.deepEqual(archive.manifest.source, { ...context, machineId: sampleProject.machine.id,
+        canonicalSnapshotSha256: createHash("sha256").update(archive.files[PROJECT_JSON_FILENAME]).digest("hex") });
+      assert.deepEqual(importProjectArchiveZip(exportProjectArchiveZip(archive)), parseProjectDocument(archive.files[PROJECT_JSON_FILENAME]));
+      for (const mutation of [
+        (copy: ProjectArchiveBundle) => { copy.manifest.source!.machineId = "different-machine"; },
+        (copy: ProjectArchiveBundle) => { copy.manifest.source!.canonicalSnapshotSha256 = "0".repeat(64); },
+        (copy: ProjectArchiveBundle) => { copy.files[PROJECT_JSON_FILENAME] += "\n"; },
+      ]) {
+        const altered = structuredClone(archive); mutation(altered);
+        altered.files[PROJECT_MANIFEST_FILENAME] = JSON.stringify(altered.manifest);
+        assert.throws(() => importProjectArchiveZip(exportProjectArchiveZip(altered)), /source.*(?:machineId|snapshot hash)/);
+      }
+    }
+  }
+  assert.throws(() => buildProjectRecoveryArchiveBundle(sampleProject, undefined,
+    { designId: "design", designRevision: -1, editRevision: 0, includesUnsavedEdits: false }));
+});
+
+test("legacy archive output without context retains its original manifest and exchange file set", () => {
+  const expected = {
+    archiveVersion: "center-pivot-project-archive-v1", createdAt: "2026-05-19T12:00:00.000Z", projectId: sampleProject.id,
+    projectName: sampleProject.name, projectCrs: sampleProject.projectCrs,
+    files: ["manifest.json", "project.json", "exports/scenario.geojson", "exports/google-earth.kml", "exports/map-data.xml",
+      "exports/survey-points.csv", "exports/scenario-metrics.csv", "exports/map-packages.csv"],
+    offlineFirst: true, paidServicesRequired: false, projectDocumentVersion: "pivot-project-v1",
+  };
+  assert.deepEqual(bundle.manifest, expected);
+  assert.equal(bundle.files[PROJECT_MANIFEST_FILENAME], JSON.stringify(expected, null, 2));
+  assert.deepEqual(Object.keys(bundle.files), expected.files);
+  assert.equal(bundle.files[PROJECT_JSON_FILENAME], serializeProjectDocument(sampleProject));
 });

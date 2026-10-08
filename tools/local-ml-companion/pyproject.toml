@@ -4,13 +4,15 @@ version = "0.1.0"
 description = "WSL-local advisory layout recommendation file bridge for CPLayout."
 requires-python = ">=3.12"
 dependencies = [
-  "dvc>=3.60",
-  "mlflow>=3.0",
   "numpy",
   "opencv-python-headless>=4.10",
   "pandas>=2.2",
+  "portable-cv-toolkit==0.3.1",
   "scikit-learn>=1.5",
 ]
+
+[tool.uv.sources]
+portable-cv-toolkit = { path = "vendor/portable_cv_toolkit-0.3.1-py3-none-any.whl" }
 
 [project.optional-dependencies]
 gis = [
@@ -33,11 +35,17 @@ api = [
   "sqlalchemy",
   "uvicorn",
 ]
+experiment = [
+  "dvc>=3.60",
+  "mlflow>=3.0",
+]
 all = [
   "dash",
+  "dvc>=3.60",
   "fastapi",
   "geopandas",
   "matplotlib",
+  "mlflow>=3.0",
   "plotly",
   "rasterio",
   "rioxarray",

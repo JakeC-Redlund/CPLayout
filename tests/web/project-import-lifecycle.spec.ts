@@ -50,6 +50,14 @@ async function picker(page: Page) {
   return chooser;
 }
 
+async function expectMapBreadcrumb(page: Page, label: string) {
+  const { width, height } = page.viewportSize()!;
+  const compactContext = width < 760 || (width > height && height < 500);
+  await expect(page.getByTestId("workspace-breadcrumb-current")).toHaveText(compactContext ? label : `CPLayout / ${label}`);
+  if (compactContext) await expect(page.getByTestId("design-context-open")).toBeVisible();
+  else await expect(page.getByTestId("design-context-open")).toHaveCount(0);
+}
+
 for (const malformed of [false, true]) {
   test(`late ${malformed ? "malformed" : "valid"} ZIP after catalog navigation cannot load or persist`, async ({ page }, testInfo) => {
     const errors: string[] = [];
@@ -59,11 +67,11 @@ for (const malformed of [false, true]) {
     const chooser = await picker(page);
     await page.getByTestId("command-menu-file").click();
     await page.getByTestId("command-file-catalog").click();
-    await expect(page.getByTestId("workspace-breadcrumb-current")).toHaveText("CPLayout / Project Catalog");
+    await expectMapBreadcrumb(page, "Project Catalog");
     await selectFile(page, chooser, malformed
       ? { name: "malformed.zip", mimeType: "application/zip", buffer: Buffer.from("not a ZIP") }
       : fixture("stale-catalog-import"));
-    await expect(page.getByTestId("workspace-breadcrumb-current")).toHaveText("CPLayout / Project Catalog");
+    await expectMapBreadcrumb(page, "Project Catalog");
     await expect(page.getByTestId("crs-recovery-panel")).toHaveCount(0);
     expect(await workspaceStorageBytes(page)).toEqual(before);
     expect(errors).toEqual([]);
@@ -193,7 +201,7 @@ test("opening a saved project supersedes the old Files picker", async ({ page })
   await page.getByLabel("Open North Quarter Concept Layout", { exact: true }).click();
   await expect(page.getByTestId("files-action-import-zip")).toHaveCount(0);
   await selectFile(page, chooser, fixture("superseded-import"));
-  await expect(page.getByTestId("workspace-breadcrumb-current")).toHaveText("CPLayout / North Quarter Concept Layout");
+  await expectMapBreadcrumb(page, "North Quarter Concept Layout");
   await expect(page.getByTestId("project-save-state")).toHaveText("Saved");
   expect(await workspaceStorageBytes(page)).toEqual(before);
 });

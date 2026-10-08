@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
 import { analyzePngPixels, encodeRgbaPng } from "../../tools/pngMetrics";
-import { parseProjectDocument, projectLonLatToXy } from "../../packages/core/src";
+import { parseProjectDocument, projectLonLatToXy, projectXyToLonLat } from "../../packages/core/src";
 
 const packageRoot = dirname(createRequire(resolve("packages/map-adapters/package.json")).resolve("maplibre-gl/package.json"));
 const { version } = JSON.parse(readFileSync(join(packageRoot, "package.json"), "utf8")) as { version: string };
@@ -75,7 +75,7 @@ test("loaded map updates edited geometry while later raster requests remain pend
     await page.goto("/");
     await page.getByTestId("command-menu-file").click();
     await page.getByTestId("command-file-sample-baseline-needs-review").click();
-    await page.getByTestId("workspace-nav-map").click();
+    await page.getByTestId("task-design").click();
     await activateMapTool(page, "edit");
     await page.getByTestId("browser-edit-select-boundary").click();
     const map = page.getByLabel("CPLayout MapLibre imagery workbench");
@@ -147,7 +147,7 @@ test("delayed imagery preserves a panned camera and a four-vertex boundary draft
     const documents = (await readWorkspace(page)).projectDocuments;
     expect(documents).toHaveLength(1);
     const projectCrs = parseProjectDocument(documents[0].document).projectCrs;
-    await page.getByTestId("workspace-nav-map").click();
+    await page.getByTestId("task-design").click();
     const openInspector = page.getByRole("button", { name: /Open (map inspector|right workflow sidebar)/ });
     if (await openInspector.first().isVisible()) await openInspector.first().click();
     await page.getByTestId("workflow-sidebar-tab-tools").click();
@@ -156,6 +156,22 @@ test("delayed imagery preserves a panned camera and a four-vertex boundary draft
     const canvas = map.locator("canvas");
     await map.scrollIntoViewIfNeeded();
     await expect.poll(() => heldTiles).toBeGreaterThan(0);
+    const settledCanvasBounds = async () => {
+      await expect(page.getByTestId("advisory-map-job-status")).toHaveText("");
+      let previous: string | null = null;
+      let steady = 0;
+      await expect.poll(async () => {
+        const bounds = await canvas.boundingBox();
+        const next = bounds && bounds.width > 0 && bounds.height > 0 ? JSON.stringify(bounds) : null;
+        steady = next !== null && next === previous ? steady + 1 : 0;
+        previous = next;
+        return steady;
+      }, { intervals: [100] }).toBeGreaterThanOrEqual(3);
+      const bounds = await canvas.boundingBox();
+      expect(bounds).not.toBeNull();
+      return bounds!;
+    };
+    await settledCanvasBounds();
     const box = await map.boundingBox();
     expect(box).not.toBeNull();
     const firstPoint = await unobstructedMapPoint(map,
@@ -172,22 +188,34 @@ test("delayed imagery preserves a panned camera and a four-vertex boundary draft
     await page.mouse.move(panEnd.x, panEnd.y, { steps: 8 });
     await page.mouse.up();
     // Let pan inertia settle while tile responses remain held.
+    // Clipped canvas screenshots also include overlapping HUD SVGs. These two
+    // decorative icons can alternate one colour level in Edge after the map
+    // settles; exclude only their paint during the strict inertia comparison.
+    const inertiaCaptureStyle = `
+      [data-testid="browser-map-workbench"] [data-testid="browser-advisory-generated-field-pivot-layer"] > svg,
+      [data-testid="browser-map-workbench"] [data-testid="browser-map-attribution-hud"] > svg:last-of-type {
+        visibility: hidden !important;
+      }
+    `;
+    await expect(page.getByTestId("browser-map-attribution-hud").locator(":scope > svg:last-of-type")).toHaveCount(1);
     let previousImage: Buffer | undefined;
     let stableFrames = 0;
     await expect.poll(async () => {
-      const current = await canvas.screenshot();
+      const current = await canvas.screenshot({ style: inertiaCaptureStyle });
       stableFrames = previousImage?.equals(current) ? stableFrames + 1 : 0;
       previousImage = current;
       return stableFrames;
     }, { intervals: [200], timeout: 20_000 }).toBeGreaterThanOrEqual(2);
-    const beforeTileMean = analyzePngPixels(previousImage!).grayMean;
+    // Loading evidence uses the complete unstyled image, including both icons.
+    const beforeTileMean = analyzePngPixels(await canvas.screenshot()).grayMean;
     expect(beforeTileMean).toBeGreaterThan(150);
     const pannedCamera = await map.getAttribute("data-map-camera");
     expect(pannedCamera).not.toBeNull();
     expect(pannedCamera).not.toBe(initialCamera);
     const cameraValues = JSON.parse(pannedCamera!) as number[];
-    const canvasBox = await canvas.boundingBox();
-    expect(canvasBox).not.toBeNull();
+    const instance = await map.getAttribute("data-map-instance");
+    expect(instance).not.toBeNull();
+    const canvasBox = await settledCanvasBounds();
     await page.mouse.click(firstPoint.x, firstPoint.y);
     await expect(page.getByTestId("manual-design-status")).toContainText("1 map-click boundary vertices staged");
     const boundaryInput = page.getByLabel("Draft boundary projected XY", { exact: true });
@@ -202,18 +230,45 @@ test("delayed imagery preserves a panned camera and a four-vertex boundary draft
     await expect(map).toHaveAttribute("data-map-camera", pannedCamera!);
     await expect(boundaryInput).toHaveValue(firstVertex);
     const latePoints = [];
+    const clickBounds = [canvasBox];
     for (const [x, y] of [[0.8, 0.25], [0.8, 0.45], [0.2, 0.45]]) {
-      latePoints.push(await unobstructedMapPoint(map,
-        { x: box!.x + box!.width * x, y: box!.y + box!.height * y }, "canvas"));
+      // Each accepted vertex can grow the dock. Resolve the next physical hit
+      // against the current canvas rather than reusing pre-growth coordinates.
+      const currentBounds = await settledCanvasBounds();
+      await expect(map).toHaveAttribute("data-map-camera", pannedCamera!);
+      const point = await unobstructedMapPoint(map,
+        { x: currentBounds.x + currentBounds.width * x, y: currentBounds.y + currentBounds.height * y }, "canvas");
+      await page.mouse.click(point.x, point.y);
+      latePoints.push(point);
+      clickBounds.push(currentBounds);
+      await expect(page.getByTestId("manual-design-status")).toContainText(`${latePoints.length + 1} map-click boundary vertices staged`);
     }
-    for (const point of latePoints) await page.mouse.click(point.x, point.y);
     await expect(page.getByTestId("manual-design-status")).toContainText("4 map-click boundary vertices staged");
     const fourVertices = await boundaryInput.inputValue();
     expect(fourVertices.split("\n")[0]).toBe(firstVertex);
-    [firstPoint, ...latePoints].forEach((point, index) => expectDraftPointNearClick(fourVertices, index, cameraValues, canvasBox!, point, projectCrs));
-    await page.mouse.dblclick(firstPoint.x, firstPoint.y);
+    [firstPoint, ...latePoints].forEach((point, index) => expectDraftPointNearClick(fourVertices, index, cameraValues, clickBounds[index], point, projectCrs));
+    // Reproject the actual first vertex after any dock reflow; its old screen
+    // coordinate may identify a distinct XY point in the resized canvas.
+    const closingBounds = await settledCanvasBounds();
+    await expect(map).toHaveAttribute("data-map-camera", pannedCamera!);
+    const [firstX, firstY] = firstVertex.split(",").map(Number);
+    const firstLonLat = projectXyToLonLat({ x: firstX, y: firstY }, projectCrs);
+    const [centerLongitude, centerLatitude, zoom] = cameraValues;
+    const radians = Math.PI / 180;
+    const mercatorY = (latitude: number) => (1 - Math.asinh(Math.tan(latitude * radians)) / Math.PI) / 2;
+    const worldSize = 512 * 2 ** zoom;
+    const closingPoint = {
+      x: Math.round(closingBounds.x + closingBounds.width / 2 + (firstLonLat.longitude - centerLongitude) * worldSize / 360),
+      y: Math.round(closingBounds.y + closingBounds.height / 2 + (mercatorY(firstLonLat.latitude) - mercatorY(centerLatitude)) * worldSize),
+    };
+    expect(await unobstructedMapPoint(map, closingPoint, "canvas"), "the first staged vertex remains physically reachable")
+      .toEqual(closingPoint);
+    await page.mouse.dblclick(closingPoint.x, closingPoint.y);
     await expect(page.getByTestId("browser-map-status-hud")).toContainText("0 draft pts");
     await expect(page.getByTestId("manual-design-status")).toContainText("4 map-click boundary vertices staged");
+    await expect(boundaryInput).toHaveValue(fourVertices);
+    await expect(map).toHaveAttribute("data-map-camera", pannedCamera!);
+    await expect(map).toHaveAttribute("data-map-instance", instance!);
     await expect(page.getByTestId("project-save-state")).toContainText("Saved");
     expect(await workspaceStorageBytes(page)).toEqual(original);
     await page.screenshot({ path: testInfo.outputPath("delayed-imagery-boundary.png") });
@@ -243,7 +298,7 @@ test("offline MapLibre worker modules render and move projected layout overlays"
   await page.getByTestId("command-menu-file").click();
   await page.getByTestId("command-file-sample-baseline-needs-review").click();
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText("North Quarter Concept Layout");
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   const canvas = page.locator(".maplibregl-canvas").first();
   await expect(canvas).toBeVisible();
   await expect(canvas).toHaveCSS("position", "absolute");

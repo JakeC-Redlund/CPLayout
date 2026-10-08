@@ -84,8 +84,8 @@ function canEdit(props: MapSurfaceProps): boolean {
 function workflowStatus(props: MapSurfaceProps): string {
   if (props.homeView) return "Catalog map: open a field map or design before editing projected XY geometry.";
   return canEdit(props)
-    ? "Design mode: projected XY edits require Commit before they change the project."
-    : "Layout mode is RTK-only; switch to Design for pointer-based geometry edits.";
+    ? "Edit map: finish and classify your drawing before it changes the design."
+    : "Inspect map: switch to Edit map for pointer-based geometry edits.";
 }
 
 export function createMapInteractionState(props: MapSurfaceProps): MapInteractionState {
@@ -123,6 +123,24 @@ function projectContextChanged(previous: MapSurfaceProps, props: MapSurfaceProps
     || previous.projectGeneration !== props.projectGeneration;
 }
 
+function projectGeometry(project: MapSurfaceProps["project"]): string {
+  return JSON.stringify({
+    fieldBoundary: project.fieldBoundary,
+    pivotCenter: project.pivotCenter,
+    waterSource: project.waterSource,
+    powerSource: project.powerSource,
+    obstacles: project.obstacles.map(({ id, polygon, bufferMeters }) => ({ id, polygon, bufferMeters })),
+    mapFeatures: (project.mapFeatures ?? []).map(({ id, geometry }) => ({ id, geometry })),
+    surveyPoints: project.surveyPoints.map(({ id, projected }) => ({ id, projected })),
+  });
+}
+
+function suspendedGeometryChanged(previous: MapSurfaceProps, props: MapSurfaceProps): boolean {
+  return Boolean(previous.homeView || props.homeView)
+    && previous.project !== props.project
+    && projectGeometry(previous.project) !== projectGeometry(props.project);
+}
+
 function sameDraftOwner(a: MapDraftOwner, b: MapDraftOwner): boolean {
   return a.projectId === b.projectId && a.projectCrs === b.projectCrs
     && a.projectGeneration === b.projectGeneration && a.draftId === b.draftId;
@@ -139,17 +157,21 @@ export function reconcileMapInteractionState(
   previous: MapSurfaceProps,
   props: MapSurfaceProps,
 ): MapInteractionState {
-  const projectChanged = projectContextChanged(previous, props);
+  const projectChanged = projectContextChanged(previous, props) || suspendedGeometryChanged(previous, props);
   const manualChanged = previous.manualDesignCaptureRequest?.requestId !== props.manualDesignCaptureRequest?.requestId
     || previous.manualDesignCaptureRequest?.role !== props.manualDesignCaptureRequest?.role;
-  const workflowChanged = canEdit(previous) !== canEdit(props) || Boolean(previous.homeView) !== Boolean(props.homeView);
+  const workflowChanged = previous.settings.mappingWorkflowMode !== props.settings.mappingWorkflowMode;
   const commandChanged = previous.activeToolRequestId !== props.activeToolRequestId
     || previous.activeToolMode !== props.activeToolMode
     || previous.activeLayer !== props.activeLayer
     || previous.activeMapFeatureKind !== props.activeMapFeatureKind;
   let next = projectChanged ? { ...createMapInteractionState(props), mode: "pan" as const } : state;
+  // Refresh inherited guidance without replacing operation feedback or suspended work.
+  if (next.status === workflowStatus(previous) && next.status !== workflowStatus(props)) {
+    next = { ...next, status: workflowStatus(props) };
+  }
   if (manualChanged || workflowChanged) next = resetDraft(next, workflowStatus(props));
-  if (!canEdit(props)) return resetDraft({ ...next, mode: "pan" }, workflowStatus(props));
+  if (props.settings.mappingWorkflowMode !== "design") return resetDraft({ ...next, mode: "pan" }, workflowStatus(props));
   if (commandChanged || workflowChanged) {
     next = {
       ...next,
@@ -240,6 +262,7 @@ export function selectMapInteractionState(state: MapInteractionState, props: Map
   const editingVertex = editing && state.mode === "edit_vertices" && selected !== null;
   return {
     ...state,
+    status: props.homeView ? workflowStatus(props) : state.status,
     canUndoDraftVertex: editing && state.draftVertices.length > 0
       && (state.mode === "measure" || state.mode === "draw_boundary" || state.mode === "mark_obstacle"),
     canCommitDraft: editing && state.draftVertices.length >= 3 && commitCallbackAvailable(state, props),
@@ -305,7 +328,7 @@ export function createMapInteractionController(initialProps: MapSurfaceProps, in
   let state = createMapInteractionState(props);
   let snapshot = selectMapInteractionState(state, props);
   const listeners = new Set<() => void>();
-  let eligibleDraft: { owner: MapDraftOwner; sequence: number } | null = null;
+  let eligibleDraft: { owner: MapDraftOwner; sequence: number; draftState: MapInteractionState } | null = null;
   let interactionGeneration = 0;
 
   function retireDraftOwner(): void {
@@ -319,8 +342,13 @@ export function createMapInteractionController(initialProps: MapSurfaceProps, in
       || !sameDraftOwner(eligibleDraft.owner, receipt.owner)
       || !Number.isSafeInteger(receipt.sequence) || receipt.sequence < 0 || receipt.sequence <= eligibleDraft.sequence) return next;
     eligibleDraft.sequence = receipt.sequence;
+    const restored = receipt.outcome === "cancelled" ? {
+      ...eligibleDraft.draftState,
+      draftVertices: cloneVertices(eligibleDraft.draftState.draftVertices),
+      selectedVertex: eligibleDraft.draftState.selectedVertex ? { ...eligibleDraft.draftState.selectedVertex } : null,
+    } : next;
     if (receipt.outcome !== "rejected") retireDraftOwner();
-    return { ...next, status: receipt.message };
+    return { ...restored, status: receipt.message };
   }
 
   function publish(next: MapInteractionState, notify = true): void {
@@ -342,7 +370,7 @@ export function createMapInteractionController(initialProps: MapSurfaceProps, in
 
   function requireEditing(): boolean {
     if (canEdit(props)) return true;
-    setStatus(workflowStatus(props));
+    if (!props.homeView) setStatus(workflowStatus(props));
     return false;
   }
 
@@ -359,6 +387,7 @@ export function createMapInteractionController(initialProps: MapSurfaceProps, in
   }
 
   function setTool(mode: DrawingMode, layer = state.activeLayer): void {
+    if (props.homeView) return;
     if (!canEdit(props) && mode !== "pan") return;
     retireDraftOwner();
     if (mode === state.mode && layer === state.activeLayer) return;
@@ -454,6 +483,8 @@ export function createMapInteractionController(initialProps: MapSurfaceProps, in
       if (accepted) {
         eligibleDraft = {
           owner: { ...accepted.owner },
+          draftState: { ...state, draftVertices: cloneVertices(vertices), activeFeatureGeometry: geometryType,
+            selectedVertex: state.selectedVertex ? { ...state.selectedVertex } : null },
           sequence: previousReceipt && sameDraftOwner(previousReceipt.owner, accepted.owner)
             && Number.isSafeInteger(previousReceipt.sequence) ? previousReceipt.sequence : -1,
         };
@@ -521,7 +552,7 @@ export function createMapInteractionController(initialProps: MapSurfaceProps, in
     if (!requireEditing() || !finitePoint(point) || !snapshot.canEditSelectedVertex || !state.selectedVertex) return;
     const movedVertexText = selectedProjectVertexText(props.project, state.selectedVertex);
     if (editRejected(editCallback(props, state.selectedVertex)?.({ ...point }))) return;
-    setStatus(`Moved ${movedVertexText} in projected XY. Save Local to persist.`);
+    setStatus(`Moved ${movedVertexText} in projected XY.`);
   }
 
   const methods: MapInteractionMethods = {
@@ -533,7 +564,9 @@ export function createMapInteractionController(initialProps: MapSurfaceProps, in
       if (kind === state.mapFeatureKind) return;
       publish(resetDraft({ ...state, mapFeatureKind: kind, activeFeatureGeometry: props.activeDraftGeometry ?? featureOptionForKind(kind).geometry }, "Map feature tool selected. No draft vertices are pending."));
     },
-    clearDraft,
+    clearDraft(status) {
+      if (requireEditing()) clearDraft(status);
+    },
     undoDraftVertex() {
       if (!snapshot.canUndoDraftVertex) return;
       retireDraftOwner();
@@ -616,11 +649,10 @@ export function createMapInteractionController(initialProps: MapSurfaceProps, in
         && nextProps.selectedMapFeatureId
         && !props.project.mapFeatures?.some((feature) => feature.id === nextProps.selectedMapFeatureId)
         && nextProps.project.mapFeatures?.some((feature) => feature.id === nextProps.selectedMapFeatureId);
-      if (projectContextChanged(props, nextProps)
+      if (projectContextChanged(props, nextProps) || suspendedGeometryChanged(props, nextProps)
         || props.manualDesignCaptureRequest?.requestId !== nextProps.manualDesignCaptureRequest?.requestId
         || props.manualDesignCaptureRequest?.role !== nextProps.manualDesignCaptureRequest?.role
         || props.settings.mappingWorkflowMode !== nextProps.settings.mappingWorkflowMode
-        || Boolean(props.homeView) !== Boolean(nextProps.homeView)
         || props.activeToolRequestId !== nextProps.activeToolRequestId
         || props.activeToolMode !== nextProps.activeToolMode || props.activeLayer !== nextProps.activeLayer
         || props.activeMapFeatureKind !== nextProps.activeMapFeatureKind

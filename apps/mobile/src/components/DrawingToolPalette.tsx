@@ -165,7 +165,7 @@ export function DrawingToolLauncher({
           {openTool.id === "circle" ? <MenuAction label="Machine" disabled={!designMode} icon={<Wrench size={17} color="#173428" />}
             testID="map-tool-machine" onPress={() => runMenuAction(() => onOpenModal("machine"))} /> : null}
           {onOpenReceiver && (openTool.id === "point" || openTool.id === "line" || openTool.id === "polygon") ? (
-            <MenuAction label="RTK capture" icon={<Satellite size={17} color="#173428" />} testID="map-tool-rtk"
+            <MenuAction label="Open Survey" icon={<Satellite size={17} color="#173428" />} testID="map-tool-rtk"
               onPress={() => runMenuAction(onOpenReceiver)} />
           ) : <MenuAction label="Layers" icon={<Layers size={17} color="#173428" />} testID="map-tool-layers" onPress={() => runMenuAction(onToggleLayers)} />}
         </ScrollView>
@@ -337,7 +337,7 @@ function activeMapToolId(activeModal: DrawingToolPaletteModal, activeTool: Activ
 }
 
 function activeToolStatus(activeModal: DrawingToolPaletteModal, activeTool: ActiveTool, designMode: boolean): string {
-  if (!designMode) return "Layout: inspect";
+  if (!designMode) return "Inspect map";
   if (activeModal) return `${activeModal.replaceAll("_", " ")} sheet`;
   if (!activeTool) return "Pan";
   if (activeTool.mode === "measure" && activeTool.draftGeometry) return `Draw ${activeTool.draftGeometry === "LineString" ? "line" : activeTool.draftGeometry.toLowerCase()}`;

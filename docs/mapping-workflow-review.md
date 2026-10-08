@@ -2,6 +2,14 @@
 
 Current drawing work: [Standard drawing tools](drawing-tools-refactor.md) records the Polygon/Line/Point implementation, research, validation scope and remaining proof boundaries.
 
+Required visual review from 2026-09-27: use the user's Windows 11 PC and actual
+Edge with [workflow screenshots, annotations, OCR/CV checks and human questionnaires](windows-edge-visual-review-plan.md).
+This supplements automated regression evidence. Begin with on-map tools and
+Polygon/Line/Point capture; missing human responses remain pending, not accepted.
+The first packet's ten responses are now recorded: Q10 requests rework.
+[The response plan](drawing-review-response-plan.md) tracks the bottom-toolbar
+visual pass and the pending classification, autosave and durable pause/resume work.
+
 Review: 2026-09-13 America/Denver; verification completed on 2026-09-14 UTC.
 Baseline: `eda1ada05c03ef2244b8bbc4e3b6fb8380051389`, `main`.
 Status: first safety/workflow packet implemented; acceptance results below. The full Design-to-Layout program is not complete.

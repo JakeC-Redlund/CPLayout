@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import type { ObstacleZone, PivotMachine, PivotProject, ProjectMapFeature, SurveyPoint, XY } from "@cplayout/core";
 
 import {
+  ADVISORY_FIELD_PIVOT_PLAN_LIMITS,
   analyzeAdvisoryMultiMachineLayout,
   analyzeAdvisoryObstacleInteractions,
   analyzeIdealPivotCenter,
@@ -14,6 +15,8 @@ import {
   compareAdvisoryMachineStrategies,
   evaluateAdvisoryCornerArm,
   planAdvisoryFieldPivots,
+  planAdvisoryFieldPivotsSteps,
+  type AdvisoryFieldPivotPlanOptions,
 } from "./advisoryPivotPlacement";
 import { evaluateLayout } from "./geometry";
 
@@ -25,6 +28,74 @@ const field: XY[] = [
   { x: 150, y: 80 },
   { x: 0, y: 80 },
 ];
+
+const optionGuardProject = makeProject();
+const optionGuardProjectBefore = structuredClone(optionGuardProject);
+const unreadProject = Object.defineProperty({}, "projectCrs", {
+  get() { throw new Error("Invalid options must be rejected before reading the project."); },
+}) as PivotProject;
+let rejectedFieldPlanOptionCases = 0;
+function assertRejectedFieldPlanOptions(key: string, value: unknown): void {
+  const options = { [key]: value } as AdvisoryFieldPivotPlanOptions;
+  const before = structuredClone(options);
+  const expected = (error: unknown) => error instanceof RangeError && error.message.includes(key);
+  // Even an incomplete project or a lazy generator must reject before any work/yield.
+  for (const project of [optionGuardProject, { ...optionGuardProject, fieldBoundary: [] }, unreadProject]) {
+    assert.throws(() => planAdvisoryFieldPivots(project, options), expected, `${key}: synchronous rejection`);
+    assert.throws(() => planAdvisoryFieldPivotsSteps(project, options).next(), expected, `${key}: first-next rejection`);
+  }
+  assert.deepEqual(options, before, `${key}: rejected options remain unchanged`);
+  assert.deepEqual(optionGuardProject, optionGuardProjectBefore, `${key}: project remains unchanged`);
+  rejectedFieldPlanOptionCases += 1;
+}
+for (const key of ["maxMachines", "gridDivisions", "candidatePoolSize", "maxCandidates"] as const) {
+  for (const value of [NaN, Infinity, -Infinity, -1, 0, 1.5, ADVISORY_FIELD_PIVOT_PLAN_LIMITS[key] + 1,
+    Number.MAX_SAFE_INTEGER, null, "3"]) assertRejectedFieldPlanOptions(key, value);
+}
+assertRejectedFieldPlanOptions("gridDivisions", 2);
+for (const key of ["collisionBufferMeters", "minimumMachineSeparationMeters", "obstacleBufferMeters",
+  "minimumBoundaryClearanceMeters", "minimumObstacleClearanceMeters", "boundaryEpsilonSquareMeters"] as const) {
+  for (const value of [NaN, Infinity, -Infinity, -1, null, "0"]) assertRejectedFieldPlanOptions(key, value);
+}
+for (const key of ["waterSourceWeight", "powerSourceWeight", "accessWeight"] as const) {
+  for (const value of [NaN, Infinity, -Infinity]) assertRejectedFieldPlanOptions(key, value);
+}
+
+// Exercise admission edges without starting a maximum-budget geometry search.
+const noBoundaryPlanProject = makeProject({ fieldBoundary: [] });
+const noBoundaryPlanBefore = structuredClone(noBoundaryPlanProject);
+for (const options of [
+  {},
+  { maxMachines: 1, gridDivisions: 3, candidatePoolSize: 1, maxCandidates: 1 },
+  { ...ADVISORY_FIELD_PIVOT_PLAN_LIMITS },
+  { collisionBufferMeters: 0, minimumMachineSeparationMeters: 0, obstacleBufferMeters: 0,
+    minimumBoundaryClearanceMeters: 0, minimumObstacleClearanceMeters: 0, boundaryEpsilonSquareMeters: 0 },
+] satisfies AdvisoryFieldPivotPlanOptions[]) {
+  const before = structuredClone(options);
+  const result = planAdvisoryFieldPivots(noBoundaryPlanProject, options);
+  assert.equal(result.status, "no_boundary");
+  assert.equal(result.requestedMachineCount, options.maxMachines ?? 3);
+  assert.deepEqual(planAdvisoryFieldPivotsSteps(noBoundaryPlanProject, options).next(), { done: true, value: result });
+  assert.deepEqual(options, before);
+  assert.deepEqual(noBoundaryPlanProject, noBoundaryPlanBefore);
+}
+for (const collisionBufferMeters of [NaN, Infinity, -1]) {
+  const project = makeProject({ fieldBoundary: [], machine: { ...defaultMachine(), machineClearanceBufferMeters: collisionBufferMeters } });
+  const before = structuredClone(project);
+  assert.throws(() => planAdvisoryFieldPivots(project), /collisionBufferMeters must be finite and nonnegative/);
+  assert.throws(() => planAdvisoryFieldPivotsSteps(project).next(), /collisionBufferMeters must be finite and nonnegative/);
+  assert.deepEqual(project, before);
+}
+const overflowSeparationProject = makeProject({ fieldBoundary: [], machine: {
+  ...defaultMachine(), spanLengthsMeters: [Number.MAX_VALUE / 2], machineClearanceBufferMeters: 0,
+} });
+const overflowSeparationBefore = structuredClone(overflowSeparationProject);
+const overflowSeparationOptions = { collisionBufferMeters: Number.MAX_VALUE };
+assert.throws(() => planAdvisoryFieldPivots(overflowSeparationProject, overflowSeparationOptions), /minimumRequiredSeparationMeters must be finite/);
+assert.throws(() => planAdvisoryFieldPivotsSteps(overflowSeparationProject, overflowSeparationOptions).next(), /minimumRequiredSeparationMeters must be finite/);
+assert.deepEqual(overflowSeparationProject, overflowSeparationBefore);
+assert.deepEqual(overflowSeparationOptions, { collisionBufferMeters: Number.MAX_VALUE });
+console.log(`Field planner option guards: ${rejectedFieldPlanOptionCases} invalid cases rejected before work; bounds/defaults and inputs preserved.`);
 
 const accessLane: ProjectMapFeature = {
   id: "north-access",
@@ -944,7 +1015,7 @@ const benderStrategyComparison = compareAdvisoryMachineStrategies(benderStrategy
 });
 const benderStrategy = benderStrategyComparison.strategies.find((strategy) => strategy.strategyKind === "bender_second_pivot");
 assert.ok(benderStrategy);
-assert.equal(benderStrategy?.status, "ready");
+assert.notEqual(benderStrategy?.status, "ready", "a circular tail opportunity is not an articulated bender model");
 assert.equal(benderStrategy?.secondPivotPointId, "bender-second-pivot-evidence");
 assert.deepEqual(benderStrategy?.secondPivotPoint, benderSecondPivotEvidence.projected);
 assert.ok((benderStrategy?.benderPrimaryDistanceMeters ?? 0) > 0);
@@ -993,7 +1064,7 @@ const linearStrategyComparison = compareAdvisoryMachineStrategies(linearStrategy
 const linearStrategy = linearStrategyComparison.strategies.find((strategy) => strategy.strategyKind === "linear_lateral_move");
 assert.equal(linearStrategyComparison.status, "ready");
 assert.ok(linearStrategy);
-assert.equal(linearStrategy?.status, "ready");
+assert.notEqual(linearStrategy?.status, "ready", "a radius-based path proxy lacks explicit lateral extents and supply");
 assert.equal(linearStrategy?.pathFeatureId, "linear-path-a");
 assert.equal(linearStrategy?.bestCandidate, null);
 assert.ok((linearStrategy?.irrigatedAcres ?? 0) > 0);

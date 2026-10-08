@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "cplayout-corner-research-v1",
+  "id": "obstacle-overhang",
+  "model": {
+    "pivot": [
+      0,
+      0
+    ],
+    "mainRadiusM": 10,
+    "armLengthM": 4,
+    "overhangM": 1,
+    "bodyHalfWidthM": 0.1,
+    "antennaOffsetM": [
+      -2,
+      0.5
+    ],
+    "wheelOffsetsM": [
+      [
+        -1,
+        0.4
+      ],
+      [
+        -1,
+        -0.4
+      ]
+    ],
+    "towerRadiiM": [
+      3,
+      7,
+      10
+    ]
+  },
+  "limits": {
+    "articulationRad": [
+      -2,
+      2
+    ],
+    "maxArticulationSlope": 5
+  },
+  "field": {
+    "outer": [
+      [
+        -25,
+        -25
+      ],
+      [
+        25,
+        -25
+      ],
+      [
+        25,
+        25
+      ],
+      [
+        -25,
+        25
+      ]
+    ],
+    "holes": []
+  },
+  "obstacles": [
+    [
+      [
+        14.4,
+        -0.25
+      ],
+      [
+        14.6,
+        -0.25
+      ],
+      [
+        14.6,
+        0.25
+      ],
+      [
+        14.4,
+        0.25
+      ]
+    ]
+  ],
+  "sweep": {
+    "startRad": -0.01,
+    "endRad": 0.01,
+    "fullCircle": false
+  },
+  "clearanceM": 0.1,
+  "maxDepth": 18,
+  "toleranceM": 1e-7,
+  "trajectory": {
+    "interpolation": "linear",
+    "knots": [
+      {
+        "thetaRad": -0.01,
+        "alphaRad": 0
+      },
+      {
+        "thetaRad": 0.01,
+        "alphaRad": 0
+      }
+    ]
+  }
+}

@@ -1,6 +1,7 @@
 export * from "./androidNativeProofRuntime";
 export * from "./nativeVerification";
 export * from "./designDraftArchive";
+export * from "./fieldDesignArchive";
 export * from "./mapPackageArchive";
 export * from "./mapPackageArchiveInstall";
 export * from "./persistenceSchema";
@@ -15,3 +16,4 @@ export * from "./workspaceDocument";
 export * from "./workspaceCommands";
 export { readWorkspaceDesign, workspaceBackendInfo, workspaceDesignCatalog, workspaceProjectCatalog } from "./versionedProjectRepository";
 export { createCatalogId } from "./projectCatalog";
+export * from "./layoutSessionArchive";

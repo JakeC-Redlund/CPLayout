@@ -108,10 +108,12 @@ const COUNTED_EXTENSIONS = new Set([
   ".bpf",
   ".csv",
   ".ggs",
+  ".gps",
   ".kml",
   ".kmz",
   ".opt",
   ".out",
+  ".path",
   ".vri",
 ]);
 
@@ -207,7 +209,7 @@ function walkRoot(
   try {
     entries = readdirSync(currentPath);
   } catch {
-    skipped.push({ rootId: root.id, redactedPath: redactedPath(root, currentPath), reason: "Directory could not be read." });
+    skipped.push({ rootId: root.id, redactedPath: diagnosticPath(root, currentPath), reason: "Directory could not be read." });
     return;
   }
 
@@ -217,7 +219,7 @@ function walkRoot(
     try {
       stat = statSync(path);
     } catch {
-      skipped.push({ rootId: root.id, redactedPath: redactedPath(root, path), reason: "Path could not be statted." });
+      skipped.push({ rootId: root.id, redactedPath: diagnosticPath(root, path), reason: "Path could not be statted." });
       continue;
     }
     if (stat.isDirectory()) {
@@ -255,6 +257,14 @@ function redactedPath(root: InventoryRoot, path: string): string {
   return relativePath && relativePath !== "." ? `${root.id}:/${relativePath}` : `${root.id}:/`;
 }
 
+function diagnosticPath(root: InventoryRoot, path: string): string {
+  // Failed reads are still private evidence. In particular, a dangling exchange
+  // symlink must not reveal the customer filename through an error record.
+  if (root.role === "data") return `${root.id}:/[unreadable-data-entry]`;
+  if (COUNTED_EXTENSIONS.has(extensionOf(path))) return `${root.id}:/[unreadable-exchange-entry]`;
+  return redactedPath(root, path);
+}
+
 function extensionOf(filename: string): string {
   const index = filename.lastIndexOf(".");
   return index >= 0 ? filename.slice(index).toLowerCase() : "";
@@ -275,7 +285,7 @@ function readmeFor(report: InventoryReport): string {
 
 Generated: ${report.generatedAt}
 
-This report is redacted. It hashes executable/config artifacts and counts supported legacy exchange extensions only. It does not include raw BPF/KML/KMZ/CSV/VRI/OPT/OUT/GGS contents, local customer paths, coordinates, credentials, cloud endpoints, or controller-ready compatibility claims.
+This report is redacted. It hashes executable/config artifacts and counts supported legacy exchange extensions only. It does not include raw BPF/KML/KMZ/CSV/VRI/OPT/OUT/GGS/PATH/GPS contents, local customer paths, coordinates, credentials, cloud endpoints, or controller-ready compatibility claims.
 
 ## Roots
 

@@ -1,3 +1,4 @@
+import { useRetainedInput } from "../inputRetention";
 import { Archive, CopyPlus, Database, Download, FolderOpen, Map, RefreshCw, Save, Trash2, Upload } from "lucide-react-native";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
@@ -16,6 +17,7 @@ import {
   type CopyProjectCommand,
 } from "@cplayout/project-store";
 import {
+  serializeProjectDocument, sha256Text,
   exportCornerGpsMapBpf,
   exportProjectGoogleEarthKml,
   inferCornerGpsMapLegacyEvidenceKind,
@@ -34,6 +36,7 @@ import { GoogleEarthImportWizard } from "./GoogleEarthImportWizard";
 import { ProjectCopyButton } from "./ProjectCopyButton";
 
 interface ProjectFilesPanelProps {
+  outputContext?: { designId: string | null; designRevision: number | null; editRevision: number };
   dirty: boolean;
   sourceStored: boolean;
   project: PivotProject;
@@ -86,6 +89,7 @@ interface LegacyEvidenceReview {
 }
 
 export function ProjectFilesPanel({
+  outputContext,
   dirty,
   sourceStored,
   project,
@@ -114,8 +118,11 @@ export function ProjectFilesPanel({
   const [pendingBpfImport, setPendingBpfImport] = useState<PendingBpfImport | null>(null);
   const [selectedBpfImportItemIds, setSelectedBpfImportItemIds] = useState<string[]>([]);
   const [legacyEvidenceReview, setLegacyEvidenceReview] = useState<LegacyEvidenceReview | null>(null);
-  const [geoJsonImport, setGeoJsonImport] = useState("");
-  const [surveyCsvImport, setSurveyCsvImport] = useState("");
+  const [geoJsonImport, setGeoJsonImport] = useRetainedInput("files:geoJsonImport", "");
+  const [surveyCsvImport, setSurveyCsvImport] = useRetainedInput("files:surveyCsvImport", "");
+  const snapshotHash = useMemo(() => sha256Text(serializeProjectDocument(project)), [project]);
+  const outputStem = `${project.id.slice(0, 32)}.machine-${project.machine.id.slice(0, 32)}.r${outputContext?.designRevision ?? "unknown"}.e${outputContext?.editRevision ?? 0}.${snapshotHash.slice(0, 12)}`.replace(/[^A-Za-z0-9._-]/g, "-");
+  const archiveContext = outputContext ? { ...outputContext, includesUnsavedEdits: dirty } : undefined;
   const importOwner = useMemo(() => ({}), [project]);
   const active = useRef(false);
   useEffect(() => {
@@ -127,15 +134,35 @@ export function ProjectFilesPanel({
     };
   }, [onCancelImport, importOwner]);
 
+  async function exportHandoffReport(): Promise<void> {
+    try {
+      const document = serializeProjectDocument(project);
+      const feet = (meters: number) => `${(meters / 0.3048).toFixed(2)} ft`;
+      const text = ["CPLayout design handoff", project.name, `Design: ${outputContext?.designId ?? project.id}`,
+        `Saved design revision: ${outputContext?.designRevision ?? "not confirmed; identify this output by its snapshot ID below"}`,
+        `Current edit revision: ${outputContext?.editRevision ?? 0} (${dirty ? "includes unsaved edits" : "saved"})`,
+        `Machine: ${project.machine.name} (${project.machine.id})`,
+        `Main spans: ${project.machine.spanLengthsMeters.map(feet).join(", ")}`,
+        `Overhang: ${feet(project.machine.overhangMeters)}`, `End gun reach: ${feet(project.machine.endGunThrowMeters)}`,
+        `Field: ${result.metrics.fieldAcres.toFixed(2)} acres`, `Irrigated: ${result.metrics.irrigatedAcres.toFixed(2)} acres`,
+        `Coverage: ${result.metrics.coveragePercent.toFixed(1)}%`,
+        "Receiver-reported fixed positions do not independently establish field accuracy.",
+        "Create and retain a frozen Layout target before collecting installation observations.",
+        `Exact design snapshot (SHA-256): ${sha256Text(document)}`, "", ...result.warnings.map(warning => `Review: ${warning}`), ""].join("\n");
+      const outcome = await exportFileAsync(`${outputStem}.handoff.txt`, text, { mimeType: "text/plain" });
+      setStatus({ tone: outcome.ok ? "success" : "error", text: outcome.message });
+    } catch (error) { setStatus({ tone: "error", text: errorMessage(error) }); }
+  }
+
   async function exportZip(): Promise<void> {
     try {
-      const bundle = buildProjectArchiveBundle(project, result, exportScenarioGeoJson(project, result), new Date().toISOString());
+      const bundle = buildProjectArchiveBundle(project, result, exportScenarioGeoJson(project, result), new Date().toISOString(), archiveContext);
       const zip = exportProjectArchiveZip(bundle);
-      const filename = `${project.id}.center-pivot.zip`;
+      const filename = `${outputStem}.center-pivot.zip`;
       const outcome = await exportZipFileAsync(filename, zip);
       setStatus({
         tone: outcome.ok ? "success" : "error",
-        text: `${outcome.message} Project package includes canonical project JSON, GIS exchange files, survey CSV, metrics CSV, and map-package metadata.`,
+        text: `${outcome.message} ${bundle.manifest.notes?.join(" ") ?? "Project package includes canonical project JSON, GIS exchange files, survey CSV, metrics CSV, and map-package metadata."}`,
       });
     } catch (error) {
       setStatus({ tone: "error", text: errorMessage(error) });
@@ -145,7 +172,7 @@ export function ProjectFilesPanel({
   async function exportKml(): Promise<void> {
     try {
       const exported = exportProjectGoogleEarthKml(project, result);
-      const filename = `${project.id}.google-earth.kml`;
+      const filename = `${outputStem}.google-earth.kml`;
       const outcome = await exportFileAsync(filename, exported.kml, { mimeType: "application/vnd.google-earth.kml+xml" });
       setStatus({
         tone: outcome.ok ? "success" : "error",
@@ -159,7 +186,7 @@ export function ProjectFilesPanel({
   async function exportKmz(): Promise<void> {
     try {
       const exported = exportProjectGoogleEarthKml(project, result);
-      const filename = `${project.id}.google-earth.kmz`;
+      const filename = `${outputStem}.google-earth.kmz`;
       const outcome = await exportFileAsync(filename, createGoogleEarthKmz(exported.kml), {
         mimeType: "application/vnd.google-earth.kmz",
       });
@@ -175,7 +202,7 @@ export function ProjectFilesPanel({
   async function exportBpf(): Promise<void> {
     try {
       const exported = exportCornerGpsMapBpf(project, { sourceLabel: project.name });
-      const filename = `${project.id}.cornergpsmap.bpf`;
+      const filename = `${outputStem}.cornergpsmap.bpf`;
       const outcome = await exportFileAsync(filename, exported.xmlText, { mimeType: "application/xml;charset=utf-8" });
       setStatus({
         tone: outcome.ok ? "success" : "error",
@@ -432,10 +459,12 @@ export function ProjectFilesPanel({
         <Database size={17} color={statusToneColor(status.tone)} />
         <Text style={[styles.statusText, statusTextToneStyle(status.tone)]}>{dirty ? "Unsaved edits. " : ""}{repository.statusMessage} · {status.text}</Text>
       </View>
+      <Text style={styles.backendNote} testID="files-output-source">Outputs use {project.name} · {project.machine.name} ({project.machine.id}) · saved revision {outputContext?.designRevision ?? "not confirmed"}, edit {outputContext?.editRevision ?? 0}{dirty ? " (includes unsaved applied edits)" : ""}. Snapshot {snapshotHash.slice(0, 12)}. Unapplied form entries are not included.</Text>
       <FileLane icon={<Archive size={18} color="#254234" />} title="Project Package">
         <View style={styles.actionRow}>
           <FileAction accessibilityLabel="Save local project" icon={<Save size={18} color="#ffffff" />} label={dirty ? "Save *" : "Save"} primary onPress={onSaveProject} testID="files-action-save-local" />
           <ProjectCopyButton project={project} sourceStored={sourceStored} repository={repository} onCopy={onSaveProjectCopy} />
+          <FileAction accessibilityLabel="Export handoff report" icon={<Download size={18} color="#254234" />} label="Handoff report" onPress={exportHandoffReport} testID="files-action-handoff-report" />
           <FileAction accessibilityLabel="Export project ZIP" icon={<Download size={18} color="#254234" />} label="Export ZIP" onPress={exportZip} testID="files-action-export-zip" />
           <FileAction accessibilityLabel="Import project ZIP" icon={<Upload size={18} color="#254234" />} label="Import ZIP" onPress={() => importZip()} testID="files-action-import-zip" />
           <FileAction accessibilityLabel="Import project ZIP as a copy" icon={<CopyPlus size={18} color="#254234" />} label="Import Copy" disabled={!repository.canCopyProject} onPress={() => importZip(true)} testID="files-action-import-copy" />

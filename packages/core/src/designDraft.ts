@@ -1,4 +1,7 @@
+import { hasOperationalGnssEvidence, refuseOperationalGnssEvidence } from "./operationalGnssEvidence";
 import { z } from "zod";
+import { DraftDrawingWorkflowSchema } from "./draftDrawingWorkflow";
+import { PROJECT_DRAWING_METADATA_VERSION, validateProjectDrawingMetadata } from "./drawingMetadata";
 
 import { qualifyProjectCrs, type CrsQualification } from "./crsQualification";
 import { evaluateManualDesignReadiness } from "./manualDesign";
@@ -7,12 +10,16 @@ import { evaluateProjectCalculationSafety, isBoundaryWithinCalculationBudget } f
 import { projectDataKey } from "./projectDataComparison";
 import { gnssV2CaptureConflicts } from "./gnssEvidence";
 import { snapshotJsonValue } from "./jsonDataSnapshot";
-import { PivotProjectSchema } from "./projectDocument";
+import { PivotProjectSchema, LegacyPivotProjectSchema } from "./projectDocument";
 import { ProjectSettingsSchema } from "./settings";
 import type { GnssCaptureEvidence, PivotProject, XY } from "./types";
 import { assertProjectedCrs } from "./units";
 
-export const DESIGN_DRAFT_DOCUMENT_VERSION = "design-draft-v1";
+export const LEGACY_DESIGN_DRAFT_DOCUMENT_VERSION = "design-draft-v1";
+export const DRAWING_WORKFLOW_DESIGN_DRAFT_DOCUMENT_VERSION = "design-draft-v2";
+export const DESIGN_DRAFT_DOCUMENT_VERSION = "design-draft-v3";
+export const OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION = "design-draft-v4";
+export const DESIGN_DRAFT_DOCUMENT_VERSIONS = [LEGACY_DESIGN_DRAFT_DOCUMENT_VERSION, DRAWING_WORKFLOW_DESIGN_DRAFT_DOCUMENT_VERSION, DESIGN_DRAFT_DOCUMENT_VERSION, OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION] as const;
 
 const projectShape = PivotProjectSchema.shape;
 const machineShape = projectShape.machine.shape;
@@ -34,8 +41,8 @@ const DraftMapPackageSchema = z.object({
   if (!result.success) result.error.issues.forEach((issue) => context.addIssue({ code: "custom", path: issue.path, message: issue.message }));
 });
 
-const DraftSchema = z.object({
-  ...projectShape,
+const LegacyDraftSchema = z.object({
+  ...LegacyPivotProjectSchema.shape,
   projectCrs: projectShape.projectCrs.nullable(),
   settings: ProjectSettingsSchema,
   fieldBoundary: z.array(projectShape.fieldBoundary.element),
@@ -44,6 +51,12 @@ const DraftSchema = z.object({
   powerSource: projectShape.powerSource.nullable(),
   machine: DraftMachineSchema,
   mapPackages: z.array(DraftMapPackageSchema).optional(),
+  mapFeatures: LegacyPivotProjectSchema.shape.mapFeatures.removeDefault(),
+}).strict();
+
+const WorkflowDraftSchema = LegacyDraftSchema.extend({ drawingWorkflow: DraftDrawingWorkflowSchema.optional() }).strict();
+const DraftSchema = WorkflowDraftSchema.extend({
+  drawingMetadata: projectShape.drawingMetadata,
   mapFeatures: projectShape.mapFeatures.removeDefault(),
 }).strict();
 
@@ -52,7 +65,7 @@ export type DesignDraftMachine = z.output<typeof DraftMachineSchema>;
 /** Settings and present optional components must be supplied without relying on legacy defaults. */
 export type DesignDraft = z.output<typeof DraftSchema>;
 export interface DesignDraftDocument {
-  documentVersion: typeof DESIGN_DRAFT_DOCUMENT_VERSION;
+  documentVersion: typeof DESIGN_DRAFT_DOCUMENT_VERSIONS[number];
   draft: DesignDraft;
 }
 
@@ -83,16 +96,28 @@ export function parseDesignDraftDocument(input: string | unknown): DesignDraft {
   const raw: unknown = typeof input === "string" ? JSON.parse(input) : input;
   const snapshot = snapshotJsonValue(raw, "document");
   const envelope = z.object({
-    documentVersion: z.literal(DESIGN_DRAFT_DOCUMENT_VERSION),
+    documentVersion: z.enum(DESIGN_DRAFT_DOCUMENT_VERSIONS),
     draft: z.unknown(),
   }).strict().parse(snapshot);
+  if (envelope.documentVersion !== OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION) refuseOperationalGnssEvidence(envelope.draft);
+  if (envelope.documentVersion === LEGACY_DESIGN_DRAFT_DOCUMENT_VERSION) LegacyDraftSchema.parse(envelope.draft);
+  if (envelope.documentVersion === DRAWING_WORKFLOW_DESIGN_DRAFT_DOCUMENT_VERSION) WorkflowDraftSchema.parse(envelope.draft);
   return validateDesignDraft(envelope.draft);
 }
 
+/** Frozen v1/v2 envelope reader refuses classified v3 documents rather than dropping data. */
+export function parseDesignDraftDocumentV2(input: string | unknown): DesignDraft {
+  const raw = snapshotJsonValue(typeof input === "string" ? JSON.parse(input) : input, "document");
+  const envelope = z.object({ documentVersion: z.enum([LEGACY_DESIGN_DRAFT_DOCUMENT_VERSION, DRAWING_WORKFLOW_DESIGN_DRAFT_DOCUMENT_VERSION]), draft: z.unknown() }).strict().parse(raw);
+  return parseDesignDraftDocument(envelope);
+}
+
 export function serializeDesignDraftDocument(draft: DesignDraft): string {
+  const validated = validateDesignDraft(draft);
   return JSON.stringify({
-    documentVersion: DESIGN_DRAFT_DOCUMENT_VERSION,
-    draft: validateDesignDraft(draft),
+    documentVersion: hasOperationalGnssEvidence(validated) ? OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION : validated.drawingMetadata !== undefined ? DESIGN_DRAFT_DOCUMENT_VERSION
+      : validated.drawingWorkflow !== undefined ? DRAWING_WORKFLOW_DESIGN_DRAFT_DOCUMENT_VERSION : LEGACY_DESIGN_DRAFT_DOCUMENT_VERSION,
+    draft: validated,
   } satisfies DesignDraftDocument, null, 2);
 }
 
@@ -113,9 +138,14 @@ export function tryBuildPivotProject(draft: DesignDraft): DesignDraftBuildResult
   if (!completeness.complete) return { ok: false, reason: "incomplete", completeness };
   if (!completeness.calculationEligible) return { ok: false, reason: "calculation_ineligible", completeness };
 
-  const admitted = PivotProjectSchema.parse(validated);
+  const { drawingWorkflow: _workflow, ...projectData } = validated;
+  if (_workflow) projectData.drawingMetadata = {
+    schemaVersion: PROJECT_DRAWING_METADATA_VERSION, records: projectData.drawingMetadata?.records ?? [],
+    autosaveEnabled: _workflow.autosaveEnabled,
+  };
+  const admitted = PivotProjectSchema.parse(projectData);
   const project: PivotProject = {
-    ...validated,
+    ...projectData,
     projectCrs: admitted.projectCrs,
     pivotCenter: admitted.pivotCenter,
     waterSource: admitted.waterSource,
@@ -137,8 +167,19 @@ function validateDesignDraft(input: unknown): DesignDraft {
   if (draft.projectCrs !== null) assertProjectedCrs(draft.projectCrs);
   const hasXy = draft.fieldBoundary.length > 0 || draft.pivotCenter !== null
     || draft.waterSource !== null || draft.powerSource !== null || draft.surveyPoints.length > 0
-    || draft.obstacles.length > 0 || (draft.mapFeatures?.length ?? 0) > 0;
+    || draft.obstacles.length > 0 || (draft.mapFeatures?.length ?? 0) > 0
+    || draft.drawingWorkflow?.captures.some(capture => capture.vertices.length > 0);
   if (hasXy && draft.projectCrs === null) throw new Error("projectCrs: Present XY requires an explicit projected/local CRS.");
+  if (draft.drawingWorkflow?.lockedCrs != null && draft.drawingWorkflow.lockedCrs !== draft.projectCrs) {
+    throw new Error("drawingWorkflow.lockedCrs: The retained coordinate frame must match the draft CRS.");
+  }
+  for (const capture of draft.drawingWorkflow?.captures ?? []) {
+    if (capture.projectCrs !== draft.projectCrs) throw new Error("drawingWorkflow: Capture CRS must match the draft CRS.");
+  }
+  validateProjectDrawingMetadata(draft);
+  if (draft.drawingMetadata && draft.drawingWorkflow && draft.drawingMetadata.autosaveEnabled !== draft.drawingWorkflow.autosaveEnabled) {
+    throw new Error("drawingMetadata.autosaveEnabled: Must match the retained drawing workflow preference.");
+  }
   if (draft.settings.unitSystem !== draft.unitSystem) throw new Error("settings.unitSystem: Must match the draft unitSystem.");
   for (const item of draft.mapPackages ?? []) {
     for (const uri of [item.uri, item.tileJsonUrl, ...(item.tileUrlTemplates ?? [])]) {
@@ -205,7 +246,11 @@ function validateDesignDraft(input: unknown): DesignDraft {
 
 function evaluateValidatedDraft(draft: DesignDraft): DesignDraftCompleteness {
   const blockers: DesignDraftBlocker[] = [];
-  const admission = PivotProjectSchema.safeParse(draft);
+  const { drawingWorkflow, ...projectData } = draft;
+  for (const capture of drawingWorkflow?.captures ?? []) {
+    blockers.push({ path: "drawingWorkflow", code: "unfinished_drawing", message: `Drawing ${capture.name} has not been committed or discarded.` });
+  }
+  const admission = PivotProjectSchema.safeParse(projectData);
   if (!admission.success) blockers.push(...errorBlockers(admission.error));
   const crsQualification = draft.projectCrs === null ? null : qualifyProjectCrs(draft.projectCrs);
   const calculationBlockers: DesignDraftBlocker[] = crsQualification?.calculation.blockers.map((code) => ({
@@ -258,4 +303,11 @@ function assertSameFields(input: unknown, parsed: unknown, path = "draft"): void
   for (const key of Object.keys(validated)) {
     if (!Object.hasOwn(original, key) && validated[key] !== undefined) throw new Error(`${path}.${key}: Supply this component value explicitly; draft validation cannot insert defaults.`);
   }
+}
+
+export function parseDesignDraftDocumentV3(input: string | unknown): DesignDraft {
+  const raw = snapshotJsonValue(typeof input === "string" ? JSON.parse(input) : input, "document");
+  refuseOperationalGnssEvidence(raw);
+  if (raw && typeof raw === "object" && "documentVersion" in raw && raw.documentVersion === OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION) throw new Error("Draft version requires an operational-evidence-aware reader.");
+  return parseDesignDraftDocument(raw);
 }

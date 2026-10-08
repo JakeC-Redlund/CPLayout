@@ -42,7 +42,7 @@ test("manual pivot input consumes the complete coordinate without changing saved
   await page.getByTestId("workspace-nav-files").click();
   await page.getByTestId("files-action-save-local").click();
   await expect.poll(async () => (await readWorkspace(page)).projectDocuments.length).toBe(1);
-  await page.getByTestId("workspace-nav-map").click();
+  await page.getByTestId("task-design").click();
   const openInspector = page.getByRole("button", { name: /Open (map inspector|right workflow sidebar)/ });
   if (await openInspector.first().isVisible()) await openInspector.first().click();
   await page.getByTestId("workflow-sidebar-tab-tools").click();

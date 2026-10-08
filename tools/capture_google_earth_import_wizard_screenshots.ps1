@@ -1,4 +1,5 @@
 param(
+  [string]$Distro = 'Ubuntu-24.04',
   [string]$GoogleEarthPath = "C:\Program Files\Google\Google Earth Pro\client\googleearth.exe",
   [string]$OutputDir = "apps\mobile\src\assets\google-earth-wizard",
   [int]$StartupSeconds = 10,
@@ -8,6 +9,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot 'windows/CPLayoutPaths.ps1')
+. (Join-Path $PSScriptRoot 'windows/GoogleEarthIdentity.ps1')
 
 Add-Type -AssemblyName System.Drawing
 Add-Type -AssemblyName System.Windows.Forms
@@ -38,29 +41,33 @@ public static class WindowApi {
 Add-Type -TypeDefinition $signature
 
 function Convert-ToWindowsPath([string]$Path) {
+  if ([string]::IsNullOrWhiteSpace($Path)) { return $Path }
   $resolved = Resolve-Path -LiteralPath $Path -ErrorAction SilentlyContinue
-  if ($resolved) {
-    $Path = $resolved.Path
-  }
-  if ($Path -match "^/mnt/([a-z])/(.*)$") {
-    $drive = $matches[1].ToUpperInvariant()
-    $tail = $matches[2] -replace "/", "\"
-    return "${drive}:\$tail"
-  }
+  if ($resolved) { $Path = $resolved.Path }
+  if ($Path.StartsWith('/') -or $Path -match '^[A-Za-z]:' -or $Path.StartsWith('\\')) { return ConvertTo-CPLayoutWindowsPath $Path $Distro }
   return $Path
 }
 
 function Get-GoogleEarthProcess([string]$Path) {
-  $process = Get-Process -Name "googleearth" -ErrorAction SilentlyContinue | Select-Object -First 1
-  if ($process) {
+  $script:GoogleEarthAcquisitionAttempted = $true
+  $processes = @(Get-Process -Name 'googleearth' -ErrorAction SilentlyContinue)
+  $process = Select-CPLayoutGoogleEarthProcess $processes $Path
+  if ($script:GoogleEarthTargetIdentity) {
+    if (-not $process) { throw 'The selected Google Earth process exited during capture.' }
+    $actual = Get-CPLayoutGoogleEarthIdentity $process
+    Assert-CPLayoutGoogleEarthIdentity $actual $script:GoogleEarthTargetIdentity.id $script:GoogleEarthTargetIdentity.startTime $script:GoogleEarthTargetIdentity.path
     return $process
   }
-  if (-not (Test-Path -LiteralPath $Path)) {
-    throw "Google Earth Pro was not found at $Path"
+  $ownership = 'reused_matching_executable'
+  if (-not $process) {
+    if (-not (Test-Path -LiteralPath $Path)) { throw "Google Earth Pro was not found at $Path" }
+    $process = Start-Process -FilePath $Path -PassThru
+    $ownership = 'created_by_capture'
+    Start-Sleep -Seconds $StartupSeconds
   }
-  Start-Process -FilePath $Path | Out-Null
-  Start-Sleep -Seconds $StartupSeconds
-  return Get-Process -Name "googleearth" -ErrorAction Stop | Select-Object -First 1
+  $script:GoogleEarthTargetIdentity = Get-CPLayoutGoogleEarthIdentity $process
+  $script:GoogleEarthTargetOwnership = $ownership
+  return $process
 }
 
 function Wait-ForMainWindow($Process) {
@@ -129,6 +136,8 @@ function Invoke-GoogleEarthCleanup([string]$RepoRoot, [string]$OutputPath, [int]
   try {
     $cleanupArgs = @{
       TargetProcessId = $TargetProcessId
+      TargetProcessStartTime = $script:GoogleEarthTargetIdentity.startTime
+      Distro = $Distro
       GoogleEarthPath = $GoogleEarthPath
       OutputRecordPath = $recordPath
       CleanupTimeoutSeconds = $CleanupTimeoutSeconds
@@ -175,10 +184,16 @@ function Invoke-GoogleEarthCleanup([string]$RepoRoot, [string]$OutputPath, [int]
   }
 }
 
+$script:GoogleEarthTargetIdentity = $null
+$script:GoogleEarthAcquisitionAttempted = $false
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $outputPath = Convert-ToWindowsPath (Join-Path $repoRoot $OutputDir)
 New-Item -ItemType Directory -Force -Path $outputPath | Out-Null
 
+$process = $null
+$captureManifest = @()
+$captureFailure = $null
+try {
 $process = Get-GoogleEarthProcess -Path $GoogleEarthPath
 $handle = Wait-ForMainWindow -Process $process
 
@@ -223,7 +238,11 @@ $captureManifest = foreach ($capture in $captures) {
   }
 }
 
-$cleanup = Invoke-GoogleEarthCleanup -RepoRoot $repoRoot -OutputPath $outputPath -TargetProcessId $process.Id
+} catch {
+  $captureFailure = $_
+} finally {
+  $cleanup = Invoke-GoogleEarthCleanup -RepoRoot $repoRoot -OutputPath $outputPath -TargetProcessId $process.Id
+}
 $processPath = $null
 $processResponding = $null
 $processStartTime = $null
@@ -265,3 +284,5 @@ Write-Host "Wrote Google Earth wizard screenshot manifest: $manifestPath"
 if ($cleanup.contaminated -or $cleanup.status -eq "blocked" -or $cleanup.postflightProcessRemaining) {
   throw "Google Earth cleanup failed or left a targeted process running. Cleanup status: $($cleanup.status)"
 }
+
+if ($captureFailure) { throw $captureFailure }

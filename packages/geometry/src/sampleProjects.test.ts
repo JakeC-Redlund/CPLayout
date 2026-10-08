@@ -169,13 +169,21 @@ assert.equal(fullScopeStrategyComparison.costInputStatus, "complete");
 const readyStrategyKinds = new Set(fullScopeStrategyComparison.strategies.filter((strategy) => strategy.status === "ready").map((strategy) => strategy.strategyKind));
 assert.ok(readyStrategyKinds.has("current_machine"));
 assert.ok(readyStrategyKinds.has("full_circle_radius"));
-assert.ok(readyStrategyKinds.has("linear_lateral_move"));
-assert.ok(readyStrategyKinds.has("bender_second_pivot"));
+// Labeled travel/hinge evidence does not qualify the legacy circular proxies.
+// Straight laterals use their explicit field-v3 model; bender articulation and
+// stopped-span water states remain unsupported.
+for (const kind of ["linear_lateral_move", "bender_second_pivot"] as const) {
+  const proxies = fullScopeStrategyComparison.strategies.filter(strategy => strategy.strategyKind === kind);
+  assert.ok(proxies.length > 0);
+  assert.ok(proxies.every(strategy => strategy.status === "unsupported_model" || strategy.status === "no_feasible_candidate"));
+  assert.equal(readyStrategyKinds.has(kind), false);
+  assert.notEqual(fullScopeStrategyComparison.bestStrategy?.strategyKind, kind);
+}
 assert.equal(fullScopeStrategyComparison.strategies.some((strategy) => strategy.strategyKind === "unsupported_linear_lateral"), false);
 assert.equal(fullScopeStrategyComparison.strategies.some((strategy) => strategy.strategyKind === "unsupported_bender_second_pivot"), false);
 assert.ok(fullScopeStrategyComparison.strategies.some((strategy) => strategy.strategyKind === "linear_lateral_move" && strategy.costAssessment?.status === "complete"));
 assert.ok(fullScopeStrategyComparison.strategies.some((strategy) => strategy.strategyKind === "bender_second_pivot" && strategy.costAssessment?.status === "complete"));
-assert.ok(fullScopeStrategyComparison.strategies.filter((strategy) => strategy.status === "ready").length >= 3);
+assert.ok(fullScopeStrategyComparison.strategies.filter((strategy) => strategy.status === "ready").length >= 2);
 
 const fullScopeGeneratedPlan = planAdvisoryFieldPivots(fullScopeMultiPivotCostDemoProject, { maxMachines: 3 });
 assert.equal(fullScopeGeneratedPlan.canonicalGeometryMutation, false);

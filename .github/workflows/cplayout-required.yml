@@ -48,7 +48,16 @@ jobs:
       - run: npm run context-map:check
       - run: npm run validate:skills
       - run: npm run validate
-      - run: npm audit --audit-level=moderate
+      - name: Record raw audit and verify exact dependency mitigations
+        run: npm run audit:verified
+      - name: Retain dependency audit evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: dependency-audit
+          path: reports/dependency-audit/
+          if-no-files-found: warn
+          retention-days: 7
 
   web:
     name: web (${{ matrix.shard }}/3)
@@ -71,7 +80,18 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npm run proof:web -- --shard=${{ matrix.shard }}/3
+      # Each served app owns one receiver companion; transport fixtures must run serially.
+      - run: npm run proof:web -- --shard=${{ matrix.shard }}/3 --workers=1
+      - name: Retain failed browser evidence
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: browser-failure-shard-${{ matrix.shard }}
+          path: |
+            reports/continuous-improvement/playwright-results/
+            reports/continuous-improvement/playwright-html/
+          if-no-files-found: warn
+          retention-days: 7
 
   cplayout-required:
     name: cplayout-required

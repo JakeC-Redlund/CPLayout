@@ -1,5 +1,7 @@
 param(
+  [string]$Distro = 'Ubuntu-24.04',
   [int]$TargetProcessId = 0,
+  [string]$TargetProcessStartTime = "",
   [string]$GoogleEarthPath = "C:\Program Files\Google\Google Earth Pro\client\googleearth.exe",
   [string]$OutputRecordPath = "",
   [int]$CleanupTimeoutSeconds = 10,
@@ -9,52 +11,30 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot 'windows/CPLayoutPaths.ps1')
+. (Join-Path $PSScriptRoot 'windows/GoogleEarthIdentity.ps1')
 
 function Convert-ToWindowsPath([string]$Path) {
+  if ([string]::IsNullOrWhiteSpace($Path)) { return $Path }
   $resolved = Resolve-Path -LiteralPath $Path -ErrorAction SilentlyContinue
-  if ($resolved) {
-    $Path = $resolved.Path
-  }
-  if ($Path -match "^/mnt/([a-z])/(.*)$") {
-    $drive = $matches[1].ToUpperInvariant()
-    $tail = $matches[2] -replace "/", "\"
-    return "${drive}:\$tail"
-  }
+  if ($resolved) { $Path = $resolved.Path }
+  if ($Path.StartsWith('/') -or $Path -match '^[A-Za-z]:' -or $Path.StartsWith('\\')) { return ConvertTo-CPLayoutWindowsPath $Path $Distro }
   return $Path
 }
 
 function Get-TargetGoogleEarthProcess([int]$ProcessId, [string]$Path) {
+  $expectedPath = Convert-ToWindowsPath $Path
+  if (-not $InventoryOnly -and ($ProcessId -le 0 -or -not $TargetProcessStartTime)) {
+    throw 'Cleanup requires the captured process id and start time; use InventoryOnly to inspect without closing.'
+  }
   if ($ProcessId -gt 0) {
     $process = Get-Process -Id $ProcessId -ErrorAction SilentlyContinue
-    if (-not $process) {
-      return $null
-    }
-    if ($process.ProcessName -ne "googleearth") {
-      throw "Target process $ProcessId is $($process.ProcessName), not googleearth."
-    }
+    if (-not $process) { return $null }
+    $identity = Get-CPLayoutGoogleEarthIdentity $process
+    Assert-CPLayoutGoogleEarthIdentity $identity $ProcessId $TargetProcessStartTime $expectedPath
     return $process
   }
-
-  $expectedPath = $Path
-  if (-not $IsLinux) {
-    $expectedPath = Convert-ToWindowsPath $expectedPath
-  }
-  $processes = @(Get-Process -Name "googleearth" -ErrorAction SilentlyContinue)
-  if ($processes.Count -eq 0) {
-    return $null
-  }
-
-  $matching = @($processes | Where-Object {
-    try {
-      $_.Path -eq $expectedPath
-    } catch {
-      $false
-    }
-  })
-  if ($matching.Count -gt 0) {
-    return $matching | Sort-Object StartTime | Select-Object -First 1
-  }
-  return $processes | Sort-Object StartTime | Select-Object -First 1
+  return Select-CPLayoutGoogleEarthProcess @(Get-Process -Name 'googleearth' -ErrorAction SilentlyContinue) $expectedPath
 }
 
 function Get-ProcessInventory($Process) {
@@ -175,6 +155,9 @@ if ($InventoryOnly) {
   $closeMethod = "already_closed"
 } else {
   try {
+    # Holding the native process handle prevents PID reuse during cleanup.
+    $heldProcessHandle = $target.Handle
+    Assert-CPLayoutGoogleEarthIdentity (Get-CPLayoutGoogleEarthIdentity $target) $TargetProcessId $TargetProcessStartTime (Convert-ToWindowsPath $GoogleEarthPath)
     $closeMethod = "close_main_window"
     $closed = $target.CloseMainWindow()
     if (-not $closed) {
@@ -198,7 +181,7 @@ if ($InventoryOnly) {
         $status = "closed_gracefully"
       }
     } elseif (-not $DisableForceCleanup) {
-      Stop-Process -Id $target.Id -Force -ErrorAction Stop
+      Stop-Process -InputObject $target -Force -ErrorAction Stop
       $forceUsed = $true
       Start-Sleep -Milliseconds 500
       if (Test-ProcessRunning -ProcessId $target.Id) {

@@ -9,8 +9,8 @@ export function captureThresholdsForWorkflow(settings: Pick<AppSettings, "mappin
 export function canCommitCapturedDraft(mode: AppSettings["mappingWorkflowMode"], liveGateAccepted: boolean, vertices: CapturedDraftVertex[]): boolean {
   if (mode === "design") return true;
   return liveGateAccepted && vertices.length > 0 && vertices.every(({ confidence, evidence }) =>
-    confidence === "rtk_fixed" && evidence.schemaVersion === "gnss-capture-v2"
-    && evidence.transport !== "replay" && evidence.qualityScreen.receiverQuality.fixType === "rtk_fixed");
+    confidence === "rtk_fixed" && (evidence.schemaVersion === "gnss-operational-fixed-v1"
+      || (evidence.schemaVersion === "gnss-capture-v2" && evidence.transport !== "replay" && evidence.qualityScreen.receiverQuality.fixType === "rtk_fixed")));
 }
 
 export interface CapturedDraftVertex {

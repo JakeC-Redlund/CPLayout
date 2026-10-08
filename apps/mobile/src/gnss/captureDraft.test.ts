@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { defaultAppSettings } from "@cplayout/core";
+import { defaultAppSettings, type GnssCaptureEvidenceV2 } from "@cplayout/core";
 import { canCommitCapturedDraft, captureThresholdsForWorkflow, captureDraftMatchesProject, capturedDraftConfidence, type CapturedDraftVertex } from "./captureDraft";
 
 const vertex = { projectId: "one", projectCrs: "EPSG:32613", confidence: "rtk_fixed" } as CapturedDraftVertex;
@@ -15,7 +15,7 @@ test("Layout enforces fixed capture without weakening other thresholds or mutati
 });
 
 test("Layout draft commits require a live gate and fixed hardware evidence at every vertex", () => {
-  const fixed = { ...vertex, evidence: { schemaVersion: "gnss-capture-v2", transport: "web_serial", qualityScreen: { receiverQuality: { fixType: "rtk_fixed" } } } } as CapturedDraftVertex;
+  const fixed = { ...vertex, evidence: { schemaVersion: "gnss-capture-v2", transport: "web_serial", qualityScreen: { receiverQuality: { fixType: "rtk_fixed" } } } } as CapturedDraftVertex & { evidence: GnssCaptureEvidenceV2 };
   assert.equal(canCommitCapturedDraft("layout", true, [fixed]), true);
   assert.equal(canCommitCapturedDraft("layout", false, [fixed]), false);
   assert.equal(canCommitCapturedDraft("layout", true, []), false);

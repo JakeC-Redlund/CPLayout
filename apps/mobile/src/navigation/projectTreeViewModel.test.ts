@@ -52,7 +52,7 @@ const tree = buildProjectTreeViewModel(catalog, {
 
 assert.equal(tree.activeProjectLabel, "North Unit");
 assert.equal(tree.clients.length, 1);
-assert.equal(tree.clients[0]?.projects[0]?.meta, "2 map files - 3 design files");
+assert.equal(tree.clients[0]?.projects[0]?.meta, "2 fields - 3 designs");
 
 const fieldMaps = tree.clients[0]?.projects[0]?.fieldMaps ?? [];
 assert.deepEqual(fieldMaps.map((fieldMap) => fieldMap.label), ["North Quarter", "South Quarter"]);
@@ -74,6 +74,6 @@ const mixedTree = buildProjectTreeViewModel({ ...catalog, designs: [
   { id: "incomplete", kind: "draft", draftId: "draft-data", revision: 0, fieldMapId: "map-north",
     name: "Incomplete", isActive: true, createdAt: now, updatedAt: now },
 ] }, { clientId: null, projectId: null, fieldMapId: null, designId: null });
-assert.equal(mixedTree.clients[0].projects[0].meta, "2 map files - 4 design files");
-assert.equal(mixedTree.clients[0].projects[0].fieldMaps[0].meta, "3 design files");
+assert.equal(mixedTree.clients[0].projects[0].meta, "2 fields - 4 designs");
+assert.equal(mixedTree.clients[0].projects[0].fieldMaps[0].meta, "3 designs");
 assert.equal(mixedTree.clients[0].projects[0].fieldMaps[0].designs.find(design => design.id === "incomplete")?.meta, "saved draft");

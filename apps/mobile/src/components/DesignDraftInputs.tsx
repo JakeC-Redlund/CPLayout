@@ -1,6 +1,6 @@
 import type { DesignDraftEditorAction, DesignDraftEditorState, DesignDraftMachine, XY } from "@cplayout/core";
 import { Check, Circle, CircleDot, Plus, RotateCcw, Trash2 } from "lucide-react-native";
-import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { IconCommandButton } from "./CommandSurface";
 import {
@@ -11,14 +11,30 @@ import {
 interface Props {
   editor: DesignDraftEditorState;
   onAction: (action: DesignDraftEditorAction) => void;
+  onRawInputChange?: () => void;
   onPendingChange?: (pending: boolean) => void;
   disabled?: boolean;
+  onSectionLayout?: (section: string, y: number) => void;
 }
 
-type ReportPending = (section: string, pending: boolean) => void;
-const InputsDisabled = createContext(false);
+export interface DesignDraftInputsHandle { focusSection: (section: string) => void }
+type RegisteredInput = { node: TextInput; value: string; disabled: boolean };
+const InputRegistry = createContext<React.MutableRefObject<Map<string, Map<string, RegisteredInput>>> | null>(null);
+const InputSection = createContext("");
 
-export function DesignDraftInputs({ editor, onAction, onPendingChange, disabled = false }: Props): React.JSX.Element {
+type ReportPending = (section: string, pending: boolean) => void;
+const RawInputChange = createContext<(() => void) | undefined>(undefined);
+const InputsDisabled = createContext(false);
+const SectionLayout = createContext<Props["onSectionLayout"]>(undefined);
+
+export const DesignDraftInputs = React.forwardRef<DesignDraftInputsHandle, Props>(function DesignDraftInputs(
+  { editor, onAction, onPendingChange, disabled = false, onSectionLayout, onRawInputChange }, ref,
+): React.JSX.Element {
+  const inputRegistry = useRef(new Map<string, Map<string, RegisteredInput>>());
+  useImperativeHandle(ref, () => ({ focusSection(section) {
+    const inputs = [...(inputRegistry.current.get(section)?.values() ?? [])].filter(input => !input.disabled);
+    (inputs.find(input => !input.value.trim()) ?? inputs[0])?.node.focus();
+  } }), []);
   const { draft, lockedCrs } = editor;
   const [reset, setReset] = useState(0);
   const [pendingSections, setPendingSections] = useState<Record<string, boolean>>({});
@@ -30,7 +46,7 @@ export function DesignDraftInputs({ editor, onAction, onPendingChange, disabled 
   // Section keys refresh external edits and undo without dropping text in unrelated sections.
   const keyFor = (value: unknown) => JSON.stringify([draft.id, reset, value]);
   return (
-    <InputsDisabled.Provider value={disabled}>
+    <RawInputChange.Provider value={onRawInputChange}><InputRegistry.Provider value={inputRegistry}><InputsDisabled.Provider value={disabled}><SectionLayout.Provider value={onSectionLayout}>
       <View style={styles.panel} testID="design-draft-inputs">
         <View style={styles.commands}>
           <IconCommandButton id="discard-draft-inputs" label="Discard inputs" icon={<RotateCcw />} showLabel disabled={disabled || !pending}
@@ -46,17 +62,17 @@ export function DesignDraftInputs({ editor, onAction, onPendingChange, disabled 
         <SavedMapItemsSection draft={draft} onAction={onAction} disabled={pending} />
         <MachineSection key={keyFor(draft.machine)} machine={draft.machine} onAction={onAction} reportPending={reportPending} />
       </View>
-    </InputsDisabled.Provider>
+    </SectionLayout.Provider></InputsDisabled.Provider></InputRegistry.Provider></RawInputChange.Provider>
   );
-}
+});
 
 function NameSection({ name, onAction, reportPending }: { name: string; onAction: Props["onAction"]; reportPending: ReportPending }): React.JSX.Element {
   const [text, setText] = useState(name);
   const [error, setError] = useState<string | null>(null);
   usePending("name", text !== name, reportPending);
   return (
-    <Section title="Draft document name">
-      <Input label="Draft document name" value={text} onChange={(value) => { setText(value); setError(null); }} testID="draft-name" />
+    <Section title="Design name">
+      <Input label="Design name" value={text} onChange={(value) => { setText(value); setError(null); }} testID="draft-name" />
       <FormError message={error} />
       <Apply label="Apply name" onPress={() => attempt(setError, () => {
         if (!text.trim()) throw new Error("Supply a draft document name before applying.");
@@ -186,17 +202,17 @@ function MachineSection({ machine, onAction, reportPending }: { machine: DesignD
         <Input inline label="Machine name" value={values.name} onChange={(value) => change("name", value)} testID="draft-machine-name" />
         {MACHINE_LENGTH_FIELDS.map(([field, label]) => <Input inline key={field} label={label} value={values[field]} onChange={(value) => change(field, value)} testID={`draft-machine-${field}`} />)}
       </View>
-      <Text style={styles.label}>Span lengths (m)</Text>
+      <Text style={styles.label}>Span lengths (ft)</Text>
       {(values.spans ?? []).map((span, index) => (
         <View key={index} style={styles.spanRow}>
-          <Input label={`Span ${index + 1} (m)`} value={span} testID={`draft-machine-span-${index}`}
+          <Input label={`Span ${index + 1} (ft)`} value={span} testID={`draft-machine-span-${index}`}
             onChange={(value) => change("spans", values.spans?.map((item, slot) => slot === index ? value : item))} />
-          <IconCommandButton id={`remove-span-${index}`} label={`Remove span ${index + 1}`} icon={<Trash2 />} disabled={disabled}
-            onPress={() => change("spans", values.spans?.filter((_, slot) => slot !== index))} testID={`draft-machine-remove-span-${index}`} />
         </View>
       ))}
       <View style={styles.commands}>
         <IconCommandButton id="add-span" label="Add span" icon={<Plus />} showLabel disabled={disabled} onPress={() => change("spans", [...(values.spans ?? []), ""])} testID="draft-machine-add-span" />
+        <IconCommandButton id="remove-last-span" label="Remove last span" icon={<Trash2 />} showLabel disabled={disabled || !values.spans?.length}
+          onPress={() => change("spans", values.spans?.slice(0, -1))} testID="draft-machine-remove-last-span" />
       </View>
       <Options label="Sweep" value={values.mode} onChange={(value) => change("mode", value)} options={[
         { value: "", label: "Not supplied" }, { value: "full_circle", label: "Full circle" }, { value: "partial_circle", label: "Sector" },
@@ -223,7 +239,9 @@ function MachineSection({ machine, onAction, reportPending }: { machine: DesignD
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }): React.JSX.Element {
-  return <View style={styles.section}><Text accessibilityRole="header" style={styles.title}>{title}</Text>{children}</View>;
+  const onLayout = useContext(SectionLayout);
+  const section = ({ "Design name": "name", "Coordinate system": "projectCrs", "Pivot center": "pivotCenter", "Water source": "waterSource", "Power source": "powerSource", "Field boundary": "fieldBoundary", "Machine": "machine" } as Record<string, string>)[title];
+  return <InputSection.Provider value={section}><View style={styles.section} onLayout={event => { if (section) onLayout?.(section, event.nativeEvent.layout.y); }}><Text accessibilityRole="header" style={styles.title}>{title}</Text>{children}</View></InputSection.Provider>;
 }
 
 function Input({ label, value, onChange, disabled = false, multiline = false, inline = false, testID }: {
@@ -231,11 +249,25 @@ function Input({ label, value, onChange, disabled = false, multiline = false, in
 }): React.JSX.Element {
   const panelDisabled = useContext(InputsDisabled);
   const locked = disabled || panelDisabled;
+  const rawInputChange = useContext(RawInputChange);
+  const registry = useContext(InputRegistry);
+  const section = useContext(InputSection);
+  const inputRef = useRef<TextInput>(null);
+  useEffect(() => {
+    if (!registry || !section || !inputRef.current) return;
+    let inputs = registry.current.get(section);
+    if (!inputs) { inputs = new Map(); registry.current.set(section, inputs); }
+    // Updating an existing Map entry preserves its mounted field order.
+    inputs.set(testID, { node: inputRef.current, value, disabled: locked });
+  }, [registry, section, testID, value, locked]);
+  useEffect(() => () => {
+    registry?.current.get(section)?.delete(testID);
+  }, [registry, section, testID]);
   return (
     <View style={[styles.field, inline && styles.inlineField]}>
       <Text style={styles.label}>{label}</Text>
-      <TextInput accessibilityLabel={label} accessibilityState={{ disabled: locked }} editable={!locked} autoCapitalize="none" autoCorrect={false}
-        multiline={multiline} textAlignVertical={multiline ? "top" : "center"} value={value} onChangeText={onChange}
+      <TextInput ref={inputRef} accessibilityLabel={label} accessibilityState={{ disabled: locked }} editable={!locked} autoCapitalize="none" autoCorrect={false}
+        multiline={multiline} textAlignVertical={multiline ? "top" : "center"} value={value} onChangeText={text => { rawInputChange?.(); onChange(text); }}
         style={[styles.input, multiline && styles.textarea, locked && styles.disabled]} testID={testID} />
     </View>
   );
