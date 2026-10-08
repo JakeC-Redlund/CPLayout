@@ -87,7 +87,6 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
   const catalogHomeView = homeView === true;
   const externalHudLayout = controlLayout === "externalHud";
   const shortLandscape = externalHudLayout && windowWidth > windowHeight && windowHeight < 500;
-  const externalCompactToolbar = externalHudLayout && (compactLayout || shortLandscape);
   const designMode = settings.mappingWorkflowMode === "design" && !catalogHomeView;
   const showProjectGeometry = !catalogHomeView;
   const mapFeatures = project.mapFeatures ?? [];
@@ -151,6 +150,10 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
   const [viewport, setViewport] = useState(initialViewport);
   const [mapPixelWidth, setMapPixelWidth] = useState(900);
   const [mapPixelHeight, setMapPixelHeight] = useState(440);
+  // A tablet or open sidebar can leave a compact map inside a wide window.
+  // Keep control placement width-based so moving rows cannot toggle it by height.
+  const compactMapControls = compactLayout || mapPixelWidth < 760;
+  const externalCompactToolbar = externalHudLayout && (compactMapControls || shortLandscape);
   const effectiveViewport = useMemo(() => viewportForScreen(viewport,
     { width: mapPixelWidth, height: mapPixelHeight }) ?? viewport,
   [viewport, mapPixelWidth, mapPixelHeight]);
@@ -581,10 +584,10 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
   }
 
   const shortInspectView = externalHudLayout && windowHeight < 500 && mapState.mode === "pan" && mapState.draftVertices.length === 0;
-  const idleCompactPan = externalHudLayout && compactLayout && mapState.mode === "pan"
+  const idleCompactPan = externalHudLayout && compactMapControls && mapState.mode === "pan"
     && mapState.draftVertices.length === 0 && !selectedVertex;
   const shortLandscapeDraftHud = shortLandscape && designMode && !shortInspectView;
-  const deferMapNotices = externalHudLayout && (compactLayout || shortLandscape || mapPixelWidth < 560 || shortInspectView);
+  const deferMapNotices = externalHudLayout && (compactMapControls || shortLandscape || shortInspectView);
   const legendIncludesNotices = deferMapNotices && Boolean(imageryPlan || referenceOverlayNotice);
   const visibleLabelObstructions = Object.entries(labelObstructions).filter(([id]) => id === "zoom"
     || (id === "legend" && deferMapNotices && !catalogHomeView)

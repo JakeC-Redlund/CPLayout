@@ -44,13 +44,27 @@ async function openSavedDraft(page: Page): Promise<void> {
   await page.goto("/");
   const resume = await page.evaluate(() => JSON.parse(localStorage.getItem("cplayout-desktop-context-v1") ?? "null"));
   if (!resume?.editorOpen || resume?.context?.designId !== "saved-design") {
-    const drawer = page.getByRole("button", { name: "Open project drawer" });
-    if (await drawer.isVisible()) await drawer.click();
+    await page.getByTestId("task-projects").click();
+    await expect(page.getByTestId("dashboard-workspace")).toBeVisible();
+    if (page.viewportSize()!.width < 760) {
+      const drawer = page.getByRole("button", { name: "Open project drawer", exact: true });
+      await expect(drawer).toBeVisible();
+      await expect(drawer).toBeEnabled();
+      if (test.info().project.use.hasTouch) await drawer.tap(); else await drawer.click();
+      await expect(page.getByTestId("project-tree-rail")).toBeVisible();
+    }
     const command = page.getByTestId("catalog-design-saved-design-open");
+    await expect(command).toBeVisible();
+    await expect(command).toBeEnabled();
     if (test.info().project.use.hasTouch) await command.tap(); else await command.click();
   }
   await expect(page.getByTestId("design-draft-workspace")).toBeVisible();
-  if (!await page.getByTestId("design-draft-inputs").isVisible()) await page.getByTestId("draft-inputs-toggle").click();
+  await expect(page.getByTestId("draft-name")).toHaveValue("Saved items");
+  if (page.viewportSize()!.width < 800) {
+    await expect(page.getByTestId("design-draft-inputs")).toBeHidden();
+    await page.getByTestId("draft-inputs-toggle").click();
+  }
+  await expect(page.getByTestId("design-draft-inputs")).toBeVisible();
 }
 
 async function createFromField(page: Page): Promise<void> {
@@ -106,4 +120,5 @@ test("saved features and keep-outs can be deleted, undone, saved, and reopened",
   await openSavedDraft(page);
   await expect(page.getByTestId("draft-saved-feature-saved-line")).toBeVisible();
   await expect(page.getByTestId("draft-saved-obstacle-keep-out")).toHaveCount(0);
+  expect(await readWorkspace(page)).toEqual(saved);
 });

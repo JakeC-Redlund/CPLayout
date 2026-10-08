@@ -164,20 +164,44 @@ test("draft stale tab keeps its edits and cannot overwrite a newer save", async 
 test("pending invalid inputs block save and leaving requires an explicit discard", async ({ page }, info) => {
   await open(page);
   await inputs(page);
+  const before = await readWorkspace(page);
   await page.getByTestId("draft-crs").fill("EPSG:4326");
   await expect(page.getByTestId("draft-save")).toBeDisabled();
   await page.getByRole("button", { name: "Apply CRS", exact: true }).click();
   await expect(page.getByTestId("draft-error")).toBeVisible();
   await expect(page.getByTestId("draft-crs")).toHaveValue("EPSG:4326");
-  const map = (await page.getByTestId("design-draft-map").boundingBox())!;
+  const mapSurface = page.getByTestId("design-draft-map");
+  const compact = page.viewportSize()!.width < 800;
   const form = (await page.getByTestId("draft-inputs-scroll").boundingBox())!;
   const status = (await page.getByText("Field qualification: not verified", { exact: true }).locator("..").boundingBox())!;
-  expect(map.y + map.height).toBeLessThanOrEqual(status.y + 1);
   expect(form.y + form.height).toBeLessThanOrEqual(status.y + 1);
-  if (page.viewportSize()!.width < 800) expect(map.y + map.height).toBeLessThanOrEqual(form.y + 1);
+  if (compact) {
+    await expect(mapSurface).toHaveCount(1);
+    await expect(mapSurface).toBeHidden();
+    expect(form.height).toBeGreaterThan(0);
+    expect(form.y).toBeGreaterThanOrEqual(0);
+    expect(form.y + form.height).toBeLessThanOrEqual(page.viewportSize()!.height);
+    await page.getByTestId("draft-inputs-toggle").click();
+    await expect(page.getByTestId("draft-inputs-scroll")).toBeHidden();
+  }
+  await expect(mapSurface).toBeVisible();
+  const map = (await mapSurface.boundingBox())!;
+  const mapStatus = (await page.getByText("Field qualification: not verified", { exact: true }).locator("..").boundingBox())!;
+  expect(map.y + map.height).toBeLessThanOrEqual(mapStatus.y + 1);
+  await expect(page.getByTestId("design-draft-camera-controls")).toBeVisible();
+  await expect(page.getByTestId("design-draft-capture-status")).toBeVisible();
   const camera = (await page.getByTestId("design-draft-camera-controls").boundingBox())!;
   const captureStatus = (await page.getByTestId("design-draft-capture-status").boundingBox())!;
   expect(captureStatus.y).toBeGreaterThanOrEqual(camera.y + camera.height);
+  if (compact) {
+    await page.getByTestId("draft-inputs-toggle").click();
+    await expect(page.getByTestId("draft-inputs-scroll")).toBeVisible();
+    await expect(mapSurface).toHaveCount(1);
+    await expect(mapSurface).toBeHidden();
+  }
+  await expect(page.getByTestId("draft-crs")).toHaveValue("EPSG:4326");
+  await expect(page.getByTestId("draft-save")).toBeDisabled();
+  expect(await readWorkspace(page)).toEqual(before);
   await expect(page.getByTestId("draft-error")).toHaveCSS("background-color", "rgb(255, 241, 239)");
   await page.screenshot({ path: info.outputPath("invalid-draft-inputs.png") });
   await page.getByTestId("draft-catalog").click();

@@ -337,7 +337,7 @@ function activeMapToolId(activeModal: DrawingToolPaletteModal, activeTool: Activ
 }
 
 function activeToolStatus(activeModal: DrawingToolPaletteModal, activeTool: ActiveTool, designMode: boolean): string {
-  if (!designMode) return "Layout: inspect";
+  if (!designMode) return "Inspect map";
   if (activeModal) return `${activeModal.replaceAll("_", " ")} sheet`;
   if (!activeTool) return "Pan";
   if (activeTool.mode === "measure" && activeTool.draftGeometry) return `Draw ${activeTool.draftGeometry === "LineString" ? "line" : activeTool.draftGeometry.toLowerCase()}`;

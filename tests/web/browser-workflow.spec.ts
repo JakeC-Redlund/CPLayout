@@ -96,8 +96,15 @@ test("workspace remains usable through the SVG map fallback when WebGL is unavai
   if (testInfo.project.name !== "desktop") {
     await expect(page.getByTestId("advisory-map-job-status")).toHaveText("", { timeout: 60_000 });
     await expectNoOverlapIfVisible(page, "svg-map-draft-hud", "map-bottom-hud");
-    if (page.viewportSize()!.width < 760) await expectNoOverlapIfVisible(page, "svg-map-draft-hud", "layout-map-svg");
-    else await expectInsideContainer(page, "svg-map-draft-hud", "layout-map-drawing-surface");
+    const mapBounds = await page.getByTestId("layout-map-svg").boundingBox();
+    expect(mapBounds, "rendered SVG pane bounds").not.toBeNull();
+    const externalDraftHud = page.viewportSize()!.width < 760
+      || Boolean(mapBounds && mapBounds.width > 0 && mapBounds.width < 760);
+    if (externalDraftHud) {
+      await expectNoOverlapIfVisible(page, "svg-map-draft-hud", "layout-map-svg");
+      await expectInsideContainer(page, "svg-map-draft-hud", "svg-map-shell");
+      await expectInsideViewport(page, "svg-map-draft-hud");
+    } else await expectInsideContainer(page, "svg-map-draft-hud", "layout-map-drawing-surface");
     await expectNoOverlapIfVisible(page, "svg-map-zoom-controls", "map-bottom-hud");
     await expectNoOverlapIfVisible(page, "svg-map-zoom-controls", "svg-map-compact-legend");
     await expectInsideContainer(page, "svg-map-zoom-controls", "layout-map-drawing-surface");
@@ -2384,6 +2391,7 @@ test("Inspect map keeps map clicks read-only and actions disabled", async ({ pag
   await openBaselineSample(page);
   await page.getByTestId("task-design").click();
   await page.getByTestId("browser-workflow-layout").click();
+  await expect(page.getByTestId("map-bottom-hud").getByText("Inspect map", { exact: true })).toBeVisible();
   await expect(page.getByText("Inspect map: pointer gestures select and view. Form edits remain available.")).toBeVisible();
   const before = await readWorkspace(page), stored = await workspaceStorageBytes(page);
   await clickWorkbenchMap(page, { x: 160, y: 180 });

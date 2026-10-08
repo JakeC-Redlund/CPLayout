@@ -6,7 +6,7 @@ Use one linked task contract, not the complete historical logs.
 
 ## Current State
 
-- The workflow proposal `269454b` is committed, pushed and synchronized on the
+- The workflow proposal `31af041` is committed, pushed and synchronized on the
   temporary publication branch. Protected main remains at the earlier checkpoint;
   this synchronization is not software acceptance or a modeling-owner transfer.
   The following camera/save repairs passed source validation and 36 focused cases
@@ -23,8 +23,15 @@ Use one linked task contract, not the complete historical logs.
   Source validation and 42 focused cases subsequently passed in Linux and Edge.
   Full execution found three obsolete move-message suffix expectations; retained
   snapshots confirm correct neutral messages and Unsaved state. A test-only
-  correction preserves geometry/save checks. Full current-candidate source,
-  browser, visible, CI and two unchanged complete reviews remain due.
+  correction preserves geometry/save checks. The complete corrected run found
+  two tablet SVG control-space defects and six legacy fixture failures; measured
+  pane compact presentation and responsive/restored-route fixture repairs are
+  implemented. Source validation and the original SVG regression paths now pass;
+  one compact saved-item helper required the ordinary drawer route after hydrated
+  Projects readiness. That fixture-only refinement is pending current/full checks.
+  The completed 171-case visible Edge
+  batch and three open-state workflows are scoped evidence. Full current-candidate
+  source/browser/CI and two unchanged complete reviews remain due.
 - The current registry audit reports 21 high and five moderate dependency findings
   rooted in three advisories without a published fixed release. Exact-version
   defensive local patches and the separate installed-source verification gate

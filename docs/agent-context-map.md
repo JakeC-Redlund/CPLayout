@@ -101,7 +101,7 @@ This record provides compact route-to-context references for hooks, coordinators
 - `.codex/hooks/cplayout_stop_multi_agent.py`: `d9a079f447da909cafe61321b0b070f49c761c828818cde07ace63a7081312f8`
 - `.codex/hooks/cplayout_subagent_start.py`: `5c3d65dbb7ba33d5ecff531cfbfcb6cd8ae98b05ad109fbe6ea99190ad34c4b3`
 - `AGENTS.md`: `ff5bfeb12012b25d61245e5854fcd6cb0803d47216837a82588b3aee32e80c34`
-- `apps/mobile/App.tsx`: `192914b06cb860bcfb3ac56c69d1625d17855ba96539f702d129ad470213d490`
+- `apps/mobile/App.tsx`: `9f3c2d418f4449035c00cbd5a75e65db711cdfa8af6e9dcda65169d84e3dd5d0`
 - `docs/README.md`: `8de4aa5fc25f15f9d80c8fde1fd928a1d974d2810e633243032d62b82af45dae`
 - `docs/agent-known-gaps.md`: `bd68c48452e3094b9d6f0825cf9643301df267063cc1ee18a58e4c15e95fc6a9`
 - `docs/agent-prompt-registry.md`: `65bbf9223b03a72ade1537ca3ac9f240d1fd6a4b751b7a3addf855be7affddd9`

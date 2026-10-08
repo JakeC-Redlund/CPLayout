@@ -1207,7 +1207,7 @@ function AppContent({ primaryTask, onTaskPresentationReady, taskSequence, editor
   function importMapPackage(manifest: MapPackageManifest, runtimeManifest: MapPackageManifest): string {
     dispatchProject({ type: "upsert_map_package", mapPackage: manifest });
     setRuntimeMapPackages((current) => mergeMapPackageManifests(current, [runtimeManifest]));
-    return `Imported map package ${manifest.name}. Save Local to persist package metadata; runtime file URLs stay local to this app install.`;
+    return `Imported map package ${manifest.name}. Runtime file URLs stay local to this app install.`;
   }
 
   function previewGoogleEarthKml(kmlText: string, selectedItemIds?: string[]): GoogleEarthKmlImportResult {
@@ -1294,7 +1294,7 @@ function AppContent({ primaryTask, onTaskPresentationReady, taskSequence, editor
         notes: details?.notes.trim() || draft.notes,
       };
       return dispatchProjectTransaction({ type: "add_map_feature", feature });
-    }, `${option.label} committed in projected XY. Save Local to persist.`);
+    }, `${option.label} committed in projected XY.`);
     if (!receipt) return;
     setPendingMapDraftState(pendingMapDraftSession.getSnapshot());
     setDraftPurposeReceipt(receipt);
@@ -6718,7 +6718,7 @@ function HelpTrainingPanel({
     {
       boundary: "Android SQLite and ZIP behavior require device proof for each runtime claim; browser local storage remains the web MVP backend.",
       checkpoints: ["export"],
-      detail: "Save Local before export, keep machine paths local-only, and treat native proof reports separately from browser checks.",
+      detail: "Save before export, keep machine paths local-only, and treat native proof reports separately from browser checks.",
       icon: <Database size={18} color="#254234" />,
       route: "settings",
       routeLabel: "Go to Settings",

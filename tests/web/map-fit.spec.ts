@@ -314,7 +314,10 @@ for (const renderer of ["browser", "svg"] as const) {
     const toolbarBounds = await box(toolbar);
     expect(toolbarBounds.x).toBeGreaterThanOrEqual(mapBounds.x);
     expect(toolbarBounds.x + toolbarBounds.width).toBeLessThanOrEqual(mapBounds.x + mapBounds.width + 1);
-    if (renderer === "svg" && page.viewportSize()!.width < 760) {
+    const viewport = page.viewportSize()!;
+    const externalSvgToolbar = renderer === "svg" && (viewport.width < 760 || mapBounds.width < 760
+      || (viewport.width > viewport.height && viewport.height < 500));
+    if (externalSvgToolbar) {
       expect(toolbarBounds.y).toBeGreaterThanOrEqual(mapBounds.y + mapBounds.height);
       const usable = await usableRect(page, renderer, true);
       expect(usable.height, "compact SVG map retains a usable drawing area").toBeGreaterThan(110);
@@ -416,6 +419,10 @@ for (const renderer of ["browser", "svg"] as const) {
     expect(final.mapFeatures?.at(-1)?.kind).toBe("well_location");
     expect(final.surveyPoints).toEqual(project.surveyPoints);
     expect(final.fieldBoundary).toEqual(project.fieldBoundary);
+    await expect(page.getByTestId("project-save-state")).toContainText("Saved");
+    await expect(page.getByTestId(renderer === "browser" ? "browser-map-action-status" : "svg-map-action-status"))
+      .toContainText("Well committed in projected XY.");
+    await expect(page.getByText(/Save Local to persist/)).toHaveCount(0);
     await closePanels(page);
     await page.screenshot({ path: testInfo.outputPath(`${renderer}-standard-drawing.png`), fullPage: true });
   });
@@ -440,7 +447,11 @@ for (const renderer of ["browser", "svg"] as const) {
     await expectContained(page, renderer, edited);
     sameView(await fit(page, renderer), fitted);
     sameView(await fit(page, renderer), fitted);
-    if (renderer === "svg" && page.viewportSize()!.width < 700) {
+    const viewport = page.viewportSize()!;
+    const mapBounds = await box(surface(page, renderer));
+    const deferredSvgLegend = renderer === "svg" && (viewport.width < 760 || mapBounds.width < 760
+      || (viewport.width > viewport.height && viewport.height < 500));
+    if (deferredSvgLegend) {
       const legendButton = page.getByTestId("svg-map-legend-open");
       await expect(legendButton).toHaveAccessibleName("Map legend and layer status");
       await legendButton.click();

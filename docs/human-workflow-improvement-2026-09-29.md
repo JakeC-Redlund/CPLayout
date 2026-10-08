@@ -391,6 +391,52 @@ owned CI remain historical evidence, never partial acceptance. Matching correcte
 focused and complete browser/visible/CI gates and two unchanged complete reviews
 are still required. No modeling integration or main acceptance is claimed.
 
+## Iteration 24 — actual SVG pane space and restored catalog routes
+
+The complete R46 browser run ended normally with 966 passing cases, eight failures
+and ten declared profile exclusions. The desktop shard passed all 325 applicable
+cases. Visible Windows Edge passed 171 cases (the preceding 165 plus six new span
+cases), and all three supplemental open-state cases passed. These results remain
+scoped evidence; eight full-suite failures prevent software acceptance.
+
+Independent source/trace review found two real tablet SVG presentation defects:
+a fixed Pan south control overlaps the enabled Undo draft control, and a rotated
+750 by 333 px pane retains notices and controls requiring 372 px of clearance.
+The existing compact presentation now uses measured pane width consistently for
+navigation, notices and draft/toolbar placement. Geometry, viewport/Fit math,
+pointer cancellation, camera, selection and storage remain unchanged.
+
+The remaining failures come from older fixtures: measuring a hidden compact map,
+waiting for a drawer button retired by restored Projects presentation, and expecting
+a root prefix on compact map-context breadcrumbs. Updated fixtures use the mounted
+map in its current visible state, the hydrated Projects route and actual Open
+command, and exact responsive context text. Raw input, disabled saving, Cancel,
+Discard, deletion/Undo, exact saved/reopened data, CRC failures and no-partial-import
+checks remain. No test titles or counts change.
+
+A bounded scheduling review permits two local workers only when each unfiltered
+shard contains one profile and one real network-companion test group, with separate
+ports/result/report directories, fullyParallel false and one frozen export owner.
+The source review vetoes unsharded all-project parallel execution against one
+singleton companion. CI remains at one worker. Root must verify discovery before
+using the local option; no check, skip, retry or assertion is relaxed.
+
+## Iteration 25 — compact Projects catalog readiness
+
+Measured-pane SVG presentation passed all original drawing, Fit, corner-coordinate,
+Undo and held-pointer focused checks across desktop, tablet and narrow profiles.
+Source validation passed. Both focused browser batches ended normally with 32
+passing cases and one helper failure: compact Projects intentionally starts with
+its drawer closed, so the tree's design Open command was absent. The restored
+Projects/dashboard state and ordinary drawer command are visible in the trace.
+
+The helper now waits for dashboard readiness, opens the existing drawer at widths
+below 760 using the normal pointer action, waits for the tree, then uses the same
+saved-design command. Every dataset, unit, deletion, Undo, Save, reopen and exact
+workspace assertion remains. No application change or timeout increase is needed.
+The failed focused batches remain failed; corrected current/full gates and two
+unchanged complete reviews remain required.
+
 ## Iteration and acceptance contract
 
 Each cycle inspects actual user tasks, researches unresolved behavior, records alternatives and weighted decisions where needed, implements bounded changes, reviews the exact served build visibly in Windows Edge, runs appropriate validation, and obtains independent usability/preservation review.
