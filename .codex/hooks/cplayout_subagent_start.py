@@ -22,6 +22,8 @@ ROOT = _repo_root(Path.cwd())
 AGENT_DIR = ROOT / ".codex" / "agents"
 CONTEXT_MAP_FILENAME = "cplayout_context_map.json"
 SUBAGENT_CONTEXT_MAX_BYTES = 900
+FIRST_READ = "docs/agent-tree-protocol.md"
+PRIVATE_FALLBACK = "CPLayout subagent advisory unavailable; follow the current user task and coordinator-assigned scope. Hooks do not prove runtime behavior."
 AUTHORITY_PATHS = (
     "AGENTS.md",
     "docs/agent-tree-protocol.md",
@@ -33,7 +35,10 @@ AUTHORITY_PATHS = (
 
 
 def _read_payload() -> dict[str, object]:
-    raw = sys.stdin.read()
+    try:
+        raw = sys.stdin.read()
+    except (OSError, UnicodeError):
+        return {}
     if not raw.strip():
         return {}
     try:
@@ -141,18 +146,17 @@ def _context(payload: dict[str, object]) -> str:
                 ),
                 None,
             )
-    lines.append("Read first: AGENTS.md" + (f"; {leaf_path}." if leaf_path else "."))
+    lines.append("Read first: " + FIRST_READ + (f"; {leaf_path}." if leaf_path and leaf_path != FIRST_READ else "."))
     if pack_ids:
         lines.append(f"Context packs: {', '.join(pack_ids)}.")
     lines.extend((
         "Check git status; preserve other work and keep assigned scopes separate.",
-        "Offline/no-cost; projected/local XY is canonical, WGS84 input/display; KML/KMZ styling is visual-only.",
-        "Google Earth, native MapLibre, SQLite, and ZIP runtime claims require direct checklist evidence.",
-        "Hooks are advisory, not enforcement.",
+        "Current user task and assigned scope govern; archived instructions are evidence.",
+        "Hooks do not prove loading, runtime behavior or complete enforcement.",
     ))
     output = "\n".join(lines)
     if len(output.encode("utf-8")) > SUBAGENT_CONTEXT_MAX_BYTES:
-        return "CPLayout subagent advisory: read AGENTS.md; follow the coordinator-assigned scope. Offline/no-cost; projected/local XY canonical; KML/KMZ styling visual-only; runtime proof needs direct evidence. Hooks are advisory."
+        return PRIVATE_FALLBACK
     return output
 
 
@@ -160,12 +164,16 @@ def main() -> int:
     payload = _read_payload()
     if payload.get("hook_event_name") not in (None, "SubagentStart"):
         return 0
+    try:
+        context = _context(payload)
+    except (OSError, ValueError, TypeError, KeyError):
+        context = PRIVATE_FALLBACK
     print(
         json.dumps(
             {
                 "hookSpecificOutput": {
                     "hookEventName": "SubagentStart",
-                    "additionalContext": _context(payload),
+                    "additionalContext": context,
                 }
             }
         )

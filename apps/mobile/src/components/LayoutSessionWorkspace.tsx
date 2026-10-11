@@ -65,7 +65,7 @@ export function LayoutSessionWorkspace({ initial, receiverOwner, onClose, onOpen
   const customer = repository.catalog.clients.find(item => item.id === project?.clientId);
   const nameDirty = name !== session.name;
   if (navigationGuardRef) navigationGuardRef.current = () => ({ dirty: hasUnfinishedInput(), busy: busyRef.current });
-  const mayWrite = repository.canSaveLayout && repository.workspaceVersion === "cplayout-workspace-v3";
+  const mayWrite = repository.canSaveLayout && (repository.workspaceVersion === "cplayout-workspace-v3" || repository.workspaceVersion === "cplayout-workspace-v4");
   const active = !session.archived && mayWrite;
   const currentReceiver = receiverOwner.getSnapshot().observation;
   const alreadySaved = !!currentReceiver && session.observations.some(item => item.evidence.observationId === currentReceiver.id);

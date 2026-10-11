@@ -352,8 +352,11 @@ function classifiedField(): FieldDesign {
   return field;
 }
 
-function pivotRecord(field: FieldDesign, machineId: string): FieldDrawingMetadataRecord | undefined {
-  return field.drawingMetadata!.records.find(record => record.target.kind === "pivot_center" && record.target.machineId === machineId);
+function pivotRecord(field: FieldDesign, machineId: string): Extract<FieldDrawingMetadataRecord, { classification: unknown }> | undefined {
+  const record = field.drawingMetadata!.records.find(record => record.target.kind === "pivot_center" && record.target.machineId === machineId);
+  if (record === undefined) return undefined;
+  assert.ok("classification" in record, "Expected a digitized pivot fixture.");
+  return record;
 }
 
 test("classified machine updates clear only moved pivot capture time and undo restores the exact record", () => {

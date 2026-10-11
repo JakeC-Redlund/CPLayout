@@ -13,7 +13,7 @@ Direct user no-mutation instructions win over this workflow. For read-only tasks
 
 ## Quick Start
 
-1. Re-read `AGENTS.md` and `docs/agent-tree-protocol.md`, then run `git status --short` and preserve pre-existing changes.
+1. Read the current user task and `docs/agent-tree-protocol.md`, then run `git status --short` and preserve pre-existing changes.
 2. Load repo-local skills that match the task:
    - `.agents/skills/cplayout-workspace-preflight/` for repository and validation gates.
    - `.agents/skills/cplayout-planning-review/` for bounded, source-backed plans.
@@ -22,7 +22,7 @@ Direct user no-mutation instructions win over this workflow. For read-only tasks
 5. Close local knowledge gaps first, then research current external facts from official or primary sources.
    - For CPLayout Google Earth/KML loops, re-check the Google KML Reference, Google shared-style tutorial, OGC KML page, and the repo source ledger before changing import/export behavior.
 6. Use `references/prompt-triage.md` when the prompt needs specialist routing, new agent surfaces, hooks, skills, source ledgers, or knowledge-record updates.
-7. Select bounded subagents when independent evidence, review, or disjoint implementation is useful under the owner's standing authorization. A hook match alone is not a spawn decision. If a useful leaf cannot run, record `Accepted fallback:` with the reason.
+7. Select bounded subagents when independent evidence, review, or disjoint implementation is useful under the current user's authorization. A hook match alone is not a spawn decision. If a useful leaf cannot run, record `Accepted fallback:` with the reason.
 8. Synthesize the panel result into the next concrete action, implement only when mutation is allowed, validate, and record durable findings when appropriate.
 
 For the detailed sequence, read `references/panel-lifecycle.md`.
@@ -45,7 +45,7 @@ For role prompts and delegation rules, read `references/agent-prompts.md`.
 
 ## Subagent Boundary
 
-Treat non-trivial CPLayout panel, review, implementation, validation, and knowledge-curation work as standing authorization to spawn bounded subagents when the runtime permits it and independent scope adds value. Decompose broad work at the coordinator before spawning.
+Use bounded subagents when the current user or coordinator explicitly authorizes delegation, runtime tools permit it and independent scope adds value. Decompose broad work at the coordinator before spawning.
 
 Use built-in agents for generic exploration and implementation:
 
@@ -53,7 +53,7 @@ Use built-in agents for generic exploration and implementation:
 - `default` for source-backed external research or synthesis.
 - `worker` only for disjoint implementation slices after mutation is allowed.
 
-Project-scoped `.codex/agents/*.toml` specialists are allowed under the standing CPLayout authorization when a repeated workflow justifies the maintenance cost. Keep those agents narrow, source-backed, and read-only by default; use `worker` only for explicit bounded mutation scopes.
+Project-scoped `.codex/agents/*.toml` specialists are allowed when the current user or coordinator explicitly authorizes them when a repeated workflow justifies the maintenance cost. Keep those agents narrow, source-backed, and read-only by default; use `worker` only for explicit bounded mutation scopes.
 
 Keep immediate blocking work local. Wait for subagents only when their result is needed for the next critical-path decision.
 

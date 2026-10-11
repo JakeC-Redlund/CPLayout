@@ -1,3 +1,7 @@
+function digitized<T extends { capture: { source: string } }>(record: T): Extract<T, { classification: unknown }> {
+  assert.ok("classification" in record, "Expected the unchanged digitized fixture branch.");
+  return record as Extract<T, { classification: unknown }>;
+}
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -445,8 +449,8 @@ test("field classification references reject identity loss, duplicate targets an
     (value: FieldDesign) => { value.machines = []; },
     (value: FieldDesign) => { value.drawingMetadata!.records[2].target = { kind: "water_source", infrastructureId: ids.powerSourceId }; },
     (value: FieldDesign) => { value.drawingMetadata!.records.push(clone(value.drawingMetadata!.records[0])); },
-    (value: FieldDesign) => { value.drawingMetadata!.records[1].capture.captureId = value.drawingMetadata!.records[0].capture.captureId; },
-    (value: FieldDesign) => { value.drawingMetadata!.records[0].capture.vertexRecordedAt.pop(); },
+    (value: FieldDesign) => { digitized(value.drawingMetadata!.records[1]).capture.captureId = digitized(value.drawingMetadata!.records[0]).capture.captureId; },
+    (value: FieldDesign) => { digitized(value.drawingMetadata!.records[0]).capture.vertexRecordedAt.pop(); },
     (value: FieldDesign) => { delete value.drawingMetadata; },
   ]) {
     const invalid = clone(field);

@@ -10,8 +10,11 @@ from __future__ import annotations
 
 import json
 import re
+import shlex
 import sys
 from typing import Any
+
+PRETOOL_CONTEXT_MAX_BYTES = 600
 
 
 DENY_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
@@ -47,7 +50,10 @@ ADVISORY_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
 
 
 def _read_payload() -> dict[str, Any]:
-    raw = sys.stdin.read()
+    try:
+        raw = sys.stdin.read()
+    except (OSError, UnicodeError):
+        return {}
     if not raw.strip():
         return {}
     try:
@@ -80,9 +86,30 @@ def _shell_command(payload: dict[str, Any]) -> str | None:
 
 
 def _deny_reason(text: str) -> str | None:
-    for pattern, reason in DENY_PATTERNS:
-        if pattern.search(text):
-            return reason
+    # Only inspect recognized simple command positions. Quoted documentation,
+    # echo arguments and comments are not executions. This is deliberately not
+    # a shell evaluator: wrappers, substitutions and unsupported grammar may
+    # bypass this local guard and require the actual task/permission boundary.
+    lexer = shlex.shlex(text, posix=True, punctuation_chars=";&|()\n")
+    lexer.whitespace = " \t\r"
+    lexer.whitespace_split = True
+    try:
+        tokens = list(lexer)
+    except ValueError:
+        return None
+    segments: list[list[str]] = [[]]
+    for token in tokens:
+        if token and all(char in ";&|()\n" for char in token):
+            segments.append([])
+        else:
+            segments[-1].append(token)
+    for segment in segments:
+        if not segment or segment[0] not in {"git", "npm"}:
+            continue
+        command = " ".join(segment)
+        for pattern, reason in DENY_PATTERNS:
+            if pattern.search(command):
+                return reason
     return None
 
 
@@ -93,7 +120,10 @@ def _advisory_context(text: str) -> str | None:
             messages.append(message)
     if not messages:
         return None
-    return "CPLayout PreToolUse advisory:\n" + "\n".join(f"- {message}" for message in messages)
+    context = "CPLayout PreToolUse advisory:\n" + "\n".join(f"- {message}" for message in messages)
+    if len(context.encode("utf-8")) > PRETOOL_CONTEXT_MAX_BYTES:
+        return "CPLayout PreToolUse advisory: follow the current task's preservation, geometry and evidence requirements. Selected skills provide domain detail; hook output is not runtime or complete enforcement proof."
+    return context
 
 
 def main() -> int:

@@ -82,7 +82,7 @@ HARD_VETOES = [
     },
     {
         "id": "hooks_are_advisory",
-        "summary": "Repo-local hooks add advisory context only; managed enforcement requires managed deployment plus restart verification.",
+        "summary": "Hook configuration, trusted loading, output and supported denial behavior need separate proof; no complete enforcement claim.",
     },
     {
         "id": "stop_hook_disabled",
@@ -95,14 +95,14 @@ GLOBAL_CONTEXT = [
         "id": "agents_root",
         "path": "AGENTS.md",
         "kind": "instructions",
-        "summary": "Durable CPLayout repository rules, preflight, reasoning policy, and validation gates.",
+        "summary": "Current authority disposition; preceding instructions are withdrawn and archived as historical evidence.",
         "tags": ["preflight", "governance", "constraints"],
     },
     {
         "id": "prompt_registry",
         "path": "docs/agent-prompt-registry.md",
         "kind": "record",
-        "summary": "Human-readable specialist routing, persistent subagent authorization, and hook surface registry.",
+        "summary": "Human-readable specialist routing and hook registry; current user authorization governs delegation.",
         "tags": ["routing", "records", "subagents"],
     },
     {
@@ -131,14 +131,11 @@ GLOBAL_CONTEXT = [
 PACK_DEFINITIONS = [
     {
         "id": "workspace_preflight",
-        "purpose": "Load the durable CPLayout work contract and dirty-tree/validation expectations before non-trivial changes.",
+        "purpose": "Load the current task and bounded coordinator scope; preserve existing work before changes.",
         "routeIds": ["*"],
         "agentIds": ["*"],
-        "triggerTerms": ["preflight", "git status", "validation", "AGENTS.md"],
-        "readFirstPaths": [
-            "AGENTS.md",
-            "docs/agent-tree-protocol.md",
-        ],
+        "triggerTerms": ["preflight", "git status", "validation", "current task"],
+        "readFirstPaths": ["docs/agent-tree-protocol.md"],
         "secondaryPaths": [
             ".agents/skills/cplayout-workspace-preflight/SKILL.md",
             "docs/agent-known-gaps.md",
@@ -172,6 +169,19 @@ PACK_DEFINITIONS = [
         "expectedOutput": "Source-backed governance change summary, advisory-hook caveats, record updates, and test evidence.",
         "tokenBudget": 1200,
         "hardVetoIds": ["hooks_are_advisory", "stop_hook_disabled", "no_runtime_proof_without_evidence"],
+    },
+    {
+        "id": "unified_mode_preservation",
+        "purpose": "One Design/Survey/Layout workspace: preserve document, input, camera, receiver and immutable-target ownership through mode changes.",
+        "routeIds": ["cplayout_interface_developer", "cplayout_database_specialist", "cplayout_gis_geometry_guardian"],
+        "agentIds": ["cplayout_interface_developer", "cplayout_database_specialist", "cplayout_gis_geometry_guardian"],
+        "triggerTerms": ["unified workspace", "Design Survey Layout", "Design Survey and Layout", "mode switch", "mode toggle", "shared map", "dirty input", "camera retention", "receiver ownership", "immutable layout target", "survey collection", "complete workspace bundle"],
+        "readFirstPaths": ["docs/unified-workspace-decision-2026-10-10.md"],
+        "secondaryPaths": ["apps/mobile/App.tsx", "packages/core/src/projectDocument.ts", "packages/gnss/src/index.ts", "packages/project-store/src/projectArchive.ts", "docs/android-native-verification.md"],
+        "validationCommandIds": ["validate_product", "proof_web", "validate_skills", "diff_check"],
+        "expectedOutput": "Mode-capability ownership, exact preservation risks, current contract paths and source/browser/runtime evidence kept separate.",
+        "tokenBudget": 900,
+        "hardVetoIds": ["preserve_projected_xy", "no_runtime_proof_without_evidence"],
     },
     {
         "id": "interface_ui",
@@ -209,7 +219,7 @@ PACK_DEFINITIONS = [
             "apps/mobile/src/components/DrawingToolPalette.tsx",
             "packages/map-adapters/src/SvgMapSurface.tsx",
             "packages/map-adapters/src/MapSurface.tsx",
-            "docs/interactive-browser-review.md",
+            "docs/rtk-gnss-integration-plan.md",
         ],
         "validationCommandIds": ["validate_product", "proof_web", "validate_skills", "diff_check", "audit"],
         "expectedOutput": "UI scope, toolbar risks, visible Edge evidence, disk-acknowledged responses, obsolete review-tab replacement and owned-tab cleanup, web proof and native caveats.",
@@ -219,16 +229,8 @@ PACK_DEFINITIONS = [
     {
         "id": "rtk_gnss_hardware",
         "purpose": "Route RTK/GNSS receiver, NMEA epoch, correction, antenna, native transport, capture provenance, and field-proof work.",
-        "routeIds": [
-            "cplayout_interface_developer",
-            "cplayout_gis_geometry_guardian",
-            "cplayout_runtime_proof_gatekeeper",
-        ],
-        "agentIds": [
-            "cplayout_interface_developer",
-            "cplayout_gis_geometry_guardian",
-            "cplayout_runtime_proof_gatekeeper",
-        ],
+        "routeIds": ["cplayout_runtime_proof_gatekeeper"],
+        "agentIds": ["cplayout_runtime_proof_gatekeeper"],
         "triggerTerms": [
             "RTK receiver",
             "GNSS hardware",
@@ -308,11 +310,9 @@ PACK_DEFINITIONS = [
     },
     {
         "id": "core_project_geometry",
-        "purpose": "Route project document, KML/XML, sample fixture, and canonical geometry contract work.",
-        "routeIds": ["cplayout_database_specialist"],
-        "agentIds": [
-            "cplayout_database_specialist",
-        ],
+        "purpose": "On-demand additional project document, KML/XML and sample references; storage secondary paths retain canonical document admission.",
+        "routeIds": [],
+        "agentIds": [],
         "triggerTerms": ["project document", "canonical geometry", "projected XY", "KML", "sample project"],
         "readFirstPaths": [
             "packages/core/src/projectDocument.ts",
@@ -410,7 +410,7 @@ PACK_DEFINITIONS = [
         "secondaryPaths": [
             "docs/agent-known-gaps.md",
             "docs/imagery-provider-tool-policy-ledger.md",
-            "packages/core/src/imageryEvidence.ts",
+            "docs/rtk-gnss-integration-plan.md",
             "packages/core/src/projectKml.ts",
             "packages/project-store/src/projectArchive.ts",
         ],
@@ -612,11 +612,11 @@ def _build_context_map() -> dict[str, Any]:
                 "maxSpecialists": 3,
                 "subagentReasoning": "task_selected",
                 "weights": [
-                    {"role": "kb_context", "weight": 0.30},
-                    {"role": "hook_routing_tooling", "weight": 0.25},
-                    {"role": "validation_qa", "weight": 0.20},
-                    {"role": "matched_domain_specialist", "weight": 0.15},
-                    {"role": "offline_security_constraints", "weight": 0.10},
+                    {"role": "compatibility", "weight": 0.30},
+                    {"role": "preservation_failure", "weight": 0.25},
+                    {"role": "context_efficiency", "weight": 0.20},
+                    {"role": "reproducible_proof", "weight": 0.15},
+                    {"role": "maintainability", "weight": 0.10},
                 ],
                 "hardVetoIds": [
                     "no_paid_or_keyed_services",
@@ -717,6 +717,8 @@ def _validate_context_map(data: dict[str, Any]) -> None:
         pack_refs = data.get("routeContext", {}).get(route_id)
         if not isinstance(pack_refs, list) or not pack_refs:
             raise ValueError(f"routeContext missing {route_id}")
+        if len(pack_refs) > int(limits["maxContextPacksPerHook"]):
+            raise ValueError(f"routeContext {route_id} exceeds maxContextPacksPerHook")
         for pack_ref in pack_refs:
             if pack_ref not in known_pack_ids:
                 raise ValueError(f"routeContext {route_id} references unknown pack {pack_ref}")
@@ -724,6 +726,8 @@ def _validate_context_map(data: dict[str, Any]) -> None:
         pack_refs = data.get("agentContext", {}).get(agent_id)
         if not isinstance(pack_refs, list) or not pack_refs:
             raise ValueError(f"agentContext missing {agent_id}")
+        if len(pack_refs) > int(limits["maxContextPacksPerHook"]):
+            raise ValueError(f"agentContext {agent_id} exceeds maxContextPacksPerHook")
         for pack_ref in pack_refs:
             if pack_ref not in known_pack_ids:
                 raise ValueError(f"agentContext {agent_id} references unknown pack {pack_ref}")
@@ -815,9 +819,9 @@ def _governance_summary_text(data: dict[str, Any]) -> str:
         "",
         "## Active Contracts",
         "",
-        "- Start non-trivial work with `AGENTS.md`, `docs/agent-tree-protocol.md`, `git status --short`, task complexity, selected reasoning effort, subagent decision, and validation gates.",
+        "- Current user instructions and coordinator scope govern; preceding AGENTS.md instructions are archived historical evidence. Use task-selected context, preservation and proof gates.",
         "- Preserve offline/no-cost operation, projected/local `XY` canonical geometry, and visual-only KML/KMZ style metadata.",
-        "- Treat repo-local hooks and context maps as advisory until managed deployment, restart, `/hooks`, and live prompt evidence are verified.",
+        "- Separate hook configuration, trusted loading, emitted context, supported denials and managed installation. None proves complete enforcement.",
         "- Delegate bounded independent leaves when they add evidence or QA value; route matches alone do not mandate a spawn. Record `Accepted fallback:` when a useful leaf cannot run.",
         "- Do not claim native, SQLite, ZIP, MapLibre, Google Earth, imagery, or ML/CV runtime proof without direct checklist evidence.",
         "",

@@ -50,6 +50,7 @@ export function DesignDraftWorkspace({ initial, onClose, onOpenComplete, getTask
   const [openingComplete, setOpeningComplete] = useState(false);
   const openingCompleteRef = useRef(false);
   const inputsRef = useRef<DesignDraftInputsHandle>(null);
+  const toolbarScrollRef = useRef<ScrollView>(null);
   const inputsScrollRef = useRef<ScrollView>(null);
   const drawingControlsRef = useRef<View>(null);
   const classificationScrollRef = useRef<ScrollView>(null);
@@ -101,6 +102,57 @@ export function DesignDraftWorkspace({ initial, onClose, onOpenComplete, getTask
       void save();
     }
   }
+
+  useEffect(() => {
+    if (Platform.OS !== "web" || !visible) return;
+    const scrollNode = toolbarScrollRef.current?.getScrollableNode() as HTMLElement | null;
+    if (!(scrollNode instanceof HTMLElement)) return;
+    let revealFrame: number | null = null;
+    let pointerId: number | null = null;
+    const cancelReveal = () => {
+      if (revealFrame !== null) cancelAnimationFrame(revealFrame);
+      revealFrame = null;
+    };
+    const revealFocusedButton = (event: FocusEvent) => {
+      cancelReveal();
+      const target = event.target;
+      if (pointerId !== null || !(target instanceof HTMLElement) || !target.matches('button, [role="button"]')) return;
+      // Measure after the browser's default focus scroll, against the client viewport.
+      revealFrame = requestAnimationFrame(() => {
+        revealFrame = null;
+        if (!visibleRef.current || pointerId !== null || document.activeElement !== target
+          || !target.isConnected || !scrollNode.isConnected || !scrollNode.contains(target)
+          || target.matches(':disabled, [aria-disabled="true"]') || !target.getClientRects().length
+          || !scrollNode.getClientRects().length || window.getComputedStyle(target).visibility !== "visible") return;
+        const buttonBounds = target.getBoundingClientRect(), scrollBounds = scrollNode.getBoundingClientRect();
+        if (buttonBounds.width <= 0 || buttonBounds.height <= 0 || scrollBounds.width <= 0 || scrollBounds.height <= 0
+          || scrollNode.clientWidth <= 0 || scrollNode.clientHeight <= 0) return;
+        const left = scrollBounds.left + scrollNode.clientLeft, right = left + scrollNode.clientWidth;
+        const delta = buttonBounds.left < left ? buttonBounds.left - left
+          : buttonBounds.right > right ? buttonBounds.right - right : 0;
+        if (delta !== 0) scrollNode.scrollLeft += delta > 0 ? Math.ceil(delta) : Math.floor(delta);
+      });
+    };
+    const pointerDown = (event: PointerEvent) => { pointerId = event.pointerId; cancelReveal(); };
+    const pointerEnd = (event: PointerEvent) => { if (event.pointerId === pointerId) pointerId = null; };
+    const resetPointer = () => { pointerId = null; cancelReveal(); };
+    scrollNode.addEventListener("focusin", revealFocusedButton);
+    scrollNode.addEventListener("focusout", cancelReveal);
+    scrollNode.addEventListener("pointerdown", pointerDown, true);
+    // Release outside the toolbar must not leave pointer-origin focus suppression stuck.
+    window.addEventListener("pointerup", pointerEnd, true);
+    window.addEventListener("pointercancel", pointerEnd, true);
+    window.addEventListener("blur", resetPointer);
+    return () => {
+      cancelReveal();
+      scrollNode.removeEventListener("focusin", revealFocusedButton);
+      scrollNode.removeEventListener("focusout", cancelReveal);
+      scrollNode.removeEventListener("pointerdown", pointerDown, true);
+      window.removeEventListener("pointerup", pointerEnd, true);
+      window.removeEventListener("pointercancel", pointerEnd, true);
+      window.removeEventListener("blur", resetPointer);
+    };
+  }, [visible]);
 
   useEffect(() => {
     if (Platform.OS !== "web" || !dirty) return;
@@ -326,7 +378,7 @@ export function DesignDraftWorkspace({ initial, onClose, onOpenComplete, getTask
         </View>
       </View>
     </View>
-    <ScrollView horizontal keyboardShouldPersistTaps="handled" style={styles.toolbarScroll} contentContainerStyle={styles.toolbar} testID="draft-command-bar">{[
+    <ScrollView ref={toolbarScrollRef} horizontal keyboardShouldPersistTaps="handled" style={styles.toolbarScroll} contentContainerStyle={styles.toolbar} testID="draft-command-bar">{[
       { id: "catalog", label: "Close design", icon: <FolderOpen />, showLabel: true, disabled: saving || completing || openingComplete,
         onPress: () => dirty ? setConfirmClose(true) : onClose(), testID: "draft-catalog" },
       { id: "save", label: "Save draft", icon: <Save />, showLabel: true, selected: true, disabled: receiptUnavailable || saving || completing || openingComplete || pending || !repository.canSaveDraft,
@@ -339,6 +391,14 @@ export function DesignDraftWorkspace({ initial, onClose, onOpenComplete, getTask
         onPress: () => setInputsOpen(value => !value), testID: "draft-inputs-toggle" },
       { id: "calculate", label: "Calculate preview", icon: <Calculator />, showLabel: true, disabled: !admission.ok || pending || completing || openingComplete,
         onPress: calculate, testID: "draft-calculate" },
+    ].map(button => <IconCommandButton key={button.id} {...button} />)}
+        <IconCommandButton id="complete" label="Create complete design" icon={<CheckCircle2 />} showLabel
+          disabled={receiptUnavailable || !admission.ok || pending || saving || completing || openingComplete || !!savedComplete || !!activeCapture || !repository.canCreateCompleteDesign || !onOpenComplete}
+          onPress={createCompleteDesign} testID="draft-create-complete" />
+        {savedComplete && <IconCommandButton id="open-saved-complete" label="Open saved complete design" icon={<FolderOpen />} showLabel
+          disabled={!visible || dirty || receiptUnavailable || saving || completing || openingComplete || !onOpenComplete}
+          onPress={() => { void openSavedCompleteDesign(); }} testID="draft-open-saved-complete" />}
+    {[
       { id: "layout", label: "Layout unavailable for drafts", icon: <LockKeyhole />, disabled: true,
         onPress: () => undefined, testID: "draft-layout" },
       { id: "export", label: "Export draft ZIP", icon: <Download />, disabled: pending || completing || openingComplete,
@@ -397,14 +457,6 @@ export function DesignDraftWorkspace({ initial, onClose, onOpenComplete, getTask
       {missingFields.length > 0 && <View style={styles.missingLinks}>{missingFields.map(section => <Pressable key={section}
         accessibilityRole="button" accessibilityLabel={`Open ${fieldLabels[section] ?? section} ${section === "drawingWorkflow" ? "controls" : "inputs"}`} onPress={() => openMissingInput(section)}
         style={styles.missingLink} testID={`draft-missing-${section}`}><Text style={styles.linkText}>Open {fieldLabels[section] ?? section}</Text></Pressable>)}</View>}
-      <View style={styles.completionActions}>
-        <IconCommandButton id="complete" label="Create complete design" icon={<CheckCircle2 />} showLabel
-          disabled={receiptUnavailable || !admission.ok || pending || saving || completing || openingComplete || !!savedComplete || !!activeCapture || !repository.canCreateCompleteDesign || !onOpenComplete}
-          onPress={createCompleteDesign} testID="draft-create-complete" />
-        {savedComplete && <IconCommandButton id="open-saved-complete" label="Open saved complete design" icon={<FolderOpen />} showLabel
-          disabled={!visible || dirty || receiptUnavailable || saving || completing || openingComplete || !onOpenComplete}
-          onPress={() => { void openSavedCompleteDesign(); }} testID="draft-open-saved-complete" />}
-      </View>
       <Text style={styles.meta}>Calculate previews the applied inputs. Create complete design saves a separate design and keeps this draft.</Text>
       <View style={styles.outputSummary}><Text style={[styles.meta, styles.outputSummaryText]} testID="draft-output-source">Export: draft · {editor.draft.machine.name ?? "Machine not named"} · Saved revision {draftSavedRevision ?? "not confirmed"}{editor.revision !== savedRevision ? " + current applied changes" : ""}{pendingInputs ? ". Pending entries excluded." : ""}</Text>
         <Pressable accessibilityRole="button" accessibilityLabel="Draft export details" accessibilityState={{ expanded: exportDetailsOpen }} aria-expanded={exportDetailsOpen} onPress={() => setExportDetailsOpen(value => !value)} style={styles.outputDisclosure} testID="draft-export-details-toggle"><Text style={styles.linkText}>{exportDetailsOpen ? "▾" : "▸"} Export details</Text></Pressable></View>
@@ -445,7 +497,6 @@ const styles = StyleSheet.create({
   compactBody: { flexDirection: "column" },
   shortBody: { minHeight: 120 },
   shortMap: { minHeight: 80 },
-  completionActions: { alignSelf: "flex-start", paddingVertical: 4 },
   missingLinks: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
   missingLink: { minHeight: 36, paddingHorizontal: 8, paddingVertical: 6, borderWidth: 1, borderColor: "#c1d4c8", borderRadius: 4 },
   linkText: { color: "#185439", fontSize: 12, fontWeight: "600" },

@@ -155,3 +155,12 @@ Evidence classes for CPLayout imagery work are: packet declaration validation; i
 - Record the claim, source URL or local path, date checked, and what remains unverified.
 - Keep real-world design assumptions separate from confirmed project facts.
 - Do not use operator labels, imagery evidence, or KML/KMZ styling as automatic geometry mutation authority.
+
+## Governance refresh, 2026-10-10
+
+| Primary source actually fetched | Supports | Limit of the claim |
+| --- | --- | --- |
+| [OpenAI Hooks](https://learn.chatgpt.com/docs/hooks) | Merged hook sources, exact-definition nonmanaged trust, session-cwd commands, supported denial/failure distinctions, additionalContextLimit and Stop/SubagentStart behavior. | Source documentation and script fixtures do not establish actual loading, persistent trust or complete enforcement in this host. |
+| [OpenAI Subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents) | The public concurrency key excludes the primary; legacy alias and task/model/effort configuration. | The repo's three-spawned ceiling does not prove the active host's cap or loaded profile. |
+
+Fetched through Official OpenAI Docs MCP on 2026-10-10. Local observed versions are CLI 0.162.0, Python 3.12.3, Node 24.14.1, npm 11.17.0, installed Playwright 1.60.0, TypeScript 5.9.3 and Expo 55.0.31; these are observed installations, not claims of latest releases or active daemon/orchestrator identity. Retain these adequate tools; no install/upgrade/global trust/managed mutation is selected. See the scoped governance evidence for synthetic timing and remaining loader proof.

@@ -1,6 +1,6 @@
 import { hasOperationalGnssEvidence, refuseOperationalGnssEvidence } from "./operationalGnssEvidence";
 import { z } from "zod";
-import { ProjectDrawingMetadataSchema, validateProjectDrawingMetadata } from "./drawingMetadata";
+import { ProjectDrawingMetadataSchema, PROJECT_DRAWING_METADATA_V2_VERSION, validateProjectDrawingMetadata } from "./drawingMetadata";
 import { snapshotJsonValue } from "./jsonDataSnapshot";
 import { assertNoStrippedFields } from "./jsonFieldRetention";
 
@@ -9,13 +9,14 @@ import { ProjectSettingsSchema } from "./settings";
 import type { LonLat, PivotProject, ProjectMapFeature, ProjectMapFeatureGeometry, ProjectWgs84Companion, XY } from "./types";
 import { assertProjectedCrs } from "./units";
 import { projectXyToLonLat } from "./coordinates";
-import { GnssCaptureEvidenceSchema, gnssConfidenceExceedsV2Evidence, gnssV2CaptureConflicts, RtkQualitySchema } from "./gnssEvidence";
-import { projectDataKey } from "./projectDataComparison";
+import { GnssCaptureEvidenceSchema, gnssConfidenceExceedsV2Evidence, gnssV2CaptureConflicts } from "./gnssEvidence";
+import { SurveyPointSchema } from "./surveyPointSchema";
 
 export const LEGACY_PROJECT_DOCUMENT_VERSION = "pivot-project-v1";
 export const PROJECT_DOCUMENT_VERSION = "pivot-project-v2";
 export const OPERATIONAL_PROJECT_DOCUMENT_VERSION = "pivot-project-v3";
-export const PROJECT_DOCUMENT_VERSIONS = [LEGACY_PROJECT_DOCUMENT_VERSION, PROJECT_DOCUMENT_VERSION, OPERATIONAL_PROJECT_DOCUMENT_VERSION] as const;
+export const RECORDED_REFERENCE_PROJECT_DOCUMENT_VERSION = "pivot-project-v4";
+export const PROJECT_DOCUMENT_VERSIONS = [LEGACY_PROJECT_DOCUMENT_VERSION, PROJECT_DOCUMENT_VERSION, OPERATIONAL_PROJECT_DOCUMENT_VERSION, RECORDED_REFERENCE_PROJECT_DOCUMENT_VERSION] as const;
 
 const XySchema = z.object({
   x: z.number().finite(),
@@ -27,40 +28,6 @@ const LonLatSchema = z.object({
   latitude: z.number().min(-90).max(90),
 });
 
-const SurveyPointSchema = z.object({
-  id: z.string().min(1),
-  label: z.string().min(1),
-  role: z.enum(["boundary", "pivot_center", "water_source", "power_source", "obstacle", "control", "note"]),
-  projected: XySchema,
-  wgs84: LonLatSchema.optional(),
-  observedAt: z.string().min(1),
-  source: z.enum(["device_gps", "external_gnss", "imported", "manual"]),
-  confidence: z.enum(["rtk_fixed", "rtk_float", "dgps", "autonomous_gps", "imagery_digitized", "imported_cad", "user_estimated", "optimized"]),
-  rtk: RtkQualitySchema.optional(),
-  captureEvidence: GnssCaptureEvidenceSchema.optional(),
-  notes: z.string().optional(),
-}).superRefine((point, context) => {
-  const evidence = point.captureEvidence;
-  if (evidence?.schemaVersion !== "gnss-capture-v2") return;
-  if (point.observedAt !== evidence.receiverObservedAt) {
-    context.addIssue({ code: "custom", path: ["observedAt"], message: "V2 survey observedAt must exactly match receiverObservedAt." });
-  }
-  const rawQuality = evidence.qualityScreen.receiverQuality;
-  const elapsed = (evidence.qualityScreen.evaluatedMonotonicMs - evidence.receivedMonotonicMs) / 1000;
-  const captureQuality = {
-    ...rawQuality,
-    correctionAgeSeconds: rawQuality.correctionAgeSeconds === null ? null : rawQuality.correctionAgeSeconds + elapsed,
-  };
-  if (!point.rtk || projectDataKey(point.rtk) !== projectDataKey(captureQuality)) {
-    context.addIssue({ code: "custom", path: ["rtk"], message: "V2 survey quality must match the raw receiver snapshot with capture elapsed correction age added." });
-  }
-  const confidence = rawQuality.fixType === "rtk_fixed" ? "rtk_fixed"
-    : rawQuality.fixType === "rtk_float" ? "rtk_float"
-      : rawQuality.fixType === "dgps" ? "dgps" : "autonomous_gps";
-  if (point.confidence !== confidence) {
-    context.addIssue({ code: "custom", path: ["confidence"], message: "V2 survey confidence must match its receiver fix type." });
-  }
-});
 
 const PivotAngleRangeSchema = z.object({
   startAngleDegrees: z.number().finite(),
@@ -430,7 +397,7 @@ export function serializeProjectDocument(project: PivotProject): string {
     assertNoStrippedFields(snapshot, parsedProject, "Project v2 contains unsupported fields; refusing to discard data. Preserve the original document.");
   }
   return JSON.stringify({
-    documentVersion: hasOperationalGnssEvidence(parsedProject) ? OPERATIONAL_PROJECT_DOCUMENT_VERSION : parsedProject.drawingMetadata === undefined ? LEGACY_PROJECT_DOCUMENT_VERSION : PROJECT_DOCUMENT_VERSION,
+    documentVersion: parsedProject.drawingMetadata?.schemaVersion === PROJECT_DRAWING_METADATA_V2_VERSION ? RECORDED_REFERENCE_PROJECT_DOCUMENT_VERSION : hasOperationalGnssEvidence(parsedProject) ? OPERATIONAL_PROJECT_DOCUMENT_VERSION : parsedProject.drawingMetadata === undefined ? LEGACY_PROJECT_DOCUMENT_VERSION : PROJECT_DOCUMENT_VERSION,
     project: withWgs84Companion(parsedProject),
   }, null, 2);
 }
@@ -453,7 +420,10 @@ export function parseProjectDocument(input: string | unknown): PivotProject {
       throw new Error("Project document version is unsupported; preserve the original document and use a compatible editor.");
     }
     const envelope = ProjectEnvelopeSchema.parse(raw);
-    if (envelope.documentVersion !== OPERATIONAL_PROJECT_DOCUMENT_VERSION) refuseOperationalGnssEvidence(envelope.project);
+    if (envelope.documentVersion !== RECORDED_REFERENCE_PROJECT_DOCUMENT_VERSION) {
+      if ((envelope.project as PivotProject)?.drawingMetadata?.schemaVersion === PROJECT_DRAWING_METADATA_V2_VERSION) throw new Error("Recorded reference metadata requires pivot-project-v4; preserve the original document.");
+      if (envelope.documentVersion !== OPERATIONAL_PROJECT_DOCUMENT_VERSION) refuseOperationalGnssEvidence(envelope.project);
+    }
     if (envelope.documentVersion === LEGACY_PROJECT_DOCUMENT_VERSION) return parseProjectDocumentV1(raw);
     assertNoStrippedFields(raw, envelope, "Project v2 envelope contains unsupported fields; refusing to discard data. Preserve the original document.");
     const project = PivotProjectSchema.parse(envelope.project);
@@ -516,7 +486,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 /** Frozen v1/v2 reader refuses operational evidence even in incorrectly labeled old envelopes. */
 export function parseProjectDocumentV2(input: string | unknown): PivotProject {
   const raw = snapshotJsonValue(typeof input === "string" ? JSON.parse(input) : input);
-  if (isRecord(raw) && "documentVersion" in raw && raw.documentVersion === OPERATIONAL_PROJECT_DOCUMENT_VERSION) throw new Error("Project version requires an operational-evidence-aware reader.");
+  if (isRecord(raw) && "documentVersion" in raw && (raw.documentVersion === OPERATIONAL_PROJECT_DOCUMENT_VERSION || raw.documentVersion === RECORDED_REFERENCE_PROJECT_DOCUMENT_VERSION)) throw new Error("Project version requires an operational-evidence-aware reader.");
   refuseOperationalGnssEvidence(raw);
   return parseProjectDocument(raw);
 }

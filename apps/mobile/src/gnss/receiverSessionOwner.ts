@@ -1,4 +1,4 @@
-import { OperationalFixedGgaEvidenceSchema, type OperationalFixedGgaEvidence, type SurveyPoint, type ObstacleZone, type ProjectMapFeatureKind } from "@cplayout/core";
+import { OperationalFixedGgaEvidenceSchema, type OperationalFixedGgaEvidence, type LayoutObservation, type SurveyPoint, type ObstacleZone, type ProjectMapFeatureKind } from "@cplayout/core";
 import { OperationalGgaTracker, ReceiverStreamDecoder, evaluateOperationalCollectionGate, receiverTransportKind, validateReceiverConnectionConfig,
   type GnssSession, type GnssTransport, type ReceiverConnectionConfig, type ReceiverRuntimeState } from "@cplayout/gnss";
 import { WebSerialGnssTransport, type WebSerialLike } from "./webSerialTransport";
@@ -111,8 +111,16 @@ export class ReceiverSessionOwner {
       receipt: { sequence: observation.sequence, browserReceivedMonotonicMs: observation.browserReceivedMonotonicMs, ingressAgeAtReceiptMs: observation.ingressAgeAtReceiptMs,
         provenance: observation.transport === "local_tcp" || observation.transport === "local_udp" ? "loopback_companion" : "browser_serial" },
       capture: { evaluatedMonotonicMs: now, ageMs: gate.ageMs, maxAgeMs: 2000 }, projection: { id: gate.projectionId, projectCrs }, physicalQualification: "unverified" });
+    // GGA supplementary fields may be absent. Omit only the known optional
+    // quality keys at this trusted producer boundary; never JSON-normalize a
+    // supplied observation or weaken strict collection/archive admission.
+    const { baseStationId, roverId, nmeaQualityCode, ...requiredQuality } = observation.quality;
+    const rtk = { ...requiredQuality,
+      ...(baseStationId === undefined ? {} : { baseStationId }),
+      ...(roverId === undefined ? {} : { roverId }),
+      ...(nmeaQualityCode === undefined ? {} : { nmeaQualityCode }) };
     return { id, label, role, projected: gate.projected, wgs84: { longitude: observation.sample.longitude!, latitude: observation.sample.latitude! },
-      observedAt: new Date().toISOString(), source: "external_gnss", confidence: "rtk_fixed", rtk: { ...observation.quality }, captureEvidence: evidence };
+      observedAt: new Date().toISOString(), source: "external_gnss", confidence: "rtk_fixed", rtk, captureEvidence: evidence };
   }
   private async read(session: GnssSession, generation: number, config: ReceiverConnectionConfig): Promise<void> {
     const decoder = new ReceiverStreamDecoder();
@@ -159,3 +167,13 @@ function browserTransport(config: ReceiverConnectionConfig): GnssTransport {
 function message(error: unknown): string { return error instanceof Error ? error.message : "Receiver operation failed."; }
 export function createBrowserReceiverSessionOwner(): ReceiverSessionOwner { return new ReceiverSessionOwner(); }
 export const browserReceiverSessionOwner = createBrowserReceiverSessionOwner();
+
+
+/** Assemble a Layout observation from an admitted capture without materializing
+ * absent optional label keys. Strict Layout validation remains the persistence
+ * boundary, and the controller still owns every final live commit predicate. */
+export function layoutObservationFromReceiverCapture(sessionId: string,
+  point: Pick<SurveyPoint, "id" | "observedAt" | "projected"> & { label?: string; captureEvidence: OperationalFixedGgaEvidence }): LayoutObservation {
+  return { id: point.id, sessionId, capturedAt: point.observedAt, projected: { ...point.projected }, evidence: point.captureEvidence,
+    ...(point.label === undefined || point.label === "" ? {} : { label: point.label }) };
+}

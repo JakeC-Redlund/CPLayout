@@ -1,7 +1,7 @@
 import { hasOperationalGnssEvidence, refuseOperationalGnssEvidence } from "./operationalGnssEvidence";
 import { z } from "zod";
 import { DraftDrawingWorkflowSchema } from "./draftDrawingWorkflow";
-import { PROJECT_DRAWING_METADATA_VERSION, validateProjectDrawingMetadata } from "./drawingMetadata";
+import { seedRecordedReferenceOrigins, PROJECT_DRAWING_METADATA_VERSION, PROJECT_DRAWING_METADATA_V2_VERSION, isRecordedReferenceMetadataRecord, retireRecordedReferenceAttachment, validateProjectDrawingMetadata } from "./drawingMetadata";
 
 import { qualifyProjectCrs, type CrsQualification } from "./crsQualification";
 import { evaluateManualDesignReadiness } from "./manualDesign";
@@ -19,7 +19,8 @@ export const LEGACY_DESIGN_DRAFT_DOCUMENT_VERSION = "design-draft-v1";
 export const DRAWING_WORKFLOW_DESIGN_DRAFT_DOCUMENT_VERSION = "design-draft-v2";
 export const DESIGN_DRAFT_DOCUMENT_VERSION = "design-draft-v3";
 export const OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION = "design-draft-v4";
-export const DESIGN_DRAFT_DOCUMENT_VERSIONS = [LEGACY_DESIGN_DRAFT_DOCUMENT_VERSION, DRAWING_WORKFLOW_DESIGN_DRAFT_DOCUMENT_VERSION, DESIGN_DRAFT_DOCUMENT_VERSION, OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION] as const;
+export const RECORDED_REFERENCE_DESIGN_DRAFT_DOCUMENT_VERSION = "design-draft-v5";
+export const DESIGN_DRAFT_DOCUMENT_VERSIONS = [LEGACY_DESIGN_DRAFT_DOCUMENT_VERSION, DRAWING_WORKFLOW_DESIGN_DRAFT_DOCUMENT_VERSION, DESIGN_DRAFT_DOCUMENT_VERSION, OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION, RECORDED_REFERENCE_DESIGN_DRAFT_DOCUMENT_VERSION] as const;
 
 const projectShape = PivotProjectSchema.shape;
 const machineShape = projectShape.machine.shape;
@@ -99,7 +100,10 @@ export function parseDesignDraftDocument(input: string | unknown): DesignDraft {
     documentVersion: z.enum(DESIGN_DRAFT_DOCUMENT_VERSIONS),
     draft: z.unknown(),
   }).strict().parse(snapshot);
-  if (envelope.documentVersion !== OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION) refuseOperationalGnssEvidence(envelope.draft);
+  if (envelope.documentVersion !== RECORDED_REFERENCE_DESIGN_DRAFT_DOCUMENT_VERSION) {
+    if ((envelope.draft as DesignDraft)?.drawingMetadata?.schemaVersion === PROJECT_DRAWING_METADATA_V2_VERSION) throw new Error("Recorded reference metadata requires design-draft-v5; preserve the original document.");
+    if (envelope.documentVersion !== OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION) refuseOperationalGnssEvidence(envelope.draft);
+  }
   if (envelope.documentVersion === LEGACY_DESIGN_DRAFT_DOCUMENT_VERSION) LegacyDraftSchema.parse(envelope.draft);
   if (envelope.documentVersion === DRAWING_WORKFLOW_DESIGN_DRAFT_DOCUMENT_VERSION) WorkflowDraftSchema.parse(envelope.draft);
   return validateDesignDraft(envelope.draft);
@@ -115,7 +119,7 @@ export function parseDesignDraftDocumentV2(input: string | unknown): DesignDraft
 export function serializeDesignDraftDocument(draft: DesignDraft): string {
   const validated = validateDesignDraft(draft);
   return JSON.stringify({
-    documentVersion: hasOperationalGnssEvidence(validated) ? OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION : validated.drawingMetadata !== undefined ? DESIGN_DRAFT_DOCUMENT_VERSION
+    documentVersion: validated.drawingMetadata?.schemaVersion === PROJECT_DRAWING_METADATA_V2_VERSION ? RECORDED_REFERENCE_DESIGN_DRAFT_DOCUMENT_VERSION : hasOperationalGnssEvidence(validated) ? OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION : validated.drawingMetadata !== undefined ? DESIGN_DRAFT_DOCUMENT_VERSION
       : validated.drawingWorkflow !== undefined ? DRAWING_WORKFLOW_DESIGN_DRAFT_DOCUMENT_VERSION : LEGACY_DESIGN_DRAFT_DOCUMENT_VERSION,
     draft: validated,
   } satisfies DesignDraftDocument, null, 2);
@@ -130,7 +134,7 @@ export function evaluateDesignDraftCompleteness(draft: DesignDraft): DesignDraft
 export function tryBuildPivotProject(draft: DesignDraft): DesignDraftBuildResult {
   let validated: DesignDraft;
   try {
-    validated = validateDesignDraft(draft);
+    validated = seedRecordedReferenceOrigins(validateDesignDraft(draft));
   } catch (error) {
     return { ok: false, reason: "invalid_draft", blockers: errorBlockers(error) };
   }
@@ -140,9 +144,11 @@ export function tryBuildPivotProject(draft: DesignDraft): DesignDraftBuildResult
 
   const { drawingWorkflow: _workflow, ...projectData } = validated;
   if (_workflow) projectData.drawingMetadata = {
-    schemaVersion: PROJECT_DRAWING_METADATA_VERSION, records: projectData.drawingMetadata?.records ?? [],
+    ...projectData.drawingMetadata, schemaVersion: projectData.drawingMetadata?.schemaVersion ?? PROJECT_DRAWING_METADATA_VERSION, records: projectData.drawingMetadata?.records ?? [],
     autosaveEnabled: _workflow.autosaveEnabled,
   };
+  if (projectData.drawingMetadata) projectData.drawingMetadata.records = projectData.drawingMetadata.records.map(record =>
+    isRecordedReferenceMetadataRecord(record) ? retireRecordedReferenceAttachment(record) : record);
   const admitted = PivotProjectSchema.parse(projectData);
   const project: PivotProject = {
     ...projectData,
@@ -308,6 +314,6 @@ function assertSameFields(input: unknown, parsed: unknown, path = "draft"): void
 export function parseDesignDraftDocumentV3(input: string | unknown): DesignDraft {
   const raw = snapshotJsonValue(typeof input === "string" ? JSON.parse(input) : input, "document");
   refuseOperationalGnssEvidence(raw);
-  if (raw && typeof raw === "object" && "documentVersion" in raw && raw.documentVersion === OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION) throw new Error("Draft version requires an operational-evidence-aware reader.");
+  if (raw && typeof raw === "object" && "documentVersion" in raw && (raw.documentVersion === OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION || raw.documentVersion === RECORDED_REFERENCE_DESIGN_DRAFT_DOCUMENT_VERSION)) throw new Error("Draft version requires an operational-evidence-aware reader.");
   return parseDesignDraftDocument(raw);
 }

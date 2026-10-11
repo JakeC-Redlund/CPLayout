@@ -437,6 +437,69 @@ workspace assertion remains. No application change or timeout increase is needed
 The failed focused batches remain failed; corrected current/full gates and two
 unchanged complete reviews remain required.
 
+## Iteration 26 — current source identity and complete control visibility
+
+R49 source validation, skills, context-map, visual-tooling and installed-source
+dependency gates passed. All 27 focused cases passed in Linux and visible Edge
+without skips or retries. The root rechecked the three pinned comparison
+repositories and W3C form-grouping guidance on 2026-10-08; the weighted decisions
+and preservation vetoes remain in place. These comparisons do not prove measured
+usability, native behavior or field accuracy.
+
+The complete 984-case/profile run finished normally with 969 passes, ten exact
+declared profile exclusions and five failures. All case identities were accounted
+for once, and all five required exclusion counterparts passed. A rail-navigation
+case encountered two live USGS tile404 console errors; no navigation defect was
+established. A file-local synthetic PNG fixture now serves only query-free,
+host-anchored USGS imagery tile requests in that navigation case. Its console,
+selection, route and saved-state assertions remain.
+
+Two pointer prerequisites completed their cooperative advisory calculations just
+after the failed waits; another readiness case and a shader-startup case did not
+reach their pointer assertions. All four original cases subsequently passed
+sequentially on unchanged source, with their original waits and strict checks.
+Execution sensitivity is observed; OOM or resource causation is not proven.
+The next acceptance execution uses a smaller worker budget on this host; no wait,
+console check, retry or assertion is relaxed.
+
+Visible Edge passed 171 full cases, three supplementary and two saved-management
+cases. Additional seven-state capture helpers first compared a raw source draft
+against a snapshot after explicitly disabling autosave. The corrected expected
+object includes that deliberate drawing-workflow change while retaining full
+object and exact geometry checks. The failed helper runs remain failed.
+
+The corrected helpers established a source usability veto at 390 by 430. The
+shrinking status scroller has 47 usable pixels for required 48-pixel completion
+buttons. Normal focus and centered scrolling still cannot reveal the whole
+control. The source repair relocates unchanged Create/Open completion commands
+into the existing nonshrinking horizontal bar after Calculate; it retains all
+labels, IDs, disabled expressions and handlers, and does not alter body minima,
+map/input mounting, CRS, geometry, storage, camera or history. Existing formal
+completion cases now require full control intersection, 48-pixel hit size,
+keyboard/horizontal access, visible working inputs, exact data/revisions, explicit
+quota retry and reopening at 390 by 430, 390 by 844 and 900 by 430. Actual
+rendered acceptance, feedback visibility and horizontal discovery remain gates.
+
+Before fresh browser execution, a custom-profile audit found that a name-based
+viewport helper could enlarge an explicitly configured 390 by 430 capture to
+844 pixels. The helper now derives smaller test bounds from the actual configured
+viewport and records both; it never enlarges a preconfigured short surface.
+The older proposal's CI also exposed a stale-completion expectation and Projects
+presentation race. Fixtures now require the exact human receipt-conflict reason,
+disabled persistence/completion commands, unchanged raw bytes and the newer draft;
+the drawer waits for the actual Projects dashboard before inspecting its command.
+Navigation, unfinished review, exact data and test identities remain intact.
+These checks and source repairs still require matching current execution.
+
+The root published proposal `83c257a` normally and synchronized canonical bytes.
+The temporary managed-access interruption is preserved as a dated restriction;
+Git, GitHub, Windows interoperability and socket inspection were subsequently
+verified working again. Source and failed/partial evidence were preserved.
+Main acceptance, complete-review count and modeling integration/build transfer
+remain pending. Software, delegated engineering review, human usability approval,
+physical transports, native/device qualification and field accuracy remain
+separate claims.
+
 ## Iteration and acceptance contract
 
 Each cycle inspects actual user tasks, researches unresolved behavior, records alternatives and weighted decisions where needed, implements bounded changes, reviews the exact served build visibly in Windows Edge, runs appropriate validation, and obtains independent usability/preservation review.

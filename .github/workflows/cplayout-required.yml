@@ -47,6 +47,8 @@ jobs:
         working-directory: apps/mobile
       - run: npm run context-map:check
       - run: npm run validate:skills
+      - name: Audit current and retained browser contract inventory
+        run: npm run proof:inventory
       - run: npm run validate
       - name: Record raw audit and verify exact dependency mitigations
         run: npm run audit:verified
@@ -80,8 +82,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      # Each served app owns one receiver companion; transport fixtures must run serially.
-      - run: npm run proof:web -- --shard=${{ matrix.shard }}/3 --workers=1
+      # All current-App and applicable platform contracts are selected by the
+      # audited registry. Retained old-navigation obligations remain explicit
+      # migration debt. Each served app owns one receiver companion.
+      - run: xvfb-run -a npm run proof:web -- --shard=${{ matrix.shard }}/3 --workers=1
       - name: Retain failed browser evidence
         if: ${{ failure() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

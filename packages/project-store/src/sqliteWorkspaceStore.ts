@@ -4,6 +4,7 @@ import { applyWorkspaceCommand, parseWorkspaceCommand, type WorkspaceCommand } f
 import { readWorkspaceDesign } from "./versionedProjectRepository";
 import { parseStrictJson } from "./strictJson";
 import type { VersionedWorkspaceRepository } from "./projectRepositoryTypes";
+import { hasRecordedReferenceEvidence } from "./recordedReferenceAttachments";
 export interface WorkspaceDatabase {
     execAsync(sql: string): Promise<void>;
     getAllAsync<T>(sql: string, ...params: (string | number)[]): Promise<T[]>;
@@ -87,6 +88,7 @@ const key = (row: Pick<StoredRow, "kind" | "id">) => JSON.stringify([row.kind, r
 /** Native schema v1 has no field row kind. Refuse before any SQL writes; no runtime v2 claim. */
 export function assertNativeWorkspaceVersion(workspace: WorkspaceDocument): void {
     if (workspace.workspaceVersion !== WORKSPACE_DOCUMENT_VERSION) throw new WorkspaceDocumentError("unsupported_version", "Native field workspace v2 persistence requires a separately verified schema upgrade.");
+    if ([...workspace.projectDocuments, ...workspace.draftDocuments].some(entry => hasRecordedReferenceEvidence(parseStrictJson(entry.document)))) throw new WorkspaceDocumentError("unsupported_version", "Native recorded-reference persistence requires a separately verified capability upgrade.");
 }
 function flatten(workspace: WorkspaceDocument): StoredRow[] {
     assertNativeWorkspaceVersion(workspace);
@@ -326,6 +328,9 @@ export function createSqliteWorkspaceStore(host: NativeWorkspaceHost): Versioned
         async readDesignAsync(designId: string) { return readWorkspaceDesign(await store.readAsync(), designId); },
         async executeAsync(expectedRevision: number, command: WorkspaceCommand) {
             const captured = parseWorkspaceCommand(command);
+            if (captured.type === "rename_field_map") throw new NativeWorkspaceCommandRefusal(new WorkspaceDocumentError("unsupported_version", "Native field-container management is unverified and refused before database access."));
+            if (hasRecordedReferenceEvidence(captured)) throw new NativeWorkspaceCommandRefusal(new WorkspaceDocumentError("unsupported_version", "Recorded-reference persistence requires the browser workspace; native activation is not verified."));
+            if (["upgrade_workspace_to_v4", "create_survey_collection", "append_survey_capture", "set_survey_membership", "apply_survey_collection", "archive_survey_collection", "copy_design_with_survey", "import_design_workspace_bundle", "restore_design_survey_history", "archive_and_delete_design"].includes(captured.type)) throw new NativeWorkspaceCommandRefusal(new WorkspaceDocumentError("unsupported_version", "Native Survey workspace v4 is unverified and refused before database access."));
             if (hasOperationalGnssEvidence(captured)) throw new NativeWorkspaceCommandRefusal(new WorkspaceDocumentError("unsupported_version", "Operational fixed-GGA persistence requires the browser workspace; native activation is not verified."));
             if (["import_design_document", "upgrade_workspace_to_v3", "create_complete_design_from_draft", "create_layout_session", "append_layout_observation", "rename_layout_session", "archive_layout_session", "copy_layout_session", "import_layout_session", "upgrade_workspace_to_v2", "create_field_design", "save_field_design", "copy_field_design", "convert_project_to_field_design", "adopt_field_plan"].includes(captured.type)) {
                 throw new NativeWorkspaceCommandRefusal(new WorkspaceDocumentError("unsupported_version", "Native field workspace v2 and workflow v3 operations are not supported by the current schema; preserve the source and use a verified adapter."));

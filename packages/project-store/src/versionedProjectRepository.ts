@@ -66,16 +66,18 @@ export function createVersionedProjectRepository(dependencies: WebWorkspaceStore
   const store = createWebWorkspaceStore(dependencies);
   const versionedWorkspace: VersionedWorkspaceRepository = {
     readAsync: () => store.initializeAsync(),
+    readLeaseAsync: (revision, action, isCurrent) => store.readLeaseAsync(revision, action, isCurrent),
     async readDesignAsync(designId) { return readWorkspaceDesign(await store.initializeAsync(), designId); },
     async executeAsync(expectedRevision, command, isCurrent) {
       const captured = parseWorkspaceCommand(command);
+      if (captured.type === "append_survey_capture" && !isCurrent) throw new WorkspaceDocumentError("conflict", "A live Survey capture requires its external commit owner predicate.");
       let value: WorkspaceCommandValue = undefined;
       const workspace = await store.transactAsync(expectedRevision, current => {
         if (isCurrent && !isCurrent()) throw new WorkspaceDocumentError("conflict", "The active editor or live observation changed before saving; retry from the current screen.");
         const result = applyWorkspaceCommand(current, captured);
         value = result.value;
         return result.workspace;
-      });
+      }, isCurrent);
       return { workspace, value };
     },
     exportRecoveryAsync: () => store.exportRecoveryAsync(),

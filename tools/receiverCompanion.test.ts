@@ -170,9 +170,16 @@ test("partial NMEA receipt age starts at the first byte and non-NMEA data is inv
   const tcp = createTcpServer(socket => { peer = socket; }); tcp.listen(0, '127.0.0.1'); await once(tcp, 'listening');
   const address = tcp.address(); assert.ok(address && typeof address === 'object'); const h = await harness();
   try {
-    const token = (await h.request('hello')).body.token;
-    const { body } = await h.request('connect', { config: { method: 'network', protocol: 'tcp', address: '127.0.0.1', port: address.port } }, token);
-    peer!.write(line.slice(0, 10)); await delay(40); peer!.write(line.slice(10)); await delay(20);
+    const hello = await h.request('hello'); assert.equal(hello.status, 200, JSON.stringify(hello.body));
+    const token = hello.body.token;
+    const accepted = once(tcp, 'connection');
+    const opened = await h.request('connect', { config: { method: 'network', protocol: 'tcp', address: '127.0.0.1', port: address.port } }, token);
+    assert.equal(opened.status, 200, JSON.stringify(opened.body));
+    const [connectedPeer] = await accepted;
+    assert.equal(connectedPeer, peer);
+    assert.ok(peer);
+    const { body } = opened;
+    peer.write(line.slice(0, 10)); await delay(40); peer.write(line.slice(10)); await delay(20);
     const result = await h.request('poll', { sessionId: body.sessionId }, token); assert.ok(result.body.lines[0].ingressAgeMs >= 40);
     peer!.write(Buffer.from([0, 1, 2, 3])); await delay(); const invalid = await h.request('poll', { sessionId: body.sessionId }, token); assert.ok(invalid.body.lines.every((entry: any) => entry.sentence === null));
   } finally { peer?.destroy(); await h.close(); await new Promise<void>(resolve => tcp.close(() => resolve())); }

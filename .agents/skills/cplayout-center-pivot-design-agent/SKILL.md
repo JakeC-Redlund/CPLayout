@@ -11,7 +11,7 @@ Treat center-pivot output as advisory design evidence for operator and qualified
 
 ## Workflow
 
-1. Run the CPLayout preflight: re-read `AGENTS.md`, inspect `git status --short`, and preserve unrelated work.
+1. Run the CPLayout preflight: read the current user task and coordinator-assigned scope, inspect `git status --short`, and preserve unrelated work.
 2. Verify sources before making design claims. Prefer official, extension, manufacturer, engineering, or standards references, and cite exact URLs or local documents.
 3. Identify the boundary, obstacles, water source, access constraints, candidate pivot centers, machine type, and required review outputs before scoring.
 4. Evaluate standard pivots, partial circles, corner arms, and lateral or linear moves only when enough evidence exists.

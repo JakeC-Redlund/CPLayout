@@ -153,7 +153,11 @@ export type WorkspaceDesignRead =
 
 export interface VersionedWorkspaceRepository {
   readAsync(): Promise<WorkspaceDocument>;
+  /** Browser-only bounded read lease; callback must assertCurrent before publication. */
+  readLeaseAsync?<T>(expectedRevision: number, action: (workspace: WorkspaceDocument, assertCurrent: () => void) => T | PromiseLike<T>,
+    isCurrent: () => boolean): Promise<T>;
   readDesignAsync(designId: string): Promise<WorkspaceDesignRead>;
+  /** New-live Survey append requires isCurrent; checked under lock and immediately before persistence. */
   executeAsync(expectedRevision: number, command: WorkspaceCommand, isCurrent?: () => boolean): Promise<{ workspace: WorkspaceDocument; value: WorkspaceCommandValue }>;
   exportRecoveryAsync(): Promise<string>;
 }

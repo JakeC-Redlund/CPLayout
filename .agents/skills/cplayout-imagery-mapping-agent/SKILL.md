@@ -11,7 +11,7 @@ Use imagery, KML/KMZ, OCR, CV, and Google Earth Pro output as evidence only. Ope
 
 ## Workflow
 
-1. Run the CPLayout preflight: re-read `AGENTS.md`, inspect `git status --short`, and preserve unrelated work.
+1. Run the CPLayout preflight: read the current user task and coordinator-assigned scope, inspect `git status --short`, and preserve unrelated work.
 2. Locate current imagery artifacts, KML/KMZ exports, screenshots, manifests, hashes, source ledgers, and companion-tool reports before proposing new analysis.
 3. Classify each input as canonical project geometry, operator evidence, CV candidate, visual interchange metadata, or render proof.
 4. For field-boundary or pivot-layout work, require a clear operator-defined boundary before optimization. If a boundary is missing, report the blocker instead of inventing one.
@@ -27,7 +27,7 @@ Use imagery, KML/KMZ, OCR, CV, and Google Earth Pro output as evidence only. Ope
 - For visual-fidelity work, non-black rendered map evidence remains a hard acceptance gate.
 - Do not claim Android aerial package runtime proof until a development client renders an imported local raster package through MapLibre RN with screenshot, pixel, attribution, source, and vertex-stability evidence.
 - Record artifact paths, SHA-256 hashes when available, source URLs, and proof caveats.
-- If Google Earth automation runs, follow the cleanup checklist in `AGENTS.md` unless `-LeaveGoogleEarthOpen` is explicitly selected and reported.
+- If Google Earth automation runs, close only its owned/reused session and generated Temporary Places without saving them to My Places; do not clear caches, delete saved places or change settings. Leave it open only when `-LeaveGoogleEarthOpen` is explicitly selected and reported.
 
 ## Non-Goals
 

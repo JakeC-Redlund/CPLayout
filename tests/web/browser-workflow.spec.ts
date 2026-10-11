@@ -17,6 +17,14 @@ const routeScreens = [
   { nav: "workspace-nav-settings", screen: "settings-view" },
 ] as const;
 
+async function installRailImagery(page: Page): Promise<void> {
+  const pixels = new Uint8Array(256 * 256 * 4);
+  for (let offset = 0; offset < pixels.length; offset += 4) pixels.set([20, 40, 60, 255], offset);
+  const tile = Buffer.from(encodeRgbaPng(256, 256, pixels));
+  await page.route(/^https:\/\/basemap\.nationalmap\.gov\/arcgis\/rest\/services\/USGSImagery(?:Only|Topo)\/MapServer\/tile\/\d+\/\d+\/\d+$/, route =>
+    route.fulfill({ contentType: "image/png", body: tile }));
+}
+
 test.beforeEach(async ({ page }, testInfo) => {
   await captureConsoleFailures(page);
   const strictOffline = testInfo.title.includes("offline");
@@ -768,6 +776,7 @@ test("public proof map features can select the side-panel editor without geometr
 });
 
 test("workspace rail exposes the selected view state", async ({ page }, testInfo) => {
+  await installRailImagery(page);
   await page.goto("/");
   await openBaselineSample(page);
   await expect(page.getByTestId("workspace-nav-dashboard")).toHaveAttribute("aria-selected", "true");

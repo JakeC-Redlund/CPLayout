@@ -1,10 +1,10 @@
 import { z } from "zod";
-import { OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION, parseDesignDraftDocument, type DesignDraft, type DesignDraftMachine } from "./designDraft";
+import { RECORDED_REFERENCE_DESIGN_DRAFT_DOCUMENT_VERSION, parseDesignDraftDocument, type DesignDraft, type DesignDraftMachine } from "./designDraft";
 import { projectDataKey } from "./projectDataComparison";
 import { snapshotJsonValue } from "./jsonDataSnapshot";
 import { DRAFT_DRAWING_WORKFLOW_VERSION, createDraftDrawingWorkflow, reduceDraftDrawingWorkflow, type DraftDrawingCommand } from "./draftDrawingWorkflow";
 import { prepareClassifiedDrawing, type DrawingClassification } from "./drawingClassification";
-import { PROJECT_DRAWING_METADATA_VERSION, classifiedDrawingFeatureKind, drawingMetadataTargetKey, type DrawingMetadataTarget } from "./drawingMetadata";
+import { seedRecordedReferenceOrigins, mergeRetainedReferenceOrigins, isRecordedReferenceMetadataRecord, PROJECT_DRAWING_METADATA_VERSION, classifiedDrawingFeatureKind, drawingMetadataTargetKey, type DrawingMetadataTarget } from "./drawingMetadata";
 import type { ProjectSettings } from "./settings";
 import type { ObstacleZone, ProjectMapFeature, ProjectMapFeatureGeometry, XY } from "./types";
 
@@ -45,7 +45,7 @@ export type DesignDraftEditorAction =
   | { type: "clear_error" };
 
 export function createDesignDraftEditorState(draft: DesignDraft): DesignDraftEditorState {
-  const detached = snapshot(draft);
+  const detached = snapshot(seedRecordedReferenceOrigins(snapshot(draft)));
   return { draft: detached, past: [], future: [], revision: 0, lastError: null,
     lockedCrs: detached.drawingWorkflow?.lockedCrs ?? (hasCoordinates(detached) ? detached.projectCrs : null) };
 }
@@ -102,7 +102,7 @@ export function reduceDesignDraftEditorState(state: DesignDraftEditorState, inpu
           if (next.fieldBoundaryCaptureEvidence) next.fieldBoundaryCaptureEvidence[action.index] = null;
         }
         const record = drawingRecord(next, { kind: "field_boundary" });
-        if (record) {
+        if (record && !isRecordedReferenceMetadataRecord(record)) {
           if (inserting) record.capture.vertexRecordedAt.splice(action.index, 0, null);
           else if (action.type === "delete_boundary_vertex") record.capture.vertexRecordedAt.splice(action.index, 1);
           else record.capture.vertexRecordedAt[action.index] = null;
@@ -187,13 +187,13 @@ export function reduceDesignDraftEditorState(state: DesignDraftEditorState, inpu
       const lock = state.lockedCrs ?? next.drawingWorkflow.lockedCrs ?? (hasCoordinates(next) ? next.projectCrs : null);
       retainDrawingLock(next, lock);
     }
-    const detached = snapshot(next);
+    const detached = snapshot(seedRecordedReferenceOrigins(mergeRetainedReferenceOrigins(state.draft, next)));
     if (hasCoordinates(detached) && state.lockedCrs !== null && detached.projectCrs !== state.lockedCrs) {
       throw new Error("Restore the session's original CRS before adding coordinates to an earlier empty snapshot.");
     }
     if (equal(detached, state.draft)) return state.lastError ? { ...state, lastError: null } : state;
     return {
-      draft: detached, past: [...state.past, state.draft], future: [],
+      draft: detached, past: [...state.past, mergeRetainedReferenceOrigins(detached, state.draft)], future: [],
       revision: nextRevision(state.revision), lastError: null,
       lockedCrs: state.lockedCrs ?? detached.drawingWorkflow?.lockedCrs ?? (hasCoordinates(detached) ? detached.projectCrs : null),
     };
@@ -205,7 +205,7 @@ export function reduceDesignDraftEditorState(state: DesignDraftEditorState, inpu
 function travel(state: DesignDraftEditorState, direction: "undo" | "redo"): DesignDraftEditorState {
   const candidate = direction === "undo" ? state.past.at(-1) : state.future[0];
   if (!candidate) return state;
-  const retained = snapshotJsonValue(candidate) as DesignDraft;
+  const retained = mergeRetainedReferenceOrigins(state.draft, snapshotJsonValue(candidate) as DesignDraft);
   retainDrawingLock(retained, state.draft.drawingWorkflow?.lockedCrs ?? null);
   const draft = snapshot(retained);
   return {
@@ -216,7 +216,7 @@ function travel(state: DesignDraftEditorState, direction: "undo" | "redo"): Desi
 }
 
 function snapshot(draft: DesignDraft): DesignDraft {
-  return parseDesignDraftDocument({ documentVersion: OPERATIONAL_DESIGN_DRAFT_DOCUMENT_VERSION, draft });
+  return parseDesignDraftDocument({ documentVersion: RECORDED_REFERENCE_DESIGN_DRAFT_DOCUMENT_VERSION, draft });
 }
 
 function hasCoordinates(draft: DesignDraft): boolean {
@@ -275,7 +275,7 @@ function commitClassifiedDrawing(draft: DesignDraft, input: Extract<DesignDraftE
   const prepared = prepareClassifiedDrawing({ workflow: draft.drawingWorkflow, projectCrs: draft.projectCrs,
     captureId: action.captureId, editorRevision: revision, expectedEditorRevision: action.expectedRevision,
     classification: action.classification as DrawingClassification });
-  if (draft.drawingMetadata?.records.some(record => record.capture.captureId === action.captureId)) {
+  if (draft.drawingMetadata?.records.some(record => !isRecordedReferenceMetadataRecord(record) && record.capture.captureId === action.captureId)) {
     throw new Error("This capture identity already belongs to committed geometry.");
   }
   let target: DrawingMetadataTarget;
@@ -336,5 +336,8 @@ function removeDrawingRecord(draft: DesignDraft, target: DrawingMetadataTarget):
 }
 function invalidateDrawingTimes(draft: DesignDraft, target: DrawingMetadataTarget, count: number): void {
   const record = drawingRecord(draft, target);
-  if (record) record.capture.vertexRecordedAt = Array.from({ length: count }, () => null);
+  if (record) {
+    if (isRecordedReferenceMetadataRecord(record)) record.binding = "edited";
+    else record.capture.vertexRecordedAt = Array.from({ length: count }, () => null);
+  }
 }

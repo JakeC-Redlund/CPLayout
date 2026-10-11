@@ -1,4 +1,4 @@
-import { expect, test, type BrowserContext, type Locator, type Page } from "@playwright/test";
+import { expect, test, type BrowserContext, type Locator, type Page, type TestInfo } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import { encodeRgbaPng } from "../../tools/pngMetrics";
 import { sampleProject, projectXyToLonLat, convertPivotProjectToFieldDesign, formatDistanceInputValue, serializeProjectDocument, parseFieldDesignDocument, parseFieldLayoutTarget, parseLayoutSessionDocument, tryBuildPivotProject } from "../../packages/core/src";
@@ -74,6 +74,55 @@ async function openDraft(page: Page) {
 }
 async function inputs(page: Page) {
   if (!await page.getByTestId("design-draft-inputs").isVisible()) await page.getByTestId("draft-inputs-toggle").click();
+}
+async function completionViewport(page: Page, info: TestInfo): Promise<void> {
+  const configured = page.viewportSize();
+  expect(configured, "configured completion viewport").not.toBeNull();
+  const size = {
+    width: Math.min(configured!.width, configured!.width >= 900 ? 900 : 390),
+    height: Math.min(configured!.height, configured!.width >= 700 ? 430 : 844),
+  };
+  await page.setViewportSize(size);
+  expect(page.viewportSize()).toEqual(size);
+  await info.attach("completion-viewport", { body: Buffer.from(JSON.stringify({ profile: info.project.name, configured, actual: size })), contentType: "application/json" });
+}
+async function completionAction(page: Page, id: string, info: TestInfo, stage: string): Promise<void> {
+  const action = page.getByTestId(id);
+  const bar = page.getByTestId("draft-command-bar");
+  await expect(bar.getByTestId(id)).toHaveCount(1);
+  await expect(action).toBeEnabled();
+  await page.getByTestId("draft-calculate").focus();
+  for (let index = 0; index < 5 && !await action.evaluate(node => node === document.activeElement); index += 1) {
+    await page.keyboard.press("Tab");
+  }
+  await expect(action).toBeFocused();
+  const intersection = () => action.evaluate(node => new Promise<number>(resolve => {
+    const observer = new IntersectionObserver(entries => {
+      observer.disconnect(); resolve(entries[0].intersectionRatio);
+    }, { threshold: [1] });
+    observer.observe(node);
+  }));
+  await expect.poll(intersection, "keyboard focus reveals the whole completion control").toBe(1);
+  await action.evaluate(node => node.scrollIntoView({ block: "center", inline: "nearest" }));
+  await expect.poll(intersection).toBe(1);
+  const bounds = await action.boundingBox();
+  const barBounds = await bar.boundingBox();
+  expect(bounds).not.toBeNull(); expect(barBounds).not.toBeNull();
+  expect(bounds!.height).toBeGreaterThanOrEqual(48);
+  expect(bounds!.width).toBeGreaterThanOrEqual(48);
+  expect(bounds!.x).toBeGreaterThanOrEqual(0); expect(bounds!.y).toBeGreaterThanOrEqual(0);
+  expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(page.viewportSize()!.width);
+  expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(page.viewportSize()!.height);
+  expect(bounds!.y).toBeGreaterThanOrEqual(barBounds!.y);
+  expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(barBounds!.y + barBounds!.height);
+  expect(await action.evaluate(node => {
+    const box = node.getBoundingClientRect();
+    return node.contains(document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2));
+  })).toBe(true);
+  await expect(page.getByTestId("draft-inputs-scroll")).toBeVisible();
+  expect((await page.getByTestId("draft-inputs-scroll").boundingBox())!.height).toBeGreaterThanOrEqual(96);
+  await info.attach(stage + "-action-bounds", { body: Buffer.from(JSON.stringify({ viewport: page.viewportSize(), id, bounds, barBounds })), contentType: "application/json" });
+  await page.screenshot({ path: info.outputPath(stage + "-action.png") });
 }
 async function holdWriter(page: Page) {
   await page.evaluate(async () => {
@@ -190,6 +239,7 @@ test("empty workspace advances Customer to project and named first field to desi
 });
 
 test("Calculate previews only; completion atomically retains the latest draft and exact canonical design", async ({ page, context }, info) => {
+  await completionViewport(page, info);
   await seed(context, completeDraftWorkspace()); await openDraft(page); await inputs(page);
   const before = await readWorkspace(page);
   await page.getByTestId("draft-calculate").click();
@@ -198,6 +248,7 @@ test("Calculate previews only; completion atomically retains the latest draft an
   await page.getByTestId("draft-name").fill("Latest applied draft");
   await expect(page.getByTestId("draft-create-complete")).toBeDisabled();
   await page.getByRole("button", { name: "Apply name", exact: true }).click();
+  await completionAction(page, "draft-create-complete", info, "completion-ready");
   await page.screenshot({ path: info.outputPath("completion-ready.png") });
   await holdWriter(page);
   try {
@@ -223,7 +274,8 @@ test("Calculate previews only; completion atomically retains the latest draft an
   expect(completed.fieldBoundary).toEqual(retained.fieldBoundary);
 });
 
-test("completion quota failure commits nothing and retains applied changes for an explicit retry", async ({ page, context }) => {
+test("completion quota failure commits nothing and retains applied changes for an explicit retry", async ({ page, context }, info) => {
+  await completionViewport(page, info);
   await seed(context, completeDraftWorkspace()); await openDraft(page); await inputs(page);
   await page.getByTestId("draft-name").fill("Retained retry");
   await page.getByRole("button", { name: "Apply name", exact: true }).click();
@@ -234,22 +286,26 @@ test("completion quota failure commits nothing and retains applied changes for a
     Storage.prototype.setItem = function(name, value) { if (name === key) throw new DOMException("Synthetic completion quota", "QuotaExceededError"); original.call(this, name, value); };
   }, workspaceKey);
   try {
+    await completionAction(page, "draft-create-complete", info, "quota-create");
     await page.getByTestId("draft-create-complete").click();
     await expect(page.getByTestId("draft-error")).toContainText("quota");
     await expect(page.getByTestId("draft-name")).toHaveValue("Retained retry");
     expect(await page.evaluate(key => localStorage.getItem(key), workspaceKey)).toBe(before);
   } finally { await page.evaluate(() => (window as Window & { restoreWorkflowStorage?: () => void }).restoreWorkflowStorage?.()); }
+  await completionAction(page, "draft-create-complete", info, "quota-retry");
   await page.getByTestId("draft-create-complete").click();
   await expect(page.getByTestId("project-save-state")).toHaveText("Saved");
   expect((await readWorkspace(page)).projectDocuments).toHaveLength(1);
 });
 
 for (const returnBeforeRelease of [false, true]) test(`delayed completion ${returnBeforeRelease ? "does not activate after an away-and-back task change" : "stays in Projects"} and retains a saveable source draft before explicit complete-design open`, async ({ page, context }, info) => {
+  await completionViewport(page, info);
   await seed(context, completeDraftWorkspace()); await openDraft(page); await inputs(page);
   await page.getByTestId("draft-name").fill("Delayed complete source");
   await page.getByRole("button", { name: "Apply name", exact: true }).click();
   const applied = importDesignDraftArchiveZip(await bytes(page, "draft-export"));
   const before = await readWorkspace(page);
+  await completionAction(page, "draft-create-complete", info, "delayed-create");
   await holdWriter(page);
   try {
     await page.getByTestId("draft-create-complete").click();
@@ -304,6 +360,7 @@ for (const returnBeforeRelease of [false, true]) test(`delayed completion ${retu
   expect(resaved.catalog.designs.filter(item => item.kind === "project")).toEqual(completed.catalog.designs.filter(item => item.kind === "project"));
   expect(JSON.parse(resaved.draftDocuments[0].document).draft).toEqual({ ...applied, name: "Source edited after completion" });
   const resavedBytes = await page.evaluate(key => localStorage.getItem(key), workspaceKey);
+  await completionAction(page, "draft-open-saved-complete", info, "saved-complete-open");
   await page.getByTestId("draft-open-saved-complete").click();
   await expect(page.getByTestId("design-draft-workspace")).toHaveCount(0);
   await expect(page.getByTestId("project-save-state")).toHaveText("Saved");
@@ -498,16 +555,27 @@ test("stale draft completion cannot create a second design or overwrite the newe
   await seed(context, completeDraftWorkspace()); await openDraft(page);
   const other = await context.newPage();
   try {
-    await openDraft(other); await inputs(page);
+    await openDraft(other);
+    await expect(other.getByTestId("draft-create-complete")).toBeEnabled();
+    await inputs(page);
     await page.getByTestId("draft-name").fill("Newer saved revision");
     await page.getByRole("button", { name: "Apply name", exact: true }).click();
     await page.getByTestId("draft-save").click();
     await expect(page.getByTestId("draft-save-state")).toContainText("Saved");
     const before = await readWorkspace(page);
+    const beforeBytes = await page.evaluate(key => localStorage.getItem(key), workspaceKey);
+    await expect(other.getByTestId("draft-create-complete")).toBeEnabled();
     await other.getByTestId("draft-create-complete").click();
-    await expect(other.getByTestId("draft-error")).toContainText("revision changed");
+    await expect(other.getByTestId("draft-error")).toHaveText("The saved draft changed while this editor was open. Your edits and undo history are still here. Export draft ZIP to keep applied work. Unapplied inputs remain only in this editor. Return to Projects and reopen the saved draft before saving.");
+    await expect(other.getByTestId("draft-receipt-conflict")).toBeVisible();
+    await expect(other.getByTestId("draft-save")).toBeDisabled();
+    await expect(other.getByTestId("draft-create-complete")).toBeDisabled();
     await expect(other.getByTestId("design-draft-workspace")).toBeVisible();
     expect(await readWorkspace(other)).toEqual(before);
+    expect(await page.evaluate(key => localStorage.getItem(key), workspaceKey)).toBe(beforeBytes);
+    expect(before.catalog.designs).toHaveLength(1);
+    expect(before.draftDocuments).toHaveLength(1);
+    expect(JSON.parse(before.draftDocuments[0].document).draft.name).toBe("Newer saved revision");
     expect(before.projectDocuments).toEqual([]);
   } finally { await other.close(); }
 });

@@ -10,6 +10,79 @@ function deferred() {
   const promise = new Promise<void>(done => { resolve = done; });
   return { promise, resolve };
 }
+
+test("recorded operations wait for admitted saves and use the resulting receipt without reopening", async () => {
+  const coordinator = createEditorSaveCoordinator();
+  const session = coordinator.open({ kind: "draft", payloadId: "draft", designId: "design", workspaceRevision: 5, designRevision: 2 });
+  const gate = deferred();
+  const order: string[] = [];
+  const saving = coordinator.save({ session, payload: { kind: "draft", draft: blank() }, editorRevision: 1,
+    onCommitted(completion) { order.push("acknowledge"); assert.equal(completion.persistenceRevision, 6); },
+    async write(_payload, target) {
+      order.push("save"); await gate.promise;
+      assert.equal(target.workspaceRevision, 5);
+      return { saved: true, persistenceRevision: 6, designRevision: 3 };
+    } });
+  const recording = coordinator.transact({ session, isCurrent: () => true,
+    async write(target, owner) {
+      order.push("record"); assert(owner.isCurrent());
+      assert.equal(target.workspaceRevision, 6);
+      assert.equal(target.kind !== "project" && target.designRevision, 3);
+      return { value: "committed shape membership", persistenceRevision: 7, designRevision: 3 };
+    } });
+  await Promise.resolve(); assert.deepEqual(order, ["save"]);
+  gate.resolve(); await saving; assert.equal(await recording, "committed shape membership");
+  assert.deepEqual(order, ["save", "acknowledge", "record"]);
+  assert.equal(coordinator.receipt(session).workspaceRevision, 7);
+  const receipt = coordinator.receipt(session);
+  assert.equal(receipt.kind !== "project" && receipt.designRevision, 3);
+});
+
+test("retired live or mode owners reject queued capture while an admitted ordinary save still completes", async () => {
+  const coordinator = createEditorSaveCoordinator();
+  const session = coordinator.open({ kind: "draft", payloadId: "draft", designId: "design", workspaceRevision: 5, designRevision: 2 });
+  const gate = deferred(); let interactionCurrent = true, called = false;
+  const saving = coordinator.save({ session, payload: { kind: "draft", draft: blank() }, editorRevision: 1,
+    async write() { await gate.promise; return { saved: true, persistenceRevision: 6, designRevision: 3 }; } });
+  const recording = coordinator.transact({ session, isCurrent: () => interactionCurrent,
+    async write() { called = true; return { value: null, persistenceRevision: 7, designRevision: 4 }; } });
+  const rejected = assert.rejects(recording, /changed.*waited/);
+  interactionCurrent = false; gate.resolve();
+  assert.equal((await saving).saved, true); await rejected;
+  assert.equal(called, false); assert.equal(coordinator.receipt(session).workspaceRevision, 6);
+});
+
+test("recorded transactions expose a live predicate through awaited work and reject invalid receipt jumps", async () => {
+  const coordinator = createEditorSaveCoordinator();
+  const session = coordinator.open({ kind: "field", payloadId: "field", designId: "design", workspaceRevision: 5, designRevision: 2 });
+  const gate = deferred(); let interactionCurrent = true;
+  const attempt = coordinator.transact({ session, isCurrent: () => interactionCurrent,
+    async write(_target, owner) {
+      await gate.promise; if (!owner.isCurrent()) throw new Error("Synthetic repository final owner check");
+      return { value: null, persistenceRevision: 6, designRevision: 3 };
+    } });
+  const rejected = assert.rejects(attempt, /final owner/);
+  await Promise.resolve(); interactionCurrent = false; gate.resolve(); await rejected;
+  assert.equal(coordinator.receipt(session).workspaceRevision, 5);
+  await assert.rejects(coordinator.transact({ session, isCurrent: () => true,
+    async write() { return { value: null, persistenceRevision: 6, designRevision: 4 }; } }), /unexpectedly/);
+  assert.equal(coordinator.receipt(session).workspaceRevision, 5);
+});
+
+test("a pending recorded transaction blocks a later stale Save snapshot and releases the barrier after failure", async () => {
+  const coordinator = createEditorSaveCoordinator();
+  const session = coordinator.open({ kind: "draft", payloadId: "draft", designId: "design", workspaceRevision: 5, designRevision: 2 });
+  const heldLock = deferred(); let writes = 0;
+  const capture = coordinator.transact({ session, isCurrent: () => true,
+    async write() { await heldLock.promise; return { value: "actual recorded change", persistenceRevision: 6, designRevision: 3 }; } });
+  await assert.rejects(coordinator.save({ session, payload: { kind: "draft", draft: blank() }, editorRevision: 0,
+    async write() { writes++; return { saved: true, persistenceRevision: 7, designRevision: 4 }; } }), /recorded.*operation/);
+  assert.equal(writes, 0); heldLock.resolve(); await capture;
+  await assert.rejects(coordinator.transact({ session, isCurrent: () => true, async write() { throw new Error("Synthetic quota failure"); } }), /quota/);
+  const saved = await coordinator.save({ session, payload: { kind: "draft", draft: blank() }, editorRevision: 1,
+    async write(_payload, target) { writes++; assert.equal(target.workspaceRevision, 6); return { saved: true, persistenceRevision: 7, designRevision: 4 }; } });
+  assert(saved.saved); assert.equal(writes, 1);
+});
 const project = () => structuredClone(sampleProject);
 const projectTarget = (workspaceRevision: number | null | undefined = 5): Extract<EditorSaveTarget, { kind: "project" }> => ({
   kind: "project", payloadId: sampleProject.id, designId: null, workspaceRevision,
@@ -542,4 +615,34 @@ test("a concurrent write after proof read still meets the normal save revision c
   assert.equal(f.coordinator.receipt(f.session).workspaceRevision, 5);
   await assert.rejects(f.coordinator.save({ session: f.session, payload: { kind: "project", project: { ...project(), name: "Do not overwrite" } }, editorRevision: 1, write: f.write }), /revision changed/i);
   assert.equal(f.coordinator.receipt(f.session).workspaceRevision, 5);
+});
+
+
+test("catalog/Layout exclusive sibling blocks later Save and releases admission after quota failure without advancing receipts", async () => {
+  const coordinator = createEditorSaveCoordinator();
+  const session = coordinator.open({ kind: "draft", payloadId: "draft", designId: "design", workspaceRevision: 5, designRevision: 2 });
+  const gate = deferred(); let started!: () => void; const didStart = new Promise<void>(resolve => { started = resolve; });
+  const operation = coordinator.exclusive({ session, isCurrent: () => true, async write() { started(); await gate.promise; throw new Error("Synthetic quota failure"); } });
+  const failed = assert.rejects(operation, /quota/); await didStart;
+  let saved = false;
+  await assert.rejects(coordinator.save({ session, payload: { kind: "draft", draft: blank() }, editorRevision: 0,
+    async write() { saved = true; return { saved: true, persistenceRevision: 6, designRevision: 3 }; } }), /recorded workspace operation/);
+  assert.equal(saved, false); gate.resolve(); await failed;
+  assert.equal(coordinator.receipt(session).workspaceRevision, 5);
+  assert.equal((await coordinator.save({ session, payload: { kind: "draft", draft: blank() }, editorRevision: 0,
+    async write() { return { saved: true, persistenceRevision: 6, designRevision: 3 }; } })).saved, true);
+});
+
+test("successful sibling receipt publishes before queue release even if interaction retires after the final commit", async () => {
+  const coordinator = createEditorSaveCoordinator(), order: string[] = [];
+  const session = coordinator.open({ kind: "field", payloadId: "field", designId: "design", workspaceRevision: 5, designRevision: 2 });
+  let interactionCurrent = true;
+  const result = await coordinator.exclusive({ session, isCurrent: () => interactionCurrent,
+    async write(_target, owner) { assert.equal(owner.isCurrent(), true); order.push("committed"); interactionCurrent = false;
+      return { value: "durable receipt", previousRevision: 5, persistenceRevision: 6, designRevision: 2 }; },
+    onCommitted(value) { assert.equal(value, "durable receipt"); assert.equal(coordinator.receipt(session).workspaceRevision, 6); order.push("published"); } });
+  assert.equal(result, "durable receipt"); assert.equal(coordinator.isCurrent(session), true); assert.deepEqual(order, ["committed", "published"]);
+  await coordinator.exclusive({ session, isCurrent: () => true, async write(target) { assert.equal(target!.workspaceRevision, 6); order.push("next");
+    return { value: null, previousRevision: 6, persistenceRevision: 7, designRevision: 2 }; } });
+  assert.deepEqual(order, ["committed", "published", "next"]);
 });

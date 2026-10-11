@@ -1,3 +1,4 @@
+import { seedRecordedReferenceOrigins, mergeRetainedReferenceOrigins, isRecordedReferenceMetadataRecord } from "./drawingMetadata";
 import { validateFieldDesign, type FieldDesign, type FieldPivotMachine } from "./fieldDesignDocument";
 import { snapshotJsonValue } from "./jsonDataSnapshot";
 import { projectDataKey } from "./projectDataComparison";
@@ -14,6 +15,7 @@ export interface FieldDesignEditorState {
 export type FieldDesignEditorAction =
   | { type: "load_field"; field: FieldDesign }
   | { type: "select_machine"; id: string | null }
+  | { type: "rename"; name: string }
   | { type: "add_machine"; machine: FieldPivotMachine }
   | { type: "update_machine"; machine: FieldPivotMachine }
   | { type: "remove_machine"; id: string }
@@ -25,6 +27,7 @@ export type FieldDesignEditorAction =
 const actionKeys: Record<FieldDesignEditorAction["type"], readonly string[]> = {
   load_field: ["type", "field"],
   select_machine: ["type", "id"],
+  rename: ["type", "name"],
   add_machine: ["type", "machine"],
   update_machine: ["type", "machine"],
   remove_machine: ["type", "id"],
@@ -36,7 +39,7 @@ const actionKeys: Record<FieldDesignEditorAction["type"], readonly string[]> = {
 
 export function createFieldDesignEditorState(field: FieldDesign): FieldDesignEditorState {
   return {
-    field: validateFieldDesign(field), past: [], future: [],
+    field: validateFieldDesign(seedRecordedReferenceOrigins(validateFieldDesign(field))), past: [], future: [],
     revision: 0, lastError: null, selectedMachineId: null,
   };
 }
@@ -46,8 +49,9 @@ export function reduceFieldDesignEditorState(state: FieldDesignEditorState, inpu
   try {
     const action = snapshotAction(inputAction);
     switch (action.type) {
-      case "load_field": return createFieldDesignEditorState(action.field);
+      case "load_field": return createFieldDesignEditorState(action.field.id === state.field.id ? mergeRetainedReferenceOrigins(state.field, action.field) : action.field);
       case "clear_error": return { ...state, lastError: null };
+      case "rename": return commit(state, { ...state.field, name: action.name });
       case "select_machine":
         if (action.id !== null && !state.field.machines.some(machine => machine.id === action.id)) {
           throw new Error("Selected machine was not found.");
@@ -103,12 +107,12 @@ export function reduceFieldDesignEditorState(state: FieldDesignEditorState, inpu
 }
 
 function commit(state: FieldDesignEditorState, candidate: FieldDesign): FieldDesignEditorState {
-  const field = validateMachineEdit(state.field, candidate);
+  const field = validateFieldDesign(seedRecordedReferenceOrigins(validateMachineEdit(state.field, mergeRetainedReferenceOrigins(state.field, candidate))));
   if (projectDataKey(field) === projectDataKey(state.field)) {
     return state.lastError ? { ...state, lastError: null } : state;
   }
   return {
-    field, past: [...state.past, state.field], future: [],
+    field, past: [...state.past, mergeRetainedReferenceOrigins(field, state.field)], future: [],
     revision: nextRevision(state.revision), lastError: null,
     selectedMachineId: retainedSelection(field, state.selectedMachineId),
   };
@@ -120,7 +124,7 @@ function validateMachineEdit(previous: FieldDesign, candidate: FieldDesign): Fie
   const before = new Map(previous.machines.map(machine => [machine.id, machine]));
   const after = new Map(candidate.machines.map(machine => [machine.id, machine]));
   const records = candidate.drawingMetadata.records.flatMap(record => {
-    if (record.target.kind !== "pivot_center") return [record];
+    if (isRecordedReferenceMetadataRecord(record) || record.target.kind !== "pivot_center") return [record];
     const oldMachine = before.get(record.target.machineId);
     const newMachine = after.get(record.target.machineId);
     // An already-invalid reference is not permission to discard unrelated metadata.
@@ -135,7 +139,7 @@ function validateMachineEdit(previous: FieldDesign, candidate: FieldDesign): Fie
 function travel(state: FieldDesignEditorState, direction: "undo" | "redo"): FieldDesignEditorState {
   const candidate = direction === "undo" ? state.past.at(-1) : state.future[0];
   if (!candidate) return state;
-  const field = validateFieldDesign(candidate);
+  const field = validateFieldDesign(mergeRetainedReferenceOrigins(state.field, candidate));
   return {
     field, lastError: null, revision: nextRevision(state.revision),
     selectedMachineId: retainedSelection(field, state.selectedMachineId),

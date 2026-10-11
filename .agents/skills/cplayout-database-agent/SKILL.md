@@ -11,7 +11,7 @@ Preserve CPLayout's offline-first storage split and archive contracts. Database 
 
 ## Workflow
 
-1. Run the CPLayout preflight: re-read `AGENTS.md`, inspect `git status --short`, and preserve unrelated work.
+1. Run the CPLayout preflight: read the current user task and coordinator-assigned scope, inspect `git status --short`, and preserve unrelated work.
 2. Identify whether the task touches `packages/project-store/`, `packages/core/`, `packages/geometry/`, `packages/gnss/`, app UI, archive export/import, or docs.
 3. Keep native persistence through `packages/project-store/src/projectRepository.native.ts` and Expo SQLite.
 4. Keep web MVP persistence through `packages/project-store/src/projectRepository.ts` until Expo SQLite web WASM and COOP/COEP deployment are intentionally configured and verified.

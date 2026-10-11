@@ -11,7 +11,7 @@ Build and review CPLayout interfaces as offline-first work surfaces for repeated
 
 ## Workflow
 
-1. Run the CPLayout preflight: re-read `AGENTS.md`, inspect `git status --short`, and preserve unrelated work.
+1. Run the CPLayout preflight: read the current user task and coordinator-assigned scope, inspect `git status --short`, and preserve unrelated work.
 2. Identify whether the task touches Expo app entrypoints, reusable mobile components, shared TypeScript packages, map adapters, project-store adapters, or documentation.
 3. Prefer existing components, styles, navigation patterns, and pure TypeScript domain logic before new dependencies.
 4. Keep drawing viewport state separate from geometry mutation. UI pan, zoom, hover, and draft capture state must not corrupt committed vertices.

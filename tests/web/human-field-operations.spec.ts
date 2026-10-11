@@ -269,6 +269,8 @@ async function prepareDesignTarget(page: Page) {
 }
 
 async function openProjectDrawer(page: Page) {
+  await expect(page.getByTestId("task-projects")).toHaveAttribute("aria-current", "page");
+  await expect(page.getByTestId("dashboard-workspace")).toBeVisible();
   const drawer = page.getByRole("button", { name: "Open project drawer", exact: true });
   if (await drawer.isVisible()) await drawer.click();
 }

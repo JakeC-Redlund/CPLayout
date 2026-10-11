@@ -9,7 +9,7 @@ Use this skill when a CPLayout asks whether a feature is proved, release-ready, 
 
 ## Operating Rules
 
-1. Start from `AGENTS.md`, then read the task-specific checklist or report named by the coordinator.
+1. Start from the current user task, then read the task-specific checklist or report named by the coordinator.
 2. Stay read-only unless the coordinator assigns a bounded worker scope.
 3. Separate compile/test success, generated artifact correctness, browser proof, native proof, Google Earth proof, and release evidence.
 4. Do not claim Android, iOS, native SQLite, ZIP sharing, native MapLibre, raw PMTiles/MBTiles, imported raster package rendering, Google Earth rendering, or ML/CV runtime proof without the matching completed report or direct visual/device evidence.

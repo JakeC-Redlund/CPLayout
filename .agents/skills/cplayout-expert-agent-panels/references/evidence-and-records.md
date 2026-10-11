@@ -4,7 +4,7 @@ Use this guide when a CPLayout panel task needs current facts, external referenc
 
 ## Source Hierarchy
 
-1. Workspace contracts: `AGENTS.md`, repo-local skills, ADRs, docs, task logs, known gaps, and checked-in source.
+1. Current user task and coordinator scope, relevant repo-local skills, ADRs, docs, task logs, known gaps, and checked-in source.
 2. Official product or API documentation.
 3. Vendor documentation, standards, manufacturer docs, or primary regulatory pages.
 4. Local command outputs and generated validation artifacts.

@@ -3,7 +3,7 @@
 
 The Stop continuation path was disabled because stale or ambiguous runtime
 payloads could produce repeated continuation prompts. Subagent accounting stays
-documented in AGENTS.md and prompt-triage context, but this script must not
+documented in current coordinator assignments and prompt-triage context, but this script must not
 block or continue a turn.
 """
 

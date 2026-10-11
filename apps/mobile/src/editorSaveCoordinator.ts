@@ -54,6 +54,7 @@ export function createEditorSaveCoordinator() {
   let active: EditorSaveSession | null = null;
   let generation = 0;
   let tail: Promise<void> = Promise.resolve();
+  let pendingRecordedTransactions = 0;
 
   function targetFor(session: EditorSaveSession): EditorSaveTarget {
     const target = targets.get(session);
@@ -108,10 +109,12 @@ export function createEditorSaveCoordinator() {
       payload: EditorSavePayload;
       editorRevision: number;
       feedbackIsCurrent?: () => boolean;
+      onCommitted?: (completion: EditorSaveCompletion) => void;
       write: (payload: EditorSavePayload, target: EditorSaveTarget, owner: { isCurrent(): boolean }) => Promise<EditorWriteOutcome>;
     }): Promise<EditorSaveCompletion> {
-      const { session, editorRevision, write, feedbackIsCurrent } = request;
+      const { session, editorRevision, write, feedbackIsCurrent, onCommitted } = request;
       requireActive(session);
+      if (pendingRecordedTransactions > 0) throw new Error("Wait for the recorded workspace operation before saving another design snapshot.");
       assertRevision(editorRevision, "Editor revision");
       const payload = snapshotPayload(request.payload);
       const payloadId = payload.kind === "project" ? payload.project.id : payload.kind === "draft" ? payload.draft.id : payload.field.id;
@@ -127,8 +130,94 @@ export function createEditorSaveCoordinator() {
             ? { ...target, workspaceRevision: outcome.persistenceRevision!, designRevision: outcome.designRevision! }
             : { ...target, workspaceRevision: outcome.persistenceRevision });
         }
-        return { ...outcome, session, editorRevision };
+        const completion = { ...outcome, session, editorRevision };
+        if (outcome.saved) onCommitted?.(completion);
+        return completion;
       });
+    },
+
+    /** Shared ordering for recorded workspace operations. Earlier admitted saves
+     * finish first. Unlike ordinary saves, these commands must retain their live
+     * or interaction owner until the repository's final commit check. */
+    async transact<T>(request: {
+      session: EditorSaveSession;
+      isCurrent: () => boolean;
+      write: (target: EditorSaveTarget, owner: { isCurrent(): boolean }) => Promise<{
+        value: T; persistenceRevision: number; designRevision?: number;
+      }>;
+    }): Promise<T> {
+      requireActive(request.session);
+      const owner = { isCurrent: () => active === request.session && request.isCurrent() };
+      if (!owner.isCurrent()) throw new Error("The workspace operation is no longer current.");
+      pendingRecordedTransactions++;
+      try { return await enqueue(async () => {
+        if (!owner.isCurrent()) throw new Error("The workspace changed while this operation waited for earlier saves.");
+        const target = targetFor(request.session);
+        if (target.workspaceRevision === null || target.workspaceRevision === undefined || !target.designId) {
+          throw new Error("Save and associate this design with a field before recording workspace operations.");
+        }
+        const outcome = await request.write({ ...target }, owner);
+        assertNextRevision(target.workspaceRevision, outcome.persistenceRevision, "Workspace operation revision");
+        if (target.kind !== "project") {
+          assertRevision(outcome.designRevision, "Recorded design revision");
+          if (outcome.designRevision !== target.designRevision && outcome.designRevision !== target.designRevision + 1) {
+            throw new Error("Recorded design revision changed unexpectedly; preserve the result and reopen explicitly.");
+          }
+          targets.set(request.session, { ...target, workspaceRevision: outcome.persistenceRevision, designRevision: outcome.designRevision });
+        } else targets.set(request.session, { ...target, workspaceRevision: outcome.persistenceRevision });
+        return outcome.value;
+      }); } finally { pendingRecordedTransactions--; }
+    },
+
+    /** Explicit source-proof receipt refresh is not a Save or an ownership transfer. */
+    async reconcileRead<T>(request: {
+      session: EditorSaveSession; isCurrent: () => boolean;
+      read: (target: EditorSaveTarget) => Promise<{ value: T; workspaceRevision: number; designRevision?: number }>;
+      onCommitted: (value: T) => void;
+    }): Promise<T> {
+      requireActive(request.session);
+      return enqueue(async () => {
+        requireActive(request.session);
+        if (!request.isCurrent()) throw new Error("The receipt source owner retired.");
+        const target = targetFor(request.session), result = await request.read({ ...target });
+        requireActive(request.session);
+        if (!request.isCurrent() || targetFor(request.session) !== target) throw new Error("The source receipt changed during reconciliation.");
+        assertRevision(result.workspaceRevision, "Reconciled workspace revision");
+        if (target.workspaceRevision === null || target.workspaceRevision === undefined || result.workspaceRevision < target.workspaceRevision) throw new Error("Reconciliation cannot move the loaded receipt backwards.");
+        if (target.kind !== "project" && result.designRevision !== target.designRevision) throw new Error("Reconciliation cannot bless a changed design revision.");
+        targets.set(request.session, { ...target, workspaceRevision: result.workspaceRevision });
+        request.onCommitted(result.value); return result.value;
+      });
+    },
+
+    /** One shared queue for catalog/Layout siblings, including target-only workspaces.
+     * The caller proves its exact retained source before rebasing a document receipt. */
+    async exclusive<T>(request: {
+      session?: EditorSaveSession;
+      isCurrent: () => boolean;
+      write: (target: EditorSaveTarget | null, owner: { isCurrent(): boolean }) => Promise<{ value: T; previousRevision: number; persistenceRevision: number; designRevision?: number }>;
+      onCommitted?: (value: T) => void;
+    }): Promise<T> {
+      if (request.session) requireActive(request.session);
+      const owner = { isCurrent: () => (!request.session || active === request.session) && request.isCurrent() };
+      if (!owner.isCurrent()) throw new Error("The workspace operation is no longer current.");
+      pendingRecordedTransactions++;
+      try { return await enqueue(async () => {
+        if (!owner.isCurrent()) throw new Error("The workspace operation retired while waiting for earlier writes.");
+        const target = request.session ? targetFor(request.session) : null;
+        const outcome = await request.write(target ? { ...target } : null, owner);
+        assertNextRevision(outcome.previousRevision, outcome.persistenceRevision, "Sibling workspace revision");
+        if (target && request.session) {
+          if (target.workspaceRevision !== outcome.previousRevision) throw new Error("The sibling source receipt changed before its write.");
+          if (target.kind !== "project") {
+            assertRevision(outcome.designRevision, "Sibling design revision");
+            if (outcome.designRevision !== target.designRevision) throw new Error("The sibling operation changed its retained design.");
+            targets.set(request.session, { ...target, workspaceRevision: outcome.persistenceRevision });
+          } else targets.set(request.session, { ...target, workspaceRevision: outcome.persistenceRevision });
+        }
+        request.onCommitted?.(outcome.value);
+        return outcome.value;
+      }); } finally { pendingRecordedTransactions--; }
     },
 
     /** Drain earlier saves before retaining the exact stored source around independent sibling writes. */

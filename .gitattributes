@@ -6,3 +6,5 @@ docs/evidence/native-artifacts-20260927/service-tests.txt -whitespace
 patches/braces+3.0.3.patch -text -whitespace
 patches/node-forge+1.4.0.patch -text -whitespace
 patches/sprintf-js+1.0.3.patch -text -whitespace
+# Preserve the frozen v1 reader bytes, including four inherited space-only lines.
+tests/fixtures/workspace-edit-recovery-v1-reader.cjs -text whitespace=-blank-at-eol

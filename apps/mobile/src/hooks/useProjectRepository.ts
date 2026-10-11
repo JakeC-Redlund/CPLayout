@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { parseFieldDesignDocument, parseLayoutSessionDocument, parseDesignDraftDocument, parseProjectDocument, type LayoutSession, type LayoutObservation, type DesignDraft, type LayoutResult, type PivotProject, type FieldDesign } from "@cplayout/core";
 import {
-  createCatalogId, exportFileAsync, projectRepository, workspaceBackendInfo, workspaceDesignCatalog,
+  createCatalogId, exportFileAsync, projectRepository, workspaceBackendInfo, workspaceDesignCatalog, validateWorkspaceDocument,
   type CatalogProjectRecord, type CreatedProjectFieldMapWorkspace, type CreatedProjectWorkspace,
   type CreateProjectWithInitialFieldMapInput, type CreateProjectWithInitialDesignInput,
   type ClientRecord, type ClientProfileInput, type ClientProfileUpdateInput, type DesignRecord,
   type FieldMapRecord, type ProjectCatalog, type ProjectRepositoryBackendInfo, type ProjectSummary,
   type CopyProjectCommand, type VersionedWorkspaceRepository, type WorkspaceCommand, type WorkspaceDesignCatalog,
-  type WorkspaceDocument,
+  type WorkspaceDocument, type WorkspaceCommandValue,
 } from "@cplayout/project-store";
 
 export type PersistenceRevision = number | null | undefined;
@@ -32,6 +32,11 @@ export type OpenedField = Extract<OpenedDesign, { kind: "field" }>;
 export interface SaveFeedbackOwner { isCurrent(): boolean }
 
 export interface ProjectWorkspaceStatus {
+  readWorkspace: () => Promise<WorkspaceDocument>;
+  readWorkspaceLease?: <T>(expectedRevision: number, action: (workspace: WorkspaceDocument, assertCurrent: () => void) => T | PromiseLike<T>,
+    isCurrent: () => boolean) => Promise<T>;
+  acceptWorkspaceReadReceipt?: (workspace: WorkspaceDocument, isCurrent: () => boolean) => void;
+  executeWorkspaceCommand: (command: WorkspaceCommand, revision: number, owner?: SaveFeedbackOwner) => Promise<{ workspace: WorkspaceDocument; value: WorkspaceCommandValue }>;
   backendLabel: string;
   backendInfo: ProjectRepositoryBackendInfo | null;
   catalog: ProjectCatalog;
@@ -246,6 +251,24 @@ export function useProjectRepository(): ProjectWorkspaceStatus {
   const now = () => new Date().toISOString();
   const id = createCatalogId;
   return {
+    async readWorkspace() {
+      if (!versioned) throw new Error("The unified durable workspace requires the browser snapshot repository. Native activation is pending verification.");
+      return versioned.readAsync();
+    },
+    async readWorkspaceLease(expectedRevision, action, isCurrent) {
+      if (!versioned?.readLeaseAsync || backendInfo?.runtime !== "web")
+        throw new Error("Edit recovery requires the verified browser workspace read lease. Native activation is pending verification.");
+      return versioned.readLeaseAsync(expectedRevision, action, isCurrent);
+    },
+    acceptWorkspaceReadReceipt(workspace, isCurrent) {
+      if (!versioned || backendInfo?.runtime !== "web" || isCurrent() !== true)
+        throw new Error("The browser workspace read receipt belongs to an unsupported or retired owner.");
+      const receipt = validateWorkspaceDocument(workspace);
+      if (isCurrent() !== true || latestCatalogRevision.current !== null && receipt.revision < latestCatalogRevision.current)
+        throw new Error("A newer catalog receipt retired this recovery publication.");
+      refreshSequence.current++; publishSnapshot(receipt);
+    },
+    executeWorkspaceCommand: execute,
     backendLabel: projectRepository.backendLabel, backendInfo, catalog, designCatalog, catalogRevision, projects, statusMessage, storageError,
     canExportWorkspaceRecovery: Boolean(versioned), reportError, clearProjectError, clearCatalogError, refreshProjects,
     canCopyProject: Boolean(versioned),

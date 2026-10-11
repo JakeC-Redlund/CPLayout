@@ -1,37 +1,199 @@
 # Development Status
 
-Updated 2026-10-06. Current resumption index; not release acceptance.
+## Pause and publication checkpoint — 2026-10-11
+
+Feature work is stopped at the owner's explicit request. Start future work with
+[the pause/handoff record](checkpoints/2026-10-11-unified-workspace-pause.md), not
+the superseded next-feature instructions below. R4 passed33 actual management
+browser cases, focused initializer8/Catalog20/recovery11 and mobile TypeScript;
+its frozen1112-file source is020b1626373ed632db3cdd137ec119acbbab01951828594a866a25c7bc5f4f8f.
+The served Edge bundle isf7982d76c82c4e0eedf6a7fefec2fca8d9dee14ffe3eb439a9832872590d6fc9.
+
+Publication is a checkpoint qualification: existing PR2, required current-head
+CI, merge preserving ancestry, main-only named branches and clean canonical
+status. The final ignored coordination receipt records actual OIDs/CI/resource
+disposition after execution. No full-workflow, human, native, physical receiver
+or field-accuracy acceptance is inferred. Current-App and applicable independent
+browser contracts remain required; old navigation fixtures are preserved with
+explicit per-title migration debt. No modeling integration/build handoff is
+granted by publication or pause. Do not resume feature work until the owner asks.
+
+## Current verified stopping point — 2026-10-11
+
+The single Design/Survey/Layout workspace now captures and explicitly restores
+unfinished work through its existing controller/form/map owners. Recovery has a
+separate local checkpoint status; it does not acknowledge domain Save or revive
+a receiver. Exact saved Survey/Layout source strings and immutable targets remain.
+The [recovery plan](unified-workspace-edit-recovery-plan.md) records the source,
+component and real App corrections, including hidden form owners, drained rollback,
+post-retention commit acknowledgement and Field's inactive drawing placeholder.
+
+Wave9-r4 freezes1104 files at
+`e1cf6d468b739262d5b23dade00aee9536cfe6a39834a719bc0e309184d523a2`.
+All27 new actual App recovery cases pass (nine journeys at desktop/tablet/narrow)
+and the full aggregate passes. Mobile TypeScript, skills/context, diff and exact
+legacy-reader integrity pass. Visible Windows Edge serves bundle SHA256
+`35cf5946b37a11b4771b910cb0b59b450d9634fc4b9cdd099cd37bd9c8f969d3`
+with no observed page errors. This proves the executed recovery journeys; actual
+postpublication rollback injection, full focus/keyboard/two-tab/short-height matrix
+and full prior browser regression are not inferred. Failed r2/r3 runs are retained.
+
+Next is the [bounded management plan](unified-workspace-management-plan.md), chosen
+by two independent weighted reviews: qualified current-field New, recognizable
+Design/Field naming, existing title-input reuse, conditional same-transaction title
+sync, strict queued mutation receipts and metadata-only Field-container rename
+with an explicit recovery-form compatibility contract. Broader management/report
+and Field drawing reachability remain in the original objective.
+
+The work remains unpublished in the isolated detached worktree. No accepted main
+checkpoint or modeling transfer is granted. Complete software/human acceptance,
+physical transports/native/field accuracy are not claimed. Hook discovery is
+bounded positive evidence; execution remains unproven. Final audit/CI, two complete
+reviews, full proof and main-only Git synchronization remain required.
+
+## Preserved A2 and wave8 checkpoint — 2026-10-11
+
+The shared Design/Survey/Layout App now automatically restores accepted saved
+design, Survey collection, frozen Layout target and independent Catalog browsing
+context. Operator intent cancels delayed startup before it can replace newer work;
+failed operations and raw input do not acquire permission to overwrite the hint.
+The preceding JSON/ZIP package import and exact-source/history contracts remain.
+
+Wave7-A2-r3 freezes1086 files at fingerprint
+`51f146bdc05ec4ddac0e03d8e9173a384d5229ecbbcbd8b28822f3651c869e16`.
+All141 actual desktop/tablet/mobile App cases pass:105 prior journeys with explicit
+navigation compatible with restoration, plus36 startup journeys.37 startup and61
+prior controller cases pass. Eight actual-canvas cases close the demonstrated
+world-camera/style/gesture defects. Eight fresh settled Windows Edge figures match
+served bundle SHA256
+`3fc63d26c39917c8dd9d05f782628045c4a3b12201445b5406ede5f074562ed0`;
+independent rendered review accepts the bounded camera/modal/context behavior.
+Full aggregate, skills/context,96 visual-review tools and diff pass with all1086
+source hashes unchanged. Raw audit21high/5moderate remains; verified exact local
+mitigations are admitted, not upstream fixes. Failed R1/R2 evidence is preserved.
+Strict browser-test TSC has17 independently verified pre-existing diagnostics;
+application/package TypeScript and executed browser tests are separate green gates.
+
+At wave8, source implemented the [edit-recovery foundation](unified-workspace-edit-recovery-plan.md):
+strict source/evidence admission, an independent-tab checkpoint ledger, staged raw
+input hydration and a browser workspace read lease. Wave8-r2 freezes1092 files at
+`72031986de5c27a91b25738d53e2ec2497be795e60350925817d9f69691cac9f`.
+Its aggregate,22 pure/20 ledger/34 retention/22 lease cases, skills/context and diff
+pass without drift; independent review closes the reproduced authority/camera/input
+defects. This is source/test evidence. Actual checkpoint capture and Restore UI
+were not implemented or browser-qualified then. Its last rendered proof was A2-r3.
+Subsequent integration needed the missing AppSettings snapshot and exact
+pending import byte custody. Catalog local forms have React mount keys rather than
+sequence-based retention addresses; preserve their actual owners.
+
+This is a scoped checkpoint, unpublished in the isolated detached worktree. Whole
+software/main acceptance, physical transports, native and field accuracy are not
+claimed. The complete objective stayed active. The hint does not contain unfinished
+inputs, editor/history or camera state. The next step was [full edit recovery](unified-workspace-edit-recovery-plan.md),
+then distinct customer/field/design/machine/file management. Private source-bound
+hook discovery succeeds; two guarded turns produce no hook execution events.
+Execution remains unproven, cause unknown; no global trust/config change occurred.
+Two complete final reviews, full browser/proof/CI and main-only synchronization
+remain required. The held modeling packet has no integration/build transfer.
+
+## Active refocus — 2026-10-10
+
+The owner prioritized one Design–Survey–Layout workspace: a single mode toggle,
+one actual map/controller and identical common context, file, camera, receiver and
+status controls. The prior AGENTS.md instruction set was withdrawn. Follow the
+[tracked refocus plan](unified-workspace-refocus-2026-10-10.md) and
+[selected architecture](unified-workspace-decision-2026-10-10.md) for active work.
+The preceding separate-screen R53 candidate is preserved as recovery; its
+standalone R54 resize pass and acceptance queue are superseded.
+
+The isolated third wave now makes `UnifiedWorkspaceEntry` the actual App entry:
+one controller, common map/frame, retained mode panels and one supporting catalog.
+Existing Project tools are extracted from App; no old whole working editors mount
+behind the new frame. Mobile TypeScript and the mobile suite pass. These are source
+checks, not full workflow acceptance. The preceding second-wave checkpoint passes 13 controller,
+29 save-queue, 18 retention and nine Field-input checks, mobile TypeScript and diff
+checking, with all 17 inspected files unchanged during those checks. Workers report
+143 focused storage checks and nine renderer/camera checks at their frozen packets.
+These are scoped source checks, not integrated UI or runtime acceptance.
+
+Historical wave3 r1/r2 defects are preserved and repaired: catalog Open self-blocking,
+File menu pointer stacking and trusted receiver optional-value production. Wave3 r3
+completed all six actual desktop scenarios on its frozen source and exact served
+Windows Edge bundle. That scoped pass does not qualify the changed fourth wave.
+
+Wave4 r4 was the bounded organization checkpoint:756-source fingerprint
+`e68c021ef1f652c849f44046fa218348fcb9dc179ba914e23682bfadd88102cb`.
+All21 actual default-App browser cases pass in41.8s across desktop/tablet/mobile.
+Fresh Windows Edge desktop/narrow/short Drawing/Inputs/Review and introductory
+mode captures match bundle `91ceac005a7709217903266f3c78f0b3b0dc8a77cbd5d7500a29a60426307f5e`.
+Actual clean forms disable Discard; unavailable drawing/completion actions are
+visibly disabled. Independent rendered review closes the earlier error-message,
+compact context and disabled-affordance findings. Focused source/compiler checks
+pass. Original failed candidates/traces are retained. These seven workflows at
+three widths do not prove the complete management/failure/reference/capture matrix.
+
+The next source-backed contract is [recorded-reference Survey support](unified-workspace-recorded-reference-plan.md):
+immutable historical origin and separate current attachment, explicit new document
+versions, audited mutation/copy/reader behavior and unchanged fixed-GGA admission.
+No new schema code or held modeling integration is implemented by that plan.
+Current aggregate, skills/context and96 visual-review tool tests pass. A test-only
+scene tamper probe repair bridges the unchanged production UI to fingerprint
+`f72487a0c81574b308bf83d1fcf6fa1781e75e487bf757a27e638a03d6bcaa3a`.
+Fresh audit still reports21high/5moderate; exact installed mitigations pass.
+Independent file/status review identified misleading Saved/unapplied input,
+precondition-as-storage errors, inconsistent copy/export admission and Layout
+Save targeting retained Design. [That workflow repair](unified-workspace-file-status-plan.md)
+is the selected next priority; reference schema work follows after interface freeze.
+See [the organization iteration record](unified-workspace-integration-wave-4.md).
+
+Atomic Draft completion, combined Survey history, actual classified Project drawing,
+shared Layout/catalog receipts and real source-keyed advisory producers are integrated
+in source. The earlier 805-file aggregate and 82-test governance pass remain
+first-wave evidence only. Actual hook loading remains unverified. A new native App Server discovery-only
+probe completed normally but listed canonical hook definitions rather than the
+changed linked-worktree source; no turn was started against the mismatched source. Next work is exact-build rendered/browser/
+Edge journeys and corrections, then remaining contracts/governance/publication.
+Neutral reference Apply needs an honest versioned metadata extension; two independent
+weighted reviews selected that direction without permitting false digitized evidence.
+Existing worktrees and staged candidate are preserved in the detached implementation
+checkout. Canonical remains clean at `83c257a`; no modeling handoff or publication
+acceptance is granted by these checks.
+
+The following dated state describes the preserved proposal. It is historical
+context, not the active refocus priority or new architecture acceptance.
+
+Updated 2026-10-08. Current resumption index; not release acceptance.
 Read after `AGENTS.md` and `agent-tree-protocol.md` when resuming broad work.
 Use one linked task contract, not the complete historical logs.
 
 ## Current State
 
-- The workflow proposal `31af041` is committed, pushed and synchronized on the
-  temporary publication branch. Protected main remains at the earlier checkpoint;
-  this synchronization is not software acceptance or a modeling-owner transfer.
-  The following camera/save repairs passed source validation and 36 focused cases
-  in both Linux browsers and visible Windows Edge. Independent pixel review found
-  three misleading interface messages: stale Catalog guidance, an exposed schema
-  key and a save instruction beside Saved. Bounded feedback and Drawing-control
-  corrections passed bounded independent source review. Broader review then
-  reproduced exact-value loss when arbitrary earlier draft spans were removed.
-  The bounded draft append/remove-last correction passed source validation and
-  six precision cases across Linux and visible Edge. One tablet imagery test
-  reproduced decorative SVG pixel quantization after actual map/camera settling;
-  an independently reviewed screenshot-only correction retains strict map-pixel,
-  loading, camera and XY checks. Interrupted/failed evidence is preserved.
-  Source validation and 42 focused cases subsequently passed in Linux and Edge.
-  Full execution found three obsolete move-message suffix expectations; retained
-  snapshots confirm correct neutral messages and Unsaved state. A test-only
-  correction preserves geometry/save checks. The complete corrected run found
-  two tablet SVG control-space defects and six legacy fixture failures; measured
-  pane compact presentation and responsive/restored-route fixture repairs are
-  implemented. Source validation and the original SVG regression paths now pass;
-  one compact saved-item helper required the ordinary drawer route after hydrated
-  Projects readiness. That fixture-only refinement is pending current/full checks.
-  The completed 171-case visible Edge
-  batch and three open-state workflows are scoped evidence. Full current-candidate
-  source/browser/CI and two unchanged complete reviews remain due.
+- The latest workflow proposal `83c257a` is committed, pushed and synchronized
+  on the temporary publication branch. Protected main remains at the earlier
+  checkpoint; publication acceptance is recorded per exact revision in
+  [the workflow review](https://github.com/JakeC-Redlund/CPLayout/pull/2).
+  Current source validation and 27 focused cases passed in both Linux browsers
+  and visible Windows Edge. The complete 984-case run ended normally with 969
+  passes, ten exact declared exclusions and five failures; it did not pass
+  acceptance. Visible Edge passed 171 full, three supplemental and two saved-item
+  cases. One navigation fixture encountered a live USGS tile404; the remaining
+  four readiness/shader cases passed unchanged in isolation. Resource causation
+  is unproven. A narrow deterministic tile fixture preserves the navigation and
+  strict console assertions.
+  Additional current-state captures found a required usability defect at
+  390 by 430: the status scroller has only 47 client pixels for a 48-pixel
+  completion action, so ordinary focus and scrolling cannot reveal it fully.
+  The bounded repair moves unchanged Create/Open completion commands after
+  Calculate in the existing nonshrinking horizontal bar. Input/map allocations,
+  callbacks, pending-text, camera, selection and history remain unchanged.
+  Strengthened existing completion tests exercise full visibility, keyboard and
+  horizontal access, applied-data preservation, quota retry and saved-design
+  reopening at narrow/short sizes. The new frozen candidate requires matching
+  full proof, actual action/error figures, exact-head CI and two complete
+  unchanged-candidate reviews. Test helpers retain actual configured short
+  viewports, the exact stale-draft conflict and stable Projects presentation.
+  Source-only reviews and earlier passing runs
+  do not establish final software acceptance.
 - The current registry audit reports 21 high and five moderate dependency findings
   rooted in three advisories without a published fixed release. Exact-version
   defensive local patches and the separate installed-source verification gate

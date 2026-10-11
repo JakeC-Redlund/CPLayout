@@ -1,5 +1,7 @@
 # CPLayout Agent Prompt Registry
 
+Current authority, 2026-10-10: the preceding AGENTS.md instructions were withdrawn. Current user instructions and the explicit coordinator assignment govern; archived instructions and dated evidence below do not authorize delegation, managed deployment or a restart. The unified refocus selects existing-hook repairs and no framework/tool installation. See [current governance source evidence](governance-refocus-2026-10-10.md).
+
 For explicit local CUDA jobs, use the [managed companion integration](cuda-companion-workspace-2026-09-27.md)
 and the shared CV catalog/profile by reference. Require explicit asset hashes and
 prompts, keep resource/readiness failures visible, and preserve CPLayout-owned
@@ -60,7 +62,7 @@ Every route declares `agent`, `complexityBand`, coordinator `reasoningEffort`, `
 
 Broad terms such as `agent`, `hook`, `layout`, and `web` are intentionally low weight. They should not route by themselves; they only help rank a route when stronger task-specific terms are also present.
 
-Token-efficiency guardrails are checked in hook tests and validation. Prompt triage emits no more than three matched routes; generated context packs allow two first-read paths each. The hook itself targets at most 1200 UTF-8 bytes for `UserPromptSubmit` and 900 for `SubagentStart`. Curator keyword growth remains capped. These are output-size limits, not proof of actual token or cost savings; route changes need fixture recall, negative, stale-map and byte-budget checks.
+Token-efficiency guardrails are checked in hook tests and validation. Prompt triage emits no more than three matched routes; generated context packs allow two first-read paths each. The hook caps additional context at 1200 UTF-8 bytes for `UserPromptSubmit`, 900 for `SubagentStart` and 600 for `PreToolUse`. Configured token spill thresholds are separate approximate host limits. Curator keyword growth remains capped. These are output-size limits, not proof of actual token or cost savings; route changes need fixture recall, negative, stale-map and byte-budget checks.
 
 The 2026-09-27 local 12-prompt fixture run emitted 5,575 bytes versus the 25,973-byte baseline (78.5% lower), kept 8 matched/4 unmatched, and reduced emitted first-read references from 72 to 20. The largest prompt output was 598 bytes; nine subagent profiles peaked at 587 bytes. This is test evidence for those payloads only, not a general model-usage or live-hook claim.
 
@@ -72,9 +74,9 @@ The prompt triage hook preserves route scoring, then selects at most three compa
 
 Run `npm run context-map:build` after changing routes, hooks, custom agents, repo-local skills, validation records, or indexed docs. Run `npm run context-map:check` or `npm run validate:skills` before reporting success; the check fails when the checked-in JSON or Markdown is stale.
 
-## Persistent Subagent Authorization
+## Current delegation authority
 
-The CPLayout owner has persistently requested and authorized bounded subagent use for non-trivial CPLayout planning, review, implementation, validation, and knowledge-curation work. Future coordinators should state `Subagent decision: required/optional/not useful` in their summary, spawn bounded read-only or worker subagents when runtime tools are available and scopes are independent, and record `Accepted fallback:` when subagent tools are unavailable or would not add independent evidence. Each subagent gets its own task-selected reasoning level, read/write scope, expected output shape, and no-overlap boundary; a coordinator `xhigh` route band is not automatic effort inheritance. This authorization does not remove the coordinator's duty to keep the main agent on the critical path, avoid overlapping write scopes, and verify all facts directly.
+The preceding standing-authorization instructions were withdrawn on 2026-10-10. The current owner explicitly authorized bounded multiagent refocus work and delegated its decisions; that active task, rather than this historical registry, supplies authority. Give each leaf a task-selected effort, exact scope, output and stopping point. The coordinator owns integration and remains on the critical path. Route matches and stored profiles do not authorize additional actions or prove sandbox settings.
 
 HUD-first, right-sidebar, right-drawer, toolbar, UI-proof, map workspace, map visual overlay, UI test server, local web launcher, and Will Rhea / Jason Harmelink advisory-demo prompts route through the interface developer and imagery mapper when they include terms such as `HUD`, `bottom HUD`, `right-sidebar`, `right-drawer`, `toolbar`, `UI-proof`, `map workspace`, `map visual elements`, `ui:test:start`, `ui:test:status`, `ui:test:stop`, `dev:web:smart`, `local web launcher`, `UI test server`, `wheel track overlay`, `end-of-machine indicator`, `Will Rhea`, or `Jason Harmelink`. For local browser checks, agents should use the repo-owned launcher commands, report the exact printed URL, and clean up with `npm run ui:test:stop`; broad standalone words like `server` or `web` should not route by themselves. Add the center-pivot designer and database specialist only when the prompt also asks for advisory design scoring, wheel/tower tracks, end-of-machine paths, generated review zones, persistence, ZIP archive, SQLite, or schema behavior. Add the KB curator when the prompt asks for known gaps, source ledgers, prompt registry, context-map, or plan-record updates involving Will Rhea/client KMZ evidence. Generated Will Rhea overlays remain advisory and projected/local `XY`; KMZ-derived evidence keeps provenance and does not become Google Earth render proof.
 
@@ -133,3 +135,7 @@ Observed direct-use skills during the 2026-05-31 implementation session:
 - Other local skills: DaVinci Resolve automation, editing, audio, color, Fusion, project factory, production review, and world-regeneration skills.
 
 This section is a snapshot, not a durable guarantee. The active runtime skill list remains the source of truth for future sessions.
+
+## Unified refocus routing (2026-10-10)
+
+Precise unified-workspace, Design/Survey/Layout, mode-switch, dirty-input, camera and receiver phrases select the interface/preservation contract; Survey collection/bundle phrases select storage, and immutable Layout target phrases select GIS. Normalized phrase duplicates are invalid. Route metadata is advisory; the coordinator chooses scope, effort and actual delegation. The configured ceiling is three spawned threads, excluding the primary; the active host's four total exposed slots are a separate observation.

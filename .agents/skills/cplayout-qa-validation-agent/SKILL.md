@@ -9,7 +9,7 @@ Use this skill when a CPLayout task needs an independent validation or acceptanc
 
 ## Operating Rules
 
-1. Start from `AGENTS.md`, the task acceptance criteria, and the files changed or named by the coordinator.
+1. Start from the current user task, the task acceptance criteria, and the files changed or named by the coordinator.
 2. Stay read-only unless a bounded worker scope is explicitly assigned.
 3. Lead with concrete failures, missing tests, stale generated files, unverified claims, and audit findings.
 4. Keep validation output separate from implementation summary.

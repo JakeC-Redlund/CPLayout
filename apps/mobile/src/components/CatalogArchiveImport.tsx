@@ -2,21 +2,29 @@ import React, { useEffect, useRef, useState } from "react";
 import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ArrowLeft, FileUp, FolderOpen, RefreshCw } from "lucide-react-native";
-import { useProjectRepository, type OpenedDesign } from "../hooks/useProjectRepository";
+import { useProjectRepository, type OpenedDesign, type ProjectWorkspaceStatus } from "../hooks/useProjectRepository";
 import { IconCommandButton } from "./CommandSurface";
 import { ConfirmActionDialog } from "./ProjectCatalogDialog";
 import { CATALOG_IMPORT_MAX_BYTES, previewCatalogImport, type CatalogImportPreview } from "./catalogArchivePayload";
 
-export function CatalogArchiveImport({ fieldMapId, onOpenDesign, onClose, visible = true, getEditorGeneration }: {
+export interface CatalogArchiveImportProps {
   fieldMapId: string | null;
   visible?: boolean;
   getEditorGeneration?: () => number;
   onOpenDesign: (opened: OpenedDesign) => void;
   onClose: () => void;
-}): React.JSX.Element {
+  repository?: ProjectWorkspaceStatus;
+}
+export function CatalogArchiveImport(props: CatalogArchiveImportProps): React.JSX.Element {
+  return props.repository ? <CatalogArchiveImportBody {...props} repository={props.repository} /> : <StandaloneCatalogArchiveImport {...props} />;
+}
+function StandaloneCatalogArchiveImport(props: CatalogArchiveImportProps): React.JSX.Element {
+  const repository = useProjectRepository();
+  return <CatalogArchiveImportBody {...props} repository={repository} />;
+}
+function CatalogArchiveImportBody({ fieldMapId, onOpenDesign, onClose, visible = true, getEditorGeneration, repository }: CatalogArchiveImportProps & { repository: ProjectWorkspaceStatus }): React.JSX.Element {
   const visibleRef = useRef(visible); visibleRef.current = visible;
   const [savedCopy, setSavedCopy] = useState<OpenedDesign | null>(null);
-  const repository = useProjectRepository();
   const [candidate, setCandidate] = useState<CatalogImportPreview | null>(null);
   const [filename, setFilename] = useState("");
   const [name, setName] = useState("");

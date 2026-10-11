@@ -1,3 +1,7 @@
+function digitized<T extends { capture: { source: string } }>(record: T): Extract<T, { classification: unknown }> {
+  assert.ok("classification" in record, "Expected the unchanged digitized fixture branch.");
+  return record as Extract<T, { classification: unknown }>;
+}
 import assert from "node:assert/strict";
 import test from "node:test";
 import { DRAWING_CLASSIFICATION_VERSION, DRAWING_PURPOSE_CATALOG, drawingPurpose, type DrawingClassification } from "./drawingClassification";
@@ -61,7 +65,7 @@ test("every catalog purpose commits to one canonical target with typed classific
     assert.deepEqual(next.draft.drawingWorkflow!.captures, []);
     assert.equal(next.draft.drawingWorkflow!.activeCaptureId, null);
     assert.equal(next.draft.drawingMetadata!.records.length, 1);
-    const record = next.draft.drawingMetadata!.records[0];
+    const record = digitized(next.draft.drawingMetadata!.records[0]);
     assert.deepEqual(record.classification, selection(purpose.id));
     assert.deepEqual(record.capture.vertexRecordedAt, oldCapture.vertices.map(vertex => vertex.recordedAt));
     assert.equal(record.capture.elevation, null);
@@ -169,7 +173,7 @@ test("editing classified geometry invalidates its digitization time and deleting
   const state = ready("valve");
   const next = edit(state, action(state, "valve"));
   const moved = edit(next, { type: "set_feature_geometry", id: "new-feature", geometry: { type: "Point", point: { x: 6, y: 9 } } });
-  assert.deepEqual(moved.draft.drawingMetadata!.records[0].capture.vertexRecordedAt, [null]);
+  assert.deepEqual(digitized(moved.draft.drawingMetadata!.records[0]).capture.vertexRecordedAt, [null]);
   assert.deepEqual(edit(moved, { type: "undo" }).draft, next.draft);
   const removed = edit(moved, { type: "delete_feature", id: "new-feature" });
   assert.deepEqual(removed.draft.drawingMetadata!.records, []);
@@ -182,10 +186,10 @@ test("mismatched, future or orphan metadata refuses import instead of losing fie
   for (const mutate of [
     (draft: DesignDraft) => { draft.drawingMetadata!.schemaVersion = "future" as never; },
     (draft: DesignDraft) => { draft.drawingMetadata!.records[0].target = { kind: "map_feature", id: "missing" }; },
-    (draft: DesignDraft) => { draft.drawingMetadata!.records[0].capture.vertexRecordedAt = []; },
+    (draft: DesignDraft) => { digitized(draft.drawingMetadata!.records[0]).capture.vertexRecordedAt = []; },
     (draft: DesignDraft) => { draft.drawingMetadata!.records.push(draft.drawingMetadata!.records[0]); },
     (draft: DesignDraft) => { draft.drawingMetadata!.autosaveEnabled = false; },
-    (draft: DesignDraft) => { draft.drawingMetadata!.records[0].classification.name = "Mismatch"; },
+    (draft: DesignDraft) => { digitized(draft.drawingMetadata!.records[0]).classification.name = "Mismatch"; },
     (draft: DesignDraft) => { Object.assign(draft.drawingMetadata!, { future: true }); },
   ]) {
     const modified = structuredClone(committed); mutate(modified);

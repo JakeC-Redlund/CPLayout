@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ArchiveRestore, ArrowLeft, Check, FolderOpen, RefreshCw, Upload } from "lucide-react-native";
 import { parseFieldLayoutTarget, parseLayoutSessionDocument, parseStrictJson, serializeLayoutSessionDocument, type FieldLayoutTarget } from "@cplayout/core";
 import { importLayoutSessionArchiveZip } from "@cplayout/project-store";
-import { useProjectRepository, type OpenedLayoutSession } from "../hooks/useProjectRepository";
+import { useProjectRepository, type OpenedLayoutSession, type ProjectWorkspaceStatus } from "../hooks/useProjectRepository";
 import { IconCommandButton } from "./CommandSurface";
 import { ConfirmActionDialog } from "./ProjectCatalogDialog";
 import { layoutErrorMessage } from "./layoutSessionViewModel";
@@ -15,6 +15,7 @@ export interface PendingLayoutTarget {
   expectedWorkspaceRevision: number;
 }
 export interface LayoutSessionCatalogProps {
+  repository?: ProjectWorkspaceStatus;
   fieldMapId: string | null;
   /** The catalog can remain mounted behind an open session to retain import review input. */
   visible?: boolean;
@@ -28,8 +29,14 @@ export interface LayoutSessionCatalogProps {
 type ImportCandidate = { kind: "target" | "session"; document: string; target: FieldLayoutTarget; name: string };
 
 /** Owns import review and association. No document is written before the explicit save action. */
-export function LayoutSessionCatalog({ fieldMapId, visible = true, onOpenSession, onReviewSaved, onClose, pendingTarget, navigationGuardRef }: LayoutSessionCatalogProps): React.JSX.Element {
+export function LayoutSessionCatalog(props: LayoutSessionCatalogProps): React.JSX.Element {
+  return props.repository ? <LayoutSessionCatalogBody {...props} repository={props.repository} /> : <StandaloneLayoutSessionCatalog {...props} />;
+}
+function StandaloneLayoutSessionCatalog(props: LayoutSessionCatalogProps): React.JSX.Element {
   const repository = useProjectRepository();
+  return <LayoutSessionCatalogBody {...props} repository={repository} />;
+}
+function LayoutSessionCatalogBody({ fieldMapId, visible = true, onOpenSession, onReviewSaved, onClose, pendingTarget, navigationGuardRef, repository }: LayoutSessionCatalogProps & { repository: ProjectWorkspaceStatus }): React.JSX.Element {
   const visibleRef = useRef(visible); visibleRef.current = visible;
   const wasVisible = useRef(visible);
   const [association, setAssociationState] = useState(pendingTarget?.fieldMapId ?? fieldMapId);
@@ -87,7 +94,7 @@ export function LayoutSessionCatalog({ fieldMapId, visible = true, onOpenSession
   const field = repository.catalog.fieldMaps.find(item => item.id === association);
   const project = repository.catalog.projects.find(item => item.id === field?.projectId);
   const customer = repository.catalog.clients.find(item => item.id === project?.clientId);
-  const upgradeNeeded = repository.workspaceVersion !== "cplayout-workspace-v3";
+  const upgradeNeeded = repository.workspaceVersion !== "cplayout-workspace-v3" && repository.workspaceVersion !== "cplayout-workspace-v4";
   const canWrite = visible && repository.canSaveLayout && !upgradeNeeded && !!field && !busy;
   const sessions = repository.layoutSessions.filter(session => session.fieldMapId === association && (showArchived || !session.archived));
 

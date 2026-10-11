@@ -1,9 +1,20 @@
 import { defineConfig, devices } from "@playwright/test";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { assertBrowserProofInventory, browserProofSelection, BROWSER_PROOF_INVENTORY_PATH, resolveBrowserProofScope } from "./tools/browserProofRegistry";
+
+// Qualify the current default App and applicable browser contracts. Retained
+// old-presentation contracts stay inventoried for explicit migration, not skips.
+const proofScope = resolveBrowserProofScope();
+assertBrowserProofInventory(__dirname, JSON.parse(readFileSync(resolve(__dirname, BROWSER_PROOF_INVENTORY_PATH), "utf8")));
+const proofSelection = browserProofSelection(proofScope);
 
 const port = Number(process.env.CPLAYOUT_WEB_PROOF_PORT ?? 19006);
 const baseURL = `http://127.0.0.1:${port}`;
 
 export default defineConfig({
+  ...proofSelection,
+  metadata: { browserProofScope: proofScope, inventory: BROWSER_PROOF_INVENTORY_PATH },
   expect: {
     timeout: 10_000,
     toHaveScreenshot: {

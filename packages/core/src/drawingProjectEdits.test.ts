@@ -1,3 +1,7 @@
+function digitized<T extends { capture: { source: string } }>(record: T): Extract<T, { classification: unknown }> {
+  assert.ok("classification" in record, "Expected the unchanged digitized fixture branch.");
+  return record as Extract<T, { classification: unknown }>;
+}
 import assert from "node:assert/strict";
 import test from "node:test";
 import { DRAWING_CLASSIFICATION_VERSION, type DrawingClassification } from "./drawingClassification";
@@ -58,7 +62,7 @@ test("GeoJSON replaces a classified boundary with a different vertex count befor
   freeze(source);
   const result = importProjectedGeoJsonToProject(source, input);
   assert.deepEqual(result.project.fieldBoundary, boundary);
-  assert.deepEqual(result.project.drawingMetadata!.records[0].capture.vertexRecordedAt, [null, null, null]);
+  assert.deepEqual(digitized(result.project.drawingMetadata!.records[0]).capture.vertexRecordedAt, [null, null, null]);
   assert.deepEqual(result.project.drawingMetadata!.records[1], source.drawingMetadata!.records[1]);
   assert.equal(result.project.fieldBoundaryCaptureEvidence, undefined);
   assert.equal(JSON.stringify(source), before);
@@ -73,7 +77,7 @@ test("same-count imported coordinate changes reset times while unchanged imports
   const source = project();
   const changed = source.fieldBoundary.map(point => ({ x: point.x + 3, y: point.y + 2 }));
   const result = importProjectedGeoJsonToProject(source, geoJson(source, changed));
-  assert.deepEqual(result.project.drawingMetadata!.records[0].capture.vertexRecordedAt, changed.map(() => null));
+  assert.deepEqual(digitized(result.project.drawingMetadata!.records[0]).capture.vertexRecordedAt, changed.map(() => null));
   const same = importProjectedGeoJsonToProject(source, geoJson(source, source.fieldBoundary));
   assert.deepEqual(same.project.drawingMetadata, source.drawingMetadata);
 });
@@ -89,10 +93,10 @@ test("renaming a classified feature synchronizes classification without changing
       const before = JSON.stringify(feature);
       const command: ProjectEditorAction = type === "update_map_feature" ? { type, feature } : { type, features: [feature] };
       const next = edit(state, command);
-      const record = next.project.drawingMetadata!.records[1];
+      const record = digitized(next.project.drawingMetadata!.records[1]);
       assert.equal(record.classification.name, " Renamed ");
       assert.equal(record.classification.notes, notes ?? "");
-      assert.deepEqual(record.capture, state.project.drawingMetadata!.records[1].capture);
+      assert.deepEqual(record.capture, digitized(state.project.drawingMetadata!.records[1]).capture);
       assert.equal(next.project.mapFeatures![0].notes, notes ?? "");
       assert.equal(JSON.stringify(feature), before);
       assert.equal(Object.hasOwn(feature, "notes"), notes !== undefined);
@@ -117,10 +121,10 @@ test("complete project imports retain supplied metadata rather than inheriting t
   const state = createProjectEditorState(project());
   const imported = structuredClone(state.project);
   imported.fieldBoundary = imported.fieldBoundary.slice(0, 3);
-  imported.drawingMetadata!.records[0].capture.vertexRecordedAt = imported.fieldBoundary.map(() => "2026-09-27T11:00:00Z");
+  digitized(imported.drawingMetadata!.records[0]).capture.vertexRecordedAt = imported.fieldBoundary.map(() => "2026-09-27T11:00:00Z");
   imported.mapFeatures![0].name = "Imported valve";
-  imported.drawingMetadata!.records[1].classification.name = "Imported valve";
-  imported.drawingMetadata!.records[1].capture.vertexRecordedAt = ["2026-09-27T12:00:00Z"];
+  digitized(imported.drawingMetadata!.records[1]).classification.name = "Imported valve";
+  digitized(imported.drawingMetadata!.records[1]).capture.vertexRecordedAt = ["2026-09-27T12:00:00Z"];
   const before = JSON.stringify(imported);
   freeze(imported);
   const next = edit(state, { type: "apply_project_import", project: imported });

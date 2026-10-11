@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { GnssSession, GnssTransportEvent, ReceiverConnectionConfig } from "@cplayout/gnss";
-import { ReceiverSessionOwner } from "./receiverSessionOwner";
+import { createSurveyCollection, proposeSurveyCaptureAppend, serializeSurveyCollectionDocument, parseSurveyCollectionDocument, parseLayoutSessionDocument, createLayoutSessionDocument, createFieldLayoutTarget, serializeFieldLayoutTarget, convertPivotProjectToFieldDesign, serializeProjectDocument, sampleProject } from "@cplayout/core";
+import { exportLayoutSessionArchiveZip, importLayoutSessionArchiveZip, parseWorkspaceCommand } from "@cplayout/project-store";
+import { ReceiverSessionOwner, layoutObservationFromReceiverCapture } from "./receiverSessionOwner";
 function gga(time = "120000", quality = 4) { const body = `GNGGA,${time},4000.0000,N,10500.0000,W,${quality},12,0.8,1600,M,-20,M,0.5,0001`; let checksum = 0; for (const c of body) checksum ^= c.charCodeAt(0); return `$${body}*${checksum.toString(16).padStart(2, "0")}\r\n`; }
 function stream(id = "session-one") {
   let resolve: ((event: GnssTransportEvent) => void) | null = null;
@@ -174,4 +176,68 @@ test("explicit connection configuration updates every view while retaining unuse
   await owner.disconnect();
   assert.equal(owner.getSnapshot().connectionForm.baudRate, "115200");
   assert.equal(Object.isFrozen(owner.getSnapshot().connectionForm), true);
+});
+
+
+function fixedWithoutStation(time: string) {
+  const body = `GNGGA,${time},4000.0000,N,10500.0000,W,4,12,0.8,1600,M,-20,M,,`;
+  const checksum = [...body].reduce((value, character) => value ^ character.charCodeAt(0), 0);
+  return `$${body}*${checksum.toString(16).padStart(2, "0")}\r\n`;
+}
+
+test("actual receiver producer omits absent RTK optionals and enters strict Survey ledger without changing exact GGA/evidence", async () => {
+  const input = stream(); const owner = new ReceiverSessionOwner(() => ({ open: async () => input.session }), () => 1000);
+  try {
+    await owner.connect({ method: "usb", baudRate: 115200 });
+    const sentence = fixedWithoutStation("120000"); input.push(bytes(sentence, 1000)); await flush();
+    const observation = owner.getSnapshot().observation!; const qualityBefore = structuredClone(observation.quality);
+    assert.equal(Object.hasOwn(observation.quality, "baseStationId"), true); assert.equal(observation.quality.baseStationId, undefined);
+    const point = owner.capture("EPSG:32613", "real-producer-point", "Operator label");
+    assert.equal(Object.hasOwn(point.rtk!, "baseStationId"), false); assert.equal(Object.hasOwn(point.rtk!, "roverId"), false);
+    assert.equal(point.rtk!.correctionAgeSeconds, null); assert.equal(point.rtk!.nmeaQualityCode, 4);
+    assert.deepEqual(observation.quality, qualityBefore); assert.equal(point.captureEvidence.gga.sentence, sentence.trim());
+    const now = point.observedAt;
+    const collection = createSurveyCollection({ id: "collection", now, purpose: { kind: "map_feature", featureKind: "measurement_line", geometryType: "LineString" }, owner: { designId: "design", documentKind: "draft", payloadId: "draft", fieldMapId: "map", projectCrs: "EPSG:32613" } });
+    const proposal = proposeSurveyCaptureAppend(collection, { expectedRevision: 0, point, now });
+    assert.deepEqual(proposal.collection.observations[0], point);
+    assert.deepEqual(parseSurveyCollectionDocument(serializeSurveyCollectionDocument(proposal.collection)).observations[0], point);
+    assert.throws(() => proposeSurveyCaptureAppend(collection, { expectedRevision: 0, now, point: { ...point, rtk: { ...point.rtk!, baseStationId: undefined } } }), /cannot preserve undefined/);
+    const field = convertPivotProjectToFieldDesign(serializeProjectDocument(sampleProject), { fieldId: "field", waterSourceId: "water", powerSourceId: "power" }).field;
+    const targetDocument = serializeFieldLayoutTarget(createFieldLayoutTarget(field, { inputRevision: 0, expectedRevision: 0, selectedMachineIds: [field.machines[0].id] }));
+    const session = createLayoutSessionDocument({ id: "layout", name: "Actual target", fieldMapId: "map", targetDocument, now });
+    const layoutObservation = layoutObservationFromReceiverCapture(session.id, point);
+    assert.deepEqual(parseLayoutSessionDocument({ ...session, observations: [layoutObservation] }).observations[0], layoutObservation);
+    assert.deepEqual(layoutObservation.evidence, point.captureEvidence); assert.equal(layoutObservation.label, "Operator label");
+    const command = parseWorkspaceCommand({ type: "append_layout_observation", sessionId: session.id, expectedSessionRevision: 0, observation: layoutObservation, now });
+    assert.equal(command.type, "append_layout_observation"); if (command.type !== "append_layout_observation") throw new Error("Lost command identity");
+    assert.deepEqual(command.observation, layoutObservation);
+    const imported = importLayoutSessionArchiveZip(exportLayoutSessionArchiveZip({ ...session, observations: [layoutObservation] }));
+    assert.deepEqual(imported.observations[0], layoutObservation); assert.equal(imported.targetDocument, targetDocument);
+  } finally { await owner.disconnect(); }
+});
+
+test("actual producer preserves supplied station and blank label; Layout omits blank/absent label without inventing one", async () => {
+  const input = stream(); const owner = new ReceiverSessionOwner(() => ({ open: async () => input.session }), () => 1000);
+  try {
+    await owner.connect({ method: "usb", baudRate: 115200 }); input.push(bytes(gga(), 1000)); await flush();
+    const point = owner.capture("EPSG:32613", "unlabeled", "");
+    assert.equal(point.label, ""); assert.equal(point.rtk!.baseStationId, "0001");
+    const now = point.observedAt, collection = createSurveyCollection({ id: "collection", now, purpose: { kind: "field_boundary" }, owner: { designId: "design", documentKind: "draft", payloadId: "draft", fieldMapId: "map", projectCrs: "EPSG:32613" } });
+    assert.throws(() => proposeSurveyCaptureAppend(collection, { expectedRevision: 0, now, point }), /label/);
+    assert.deepEqual(collection.observations, []);
+    const field = convertPivotProjectToFieldDesign(serializeProjectDocument(sampleProject), { fieldId: "field", waterSourceId: "water", powerSourceId: "power" }).field;
+    const targetDocument = serializeFieldLayoutTarget(createFieldLayoutTarget(field, { inputRevision: 0, expectedRevision: 0, selectedMachineIds: [field.machines[0].id] }));
+    const session = createLayoutSessionDocument({ id: "layout", name: "Actual target", fieldMapId: "map", targetDocument, now });
+    for (const capture of [point, { id: point.id, observedAt: point.observedAt, projected: point.projected, captureEvidence: point.captureEvidence }]) {
+      const observation = layoutObservationFromReceiverCapture(session.id, capture);
+      assert.equal(Object.hasOwn(observation, "label"), false);
+      assert.deepEqual(parseLayoutSessionDocument(JSON.stringify({ ...session, observations: [observation] })).observations[0], observation);
+      assert.deepEqual(observation.evidence, point.captureEvidence); assert.deepEqual(observation.projected, point.projected);
+      const imported = importLayoutSessionArchiveZip(exportLayoutSessionArchiveZip({ ...session, observations: [observation] }));
+      assert.deepEqual(imported.observations[0], observation); assert.equal(Object.hasOwn(imported.observations[0], "label"), false);
+    }
+    const edited = { ...point, label: "Operator assigned after capture" };
+    const proposal = proposeSurveyCaptureAppend(collection, { expectedRevision: 0, now, point: edited });
+    assert.equal(proposal.collection.observations[0].label, edited.label); assert.deepEqual(proposal.collection.observations[0].captureEvidence, point.captureEvidence);
+  } finally { await owner.disconnect(); }
 });

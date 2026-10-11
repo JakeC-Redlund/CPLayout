@@ -1,8 +1,8 @@
 import { hasOperationalGnssEvidence, refuseOperationalGnssEvidence } from "./operationalGnssEvidence";
 import { z } from "zod";
 
-import { DrawingMetadataRecordSchema, PROJECT_DRAWING_METADATA_VERSION, validateProjectDrawingMetadata,
-  type DrawingMetadataRecord, type DrawingMetadataTarget, type ProjectDrawingMetadata } from "./drawingMetadata";
+import { DigitizedDrawingMetadataRecordSchema, RecordedReferenceMetadataRecordSchema, RecordedReferenceOriginSchema, seedRecordedReferenceOrigins, PROJECT_DRAWING_METADATA_VERSION, PROJECT_DRAWING_METADATA_V2_VERSION, isRecordedReferenceMetadataRecord, retireRecordedReferenceAttachment, validateProjectDrawingMetadata,
+  type RecordedReferenceOrigin, type DrawingMetadataRecord, type DrawingMetadataTarget, type ProjectDrawingMetadata } from "./drawingMetadata";
 import { gnssV2CaptureConflicts } from "./gnssEvidence";
 import { snapshotJsonValue } from "./jsonDataSnapshot";
 import { assertNoStrippedFields } from "./jsonFieldRetention";
@@ -18,8 +18,10 @@ export const LEGACY_FIELD_DESIGN_DOCUMENT_VERSION = "field-design-v1";
 export const FIELD_DESIGN_DOCUMENT_V2_VERSION = "field-design-v2";
 export const FIELD_DESIGN_DOCUMENT_VERSION = "field-design-v3";
 export const OPERATIONAL_FIELD_DESIGN_DOCUMENT_VERSION = "field-design-v4";
-export const FIELD_DESIGN_DOCUMENT_VERSIONS = [LEGACY_FIELD_DESIGN_DOCUMENT_VERSION, FIELD_DESIGN_DOCUMENT_V2_VERSION, FIELD_DESIGN_DOCUMENT_VERSION, OPERATIONAL_FIELD_DESIGN_DOCUMENT_VERSION] as const;
+export const RECORDED_REFERENCE_FIELD_DESIGN_DOCUMENT_VERSION = "field-design-v6";
+export const FIELD_DESIGN_DOCUMENT_VERSIONS = [LEGACY_FIELD_DESIGN_DOCUMENT_VERSION, FIELD_DESIGN_DOCUMENT_V2_VERSION, FIELD_DESIGN_DOCUMENT_VERSION, OPERATIONAL_FIELD_DESIGN_DOCUMENT_VERSION, RECORDED_REFERENCE_FIELD_DESIGN_DOCUMENT_VERSION] as const;
 export const FIELD_DRAWING_METADATA_VERSION = "field-drawing-metadata-v1";
+export const FIELD_DRAWING_METADATA_V2_VERSION = "field-drawing-metadata-v2";
 
 const referenceId = z.string().min(1);
 export const FieldDrawingMetadataTargetSchema = z.discriminatedUnion("kind", [
@@ -31,12 +33,14 @@ export const FieldDrawingMetadataTargetSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("obstacle"), id: referenceId }).strict(),
 ]);
 export type FieldDrawingMetadataTarget = z.output<typeof FieldDrawingMetadataTargetSchema>;
-export const FieldDrawingMetadataRecordSchema = DrawingMetadataRecordSchema.extend({ target: FieldDrawingMetadataTargetSchema });
+export const DigitizedFieldDrawingMetadataRecordSchema = DigitizedDrawingMetadataRecordSchema.extend({ target: FieldDrawingMetadataTargetSchema });
+export const FieldDrawingMetadataRecordSchema = z.union([DigitizedFieldDrawingMetadataRecordSchema, RecordedReferenceMetadataRecordSchema]);
 export type FieldDrawingMetadataRecord = z.output<typeof FieldDrawingMetadataRecordSchema>;
-export const FieldDrawingMetadataSchema = z.object({
-  schemaVersion: z.literal(FIELD_DRAWING_METADATA_VERSION), autosaveEnabled: z.boolean(),
-  records: z.array(FieldDrawingMetadataRecordSchema),
-}).strict();
+export const FieldDrawingMetadataSchema = z.union([
+  z.object({ schemaVersion: z.literal(FIELD_DRAWING_METADATA_VERSION), autosaveEnabled: z.boolean(), records: z.array(DigitizedFieldDrawingMetadataRecordSchema) }).strict(),
+  z.object({ schemaVersion: z.literal(FIELD_DRAWING_METADATA_V2_VERSION), autosaveEnabled: z.boolean(), records: z.array(FieldDrawingMetadataRecordSchema), retainedReferenceOrigins: z.array(RecordedReferenceOriginSchema).optional() }).strict(),
+]).transform((metadata): { schemaVersion: typeof FIELD_DRAWING_METADATA_VERSION | typeof FIELD_DRAWING_METADATA_V2_VERSION;
+  autosaveEnabled: boolean; records: FieldDrawingMetadataRecord[]; retainedReferenceOrigins?: RecordedReferenceOrigin[] } => metadata);
 export type FieldDrawingMetadata = z.output<typeof FieldDrawingMetadataSchema>;
 
 export interface FieldInfrastructurePoint {
@@ -176,7 +180,10 @@ export function validateFieldDesign(input: unknown): FieldDesign {
 export function parseFieldDesignDocument(input: string | unknown): FieldDesign {
   const raw = typeof input === "string" ? parseStrictJson(input) : input;
   const envelope = EnvelopeSchema.parse(snapshotJsonValue(raw, "document"));
-  if (envelope.documentVersion !== OPERATIONAL_FIELD_DESIGN_DOCUMENT_VERSION) refuseOperationalGnssEvidence(envelope.field);
+  if (envelope.documentVersion !== RECORDED_REFERENCE_FIELD_DESIGN_DOCUMENT_VERSION) {
+    if ((envelope.field as FieldDesign)?.drawingMetadata?.schemaVersion === FIELD_DRAWING_METADATA_V2_VERSION) throw new Error("Recorded reference metadata requires field-design-v6; preserve the original document.");
+    if (envelope.documentVersion !== OPERATIONAL_FIELD_DESIGN_DOCUMENT_VERSION) refuseOperationalGnssEvidence(envelope.field);
+  }
   if (envelope.documentVersion === LEGACY_FIELD_DESIGN_DOCUMENT_VERSION) return parseFieldDesignDocumentV1(envelope);
   if (envelope.documentVersion === FIELD_DESIGN_DOCUMENT_V2_VERSION) return parseFieldDesignDocumentV2(envelope);
   return validateFieldDesign(envelope.field);
@@ -201,7 +208,10 @@ export function parseFieldDesignDocumentV1(input: string | unknown): FieldDesign
 export function parseFieldDesignDocumentV2(input: string | unknown): FieldDesign {
   const raw = typeof input === "string" ? parseStrictJson(input) : input;
   const envelope = EnvelopeSchema.parse(snapshotJsonValue(raw, "document"));
-  if (envelope.documentVersion !== OPERATIONAL_FIELD_DESIGN_DOCUMENT_VERSION) refuseOperationalGnssEvidence(envelope.field);
+  if (envelope.documentVersion !== RECORDED_REFERENCE_FIELD_DESIGN_DOCUMENT_VERSION) {
+    if ((envelope.field as FieldDesign)?.drawingMetadata?.schemaVersion === FIELD_DRAWING_METADATA_V2_VERSION) throw new Error("Recorded reference metadata requires field-design-v6; preserve the original document.");
+    if (envelope.documentVersion !== OPERATIONAL_FIELD_DESIGN_DOCUMENT_VERSION) refuseOperationalGnssEvidence(envelope.field);
+  }
   if (envelope.documentVersion === LEGACY_FIELD_DESIGN_DOCUMENT_VERSION) return parseFieldDesignDocumentV1(envelope);
   if (envelope.documentVersion !== FIELD_DESIGN_DOCUMENT_V2_VERSION) {
     throw new Error("Field document version is unsupported by v2; preserve the original document and use a compatible editor.");
@@ -218,7 +228,7 @@ function refuseLegacyLaterals(field: unknown): void {
 
 export function serializeFieldDesignDocument(field: FieldDesign): string {
   const admitted = validateFieldDesign(field);
-  return JSON.stringify({ documentVersion: hasOperationalGnssEvidence(admitted) ? OPERATIONAL_FIELD_DESIGN_DOCUMENT_VERSION : admitted.lateralMachines !== undefined ? FIELD_DESIGN_DOCUMENT_VERSION
+  return JSON.stringify({ documentVersion: admitted.drawingMetadata?.schemaVersion === FIELD_DRAWING_METADATA_V2_VERSION ? RECORDED_REFERENCE_FIELD_DESIGN_DOCUMENT_VERSION : hasOperationalGnssEvidence(admitted) ? OPERATIONAL_FIELD_DESIGN_DOCUMENT_VERSION : admitted.lateralMachines !== undefined ? FIELD_DESIGN_DOCUMENT_VERSION
     : admitted.drawingMetadata === undefined ? LEGACY_FIELD_DESIGN_DOCUMENT_VERSION : FIELD_DESIGN_DOCUMENT_V2_VERSION, field: admitted }, null, 2);
 }
 
@@ -238,7 +248,7 @@ export function convertPivotProjectToFieldDesign(originalProjectDocument: string
   const admitted = PivotProjectSchema.parse(source);
   assertNoStrippedFields(source, admitted, "Legacy project contains unsupported fields; preserve it and use a compatible converter.");
   // Preserve absent optional values and original XY, rather than using the defaulted reader result.
-  const project = snapshotJsonValue(source, "project") as PivotProject;
+  const project = seedRecordedReferenceOrigins(snapshotJsonValue(source, "project") as PivotProject);
   if (ids.fieldId === project.id) throw new Error("Converted field requires a new document identity; preserve the original project.");
   const { pivotCenter, waterSource, powerSource, infrastructureObservationRefs, machine,
     wgs84Companion: _derivedCompanion, drawingMetadata, ...shared } = project;
@@ -255,8 +265,8 @@ export function convertPivotProjectToFieldDesign(originalProjectDocument: string
       waterSourceId: ids.waterSourceId, powerSourceId: ids.powerSourceId,
       ...(infrastructureObservationRefs?.pivot_center === undefined ? {} : { pivotObservationId: infrastructureObservationRefs.pivot_center }) }],
     ...(drawingMetadata === undefined ? {} : { drawingMetadata: {
-      ...drawingMetadata, schemaVersion: FIELD_DRAWING_METADATA_VERSION,
-      records: drawingMetadata.records.map(record => ({ ...record, target: projectTargetToField(record.target, machineId, ids) })),
+      ...drawingMetadata, schemaVersion: drawingMetadata.schemaVersion === PROJECT_DRAWING_METADATA_V2_VERSION ? FIELD_DRAWING_METADATA_V2_VERSION : FIELD_DRAWING_METADATA_VERSION,
+      records: drawingMetadata.records.map(record => isRecordedReferenceMetadataRecord(record) ? retireRecordedReferenceAttachment(record) : ({ ...record, target: projectTargetToField(record.target, machineId, ids) })),
     } }),
   });
   return { field, originalProjectDocument };
@@ -281,6 +291,9 @@ function validateFieldDrawingMetadata(field: FieldDesign): void {
     const key = JSON.stringify([target.kind, "machineId" in target ? target.machineId
       : "infrastructureId" in target ? target.infrastructureId : "id" in target ? target.id : null]);
     if (targets.has(key)) throw new Error("Duplicate field drawing metadata target.");
+    if (isRecordedReferenceMetadataRecord(record)) {
+      targets.add(key); sharedRecords.push(record); continue;
+    }
     if (captures.has(record.capture.captureId)) throw new Error("Duplicate classified capture identity.");
     targets.add(key);
     captures.add(record.capture.captureId);
@@ -297,7 +310,8 @@ function validateFieldDrawingMetadata(field: FieldDesign): void {
     } else sharedRecords.push({ ...record, target });
   }
   const sharedMetadata: ProjectDrawingMetadata | undefined = metadata === undefined ? undefined : {
-    schemaVersion: PROJECT_DRAWING_METADATA_VERSION, autosaveEnabled: metadata.autosaveEnabled, records: sharedRecords,
+    schemaVersion: metadata.schemaVersion === FIELD_DRAWING_METADATA_V2_VERSION ? PROJECT_DRAWING_METADATA_V2_VERSION : PROJECT_DRAWING_METADATA_VERSION, autosaveEnabled: metadata.autosaveEnabled, records: sharedRecords,
+    ...(metadata.retainedReferenceOrigins === undefined ? {} : { retainedReferenceOrigins: metadata.retainedReferenceOrigins }),
   };
   validateProjectDrawingMetadata({ ...field, pivotCenter: null, waterSource: null, powerSource: null, drawingMetadata: sharedMetadata });
 }
@@ -344,6 +358,6 @@ function assertCaptureConsistency(field: FieldDesign): void {
 export function parseFieldDesignDocumentV3(input: string | unknown): FieldDesign {
   const raw = snapshotJsonValue(typeof input === "string" ? parseStrictJson(input) : input, "document");
   refuseOperationalGnssEvidence(raw);
-  if (raw && typeof raw === "object" && "documentVersion" in raw && raw.documentVersion === OPERATIONAL_FIELD_DESIGN_DOCUMENT_VERSION) throw new Error("Field version requires an operational-evidence-aware reader.");
+  if (raw && typeof raw === "object" && "documentVersion" in raw && (raw.documentVersion === OPERATIONAL_FIELD_DESIGN_DOCUMENT_VERSION || raw.documentVersion === RECORDED_REFERENCE_FIELD_DESIGN_DOCUMENT_VERSION)) throw new Error("Field version requires an operational-evidence-aware reader.");
   return parseFieldDesignDocument(raw);
 }

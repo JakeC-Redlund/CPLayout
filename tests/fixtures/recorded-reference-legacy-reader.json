@@ -1,0 +1,122 @@
+{
+  "fixtureVersion": "recorded-reference-legacy-reader-v1",
+  "sourceFingerprint": "f094c629581e745e615361097a2a3dbd421d2f972360ef3bf21489632831444e",
+  "compiler": {
+    "name": "esbuild",
+    "version": "0.28.2",
+    "format": "cjs",
+    "platform": "node",
+    "target": "node20",
+    "minify": true
+  },
+  "entry": "\nexport { parseProjectDocument, serializeProjectDocument, PROJECT_DOCUMENT_VERSIONS } from \"./packages/core/src/projectDocument\";\nexport { parseDesignDraftDocument, serializeDesignDraftDocument, DESIGN_DRAFT_DOCUMENT_VERSIONS } from \"./packages/core/src/designDraft\";\nexport { parseFieldDesignDocument, serializeFieldDesignDocument, FIELD_DESIGN_DOCUMENT_VERSIONS } from \"./packages/core/src/fieldDesignDocument\";\nexport { parseFieldLayoutTarget } from \"./packages/core/src/fieldLayoutTarget\";\nexport { parseLayoutSessionDocument } from \"./packages/core/src/layoutSession\";\nexport { parseSurveyCollectionDocument } from \"./packages/core/src/surveyCollection\";\nexport { parseWorkspaceDocument, validateWorkspaceDocument } from \"./packages/project-store/src/workspaceDocument\";\nexport { parseDesignWorkspaceBundle, importDesignWorkspaceBundleZip } from \"./packages/project-store/src/designWorkspaceBundle\";\nexport { importProjectArchiveZip } from \"./packages/project-store/src/projectArchive\";\nexport { importDesignDraftArchiveZip } from \"./packages/project-store/src/designDraftArchive\";\nexport { importFieldDesignArchiveZip } from \"./packages/project-store/src/fieldDesignArchive\";\nexport { importLayoutSessionArchiveZip } from \"./packages/project-store/src/layoutSessionArchive\";\n",
+  "entrySha256": "f89e76f7d040d702c5f70635f8f30fba539719b485cbdf374429918859f13773",
+  "sourceFiles": {
+    "packages/core/src/units.ts": "79d22f21e1026195357046eb949c36806ca538947e83dc7a03338f6a9265452f",
+    "packages/core/src/crsQualification.ts": "a4e92916a35430d4455c34e46f136d0953d4607ed153255eb8dd36c6b756114b",
+    "packages/core/src/coordinates.ts": "5e9d75e4317b083c51c5640463b05ae58027eaf86ca560ab29c384d1cf5b5ed3",
+    "packages/core/src/operationalGnssEvidence.ts": "b094b1718e313d7cb38bc1656122fe62507d198bf4401337a6b67aa52a6d4433",
+    "packages/core/src/jsonDataSnapshot.ts": "cda75bcd3bbea16592c6dc48a64da1dbe025339f109be9398bf101b036bce3c2",
+    "packages/core/src/projectDataComparison.ts": "7c8770698fc764bccb6a8b1f3c21e748dc4ad5c83f88618ecb93f50829836730",
+    "packages/core/src/manualDesign.ts": "1bed46842f2ed3a7f974bdd260e3c3a86acdd9462ba4975f0e42e1a06c5d5b2c",
+    "packages/core/src/projectCalculationSafety.ts": "153834c7573317146eebb2d363770f8f0bba1ad4ff643c6f9e3c469f221f0756",
+    "packages/core/src/draftDrawingWorkflow.ts": "7fd48d2a08ee3c3af34f54c1de5865a6309cee92f12968e39012075aa12f57ea",
+    "packages/core/src/drawingClassification.ts": "153aa8bfca1ef1bce31000b2feeaff14723af4e88bc813eca3ed432ec34810ca",
+    "packages/core/src/drawingMetadata.ts": "2e26aba109381e37f1883fb1bab6620e535a14aabc5b18d808afbde9885cba54",
+    "packages/core/src/jsonFieldRetention.ts": "d88a5a32291961b5a8a315c997032a1c07969f4b5b15a645fe4c54d15ff35ba7",
+    "packages/core/src/settings.ts": "388b98a0649394c8613616ef963e75156c5cb671f091fb49ab316c0eea336604",
+    "packages/core/src/mapTilePackages.ts": "2ac636be28020296f59e260321e0e2645e56e3d54757d49be4ac583c999b0c6c",
+    "packages/core/src/gnssEvidence.ts": "0ed6d98ed3162d57eefbe05d5f7c063cd7e05e74f403ca785e383f54a91ae1ab",
+    "packages/core/src/projectDocument.ts": "6c881dfd0825f72753efc42cb123f890173c34822480f5ef660a4aa33ade9778",
+    "packages/core/src/designDraft.ts": "1c121ac8ebee58a362b644134f01ae9392c5a803f389eee3064d358958d02a84",
+    "packages/core/src/strictJson.ts": "8ffdf7c1ac35b07c0cf969c20ec41510aae2632cf5c3cd10ea37c3bd4a0168ac",
+    "packages/core/src/straightLateral.ts": "04f203f7ba0beaad3d0bb8dc596a10df1010658267bf1c51f35bf6ef74347d2c",
+    "packages/core/src/fieldDesignDocument.ts": "1589ad798c188b64105ba2c4e2b82133b8f87ac17153d35066951a6d0e719c69",
+    "packages/core/src/fieldCalculationInput.ts": "def4c44495ab6d11e1e1ce0e9ed568141221e7e5eee4410f1dd7c1ccc926a05e",
+    "packages/core/src/fieldLayoutTarget.ts": "7997c968cc2825670b8b9aa8da8575fff951aa6d6ef85b0b0e6217760a47cdc6",
+    "packages/core/src/sha256.ts": "31780f91ef9bd6153ffdbd81c069167e912e739e5cdb154a72b4082daed3d97e",
+    "packages/core/src/layoutSession.ts": "148b859594a69428890b6f2a83774694c65383ad43431eac4822e12949c10289",
+    "packages/core/src/surveyCollection.ts": "04e6a527a7c79eebb20c573e1b4640a1b6a7cae6e83cbf1bdcb8af4de8171afc",
+    "packages/core/src/cornerArmCatalog.ts": "42f3d413ae723064cead2842e196adfaf04888c0c3424fd4aaefed8a9049d387",
+    "packages/core/src/cornerGpsMapExport.ts": "a3675dacd0641447db0aa8fd6b80409b723ad83ac0cfff864270c081db4ec898",
+    "packages/core/src/cornerGpsMapImport.ts": "35e170203a5bdf5669b3bfd088f549c7e2326ad05891c319fa9ce717a19a258f",
+    "packages/core/src/cornerGpsMapLegacyEvidence.ts": "e82d764ce63a3266138f5539ebf9eef5ba9db072fbdbf280153f5feb3d6fc3a5",
+    "packages/core/src/designDraftEditor.ts": "37f1dec3c412a1cb1fdf72705b4d75a2cc77751368112dab4ca93230697cd14a",
+    "packages/core/src/fieldDesignEditor.ts": "63a3f26aef4379016308f80ad57b0af39486eb8f620cae44d845197679e3dcd2",
+    "packages/core/src/straightLateralCalculationInput.ts": "86951495083d042a386c4b1ed7d7910abee86068f87ce12f0f3925fcfa31710f",
+    "packages/core/src/imageryEvidence.ts": "667799aea8918d23fc3fed300a8f055800d7b1d825dbeac8854a71b16c8152a2",
+    "packages/core/src/machineCatalog.ts": "18da2a5a9369594641471e76a9ae4a278db14927b42ab5d36b3aa3ae9997f712",
+    "packages/core/src/referenceOverlays.ts": "b22eccc5e98934dcf96384264e03376ae313d2e474deccccc9fe6359ec00fe33",
+    "packages/core/src/mapReferenceViewModel.ts": "e2cbb8be0b7624984ae1d55ba77856a8d6b02940afbe7e56abc2b58af5e0223a",
+    "packages/core/src/drawingProjectMutation.ts": "5a3acaeaf605f37a422336a5aac4c2211d89dfd0b9ad42971237f5747b93f5e1",
+    "packages/core/src/projectImports.ts": "5384ae88a931ee68657431bbe491ffdaa0b62dbb072c05d901507fc2dcfc7bc7",
+    "packages/core/src/projectKml.ts": "ac880b78345773b7b1cdfb7319744a2cb803f3c0cc3648272340661ae48aade9",
+    "packages/core/src/classifiedProjectDrawing.ts": "382fca1d3d8f1c94c39e02fde8e25a0df05aac6030246b0e69c840ee9c99675b",
+    "packages/core/src/projectReducer.ts": "76921f097a122df288b864a73260037c8abca8d0eda47fe107e1396cb216e84b",
+    "packages/core/src/projectXml.ts": "ff8cefea73463dbbf28623d41f1ceceddede406da446e08c8962957b2a71e424",
+    "packages/core/src/navigationMenuXml.ts": "06c12c1493d3e3db3a8b0f00507a236eef41cebc0507219b724f1fd1d7f8596b",
+    "packages/core/src/sampleProject.ts": "de534efab1e91791872510741f2fed99a705de6da5d3c60c6888c273c15ee800",
+    "packages/core/src/types.ts": "e2f354282de054e8fa49be660fb96becceac050e2ed4d4fbe8cad1e5f7de1e8b",
+    "packages/core/src/fltLayoutReview.ts": "3efe0346ac3b1edd2ead54ed5ab6340b436d6bb9cda84acacaf5d4dbc835857f",
+    "packages/core/src/surveyCollectionApplication.ts": "7ebd0c060b73ce11d07ef4d1b3da2fb4e7fa6632da04267711af417ad720bd02",
+    "packages/core/src/index.ts": "631f55565135cadbc31d54279ae376ab4128de9cdee881262d3aff6f3bb42eb6",
+    "packages/project-store/src/strictJson.ts": "dd416b90a4a73ff7afbce63b9754d639b33bd638241ec296cb1307e3f1ddeaed",
+    "packages/project-store/src/workspaceDocument.ts": "336405503045c20fbc9d1893b027c739a23de3496afe79f710c079cde94bc8c9",
+    "packages/project-store/src/utf8.ts": "e4036da76b6968259c7dae826bb9fd0566a696937f3c21073d1eec228bdfe4a7",
+    "packages/project-store/src/zipArchive.ts": "169d088ce2303a7716c6ff6dcf8d8db10630c7a7f6477de9329910648632515f",
+    "packages/project-store/src/designWorkspaceBundle.ts": "478509be0818713f5df1937aa31d0ce2391ead5e205c8fe105f2ae7ff7886fac",
+    "packages/project-store/src/zipTextArchive.ts": "b1d8e4b1e562a233d0a2ae1957379e18500f344dbdfe00cf147b2bf385356bfe",
+    "packages/project-store/src/projectDocumentEditing.ts": "f32600e5694ed9ec9e492d34186255b1405cd17121e19bfe909413e522319dad",
+    "packages/project-store/src/projectArchive.ts": "59682c87fdcfdcfd3cff18ef9c0be67d24e1bed5ca2a38f940e25f23ee84d7a9",
+    "packages/project-store/src/designDraftArchive.ts": "b4ad12f82751603e6c203a7dc756a63022b925e4da70716f75174874e328791f",
+    "packages/project-store/src/fieldDesignArchive.ts": "afa8b79c9697e951877588324000d0c4265435f4ebb01bd4a9e81c703ef5fb7c",
+    "packages/project-store/src/layoutSessionArchive.ts": "e17c4765f5687f633580000fbd11b93208f4049ff214c52d8f6382df0cf9adeb"
+  },
+  "externalImports": [
+    "@placemarkio/tokml",
+    "@tmcw/togeojson",
+    "@xmldom/xmldom",
+    "fflate",
+    "jsonc-parser",
+    "proj4",
+    "zod"
+  ],
+  "libraries": {
+    "zod": {
+      "version": "4.4.3",
+      "runtimeFingerprint": "7528db1181ce5fe0868a40e707706c9d762a00a846f9e9e942370d3beb6f7d0b",
+      "fileCount": 220
+    },
+    "proj4": {
+      "version": "2.20.8",
+      "runtimeFingerprint": "290773dad2650c9ab30d0a4cb347bd4a0cbf64f98301ca5c9dbd07c94af69b33",
+      "fileCount": 108
+    },
+    "fflate": {
+      "version": "0.8.3",
+      "runtimeFingerprint": "08acd8912e8bb15070fe470cdbd167330b476e8736ff55c8db2601ca4b013120",
+      "fileCount": 9
+    },
+    "@xmldom/xmldom": {
+      "version": "0.8.15",
+      "runtimeFingerprint": "4e92da4e194c6e063eb5692090f345f4be0124db998bc8f02ffa3451efaca385",
+      "fileCount": 7
+    },
+    "@placemarkio/tokml": {
+      "version": "0.3.9",
+      "runtimeFingerprint": "a5e053327c3e1ed0d3e8e1472e55eb2bc87fda88f3a32eb6b7a7dd4e5f9e76cc",
+      "fileCount": 3
+    },
+    "@tmcw/togeojson": {
+      "version": "7.1.2",
+      "runtimeFingerprint": "d5ea1b119ea217e80a6c375e7da99252509cadc50de4832dedcd27bfbb06666d",
+      "fileCount": 4
+    },
+    "jsonc-parser": {
+      "version": "3.3.1",
+      "runtimeFingerprint": "02c16332de418be6f9180b6e2a0ec50d28da99383ff9e1cad2ef117ddef7045a",
+      "fileCount": 13
+    }
+  },
+  "outputSha256": "443a00825cd4d08afc9edb9cb6b050b0f7b9d0aece67d7a6ef04ce56ebfeba03"
+}

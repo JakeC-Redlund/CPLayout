@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   convertPivotProjectToFieldDesign, createFieldLayoutTarget, createLayoutSessionDocument, defaultProjectSettings, parseDesignDraftDocument,
+  createSurveyCollection,
   parseLayoutSessionDocument, parseProjectDocument, projectLonLatToXy, sampleProject,
   serializeDesignDraftDocument, serializeFieldDesignDocument, serializeFieldLayoutTarget, serializeLayoutSessionDocument, serializeProjectDocument,
   type DesignDraft, type LayoutObservation, type LayoutSession, type OperationalFixedGgaEvidence,
@@ -74,6 +75,67 @@ test("draft completion saves latest geometry and creates distinct complete ident
   const committed = f.storage.getItem(WEB_WORKSPACE_KEY);
   await assert.rejects(f.execute(completion(draft)), /revision|used/i);
   assert.equal(f.storage.getItem(WEB_WORKSPACE_KEY), committed);
+});
+
+async function legacyCompletionFixture(version: 1 | 2 | 3) {
+  const f = await fixture();
+  if (version === 2) await f.execute({ type: "upgrade_workspace_to_v2", now });
+  if (version === 3) await f.execute({ type: "upgrade_workspace_to_v3", now });
+  return f;
+}
+
+for (const version of [1, 2, 3] as const) test(`workspace v${version} completes with an explicit empty Survey mapping in one commit without a version upgrade`, async () => {
+  const f = await legacyCompletionFixture(version), before = await f.api.readAsync(), writes = f.storage.writes;
+  const command = { ...completion(), surveyCollectionIds: [] } as WorkspaceCommand;
+  const receipt = await f.execute(command);
+  assert.equal(receipt.workspace.workspaceVersion, before.workspaceVersion);
+  assert.equal(receipt.workspace.revision, before.revision + 1); assert.equal(f.storage.writes, writes + 1);
+  assert.equal(receipt.workspace.surveyCollections, undefined); assert.equal(receipt.workspace.surveyOwnerArchives, undefined);
+  assert.equal(receipt.workspace.originalSurveyUpgradeDocument, undefined);
+  assert.equal(receipt.workspace.originalV1Document, before.originalV1Document);
+  assert.equal(receipt.workspace.originalPreviousWorkspaceDocument, before.originalPreviousWorkspaceDocument);
+  assert.deepEqual(receipt.workspace.fieldDocuments, before.fieldDocuments);
+  assert.equal(receipt.workspace.catalog.designs.find(item => item.id === "draft-design")!.revision, 1);
+  const created = await f.api.readDesignAsync("complete-design"); assert.equal(created.kind, "project");
+  if (created.kind === "project") {
+    assert.equal(created.project.id, "complete"); assert.equal(created.context.fieldMapId, "catalog-field");
+    assert.deepEqual(created.project.fieldBoundary, completeDraft().fieldBoundary);
+    assert.deepEqual(created.project.pivotCenter, completeDraft().pivotCenter);
+  }
+  assert.equal(receipt.workspace.projectDocuments.find(entry => entry.summary.id === "complete")!.summary.id, "complete");
+});
+
+for (const version of [1, 2, 3] as const) test(`workspace v${version} empty-mapping completion keeps quota, stale revision and destination CRS failures atomic`, async () => {
+  const f = await legacyCompletionFixture(version), before = [...f.storage.values], writes = f.storage.writes, revision = f.revision();
+  const command = { ...completion(), surveyCollectionIds: [] } as WorkspaceCommand;
+  await assert.rejects(f.api.executeAsync(revision - 1, command), /revision/i);
+  await assert.rejects(f.api.executeAsync(revision, { ...command, expectedDesignRevision: 99 } as WorkspaceCommand), /revision/i);
+  const changedCrs = { ...completeDraft(), projectCrs: "EPSG:32614" };
+  await assert.rejects(f.api.executeAsync(revision, { ...completion(changedCrs), surveyCollectionIds: [] } as WorkspaceCommand), /CRS/i);
+  await assert.rejects(f.api.executeAsync(revision, { ...command, surveyCollectionIds: [{ sourceId: "missing", id: "copy", expectedRevision: 0 }] } as WorkspaceCommand), /Survey|upgrade/i);
+  f.storage.fail = true; await assert.rejects(f.api.executeAsync(revision, command), /quota/i); f.storage.fail = false;
+  assert.equal(f.storage.writes, writes); assert.deepEqual([...f.storage.values], before);
+  const reopened = await f.api.readAsync();
+  assert.equal(reopened.catalog.designs.length, 1); assert.equal(reopened.projectDocuments.length, 0);
+  assert.equal(reopened.workspaceVersion, `cplayout-workspace-v${version}`);
+  await f.execute(command);
+});
+
+test("completion with attached Survey collections refuses empty, incomplete and invalid explicit mappings without partial creation", async () => {
+  const f = await fixture(); await f.execute({ type: "upgrade_workspace_to_v3", now }); await f.execute({ type: "upgrade_workspace_to_v4", now });
+  const owner = { designId: "draft-design", documentKind: "draft" as const, payloadId: "draft", fieldMapId: "catalog-field", projectCrs: sampleProject.projectCrs };
+  for (const id of ["survey-one", "survey-two"]) await f.execute({ type: "create_survey_collection", now, expectedDesignRevision: 0,
+    collection: createSurveyCollection({ id, now, owner, purpose: { kind: "map_feature", featureKind: "reference_line", geometryType: "LineString" } }) });
+  const valid = [{ sourceId: "survey-one", id: "copy-one", expectedRevision: 0 }, { sourceId: "survey-two", id: "copy-two", expectedRevision: 0 }];
+  const before = [...f.storage.values], writes = f.storage.writes, revision = f.revision();
+  for (const surveyCollectionIds of [[], valid.slice(0, 1), [valid[0], { ...valid[1], sourceId: "missing" }],
+    [{ ...valid[0], expectedRevision: 1 }, valid[1]], [valid[0], { ...valid[1], id: valid[0].id }], [{ ...valid[0], id: "survey-one" }, valid[1]]]) {
+    await assert.rejects(f.api.executeAsync(revision, { ...completion(), surveyCollectionIds } as WorkspaceCommand), /map every|source changed|fresh|identity/i);
+    assert.deepEqual([...f.storage.values], before); assert.equal(f.storage.writes, writes);
+  }
+  const receipt = await f.execute({ ...completion(), surveyCollectionIds: valid } as WorkspaceCommand);
+  assert.equal(receipt.workspace.surveyCollections!.length, 4); assert.equal(receipt.workspace.projectDocuments.length, 1);
+  assert.equal(receipt.workspace.catalog.designs.find(item => item.id === "draft-design")!.revision, 1);
 });
 
 test("incomplete, wrong identity, stale revisions and quota failures leave both completion outputs unchanged", async () => {

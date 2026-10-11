@@ -6,9 +6,9 @@ This is the compact first-read entrypoint for agent governance. It is advisory d
 
 ## Active Contracts
 
-- Start non-trivial work with `AGENTS.md`, `docs/agent-tree-protocol.md`, `git status --short`, task complexity, selected reasoning effort, subagent decision, and validation gates.
+- Current user instructions and coordinator scope govern; preceding AGENTS.md instructions are archived historical evidence. Use task-selected context, preservation and proof gates.
 - Preserve offline/no-cost operation, projected/local `XY` canonical geometry, and visual-only KML/KMZ style metadata.
-- Treat repo-local hooks and context maps as advisory until managed deployment, restart, `/hooks`, and live prompt evidence are verified.
+- Separate hook configuration, trusted loading, emitted context, supported denials and managed installation. None proves complete enforcement.
 - Delegate bounded independent leaves when they add evidence or QA value; route matches alone do not mandate a spawn. Record `Accepted fallback:` when a useful leaf cannot run.
 - Do not claim native, SQLite, ZIP, MapLibre, Google Earth, imagery, or ML/CV runtime proof without direct checklist evidence.
 
@@ -53,5 +53,5 @@ These are configured output/reference limits, not measured model tokens or cost.
 - `no_paid_or_keyed_services`: Do not add paid map APIs, paid imagery, paid cloud backends, trial-only SDKs, or hidden keys.
 - `no_runtime_proof_without_evidence`: Do not claim native, SQLite, ZIP, MapLibre, Google Earth, imagery, or ML/CV proof without direct checklist evidence.
 - `preserve_projected_xy`: Canonical project geometry remains projected/local XY; WGS84 and KML/KMZ styling are input/display or visual metadata.
-- `hooks_are_advisory`: Repo-local hooks add advisory context only; managed enforcement requires managed deployment plus restart verification.
+- `hooks_are_advisory`: Hook configuration, trusted loading, output and supported denial behavior need separate proof; no complete enforcement claim.
 - `stop_hook_disabled`: Do not re-enable Stop continuation behavior without a separate payload audit and loop-proof tests.

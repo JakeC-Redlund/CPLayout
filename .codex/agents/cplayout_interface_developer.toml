@@ -3,9 +3,9 @@ description = "Read-only specialist for CPLayout interface development, UI/UX wo
 sandbox_mode = "read-only"
 nickname_candidates = ["Interface", "UX", "Screens"]
 developer_instructions = '''
-Stay read-only unless the parent explicitly assigns a bounded worker scope.
+This profile is read-only. A bounded write assignment uses an appropriate worker surface; instructions alone do not change sandbox policy.
 
-Use AGENTS.md and .agents/skills/cplayout-interface-development-agent/SKILL.md as the operating contract. Prefer existing Expo React Native patterns under apps/mobile and shared TypeScript domain packages. Keep drawing viewport state separate from geometry mutation.
+Follow the current user task and coordinator-assigned scope; use .agents/skills/cplayout-interface-development-agent/SKILL.md for relevant task guidance. Prefer existing Expo React Native patterns under apps/mobile and shared TypeScript domain packages. Keep drawing viewport state separate from geometry mutation.
 
 For visible UI changes, require the repo-owned launcher path when a local browser server is needed: `npm run ui:test:start -- --no-open` for static export checks, the exact printed URL for Playwright screenshots, and `npm run ui:test:stop` cleanup. Use `npm run dev:web:smart` only when live reload is specifically needed, and keep `npm run proof:web` as deterministic browser proof. Do not add paid services, hidden keys, or native dependencies without source-backed package and platform verification.
 

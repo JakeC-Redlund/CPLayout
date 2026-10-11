@@ -14,18 +14,18 @@ Use this reference when a prompt asks for specialist routing, agent panels, sour
 
 ## Decision Rules
 
-- Start non-trivial work with `AGENTS.md`, `docs/agent-tree-protocol.md`, and `git status --short`.
+- Start from the current user task, the bounded coordinator scope and relevant current files; preserve existing work with `git status --short`.
 - Prefer local repo evidence before memory and external research.
 - Use current official or primary sources for package, platform, Codex, Google Earth, database, and engineering claims.
-- Keep project-local hooks advisory. They add routing context but do not enforce policy or prove behavior unless installed through managed `requirements.toml` and verified after restart.
+- Keep project-local hooks advisory. They add routing context; supported denials can reject a call, but failures and uncovered tools prevent complete policy enforcement. Managed installation, loading and runtime behavior require separate evidence.
 - Treat managed-hook planning as a Codex policy task: separate local repo facts from official OpenAI docs and record trust, restart, and runtime-verification gaps.
-- Keep custom agents read-only unless the coordinator assigns a bounded mutation scope to a worker.
+- Keep custom profiles read-only. Use an appropriate worker surface for explicitly assigned writes; instructions alone do not change a profile sandbox.
 - Keep projected/local `XY` canonical geometry separate from WGS84 display/input, KML/KMZ styling, imagery evidence, and operator labels.
 - For local browser UI server launches, use repo-owned launcher commands instead of ad hoc servers: `npm run ui:test:start -- --no-open`, `npm run ui:test:status`, `npm run ui:test:stop`, or `npm run dev:web:smart` when live reload is specifically needed. Report the exact printed URL and cleanup status.
 
 ## Coordinator Contract
 
-The `UserPromptSubmit` hook should emit at most three advisory route IDs, a task-selected first-read reference, and a compact reminder to apply `AGENTS.md`/the tree protocol. The whole `additionalContext` should remain within its tested byte cap. It must not repeat the prompt, concatenate route paragraphs, or pretend to change an active model setting. Match results guide the coordinator's own complexity/effort/subagent decision; each delegated leaf gets a separate task-selected effort and bounded ownership packet. No route is a normal outcome, not permission to skip preflight. Explicit multi-agent requests still need a decision, while explicit no-delegation instructions win.
+The `UserPromptSubmit` hook should emit at most three advisory route IDs, a task-selected first-read reference, and a compact reminder that current user instructions and assigned scope govern. The whole `additionalContext` should remain within its tested byte cap. It must not repeat the prompt, concatenate route paragraphs, or pretend to change an active model setting. Match results guide the coordinator's own complexity/effort/subagent decision; each delegated leaf gets a separate task-selected effort and bounded ownership packet. No route is a normal outcome, not permission to skip preflight. Explicit multi-agent requests still need a decision, while explicit no-delegation instructions win.
 
 Route matching should be token/phrase-aware rather than raw substring matching so broad words such as `agent`, `hook`, `layout`, or `web` do not match inside unrelated words or route by themselves.
 
@@ -38,7 +38,7 @@ Complexity bands:
 
 Subagent decision rules:
 
-- `required`: the user explicitly asks for delegation or independent scopes/QA materially reduce risk under the owner's standing authorization.
+- `required`: the user explicitly asks for delegation or independent scopes/QA materially reduce risk under the current user's authorization.
 - `optional`: a bounded independent task might help, but the coordinator can continue and compare its cost with the expected evidence value.
 - `not useful`: a trivial/coupled task has no useful independent leaf, or the user explicitly restricts delegation.
 
@@ -51,3 +51,7 @@ The project-local `Stop` continuation hook is disabled. `.codex/hooks.json` does
 - For skill, hook, and agent surface changes, run `npm run validate:skills`, TOML/JSON parsing, hook sample execution, `git diff --check`, and `npm audit`.
 - For TypeScript or UI changes, also run `npm run validate`.
 - For visible UI changes, run `npm run ui:test:start -- --no-open` for local static-export checks and capture Playwright evidence from the exact printed URL when available. Use `npm run proof:web` for deterministic browser proof.
+
+## Unified-mode preservation routing
+
+Use the current unified-workspace decision for Design/Survey/Layout mode switches, shared map lifecycle, dirty input, camera/receiver ownership and immutable Layout targets. Survey collection/bundle storage is a separate contract leaf. Match precise phrases, reject duplicate normalized terms and keep broad mode words insufficient by themselves. Missing or malformed route data gets a bounded static fallback without input, traceback or transcript capture. Wrong events are silent. Source fixtures and synthetic size/timing measurements do not establish hook loading.
