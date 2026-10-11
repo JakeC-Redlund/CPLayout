@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "cplayout-corner-research-v1",
+  "id": "between-sample-collision",
+  "model": {
+    "pivot": [
+      0,
+      0
+    ],
+    "mainRadiusM": 10,
+    "armLengthM": 4,
+    "overhangM": 1,
+    "bodyHalfWidthM": 0.1,
+    "antennaOffsetM": [
+      -2,
+      0.5
+    ],
+    "wheelOffsetsM": [
+      [
+        -1,
+        0.4
+      ],
+      [
+        -1,
+        -0.4
+      ]
+    ],
+    "towerRadiiM": [
+      3,
+      7,
+      10
+    ]
+  },
+  "limits": {
+    "articulationRad": [
+      -2,
+      2
+    ],
+    "maxArticulationSlope": 5
+  },
+  "field": {
+    "outer": [
+      [
+        -25,
+        -25
+      ],
+      [
+        25,
+        -25
+      ],
+      [
+        25,
+        25
+      ],
+      [
+        -25,
+        25
+      ]
+    ],
+    "holes": []
+  },
+  "obstacles": [
+    [
+      [
+        11.448494156391085,
+        4.683542904563622
+      ],
+      [
+        11.648494156391084,
+        4.683542904563622
+      ],
+      [
+        11.648494156391084,
+        4.883542904563622
+      ],
+      [
+        11.448494156391085,
+        4.883542904563622
+      ]
+    ]
+  ],
+  "sweep": {
+    "startRad": 0,
+    "endRad": 1.5707963267948966,
+    "fullCircle": false
+  },
+  "clearanceM": 0.1,
+  "maxDepth": 18,
+  "toleranceM": 1e-7,
+  "trajectory": {
+    "interpolation": "linear",
+    "knots": [
+      {
+        "thetaRad": 0,
+        "alphaRad": 0
+      },
+      {
+        "thetaRad": 1.5707963267948966,
+        "alphaRad": 0
+      }
+    ]
+  }
+}

@@ -46,3 +46,6 @@ __pycache__/
 .env
 .env.*
 !.env.example
+
+# Generated raw dependency-audit and mitigation evidence (retained locally/CI).
+/reports/dependency-audit/

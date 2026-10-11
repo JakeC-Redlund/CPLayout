@@ -2,8 +2,8 @@
 """Advisory prompt triage for CPLayout specialist routing.
 
 The hook is intentionally non-blocking. It adds concise context for Codex
-sessions that support UserPromptSubmit hooks, but AGENTS.md and verified
-workspace evidence remain authoritative.
+sessions that support UserPromptSubmit hooks. Current user instructions and
+the coordinator's assigned scope govern; archived instructions are evidence.
 """
 
 from __future__ import annotations
@@ -79,6 +79,8 @@ DELEGATION_RESTRICTION_RE = re.compile(
     re.IGNORECASE,
 )
 PROMPT_CONTEXT_MAX_BYTES = 1200
+FIRST_READ = "docs/agent-tree-protocol.md"
+PRIVATE_FALLBACK = "CPLayout advisory unavailable; follow the current user task and coordinator-assigned scope. Hooks do not prove runtime behavior."
 QUOTE_RE = re.compile(r'(?s)```.*?```|`[^`]*`|"[^"\n]*"|(?<!\w)\'[^\'\n]*\'(?!\w)')
 AUTHORITY_PATHS = (
     "AGENTS.md",
@@ -127,6 +129,7 @@ def _keywords(raw_keywords: object) -> tuple[Keyword, ...]:
     if not isinstance(raw_keywords, list):
         raise ValueError("route keywords must be lists")
     keywords: list[Keyword] = []
+    seen: set[tuple[str, ...]] = set()
     for raw_keyword in raw_keywords:
         if not isinstance(raw_keyword, dict):
             raise ValueError("route keyword must be an object")
@@ -134,11 +137,14 @@ def _keywords(raw_keywords: object) -> tuple[Keyword, ...]:
         weight = raw_keyword.get("weight")
         if not isinstance(term, str) or not term.strip():
             raise ValueError("route keyword term must be a non-empty string")
-        if not isinstance(weight, int) or weight <= 0:
+        if type(weight) is not int or weight <= 0:
             raise ValueError("route keyword weight must be a positive integer")
         tokens = _tokens(term)
         if not tokens:
             raise ValueError("route keyword term must contain at least one token")
+        if tokens in seen:
+            raise ValueError("normalized route keywords must be unique")
+        seen.add(tokens)
         keywords.append(Keyword(term=term.lower(), tokens=tokens, weight=weight))
     return tuple(keywords)
 
@@ -157,6 +163,8 @@ def _string_list(raw_value: object, field_name: str) -> tuple[str, ...]:
 def load_route_data(path: Path | None = None) -> RouteData:
     path = _route_data_path() if path is None else path
     raw_data = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(raw_data, dict):
+        raise ValueError("route data must be an object")
     max_routes = raw_data.get("maxRoutes")
     min_score = raw_data.get("minScore")
     unmatched_complexity = raw_data.get("unmatchedComplexity")
@@ -165,9 +173,9 @@ def load_route_data(path: Path | None = None) -> RouteData:
         raw_data.get("baseValidationExpectations"), "baseValidationExpectations"
     )
     raw_routes = raw_data.get("routes")
-    if not isinstance(max_routes, int) or max_routes <= 0:
-        raise ValueError("maxRoutes must be a positive integer")
-    if not isinstance(min_score, int) or min_score < 0:
+    if type(max_routes) is not int or not 1 <= max_routes <= 3:
+        raise ValueError("maxRoutes must be between one and three")
+    if type(min_score) is not int or min_score < 0:
         raise ValueError("minScore must be a non-negative integer")
     if not isinstance(unmatched_complexity, str) or not unmatched_complexity.strip():
         raise ValueError("unmatchedComplexity must be a non-empty string")
@@ -177,6 +185,7 @@ def load_route_data(path: Path | None = None) -> RouteData:
         raise ValueError("routes must be a list")
 
     routes: list[RouteDefinition] = []
+    seen_routes: set[str] = set()
     for raw_route in raw_routes:
         if not isinstance(raw_route, dict):
             raise ValueError("route must be an object")
@@ -192,6 +201,9 @@ def load_route_data(path: Path | None = None) -> RouteData:
         priority = raw_route.get("priority")
         if not isinstance(route_id, str) or not route_id.strip():
             raise ValueError("route id must be a non-empty string")
+        if route_id in seen_routes:
+            raise ValueError("route ids must be unique")
+        seen_routes.add(route_id)
         if not isinstance(skill, str) or not skill.strip():
             raise ValueError(f"{route_id}: skill must be a non-empty string")
         if not isinstance(agent, str) or not agent.strip():
@@ -208,7 +220,7 @@ def load_route_data(path: Path | None = None) -> RouteData:
             raise ValueError(f"{route_id}: spawnPolicy must be required, optional, or not_useful")
         if not isinstance(routing_reason, str) or not routing_reason.strip():
             raise ValueError(f"{route_id}: routingReason must be a non-empty string")
-        if not isinstance(priority, int):
+        if type(priority) is not int:
             raise ValueError(f"{route_id}: priority must be an integer")
         routes.append(
             RouteDefinition(
@@ -257,7 +269,7 @@ def load_context_map(path: Path | None = None) -> dict[str, object] | None:
     """Load compact advisory context-map metadata.
 
     This intentionally fails open. Hook context is advisory; broken context-map
-    data must not block the coordinator from using AGENTS.md and current repo
+    data must not block the coordinator from using the current user task and repo
     evidence.
     """
 
@@ -286,7 +298,7 @@ def load_context_map(path: Path | None = None) -> dict[str, object] | None:
 def _read_payload() -> tuple[dict[str, object], bool]:
     try:
         raw = sys.stdin.read()
-    except OSError:
+    except (OSError, UnicodeError):
         return {}, True
     if not raw.strip():
         return {}, True
@@ -342,8 +354,9 @@ def match_routes(
     max_routes: int | None = None,
     min_score: int | None = None,
     routes: tuple[RouteDefinition, ...] | None = None,
+    route_data: RouteData | None = None,
 ) -> list[RouteMatch]:
-    route_data = load_route_data()
+    route_data = load_route_data() if route_data is None else route_data
     max_routes = route_data.max_routes if max_routes is None else max_routes
     min_score = route_data.min_score if min_score is None else min_score
     routes = route_data.routes if routes is None else routes
@@ -494,8 +507,9 @@ def _context(
     matches: list[RouteMatch],
     shape_unknown: bool,
     context_map: dict[str, object] | None = None,
+    route_data: RouteData | None = None,
 ) -> str:
-    route_data = load_route_data()
+    route_data = load_route_data() if route_data is None else route_data
     decision, _reason = subagent_decision(prompt, matches)
     route_ids = ", ".join(match.route.route_id for match in matches[:3]) or "none"
     lines = [f"CPLayout advisory routes: {route_ids}."]
@@ -521,16 +535,16 @@ def _context(
         ),
         None,
     )
-    read_refs = "AGENTS.md" + (f"; {leaf_path}" if leaf_path else "")
+    read_refs = FIRST_READ + (f"; {leaf_path}" if leaf_path and leaf_path != FIRST_READ else "")
     lines.append(f"Read first: {read_refs}.")
     lines.append("Inspect git status --short.")
-    lines.append("Keep offline/no-cost, projected/local XY canonical, and KML/KMZ styling visual-only; require direct runtime proof.")
-    lines.append("Hooks are advisory, not enforcement.")
+    lines.append("Current user task and assigned scope govern; archived instructions are evidence.")
+    lines.append("Hooks do not prove loading, runtime behavior or complete enforcement.")
     if shape_unknown:
         lines.append("Hook input shape was incomplete or non-JSON; verify prompt scope.")
     output = "\n".join(lines)
     if len(output.encode("utf-8")) > PROMPT_CONTEXT_MAX_BYTES:
-        return "CPLayout advisory: inspect AGENTS.md and git status --short; hooks are advisory, not enforcement."
+        return PRIVATE_FALLBACK
     return output
 
 
@@ -540,13 +554,18 @@ def main() -> int:
         return 0
 
     prompt = _prompt_from_payload(payload)
-    matches = match_routes(prompt)
+    try:
+        route_data = load_route_data()
+        matches = match_routes(prompt, route_data=route_data)
+        context = _context(prompt, matches, shape_unknown, route_data=route_data)
+    except (OSError, ValueError, TypeError, KeyError):
+        context = PRIVATE_FALLBACK
     print(
         json.dumps(
             {
                 "hookSpecificOutput": {
                     "hookEventName": "UserPromptSubmit",
-                    "additionalContext": _context(prompt, matches, shape_unknown),
+                    "additionalContext": context,
                 }
             }
         )

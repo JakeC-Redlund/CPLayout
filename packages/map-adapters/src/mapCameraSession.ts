@@ -1,3 +1,5 @@
+import type { MapViewport } from "@cplayout/geometry";
+
 export interface MapCameraView {
   center: [number, number];
   zoom: number;
@@ -16,11 +18,10 @@ export interface MapCameraFrameIdentity {
 declare const mapCameraFrameBrand: unique symbol;
 export type MapCameraFrame = symbol & { readonly [mapCameraFrameBrand]: true };
 
-function sameIdentity(a: MapCameraFrameIdentity, b: MapCameraFrameIdentity): boolean {
+function sameProjectIdentity(a: MapCameraFrameIdentity, b: MapCameraFrameIdentity): boolean {
   return a.projectId === b.projectId
     && a.projectCrs === b.projectCrs
     && Object.is(a.projectGeneration, b.projectGeneration)
-    && a.homeView === b.homeView
     && a.projectionAvailable === b.projectionAvailable;
 }
 
@@ -34,34 +35,54 @@ function copyView(view: MapCameraView): MapCameraView {
 }
 
 export function createMapCameraSession() {
+  return createViewSession(copyView, view => [...view.center, view.zoom, view.bearing, view.pitch].every(Number.isFinite));
+}
+
+export interface SvgMapCameraView {
+  viewport: MapViewport;
+  selectedMapFeatureId: string | null;
+}
+
+export function createSvgMapCameraSession() {
+  return createViewSession<SvgMapCameraView>(view => ({ viewport: { ...view.viewport, center: { ...view.viewport.center } }, selectedMapFeatureId: view.selectedMapFeatureId }),
+    view => [view.viewport.center.x, view.viewport.center.y, view.viewport.baseWidthMeters, view.viewport.baseHeightMeters, view.viewport.zoomLevel].every(Number.isFinite)
+      && view.viewport.baseWidthMeters > 0 && view.viewport.baseHeightMeters > 0 && view.viewport.zoomLevel > 0);
+}
+
+/** Catalog and design retain separate views; tokens still belong to one uninterrupted active view. */
+function createViewSession<T>(copy: (view: T) => T, valid: (view: T) => boolean) {
   let identity: MapCameraFrameIdentity | null = null;
   let current: MapCameraFrame | null = null;
-  let remembered: MapCameraView | null = null;
+  let designView: T | null = null;
+  let homeView: T | null = null;
 
   return {
     useFrame(next: MapCameraFrameIdentity): MapCameraFrame {
-      if (current === null || identity === null || !sameIdentity(identity, next)) {
+      const changedProject = identity === null || !sameProjectIdentity(identity, next);
+      if (changedProject) { designView = null; homeView = null; }
+      if (current === null || changedProject || identity?.homeView !== next.homeView) {
         identity = { ...next };
         current = Symbol("MapCameraFrame") as MapCameraFrame;
-        remembered = null;
       }
       return current;
     },
     isCurrent(frame: MapCameraFrame): boolean {
       return current !== null && frame === current;
     },
-    remember(frame: MapCameraFrame, view: MapCameraView): boolean {
+    remember(frame: MapCameraFrame, view: T): boolean {
       if (current === null || frame !== current) return false;
-      const snapshot = copyView(view);
-      if (![...snapshot.center, snapshot.zoom, snapshot.bearing, snapshot.pitch].every(Number.isFinite)) {
+      const snapshot = copy(view);
+      if (!valid(snapshot)) {
         return false;
       }
-      remembered = snapshot;
+      if (identity?.homeView) homeView = snapshot;
+      else designView = snapshot;
       return true;
     },
-    restore(frame: MapCameraFrame): MapCameraView | null {
+    restore(frame: MapCameraFrame): T | null {
+      const remembered = identity?.homeView ? homeView : designView;
       return current !== null && frame === current && remembered !== null
-        ? copyView(remembered)
+        ? copy(remembered)
         : null;
     },
   };

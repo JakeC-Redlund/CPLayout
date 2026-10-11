@@ -722,7 +722,7 @@ class BoundaryDetectorTests(unittest.TestCase):
         self.assertIn("bestRejectedCandidate", iterations[0])
         self.assertIn("bestAcceptedCandidate", iterations[0])
 
-    def test_boundary_acceptance_requires_gpu_and_projected_boundary(self) -> None:
+    def test_boundary_quality_is_independent_of_cuda_and_requires_review(self) -> None:
         candidate = {
             "rejected": False,
             "confidence": DEFAULT_VISION_THRESHOLDS["minFieldBoundaryConfidence"] + 0.05,
@@ -736,7 +736,9 @@ class BoundaryDetectorTests(unittest.TestCase):
         )
         self.assertTrue(accepted["accepted"])
         self.assertEqual(accepted["status"], "accepted")
-        self.assertTrue(accepted["gpuBacked"])
+        self.assertFalse(accepted["gpuBacked"])
+        self.assertFalse(accepted["autoApplyEligible"])
+        self.assertTrue(accepted["operatorReviewRequired"])
 
         no_gpu = boundary_improvement_acceptance(
             candidate,
@@ -745,8 +747,9 @@ class BoundaryDetectorTests(unittest.TestCase):
             {"cudaAvailable": False},
             [{"x": 1.0, "y": 1.0}, {"x": 2.0, "y": 1.0}, {"x": 2.0, "y": 2.0}],
         )
-        self.assertFalse(no_gpu["accepted"])
-        self.assertIn("PyTorch CUDA was not available; report is not GPU-backed", no_gpu["reasons"])
+        self.assertTrue(no_gpu["accepted"])
+        self.assertFalse(no_gpu["gpuBacked"])
+        self.assertEqual(no_gpu["reasons"], accepted["reasons"])
 
     def test_improvement_loop_records_mocked_gpu_preflight_metadata(self) -> None:
         with TemporaryDirectory() as temp_dir:
@@ -785,11 +788,34 @@ class BoundaryDetectorTests(unittest.TestCase):
                 )
 
             report = json.loads((output_dir / "boundary-improvement-loop.json").read_text(encoding="utf-8"))
-            self.assertEqual(report["schemaVersion"], "cplayout-boundary-improvement-loop-v1")
+            self.assertEqual(report["schemaVersion"], "cplayout-boundary-improvement-loop-v2")
             self.assertTrue(report["gpu"]["cudaAvailable"])
             self.assertTrue(report["gpu"]["usedForTorchTensorPreflight"])
             self.assertEqual(report["gpu"]["tensorPreflight"]["device"], "NVIDIA GeForce RTX 4070 Laptop GPU")
-            self.assertEqual(report["acceptance"]["gpuBacked"], True)
+            self.assertEqual(report["acceptance"]["gpuBacked"], False)
+            self.assertEqual(report["stageObservations"][0]["observedDevice"], "cpu")
+            self.assertFalse(report["stageObservations"][0]["accelerated"])
+            self.assertEqual(report["stageObservations"][1]["observedDevice"], "cuda")
+            self.assertTrue(report["stageObservations"][1]["diagnosticOnly"])
+
+    def test_failed_cuda_preflight_does_not_block_cpu_boundary_report(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            image = np.full((300, 300, 3), (82, 120, 74), dtype=np.uint8)
+            cv2.rectangle(image, (35, 40), (265, 260), (35, 35, 35), 4)
+            map_canvas = root / "map.png"
+            cv2.imwrite(str(map_canvas), image)
+            output_dir = root / "loop"
+            with patch("cplayout_ml.cli.probe_cuda", return_value={"cudaAvailable": True}), \
+                 patch("cplayout_ml.cli.torch_gpu_image_preflight", side_effect=RuntimeError("unavailable")):
+                code = improve_boundary_detector(map_canvas, None, None, None, None, None,
+                    "USER DRAWN FIELD BOUNDARY", output_dir, 5, "2026-05-30T00:00:00.000Z")
+            self.assertEqual(code, 0)
+            report = json.loads((output_dir / "boundary-improvement-loop.json").read_text(encoding="utf-8"))
+            self.assertEqual(report["gpu"]["tensorPreflightError"], "RuntimeError")
+            self.assertEqual(report["stageObservations"][0]["observedDevice"], "cpu")
+            self.assertEqual(report["stageObservations"][1]["observedDevice"], "failed")
+            self.assertFalse(report["acceptance"]["gpuBacked"])
 
     def test_pivot_locator_iteration_runner_records_requested_100_iterations(self) -> None:
         image, truth = synthetic_pivot_fixture(cv2)

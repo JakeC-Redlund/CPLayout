@@ -183,6 +183,8 @@ test("importing an independent blocked ZIP cannot reassign or overwrite the acti
   await page.getByTestId("command-file-sample-baseline-needs-review").click();
   await page.getByTestId("workspace-nav-files").click();
   await page.getByLabel(`Open ${savedA.name}`, { exact: true }).click();
+  await expect(page.getByTestId("project-to-draft-discard")).toBeVisible();
+  await page.getByTestId("project-to-draft-discard-confirm").click();
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText(savedA.name);
   await expect(page.getByTestId("project-save-state")).toContainText("Saved");
   await page.getByTestId("workspace-nav-files").click();

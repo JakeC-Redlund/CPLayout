@@ -5,6 +5,7 @@ import { parseDesignDraftDocument, serializeDesignDraftDocument, tryBuildPivotPr
 import { createDesignDraftEditorState, reduceDesignDraftEditorState, type DesignDraftEditorAction, type DesignDraftEditorState } from "./designDraftEditor";
 import { defaultProjectSettings } from "./settings";
 import type { GnssCaptureEvidence } from "./types";
+import type { DraftDrawingCommand } from "./draftDrawingWorkflow";
 
 function blank(): DesignDraft {
   const settings = defaultProjectSettings();
@@ -16,6 +17,76 @@ function blank(): DesignDraft {
 function local(): DesignDraftEditorState {
   return createDesignDraftEditorState({ ...blank(), projectCrs: "LOCAL:field" });
 }
+
+function draw(state: DesignDraftEditorState, command: DraftDrawingCommand): DesignDraftEditorState {
+  return edit(state, { type: "drawing", expectedRevision: state.revision, command });
+}
+
+test("paused polygon and classification resume after reopen without becoming a boundary", () => {
+  let state = draw(local(), { type: "begin", id: "polygon", name: "New area", geometryType: "Polygon" });
+  const points = [{ x: 0, y: 0 }, { x: 30, y: 0 }, { x: 30, y: 20 }];
+  for (const point of points) state = draw(state, { type: "append_vertex", id: "polygon",
+    vertex: { point, recordedAt: "2026-09-27T00:00:00Z", wgs84: null, elevation: null } });
+  state = draw(state, { type: "pause", id: "polygon" });
+  state = draw(state, { type: "begin", id: "point", name: "Valve", geometryType: "Point" });
+  state = draw(state, { type: "pause", id: "point" });
+  state = createDesignDraftEditorState(parseDesignDraftDocument(serializeDesignDraftDocument(state.draft)));
+  assert.equal(state.draft.drawingWorkflow!.captures.length, 2);
+  assert.deepEqual(state.draft.drawingWorkflow!.captures[0].vertices.map(item => item.point), points);
+  assert.deepEqual(state.draft.fieldBoundary, []);
+  state = draw(state, { type: "resume", id: "polygon" });
+  state = draw(state, { type: "finish", id: "polygon" });
+  state = draw(state, { type: "set_classification", id: "polygon", classification: { purposeId: "field_boundary", name: "Field", notes: "Proposal only" } });
+  state = draw(state, { type: "pause", id: "polygon" });
+  state = createDesignDraftEditorState(parseDesignDraftDocument(serializeDesignDraftDocument(state.draft)));
+  assert.equal(state.draft.drawingWorkflow!.captures[0].stage, "classification");
+  assert.equal(state.draft.drawingWorkflow!.captures[0].classification.notes, "Proposal only");
+  state = draw(state, { type: "resume", id: "polygon" });
+  state = draw(state, { type: "return_to_drawing", id: "polygon" });
+  assert.deepEqual(state.draft.fieldBoundary, []);
+  reject(state, { type: "drawing", expectedRevision: state.revision - 1, command: { type: "discard", id: "polygon" } });
+});
+
+test("drawing CRS lock survives discard, undo, save and reopen", () => {
+  let state = draw(local(), { type: "begin", id: "polygon", name: "New area", geometryType: "Polygon" });
+  state = draw(state, { type: "append_vertex", id: "polygon",
+    vertex: { point: { x: 2, y: 3 }, recordedAt: "2026-09-27T00:00:00Z", wgs84: null, elevation: null } });
+  state = edit(state, { type: "undo" });
+  assert.equal(state.draft.drawingWorkflow!.captures[0].vertices.length, 0);
+  state = edit(state, { type: "undo" });
+  assert.deepEqual(state.draft.drawingWorkflow!.captures, []);
+  const reopened = createDesignDraftEditorState(parseDesignDraftDocument(serializeDesignDraftDocument(state.draft)));
+  assert.equal(reopened.lockedCrs, "LOCAL:field");
+  reject(reopened, { type: "set_crs", projectCrs: "LOCAL:other" });
+  state = edit(state, { type: "redo" });
+  state = edit(state, { type: "redo" });
+  state = draw(state, { type: "discard", id: "polygon" });
+  assert.equal(state.draft.drawingWorkflow!.lockedCrs, "LOCAL:field");
+  reject(createDesignDraftEditorState(state.draft), { type: "set_crs", projectCrs: null });
+});
+
+test("drawing undo cannot cross a coordinate-frame change after capture", () => {
+  let state = edit(local(), { type: "set_crs", projectCrs: "LOCAL:second" });
+  state = draw(state, { type: "begin", id: "point", name: "Point", geometryType: "Point" });
+  state = draw(state, { type: "append_vertex", id: "point",
+    vertex: { point: { x: 2, y: 3 }, recordedAt: "2026-09-27T00:00:00Z", wgs84: null, elevation: null } });
+  state = edit(state, { type: "undo" });
+  state = edit(state, { type: "undo" });
+  reject(state, { type: "undo" });
+});
+
+test("removing the last drawing vertex retains disabled autosave and CRS lock across reopen", () => {
+  let state = draw(local(), { type: "set_autosave", enabled: false });
+  state = draw(state, { type: "begin", id: "point", name: "Point", geometryType: "Point" });
+  state = draw(state, { type: "append_vertex", id: "point",
+    vertex: { point: { x: 2, y: 3 }, recordedAt: "2026-09-27T00:00:00Z", wgs84: null, elevation: null } });
+  state = draw(state, { type: "remove_last_vertex", id: "point" });
+  const reopened = createDesignDraftEditorState(parseDesignDraftDocument(serializeDesignDraftDocument(state.draft)));
+  assert.equal(reopened.draft.drawingWorkflow!.autosaveEnabled, false);
+  assert.deepEqual(reopened.draft.drawingWorkflow!.captures[0].vertices, []);
+  assert.equal(reopened.lockedCrs, "LOCAL:field");
+  reject(reopened, { type: "set_crs", projectCrs: "LOCAL:other" });
+});
 
 function edit(state: DesignDraftEditorState, action: DesignDraftEditorAction): DesignDraftEditorState {
   const before = JSON.stringify(state);

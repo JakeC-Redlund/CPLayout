@@ -228,6 +228,9 @@ def run_boundary_variants(
         )
         report_path = variant_dir / "boundary-improvement-loop.json"
         report = load_json(report_path)
+        detections = report.get("detections") or {}
+        candidate = detections.get("cvCandidateBoundary") or {}
+        best_iteration = report.get("bestIteration") or {}
         variants.append({
             "id": f"opencv-boundary-loop:{case_id}",
             "kind": "opencv_boundary_improvement",
@@ -235,8 +238,8 @@ def run_boundary_variants(
             "accepted": report.get("acceptance", {}).get("accepted"),
             "gpuBacked": report.get("acceptance", {}).get("gpuBacked"),
             "metrics": {
-                "confidence": report.get("detections", {}).get("cvCandidateBoundary", {}).get("confidence"),
-                "bestOperatorIoU": report.get("bestIteration", {}).get("bestOperatorIoU"),
+                "confidence": candidate.get("confidence"),
+                "bestOperatorIoU": best_iteration.get("bestOperatorIoU"),
             },
         })
     variants.append({

@@ -56,6 +56,7 @@ import type { MapSurfaceProps } from "./types";
 import { useMapInteractionController } from "./useMapInteractionController";
 import { finitePointBounds, fitProjectedBounds, viewportForScreen } from "./mapFit";
 import { trackMapPointers } from "./mapPointerGuard";
+import { createSvgMapCameraSession, type MapCameraFrame, type MapCameraFrameIdentity } from "./mapCameraSession";
 import { anchoredPixelBox, createSvgSymbolScale, MAP_LABEL_FONT_PIXELS, placeMapLabels, visibleCircleLabelPoint, visiblePathLabelPoint, type MapLabelCandidate, type PixelBox } from "./svgMapLabels";
 
 type MapPalette = ReturnType<typeof paletteForMapStyle>;
@@ -86,7 +87,6 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
   const catalogHomeView = homeView === true;
   const externalHudLayout = controlLayout === "externalHud";
   const shortLandscape = externalHudLayout && windowWidth > windowHeight && windowHeight < 500;
-  const externalCompactToolbar = externalHudLayout && (compactLayout || shortLandscape);
   const designMode = settings.mappingWorkflowMode === "design" && !catalogHomeView;
   const showProjectGeometry = !catalogHomeView;
   const mapFeatures = project.mapFeatures ?? [];
@@ -150,6 +150,10 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
   const [viewport, setViewport] = useState(initialViewport);
   const [mapPixelWidth, setMapPixelWidth] = useState(900);
   const [mapPixelHeight, setMapPixelHeight] = useState(440);
+  // A tablet or open sidebar can leave a compact map inside a wide window.
+  // Keep control placement width-based so moving rows cannot toggle it by height.
+  const compactMapControls = compactLayout || mapPixelWidth < 760;
+  const externalCompactToolbar = externalHudLayout && (compactMapControls || shortLandscape);
   const effectiveViewport = useMemo(() => viewportForScreen(viewport,
     { width: mapPixelWidth, height: mapPixelHeight }) ?? viewport,
   [viewport, mapPixelWidth, mapPixelHeight]);
@@ -158,6 +162,12 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
   const [labelObstructions, setLabelObstructions] = useState<Record<string, PixelBox>>({});
   const externalDraftBottom = bottomOverlay ? (labelObstructions.bottom?.height ?? 0) + 16 : 8;
   const [localSelectedMapFeatureId, setLocalSelectedMapFeatureId] = useState<string | null>(null);
+  const [cameraSession] = useState(createSvgMapCameraSession);
+  const cameraFrameRef = useRef<MapCameraFrame | null>(null);
+  const committedCameraIdentity = useRef<MapCameraFrameIdentity | null>(null);
+  const cameraIdentity = useMemo(() => ({ projectId: project.id, projectCrs: project.projectCrs,
+    projectGeneration: props.projectGeneration ?? 0, homeView: catalogHomeView, projectionAvailable: true }),
+  [project.id, project.projectCrs, props.projectGeneration, catalogHomeView]);
   const [legendOpen, setLegendOpen] = useState(false);
   const activeSelectedMapFeatureId = selectedMapFeatureId === undefined ? localSelectedMapFeatureId : selectedMapFeatureId;
   const controller = useMapInteractionController(
@@ -260,11 +270,13 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
       onStartShouldSetPanResponderCapture: (event) => { startMapTouch(event); return false; },
       onMoveShouldSetPanResponder: (_event, gesture) => gestureAllowed.current && Math.abs(gesture.dx) + Math.abs(gesture.dy) > 6,
       onPanResponderGrant: () => {
+        if (!ownsCamera()) return;
         panAllowed.current = gestureAllowed.current;
         suppressTapUntil.current = Infinity;
       },
       onPanResponderTerminate: () => { panAllowed.current = false; suppressTapUntil.current = Date.now() + 350; },
       onPanResponderRelease: (_event, gesture) => {
+        if (!ownsCamera()) return;
         suppressTapUntil.current = Date.now() + 350;
         if (!panAllowed.current) return;
         panAllowed.current = false;
@@ -277,7 +289,7 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
         });
       },
     }),
-    [designMode, mapPixelHeight, mapPixelWidth, mapState.mode, mapState.viewport, selectedVertex],
+    [cameraIdentity, designMode, mapPixelHeight, mapPixelWidth, mapState.mode, mapState.viewport, selectedVertex],
   );
   const panHandlers = panResponder.panHandlers;
   // react-native-svg maps onPress to the DOM click handler on web.
@@ -291,10 +303,22 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
     && Boolean(props.activeMapFeatureKind ? props.onAddMapFeature : props.onCreateMapFeatureDraft));
   const mapClickLayerActive = designMode && mapState.mode !== "pan" && mapState.mode !== "edit_vertices";
   useLayoutEffect(() => {
-    cancelMapGesture();
-    setViewport(initialViewport);
-    setLocalSelectedMapFeatureId(null);
-  }, [project.id, project.projectCrs, props.projectGeneration, catalogHomeView]);
+    const previous = cameraFrameRef.current;
+    if (previous && cameraSession.isCurrent(previous)) {
+      cameraSession.remember(previous, { viewport, selectedMapFeatureId: localSelectedMapFeatureId });
+    }
+    const current = cameraSession.useFrame(cameraIdentity);
+    cameraFrameRef.current = current;
+    committedCameraIdentity.current = cameraIdentity;
+    if (current !== previous) {
+      cancelMapGesture();
+      const restored = cameraSession.restore(current);
+      setViewport(restored?.viewport ?? initialViewport);
+      const selected = restored?.selectedMapFeatureId;
+      setLocalSelectedMapFeatureId(selected && mapFeatures.some(feature => feature.id === selected) ? selected : null);
+      setLastSnap(null);
+    }
+  });
   useLayoutEffect(cancelMapGesture, [mapPixelWidth, mapPixelHeight]);
   useLayoutEffect(() => {
     if (Platform.OS !== "web" || typeof ResizeObserver === "undefined") return;
@@ -331,6 +355,11 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
     pointerTracking.current?.cancel();
   }
 
+  function ownsCamera(): boolean {
+    const frame = cameraFrameRef.current;
+    return committedCameraIdentity.current === cameraIdentity && frame !== null && cameraSession.isCurrent(frame);
+  }
+
   function startMapTouch(event: GestureResponderEvent): void {
     if (Platform.OS === "web") return;
     if (event.nativeEvent.touches.length === 1) gestureAllowed.current = true;
@@ -338,7 +367,7 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
   }
 
   function fitField(): void {
-    if (catalogHomeView || !fieldBounds) return;
+    if (!ownsCamera() || catalogHomeView || !fieldBounds) return;
     const obstruction = fitObstructions.current;
     const topVisible = !deferMapNotices && (imageryPlan || referenceOverlayNotice || externalHudLayout);
     const insets = {
@@ -351,8 +380,12 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
     if (Platform.OS === "web") {
       const surface = surfaceRef.current as unknown as Element | null;
       const svg = surface?.querySelector("svg");
-      if (svg) {
-        const frame = svg.getBoundingClientRect();
+      const frame = svg?.getBoundingClientRect();
+      if (frame && frame.width > 0 && frame.height > 0) {
+        // onLayout can retain old positions after an overlay moves without resizing.
+        // Current web rectangles replace that cache; native keeps the layout fallback.
+        insets.top = deferMapNotices ? 68 : 12;
+        insets.bottom = 20;
         const obstructionRect = (testId: string) => surface?.querySelector(`[data-testid="${testId}"]`)?.getBoundingClientRect();
         const reserveTop = (testId: string) => {
           const rect = obstructionRect(testId);
@@ -382,6 +415,7 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
   }
 
   function dispatch(action: DrawingMapAction): void {
+    if (!ownsCamera()) return;
     switch (action.type) {
       case "pan":
         cancelMapGesture();
@@ -542,6 +576,7 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
   }
 
   function selectMapFeature(featureId: string): void {
+    if (!ownsCamera()) return;
     const nextId = activeSelectedMapFeatureId === featureId ? null : featureId;
     setLocalSelectedMapFeatureId(nextId);
     onSelectMapFeature?.(nextId);
@@ -549,8 +584,11 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
   }
 
   const shortInspectView = externalHudLayout && windowHeight < 500 && mapState.mode === "pan" && mapState.draftVertices.length === 0;
+  const idleCompactPan = externalHudLayout && compactMapControls && mapState.mode === "pan"
+    && mapState.draftVertices.length === 0 && !selectedVertex;
   const shortLandscapeDraftHud = shortLandscape && designMode && !shortInspectView;
-  const deferMapNotices = externalHudLayout && (compactLayout || shortLandscape || mapPixelWidth < 560 || shortInspectView);
+  const deferMapNotices = externalHudLayout && (compactMapControls || shortLandscape || shortInspectView);
+  const legendIncludesNotices = deferMapNotices && Boolean(imageryPlan || referenceOverlayNotice);
   const visibleLabelObstructions = Object.entries(labelObstructions).filter(([id]) => id === "zoom"
     || (id === "legend" && deferMapNotices && !catalogHomeView)
     || (id === "pan" && !deferMapNotices)
@@ -633,7 +671,7 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
         style={[styles.draftHudText, shortLandscapeDraftHud && styles.draftHudTextShortLandscape]}>
         {designMode
           ? `${mapState.mode === "measure" ? activeFeatureGeometry.replace("String", "") : mapState.activeLayer.replaceAll("_", " ")} \u00b7 ${mapState.draftVertices.length} pts${selectedVertex ? ` \u00b7 ${selectedProjectVertexText(project, selectedVertex)}` : ""}`
-          : catalogHomeView ? "Catalog view \u00b7 open a saved design to edit projected XY geometry" : "Layout \u00b7 RTK-only mutation \u00b7 pointer editing controls hidden"}
+          : catalogHomeView ? "Catalog view \u00b7 open a saved design to edit projected XY geometry" : "Inspect map \u00b7 pointer gestures select and view"}
       </Text>
       {designMode && mapState.draftVertices.length > 1 ? <Text numberOfLines={shortLandscapeDraftHud ? 1 : undefined}
         style={[styles.draftHudText, shortLandscapeDraftHud && styles.draftHudTextShortLandscape]} testID="svg-map-draft-measurement">{draftMeasurementText(mapState.mode === "measure" ? activeFeatureGeometry : "Polygon", mapState.draftVertices, project.projectCrs, settings.unitSystem)}</Text> : null}
@@ -839,7 +877,7 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
         </View>
         {deferMapNotices && !catalogHomeView ? <View style={styles.compactLegendControl}
           onLayout={event => recordLabelObstruction("legend", event.nativeEvent.layout)}>
-          <IconControl icon={<Layers size={20} />} label="Map legend" tooltipPlacement="belowStart" onPress={() => setLegendOpen(true)} testID="svg-map-legend-open" />
+          <IconControl icon={<Layers size={20} />} label={legendIncludesNotices ? "Map legend and layer status" : "Map legend"} tooltipPlacement="belowStart" onPress={() => setLegendOpen(true)} testID="svg-map-legend-open" />
         </View> : null}
 
         {!deferMapNotices ? <View style={styles.panControls}
@@ -875,15 +913,20 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
         ) : null}
       </View>
 
-      {deferMapNotices && !shortInspectView && !shortLandscapeDraftHud && !shortLandscape ? draftHud : null}
+      {deferMapNotices && !shortInspectView && !shortLandscapeDraftHud && !shortLandscape && !idleCompactPan ? draftHud : null}
       {bottomOverlay && externalCompactToolbar ? (
         <View style={styles.compactToolbarSlot} testID="svg-map-bottom-overlay">{bottomOverlay}</View>
       ) : null}
 
-      {deferMapNotices && !shortLandscape && !shortInspectView && (imageryPlan || referenceOverlayNotice) ? (
+      {deferMapNotices && catalogHomeView && !shortLandscape && !shortInspectView && (imageryPlan || referenceOverlayNotice) ? (
         <View style={styles.compactMapNoticeBand}>
           <SvgMapNotices compact imageryPlan={imageryPlan} referenceOverlayNotice={referenceOverlayNotice} />
         </View>
+      ) : null}
+      {deferMapNotices && !catalogHomeView && imageryPlan && !imageryPlan.error ? (
+        <Text style={styles.compactImageryCredit} testID="svg-map-imagery-credit">
+          {imageryPlan.provider.attribution} · {imageryPlan.provider.licenseText}
+        </Text>
       ) : null}
 
       <MapLibreImageryPreview
@@ -933,14 +976,14 @@ export function SvgMapSurface(props: SvgMapSurfaceProps): React.JSX.Element {
         <View style={styles.noticeBackdrop}>
           <View accessibilityViewIsModal style={styles.noticeDialog} testID="svg-map-legend-dialog">
             <View style={styles.noticeDialogHeader}>
-              <Text style={styles.noticeDialogTitle}>Map Legend</Text>
+              <Text style={styles.noticeDialogTitle}>{legendIncludesNotices ? "Map Legend and Layer Status" : "Map Legend"}</Text>
               <Pressable accessibilityRole="button" accessibilityLabel="Close map legend" onPress={() => setLegendOpen(false)} style={styles.noticeClose}>
                 <X size={20} color="#26392f" />
               </Pressable>
             </View>
             <ScrollView contentContainerStyle={styles.noticeDialogBody}>
               <FullMapLegend palette={palette} />
-              {shortInspectView || shortLandscape ? <SvgMapNotices imageryPlan={imageryPlan} referenceOverlayNotice={referenceOverlayNotice} /> : null}
+              {legendIncludesNotices ? <SvgMapNotices imageryPlan={imageryPlan} referenceOverlayNotice={referenceOverlayNotice} /> : null}
             </ScrollView>
           </View>
         </View>
@@ -1742,7 +1785,7 @@ function WorkflowSegmentedControl({ mode, onChange, short = false }: { mode: Map
 }
 
 function workflowModeLabel(mode: MappingWorkflowMode): string {
-  return mode === "design" ? "Design" : "Layout";
+  return mode === "design" ? "Edit map" : "Inspect map";
 }
 
 function ToolButton({ active, disabled = false, icon, label, onPress }: { active: boolean; disabled?: boolean; icon: React.ReactNode; label: string; onPress: () => void }): React.JSX.Element {
@@ -2272,6 +2315,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     padding: 8,
   },
+  compactImageryCredit: { color: "#405448", fontSize: 11, lineHeight: 14, paddingHorizontal: 8, paddingBottom: 4, flexShrink: 0 },
   compactNoticeButton: { flexDirection: "row", alignItems: "center", gap: 8, minHeight: 44 },
   compactNoticeSummary: { flex: 1, color: "#26392f", fontSize: 12, lineHeight: 16 },
   noticeBackdrop: { flex: 1, justifyContent: "center", alignItems: "center", padding: 16, backgroundColor: "rgba(19,33,27,0.58)" },

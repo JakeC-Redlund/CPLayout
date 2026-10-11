@@ -1,5 +1,6 @@
 import { assertMetricCalculationCrs } from "@cplayout/core";
-import * as polygonClipping from "polygon-clipping";
+// Decimal overlay predicates handle near-coincident edges in sampled corner buffers.
+import * as polygonClipping from "polyclip-ts";
 
 import type {
   AdvisoryCornerArmConfig,
@@ -16,6 +17,7 @@ import { completeCalculation, type Calculation } from "./calculation";
 
 import {
   buildLayoutPathOverlaysSteps,
+  buildMechanicalSweepEnvelope,
   createAnnularSector,
   createCirclePolygon,
   createSectorPolygon,
@@ -80,6 +82,9 @@ export interface AdvisoryMachineRenderSurface {
   cornerArmCoverage: MultiPolygonXY;
   clippedWetCoverage: MultiPolygonXY;
   physicalEnvelope: MultiPolygonXY;
+  /** Unrounded and not field-clipped. Corner geometry remains a guidance proxy. */
+  mechanicalEnvelope: MultiPolygonXY;
+  mechanicalQualification: "standard_sweep" | "corner_motion_unresolved";
   lrduPath: LayoutPathOverlay | null;
   towerPaths: LayoutPathOverlay[];
   cornerArmWheelPath: LayoutPathOverlay | null;
@@ -138,7 +143,12 @@ export interface AdvisoryMachineRenderAcreLedger {
   endGunAcres: number;
   cornerArmAcres: number;
   deduplicatedTotalAcres: number;
+  /** Gross component duplication, including overlap within a single machine. */
   overlapAcres: number;
+  /** Additional modeled coverage beyond all machines' standard and end-gun coverage. */
+  netAddedCornerAcres?: number;
+  /** Land covered by at least two machines, counted once even for triple overlap. */
+  interMachineOverlapFootprintAcres?: number;
   outsideFieldAcres: number;
   verifiedBlockedAcres: number;
 }
@@ -210,7 +220,17 @@ export function* buildAdvisoryMachineRenderModelSteps(
     qualifiedReviewRequired: true,
     projectCrs: project.projectCrs,
     instances,
-    surfaces,
+    // Keep raw areas through ledger aggregation; round only the public display values.
+    surfaces: surfaces.map((surface) => ({
+      ...surface,
+      standardPivotAcres: round(surface.standardPivotAcres),
+      endGunAcres: round(surface.endGunAcres),
+      cornerArmAcres: round(surface.cornerArmAcres),
+      wetCoverageAcres: round(surface.wetCoverageAcres),
+      physicalEnvelopeAcres: round(surface.physicalEnvelopeAcres),
+      outsideFieldWetAcres: round(surface.outsideFieldWetAcres),
+      verifiedBlockedAcres: round(surface.verifiedBlockedAcres),
+    })),
     conflicts,
     acreLedger,
     sourceRefs,
@@ -372,7 +392,7 @@ function* surfaceForInstance(
   const wetRaw = unionClip([standardRaw, endGunRaw, cornerArmRaw]);
   yield;
   const physicalRaw = unionClip([
-    standardRaw,
+    toClipMultiPolygon(buildMechanicalSweepEnvelope(variantProject)),
     cornerArmPath ? toClipMultiPolygon(cornerArmPath.overhangEndEnvelope) : [],
     cornerArmPath ? toClipMultiPolygon(cornerArmPath.wheelTrackEnvelope) : [],
   ]);
@@ -425,19 +445,21 @@ function* surfaceForInstance(
     cornerArmCoverage,
     clippedWetCoverage,
     physicalEnvelope,
+    mechanicalEnvelope: fromClipMultiPolygon(physicalRaw),
+    mechanicalQualification: instance.machine.cornerArm ? "corner_motion_unresolved" : "standard_sweep",
     lrduPath,
     towerPaths,
     cornerArmWheelPath,
     cornerArmOverhangEndPath,
     safetyZoneMeters: round(safetyZoneMeters),
     pathBoundaryShortfalls,
-    standardPivotAcres: round(squareMetersToAcres(multiPolygonAreaSquareMeters(standardPivotCoverage))),
-    endGunAcres: round(squareMetersToAcres(multiPolygonAreaSquareMeters(endGunWetAnnulus))),
-    cornerArmAcres: round(squareMetersToAcres(multiPolygonAreaSquareMeters(cornerArmCoverage))),
-    wetCoverageAcres: round(squareMetersToAcres(multiPolygonAreaSquareMeters(clippedWetCoverage))),
-    physicalEnvelopeAcres: round(squareMetersToAcres(multiPolygonAreaSquareMeters(physicalEnvelope))),
-    outsideFieldWetAcres: round(squareMetersToAcres(multiPolygonAreaSquareMeters(outsideWet))),
-    verifiedBlockedAcres: round(squareMetersToAcres(blockedByNoSprayArea)),
+    standardPivotAcres: squareMetersToAcres(multiPolygonAreaSquareMeters(standardPivotCoverage)),
+    endGunAcres: squareMetersToAcres(multiPolygonAreaSquareMeters(endGunWetAnnulus)),
+    cornerArmAcres: squareMetersToAcres(multiPolygonAreaSquareMeters(cornerArmCoverage)),
+    wetCoverageAcres: squareMetersToAcres(multiPolygonAreaSquareMeters(clippedWetCoverage)),
+    physicalEnvelopeAcres: squareMetersToAcres(multiPolygonAreaSquareMeters(physicalEnvelope)),
+    outsideFieldWetAcres: squareMetersToAcres(multiPolygonAreaSquareMeters(outsideWet)),
+    verifiedBlockedAcres: squareMetersToAcres(blockedByNoSprayArea),
     warnings: [
       ...inheritedWarnings,
       ...(pathBoundaryShortfalls.some((shortfall) => shortfall.minimumShortfallMeters > 0)
@@ -533,9 +555,10 @@ function buildPhysicalEnvelopeConflicts(surfaces: AdvisoryMachineRenderSurface[]
     for (let rightIndex = leftIndex + 1; rightIndex < surfaces.length; rightIndex += 1) {
       const left = surfaces[leftIndex];
       const right = surfaces[rightIndex];
-      const collisionZone = intersectMultiPolygons(left.physicalEnvelope, right.physicalEnvelope);
-      const collisionZoneAcres = round(squareMetersToAcres(multiPolygonAreaSquareMeters(collisionZone)));
-      if (collisionZoneAcres <= 0.001) continue;
+      const collisionZone = intersectMultiPolygons(left.mechanicalEnvelope, right.mechanicalEnvelope);
+      const collisionArea = multiPolygonAreaSquareMeters(collisionZone);
+      if (collisionArea <= AREA_EPSILON_SQUARE_METERS) continue;
+      const collisionZoneAcres = squareMetersToAcres(collisionArea);
       conflicts.push({
         id: `advisory-render-conflict-${left.instanceId}-${right.instanceId}`,
         leftInstanceId: left.instanceId,
@@ -551,6 +574,7 @@ function buildPhysicalEnvelopeConflicts(surfaces: AdvisoryMachineRenderSurface[]
         warnings: [
           "Collision review uses physical machine and corner-arm envelopes only; end-gun wet coverage is excluded from collision geometry.",
           "Collision geometry is advisory projected-XY evidence and is not runtime collision prevention.",
+          "Mechanical checks retain geometry outside the field. Corner guidance proxies do not establish articulated or between-pose clearance.",
         ],
       });
     }
@@ -561,7 +585,20 @@ function buildPhysicalEnvelopeConflicts(surfaces: AdvisoryMachineRenderSurface[]
 function buildAcreLedger(surfaces: AdvisoryMachineRenderSurface[]): AdvisoryMachineRenderAcreLedger {
   const wetCoverages = surfaces.map((surface) => toClipMultiPolygon(surface.clippedWetCoverage));
   const wetUnion = unionClip(wetCoverages);
-  const deduplicatedTotalAcres = round(squareMetersToAcres(multiPolygonAreaSquareMeters(fromClipMultiPolygon(wetUnion))));
+  const deduplicatedTotalAcres = squareMetersToAcres(multiPolygonAreaSquareMeters(fromClipMultiPolygon(wetUnion)));
+  const baseUnion = unionClip(surfaces.flatMap((surface) => [
+    toClipMultiPolygon(surface.standardPivotCoverage),
+    toClipMultiPolygon(surface.endGunWetAnnulus),
+  ]));
+  const addedCornerCoverage = wetUnion.length === 0 ? [] : baseUnion.length === 0 ? wetUnion
+    : polygonClipping.difference(wetUnion, baseUnion) as ClipMultiPolygon;
+  const pairIntersections: ClipMultiPolygon[] = [];
+  for (let left = 0; left < wetCoverages.length; left += 1) {
+    for (let right = left + 1; right < wetCoverages.length; right += 1) {
+      if (wetCoverages[left].length === 0 || wetCoverages[right].length === 0) continue;
+      pairIntersections.push(polygonClipping.intersection(wetCoverages[left], wetCoverages[right]) as ClipMultiPolygon);
+    }
+  }
   const acreSum = surfaces.reduce((sum, surface) => (
     sum + surface.standardPivotAcres + surface.endGunAcres + surface.cornerArmAcres
   ), 0);
@@ -571,8 +608,10 @@ function buildAcreLedger(surfaces: AdvisoryMachineRenderSurface[]): AdvisoryMach
     standardPivotAcres: round(surfaces.reduce((sum, surface) => sum + surface.standardPivotAcres, 0)),
     endGunAcres: round(surfaces.reduce((sum, surface) => sum + surface.endGunAcres, 0)),
     cornerArmAcres: round(surfaces.reduce((sum, surface) => sum + surface.cornerArmAcres, 0)),
-    deduplicatedTotalAcres,
+    deduplicatedTotalAcres: round(deduplicatedTotalAcres),
     overlapAcres: round(Math.max(0, acreSum - deduplicatedTotalAcres)),
+    netAddedCornerAcres: round(squareMetersToAcres(multiPolygonAreaSquareMeters(fromClipMultiPolygon(addedCornerCoverage)))),
+    interMachineOverlapFootprintAcres: round(squareMetersToAcres(multiPolygonAreaSquareMeters(fromClipMultiPolygon(unionClip(pairIntersections))))),
     outsideFieldAcres: round(surfaces.reduce((sum, surface) => sum + surface.outsideFieldWetAcres, 0)),
     verifiedBlockedAcres: round(surfaces.reduce((sum, surface) => sum + surface.verifiedBlockedAcres, 0)),
   };
@@ -704,7 +743,7 @@ function removeClosingDuplicate(points: XY[]): XY[] {
 function spanSetForRadius(radiusMeters: number, targetSpanMeters: number): number[] {
   const spanCount = Math.max(1, Math.ceil(radiusMeters / Math.max(1, targetSpanMeters)));
   const spanLength = radiusMeters / spanCount;
-  return Array.from({ length: spanCount }, () => round(spanLength));
+  return Array.from({ length: spanCount }, () => spanLength);
 }
 
 function averageSpanLength(machine: PivotMachine): number | null {

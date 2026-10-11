@@ -4,7 +4,7 @@ import { parseStrictJson } from "./strictJson";
 import { z } from "zod";
 
 import {
-  DESIGN_DRAFT_DOCUMENT_VERSION,
+  DESIGN_DRAFT_DOCUMENT_VERSIONS,
   parseDesignDraftDocument,
   serializeDesignDraftDocument,
   type DesignDraft,
@@ -19,6 +19,7 @@ export const DESIGN_DRAFT_ARCHIVE_MAX_UNCOMPRESSED_BYTES = 12 * 1024 * 1024;
 export const DESIGN_DRAFT_ARCHIVE_MAX_FILE_COUNT = 2;
 
 const filenames = [DESIGN_DRAFT_MANIFEST_FILENAME, DESIGN_DRAFT_JSON_FILENAME] as const;
+const DocumentVersionSchema = z.object({ documentVersion: z.enum(DESIGN_DRAFT_DOCUMENT_VERSIONS) });
 const ManifestSchema = z.object({
   archiveVersion: z.literal(DESIGN_DRAFT_ARCHIVE_VERSION),
   createdAt: z.iso.datetime({ offset: true }),
@@ -29,7 +30,7 @@ const ManifestSchema = z.object({
     .refine((files) => new Set(files).size === DESIGN_DRAFT_ARCHIVE_MAX_FILE_COUNT, "Duplicate manifest files."),
   offlineFirst: z.literal(true),
   paidServicesRequired: z.literal(false),
-  draftDocumentVersion: z.literal(DESIGN_DRAFT_DOCUMENT_VERSION),
+  draftDocumentVersion: z.enum(DESIGN_DRAFT_DOCUMENT_VERSIONS),
 }).strict();
 const FilesSchema = z.object({ "manifest.json": z.string(), "draft.json": z.string() }).strict();
 const BundleSchema = z.object({ manifest: ManifestSchema, files: FilesSchema }).strict();
@@ -43,7 +44,8 @@ export function buildDesignDraftArchiveBundle(
   createdAt = new Date().toISOString(),
 ): DesignDraftArchiveBundle {
   const document = serializeDesignDraftDocument(draft);
-  const validated = parseDesignDraftDocument(document);
+  const envelope = parseStrictJson(document);
+  const validated = parseDesignDraftDocument(envelope);
   const manifest = ManifestSchema.parse({
     archiveVersion: DESIGN_DRAFT_ARCHIVE_VERSION,
     createdAt,
@@ -53,7 +55,7 @@ export function buildDesignDraftArchiveBundle(
     files: [...filenames],
     offlineFirst: true,
     paidServicesRequired: false,
-    draftDocumentVersion: DESIGN_DRAFT_DOCUMENT_VERSION,
+    draftDocumentVersion: DocumentVersionSchema.parse(envelope).documentVersion,
   });
   const bundle = {
     manifest,
@@ -89,7 +91,11 @@ export function importDesignDraftArchiveZip(bytes: Uint8Array): DesignDraft {
 }
 
 function validateDraftIdentity(manifest: DesignDraftArchiveManifest, document: string): DesignDraft {
-  const draft = parseDesignDraftDocument(parseStrictJson(document));
+  const envelope = parseStrictJson(document);
+  const draft = parseDesignDraftDocument(envelope);
+  if (manifest.draftDocumentVersion !== DocumentVersionSchema.parse(envelope).documentVersion) {
+    throw new Error("Draft archive manifest draftDocumentVersion does not match draft.json.");
+  }
   for (const [key, actual] of [["draftId", draft.id], ["draftName", draft.name], ["projectCrs", draft.projectCrs]] as const) {
     if (manifest[key] !== actual) throw new Error(`Draft archive manifest ${key} does not match draft.json.`);
   }

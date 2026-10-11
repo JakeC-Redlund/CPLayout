@@ -128,24 +128,31 @@ export function placeMapLabels(
     x: box.x - 4, y: box.y - 4, width: box.width + 8, height: box.height + 8,
   }))];
   const placed: PlacedMapLabel[] = [];
-  for (const { label, x, y } of visible) {
-    const characters = Array.from((label.caption ?? label.text).replace(/\s+/g, " ").trim());
-    const displayText = characters.length > 28 ? `${characters.slice(0, 25).join("")}...` : characters.join("");
-    // Conservative monospace bounds, reserving a full em for non-ASCII glyphs.
-    const w = Array.from(displayText).reduce((sum, char) => sum + (char.codePointAt(0)! < 128 ? 8 : MAP_LABEL_FONT_PIXELS), 8), h = 22;
-    const options: PixelBox[] = [
-      { x: x + 20, y: y - h / 2, width: w, height: h },
-      { x: x - w - 20, y: y - h / 2, width: w, height: h },
-      { x: x - w / 2, y: y - h - 20, width: w, height: h },
-      { x: x - w / 2, y: y + 20, width: w, height: h },
-    ];
-    const box = options.find(b => b.x >= 4 && b.y >= 4 && b.x + b.width <= screen.width - 4
-      && b.y + b.height <= screen.height - 4 && !occupied.some(other => overlaps(b, other)));
-    if (!box) continue;
-    occupied.push({ x: box.x - 3, y: box.y - 3, width: box.width + 6, height: box.height + 6 });
-    placed.push({ ...label, displayText, box,
-      svgX: minX + (box.x + 4) / screen.width * width,
-      svgY: -maxY + (box.y + 15) / screen.height * height });
-  }
+  const placeAtDistance = (distance: number, firstOnly = false): void => {
+    for (const { label, x, y } of visible) {
+      const characters = Array.from((label.caption ?? label.text).replace(/\s+/g, " ").trim());
+      const displayText = characters.length > 28 ? `${characters.slice(0, 25).join("")}...` : characters.join("");
+      // Conservative monospace bounds, reserving a full em for non-ASCII glyphs.
+      const w = Array.from(displayText).reduce((sum, char) => sum + (char.codePointAt(0)! < 128 ? 8 : MAP_LABEL_FONT_PIXELS), 8), h = 22;
+      const options: PixelBox[] = [
+        { x: x + distance, y: y - h / 2, width: w, height: h },
+        { x: x - w - distance, y: y - h / 2, width: w, height: h },
+        { x: x - w / 2, y: y - h - distance, width: w, height: h },
+        { x: x - w / 2, y: y + distance, width: w, height: h },
+      ];
+      const box = options.find(b => b.x >= 4 && b.y >= 4 && b.x + b.width <= screen.width - 4
+        && b.y + b.height <= screen.height - 4 && !occupied.some(other => overlaps(b, other)));
+      if (!box) continue;
+      occupied.push({ x: box.x - 3, y: box.y - 3, width: box.width + 6, height: box.height + 6 });
+      placed.push({ ...label, displayText, box,
+        svgX: minX + (box.x + 4) / screen.width * width,
+        svgY: -maxY + (box.y + 15) / screen.height * height });
+      if (firstOnly) return;
+    }
+  };
+  placeAtDistance(20);
+  // Keep normal density unchanged. An otherwise unlabeled map may show one
+  // nearby caption if a second ring clears the same markers and controls.
+  if (placed.length === 0) placeAtDistance(40, true);
   return placed;
 }

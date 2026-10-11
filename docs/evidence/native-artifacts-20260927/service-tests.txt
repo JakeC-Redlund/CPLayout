@@ -1,0 +1,57 @@
+RUNTIME sdk=36 fingerprint=google/sdk_gphone64_x86_64/emu64xa:16/BE2A.250530.026.F3/13894323:userdebug/dev-keys uid=10216
+PASS checked backup path rejects replacement and preserves both files
+PASS checked backup path rejects a sidecar
+PASS checked inspection path validates before read and rejects after close
+PASS checked inspection path rejects replacement
+PASS checked inspection path rejects changed bytes
+PASS app-private bootstrap uses a fixed retained root
+PASS app-private bootstrap rejects a linked root without repairing it
+PASS Android backend composes session registry and retained reopening
+PASS real SQLite seal, private inspection and unchanged retained bytes
+PASS attempt collisions never adopt or delete existing artifacts
+PASS invalid attempt token: 
+PASS invalid attempt token: ..
+PASS invalid attempt token: ../other
+PASS invalid attempt token: /absolute
+PASS invalid attempt token: white space
+PASS invalid attempt token: a/b
+PASS sidecar rejected without mutation: -wal empty
+PASS sidecar rejected without mutation: -wal directory
+PASS sidecar rejected without mutation: -wal dangling
+PASS sidecar rejected without mutation: -shm empty
+PASS sidecar rejected without mutation: -shm directory
+PASS sidecar rejected without mutation: -shm dangling
+PASS sidecar rejected without mutation: -journal empty
+PASS sidecar rejected without mutation: -journal directory
+PASS sidecar rejected without mutation: -journal dangling
+SKIP hardlinked backups rejected: Android denied hardlink fixture creation; service rejection unverified here
+PASS symlink backup substitution rejected
+PASS WAL format rejected even without companions
+PASS wrong digest cannot return an inspection
+PASS exclusive receipt publication and bounded readback
+PASS oversized receipt rejected before publication on a fresh attempt
+PASS short native writes are completed
+PASS zero-progress write rejects and preserves partial receipt
+PASS flush failure is not durable receipt success
+PASS allocate flush barrier 1 withholds success
+PASS allocate flush barrier 2 withholds success
+PASS allocate flush barrier 3 withholds success
+PASS seal flush barrier 1 withholds success
+PASS seal flush barrier 2 withholds success
+PASS seal flush barrier 3 withholds success
+PASS receipt flush barrier 1 withholds success
+PASS receipt flush barrier 2 withholds success
+PASS receipt flush barrier 3 withholds success
+PASS inspection flush barrier 1 withholds success
+PASS inspection flush barrier 2 withholds success
+PASS inspection flush barrier 3 withholds success
+PASS short reads and writes preserve the complete inspection copy
+PASS same-byte inode replacement during streaming is rejected
+PASS retained mutation during inspection prevents successful close
+PASS unexpected scratch entries prevent cleanup
+PASS same-byte scratch replacement prevents cleanup
+PASS root inode substitution is rejected
+PASS attempt inode substitution is rejected
+PASS another service cannot adopt an in-memory attempt
+PASS retained attempt reopening is existing-only and read-only
+RESULT passed=54 failed=0 skipped=1

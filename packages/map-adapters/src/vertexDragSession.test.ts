@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { createVertexDragSession } from "./vertexDragSession";
+import { createInitialMapCameraAdmission } from "./initialMapCamera";
 
 type Pointer = Parameters<ReturnType<typeof createVertexDragSession>["begin"]>[0];
 type Point = { x: number; y: number };
@@ -326,4 +327,55 @@ test("throwing terminal callbacks cannot leave the old session active", () => {
     assert.equal(session.activePointerId, null);
     assert.equal(session.begin(pointer({ pointerId: 8 })), true);
   }
+});
+
+test("a retained vertex cannot preview or commit until its owned camera is admitted", () => {
+  const selection = { kind: "field_boundary", index: 1 };
+  const retainedSelection = selection;
+  let ownsRenderer = true;
+  const camera = createInitialMapCameraAdmission(false, () => ownsRenderer);
+  const calls: Call[] = [];
+  const session = createVertexDragSession({
+    preview: point => { if (camera.canUseCamera()) calls.push({ type: "preview", point }); else session.cancel(); },
+    commit: point => { if (camera.canUseCamera()) calls.push({ type: "commit", point }); },
+    cancel: () => calls.push({ type: "cancel" }),
+  });
+  const begin = (): boolean => camera.canUseCamera() && session.begin(pointer());
+  camera.initialize({ width: 70, height: 600 }, () => assert.fail("unusable dimensions"));
+  assert.equal(begin(), false);
+  session.move(pointer({ clientX: 20 }));
+  session.finish(pointer({ clientX: 20, buttons: 0 }));
+  assert.deepEqual([...calls], []);
+  assert.equal(selection, retainedSelection);
+
+  const fitted = camera.initialize({ width: 454, height: 600 }, () => ({ center: [-102, 40], zoom: 14, bearing: 0, pitch: 0 }));
+  assert(fitted, "successful retry enables the unchanged selection");
+  assert.equal(selection, retainedSelection);
+  assert(begin());
+  session.move(pointer({ clientX: 20 }));
+  session.finish(pointer({ clientX: 21, buttons: 0 }));
+  assert.deepEqual([...calls], [{ type: "preview", point: { x: 20, y: 20 } }, { type: "commit", point: { x: 21, y: 20 } }]);
+
+  assert(begin());
+  ownsRenderer = false;
+  session.move(pointer({ clientX: 30 }));
+  session.finish(pointer({ clientX: 31, buttons: 0 }));
+  assert.deepEqual(calls.at(-1), { type: "cancel" });
+  assert.equal(calls.filter(call => call.type === "commit").length, 1);
+  assert.equal(begin(), false);
+});
+
+test("a release after renderer retirement cannot commit even without a preceding move callback", () => {
+  let ownsFrame = true;
+  const camera = createInitialMapCameraAdmission(false, () => ownsFrame);
+  camera.initialize({ width: 454, height: 600 }, () => ({ center: [-102, 40], zoom: 14, bearing: 0, pitch: 0 }));
+  const session = createVertexDragSession({
+    preview: () => assert.fail("no preview expected"),
+    commit: () => { if (camera.canUseCamera()) assert.fail("retired frame cannot unproject or mutate geometry"); },
+    cancel: () => {},
+  });
+  assert(camera.canUseCamera() && session.begin(pointer()));
+  ownsFrame = false;
+  session.finish(pointer({ clientX: 40, buttons: 0 }));
+  assert.equal(session.activePointerId, null);
 });

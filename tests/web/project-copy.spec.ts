@@ -60,6 +60,8 @@ async function openSource(page: Page) {
   await ready(page);
   await sampleFiles(page);
   await page.getByLabel(`Open ${source.name}`, { exact: true }).click();
+  await expect(page.getByTestId("project-to-draft-discard")).toBeVisible();
+  await page.getByTestId("project-to-draft-discard-confirm").click();
   await expect(page.getByTestId("workspace-breadcrumb-current")).toContainText(source.name);
   await expect(page.getByTestId("project-save-state")).toHaveText("Saved");
   await page.getByTestId("workspace-nav-files").click();

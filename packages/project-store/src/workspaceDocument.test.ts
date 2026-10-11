@@ -126,13 +126,13 @@ test("unowned legacy project imports retain exact bytes while another design cha
 
 test("unknown versions, malformed JSON and extra envelope fields never become an empty workspace", () => {
   errorCode(() => parseWorkspaceDocument("{"), "invalid_document");
-  errorCode(() => parseWorkspaceDocument(JSON.stringify({ ...workspace(), workspaceVersion: "cplayout-workspace-v2" })), "unsupported_version");
+  errorCode(() => parseWorkspaceDocument(JSON.stringify({ ...workspace(), workspaceVersion: "cplayout-workspace-v99" })), "unsupported_version");
   for (const value of [null, [], {}, { ...workspace(), extra: true }, { ...workspace(), revision: -1 }]) {
     errorCode(() => parseWorkspaceDocument(JSON.stringify(value)), "invalid_document");
   }
   const value = createWorkspaceDesign(workspace(), input("project"));
-  for (const document of [JSON.stringify({ ...sampleProject, documentVersion: "pivot-project-v2" }),
-    JSON.stringify({ documentVersion: "pivot-project-v2", project: sampleProject })]) {
+  for (const document of [JSON.stringify({ ...sampleProject, documentVersion: "pivot-project-v99" }),
+    JSON.stringify({ documentVersion: "pivot-project-v99", project: sampleProject })]) {
     value.projectDocuments[0].document = document;
     errorCode(() => validateWorkspaceDocument(value), "unsupported_version");
   }

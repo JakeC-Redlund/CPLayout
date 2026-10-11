@@ -2,7 +2,7 @@
 
 Date checked: 2026-06-03
 
-This guide turns the repo-local CPLayout hook scripts into a managed Codex policy surface. It does not change CPLayout product runtime code, schemas, persistence, geometry, map rendering, Google Earth behavior, or native verification status.
+This is a deployment example, not an active deployment. The unified refocus selects no managed installation or global trust change. It does not change CPLayout product runtime code, schemas, persistence, geometry, map rendering, Google Earth behavior, or native verification status.
 
 ## Source-Backed Boundary
 
@@ -40,7 +40,7 @@ Use an absolute managed directory such as:
 - Linux/macOS: `/opt/cplayout-codex/hooks`
 - Windows: `C:\ProgramData\CPLayout\CodexHooks`
 
-Keep `.codex/hooks/cplayout_route_data.json`, `.codex/agents/*.toml`, and `AGENTS.md` available in the project checkout. The managed scripts still read current repo evidence when they run from a CPLayout workspace.
+Keep current route data, profiles and task-selected contracts available in the checkout; archived AGENTS.md rules are not an operating contract. The managed scripts still read current repo evidence when they run from a CPLayout workspace.
 
 ## Requirements Install
 
@@ -77,8 +77,8 @@ Use multi-agent expert panels to review managed hook enforcement for CPLayout.
 
 Expected advisory behavior:
 
-- `UserPromptSubmit` emits a bounded advisory route/first-read hint. A route is not an automatic complexity, effort, or spawn decision; the coordinator applies `AGENTS.md` and `docs/agent-tree-protocol.md`. Explicit no-delegation instructions take precedence and an unmatched prompt still requires ordinary preflight.
-- `SubagentStart` emits a bounded agent-scope/first-read hint. Map-derived refs are omitted when the context-map source hashes are stale or unavailable; the durable `AGENTS.md` boundary remains.
+- `UserPromptSubmit` emits a bounded advisory route/first-read hint. A route is not an automatic complexity, effort, or spawn decision; the coordinator follows current user instructions and assigned scope. Explicit no-delegation instructions take precedence and an unmatched prompt still requires ordinary preflight.
+- `SubagentStart` emits a bounded agent-scope/first-read hint. Map-derived refs are omitted when the context-map source hashes are stale or unavailable; only current user instructions and assigned scope remain authoritative.
 - `PreToolUse` advises or denies only within its documented command checks.
 - `Stop` is not registered. The compatibility script must emit no output even for explicit multi-agent or matched specialist prompts, so missing subagent accounting cannot create automatic continuation prompts.
 - The explicit multi-agent smoke prompt emits `Subagent decision: required`; a topic-only specialist match normally emits `optional` and leaves the decision to the coordinator.
@@ -90,3 +90,9 @@ Expected advisory behavior:
 - This guide does not prove subagents spawned. It only configures advisory context and custom agent files.
 - This guide does not prove Android/iOS native runtime behavior, native SQLite, ZIP sharing, raw PMTiles/MBTiles rendering, Google Earth rendering, imagery/CV truth, or canonical geometry mutation.
 - KML/KMZ styles remain visual interchange metadata only and must not alter projected/local `XY` project geometry.
+
+## Current proof boundary (2026-10-10)
+
+Matching hook sources merge; local project and exact-definition hook trust are separate. Stored hashes and source tests do not prove a currently loaded hook. Supported PreToolUse denials can reject a tool call; errors, unsupported responses and uncovered tool paths do not supply complete policy enforcement. SubagentStart context cannot block spawning through continue:false. Keep Stop continuation unregistered and silent. [Official hooks documentation](https://learn.chatgpt.com/docs/hooks), fetched 2026-10-10.
+
+Before relying on a deployment, retain its actual host/version, active layers, exact source and definition hashes, trusted/loading state, event output and observed failure behavior. An audited one-off --dangerously-bypass-hook-trust invocation proves only that invocation, not persistent trust. Managed installation, loader observation and supported denial behavior are separate claims; restarting alone proves none of them.

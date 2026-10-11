@@ -1,0 +1,72 @@
+{
+  "versions": {
+    "expo": "55.0.31",
+    "expo-sqlite": "55.0.20",
+    "expo-modules-core": "55.0.26"
+  },
+  "pins": {
+    "android/build.gradle": "589be40e306ab7a64b802c2c65c151d5c4f92909f05a49aa1585a8f2f46651f0",
+    "android/src/main/java/expo/modules/sqlite/SQLiteOptions.kt": "6f604830ddeaae9603ef43618585c5fff802fd306196b705318f8849637e7916",
+    "android/src/main/java/expo/modules/sqlite/SQLiteModule.kt": "d4197a3729f96c0550698f15b12508dc4b9f83704a59be1ccb965579b8d64b4b",
+    "android/src/main/java/expo/modules/sqlite/NativeDatabaseBinding.kt": "ddde637b79d13ee8739a60f5349c0ad36d8fbc92bf9e0dc0ec34eb1049e281fa",
+    "android/src/main/cpp/NativeDatabaseBinding.h": "c3a5c357896ef19ab4fa4cffdeffc4e6ecb137b0aa3567b667002e45f3e71575",
+    "android/src/main/cpp/NativeDatabaseBinding.cpp": "935f1b5b9abc3829a8e13562660f962a43ed749041b875414f6aee6793459329",
+    "android/src/main/java/expo/modules/sqlite/NativeDatabase.kt": "c8b6cfb05ce487bc3e873084ffd36f3410423cbc00a4c41ba8516ec87af96917",
+    "vendor/sqlite3/sqlite3.h": "0d247fd5e5e2fd602f427227bae7bf6349dd3322d6090d9751b21b5b3f51db62",
+    "vendor/sqlite3/sqlite3.c": "df16f4f2845488289d416e1d3b928c82ade5256564605b762daf0113fad394c5",
+    "android/CMakeLists.txt": "57ada8eb0c3b0050ad884f8ca92131126cb5663e4efa595c19a584766ecdf2bf"
+  },
+  "patchSha256": "a9000c0456ed78a4ebcff5fb019e19865ab001c9dfda52ae5c6a0963425964fa",
+  "files": [
+    {
+      "target": "node_modules/expo-sqlite/android/build.gradle",
+      "added": false,
+      "expected": "285ffc9d718da6093d6f44fc0d6023146235082692d55a1e345d883ca22e4bc1"
+    },
+    {
+      "target": "node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/SQLiteOptions.kt",
+      "added": false,
+      "expected": "6d8ac3130c41cf2e1183b150089963c1b6602a5b1f2cb75bd79d1139f7d18f1f"
+    },
+    {
+      "target": "node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/SQLiteModule.kt",
+      "added": false,
+      "expected": "05e35d0bc706a740ef8dc3dcdf087da9783c7421ad62bf3b581c7482146206ca"
+    },
+    {
+      "target": "node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/NativeDatabaseBinding.kt",
+      "added": false,
+      "expected": "e65ebdef30a507aa60a3097df1af62aad6d137e5ae69d00f71aa8b18e288c756"
+    },
+    {
+      "target": "node_modules/expo-sqlite/android/src/main/cpp/NativeDatabaseBinding.h",
+      "added": false,
+      "expected": "7873a0a7377e83fb4c44d4136cd5118ea4d75f3ef1b02bb8c7e4dc632fda5f32"
+    },
+    {
+      "target": "node_modules/expo-sqlite/android/src/main/cpp/NativeDatabaseBinding.cpp",
+      "added": false,
+      "expected": "ee590529e69b66ed37640964bcf23b3d9a925139d97e70737a29d2c1121be7c0"
+    },
+    {
+      "target": "node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/NativeDatabase.kt",
+      "added": false,
+      "expected": "45b36d49754c1f3a0dcdad0b9b0d4a55396368464991cd407893a20f4ff43313"
+    },
+    {
+      "target": "node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/CPLayoutDatabaseOwnership.kt",
+      "added": true,
+      "expected": "3f2b248cd1f03681928d7c4225775da70a4caf649dc41eb0d9426e0fd96742b0"
+    },
+    {
+      "target": "node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/CPLayoutConnectionRegistry.java",
+      "added": true,
+      "expected": "631e5257826488b8adcff3e799dcd6f336fbeece85cc7e25f3e645d34df318d3"
+    },
+    {
+      "target": "node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/CPLayoutSidecarPolicy.java",
+      "added": true,
+      "expected": "7dcf6086680246c3eef14eee5cc203e3a2ea1d3a91a1a4ad988854160c5d22e3"
+    }
+  ]
+}

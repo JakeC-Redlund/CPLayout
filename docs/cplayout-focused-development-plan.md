@@ -1,10 +1,22 @@
 # CPLayout Focused Development Plan
 
 Date: 2026-06-06
-Last updated: 2026-09-13
-Status: current plan of record
+Last updated: 2026-09-27 (resumption reconciliation; historical evidence retains its original scope)
+Status: historical consolidated scope and evidence; current execution order is
+in [development-status.md](development-status.md). Later mapping-first direction,
+completed review receipts and refreshed audit results supersede older priority,
+pending-review and vulnerability counts below; requirements are not canceled.
 
-This document consolidates the active CPLayout plans, proof ledgers, stale snapshots, and current blockers into one execution plan. It is source-backed by the workspace review, the three-agent panel pass, current validation commands, and the source ledger in `docs/agent-source-ledger.md`.
+Current continuation: [development status](development-status.md).
+Historical execution evidence: [full refactor execution](full-refactor-execution.md).
+Interface acceptance now also requires the
+[Windows Edge visual review](windows-edge-visual-review-plan.md): live workflow
+screenshots, separately annotated figures, agent DOM/OCR/CV review and editable
+human questionnaires. Current receipt status is in the development index, not
+the older pending-review checkpoints below. These gates do not replace native
+or field qualification, and independent backend work can continue during review.
+
+This historical consolidation preserves the plan inventory and evidence from its dated workspace review, three-agent panel and validation commands. Current scheduling belongs to `docs/development-status.md`; use the source ledger only for a specific evidence question.
 
 ## Verified Review Method
 
@@ -30,7 +42,7 @@ The consolidation pass used this evidence before changing records:
 
 | Plan or record | Current status | How to use it now |
 | --- | --- | --- |
-| `docs/cplayout-focused-development-plan.md` | Current plan of record. | Start here for priorities, blockers, proof status, and cleanup policy. |
+| `docs/cplayout-focused-development-plan.md` | Historical scope and evidence inventory. | Use the current development-status index for priorities; retrieve this history for specific evidence. |
 | `docs/rtk-gnss-integration-plan.md` | Active top-priority hardware implementation and field-proof plan. | Use for GNSS transport, epoch/quality, capture provenance, Android USB, correction, control-point, and release-evidence work. |
 | `docs/imagery-ml-capability-roadmap.md` | Active multi-year Imagery/ML capability roadmap. | Use for the executive sequencing of evidence packets, deterministic CV, session-only app review, projected-XY draft import, dataset/model evaluation, on-device ML, offline imagery proof, and field trials. |
 | `docs/cplayout-decision-complete-improvement-plan.md` | Current architecture support plan. | Use for projected-XY, offline imagery, native map, ML lane, and governance boundaries. |

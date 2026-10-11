@@ -11,6 +11,7 @@ import { applyWorkspaceCommand, parseWorkspaceCommand, type WorkspaceCommand } f
 import { migrateLegacyWorkspace } from "./legacyWorkspaceMigration";
 import {
   createWorkspaceDesign, emptyWorkspaceDocument, validateWorkspaceDocument, WorkspaceDocumentError,
+  parseWorkspaceDocument, serializeWorkspaceDocument, saveWorkspaceDesign,
   type WorkspaceDocument, type WorkspaceDocumentErrorCode,
 } from "./workspaceDocument";
 
@@ -57,6 +58,90 @@ function withDraft(workspace = fixture(), id = "draft-payload", designId = "draf
     document: `\n ${serializeDesignDraftDocument(draft)}\n`,
   });
 }
+
+function pausedDrawingDraft() {
+  return {
+    ...incompleteDraft(), projectCrs: "EPSG:32613",
+    drawingWorkflow: {
+      schemaVersion: "draft-drawing-workflow-v1" as const, autosaveEnabled: true,
+      lockedCrs: "EPSG:32613", activeCaptureId: null,
+      captures: [{
+        id: "paused-boundary", name: "Paused boundary", projectCrs: "EPSG:32613",
+        geometryType: "Polygon" as const, stage: "drawing" as const, source: "map_digitized" as const,
+        vertices: [{ point: { x: 500000.125, y: 4400000.875 }, recordedAt: now, wgs84: null, elevation: null },
+          { point: { x: 500100.25, y: 4400000.5 }, recordedAt: later, wgs84: null, elevation: null }],
+        classification: { purposeId: null, name: "Pending boundary", notes: "" },
+      }],
+    },
+  };
+}
+
+test("paused drawings save and reopen exact vertices with independent workspace, design and editor revisions", () => {
+  const draft = pausedDrawingDraft();
+  let workspace = apply(fixture(), { type: "create_design_draft", now, designId: "draft-design",
+    fieldMapId: "folder-map", name: draft.name, draft });
+  let editor = createDesignDraftEditorState(draft);
+  editor = reduceDesignDraftEditorState(editor, { type: "set_machine", machine: { spanLengthsMeters: [25, null] } });
+  editor = reduceDesignDraftEditorState(editor, { type: "set_machine", machine: { spanLengthsMeters: [30, null] } });
+  assert.equal(editor.lastError, null);
+  assert.equal(editor.revision, 2);
+  const previousWorkspaceRevision = workspace.revision;
+  workspace = apply(workspace, { type: "save_design_draft", now: later, designId: "draft-design",
+    expectedDesignRevision: 0, draft: editor.draft });
+  const reopenedWorkspace = parseWorkspaceDocument(serializeWorkspaceDocument(workspace));
+  assert.equal(reopenedWorkspace.workspaceVersion, "cplayout-workspace-v1");
+  assert.equal(reopenedWorkspace.revision, previousWorkspaceRevision + 1);
+  assert.equal(reopenedWorkspace.catalog.designs[0].revision, 1);
+  const reopened = createDesignDraftEditorState(parseDesignDraftDocument(reopenedWorkspace.draftDocuments[0].document));
+  assert.equal(reopened.revision, 0);
+  assert.deepEqual(reopened.draft, editor.draft);
+  assert.deepEqual(reopened.draft.drawingWorkflow, draft.drawingWorkflow);
+  assert.deepEqual(reopened.draft.fieldBoundary, []);
+  assert.deepEqual(reopenedWorkspace.projectDocuments, []);
+  rejects(reopenedWorkspace, { type: "save_design_draft", now: later, designId: "draft-design",
+    expectedDesignRevision: editor.revision, draft: editor.draft }, "conflict");
+});
+
+test("repository refuses drawing CRS relabels and lock removal even after captures are cancelled or undone", () => {
+  const draft = pausedDrawingDraft();
+  const created = apply(fixture(), { type: "create_design_draft", now, designId: "draft-design",
+    fieldMapId: "folder-map", name: draft.name, draft });
+  const cleared = { ...draft, drawingWorkflow: { ...draft.drawingWorkflow, captures: [] } };
+  const saved = apply(created, { type: "save_design_draft", now: later, designId: "draft-design",
+    expectedDesignRevision: 0, draft: cleared });
+  assert.deepEqual(parseDesignDraftDocument(saved.draftDocuments[0].document), cleared);
+  for (const workspace of [created, saved]) {
+    const expectedRevision = workspace.catalog.designs[0].revision;
+    for (const supplied of [
+      { ...incompleteDraft(), projectCrs: "EPSG:32613" },
+      { ...cleared, drawingWorkflow: { ...cleared.drawingWorkflow, lockedCrs: null } },
+      { ...cleared, projectCrs: "EPSG:32614", drawingWorkflow: { ...cleared.drawingWorkflow, lockedCrs: "EPSG:32614" } },
+      { ...incompleteDraft(), projectCrs: "EPSG:32614" },
+    ]) {
+      const before = structuredClone(workspace);
+      assert.throws(() => saveWorkspaceDesign(workspace, { designId: "draft-design", expectedRevision,
+        document: serializeDesignDraftDocument(supplied), updatedAt: later }),
+      (error: unknown) => error instanceof WorkspaceDocumentError && error.code === "identity_mismatch");
+      assert.deepEqual(workspace, before);
+      rejects(workspace, { type: "save_design_draft", now: later, designId: "draft-design",
+        expectedDesignRevision: expectedRevision, draft: supplied }, "identity_mismatch");
+    }
+  }
+});
+
+test("legacy manual geometry saves retain their existing CRS behavior without adding locks", () => {
+  const draft = { ...incompleteDraft(), projectCrs: "EPSG:32613", fieldBoundary: [{ x: 10, y: 20 }] };
+  const created = apply(fixture(), { type: "create_design_draft", now, designId: "draft-design",
+    fieldMapId: "folder-map", name: draft.name, draft });
+  rejects(created, { type: "save_design_draft", now: later, designId: "draft-design", expectedDesignRevision: 0,
+    draft: { ...draft, projectCrs: "EPSG:32614" } }, "identity_mismatch");
+  const cleared = apply(created, { type: "save_design_draft", now: later, designId: "draft-design", expectedDesignRevision: 0,
+    draft: { ...draft, fieldBoundary: [] } });
+  const relabeled = apply(cleared, { type: "save_design_draft", now: later, designId: "draft-design", expectedDesignRevision: 1,
+    draft: { ...draft, fieldBoundary: [], projectCrs: "EPSG:32614" } });
+  assert.equal(JSON.parse(relabeled.draftDocuments[0].document).documentVersion, "design-draft-v1");
+  assert.equal(Object.hasOwn(parseDesignDraftDocument(relabeled.draftDocuments[0].document), "drawingWorkflow"), false);
+});
 
 test("draft editor snapshots save and reopen without coupling undo and storage revisions", () => {
   let editor = createDesignDraftEditorState(incompleteDraft());

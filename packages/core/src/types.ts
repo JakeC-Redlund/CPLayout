@@ -1,4 +1,6 @@
+import type { ProjectDrawingMetadata } from "./drawingMetadata";
 import type { ProjectSettings, ReferenceOverlaySchema } from "./settings";
+import type { OperationalFixedGgaEvidence } from "./operationalGnssEvidence";
 import type { GnssCaptureEvidenceV2 } from "./gnssEvidence";
 
 export type UnitSystem = "metric" | "us_survey_feet";
@@ -69,13 +71,15 @@ export type GnssTransportKind =
   | "ios_ble"
   | "ios_mfi"
   | "local_tcp"
+  | "local_udp"
+  | "bluetooth_spp"
   | "replay";
 
 export interface GnssCaptureEvidenceV1 {
   schemaVersion: "gnss-capture-v1";
   observationId: string;
   sessionId: string;
-  transport: GnssTransportKind;
+  transport: Exclude<GnssTransportKind, "local_udp" | "bluetooth_spp">;
   receivedAt: string;
   receivedMonotonicMs: number;
   receiverObservedAt?: string;
@@ -92,7 +96,7 @@ export interface GnssCaptureEvidenceV1 {
   rawRecordHashes?: string[];
 }
 
-export type GnssCaptureEvidence = GnssCaptureEvidenceV1 | GnssCaptureEvidenceV2;
+export type GnssCaptureEvidence = GnssCaptureEvidenceV1 | GnssCaptureEvidenceV2 | OperationalFixedGgaEvidence;
 
 export interface SurveyPoint {
   id: string;
@@ -274,6 +278,9 @@ export interface ObstacleZone {
 }
 
 export type ProjectMapFeatureKind =
+  | "reference_point"
+  | "reference_line"
+  | "reference_area"
   | "pump_location"
   | "well_location"
   | "underground_pipeline"
@@ -333,6 +340,8 @@ export interface ProjectWgs84Companion {
 }
 
 export interface PivotProject {
+  /** Versioned classification and drawing preferences; canonical XY remains in its target. */
+  drawingMetadata?: ProjectDrawingMetadata;
   id: string;
   name: string;
   projectCrs: string;

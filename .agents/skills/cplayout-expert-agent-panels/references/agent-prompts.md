@@ -1,6 +1,6 @@
 # Agent Prompts
 
-Use these prompts only after deciding subagents are authorized by standing CPLayout preference or explicit prompt, and useful. Keep each task concrete, bounded, and non-overlapping.
+Use these prompts only after deciding subagents are authorized by the current user or explicit coordinator assignment, and useful. Keep each task concrete, bounded, and non-overlapping.
 
 ## Workspace Cartographer
 
@@ -90,7 +90,7 @@ You are the kb-curator for a CPLayout expert panel. Update only the requested kn
 
 Before spawning:
 
-- The task is authorized by standing CPLayout preference or an explicit expert-panel, delegation, parallel-agent, specialist-team, or multi-agent request.
+- The task is authorized by current user instructions or an explicit bounded coordinator assignment.
 - The task is concrete and self-contained.
 - The delegated result can advance work in parallel.
 - A worker has a disjoint write scope.

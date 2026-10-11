@@ -1,6 +1,6 @@
 # Reasoning Routing
 
-Use CPLayout's `AGENTS.md` reasoning policy as the source of truth. There is no repo-wide reasoning-effort fallback. Every non-trivial pass records the task complexity band, selected coordinator reasoning effort, subagent decision or fallback, and validation gates before mutation. A route-data `xhigh` value is coordinator guidance, not automatic subagent effort inheritance.
+Select reasoning from the current task and explicit coordinator assignment; withdrawn AGENTS.md instructions are historical evidence. There is no repo-wide reasoning-effort fallback. Every non-trivial pass records the task complexity band, selected coordinator reasoning effort, subagent decision or fallback, and validation gates before mutation. A route-data `xhigh` value is coordinator guidance, not automatic subagent effort inheritance.
 
 ## Complexity Bands
 

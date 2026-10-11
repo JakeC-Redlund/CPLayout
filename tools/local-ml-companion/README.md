@@ -4,21 +4,20 @@ This tool is a WSL-local companion for advisory layout analysis. It reads a CPLa
 
 ## Environment
 
-Use Python 3.12 with `uv`:
+Use Python 3.12 with `uv`. Point `uv` at a new environment so an existing companion `.venv` is preserved:
 
 ```sh
 cd tools/local-ml-companion
-uv venv --python 3.12
-uv pip install -e .
+UV_PROJECT_ENVIRONMENT=/absolute/path/to/new-companion-env uv sync --frozen
 ```
 
 Install optional companion groups only in this local Python environment:
 
 ```sh
-uv sync --extra all
+UV_PROJECT_ENVIRONMENT=/absolute/path/to/new-companion-env uv sync --frozen --extra all
 ```
 
-These extras are not React Native runtime dependencies. Rasterio, GeoPandas, and rioxarray are for offline raster/vector inspection; scikit-image, Matplotlib, and Plotly are for local CV/report artifacts; Streamlit and Dash are local review UI tools; FastAPI, Uvicorn, and SQLAlchemy are optional localhost sidecar infrastructure. SQLAlchemy must not write CPLayout's Expo SQLite project database.
+These extras are not React Native runtime dependencies. Rasterio, GeoPandas, and rioxarray are for offline raster/vector inspection; scikit-image, Matplotlib, and Plotly are for local CV/report artifacts; Streamlit and Dash are local review UI tools; FastAPI, Uvicorn, and SQLAlchemy are optional localhost sidecar infrastructure. The `experiment` extra adds DVC and MLflow; `all` includes it. SQLAlchemy must not write CPLayout's Expo SQLite project database. The base dependency on portable-cv-toolkit 0.3.1 resolves from the checked-in wheel in `vendor/`. Its [provenance record](vendor/provenance.json) binds all 25 source files and the notice to the published CV commit. Version 0.3.1 adds packaging provenance; it does not establish a new CUDA runtime qualification.
 
 Probe all companion dependency groups after installing extras:
 
@@ -42,9 +41,9 @@ uv run cplayout-ml probe-gpu
 
 The first recommender is deterministic and advisory. It is not a production-trained agronomy model.
 
-DVC and MLflow are local companion dependencies only. The repository tracks DVC metadata and config, while `.dvc/cache/`, `mlruns/`, local dataset materializations, and generated model files stay ignored. No DVC remote or hosted MLflow tracking server is configured by default.
+DVC and MLflow are optional local experiment dependencies. The repository tracks DVC metadata and config, while `.dvc/cache/`, `mlruns/`, local dataset materializations, and generated model files stay ignored. No DVC remote or hosted MLflow tracking server is configured by default.
 
-The imagery field-boundary detector is offline-only. OpenCV is the required scoring/refinement layer. SAM2 is optional and is used only inside this local Python companion when the operator has already installed SAM2 and supplied local files; the CLI does not download checkpoints or make cloud calls.
+The imagery field-boundary detector is offline-only. OpenCV is the required CPU scoring/refinement layer. The older implicit SAM2 proposal adapter is disabled because that call does not provide prompts, asset hashes, model revision, and an output root. Package visibility and a CUDA tensor preflight do not prove SAM2 inference or accelerate OpenCV scoring.
 
 ```sh
 uv run cplayout-ml probe-boundary-detector \
@@ -52,7 +51,15 @@ uv run cplayout-ml probe-boundary-detector \
   --sam2-checkpoint "$CPLAYOUT_SAM2_CHECKPOINT"
 ```
 
-`CPLAYOUT_SAM2_CONFIG` and `CPLAYOUT_SAM2_CHECKPOINT` may be used instead of flags. If SAM2 is missing or unconfigured, `probe-boundary-detector` reports it as unavailable and the companion can still run the OpenCV scoring path.
+`CPLAYOUT_SAM2_CONFIG` and `CPLAYOUT_SAM2_CHECKPOINT` may be used instead of flags. `probe-boundary-detector` reports the legacy SAM2 proposal slot unavailable and separately reports whether an explicit managed job runner is configured. The companion can still run the OpenCV scoring path.
+
+For an explicit SAM2 image job, prepare a `CVJob-v1` JSON with local image, checkpoint, and config assets and their SHA-256 hashes, point prompts and labels, model revision, input classification, and a separate output root. Set `CPLAYOUT_CV_PYTHON` to an absolute executable path for a managed Python environment that has portable-cv-toolkit installed, then run:
+
+```sh
+PYTHONPATH=src CPLAYOUT_CV_PYTHON=/absolute/path/to/managed/bin/python python3 -m cplayout_ml.cli run-managed-cv-job --job /absolute/path/to/job.json
+```
+
+The bridge invokes that interpreter with `-m cv_toolkit.runtime run` and leaves validation, resource limits, leases, outputs, and cleanup to the toolkit. It does not import a sibling checkout, infer prompts from imagery, download a model, or promote masks to canonical projected XY. A completed job is runtime evidence for that explicit job only; mask interpretation and field review remain CPLayout work.
 
 ## File Bridge
 
@@ -129,7 +136,7 @@ uv run cplayout-ml improve-boundary-detector \
   --min-iterations 5
 ```
 
-Outputs are `boundary-improvement-loop.json`, `boundary-improvement-iterations.jsonl`, and `boundary-improvement-annotated.png`. The JSON records every iteration, candidate counts, rejection reasons, operator IoU when labels are available, `detections.truthBoundary` for operator-truth reconstruction, and `detections.cvCandidateBoundary` for advisory detector output. `acceptance.accepted` describes CV candidate acceptance; operator truth remains separate and still does not mutate projected `XY` project geometry.
+Outputs are `boundary-improvement-loop.json`, `boundary-improvement-iterations.jsonl`, and `boundary-improvement-annotated.png`. The v2 JSON records every iteration, candidate counts, rejection reasons, operator IoU when labels are available, `detections.truthBoundary` for operator-truth reconstruction, and `detections.cvCandidateBoundary` for advisory detector output. `acceptance.accepted` describes CV candidate quality independent of CUDA; `autoApplyEligible` remains false and `operatorReviewRequired` remains true. `stageObservations` distinguishes CPU OpenCV scoring from the optional CUDA tensor diagnostic. Operator truth remains separate and does not mutate projected `XY` project geometry.
 
 When CUDA PyTorch is installed and `uv run cplayout-ml probe-gpu` passes, the command runs a CUDA tensor preflight over the map image and records the device and tensor statistics. OpenCV scoring remains CPU-bound unless the local OpenCV build itself exposes CUDA.
 

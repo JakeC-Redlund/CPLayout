@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { assertOperationalProjection, OperationalFixedGgaEvidenceSchema } from "./operationalGnssEvidence";
 import { GpsQualityThresholdsSchema, gpsFixMeetsThreshold } from "./settings";
 import { projectDataKey } from "./projectDataComparison";
 import type { GnssCaptureEvidence, PivotProject, SourceConfidence, XY } from "./types";
@@ -98,7 +99,7 @@ export const GnssCaptureEvidenceV2Schema = legacyEvidence.omit({ coordinateEpoch
   if (!["GGA", "GST", "RMC"].every(type => evidence.sentenceTypes.includes(type))) fail("This collection policy requires coherent GGA, GST and RMC evidence.");
 });
 
-export const GnssCaptureEvidenceSchema = z.union([legacyEvidence, GnssCaptureEvidenceV2Schema]);
+export const GnssCaptureEvidenceSchema = z.union([legacyEvidence, GnssCaptureEvidenceV2Schema, OperationalFixedGgaEvidenceSchema]);
 export type GnssCaptureEvidenceV2 = z.infer<typeof GnssCaptureEvidenceV2Schema>;
 
 /** Retained-v2 ceiling, not complete-vertex qualification; missing/v1 evidence never upgrades labels. */
@@ -109,7 +110,7 @@ export function gnssConfidenceExceedsV2Evidence(confidence: SourceConfidence, ev
     && !gpsFixMeetsThreshold(capture.qualityScreen.receiverQuality.fixType, minimumFix)) ?? false);
 }
 
-type CaptureCarriers = Pick<PivotProject, "fieldBoundary" | "fieldBoundaryCaptureEvidence" | "surveyPoints" | "obstacles" | "mapFeatures">;
+type CaptureCarriers = Pick<PivotProject, "fieldBoundary" | "fieldBoundaryCaptureEvidence" | "surveyPoints" | "obstacles" | "mapFeatures"> & { projectCrs: string | null };
 interface CaptureConflict {
   path: Array<string | number>;
   message: string;
@@ -128,6 +129,16 @@ export function gnssV2CaptureConflicts(project: CaptureCarriers): CaptureConflic
       issues.push({ path, message: `Conflicting observation ${evidence.observationId}; mixed GNSS evidence versions cannot share an observation identity.` });
     }
     if (previousVersion === undefined) versions.set(evidence.observationId, evidence.schemaVersion);
+    if (evidence.schemaVersion === "gnss-operational-fixed-v1") {
+      try { assertOperationalProjection(evidence, point, project.projectCrs); }
+      catch (error) { issues.push({ path, message: error instanceof Error ? error.message : "Invalid operational projection." }); }
+      const { capture: _capture, ...observation } = evidence;
+      const payload = projectDataKey({ point, ...observation });
+      const previous = observations.get(evidence.observationId);
+      if (previous !== undefined && previous !== payload) issues.push({ path, message: `Conflicting operational observation ${evidence.observationId}.` });
+      observations.set(evidence.observationId, payload);
+      return;
+    }
     if (evidence.schemaVersion !== "gnss-capture-v2") return;
     const declaration = projectDataKey(evidence.referenceDeclaration);
     const previousDeclaration = sessions.get(evidence.sessionId);

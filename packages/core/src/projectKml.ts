@@ -578,6 +578,7 @@ export function importGoogleEarthKmlToProject(
 }
 
 export function exportProjectGoogleEarthKml(project: PivotProject, result?: LayoutResult): GoogleEarthKmlExportResult {
+  if (project.drawingMetadata !== undefined) throw new Error("This format cannot retain classified drawing metadata; use the lossless project document or project ZIP archive.");
   if (result || (project.mapFeatures ?? []).some((feature) => feature.geometry.type === "Circle")) {
     assertMetricCalculationCrs(project.projectCrs);
   }
@@ -1411,10 +1412,10 @@ function selectedByDefault(itemId: string, selectedItemIds: Set<string> | null):
 
 function mapFeatureKindFromProperties(properties: Record<string, unknown>, name: string): ProjectMapFeatureKind | null {
   const layer = normalizedLayer(properties);
-  if (MAP_FEATURE_KINDS.includes(layer as ProjectMapFeatureKind)) return layer as ProjectMapFeatureKind;
+  if (MAP_FEATURE_KINDS.includes(layer as typeof MAP_FEATURE_KINDS[number])) return layer as ProjectMapFeatureKind;
   const cplayoutKind = readStringProperty(properties, ["mapFeatureKind", "map_feature_kind", "utilityKind", "utility_kind"]);
   const normalizedKind = cplayoutKind?.toLowerCase().replaceAll("-", "_").replaceAll(" ", "_");
-  if (MAP_FEATURE_KINDS.includes(normalizedKind as ProjectMapFeatureKind)) return normalizedKind as ProjectMapFeatureKind;
+  if (MAP_FEATURE_KINDS.includes(normalizedKind as typeof MAP_FEATURE_KINDS[number])) return normalizedKind as ProjectMapFeatureKind;
   return mapFeatureKindFromName(name);
 }
 

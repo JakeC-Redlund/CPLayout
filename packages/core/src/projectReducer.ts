@@ -1,3 +1,6 @@
+import { seedRecordedReferenceOrigins, mergeRetainedReferenceOrigins, assertRecordedReferenceHistory, isRecordedReferenceMetadataRecord } from "./drawingMetadata";
+import { refreshInheritedDrawingMetadata } from "./drawingProjectMutation";
+import { applyClassifiedProjectDrawing, type ClassifiedProjectDrawingCommand } from "./classifiedProjectDrawing";
 import { importProjectedGeoJsonToProject, importSurveyCsvToProject } from "./projectImports";
 import { PivotProjectSchema, withWgs84Companion } from "./projectDocument";
 import { projectDataKey } from "./projectDataComparison";
@@ -23,6 +26,8 @@ export type InfrastructurePoint = "pivot_center" | "water_source" | "power_sourc
 
 export type ProjectEditorAction =
   | { type: "load_project"; project: PivotProject }
+  | { type: "rename"; name: string }
+  | ClassifiedProjectDrawingCommand
   | { type: "commit_boundary_draft"; vertices: XY[]; captureEvidence?: Array<GnssCaptureEvidence | null> }
   | { type: "commit_obstacle_draft"; vertices: XY[]; kind?: ObstacleZone["kind"]; name?: string; id?: string; confidence?: SourceConfidence; captureEvidence?: Array<GnssCaptureEvidence | null> }
   | { type: "move_boundary_vertex"; vertexIndex: number; point: XY }
@@ -59,7 +64,7 @@ export type ProjectEditorAction =
   | { type: "clear_error" };
 
 export function createProjectEditorState(project: PivotProject): ProjectEditorState {
-  const parsedProject = withWgs84Companion(PivotProjectSchema.parse(project));
+  const parsedProject = withWgs84Companion(PivotProjectSchema.parse(seedRecordedReferenceOrigins(PivotProjectSchema.parse(project))));
   const topologyIssue = evaluateManualDesignReadiness(createManualDesignDraft(parsedProject, 0)).topologyIssues[0];
   return {
     project: parsedProject,
@@ -74,7 +79,13 @@ export function reduceProjectEditorState(state: ProjectEditorState, action: Proj
   try {
     switch (action.type) {
       case "load_project":
-        return createProjectEditorState(action.project);
+        return createProjectEditorState(action.project.id === state.project.id ? mergeRetainedReferenceOrigins(state.project, action.project) : action.project);
+      case "rename":
+        if (!action.name.trim()) throw new Error("Enter a design name.");
+        if (state.project.name === action.name) return state;
+        return applyProjectChange(state, { ...state.project, name: action.name });
+      case "commit_classified_drawing":
+        return applyProjectChange(state, applyClassifiedProjectDrawing(state.project, action, state.revision), false);
       case "commit_boundary_draft": {
         const boundary = validatedCapturedRing(action.vertices, action.captureEvidence, "Boundary draft");
         return applyProjectChange(state, {
@@ -169,7 +180,7 @@ export function reduceProjectEditorState(state: ProjectEditorState, action: Proj
 function applyValidatedProjectImport(state: ProjectEditorState, project: PivotProject): ProjectEditorState {
   const topologyIssue = evaluateManualDesignReadiness(createManualDesignDraft(project, state.revision)).topologyIssues[0];
   if (topologyIssue) throw new Error(`Imported boundary is invalid: ${topologyIssue.message}`);
-  return applyProjectChange(state, project);
+  return applyProjectChange(state, project, false);
 }
 
 export function evaluateProjectEditorAction(state: ProjectEditorState, action: ProjectEditorAction): ProjectMutationResult {
@@ -178,11 +189,17 @@ export function evaluateProjectEditorAction(state: ProjectEditorState, action: P
   return { ok: true, revision: nextState.revision };
 }
 
-function applyProjectChange(state: ProjectEditorState, nextProject: PivotProject): ProjectEditorState {
-  const parsedProject = withWgs84Companion(PivotProjectSchema.parse(nextProject));
+function applyProjectChange(state: ProjectEditorState, nextProject: PivotProject, inheritDrawingMetadata = true): ProjectEditorState {
+  const candidate = inheritDrawingMetadata ? refreshInheritedDrawingMetadata(state.project, nextProject) : nextProject;
+  assertRecordedReferenceHistory(state.project.drawingMetadata?.records ?? [], candidate.drawingMetadata?.records ?? []);
+  for (const record of state.project.drawingMetadata?.records ?? []) {
+    if (isRecordedReferenceMetadataRecord(record) && candidate.mapFeatures?.some(feature => feature.id === record.target.id)
+      && !candidate.drawingMetadata?.records.some(next => next.target.kind === "map_feature" && next.target.id === record.target.id)) throw new Error("Surviving reference geometry must retain its immutable recorded metadata.");
+  }
+  const parsedProject = withWgs84Companion(PivotProjectSchema.parse(seedRecordedReferenceOrigins(mergeRetainedReferenceOrigins(state.project, candidate))));
   return {
     project: parsedProject,
-    past: [...state.past, state.project],
+    past: [...state.past, mergeRetainedReferenceOrigins(parsedProject, state.project)],
     future: [],
     lastError: null,
     revision: state.revision + 1,
@@ -196,8 +213,9 @@ function projectSettingsEqual(current: ProjectSettings | undefined, next: Projec
 function undo(state: ProjectEditorState): ProjectEditorState {
   const previous = state.past[state.past.length - 1];
   if (!previous) return state;
+  const restored = mergeRetainedReferenceOrigins(state.project, previous);
   return {
-    project: previous,
+    project: restored === previous ? previous : withWgs84Companion(PivotProjectSchema.parse(restored)),
     past: state.past.slice(0, -1),
     future: [state.project, ...state.future],
     lastError: null,
@@ -208,8 +226,9 @@ function undo(state: ProjectEditorState): ProjectEditorState {
 function redo(state: ProjectEditorState): ProjectEditorState {
   const next = state.future[0];
   if (!next) return state;
+  const restored = mergeRetainedReferenceOrigins(state.project, next);
   return {
-    project: next,
+    project: restored === next ? next : withWgs84Companion(PivotProjectSchema.parse(restored)),
     past: [...state.past, state.project],
     future: state.future.slice(1),
     lastError: null,

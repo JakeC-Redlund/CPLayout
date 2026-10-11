@@ -1,7 +1,156 @@
 # Full Refactor Execution
 
+Historical execution/evidence log. For current priorities and live acceptance
+gaps use [development-status.md](development-status.md). Dated statements below
+about next tasks, open tabs/servers and pending answers describe their checkpoint,
+not current runtime state. Requirements and failed evidence remain retained.
+
 Started 2026-09-13 America/Denver; continuing on 2026-09-14 UTC.
 Status: active, incomplete. This record resumes [the mapping workflow review](mapping-workflow-review.md); it does not replace or reduce its remaining scope.
+
+## Current Resumption: 2026-09-27
+
+Latest mapping checkpoint: the [Will Rhea improvement loop](will-rhea-improvement-loop.md)
+now records completed R01-R04 answers, not pending W01-W04. The requested next
+workflow is independently editable machines with repeated coverage comparisons
+(corners, end guns and benders), a full-screen calculation view and guided missing
+corner inputs. Existing outline models are not accepted final layouts. Earlier
+same-day statements below about open tabs/servers are historical: unused map tabs,
+completed review tabs/hubs and servers were closed with archived answers. Start
+only bounded test sessions and clean them up afterward.
+
+The R03 full-screen calculation view is implemented and passed targeted visible
+Edge preservation/confirmation checks. S01-S02 completed at revision 18: S01=c
+requests a paper-printout/report-style form, while S02=a accepts only the narrow
+Back/status arrangement. The completed review was exported, verified and retired;
+fresh changed-UI figures must replace it, not inherit approval. A follow-up geometry packet repairs the
+missing cyclic buffer connection, false closure of near-full partial sweeps and
+omitted cyclic reach-slope pair. See the loop record for regression and numerical
+delta evidence. The current audit has zero vulnerabilities; the goal's earlier
+five-high-finding count is historical, not the current dependency result.
+
+The S01 [report-style calculation form](calculation-report-workflow.md) is now
+implemented, with scoped labeled input/value rows and explicit warnings in place
+of calculation tiles/badges. Its new visual packet and validation are tracked in
+the loop record. This presentation change does not activate independently saved
+machines or imply acceptance before the new human responses arrive.
+
+F01-F03 subsequently completed at revision 19, all requesting rework: researched
+industry terminology in plain language, plus feet/acres/miles instead of metric
+form labels. The new review was archived and closed. Resume from the
+[language, units and cost-scope packet](irrigation-report-language-plan.md), not
+from an assumption that the report presentation was accepted.
+
+The response implementation now separates a configuration-scoped pivot price
+from a length/tower estimate, owns speed inputs in ft/min and rates in dollars
+per foot, and replaces primary report headings with plain irrigation terms.
+The repeated aggregate validation passes after restoring legacy warning output
+compatibility; audit remains clear. Fresh visible-browser validation and new
+U01-U05 figures are tracked in the loop record. All five answers subsequently
+completed at revision 9 with choice `a`, accepting only the marked primary input
+forms. The answer export was independently byte-verified, the completed hub
+closed, and its server reported `verified-stopped`. No launcher-owned app server
+remains. The remaining technical report rows, independently saved machines and
+hardware proof are not covered by that acceptance.
+
+The bounded Will Rhea diagnostic reproduced zero feasible placements for the
+existing nine-span configuration at the tested search settings. Explicit
+temporary four-span and three-span alternatives each produced three locations;
+these are hypothetical configurations, not verified equipment packages or saved
+machines. Do not silently resize the canonical example to make the preview pass.
+The [mixed-configuration gates](field-design-contract.md#planner-integration-gates)
+now record the independent GIS review: exact template identity, scoped guidance,
+pair-specific clearance, configuration-scoped costs and atomic adoption must
+precede mixed-machine activation. Lower report label cleanup remains separately
+queued and requires fresh visible Edge evidence when implemented.
+
+The next source packet adds `planAdvisoryPivotTemplates` and its cooperative
+counterpart: explicit optional machine templates, bounded quantities, detached
+inputs, every-pair structural clearance and union acreage with scoped costs.
+It does not yet activate independent saved machines or a template-input UI.
+The same packet corrects a reproduced existing special-seed/grid admission bug:
+a candidate with a hard mechanical obstacle conflict could be marked feasible
+when water did not intersect the obstacle. Shared candidate admission now rejects
+that condition. Existing frozen-output/scheduling regressions passed unchanged;
+new-lane QA and aggregate results are recorded in the loop record, not presumed.
+
+R04 guided corner inputs are now implemented as explicit temporary analysis
+choices, with fail-closed rotation/orientation and model-metadata admission.
+The [loop record](will-rhea-improvement-loop.md#guided-corner-inputs-2026-09-27)
+tracks validation, browser observations and remaining persistence/qualification
+work. This does not complete independent saved-machine editing or establish
+real equipment capability.
+
+The next saved-machine review reproduced a future-version fallback that discarded
+new machine collections. The [compatibility guard](will-rhea-improvement-loop.md#saved-machine-compatibility-guard-2026-09-27)
+rejects unsupported version markers and reserved multi-machine fields through v1
+admission, while retaining documented legacy metadata reading. It is a data-loss
+prevention prerequisite, not saved multi-machine support. The unused-map cleanup
+rule is now explicit in AGENTS.md; live inventory found no map tab or app server.
+
+The [field-design contract](field-design-contract.md) now implements independent
+machine records, shared geometry/infrastructure, explicit evidence/path references,
+lossless conversion with retained original JSON text, and a pure add/edit/remove
+machine reducer with undo/redo. It is not yet activated in workspace storage,
+calculation adapters or UI. Those activation gates remain part of the full goal.
+
+The current numerical repair adds a module-scoped decimal overlay engine for the
+reproduced overlapping-corner intersection failure. The [dependency packet](dependency-upgrade-plan.md#advisory-overlay-robustness-packet-2026-09-27)
+records source/license review and validation gates. This does not activate saved
+multiple machines, establish complete articulated-arm swept clearance or prove
+native hardware/3D accuracy. Full refactor completion remains unproven.
+
+Mapping now takes priority under the owner's later direction. The
+[interactive review session](interactive-browser-review.md) replaces the three
+archived/closed legacy review tabs, and carries ongoing agent updates plus
+disk-acknowledged V01-V04 answers. Those answers are now received at revision 25;
+the completed questionnaire closed. Its obsolete hub and server have now also
+been retired with the map tab preserved. The
+[response receipt](evidence/drawing-review-20260927/retained-review-summary.md)
+requests centered colorful bottom controls, a single narrow toolbar row and
+red/yellow/green status treatment. These visual changes are implemented in the
+incomplete-design SVG surface and reviewed by six passing visible Edge checks.
+The new W01-W04 questionnaire is open for human review; see the
+[centered-tools checkpoint](evidence/drawing-review-20260927/centered-tools-checkpoint.md).
+Neither the received requests nor passing browser checks constitute acceptance.
+
+The [durable drawing contract](drawing-workflow-contract.md) adds strict v2
+unfinished captures, retained coordinate-frame locks, pause/resume and pending
+classification state, while preserving v1 documents that do not use the new
+namespace. ZIP/workspace round-trips and queued-save snapshots have focused
+regressions. Independent core review found no confirmed regression. This is a
+source contract, not delivered toolbar pause/resume or native persistence proof.
+Next: classification catalog and atomic commit, then dialog/autosave/pause UI
+with visible Edge save/reopen evidence and a replacement questionnaire.
+
+Native integration now has [APK build and direct Android Java artifact-service
+evidence](native-workspace-integration.md#android-java-runtime-checkpoint-2026-09-27):
+54 cases pass, one hardlink-fixture case is explicitly skipped, and retained
+database/receipt bytes survive orderly reopening in separate processes. This
+does not activate the default native repository or prove the Expo bridge, patched
+SQLite JNI, v11/v12 migration, crash recovery or physical 3D accuracy. The owned
+emulator was stopped; fixtures and logs remain retained. Audit reports zero
+vulnerabilities. Resume with native bridge execution, canonical startup dispatch
+and race-safe fresh creation; keep existing dirty integration work intact.
+
+The next source increment adds [existing-file inspection](native-workspace-integration.md#existing-file-inspection):
+a pinned, query-only observation using native lease ownership, with rollback and
+close required before returning a version candidate. It neither grants admission
+nor distinguishes missing files from other native failures. Default native
+startup, typed absence reporting and exclusive fresh-file creation remain open.
+The live Edge review below is intentionally left untouched during this work.
+
+The user's new [Windows Edge visual-review process](windows-edge-visual-review-plan.md)
+is mandatory for interface acceptance: actual Windows 11 Edge workflow captures,
+original and annotated figures, agent DOM/OCR/CV observations, and editable
+numeric/alphabetic Markdown questionnaires. Start with on-map tools and drawing
+capture. The [first live desktop draft-tool packet](windows-edge-visual-review-plan.md#first-live-packet-2026-09-27)
+now contains eight actual Edge workflow captures, annotated figures/details,
+local OCR/CV and a rendered Markdown/HTML questionnaire. The review window is
+verified visible and foreground; it and the fresh 19006 preview remain open for
+the user. Human responses and broader renderer/responsive coverage are pending.
+Keep backend progress moving while human review is pending, without treating
+silence or Linux screenshots as approval.
 
 ## Current Resumption: 2026-09-26
 

@@ -1,3 +1,6 @@
+import { refreshInheritedDrawingMetadata } from "./drawingProjectMutation";
+import { projectDataKey } from "./projectDataComparison";
+import { snapshotJsonValue } from "./jsonDataSnapshot";
 import { PivotProjectSchema } from "./projectDocument";
 import type { ObstacleZone, PivotProject, SourceConfidence, SurveyPoint, XY } from "./types";
 import { assertProjectedCrs, normalizeCrsName } from "./units";
@@ -21,7 +24,7 @@ export interface SurveyCsvImportResult {
 }
 
 export function importProjectedGeoJsonToProject(project: PivotProject, input: string | unknown): ProjectGeoJsonImportResult {
-  const geoJson = typeof input === "string" ? JSON.parse(input) : input;
+  const geoJson = snapshotJsonValue(typeof input === "string" ? JSON.parse(input) : input, "GeoJSON import");
   if (!isRecord(geoJson) || geoJson.type !== "FeatureCollection" || !Array.isArray(geoJson.features)) {
     throw new Error("GeoJSON import must be a FeatureCollection.");
   }
@@ -79,11 +82,16 @@ export function importProjectedGeoJsonToProject(project: PivotProject, input: st
     throw new Error("GeoJSON import did not contain a field_boundary or obstacle/exclusion feature.");
   }
 
-  const nextProject = PivotProjectSchema.parse({
+  const candidate: PivotProject = {
     ...project,
     fieldBoundary: fieldBoundary ?? project.fieldBoundary,
     obstacles: [...project.obstacles, ...obstacles],
-  });
+  };
+  if (fieldBoundary && projectDataKey(fieldBoundary) !== projectDataKey(project.fieldBoundary)) {
+    delete candidate.fieldBoundaryCaptureEvidence;
+  }
+  // Refresh inherited capture times before admission, including vertex-count changes.
+  const nextProject = PivotProjectSchema.parse(refreshInheritedDrawingMetadata(project, candidate));
 
   return {
     project: nextProject,

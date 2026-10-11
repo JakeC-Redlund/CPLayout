@@ -5,11 +5,14 @@ import { analyzeAdvisoryMultiMachineLayoutSteps, planAdvisoryFieldPivotsSteps } 
 import { buildAdvisoryMachineRenderModelSteps } from "./advisoryMachineRenderModel";
 
 const hash = (value: unknown) => createHash("sha256").update(JSON.stringify(value)).digest("hex");
-// Frozen pre-scheduling outputs; two area-only updates audited in docs/mapping-workflow-review.md.
+// Frozen outputs; area, overlay and cyclic-buffer repairs audited in docs/will-rhea-improvement-loop.md.
+// Will Rhea render v2 additionally audits unrounded reaches and raw, unclipped
+// mechanical envelopes in docs/iterative-layout-improvement.md. Complete prior
+// and corrected JSON is retained in the task's render-comparison evidence.
 const fixtures = [
-  { project: sampleProject, expected: ["f96a75183843732a26f45bb4e30279afabb8bfa8bd24173c970e568d62b91c93", "c35feeb54c8f32e4dcda1b807ea4b7553eee183e996b9837e9e08e016c1b6148", "e882a3be54f5a3197eaaca5a09c9319a759b75ccf5741c2beb201b1ab506e2a4"] },
-  { project: realCenterPivotProofProject, expected: ["3b58e653b7789f6070b870a3f7affbb3acf51614c3a292d032fd8f7dc55c78b5", "2a7efd4350f72dedfa3795c7087e53d660a4ccd79dd3f775e82fae13c23479aa", "e882a3be54f5a3197eaaca5a09c9319a759b75ccf5741c2beb201b1ab506e2a4"] },
-  { project: willRheaJasonHarmelinkExampleProject, expected: ["f08f43f8a8754af65d7c5b4f8d537f04e8848e6ae4bdde04c094a35d915d4f61", "ca8e7ab0a4d32759389814f562e2739c4ce8877761a678033dba2c810444c586", "8547f7b869b016a5b7b4e161b59e706857b117fe839d5a0b47a6a79d233769b1"] },
+  { project: sampleProject, expected: ["f96a75183843732a26f45bb4e30279afabb8bfa8bd24173c970e568d62b91c93", "c35feeb54c8f32e4dcda1b807ea4b7553eee183e996b9837e9e08e016c1b6148", "90a5386aa1a176b1b592eb9132b9b30e171feb175a1aa0b3705d2fd637e22037"] },
+  { project: realCenterPivotProofProject, expected: ["3b58e653b7789f6070b870a3f7affbb3acf51614c3a292d032fd8f7dc55c78b5", "2a7efd4350f72dedfa3795c7087e53d660a4ccd79dd3f775e82fae13c23479aa", "90a5386aa1a176b1b592eb9132b9b30e171feb175a1aa0b3705d2fd637e22037"] },
+  { project: willRheaJasonHarmelinkExampleProject, expected: ["f08f43f8a8754af65d7c5b4f8d537f04e8848e6ae4bdde04c094a35d915d4f61", "ca8e7ab0a4d32759389814f562e2739c4ce8877761a678033dba2c810444c586", "6515ba3af5fe6432031e1727024176c15f5806f7d9d42aa8943287b01226cbab"] },
 ];
 for (const fixture of fixtures) {
   const project = createProjectEditorState(fixture.project).project;

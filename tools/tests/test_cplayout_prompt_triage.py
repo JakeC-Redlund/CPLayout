@@ -235,7 +235,7 @@ class PromptTriageTests(unittest.TestCase):
         prompt = "Use prompt triage, route data, and governance keywords."
         context = triage._context(prompt, triage.match_routes(prompt), False, context_map)
         self.assertIn("Context packs: workspace_preflight, governance_hooks_skills.", context)
-        self.assertIn("Read first: AGENTS.md; .codex/hooks/cplayout_prompt_triage.py.", context)
+        self.assertIn("Read first: docs/agent-tree-protocol.md; .codex/hooks/cplayout_prompt_triage.py.", context)
         self.assertNotIn("docs/README.md", context)
         self.assertLessEqual(len(context.encode("utf-8")), 1200)
 
@@ -258,7 +258,7 @@ class PromptTriageTests(unittest.TestCase):
         self.assertIn("Route bands: xhigh/xhigh; confirm from task scope.", context)
         self.assertIn("Subagent decision: required", context)
         self.assertNotIn("Optimized re-prompt", context)
-        self.assertIn("Hooks are advisory, not enforcement.", context)
+        self.assertIn("Hooks do not prove loading, runtime behavior or complete enforcement.", context)
 
     def test_explicit_multi_agent_without_route_still_requires_decision(self) -> None:
         prompt = "Please use parallel agents for a typography review."
@@ -376,7 +376,7 @@ class PromptTriageTests(unittest.TestCase):
                 read_line = next(line for line in context.splitlines() if line.startswith("Read first: "))
                 refs = read_line.removeprefix("Read first: ").removesuffix(".").split("; ")
                 self.assertLessEqual(len(refs), 2)
-                self.assertEqual(refs[0], "AGENTS.md")
+                self.assertEqual(refs[0], "docs/agent-tree-protocol.md")
                 total_bytes += encoded_bytes
                 total_refs += len(refs)
         self.assertEqual(matched, 8)
@@ -428,8 +428,8 @@ class PromptTriageTests(unittest.TestCase):
                 self.assertEqual(output["hookEventName"], "SubagentStart")
                 context = output["additionalContext"]
                 self.assertLessEqual(len(context.encode("utf-8")), 900)
-                self.assertIn("Read first: AGENTS.md", context)
-                self.assertIn("Hooks are advisory", context)
+                self.assertIn("Read first: docs/agent-tree-protocol.md", context)
+                self.assertIn("Hooks do not prove", context)
                 if agent_type == "worker":
                     self.assertIn("coordinator-assigned scope", context)
                     self.assertNotIn("stay read-only", context)

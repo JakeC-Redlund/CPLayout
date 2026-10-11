@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import argparse
 import hashlib
 import json
 import math
@@ -18,7 +17,16 @@ from .evidence_packet import build_evidence_packet
 from .ml_loop import prepare_vision_dataset, run_boundary_experiment, summarize_boundary_experiments
 from .optional_imports import companion_dependency_probe
 from .raster_fixtures import prepare_raster_fixtures
+from .runtime_status import (
+    SAM2_CONFIG_ENV, SAM2_CHECKPOINT_ENV, configured_path, probe_opencv, probe_sam2,
+    sam2_import_status, probe_cuda, torch_gpu_image_preflight, boundary_detector_runtime_status,
+)
 from .vector_labels import validate_vector_labels
+from .toolkit_bridge import run_managed_job_cli
+from .vision_policy import (
+    DEFAULT_VISION_THRESHOLDS, best_operator_metric, boundary_improvement_acceptance,
+    design_hard_failures, cv_boundary_accepted, assess_design_vision_review,
+)
 
 MODEL_NAME = "baseline-local-layout-ranker"
 MODEL_VERSION = "0.1.0"
@@ -31,302 +39,17 @@ COMPANION_CANDIDATE_GEOJSON_SCHEMA_VERSION = "cplayout-companion-candidate-repor
 VISION_SCHEMA_VERSION = "cplayout-design-vision-review-v1"
 PIVOT_CANDIDATE_SCHEMA_VERSION = "cplayout-pivot-candidates-v1"
 DEFAULT_CREATED_AT = "1970-01-01T00:00:00.000Z"
-DEFAULT_VISION_THRESHOLDS = {
-    "maxCenterOffsetRatio": 0.05,
-    "maxCenterTruthOffsetPx": 20.0,
-    "maxRadiusMismatchRatio": 0.05,
-    "maxBoundaryFalsePositiveRatio": 0.08,
-    "maxBoundaryMeanDistancePx": 80.0,
-    "minOperatorBoundaryIoU": 0.72,
-    "minBoundaryEdgeAlignment": 0.12,
-    "minDetectionConfidence": 0.65,
-    "minFieldBoundaryConfidence": 0.58,
-}
 TRUTH_LABEL_NAMES = {
     "truePivotCenter": "TRUE_PIVOT_CENTER",
     "targetFieldBoundary": "TARGET_FIELD_BOUNDARY",
     "southRoadExclusion": "SOUTH_ROAD_EXCLUSION",
     "seBuildingTreeExclusion": "SE_BUILDING_TREE_EXCLUSION",
 }
-SAM2_CONFIG_ENV = "CPLAYOUT_SAM2_CONFIG"
-SAM2_CHECKPOINT_ENV = "CPLAYOUT_SAM2_CHECKPOINT"
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="cplayout-ml")
-    subcommands = parser.add_subparsers(dest="command", required=True)
-
-    subcommands.add_parser("probe-gpu", help="Verify WSL NVIDIA and PyTorch CUDA visibility.")
-    deps_probe = subcommands.add_parser("probe-companion-deps", help="Smoke-test optional local companion dependency groups.")
-    deps_probe.add_argument("--groups", nargs="+", default=["all"], help='Groups to probe: all, base, gis, vision, dashboard, api. Comma-separated values are accepted.')
-    deps_probe.add_argument("--require-installed", action="store_true", help="Return a non-zero exit code when any selected dependency import fails.")
-
-    boundary_probe = subcommands.add_parser("probe-boundary-detector", help="Report local OpenCV/SAM2 field-boundary detector availability.")
-    boundary_probe.add_argument("--sam2-config", type=Path, help=f"SAM2 config path. Defaults to ${SAM2_CONFIG_ENV}.")
-    boundary_probe.add_argument("--sam2-checkpoint", type=Path, help=f"SAM2 checkpoint path. Defaults to ${SAM2_CHECKPOINT_ENV}.")
-
-    layout_candidates = subcommands.add_parser("report-layout-candidates", help="Generate deterministic standalone layout candidate reports.")
-    layout_candidates.add_argument("--input", required=True, type=Path, help="CPLayout project.json or .center-pivot.zip")
-    layout_candidates.add_argument("--output-dir", required=True, type=Path, help="Directory for standalone companion report outputs")
-    layout_candidates.add_argument("--max-alternatives", type=int, default=5)
-    layout_candidates.add_argument(
-      "--created-at",
-      default=DEFAULT_CREATED_AT,
-      help="ISO timestamp to write into candidate reports. Defaults to a stable fixture timestamp for deterministic output.",
-    )
-
-    vision = subcommands.add_parser("design-vision-review", help="Create a local design-only CV review from Google Earth proof artifacts.")
-    vision.add_argument("--kml", required=True, type=Path, help="CPLayout browser-exported or proof KML opened in Google Earth Pro.")
-    vision.add_argument("--kmz", required=True, type=Path, help="CPLayout browser-exported or proof KMZ for inventory/hash linkage.")
-    vision.add_argument("--full-window", required=True, type=Path, help="Full Google Earth Pro screenshot with attribution visible.")
-    vision.add_argument("--map-canvas", required=True, type=Path, help="Map-canvas crop from the same proof run.")
-    vision.add_argument("--manifest", required=True, type=Path, help="Google Earth visual-fidelity manifest from the proof run.")
-    vision.add_argument("--output-dir", required=True, type=Path, help="Directory for visual-layout-review outputs.")
-    vision.add_argument("--project-id", required=True, help="CPLayout project id for review evidence linkage.")
-    vision.add_argument("--project-crs", required=True, help="Projected CPLayout CRS; geographic CRS aliases are rejected.")
-    vision.add_argument(
-      "--project-reference",
-      type=Path,
-      help="Optional accepted CPLayout project JSON or ZIP used as the projected-XY geometry source for recommendations.",
-    )
-    vision.add_argument(
-      "--infer-field-boundary",
-      action="store_true",
-      help="Infer an advisory imagery field-boundary polygon from road, fence, tree-line, and field-separation cues.",
-    )
-    vision.add_argument("--operator-boundary-kml", help='Optional KML/KMZ containing one named operator-drawn field boundary Polygon. Use "-" to read KML from stdin.')
-    vision.add_argument("--operator-boundary-kml-text", help="Optional raw KML text for one named operator-drawn field boundary Polygon.")
-    vision.add_argument("--operator-labels-kml", help="Optional KML/KMZ containing fixed operator labels: TRUE_PIVOT_CENTER, TARGET_FIELD_BOUNDARY, SOUTH_ROAD_EXCLUSION, and SE_BUILDING_TREE_EXCLUSION.")
-    vision.add_argument("--operator-labels-kml-text", help="Optional raw KML text containing fixed operator labels.")
-    vision.add_argument(
-      "--operator-boundary-name",
-      default="USER DRAWN FIELD BOUNDARY",
-      help='Placemark name to extract from --operator-boundary-kml. Defaults to "USER DRAWN FIELD BOUNDARY".',
-    )
-    vision.add_argument("--sam2-config", type=Path, help=f"Optional SAM2 config path. Defaults to ${SAM2_CONFIG_ENV}.")
-    vision.add_argument("--sam2-checkpoint", type=Path, help=f"Optional SAM2 checkpoint path. Defaults to ${SAM2_CHECKPOINT_ENV}.")
-    vision.add_argument(
-      "--created-at",
-      default=DEFAULT_CREATED_AT,
-      help="ISO timestamp to write into review records. Defaults to a stable fixture timestamp for deterministic output.",
-    )
-
-    evaluate_fixtures = subcommands.add_parser("evaluate-vision-fixtures", help="Evaluate local operator-approved Google Earth vision fixtures.")
-    evaluate_fixtures.add_argument("--manifest", required=True, type=Path, help="Fixture manifest JSON with local proof packet paths.")
-    evaluate_fixtures.add_argument("--output-dir", required=True, type=Path, help="Directory for evaluation summary, cases, and annotated PNGs.")
-
-    improve_boundary = subcommands.add_parser("improve-boundary-detector", help="Run a strict multi-iteration local boundary-detector improvement loop.")
-    improve_boundary.add_argument("--map-canvas", required=True, type=Path, help="Google Earth map-canvas screenshot to evaluate.")
-    improve_boundary.add_argument("--full-window", type=Path, help="Optional full-window screenshot for attribution linkage.")
-    improve_boundary.add_argument("--kml", type=Path, help="Optional proof KML used to align operator KML labels.")
-    improve_boundary.add_argument("--project-reference", type=Path, help="Optional CPLayout project JSON/ZIP used for projected XY and operator-label calibration.")
-    improve_boundary.add_argument("--operator-boundary-kml", help='Optional operator-drawn boundary KML/KMZ. Use "-" to read KML from stdin.')
-    improve_boundary.add_argument("--operator-boundary-kml-text", help="Optional raw operator boundary KML text.")
-    improve_boundary.add_argument("--operator-boundary-name", default="USER DRAWN FIELD BOUNDARY")
-    improve_boundary.add_argument("--output-dir", required=True, type=Path)
-    improve_boundary.add_argument("--min-iterations", type=int, default=5, help="Minimum detector iterations. Values below 5 are raised to 5.")
-    improve_boundary.add_argument("--created-at", default=DEFAULT_CREATED_AT)
-
-    pivot_loop = subcommands.add_parser("run-pivot-locator-loop", help="Run a strict 100-iteration local pivot-center locator loop.")
-    pivot_loop.add_argument("--map-canvas", type=Path, help="Optional local map-canvas screenshot to evaluate.")
-    pivot_loop.add_argument("--output-dir", required=True, type=Path, help="Directory for pivot-locator loop artifacts.")
-    pivot_loop.add_argument("--iterations", type=int, default=100, help="Detector iterations to run. Values below 1 are rejected.")
-    pivot_loop.add_argument("--synthetic-fixture", action="store_true", help="Generate a deterministic local synthetic pivot fixture with known image-space truth.")
-    pivot_loop.add_argument("--truth-center-x", type=float, help="Optional image-space truth center X for --map-canvas.")
-    pivot_loop.add_argument("--truth-center-y", type=float, help="Optional image-space truth center Y for --map-canvas.")
-    pivot_loop.add_argument("--truth-radius", type=float, help="Optional image-space truth radius for --map-canvas.")
-    pivot_loop.add_argument("--created-at", default=DEFAULT_CREATED_AT)
-
-    pivot_candidates = subcommands.add_parser("detect-pivot-candidates", help="Write advisory local OpenCV pivot-center candidate evidence as standalone companion reports.")
-    pivot_candidates.add_argument("--map-canvas", type=Path, help="Optional local map-canvas screenshot to evaluate.")
-    pivot_candidates.add_argument("--synthetic-fixture", action="store_true", help="Generate a deterministic local synthetic pivot fixture with known image-space truth.")
-    pivot_candidates.add_argument("--output-dir", required=True, type=Path, help="Directory for pivot candidate review artifacts.")
-    pivot_candidates.add_argument("--project-id", required=True, help="CPLayout project id for review evidence linkage.")
-    pivot_candidates.add_argument("--project-crs", required=True, help="Projected CPLayout CRS; geographic CRS aliases are rejected.")
-    pivot_candidates.add_argument("--iterations", type=int, default=100, help="Detector iterations to run. Values below 1 are rejected.")
-    pivot_candidates.add_argument("--truth-center-x", type=float, help="Optional image-space truth center X for --map-canvas.")
-    pivot_candidates.add_argument("--truth-center-y", type=float, help="Optional image-space truth center Y for --map-canvas.")
-    pivot_candidates.add_argument("--truth-radius", type=float, help="Optional image-space truth radius for --map-canvas.")
-    pivot_candidates.add_argument("--created-at", default=DEFAULT_CREATED_AT)
-
-    prepare_dataset = subcommands.add_parser("prepare-vision-dataset", help="Validate a local fixture manifest and write deterministic dataset metadata.")
-    prepare_dataset.add_argument("--manifest", required=True, type=Path, help="Fixture manifest JSON with local artifact paths.")
-    prepare_dataset.add_argument("--output-dir", required=True, type=Path, help="Directory for vision-dataset-metadata.json.")
-    prepare_dataset.add_argument("--split-seed", default="cplayout-local-vision-v1", help="Stable seed for project-level train/validation/test splits.")
-    prepare_dataset.add_argument("--created-at", default=DEFAULT_CREATED_AT)
-
-    run_experiment = subcommands.add_parser("run-boundary-experiment", help="Run the local OpenCV boundary fixture loop and log local MLflow evidence.")
-    run_experiment.add_argument("--manifest", required=True, type=Path, help="Fixture manifest JSON with local proof packet paths.")
-    run_experiment.add_argument("--output-dir", required=True, type=Path, help="Directory for experiment outputs and local mlruns.")
-    run_experiment.add_argument("--experiment-name", default="cplayout-boundary-loop", help="Local MLflow experiment name.")
-    run_experiment.add_argument("--split-seed", default="cplayout-local-vision-v1")
-    run_experiment.add_argument("--created-at", default=DEFAULT_CREATED_AT)
-
-    summarize_experiments = subcommands.add_parser("summarize-boundary-experiments", help="Compare local boundary experiment reports.")
-    summarize_experiments.add_argument("--input", required=True, type=Path, nargs="+", help="Experiment report JSON files or experiment output directories.")
-    summarize_experiments.add_argument("--output-dir", required=True, type=Path, help="Directory for JSON and Markdown comparison output.")
-
-    raster_fixtures = subcommands.add_parser("prepare-raster-fixtures", help="Hash and validate local raster/proof artifacts for companion-only GIS review.")
-    raster_fixtures.add_argument("--manifest", required=True, type=Path, help="JSON manifest with rasters[], fixtures[], or artifacts[] entries.")
-    raster_fixtures.add_argument("--output-dir", required=True, type=Path, help="Directory for raster-fixture-metadata.json.")
-    raster_fixtures.add_argument("--project-id", help="Project id to record when the manifest omits projectId.")
-    raster_fixtures.add_argument("--project-crs", help="Projected/local project CRS to record when the manifest omits projectCrs.")
-    raster_fixtures.add_argument("--require-projected-output", action="store_true", help="Reject fixtures without a projected raster CRS.")
-    raster_fixtures.add_argument("--created-at", default=DEFAULT_CREATED_AT)
-
-    vector_labels = subcommands.add_parser("validate-vector-labels", help="Validate local operator vector labels and export projected-XY evidence when CRS allows.")
-    vector_labels.add_argument("--input", required=True, type=Path, help="Local GeoJSON/vector label file.")
-    vector_labels.add_argument("--output-dir", required=True, type=Path)
-    vector_labels.add_argument("--project-id", required=True)
-    vector_labels.add_argument("--project-crs", required=True)
-    vector_labels.add_argument("--created-at", default=DEFAULT_CREATED_AT)
-
-    evidence_packet = subcommands.add_parser("build-evidence-packet", help="Combine local raster/vector/CV/scoring outputs into standalone companion evidence packets.")
-    evidence_packet.add_argument("--project-id", required=True)
-    evidence_packet.add_argument("--project-crs", required=True)
-    evidence_packet.add_argument("--output-dir", required=True, type=Path)
-    evidence_packet.add_argument("--raster-fixtures", type=Path, help="Optional raster-fixture-metadata.json.")
-    evidence_packet.add_argument("--vector-labels", type=Path, help="Optional vector-label-validation.json.")
-    evidence_packet.add_argument("--cv-candidates", type=Path, help="Optional local CV candidate JSON.")
-    evidence_packet.add_argument("--score-report", type=Path, help="Optional local scoring/evaluation report JSON.")
-    evidence_packet.add_argument("--real-pivot-fixtures", type=Path, help="Optional operator-approved real pivot-center fixture manifest.")
-    evidence_packet.add_argument("--source-artifact", type=Path, action="append", default=[], help="Additional local artifact to hash into the packet.")
-    evidence_packet.add_argument("--created-at", default=DEFAULT_CREATED_AT)
-
-    dashboard = subcommands.add_parser("serve-review-dashboard", help="Launch a read-only local Streamlit review dashboard over an evidence packet.")
-    dashboard.add_argument("--packet", required=True, type=Path, help="companion-evidence-packet.json to review.")
-    dashboard.add_argument("--engine", choices=["streamlit", "dash"], default="streamlit", help="Dashboard engine. Streamlit remains the primary default.")
-    dashboard.add_argument("--host", default="127.0.0.1", help="Localhost bind address. Non-local binds are rejected.")
-    dashboard.add_argument("--port", type=int, default=8501)
-    dashboard.add_argument("--export-html", type=Path, help="Write a local Plotly comparison report instead of launching a server.")
-    dashboard.add_argument("--dry-run", action="store_true", help="Print the local launch plan without starting Streamlit.")
-
-    companion_api = subcommands.add_parser("serve-companion-api", help="Launch an optional localhost FastAPI wrapper around companion file-bridge outputs.")
-    companion_api.add_argument("--workspace", type=Path, default=Path("."), help="Local workspace root for read-only packet access.")
-    companion_api.add_argument("--host", default="127.0.0.1", help="Localhost bind address. Non-local binds are rejected.")
-    companion_api.add_argument("--port", type=int, default=8765)
-    companion_api.add_argument("--experiment-db", type=Path, help="Optional companion-owned experiment .sqlite path; never the CPLayout project DB.")
-    companion_api.add_argument("--dry-run", action="store_true", help="Print the local launch plan without starting FastAPI.")
-
-    args = parser.parse_args(argv)
-    if args.command == "probe-gpu":
-        return probe_gpu()
-    if args.command == "probe-companion-deps":
-        return probe_companion_deps(args.groups, args.require_installed)
-    if args.command == "probe-boundary-detector":
-        return probe_boundary_detector(args.sam2_config, args.sam2_checkpoint)
-    if args.command == "report-layout-candidates":
-        return report_layout_candidates(args.input, args.output_dir, args.max_alternatives, args.created_at)
-    if args.command == "design-vision-review":
-        return design_vision_review(
-            args.kml,
-            args.kmz,
-            args.full_window,
-            args.map_canvas,
-            args.manifest,
-            args.output_dir,
-            args.project_id,
-            args.project_crs,
-            args.project_reference,
-            args.infer_field_boundary,
-            args.operator_boundary_kml,
-            args.operator_boundary_kml_text,
-            args.operator_labels_kml,
-            args.operator_labels_kml_text,
-            args.operator_boundary_name,
-            args.sam2_config,
-            args.sam2_checkpoint,
-            args.created_at,
-        )
-    if args.command == "evaluate-vision-fixtures":
-        return evaluate_vision_fixtures(args.manifest, args.output_dir)
-    if args.command == "improve-boundary-detector":
-        return improve_boundary_detector(
-            args.map_canvas,
-            args.full_window,
-            args.kml,
-            args.project_reference,
-            args.operator_boundary_kml,
-            args.operator_boundary_kml_text,
-            args.operator_boundary_name,
-            args.output_dir,
-            args.min_iterations,
-            args.created_at,
-        )
-    if args.command == "run-pivot-locator-loop":
-        return run_pivot_locator_loop(
-            args.map_canvas,
-            args.output_dir,
-            args.iterations,
-            args.synthetic_fixture,
-            args.truth_center_x,
-            args.truth_center_y,
-            args.truth_radius,
-            args.created_at,
-        )
-    if args.command == "detect-pivot-candidates":
-        return detect_pivot_candidates(
-            args.map_canvas,
-            args.synthetic_fixture,
-            args.output_dir,
-            args.project_id,
-            args.project_crs,
-            args.iterations,
-            args.truth_center_x,
-            args.truth_center_y,
-            args.truth_radius,
-            args.created_at,
-        )
-    if args.command == "prepare-vision-dataset":
-        return prepare_vision_dataset(args.manifest, args.output_dir, args.split_seed, args.created_at)
-    if args.command == "run-boundary-experiment":
-        return run_boundary_experiment(
-            args.manifest,
-            args.output_dir,
-            args.experiment_name,
-            args.split_seed,
-            args.created_at,
-            evaluate_vision_fixtures,
-            improve_boundary_detector,
-        )
-    if args.command == "summarize-boundary-experiments":
-        return summarize_boundary_experiments(args.input, args.output_dir)
-    if args.command == "prepare-raster-fixtures":
-        return prepare_raster_fixtures(
-            args.manifest,
-            args.output_dir,
-            args.project_id,
-            args.project_crs,
-            args.require_projected_output,
-            args.created_at,
-        )
-    if args.command == "validate-vector-labels":
-        return validate_vector_labels(
-            args.input,
-            args.output_dir,
-            args.project_id,
-            args.project_crs,
-            args.created_at,
-        )
-    if args.command == "build-evidence-packet":
-        return build_evidence_packet(
-            args.project_id,
-            args.project_crs,
-            args.output_dir,
-            args.raster_fixtures,
-            args.vector_labels,
-            args.cv_candidates,
-            args.score_report,
-            args.source_artifact,
-            args.created_at,
-            args.real_pivot_fixtures,
-        )
-    if args.command == "serve-review-dashboard":
-        return serve_review_dashboard(args.packet, args.host, args.port, args.dry_run, args.engine, args.export_html)
-    if args.command == "serve-companion-api":
-        return serve_companion_api(args.workspace, args.host, args.port, args.experiment_db, args.dry_run)
-    parser.error("Unsupported command.")
-    return 2
+    from .command_line import main as run_command_line
+    return run_command_line(argv)
 
 
 def probe_companion_deps(groups: list[str], require_installed: bool) -> int:
@@ -406,7 +129,13 @@ def improve_boundary_detector(
 
     operator_polygon = operator_field_boundary.get("imagePolygon") if operator_field_boundary is not None else None
     gpu_status = probe_cuda()
-    gpu_preflight = torch_gpu_image_preflight(image) if gpu_status.get("cudaAvailable") else None
+    gpu_preflight = None
+    gpu_preflight_error = None
+    if gpu_status.get("cudaAvailable"):
+        try:
+            gpu_preflight = torch_gpu_image_preflight(image)
+        except Exception as error:
+            gpu_preflight_error = type(error).__name__
     iteration_count = max(5, min_iterations)
     iterations = run_boundary_improvement_iterations(cv, image, pivot_crop_ring, operator_polygon, iteration_count)
     best_iteration = best_boundary_iteration(iterations)
@@ -432,7 +161,7 @@ def improve_boundary_detector(
         best_iteration.get("operatorComparison", []) if best_iteration else [],
     )
     report = {
-        "schemaVersion": "cplayout-boundary-improvement-loop-v1",
+        "schemaVersion": "cplayout-boundary-improvement-loop-v2",
         "createdAt": created_at,
         "projectId": project_reference.get("id") if project_reference is not None else None,
         "projectCrs": project_reference.get("projectCrs") if project_reference is not None else None,
@@ -444,11 +173,16 @@ def improve_boundary_detector(
         "minimumIterationsRequired": 5,
         "iterationCount": len(iterations),
         "gpu": gpu_status | {
-            "requestedByUser": True,
+            "requestedByUser": False,
             "usedForTorchTensorPreflight": gpu_preflight is not None,
             "tensorPreflight": gpu_preflight,
-            "note": "OpenCV scoring remains CPU-bound unless the local OpenCV build exposes CUDA; CUDA PyTorch is used for tensor preflight when installed.",
+            "tensorPreflightError": gpu_preflight_error,
+            "note": "This OpenCV detector and scoring path ran on CPU. A CUDA tensor preflight is diagnostic only and does not accelerate this detector.",
         },
+        "stageObservations": [
+            {"stage": "opencv_boundary_detection_and_scoring", "observedDevice": "cpu", "accelerated": False},
+            {"stage": "torch_tensor_preflight", "observedDevice": "cuda" if gpu_preflight is not None else "failed" if gpu_preflight_error else "not_run", "accelerated": gpu_preflight is not None, "diagnosticOnly": True},
+        ],
         "artifacts": {
             "mapCanvas": artifact_inventory(map_canvas_path, require_doc_kml=False),
             "fullWindow": artifact_inventory(full_window_path, require_doc_kml=False) if full_window_path else None,
@@ -1293,28 +1027,6 @@ def write_pivot_locator_annotated_image(
         raise SystemExit(f"OpenCV could not write pivot locator annotated image: {output_path}")
 
 
-def torch_gpu_image_preflight(image: Any) -> dict[str, Any] | None:
-    try:
-        import torch  # type: ignore
-    except Exception:
-        return None
-    if not torch.cuda.is_available():
-        return None
-    import numpy as np  # type: ignore
-
-    rgb = image[:, :, ::-1].copy()
-    tensor = torch.from_numpy(np.asarray(rgb)).to(device="cuda", dtype=torch.float32) / 255.0
-    gray = tensor.mean(dim=2)
-    gradient_x = torch.abs(gray[:, 1:] - gray[:, :-1]).mean()
-    gradient_y = torch.abs(gray[1:, :] - gray[:-1, :]).mean()
-    torch.cuda.synchronize()
-    return {
-        "device": torch.cuda.get_device_name(0),
-        "shape": list(tensor.shape),
-        "mean": round(float(tensor.mean().detach().cpu()), 6),
-        "std": round(float(tensor.std().detach().cpu()), 6),
-        "meanAbsGradient": round(float((gradient_x + gradient_y).detach().cpu()), 6),
-    }
 
 
 def boundary_iteration_configs(iteration_count: int) -> list[dict[str, Any]]:
@@ -1594,64 +1306,6 @@ def learning_action_for_iteration(index: int, best: dict[str, Any] | None, compa
     return {"type": "ranking", "decision": "candidate_available_without_operator_label", "reason": f"confidence {best.get('confidence')}"}
 
 
-def boundary_improvement_acceptance(
-    best_candidate: dict[str, Any] | None,
-    best_iteration: dict[str, Any] | None,
-    operator_polygon: list[dict[str, Any]] | None,
-    gpu_status: dict[str, Any] | None = None,
-    projected_boundary: list[dict[str, float]] | None = None,
-    failure_mode: dict[str, Any] | None = None,
-) -> dict[str, Any]:
-    reasons = []
-    accepted = True
-    gpu_backed = bool(gpu_status and gpu_status.get("cudaAvailable"))
-    if best_candidate is None:
-        accepted = False
-        reasons.append("no boundary candidate was produced")
-    elif best_candidate.get("rejected"):
-        accepted = False
-        reasons.append("best candidate is rejected by imagery-only gates")
-    elif float(best_candidate.get("confidence", 0)) < DEFAULT_VISION_THRESHOLDS["minFieldBoundaryConfidence"]:
-        accepted = False
-        reasons.append("best candidate confidence is below strict boundary threshold")
-    if operator_polygon is not None:
-        best_iou = best_candidate.get("operatorLabelAlignment") if best_candidate is not None else None
-        if best_iou is None:
-            best_iou = best_iteration.get("bestOperatorIoU") if best_iteration else None
-        if best_iou is None or best_iou < DEFAULT_VISION_THRESHOLDS["minOperatorBoundaryIoU"]:
-            accepted = False
-            reasons.append(f"best candidate does not meet operator-label IoU gate of {DEFAULT_VISION_THRESHOLDS['minOperatorBoundaryIoU']}")
-        if best_candidate is not None:
-            false_positive = best_candidate.get("operatorFalsePositiveAreaRatio")
-            if isinstance(false_positive, (int, float)) and false_positive > DEFAULT_VISION_THRESHOLDS["maxBoundaryFalsePositiveRatio"]:
-                accepted = False
-                reasons.append(f"best candidate false-positive area ratio {false_positive:.4f} exceeds {DEFAULT_VISION_THRESHOLDS['maxBoundaryFalsePositiveRatio']:.2f}")
-            mean_distance = best_candidate.get("operatorBoundaryMeanDistancePixels")
-            if isinstance(mean_distance, (int, float)) and mean_distance > DEFAULT_VISION_THRESHOLDS["maxBoundaryMeanDistancePx"]:
-                accepted = False
-                reasons.append(f"best candidate mean boundary distance {mean_distance:.1f} px exceeds {DEFAULT_VISION_THRESHOLDS['maxBoundaryMeanDistancePx']:.0f} px")
-    if projected_boundary is None:
-        accepted = False
-        reasons.append("no calibrated projected-XY CV candidate boundary was produced")
-    if failure_mode is not None:
-        accepted = False
-        reasons.append(f"failure mode: {failure_mode['code']}")
-    if not gpu_backed:
-        accepted = False
-        reasons.append("PyTorch CUDA was not available; report is not GPU-backed")
-    return {
-        "accepted": accepted,
-        "status": "accepted" if accepted else "not accepted",
-        "gpuBacked": gpu_backed,
-        "autoApplyEligible": accepted,
-        "reasons": reasons,
-        "hardFailures": reasons,
-        "cvCandidateAccepted": accepted,
-        "truthBoundaryAccepted": operator_polygon is not None,
-        "truthBoundaryMode": "operator_truth_reconstruction" if operator_polygon is not None else None,
-        "failureMode": failure_mode,
-        "importantCaveat": "Acceptance here is local companion evidence only and still does not mutate projected XY geometry.",
-    }
 
 
 def detect_line_cues(cv: Any, image: Any) -> list[dict[str, Any]]:
@@ -1761,7 +1415,8 @@ def probe_boundary_detector(sam2_config_arg: Path | None, sam2_checkpoint_arg: P
         "cuda": cuda,
         "offline": {
             "canRunOpenCvScoring": bool(opencv["available"] and opencv["houghCircles"] and opencv["houghLinesP"]),
-            "canRunSam2Proposals": bool(sam2["available"] and sam2["configExists"] and sam2["checkpointExists"]),
+            "canRunSam2Proposals": False,
+            "canRunExplicitManagedJob": bool(sam2["managedJobRunnerAvailable"]),
             "networkRequired": False,
             "hiddenDownloads": False,
             "canRunOffline": bool(opencv["available"] and opencv["houghCircles"] and opencv["houghLinesP"]),
@@ -1771,67 +1426,14 @@ def probe_boundary_detector(sam2_config_arg: Path | None, sam2_checkpoint_arg: P
     return 0 if payload["offline"]["canRunOpenCvScoring"] else 1
 
 
-def configured_path(value: Path | None, env_name: str) -> Path | None:
-    if value is not None:
-        return value
-    env_value = os.environ.get(env_name)
-    return Path(env_value) if env_value else None
 
 
-def probe_opencv() -> dict[str, Any]:
-    try:
-        import cv2  # type: ignore
-    except Exception as exc:
-        return {"available": False, "error": str(exc), "houghCircles": False, "houghLinesP": False}
-    return {
-        "available": True,
-        "version": getattr(cv2, "__version__", None),
-        "houghCircles": hasattr(cv2, "HoughCircles"),
-        "houghLinesP": hasattr(cv2, "HoughLinesP"),
-        "grabCut": hasattr(cv2, "grabCut"),
-        "watershed": hasattr(cv2, "watershed"),
-    }
 
 
-def probe_sam2(config_path: Path | None, checkpoint_path: Path | None) -> dict[str, Any]:
-    import_status = sam2_import_status()
-    return {
-        "available": import_status["available"],
-        "importError": import_status.get("error"),
-        "configPath": str(config_path) if config_path is not None else None,
-        "configExists": bool(config_path is not None and config_path.exists()),
-        "checkpointPath": str(checkpoint_path) if checkpoint_path is not None else None,
-        "checkpointExists": bool(checkpoint_path is not None and checkpoint_path.exists()),
-        "configuredBy": {
-            "configEnv": SAM2_CONFIG_ENV if os.environ.get(SAM2_CONFIG_ENV) else None,
-            "checkpointEnv": SAM2_CHECKPOINT_ENV if os.environ.get(SAM2_CHECKPOINT_ENV) else None,
-        },
-        "note": "SAM2 is optional and must be installed/configured locally; this companion never downloads checkpoints.",
-    }
 
 
-def sam2_import_status() -> dict[str, Any]:
-    try:
-        import sam2  # type: ignore  # noqa: F401
-    except Exception as exc:
-        return {"available": False, "error": str(exc)}
-    return {"available": True}
 
 
-def probe_cuda() -> dict[str, Any]:
-    try:
-        import torch  # type: ignore
-    except Exception as exc:
-        return {"torchAvailable": False, "cudaAvailable": False, "error": str(exc)}
-    cuda_available = bool(torch.cuda.is_available())
-    return {
-        "torchAvailable": True,
-        "torchVersion": torch.__version__,
-        "cudaAvailable": cuda_available,
-        "cudaRuntime": torch.version.cuda,
-        "deviceCount": int(torch.cuda.device_count()) if cuda_available else 0,
-        "devices": [torch.cuda.get_device_name(index) for index in range(torch.cuda.device_count())] if cuda_available else [],
-    }
 
 
 def report_layout_candidates(input_path: Path, output_dir: Path, max_alternatives: int, created_at: str) -> int:
@@ -2786,28 +2388,11 @@ def detect_overlay_circle(cv: Any, image: Any, pivot_crop_ring: dict[str, Any] |
     return circle_payload(x, y, radius, max(0.35, min(0.9, circularity)))
 
 
-def boundary_detector_runtime_status(sam2_config_arg: Path | None, sam2_checkpoint_arg: Path | None) -> dict[str, Any]:
-    sam2_config = configured_path(sam2_config_arg, SAM2_CONFIG_ENV)
-    sam2_checkpoint = configured_path(sam2_checkpoint_arg, SAM2_CHECKPOINT_ENV)
-    status = {
-        "opencv": probe_opencv(),
-        "sam2": probe_sam2(sam2_config, sam2_checkpoint),
-        "networkRequired": False,
-        "hiddenDownloads": False,
-        "offlineOnly": True,
-    }
-    status["canRunOffline"] = bool(status["opencv"]["available"] and status["opencv"]["houghCircles"] and status["opencv"]["houghLinesP"])
-    return status
 
 
 def load_sam2_adapter(boundary_detector_status: dict[str, Any] | None) -> Any | None:
-    if boundary_detector_status is None:
-        return None
-    sam2 = boundary_detector_status.get("sam2", {})
-    if not (sam2.get("available") and sam2.get("configExists") and sam2.get("checkpointExists")):
-        return None
-    # SAM2 integration is intentionally isolated to the Python companion. A future
-    # adapter can build predictors here from explicit local paths only.
+    # Legacy image-only calls do not supply a model revision, asset hashes,
+    # prompt points/labels, or an output root. Never infer those inputs.
     return None
 
 
@@ -3401,54 +2986,10 @@ def circle_obstruction_conflicts(cv: Any, image: Any, overlay_circle: dict[str, 
     return result
 
 
-def best_operator_metric(operator_comparison: list[dict[str, Any]], key: str) -> float | None:
-    if not operator_comparison:
-        return None
-    value = operator_comparison[0].get(key)
-    return float(value) if isinstance(value, (int, float)) else None
 
 
-def design_hard_failures(
-    imagery_field_boundary: dict[str, Any] | None,
-    operator_comparison: list[dict[str, Any]],
-    truth_metrics: dict[str, Any],
-    road_building_tree_conflict: dict[str, Any],
-) -> list[str]:
-    failures = []
-    if imagery_field_boundary is not None and imagery_field_boundary.get("rejected"):
-        failures.extend(imagery_field_boundary.get("rejectionReasons", []))
-    false_positive = best_operator_metric(operator_comparison, "falsePositiveAreaRatio")
-    if false_positive is not None and false_positive > DEFAULT_VISION_THRESHOLDS["maxBoundaryFalsePositiveRatio"]:
-        failures.append(f"Boundary false-positive area ratio {false_positive:.4f} exceeds {DEFAULT_VISION_THRESHOLDS['maxBoundaryFalsePositiveRatio']:.2f}.")
-    mean_distance = best_operator_metric(operator_comparison, "boundaryMeanDistancePixels")
-    if mean_distance is not None and mean_distance > DEFAULT_VISION_THRESHOLDS["maxBoundaryMeanDistancePx"]:
-        failures.append(f"Boundary mean distance {mean_distance:.1f} px exceeds {DEFAULT_VISION_THRESHOLDS['maxBoundaryMeanDistancePx']:.0f} px.")
-    center_offset = truth_metrics.get("centerTruthOffsetPx")
-    if isinstance(center_offset, (int, float)) and center_offset > DEFAULT_VISION_THRESHOLDS["maxCenterTruthOffsetPx"]:
-        failures.append(f"Visible pivot center is {center_offset:.1f} px from TRUE_PIVOT_CENTER.")
-    radius_mismatch = truth_metrics.get("radiusTruthMismatchRatio")
-    if isinstance(radius_mismatch, (int, float)) and radius_mismatch > DEFAULT_VISION_THRESHOLDS["maxRadiusMismatchRatio"]:
-        failures.append(f"Pivot radius mismatch ratio {radius_mismatch:.4f} exceeds {DEFAULT_VISION_THRESHOLDS['maxRadiusMismatchRatio']:.2f}.")
-    if road_building_tree_conflict.get("southRoad"):
-        failures.append("CPLayout wet circle crosses SOUTH_ROAD_EXCLUSION.")
-    if road_building_tree_conflict.get("seBuildingTree"):
-        failures.append("CPLayout wet circle crosses SE_BUILDING_TREE_EXCLUSION.")
-    return list(dict.fromkeys(failures))
 
 
-def cv_boundary_accepted(
-    imagery_field_boundary: dict[str, Any] | None,
-    operator_comparison: list[dict[str, Any]],
-    hard_failures: list[str],
-) -> bool:
-    if imagery_field_boundary is None or imagery_field_boundary.get("rejected"):
-        return False
-    if hard_failures:
-        return False
-    best_iou = best_operator_metric(operator_comparison, "iou")
-    if best_iou is not None and best_iou < DEFAULT_VISION_THRESHOLDS["minOperatorBoundaryIoU"]:
-        return False
-    return True
 
 
 def operator_comparison_metrics(cv: Any, image: Any, operator_polygon: list[dict[str, Any]], candidate_polygon: list[dict[str, Any]]) -> dict[str, Any]:
@@ -3603,42 +3144,6 @@ def vision_confidence(
     return round(max(0.0, min(1.0, score)), 3)
 
 
-def assess_design_vision_review(metrics: dict[str, Any]) -> dict[str, Any]:
-    warnings = []
-    score = 100.0
-    if not metrics["overlayVisible"]:
-        warnings.append("CPLayout overlay was not detected in the map-canvas screenshot.")
-        score -= 30
-    if not metrics["attributionPresent"]:
-        warnings.append("Full-window Google Earth attribution evidence is missing or unclear.")
-        score -= 20
-    if metrics["detectionConfidence"] < DEFAULT_VISION_THRESHOLDS["minDetectionConfidence"]:
-        warnings.append(f"Visual detection confidence is below {DEFAULT_VISION_THRESHOLDS['minDetectionConfidence']}.")
-        score -= 20
-    if metrics["inferFieldBoundary"]:
-        if metrics["fieldBoundaryConfidence"] is None:
-            warnings.append("Imagery field-boundary detector did not find a road/fenceline/treeline/field-separation polygon.")
-            score -= 25
-        elif metrics["fieldBoundaryConfidence"] < DEFAULT_VISION_THRESHOLDS["minFieldBoundaryConfidence"]:
-            warnings.append(f"Imagery field-boundary detector confidence is below {DEFAULT_VISION_THRESHOLDS['minFieldBoundaryConfidence']}.")
-            score -= 20
-        if not metrics["fieldBoundaryProjected"]:
-            warnings.append("Imagery field-boundary polygon was not exported as projected XY because calibration evidence was incomplete.")
-            score -= 10
-    if metrics["centerOffsetRatio"] is not None and metrics["centerOffsetRatio"] > DEFAULT_VISION_THRESHOLDS["maxCenterOffsetRatio"]:
-        warnings.append("Detected CPLayout center offset exceeds 5.0% of pivot radius.")
-        score -= min(25, (metrics["centerOffsetRatio"] - DEFAULT_VISION_THRESHOLDS["maxCenterOffsetRatio"]) * 250)
-    if metrics["radiusMismatchRatio"] is not None and metrics["radiusMismatchRatio"] > DEFAULT_VISION_THRESHOLDS["maxRadiusMismatchRatio"]:
-        warnings.append("Detected CPLayout radius mismatch exceeds 8.0%.")
-        score -= min(25, (metrics["radiusMismatchRatio"] - DEFAULT_VISION_THRESHOLDS["maxRadiusMismatchRatio"]) * 220)
-    return {
-        "score": round(max(0.0, min(100.0, score)), 3),
-        "confidence": round(max(0.0, min(1.0, metrics["detectionConfidence"])), 3),
-        "warnings": warnings,
-        "canonicalGeometryMutation": False,
-        "reviewStatus": "unreviewed",
-        "designOnly": True,
-    }
 
 
 def recommendation_summary(warnings: list[str]) -> str:

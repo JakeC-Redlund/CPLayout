@@ -1,0 +1,5007 @@
+{
+  "inventoryVersion": "cplayout-browser-proof-inventory-v1",
+  "claim": "Discovery and scoped coverage accounting only; deferred contracts are neither retired nor verified.",
+  "projects": [
+    "desktop",
+    "tablet-768",
+    "mobile-390"
+  ],
+  "discoveryFingerprint": "871954d3be402bc875d26d8f6a8935ff68f3b5183b44b097970dc3f3474b2869",
+  "counts": {
+    "files": 31,
+    "uniqueCases": 395,
+    "currentExecutions": 225,
+    "deferredExecutions": 960,
+    "allExecutions": 1185
+  },
+  "files": [
+    {
+      "file": "tests/web/advisory-performance.spec.ts",
+      "sha256": "5da3bb7aaea297014e062f4e2071cb28518a997b71716de08fca5d0bf2bf79a3",
+      "category": "deferred-legacy",
+      "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.",
+      "cases": [
+        {
+          "title": "catalog project switches do not wait for advisory analysis",
+          "line": 11,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "pending advisory jobs do not prevent leaving the map",
+          "line": 44,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "advisory overlay completion preserves the stored project",
+          "line": 55,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        }
+      ]
+    },
+    {
+      "file": "tests/web/browser-workflow.spec.ts",
+      "sha256": "184d1558e8d39af05cc7ac28559a60d6dd4d8444fa18a7475e92b2036c7e65bd",
+      "category": "mixed",
+      "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.",
+      "cases": [
+        {
+          "title": "workspace remains usable through the SVG map fallback when WebGL is unavailable",
+          "line": 41,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Survey shortcuts open collection directly and retain unfinished design choices",
+          "line": 154,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "launcher and workspace route sweep stay usable without paid APIs or hidden keys",
+          "line": 207,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "workspace command menus open without overflow across responsive viewports",
+          "line": 307,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "workspace command menu routes preserve existing views and local boundaries",
+          "line": 352,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "catalog home puts actions and recent work before compact storage details",
+          "line": 377,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "catalog home routes stay navigation-only and non-project-backed",
+          "line": 398,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "file menu opens curated sample designs with projected xy status",
+          "line": 438,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "catalog blank design starts empty and requires explicit coordinates before drawing",
+          "line": 459,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "design console pivot entry defaults to decimal GPS with expert XY hidden",
+          "line": 517,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "map-first catalog tree creates client projects and field maps without hidden sample designs",
+          "line": 533,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "catalog creation modal cancel leaves the tree unchanged",
+          "line": 602,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "catalog creation modal validates blank names without creating records",
+          "line": 623,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "project creation modal stays reachable on a 390px mobile viewport",
+          "line": 639,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "client detail manages profile and contained project lifecycle",
+          "line": 654,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "public proof map features can select the side-panel editor without geometry mutation",
+          "line": 734,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "workspace rail exposes the selected view state",
+          "line": 778,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "workspace compact rail stays within the viewport while switching routes",
+          "line": 807,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "help training route links into the real workflow",
+          "line": 829,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "tablet portrait map console keeps drawers collapsed and HUD above the viewport floor",
+          "line": 871,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "tablet landscape map console has fixed page bounds and drawer handles",
+          "line": 902,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "survey rtk receiver starts closed without mutating the project",
+          "line": 927,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "survey rtk capture requires current fixed GGA and closes on disconnect",
+          "line": 940,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "survey rtk closed gate disables geometry capture controls",
+          "line": 956,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "survey rtk invalid latest fix and replayed epoch cannot revive capture",
+          "line": 1002,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "survey rtk geometry capture rechecks age before the next display timer",
+          "line": 1021,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "survey rtk survey capture rechecks age before the next display timer",
+          "line": 1021,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "survey rtk role selection stays local while gate is closed",
+          "line": 1040,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "survey rtk map feature selection stays local while gate is closed",
+          "line": 1054,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "browser boundary commit keeps projected geometry status explicit",
+          "line": 1071,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "browser utility line save keeps projected feature status explicit",
+          "line": 1090,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "browser utility point save keeps projected feature status explicit",
+          "line": 1108,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "design console selects end-gun circle and corner footprint utility tools",
+          "line": 1123,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "pending map purpose reports rejection retry and cancellation without stale feedback",
+          "line": 1206,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "full-screen calculation preserves unfinished map drawing and camera",
+          "line": 1281,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "placement review applies advisory pivot candidates only after confirmation",
+          "line": 1307,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "generated field pivot plan saves advisory machine-zone review features after explicit action",
+          "line": 1344,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "advisory cost review uses local assumptions without dirtying geometry",
+          "line": 1372,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "full-scope demo compares cost versus acres across advisory strategies",
+          "line": 1439,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "partial-sweep sample exposes advisory sweep efficiency comparison",
+          "line": 1507,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "corner arm advisory save requires confirmation and remains advisory",
+          "line": 1540,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "browser map tool buttons expose active state",
+          "line": 1565,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "MapLibre rejected boundary nudge preserves selection and saved geometry for correction",
+          "line": 1583,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "SVG rejected boundary nudge preserves selection and saved geometry for correction",
+          "line": 1583,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "text clipping probe distinguishes visible overflow from trailing wrap whitespace",
+          "line": 1650,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "browser map source details preserve camera, selection and saved geometry",
+          "line": 1672,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "browser map panel resize keeps feedback visible and cancels an active drag",
+          "line": 1724,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "browser map edit vertices nudges projected boundary through reducer actions",
+          "line": 1772,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "browser map edit vertices nudges selected map feature through reducer actions",
+          "line": 1794,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "browser map edit vertices resizes selected circle map feature through radius handle",
+          "line": 1822,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "browser map edit inserts and drags a selected boundary vertex through reducer actions",
+          "line": 1854,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "cancelled browser vertex drag preserves saved geometry",
+          "line": 1888,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "browser vertex handle tap and secondary buttons do not edit geometry",
+          "line": 1914,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "browser rejected vertex drag restores its marker and permits correction",
+          "line": 1935,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "browser vertex drag ignores foreign pointers and cancels on focus or capture loss",
+          "line": 2003,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "browser vertex selection survives imagery replacement and SVG teardown cancels an active drag",
+          "line": 2049,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "browser camera controls cancel an active vertex drag before accepting late release",
+          "line": 2083,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "touch vertex ownership a second finger cannot pitch the map or finish the active vertex drag",
+          "line": 2112,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "browser boundary vertex selection keeps handles clear of the editing dock without changing saved data",
+          "line": 2149,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "reselecting a drawing tool and opening machine settings preserve active drafts",
+          "line": 2171,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "browser map workflow modes expose active state",
+          "line": 2193,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "compact warnings navigation reveals its tab without blocking map controls",
+          "line": 2207,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "guided manual design stages required geometry without mutating until apply",
+          "line": 2236,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "browser map utility sheets expose active state",
+          "line": 2311,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "browser map HUD actions expose disabled state",
+          "line": 2326,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "browser map compact HUD actions stay inside the status panel",
+          "line": 2368,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Inspect map keeps map clicks read-only and actions disabled",
+          "line": 2398,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "offline browser map workbench stays usable with external requests blocked",
+          "line": 2428,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "settings custom imagery guidance blocks hidden-key assumptions",
+          "line": 2456,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "settings custom imagery rejects credentialed tile templates",
+          "line": 2467,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "settings rejected credentialed imagery never reaches map requests",
+          "line": 2486,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "network allowlist blocks credential query strings on allowed imagery hosts",
+          "line": 2509,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "settings custom imagery applies no-key local tile templates",
+          "line": 2520,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "settings offline imagery guardrail exposes local-only export boundary",
+          "line": 2541,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "settings aerial workflow exposes local package and USGS preview modes",
+          "line": 2562,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "settings tile cap stepper clamps interactive preview budget",
+          "line": 2589,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "settings offline package guardrail keeps network tiles disabled",
+          "line": 2611,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "settings offline package type changes keep local-only guardrails",
+          "line": 2626,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "settings map style changes do not enable online imagery",
+          "line": 2641,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "settings offline imagery off blocks map tile requests after live source is active",
+          "line": 2658,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "settings browser-local imagery settings stay out of project zip",
+          "line": 2681,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "dashboard walkthrough progress stays out of project zip",
+          "line": 2716,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Will Rhea guided demo exposes evidence status and blocked corner-arm calculation",
+          "line": 2744,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "dashboard next step separates imagery-off from live-source confirmation",
+          "line": 2777,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "dashboard offline imagery path advances after imagery walkthrough progress",
+          "line": 2791,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "dashboard next step advances after imagery walkthrough progress",
+          "line": 2807,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "dashboard export readiness reflects unsaved browser geometry edits",
+          "line": 2818,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "files status keeps the canonical archive message visible",
+          "line": 2835,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "files actions expose accessible browser buttons",
+          "line": 2848,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "google earth import wizard keeps companion boundaries visible",
+          "line": 2867,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "files map package import keeps web storage boundary explicit",
+          "line": 2884,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "files export zip downloads the canonical project package",
+          "line": 2894,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "files zip export excludes retired review contract files",
+          "line": 2908,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "files export kml downloads visual interchange data without runtime claims",
+          "line": 2932,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "files export kmz downloads a doc-kml archive without runtime claims",
+          "line": 2947,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "files projected geojson import dirties the project with projected xy status",
+          "line": 2962,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "files projected geojson import can be saved locally",
+          "line": 2990,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "files projected geojson import clears the paste field after success",
+          "line": 3020,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "files geojson import rejects wgs84 as canonical geometry",
+          "line": 3049,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "files rejected geojson import preserves the paste field for correction",
+          "line": 3077,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "files survey csv import dirties the project with projected point status",
+          "line": 3108,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "files survey csv import can be saved locally",
+          "line": 3119,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "files survey csv import clears the paste field after success",
+          "line": 3132,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "files survey csv import rejects missing projected xy columns",
+          "line": 3144,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "survey view reflects imported projected survey csv evidence",
+          "line": 3155,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "survey point promotion writes projected water source after explicit action",
+          "line": 3172,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "survey point delete removes imported evidence from canonical export",
+          "line": 3201,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "survey rtk float import counts as draft input",
+          "line": 3233,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "survey point row actions expose point-specific accessible names",
+          "line": 3248,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "dashboard dirty geometry priority outranks imagery-off guidance",
+          "line": 3259,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "dashboard walkthrough progress stays local and export-ready",
+          "line": 3277,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "dashboard walkthrough modules expose checkbox state and keyboard activation",
+          "line": 3290,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "dashboard walkthrough progress is scoped to the active project",
+          "line": 3309,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "dashboard walkthrough reset only clears the active project",
+          "line": 3327,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "dashboard layout warnings expose actionable map guidance",
+          "line": 3348,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "dashboard layout warnings can inspect the map without geometry mutation",
+          "line": 3361,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "dashboard recent-project empty state keeps start actions visible",
+          "line": 3373,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "dashboard recent-project row can reopen a saved browser project",
+          "line": 3387,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        }
+      ]
+    },
+    {
+      "file": "tests/web/complete-workflow.spec.ts",
+      "sha256": "70f4f29837f3e4cf1b0cd62392247cdc9aafa24f416e4dac13f54b422cf33e0c",
+      "category": "deferred-legacy",
+      "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.",
+      "cases": [
+        {
+          "title": "empty workspace advances Customer to project and named first field to design without forced onboarding",
+          "line": 190,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Calculate previews only; completion atomically retains the latest draft and exact canonical design",
+          "line": 241,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "completion quota failure commits nothing and retains applied changes for an explicit retry",
+          "line": 277,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "delayed completion does not activate after an away-and-back task change and retains a saveable source draft before explicit complete-design open",
+          "line": 301,
+          "column": 54,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "delayed completion stays in Projects and retains a saveable source draft before explicit complete-design open",
+          "line": 301,
+          "column": 54,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "saved complete-design reads cannot activate after navigation or reopen a changed copy",
+          "line": 374,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "delayed completion quota failure stays in Projects and returns to unchanged source inputs for retry",
+          "line": 423,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "completed design converts explicitly to an immutable Layout session, collects separately, reopens and copies empty",
+          "line": 469,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "unsupported Layout import creates nothing and leaves the selected field intact",
+          "line": 515,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "stale draft completion cannot create a second design or overwrite the newer draft",
+          "line": 554,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Layout collection waiting on storage rechecks freshness and preserves the label after refusal",
+          "line": 583,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Layout target import requires review and retains exact bytes through rename, archive, restore and reload",
+          "line": 611,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "catalog import checks unsupported files and requires a destination before saving an independent copy",
+          "line": 654,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Layout writes refresh catalog counts and returning field can save a later edit without changing the target",
+          "line": 698,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "returning field refuses to overwrite an independently changed design after Layout",
+          "line": 758,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "canceling imported copy activation retains the original unsaved editor and its undo and next save",
+          "line": 783,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "unapplied complete-machine input survives panel navigation and canceled imported-copy activation",
+          "line": 828,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "finished drawing purpose and optional input survive File Catalog and canceled imported-copy activation",
+          "line": 926,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "unsubmitted CSV and GeoJSON text survive panel navigation and File Catalog import cancellation without geometry changes",
+          "line": 973,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "field conversion quota after workspace upgrade preserves the source and permits its next save and conversion retry",
+          "line": 999,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "unfinished vertices retain drawing mode and camera through File Catalog and canceled design activation",
+          "line": 1043,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "reload restores a newly created autosaved draft and its complete catalog context",
+          "line": 1105,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "reload restores a newly created manually saved draft and its complete catalog context",
+          "line": 1105,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "reload restores the newly converted saved field instead of its complete source editor",
+          "line": 1142,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "reload restores an imported saved field in its selected customer project and field",
+          "line": 1173,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "short window keeps New and every catalog hierarchy control reachable before and after opening an editor",
+          "line": 1276,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "catalog import Back confirmation cancels without losing the review and discards only after confirmation",
+          "line": 1309,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Survey and Layout share active receiver configuration errors and unfinished communications inputs",
+          "line": 1350,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        }
+      ]
+    },
+    {
+      "file": "tests/web/crs-recovery.spec.ts",
+      "sha256": "a3200372e76b5a579438e304ab0204ca9be078989003c5ba6a5d53b0fc39c441",
+      "category": "deferred-legacy",
+      "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.",
+      "cases": [
+        {
+          "title": "legacy numerical overflow 1e+155 stays recoverable without calculated views",
+          "line": 19,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "legacy numerical overflow 1e+308 stays recoverable without calculated views",
+          "line": 19,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "EPSG:26741 opens, saves and recovers unchanged before returning to a metric project",
+          "line": 66,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "EPSG:3857 opens, saves and recovers unchanged before returning to a metric project",
+          "line": 66,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "LOCAL:FIELD opens, saves and recovers unchanged before returning to a metric project",
+          "line": 66,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "importing an independent blocked ZIP cannot reassign or overwrite the active saved design",
+          "line": 154,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        }
+      ]
+    },
+    {
+      "file": "tests/web/design-draft-editor.spec.ts",
+      "sha256": "a7f5db08aab240cb20a2264b543abf5a1adfaaff5e9ee7e91b1061d09a127e2d",
+      "category": "deferred-legacy",
+      "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.",
+      "cases": [
+        {
+          "title": "catalog Open supports Enter and Space without changing stored geometry",
+          "line": 81,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "draft App opens missing data, saves two vertices, undoes and reopens without a sample project",
+          "line": 97,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "draft stale tab keeps its edits and cannot overwrite a newer save",
+          "line": 129,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "pending invalid inputs block save and leaving requires an explicit discard",
+          "line": 164,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "an in-flight draft save keeps its snapshot and leaves newer drawing inputs unsaved",
+          "line": 217,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "draft ZIP exports supplied incomplete geometry without complete-project outputs",
+          "line": 250,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "calculations require complete supplied inputs and never promote a draft to Layout",
+          "line": 265,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "opening a draft cannot silently discard a complete project's unsaved edits",
+          "line": 283,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "canceling new draft creation preserves a saved project's revision and subsequent save",
+          "line": 313,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "failed confirmed draft creation restores its name and leaves storage unchanged for retry",
+          "line": 347,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "synthetic concurrent Undo during modal draft creation retains the edited project and its next save",
+          "line": 384,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "late desktop draft creation failures cannot report on a newer editor",
+          "line": 438,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "draft map finishes then classifies polygons lines and points with durable autosave",
+          "line": 507,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "classified boundaries save and require explicit replacement with undo",
+          "line": 551,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "paused drawing saves with autosave off and resumes after reopening",
+          "line": 597,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "a newer create form supersedes an older draft open waiting for storage",
+          "line": 627,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "failed drawing autosave retains vertices and waits for an explicit retry",
+          "line": 659,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        }
+      ]
+    },
+    {
+      "file": "tests/web/draft-unit-and-saved-items.spec.ts",
+      "sha256": "da1be7312516d4566cc5a5426b5c846e59c200911e2b9272ccfa2ab6ea6ac8b7",
+      "category": "deferred-legacy",
+      "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.",
+      "cases": [
+        {
+          "title": "new design starts with the selected folder's stored units",
+          "line": 82,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "invalid folder units cannot silently inherit the open editor's units",
+          "line": 95,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "saved features and keep-outs can be deleted, undone, saved, and reopened",
+          "line": 103,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        }
+      ]
+    },
+    {
+      "file": "tests/web/editor-save-lifecycle.spec.ts",
+      "sha256": "ee505977ac02f3113657b2b488ae30c3028506c579066f6bf4566434c80b8204",
+      "category": "platform",
+      "coverageGap": null,
+      "cases": [
+        {
+          "title": "StrictMode initialization and effect replay keep the initial session active through saves and rerenders",
+          "line": 27,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "StrictMode same-ID replacement isolates a delayed save receipt and feedback",
+          "line": 43,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "an accepted save may finish after unmount without reviving feedback or rebasing a remount",
+          "line": 57,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        }
+      ]
+    },
+    {
+      "file": "tests/web/field-design-editor.spec.ts",
+      "sha256": "9e7fdaaf66728141be57ffe808d0eacb7ca63dc4b9eb558ee29f0e56ceb4254f",
+      "category": "deferred-legacy",
+      "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.",
+      "cases": [
+        {
+          "title": "independent edits autosave, reopen, undo, redo and export without changing siblings or the original project",
+          "line": 120,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "field forms use feet and preserve exact saved values when untouched",
+          "line": 163,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "copy selected exactly creates a separate machine whose later edits and removal retain both siblings",
+          "line": 176,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "stale field tabs retain edits but cannot overwrite a newer field save",
+          "line": 200,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "frozen layout export retains its original selected machine and all field bytes after later edits",
+          "line": 226,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "machine-plan import requires explicit replacement permission and becomes stale after editing",
+          "line": 248,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "saved project command creates a field copy and retains the original project document",
+          "line": 278,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "field search keeps saved machines pinned, requires adoption and rejects an earlier revision",
+          "line": 300,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "deep search shows its best layout while running and stopping does not change saved machines",
+          "line": 330,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "machine clearance review is read-only and requires a new check after a field change",
+          "line": 347,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "saved lateral uses its explicit straight travel model and stays outside pivot search",
+          "line": 360,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        }
+      ]
+    },
+    {
+      "file": "tests/web/human-catalog-forms.spec.ts",
+      "sha256": "8985ecfa7fb266774aaebfe8e51da2454fb91901ea6d24ae2ce85f22aedc699c",
+      "category": "deferred-legacy",
+      "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.",
+      "cases": [
+        {
+          "title": "customer form prioritizes required contact, associates errors, and keeps its footer reachable in a short viewport",
+          "line": 54,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "failed customer save retains every entered value and retries without requiring a company",
+          "line": 100,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "pending customer saves prevent typing, detail changes, Escape, and Cancel",
+          "line": 138,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "project validates in field order and creates the edited first field in the same catalog revision",
+          "line": 169,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "a sibling catalog write cannot erase open customer values when the stale save is rejected",
+          "line": 197,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "a pending project save prevents edits to both project and first-field names",
+          "line": 231,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "synthetic owner-task suspension preserves raw customer details and errors; explicit Cancel starts a fresh session",
+          "line": 273,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "synthetic owner-task suspension retains project and first-field validation without persisting or resetting their raw values",
+          "line": 310,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        }
+      ]
+    },
+    {
+      "file": "tests/web/human-design-inputs.spec.ts",
+      "sha256": "20590cb66b5f47395a98c2f62bc2ff0b57a5e535e7f3cd9515178f05e6e9f69a",
+      "category": "deferred-legacy",
+      "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.",
+      "cases": [
+        {
+          "title": "numbered field spans retain raw text through failed apply, discard and append/remove-last",
+          "line": 68,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "draft append/remove-last retains raw input and exact surviving spans with distinct feet displays",
+          "line": 105,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "draft append/remove-last retains raw input and exact surviving spans with equal rounded feet displays",
+          "line": 105,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Layout preparation names matching preview and retains an earlier frozen revision",
+          "line": 174,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "draft missing-input links focus an editable input without discarding partial text",
+          "line": 189,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "narrow-short map retains camera, unfinished vertices and undo across Inputs and resize breakpoints",
+          "line": 211,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "unfinished classification retains local name and notes across task navigation and warns before closing",
+          "line": 294,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "returning from a sibling customer write refreshes only the draft save receipt",
+          "line": 312,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "a foreign save to the same draft blocks overwrite and preserves pending text",
+          "line": 332,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        }
+      ]
+    },
+    {
+      "file": "tests/web/human-field-operations.spec.ts",
+      "sha256": "1936137e485b91bcc56ca5b6de3abf2435f56614b06ac846f47de34af50799aa",
+      "category": "deferred-legacy",
+      "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.",
+      "cases": [
+        {
+          "title": "Survey purpose changes preserve captured geometry and allow recorded boundary application disconnected",
+          "line": 93,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Survey retains feature classification and communications text through purpose and settings changes",
+          "line": 117,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Layout keeps collection reachable and reports session blockers independently from receiver position",
+          "line": 134,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Layout close cancellation and task switches retain copy names and raw labels",
+          "line": 196,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Layout target review retains unfinished work until explicit confirmed close retires it",
+          "line": 219,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Layout create success consumes the submitted review and permits the next design target",
+          "line": 279,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Layout import success consumes the submitted review and permits the next design target",
+          "line": 279,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Layout save completing while hidden retires only its review without opening or duplicating a session",
+          "line": 314,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "failed Layout save retains raw review and association through task switches, then succeeds once",
+          "line": 351,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Cancel Layout import retains browsing association but releases the review without saving its frozen target",
+          "line": 387,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "empty Layout catalog keeps its browsing field across tasks without blocking a new design target",
+          "line": 413,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "a malformed chosen Layout file retains explicit review protection until confirmed Back",
+          "line": 429,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "imported machine review shows actual moved centers and individual configuration changes before guarded adoption",
+          "line": 457,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "layout search previews its actual additional machine and preserves saved positions until adoption",
+          "line": 529,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        }
+      ]
+    },
+    {
+      "file": "tests/web/human-primary-tasks.spec.ts",
+      "sha256": "dc8ae2e456a4da83185e3a294399a57bb4ba2729ea669b1f3ab67a7e4cfcd25f",
+      "category": "deferred-legacy",
+      "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.",
+      "cases": [
+        {
+          "title": "full-width project drawer retains the same map, vertex selection and unfinished drawing",
+          "line": 237,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "short Design canvas pans without geometry writes and context controls keep Prepare and Layout reachable",
+          "line": 357,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "portrait Design context keeps keyboard return and both Layout actions reachable without changing the retained map",
+          "line": 520,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "customer Open shows the selected details and its callback cannot retire an unfinished customer form",
+          "line": 589,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "primary tasks preserve unapplied machine input and block replacement of unfinished work",
+          "line": 620,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "short Projects keeps its body and navigation usable while create, import and reopen preserve saved context and bytes",
+          "line": 745,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Projects renders previews from each saved document without changing its bytes",
+          "line": 830,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "saved import retry and close preserve unfinished field input and commit only one independent copy",
+          "line": 888,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        }
+      ]
+    },
+    {
+      "file": "tests/web/map-camera.spec.ts",
+      "sha256": "af806c8a6f1a247b23b992769c09a8a2449cc50052752124285f08886781965a",
+      "category": "deferred-legacy",
+      "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.",
+      "cases": [
+        {
+          "title": "offscreen accepted vertex edit and undo/redo preserve camera and canonical XY",
+          "line": 307,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "explicit same-vertex reselect reveals the panned-offscreen selection without editing XY",
+          "line": 361,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "rejected duplicate vertex edit preserves panned zoomed camera, selection and saved XY",
+          "line": 377,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "reopening the same project ID discards the previous camera and freshly fits",
+          "line": 405,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "same-frame imagery replacement preserves a deliberately panned and zoomed camera",
+          "line": 434,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "large viewport shrink reveals a visible selection but leaves an offscreen selection alone",
+          "line": 465,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Fit replaces resize rescue intent before a later passive dock reflow",
+          "line": 486,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "same-frame imagery reconstruction retires its previous renderer's resize rescue intent",
+          "line": 501,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        }
+      ]
+    },
+    {
+      "file": "tests/web/map-fit.spec.ts",
+      "sha256": "8e474af49b2cab94375502ecda678fd58ec22ec9a75b353344f04afdb027b069",
+      "category": "deferred-legacy",
+      "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.",
+      "cases": [
+        {
+          "title": "browser: labeled map tool menus share Design and Layout appearance without authorizing pointer edits",
+          "line": 296,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "svg: labeled map tool menus share Design and Layout appearance without authorizing pointer edits",
+          "line": 296,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "browser: standard drawing tools measure, undo, cancel and save polygon line point purposes",
+          "line": 341,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "svg: standard drawing tools measure, undo, cancel and save polygon line point purposes",
+          "line": 341,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "browser: Fit field preserves selection, saved bytes and undo; repeats and works in Layout",
+          "line": 432,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "svg: Fit field preserves selection, saved bytes and undo; repeats and works in Layout",
+          "line": 432,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "browser: Fit uses the current imported boundary and excludes remote infrastructure and staged draft",
+          "line": 494,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "svg: Fit uses the current imported boundary and excludes remote infrastructure and staged draft",
+          "line": 494,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "SVG aspect and corner click XY survive Fit and resize; held release cannot add a draft vertex",
+          "line": 541,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "short landscape SVG keeps Fit and drawing space clear of the toolbar",
+          "line": 606,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "compact browser Fit and selected vertex stay clear of the open inspector",
+          "line": 667,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Browser Fit cancels a held vertex drag and its later pointer release cannot mutate geometry",
+          "line": 713,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "browser: Fit retires held touch and mixed-input clicks, then accepts a fresh gesture",
+          "line": 749,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "svg: Fit retires held touch and mixed-input clicks, then accepts a fresh gesture",
+          "line": 749,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "SVG Fit cancels a held vertex click before shape selection and accepts the next fresh click",
+          "line": 786,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "SVG vertex clicks select without mutation and background placement follows the rendered XY",
+          "line": 832,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "SVG labels stay separated and screen-sized through zoom and resize without changing geometry",
+          "line": 881,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "SVG label presses select their feature without moving the selected boundary vertex",
+          "line": 950,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        }
+      ]
+    },
+    {
+      "file": "tests/web/maplibre-recovery.spec.ts",
+      "sha256": "96de83b44447013e45e3ed688efeaa1368b4dc0ff22aeda20191af152530edfd",
+      "category": "deferred-legacy",
+      "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.",
+      "cases": [
+        {
+          "title": "SVG recovery preserves the saved project when maplibre-gl-shared.mjs is bad-mime",
+          "line": 12,
+          "column": 9,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "SVG recovery preserves the saved project when maplibre-gl-shared.mjs is missing",
+          "line": 12,
+          "column": 9,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "SVG recovery preserves the saved project when maplibre-gl-worker.mjs is bad-mime",
+          "line": 12,
+          "column": 9,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "SVG recovery preserves the saved project when maplibre-gl-worker.mjs is missing",
+          "line": 12,
+          "column": 9,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        }
+      ]
+    },
+    {
+      "file": "tests/web/maplibre-runtime.spec.ts",
+      "sha256": "e4c8655174932b7280ec16ba02b008959f773c4b3aeef4a63b0b1b865339bdad",
+      "category": "mixed",
+      "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.",
+      "cases": [
+        {
+          "title": "loaded map updates edited geometry while later raster requests remain pending",
+          "line": 57,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "delayed imagery preserves a panned camera and a four-vertex boundary draft",
+          "line": 124,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "offline MapLibre worker modules render and move projected layout overlays",
+          "line": 281,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "MapLibre attribution rejects consecutive unsafe attributes",
+          "line": 341,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        }
+      ]
+    },
+    {
+      "file": "tests/web/mapping-quality.spec.ts",
+      "sha256": "63dd42056ce8e264fbabd1e4389e55f6796a322ffef2764c6fa067e3a26997a2",
+      "category": "deferred-legacy",
+      "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.",
+      "cases": [
+        {
+          "title": "retained demo boundary evidence is not claimed as the active field after replacement",
+          "line": 4,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "manual pivot input consumes the complete coordinate without changing saved geometry",
+          "line": 36,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        }
+      ]
+    },
+    {
+      "file": "tests/web/network-receiver.spec.ts",
+      "sha256": "0bfcbf859394a3dd612d109be76c3bddc5e1e4ea13cd7930e440925d4a45ea29",
+      "category": "deferred-legacy",
+      "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.",
+      "cases": [
+        {
+          "title": "tcp: owned companion carries NMEA to Survey, closes collection and cleans up",
+          "line": 12,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "udp: owned companion carries NMEA to Survey, closes collection and cleans up",
+          "line": 12,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "collapsed receiver settings keep cleanup failure and ordinary Disconnect retry available",
+          "line": 97,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        }
+      ]
+    },
+    {
+      "file": "tests/web/project-copy.spec.ts",
+      "sha256": "02848e1841357f18e2065dc26ff04b9ca760d64de72f4727902a251dda55200d",
+      "category": "deferred-legacy",
+      "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.",
+      "cases": [
+        {
+          "title": "Save Copy keeps the saved source and catalog unchanged until the independent copy is opened explicitly",
+          "line": 163,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Save Copy retains dirty edits and undo history and does not make the original Save falsely stale",
+          "line": 195,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "copying an unsaved sample does not upgrade its null receipt or prevent its first normal Save",
+          "line": 219,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Refresh allows a stale source to be copied without authorizing overwrite of the newer original",
+          "line": 240,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "closing a pending copy and editing preserves the invocation snapshot without late success feedback",
+          "line": 275,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "a copy failure after closing and navigating cannot report on the new editor",
+          "line": 302,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "a current copy quota failure keeps its name and source available for retry",
+          "line": 326,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Import ZIP remains create-only while explicit Import Copy recovers a same-ID archive independently",
+          "line": 348,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Save Copy rejects a forced UUID collision without modifying either stored identity",
+          "line": 378,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "Import Copy rejects a forced UUID collision and leaves its unsaved editor unable to overwrite the target",
+          "line": 391,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "both ZIP import modes reject a nested unknown extension instead of persisting a partial copy",
+          "line": 405,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "a delayed normal Save failure cannot attach its error to a subsequently loaded editor",
+          "line": 418,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        }
+      ]
+    },
+    {
+      "file": "tests/web/project-import-lifecycle.spec.ts",
+      "sha256": "de58ed1662474cbc5af2aad4a6b1f1bbb5ed1a4563b7c6508ab4202863ab0f93",
+      "category": "deferred-legacy",
+      "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.",
+      "cases": [
+        {
+          "title": "late malformed ZIP after catalog navigation cannot load or persist",
+          "line": 62,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "late valid ZIP after catalog navigation cannot load or persist",
+          "line": 62,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "leaving Files for Dashboard cancels a pending project import",
+          "line": 82,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "newer project picker wins and stale completion cannot persist another project",
+          "line": 94,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "accepted EPSG:26741 import acknowledges persistence outside Files",
+          "line": 109,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "accepted EPSG:32613 import acknowledges persistence outside Files",
+          "line": 109,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "accepted EPSG:26741 import shows save failure and can retry",
+          "line": 126,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "accepted EPSG:32613 import shows save failure and can retry",
+          "line": 126,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "current malformed ZIP leaves a visible Files error without loading or saving",
+          "line": 151,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "corrupt project coordinates fail CRC without replacing saved data and a valid retry succeeds",
+          "line": 165,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "opening a saved project supersedes the old Files picker",
+          "line": 195,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "editing project data while Files remains mounted cancels its old picker",
+          "line": 209,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        }
+      ]
+    },
+    {
+      "file": "tests/web/rtk-lifecycle.spec.ts",
+      "sha256": "80f325c1453c769e333caa80de6e747f0b921f88ee22930d0232869cec30932d",
+      "category": "deferred-legacy",
+      "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.",
+      "cases": [
+        {
+          "title": "shared receiver survives Survey, Files and map navigation with one owned port",
+          "line": 59,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "captured Line vertices retain evidence while live collection closes after disconnect",
+          "line": 82,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "captured Polygon vertices retain evidence while live collection closes after disconnect",
+          "line": 82,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "all non-4 qualities, invalid checksums, duplicate and late epochs close collection",
+          "line": 118,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "midnight rollover accepts new GPGGA and stale capture is rechecked before its command executes",
+          "line": 136,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "binary payload cannot inject GGA or resume collection in the same connection",
+          "line": 151,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "old partial GGA cannot acquire fresh age from a later completing chunk",
+          "line": 163,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "GNGGA alone collects with unknown supplementary height and reference evidence",
+          "line": 172,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "GPGGA alone collects with unknown supplementary height and reference evidence",
+          "line": 172,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "permission denial and rapid repeated connect requests never create a second port",
+          "line": 190,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "cleanup failure remains owned across navigation until explicit retry: deferred=false",
+          "line": 212,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "cleanup failure remains owned across navigation until explicit retry: deferred=true",
+          "line": 212,
+          "column": 7,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "switching from USB to Bluetooth creates fresh identities, requires new GGA and round-trips captured evidence",
+          "line": 234,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "network setup exposes communications fields without starting an unsolicited connection",
+          "line": 258,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        }
+      ]
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "sha256": "7aad9b1d6e113bd092c065a8299ee214faddcb74026036351bbfdd2d969de8f8",
+      "category": "current-app",
+      "coverageGap": null,
+      "cases": [
+        {
+          "title": "empty default App creates explicit customer/project/first field/CRS and opens an actual empty Draft",
+          "line": 157,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "Draft map clicks classify inline and save/reopen exact ordered geometry, labels and digitized times",
+          "line": 187,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "Design/Survey/Layout retain one map node and camera while malformed machine text and caret survive mode changes",
+          "line": 208,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "calculation is preview only and explicit completion creates a separate saved child before explicit Open",
+          "line": 235,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "task tabs retire held map gestures and retain malformed input, caret and independent scroll positions",
+          "line": 250,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "unequal Field machines freeze an exact selected Layout target and observations survive save, later design edit and reopen",
+          "line": 289,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "Survey retains immutable evidence through mode changes and clear/Undo, then applies a real line while disconnected",
+          "line": 324,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "common Save shows unapplied inputs, refuses without storage error, and File copy exports exact applied source",
+          "line": 348,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "Layout common Save names its session while hidden Design input and newer names remain separate",
+          "line": 399,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "opening saved Layout refuses an unfinished new-session name and explicit Discard preserves the saved target",
+          "line": 447,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "recorded LineString reference applies in actual draft while disconnected and reopens honest provenance",
+          "line": 471,
+          "column": 17,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "recorded LineString reference applies in actual field while disconnected and reopens honest provenance",
+          "line": 471,
+          "column": 17,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "recorded LineString reference applies in actual project while disconnected and reopens honest provenance",
+          "line": 471,
+          "column": 17,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "recorded Point reference applies in actual draft while disconnected and reopens honest provenance",
+          "line": 471,
+          "column": 17,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "recorded Point reference applies in actual field while disconnected and reopens honest provenance",
+          "line": 471,
+          "column": 17,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "recorded Point reference applies in actual project while disconnected and reopens honest provenance",
+          "line": 471,
+          "column": 17,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "recorded Polygon reference applies in actual draft while disconnected and reopens honest provenance",
+          "line": 471,
+          "column": 17,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "recorded Polygon reference applies in actual field while disconnected and reopens honest provenance",
+          "line": 471,
+          "column": 17,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "recorded Polygon reference applies in actual project while disconnected and reopens honest provenance",
+          "line": 471,
+          "column": 17,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        }
+      ]
+    },
+    {
+      "file": "tests/web/will-rhea-preview.spec.ts",
+      "sha256": "f63f59d97fec183077492262f2e4bc9e12e635b1394fe7c4d7fea8d8d9813d25",
+      "category": "deferred-legacy",
+      "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.",
+      "cases": [
+        {
+          "title": "Will Rhea requested-pivot preview stays transient and separates missing corner evidence",
+          "line": 3,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "report cost form keeps clear, missing, invalid and complete states distinct",
+          "line": 93,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "pivot quote and length estimate retain separate raw amounts until same-ID project reload",
+          "line": 138,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "changing pivot equipment excludes the old price until re-entry",
+          "line": 216,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "corner inputs require explicit choices, stay temporary, and invalidate old results",
+          "line": 256,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        }
+      ]
+    },
+    {
+      "file": "tests/web/workflow-safety.spec.ts",
+      "sha256": "e9941ad9f8aa09321338f957fd6ead86e1a69cc048cca6e07e6113008c285a3a",
+      "category": "deferred-legacy",
+      "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.",
+      "cases": [
+        {
+          "title": "sample save state reflects actual persistence and resets on a new load",
+          "line": 17,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "wizard review and checklist are independent and clipboard rejection is visible",
+          "line": 42,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "KML selection refreshes replacement warnings and cancel preserves the saved project",
+          "line": 67,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "KMZ corruption clears old previews, preserves storage and permits a valid retry",
+          "line": 105,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "a KML picker from a superseded project cannot create a preview",
+          "line": 165,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        }
+      ]
+    },
+    {
+      "file": "tests/web/workspace-activation.spec.ts",
+      "sha256": "7262a1e43e2f7bd3be99fca5a9fcbde3f13a969f7081e96d443e2ae7c382e888",
+      "category": "deferred-legacy",
+      "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.",
+      "cases": [
+        {
+          "title": "a catalog form keeps its original revision and typed values across a conflicting refresh",
+          "line": 65,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "active repository preserves legacy inputs and rejects a stale save from another live tab",
+          "line": 85,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "corrupt migration data remains recoverable from catalog home without parsing it",
+          "line": 112,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "missing Web Locks blocks persistence while keeping explicitly best-effort recovery available",
+          "line": 131,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "an imported project autosave and queued Save consume the same editor session receipts",
+          "line": 146,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "create-only import collision cannot overwrite an existing stored identity",
+          "line": 177,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "same-task edit then Save persists the authoritative editor instead of an older render",
+          "line": 192,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "a delayed Save keeps later edits dirty and the next Save uses its acknowledged receipt",
+          "line": 213,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "a pending saved-project open cannot replace edits made while its read waits",
+          "line": 249,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "editing a loaded legacy project cannot erase unsupported stored fields",
+          "line": 290,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        },
+        {
+          "title": "a failed client write keeps the form and typed values available for retry",
+          "line": 313,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "deferred",
+          "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        }
+      ]
+    },
+    {
+      "file": "tests/web/workspace-drafts.spec.ts",
+      "sha256": "8393dcd3099039631bce4dfacd3fb825f98973147a5a3a7a78c421689b76ab05",
+      "category": "platform",
+      "coverageGap": null,
+      "cases": [
+        {
+          "title": "draft repository persists missing inputs across tabs and reloads with revision and deletion protection",
+          "line": 47,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        }
+      ]
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "sha256": "bb06de4631c7d256771b553404f48a276b17818f917843cda65f6ebe3c5cc32d",
+      "category": "current-app",
+      "coverageGap": null,
+      "cases": [
+        {
+          "title": "draft actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources",
+          "line": 134,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "field actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources",
+          "line": 134,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "project actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources",
+          "line": 134,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "actual hidden-Catalog raw edit checkpoints automatically and reload Restore returns its exact unfinished input",
+          "line": 160,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "actual Catalog-only unfinished customer form checkpoints and reload Restore preserves invalid fields and errors without records",
+          "line": 177,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "actual checkpoint Export and conditional Discard preserve exact candidate bytes and every durable source",
+          "line": 197,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "actual corrupt-checkpoint refusal keeps exact opaque ledger Export available without normalization or source writes",
+          "line": 207,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "actual Review refuses a changed saved source while retaining the checkpoint and newer design exact",
+          "line": 218,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "actual Restore refuses a connected synthetic receiver and never reconnects it implicitly",
+          "line": 230,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        }
+      ]
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "sha256": "b34e0cb3d87a1142defe0e9d6a49263f625ead10fd80de1edea4a810048aa1c5",
+      "category": "current-app",
+      "coverageGap": null,
+      "cases": [
+        {
+          "title": "draft applied title synchronizes its saved list name only on ordinary Save and preserves field/history/targets",
+          "line": 174,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "field applied title synchronizes its saved list name only on ordinary Save and preserves field/history/targets",
+          "line": 174,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "project applied title synchronizes its saved list name only on ordinary Save and preserves field/history/targets",
+          "line": 174,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "draft File Rename focuses its retained raw name from collapsed tools without a duplicate File form",
+          "line": 204,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "field File Rename focuses its retained raw name from collapsed tools without a duplicate File form",
+          "line": 204,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "current-field New in design keeps Browse B and dirty Source A until an explicit guarded Open",
+          "line": 232,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "current-field New in layout keeps Browse B and dirty Source A until an explicit guarded Open",
+          "line": 232,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "current-field New in survey keeps Browse B and dirty Source A until an explicit guarded Open",
+          "line": 232,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "early customer entry keeps an emptied required name, validates it and preserves all saved design work",
+          "line": 278,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "field container Rename is metadata-only, reachable on a short viewport and checkpointed as recovery v2",
+          "line": 300,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "invalid field rename reloads through File Review/Restore as its original rename form and requires Recheck",
+          "line": 323,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        }
+      ]
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "sha256": "38e05df9ce3589c0ad5933e198a972748fe3d75dba60909835073b07bb629c2f",
+      "category": "current-app",
+      "coverageGap": null,
+      "cases": [
+        {
+          "title": "draft actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+          "line": 197,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "draft actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+          "line": 197,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "field actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+          "line": 197,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "field actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+          "line": 197,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "project actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+          "line": 197,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "project actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+          "line": 197,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "actual JSON package without Survey history imports without fabricated collections",
+          "line": 222,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "actual ZIP package without Survey history imports without fabricated collections",
+          "line": 222,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "v1 actual package individually prepares Field/Layout then Survey before one saved-copy import",
+          "line": 234,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "v2 actual package individually prepares Field/Layout then Survey before one saved-copy import",
+          "line": 234,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "v3 actual storage Prepare refuses wrong CRS without an upgrade or any byte change",
+          "line": 252,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "actual upload of corrupt replacement retires previously admitted package without records",
+          "line": 265,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "actual upload of unknown replacement retires previously admitted package without records",
+          "line": 265,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "v3 actual complete upload refuses mismatched CRS atomically including workspace version",
+          "line": 282,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "v4 actual complete upload refuses mismatched CRS atomically including workspace version",
+          "line": 282,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "actual saved-copy Open refuses dirty current input and retains raw text until explicit Discard",
+          "line": 294,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        }
+      ]
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "sha256": "fb2f01b87ad8f6f1e75d69ac7480581c44a81730a8c2b26448a8185fc6f964ff",
+      "category": "current-app",
+      "coverageGap": null,
+      "cases": [
+        {
+          "title": "draft automatically reloads the exact saved design, Survey collection and immutable histories",
+          "line": 116,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "field automatically reloads the exact saved design, Survey collection and immutable histories",
+          "line": 116,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "project automatically reloads the exact saved design, Survey collection and immutable histories",
+          "line": 116,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "dual-subject startup retains the exact Layout target and acknowledges Layout and Design saves separately",
+          "line": 133,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "Browse remains separate from Open and startup restores catalog selection and visibility after source reset",
+          "line": 170,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "Layout-only startup keeps archived collection disabled and preserves frozen geometry",
+          "line": 187,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "Layout-only startup opens without an editable design and preserves frozen geometry",
+          "line": 187,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "absent/malformed startup hints fall back without preference or workspace-byte writes",
+          "line": 210,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "deleted/foreign startup hints fall back without preference or workspace-byte writes",
+          "line": 210,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "operator Open, mode, collection, Browse and catalog visibility publish accepted hints that reload automatically",
+          "line": 232,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "dirty input Open refusal keeps the previous accepted hint and saved source exact",
+          "line": 253,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "externally deleted destination Open refusal keeps the previous accepted hint and saved source exact",
+          "line": 253,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        }
+      ]
+    },
+    {
+      "file": "tests/web/workspace-storage.spec.ts",
+      "sha256": "c712d2e741998e6a5354179283a6aad4a4fd19f775b6d552910f8168112c4fe4",
+      "category": "platform",
+      "coverageGap": null,
+      "cases": [
+        {
+          "title": "workspace foundation serializes two browser tabs and rejects stale saves",
+          "line": 30,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        }
+      ]
+    }
+  ]
+}

@@ -3,6 +3,51 @@
 Last reviewed: 2026-09-27 UTC
 Status: active package and toolchain decision record
 
+## Advisory Overlay Robustness Packet: 2026-09-27
+
+Decision: add exact `polyclip-ts@0.16.8` only to geometry and use its default
+decimal-predicate overlay operations in `advisoryMachineRenderModel.ts`. The
+existing `polygon-clipping@0.15.7` remains for other algorithms; this is not a
+claim that every geometry operation is repaired. A captured three-machine
+corner-buffer intersection fails with the old engine in both operand orders and
+after union normalization. The isolated replacement completes without jitter,
+coordinate rounding, configured epsilon, exception suppression or source mutation.
+
+Primary sources checked 2026-09-27: [polyclip manifest](https://raw.githubusercontent.com/luizbarboza/polyclip-ts/main/package.json),
+[precision implementation](https://raw.githubusercontent.com/luizbarboza/polyclip-ts/main/src/precision.ts),
+[MIT license](https://raw.githubusercontent.com/luizbarboza/polyclip-ts/main/LICENSE),
+and [upstream incomplete-ring report](https://github.com/mfogel/polygon-clipping/issues/172).
+Installed package bytes were also inspected. Runtime dependencies resolve to
+`bignumber.js@9.3.1` (MIT) and `splaytree-ts@1.0.2` (BSD 3-Clause LICENSE;
+its manifest misspells the identifier as `BDS-3-Clause`). All ship JavaScript
+with CommonJS/ESM entries and no native module or install hook. No API key,
+paid service or cloud dependency is introduced. Metro export and native device
+compatibility are distinct gates, not inferred from Node tests.
+
+Install: `npm install --workspace @cplayout/geometry --save-exact --ignore-scripts --no-audit --no-fund polyclip-ts@0.16.8`.
+Validate captured failure, operand symmetry, exclusions, independent circle-grid
+area estimates, projected translation, source immutability, scheduling parity,
+geometry and aggregate tests, browser bundle, audit and lockfile scope. Do not
+silently replace golden hashes: inspect numerical/geometric changes first.
+Rollback restores this packet's module import/manifest and regenerates the lock
+without reverting pre-existing work; the captured failure must remain recorded.
+
+Fresh pre-install audit reports zero vulnerabilities, including zero high. The
+goal's historical five-high count is not current evidence. Native hardware and
+less-than-10-cm 3D accuracy remain unverified.
+
+Acceptance: full `npm run validate`, final geometry typecheck, skills/context-map
+checks, `git diff --check`, Expo web export, and two visible Edge viewport
+regressions passed. The reproduced corner case passes the permanent regression;
+an independent numerical review supports its intersection area. All non-polygon
+output on the existing three scheduling fixtures is unchanged; the largest
+polygon symmetric-difference area is below `5.877e-8 m2`. Only the audited Will
+Rhea render-output hash changed. Post-install audit reports zero vulnerabilities.
+All three license notices ship in `apps/mobile/public/advisory-overlay-notices.txt`
+and were verified in the web export. Preserve these notices in native distribution
+materials before release; native bundling/runtime remains unverified here. See
+[the acceptance record](will-rhea-improvement-loop.md#overlay-repair-acceptance-2026-09-27).
+
 ## SDK 55 Patch and Required CI: 2026-09-27
 
 The mobile workspace now declares Expo `~55.0.31`, development client `~55.0.40`, FileSystem `~55.0.26`, Sharing `~55.0.24`, Splash Screen `~55.0.25`, and SQLite `~55.0.20`. Project-store declares the same FileSystem, Sharing, and SQLite versions. These are the six versions requested by `CI=1 npx expo install --check` before the change; that command now reports `Dependencies are up to date`. React Native remains 0.83.10 and there is no SDK major upgrade.
@@ -228,3 +273,26 @@ Quarterly and before releases:
 - Configure strict JSON: comments, trailing commas and empty content disabled; reject every visitor error and repeated decoded key. Return native `JSON.parse` output only after the visitor succeeds. Preserve original payload/backup strings.
 - Validation: focused migration/envelope tests, project-store typecheck, aggregate `npm run validate`, browser Web Locks harness, Expo web export, `npm audit`, and lockfile diff review. Record actual outcomes in `docs/full-refactor-execution.md`.
 - Rollback: remove this packet's manifest entry and strict-parser imports/helper as a reviewed unit, regenerate the lockfile with npm, and rerun those gates. Do not reset unrelated dirty work or activate the new store while this guard is absent.
+
+## Shared Field JSON Admission: 2026-09-27
+
+- Reuse the installed `jsonc-parser@3.3.1` in core for the new field document.
+  Move the existing strict reader unchanged into core and re-export from its old
+  storage path; also share the existing no-stripped-fields helper. No core import
+  of project-store and no second JSON grammar are introduced.
+- Verified the installed version, UMD/ESM entrypoints, absence of runtime
+  dependencies and MIT license against the versioned
+  [README](https://raw.githubusercontent.com/microsoft/node-jsonc-parser/v3.3.1/README.md)
+  and [license](https://raw.githubusercontent.com/microsoft/node-jsonc-parser/v3.3.1/LICENSE.md).
+  The current main-branch README describes a later ESM-only distribution, so it
+  is not used as evidence for this pinned version. No native module, service,
+  cloud account or key is added. Existing Expo/native runtime limits still apply.
+- Command: `npm install --workspace @cplayout/core --save-exact jsonc-parser@3.3.1 --ignore-scripts --offline`.
+  It reused installed packages; no version upgrade was requested. Existing dirty
+  dependency changes from other packets were retained. Audit reported zero findings.
+- Gates: field document/editor tests, duplicate-key and field-retention regressions
+  in project/archive/workspace tests, aggregate validation and lockfile review.
+  This source move alone does not prove a new native deployment or browser bundle.
+- Rollback is coordinated: remove the new field API consumers, restore both helper
+  implementations to storage, remove only this core dependency/export change and
+  regenerate the lockfile; retain all unrelated dependency work.

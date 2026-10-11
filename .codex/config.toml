@@ -1,6 +1,6 @@
 #:schema https://developers.openai.com/codex/config-schema.json
 
-# Model and reasoning effort are selected per task/session in AGENTS.md instead
+# Model and reasoning effort are selected by the current user task and coordinator instead
 # of pinned to a project-wide default that may be unavailable to another client.
 
 [features]
@@ -8,7 +8,9 @@ multi_agent = true
 hooks = true
 
 [agents]
-max_concurrent_threads_per_session = 6
+# Configured spawned-thread ceiling excludes the primary. The current host
+# exposes four total slots; this setting does not prove its loaded runtime cap.
+max_concurrent_threads_per_session = 3
 
 [agents.cplayout_imagery_mapper]
 description = "Read-only specialist for Google Earth imagery evidence, field-boundary CV review, and pivot-layout imagery mapping."

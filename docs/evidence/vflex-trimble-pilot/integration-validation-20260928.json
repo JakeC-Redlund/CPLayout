@@ -1,0 +1,75 @@
+{
+  "schemaVersion": "cplayout-vflex-integration-validation-v1",
+  "recordedAt": "2026-09-28T16:59:37.426208+00:00",
+  "status": "isolated_source_passed_pilot_incomplete",
+  "baseOid": "a70a6ebd81bcef1c11ca2fef6cdc57442f143689",
+  "previousHandoffPatchSha256": "49d62367e824289c14baba7a1060312762b4585d7ccfc16d87b2215a971146b4",
+  "aggregate": {
+    "command": "npm run validate",
+    "baseOid": "a70a6ebd81bcef1c11ca2fef6cdc57442f143689",
+    "startedAt": "2026-09-28T16:49:25.794045+00:00",
+    "finishedAt": "2026-09-28T16:56:13.504051+00:00",
+    "durationSeconds": 381.519,
+    "exitCode": 0,
+    "sourceCount": 601,
+    "changed": [],
+    "sourceManifestSha256": "9712542eb3afd8f63770b2fe3886eaad882cfa9da59a8ff72e97d6269372107d",
+    "logSha256": "acb9e50d7f584d490b67263e274eb82d2599d29e10c9b58dbfc62ec08ab6158b"
+  },
+  "sourceScope": "git-listed source, tests, fixtures and configuration; excludes documentation, reports and generated routing record",
+  "focusedChecks": {
+    "parserTests": {
+      "passed": 10,
+      "failed": 0
+    },
+    "cliAssertions": "pass",
+    "inventoryAssertions": "pass",
+    "coreTypecheck": "pass"
+  },
+  "dependencyAudit": {
+    "command": "npm audit --json",
+    "status": "assessed",
+    "exitCode": 0,
+    "totalVulnerabilities": 0,
+    "startedAt": "2026-09-28T17:03:21.434714+00:00",
+    "finishedAt": "2026-09-28T17:03:21.902112+00:00",
+    "auditSha256": "364e7d8334c1db8bd8e78f6fd68dc05114b82ffc8a02d29a2991f2167923d4d6",
+    "localReceipt": "audit-receipt.json",
+    "localOutput": "audit.json"
+  },
+  "integration": "isolated_checkout_only; publication checkpoint retained",
+  "productUiChanged": false,
+  "unverified": [
+    "OEM file association",
+    "production trajectory model",
+    "field-design-v4",
+    "bench acceptance",
+    "field acceptance",
+    "native operation"
+  ],
+  "localEvidenceDirectory": ".cplayout-local/vflex-integration-validation-20260928",
+  "recordChecks": {
+    "designGuides": "pass",
+    "cornerServiceManuals": "pass",
+    "skills": "pass",
+    "contextMap": "pass",
+    "diffCheck": "pass"
+  },
+  "researchChecks": {
+    "isolatedTypecheck": {
+      "command": "tsc -p tools/corner-arm-research/tsconfig.json",
+      "exitCode": 0
+    },
+    "typeScript": {
+      "command": "tsx tools/corner-arm-research/harness.test.ts",
+      "passed": 42,
+      "failed": 0
+    },
+    "python": {
+      "runner": "uv run --frozen --offline --project tools/corner-arm-research/python python -B -m unittest discover",
+      "passed": 11,
+      "failed": 0
+    },
+    "evidenceRetention": "direct tool output in coordinator session; separate from aggregate log"
+  }
+}

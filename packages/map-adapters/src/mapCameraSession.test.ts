@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   createMapCameraSession,
+  createSvgMapCameraSession,
   type MapCameraFrameIdentity,
   type MapCameraView,
 } from "./mapCameraSession";
@@ -38,9 +39,67 @@ const transitions: [string, Partial<MapCameraFrameIdentity>][] = [
   ["projectId", { projectId: "project-b" }],
   ["projectCrs", { projectCrs: "EPSG:32614" }],
   ["projectGeneration", { projectGeneration: 2 }],
-  ["homeView", { homeView: true }],
   ["projectionAvailable", { projectionAvailable: false }],
 ];
+
+test("Catalog roundtrips retain exact independent design and home cameras with new ownership tokens", () => {
+  const session = createMapCameraSession();
+  const design = session.useFrame(identity());
+  const designView = view({ center: [-102.5123456789, 40.123456789], zoom: 13.456, bearing: -47.5, pitch: 61.25 });
+  session.remember(design, designView);
+  const catalog = session.useFrame(identity({ homeView: true }));
+  assert.equal(session.restore(catalog), null);
+  assert.equal(session.remember(design, view({ zoom: 99 })), false);
+  const catalogView = view({ center: [-98, 49], zoom: 3, bearing: 0, pitch: 0 });
+  session.remember(catalog, catalogView);
+  const resumed = session.useFrame(identity());
+  assert.notEqual(resumed, design); assert.notEqual(resumed, catalog);
+  assert.deepEqual(session.restore(resumed), designView);
+  for (const retired of [design, catalog]) {
+    assert.equal(session.isCurrent(retired), false);
+    assert.equal(session.remember(retired, view({ zoom: 98 })), false);
+    assert.equal(session.restore(retired), null);
+  }
+  assert.deepEqual(session.restore(resumed), designView);
+  session.remember(resumed, view({ zoom: 15 }));
+  const catalogAgain = session.useFrame(identity({ homeView: true }));
+  assert.deepEqual(session.restore(catalogAgain), catalogView);
+  assert.deepEqual(session.restore(session.useFrame(identity())), view({ zoom: 15 }));
+});
+
+test("project identity and projection changes while in Catalog invalidate both remembered cameras", () => {
+  for (const [, change] of transitions) {
+    const session = createMapCameraSession();
+    session.remember(session.useFrame(identity()), view());
+    const home = session.useFrame(identity({ homeView: true }));
+    session.remember(home, view({ zoom: 3 }));
+    const changedHome = session.useFrame(identity({ ...change, homeView: true }));
+    assert.equal(session.restore(changedHome), null);
+    assert.equal(session.remember(home, view()), false);
+    assert.equal(session.restore(session.useFrame(identity({ ...change, homeView: false }))), null);
+    assert.equal(session.restore(session.useFrame(identity())), null);
+  }
+});
+
+test("SVG retains projected viewport and feature selection independently from Catalog", () => {
+  const session = createSvgMapCameraSession();
+  const design = session.useFrame(identity());
+  const designView = { viewport: { center: { x: 512345.678901, y: 4467890.123456 }, baseWidthMeters: 1000, baseHeightMeters: 700, zoomLevel: 2.5 }, selectedMapFeatureId: "field-road" };
+  session.remember(design, designView);
+  const home = session.useFrame(identity({ homeView: true }));
+  const homeView = { viewport: { center: { x: -98, y: 49 }, baseWidthMeters: 116, baseHeightMeters: 57, zoomLevel: 1 }, selectedMapFeatureId: null };
+  session.remember(home, homeView);
+  const resumed = session.useFrame(identity());
+  assert.deepEqual(session.restore(resumed), designView);
+  const returned = session.restore(resumed)!;
+  returned.viewport.center.x = 0; returned.selectedMapFeatureId = "altered";
+  assert.deepEqual(session.restore(resumed), designView);
+  assert.equal(session.remember(design, homeView), false);
+  assert.equal(session.remember(home, homeView), false);
+  assert.deepEqual(session.restore(resumed), designView);
+  assert.deepEqual(session.restore(session.useFrame(identity({ homeView: true }))), homeView);
+  assert.equal(session.restore(session.useFrame(identity({ projectGeneration: 2 }))), null);
+});
 
 for (const [field, change] of transitions) {
   test(`${field} transitions clear the snapshot and A -> B -> A never revives a token`, () => {

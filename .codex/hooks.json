@@ -7,7 +7,8 @@
             "type": "command",
             "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/cplayout_prompt_triage.py\"",
             "timeout": 20,
-            "statusMessage": "Injecting CPLayout prompt triage"
+            "statusMessage": "Injecting CPLayout prompt triage",
+            "additionalContextLimit": 512
           }
         ]
       }
@@ -20,7 +21,8 @@
             "type": "command",
             "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/cplayout_subagent_start.py\"",
             "timeout": 20,
-            "statusMessage": "Injecting CPLayout subagent boundaries"
+            "statusMessage": "Injecting CPLayout subagent boundaries",
+            "additionalContextLimit": 384
           }
         ]
       }
@@ -33,7 +35,8 @@
             "type": "command",
             "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/cplayout_pre_tool_use.py\"",
             "timeout": 20,
-            "statusMessage": "Checking CPLayout tool guardrails"
+            "statusMessage": "Checking CPLayout tool guardrails",
+            "additionalContextLimit": 256
           }
         ]
       }

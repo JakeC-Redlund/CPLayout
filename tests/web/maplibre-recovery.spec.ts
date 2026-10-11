@@ -34,7 +34,7 @@ for (const asset of ["maplibre-gl-worker.mjs", "maplibre-gl-shared.mjs"]) {
       await page.getByTestId("workspace-nav-files").click();
       await page.getByTestId("files-action-save-local").click();
       await expect.poll(async () => (await readWorkspace(page)).projectDocuments.length).toBe(1);
-      await page.getByTestId("workspace-nav-map").click();
+      await page.getByTestId("task-design").click();
       await expect.poll(() => intercepted).toBeGreaterThan(0);
       await expect(page.getByTestId("project-save-state").getByText("Saved", { exact: true })).toBeVisible();
       const stored = await workspaceStorageBytes(page);

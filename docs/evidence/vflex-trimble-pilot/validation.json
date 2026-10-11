@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "cplayout-vflex-pilot-validation-v1",
+  "status": "software_scope_passed_pilot_incomplete",
+  "complexity": "xhigh",
+  "selectedReasoningEffort": "xhigh",
+  "subagentDecision": "required",
+  "base": "96ba2e90aed79efae0b44ab7190a53a2bd677700",
+  "scope": "local_evidence_ingestion_only",
+  "sourcePolicy": "existing_local_windows_pc_files_only",
+  "preflight": {
+    "priorAcceptanceFilesRehashed": 577,
+    "changed": [],
+    "recovery": "/home/cyber/cplayout-vflex-pilot-9_as_xgs",
+    "sourceFreeze": "implementation isolated at publication coordinators request; canonical restored by coordinator"
+  },
+  "softwareChecks": {
+    "independentParserTests": {
+      "passed": 10,
+      "failed": 0
+    },
+    "independentCliAssertions": "pass",
+    "independentInventoryAssertions": "pass",
+    "toolsTypecheck": "pass",
+    "designGuides": "pass",
+    "serviceManuals": "pass",
+    "skills": "pass",
+    "contextMap": "pass",
+    "diffCheck": "pass",
+    "researchTypecheck": "pass",
+    "researchTypeScript": {
+      "passed": 42,
+      "failed": 0
+    },
+    "researchPython": {
+      "passed": 11,
+      "failed": 0
+    }
+  },
+  "dependencyAudit": {
+    "command": "npm audit --offline --json",
+    "exitCode": 0,
+    "reportedVulnerabilities": 0,
+    "status": "not_assessed",
+    "reason": "Installed npm audit-report.js:getReport returns null for offline=true; an empty report is not a vulnerability assessment. Online audit excluded by owner local-PC-only source instruction.",
+    "dependenciesChanged": false
+  },
+  "independentQa": {
+    "sourceScope": "parser, CLI, inventory, redacted evidence and dependency gate claims",
+    "fixed": [
+      "nonzero decimal underflow",
+      "inventory error-path filename disclosure",
+      "metadata label is not machine identity"
+    ],
+    "remainingCodeMustFix": []
+  },
+  "runtime": {
+    "flt": "observed login screen only; owner reported access unavailable",
+    "oemExchange": "not_run",
+    "controller": "not_run",
+    "field": "not_run",
+    "native": "not_run",
+    "webAndVisibleEdge": "not_run_no_ui_change",
+    "ownedFltProcess": "closed_postflight_no_FLT_GPSMap_GGSInterface",
+    "humanQuestionnaires": "preserved"
+  },
+  "completion": {
+    "pilot": "missing_evidence",
+    "oemFileAssociation": "unverified",
+    "productionTrajectoryAndFieldDesignV4": "not_implemented_pending_oem_exchange_prerequisite",
+    "publication": "isolated_worktree_only"
+  },
+  "aggregate": {
+    "command": "npm run validate",
+    "cwd": "/home/cyber/cplayout-vflex-pilot-9_as_xgs/implementation",
+    "startedAt": "2026-09-28T05:11:06.669870+00:00",
+    "finishedAt": "2026-09-28T05:21:04.065234+00:00",
+    "exitCode": 0,
+    "durationSeconds": 542.066,
+    "sourceCount": 696,
+    "changed": [],
+    "log": "validate.log",
+    "offline": true,
+    "sourceAdded": [],
+    "sourceMissing": [],
+    "sourceManifestSha256": "f7ef5365c93eb272de7ab038da06e936a097aed5057689a01361a483967446d8",
+    "sourceManifestLocalPath": "/home/cyber/cplayout-vflex-pilot-9_as_xgs/validation/source-before.json",
+    "logLocalPath": "/home/cyber/cplayout-vflex-pilot-9_as_xgs/validation/validate.log",
+    "logSha256": "1c667190b2226eccf6890a2fc3092d66e28dd1055d5114d3cfe8082790c1a52f",
+    "node": "v24.14.1"
+  },
+  "researchLogs": {
+    "research-ts.log": {
+      "localPath": "/home/cyber/cplayout-vflex-pilot-9_as_xgs/research-ts.log",
+      "sha256": "2d7cf899e6ab8d423269982e51e32f314c08695c5f9748009464b865b6898a9f"
+    },
+    "research-python.log": {
+      "localPath": "/home/cyber/cplayout-vflex-pilot-9_as_xgs/research-python.log",
+      "sha256": "6335b67dbe8679c62eb8bc88fe092c9bc1f3b55c6132097f2487adee42656e79"
+    }
+  }
+}

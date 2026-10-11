@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "cplayout-corner-research-v1",
+  "id": "large-translated-coordinates",
+  "model": {
+    "pivot": [
+      1000000000,
+      -1000000000
+    ],
+    "mainRadiusM": 10,
+    "armLengthM": 4,
+    "overhangM": 1,
+    "bodyHalfWidthM": 0.1,
+    "antennaOffsetM": [
+      -2,
+      0.5
+    ],
+    "wheelOffsetsM": [
+      [
+        -1,
+        0.4
+      ],
+      [
+        -1,
+        -0.4
+      ]
+    ],
+    "towerRadiiM": [
+      3,
+      7,
+      10
+    ]
+  },
+  "limits": {
+    "articulationRad": [
+      -2,
+      2
+    ],
+    "maxArticulationSlope": 5
+  },
+  "field": {
+    "outer": [
+      [
+        999999975,
+        -1000000025
+      ],
+      [
+        1000000025,
+        -1000000025
+      ],
+      [
+        1000000025,
+        -999999975
+      ],
+      [
+        999999975,
+        -999999975
+      ]
+    ],
+    "holes": []
+  },
+  "obstacles": [],
+  "sweep": {
+    "startRad": -0.6,
+    "endRad": 0.6,
+    "fullCircle": false
+  },
+  "clearanceM": 0.1,
+  "maxDepth": 18,
+  "toleranceM": 1e-7,
+  "trajectory": {
+    "interpolation": "linear",
+    "knots": [
+      {
+        "thetaRad": -0.6,
+        "alphaRad": 0.3
+      },
+      {
+        "thetaRad": 0.6,
+        "alphaRad": 0.3
+      }
+    ]
+  }
+}

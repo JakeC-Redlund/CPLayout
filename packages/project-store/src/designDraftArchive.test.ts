@@ -49,6 +49,23 @@ function bundle(draft = emptyDraft()): DesignDraftArchiveBundle {
   return buildDesignDraftArchiveBundle(draft, createdAt);
 }
 
+function pausedDraft() {
+  return {
+    ...emptyDraft(), projectCrs: "EPSG:32613",
+    drawingWorkflow: {
+      schemaVersion: "draft-drawing-workflow-v1" as const, autosaveEnabled: true,
+      lockedCrs: "EPSG:32613", activeCaptureId: null,
+      captures: [{
+        id: "paused-boundary", name: "Paused boundary", projectCrs: "EPSG:32613",
+        geometryType: "Polygon" as const, stage: "drawing" as const, source: "map_digitized" as const,
+        vertices: [{ point: { x: 500000.125, y: 4400000.875 }, recordedAt: createdAt, wgs84: null, elevation: null },
+          { point: { x: 500100.25, y: 4400000.5 }, recordedAt: createdAt, wgs84: null, elevation: null }],
+        classification: { purposeId: null, name: "Unclassified boundary", notes: "" },
+      }],
+    },
+  };
+}
+
 test("draft exporter uses a single header time even if the clock advances", context => {
   let tick = Date.parse(createdAt);
   context.mock.method(Date, "now", () => (tick += 4000));
@@ -246,6 +263,50 @@ test("manifest has the distinct versions, nullable CRS and exact inventory", () 
   assert.doesNotMatch(archive.files["draft.json"], /projectVersion|clientContacts|packageDirectory/);
 });
 
+test("legacy archives round-trip as v1 without adding a drawing workflow", () => {
+  const draft = completeDraft();
+  const archive = bundle(draft);
+  assert.equal(JSON.parse(archive.files["draft.json"]).documentVersion, "design-draft-v1");
+  assert.equal(archive.manifest.draftDocumentVersion, "design-draft-v1");
+  assert.equal(Object.hasOwn(roundtrip(draft), "drawingWorkflow"), false);
+});
+
+test("v2 archives preserve paused drawing vertices and pending classification in archive v1", () => {
+  const draft = pausedDraft();
+  const capture = draft.drawingWorkflow.captures[0];
+  const classifying = { ...draft, drawingWorkflow: { ...draft.drawingWorkflow, captures: [{
+    ...capture, stage: "classification" as const,
+    vertices: [...capture.vertices, { point: { x: 500100.75, y: 4400100.5 }, recordedAt: createdAt, wgs84: null, elevation: null }],
+    classification: { purposeId: "field_boundary", name: "Proposed boundary", notes: "Awaiting confirmation" },
+  }] } };
+  for (const paused of [draft, classifying]) {
+    const archive = bundle(paused);
+    assert.equal(archive.manifest.archiveVersion, "center-pivot-design-draft-archive-v1");
+    assert.equal(archive.manifest.draftDocumentVersion, "design-draft-v2");
+    assert.equal(JSON.parse(archive.files["draft.json"]).documentVersion, "design-draft-v2");
+    assert.deepEqual(roundtrip(paused).drawingWorkflow, paused.drawingWorkflow);
+  }
+});
+
+test("both manifest and draft version mismatch directions fail on import and export", () => {
+  for (const draft of [emptyDraft(), pausedDraft()]) {
+    const archive = bundle(draft);
+    const manifest = { ...archive.manifest,
+      draftDocumentVersion: archive.manifest.draftDocumentVersion === "design-draft-v1" ? "design-draft-v2" as const : "design-draft-v1" as const };
+    const mismatched = { manifest, files: { ...archive.files, "manifest.json": JSON.stringify(manifest) } };
+    rejectUnchanged(rawZip(mismatched.files), /draftDocumentVersion does not match draft.json/);
+    assert.throws(() => exportDesignDraftArchiveZip(mismatched), /draftDocumentVersion does not match draft.json/);
+  }
+});
+
+test("v1 envelopes cannot smuggle a workflow through import or export", () => {
+  const archive = bundle({ ...emptyDraft(), projectCrs: "EPSG:32613" });
+  const document = JSON.stringify({ documentVersion: "design-draft-v1", draft: pausedDraft() });
+  const smuggled = { ...archive, files: { ...archive.files, "draft.json": document } };
+  rejectUnchanged(rawZip(smuggled.files), /drawingWorkflow/);
+  assert.throws(() => exportDesignDraftArchiveZip(smuggled), /drawingWorkflow/);
+});
+
 test("crafted stored and deflated fixtures are valid before adversarial header changes", () => {
   for (const stored of [false, true]) {
     assert.deepEqual(importDesignDraftArchiveZip(craftedZip(fixtureEntries().map((entry) => ({ ...entry, stored })))), emptyDraft());
@@ -376,7 +437,7 @@ test("rejects malformed manifest, unknown versions, kind and identity confusion"
   const archive = bundle();
   const variants: unknown[] = [null, [], {}, { ...archive.manifest, archiveVersion: "center-pivot-project-archive-v1" },
     { ...archive.manifest, archiveVersion: "center-pivot-design-draft-archive-v2" },
-    { ...archive.manifest, draftDocumentVersion: "design-draft-v2" },
+    { ...archive.manifest, draftDocumentVersion: "design-draft-v3" },
     { ...archive.manifest, kind: "project" }, { ...archive.manifest, projectId: archive.manifest.draftId },
     { ...archive.manifest, draftId: "other" }, { ...archive.manifest, draftName: "Other" },
     { ...archive.manifest, projectCrs: "EPSG:32613" }, { ...archive.manifest, createdAt: "not-a-date" },
@@ -409,7 +470,7 @@ test("rejects duplicate and escaped-equivalent JSON members on import and export
 
 test("rejects bare payloads, project envelopes and unsupported draft documents", () => {
   const archive = bundle();
-  for (const payload of [emptyDraft(), { documentVersion: "design-draft-v2", draft: emptyDraft() },
+  for (const payload of [emptyDraft(), { documentVersion: "design-draft-v3", draft: emptyDraft() },
     { documentVersion: "design-draft-v1", project: completeDraft() },
     { documentVersion: "design-draft-v1", draft: { ...emptyDraft(), clientContacts: [] } },
     { documentVersion: "design-draft-v1", draft: { ...emptyDraft(), projectCrs: null, pivotCenter: { x: 1, y: 2 } } }]) {

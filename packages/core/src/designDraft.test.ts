@@ -3,6 +3,8 @@ import test from "node:test";
 
 import {
   DESIGN_DRAFT_DOCUMENT_VERSION,
+  DRAWING_WORKFLOW_DESIGN_DRAFT_DOCUMENT_VERSION,
+  LEGACY_DESIGN_DRAFT_DOCUMENT_VERSION,
   evaluateDesignDraftCompleteness,
   parseDesignDraftDocument,
   serializeDesignDraftDocument,
@@ -12,6 +14,7 @@ import {
 import { parseProjectDocument, PivotProjectSchema } from "./projectDocument";
 import { defaultProjectSettings } from "./settings";
 import type { GnssCaptureEvidence } from "./types";
+import { reduceDraftDrawingWorkflow } from "./draftDrawingWorkflow";
 
 function emptyDraft(): DesignDraft {
   const settings = defaultProjectSettings();
@@ -179,7 +182,7 @@ test("invalid and nonfinite present values are refused before serialization", ()
 
 test("strict JSON and version contracts refuse unsupported data without mutation", () => {
   const draft = emptyDraft();
-  for (const documentVersion of ["design-draft-v2", "pivot-project-v1", "", null]) {
+  for (const documentVersion of ["design-draft-v999", "pivot-project-v1", "", null]) {
     assert.throws(() => parseDesignDraftDocument({ documentVersion, draft }));
   }
   assert.throws(() => parseDesignDraftDocument(draft));
@@ -193,6 +196,46 @@ test("strict JSON and version contracts refuse unsupported data without mutation
   cycle.self = cycle;
   assert.throws(() => parse(cycle), /Cyclic/);
   assert.deepEqual(draft, emptyDraft());
+});
+
+test("legacy drafts stay v1 until a drawing workflow is explicitly created", () => {
+  const legacy = emptyDraft();
+  const serialized = serializeDesignDraftDocument(legacy);
+  assert.equal(JSON.parse(serialized).documentVersion, LEGACY_DESIGN_DRAFT_DOCUMENT_VERSION);
+  assert.deepEqual(parseDesignDraftDocument(serialized), legacy);
+  const workflow = reduceDraftDrawingWorkflow(undefined, null, { type: "set_autosave", enabled: false });
+  const current = { ...legacy, drawingWorkflow: workflow };
+  assert.equal(JSON.parse(serializeDesignDraftDocument(current)).documentVersion, DRAWING_WORKFLOW_DESIGN_DRAFT_DOCUMENT_VERSION);
+  assert.throws(() => parseDesignDraftDocument({ documentVersion: LEGACY_DESIGN_DRAFT_DOCUMENT_VERSION, draft: current }));
+  assert.deepEqual(roundtrip(current), current);
+  assert.equal(current.drawingWorkflow.autosaveEnabled, false);
+});
+
+test("unfinished drawings cannot qualify complete designs or leak draft metadata into projects", () => {
+  const draft = completeDraft();
+  let workflow = reduceDraftDrawingWorkflow(undefined, draft.projectCrs, { type: "begin", id: "drawing", name: "Field", geometryType: "Polygon" });
+  assert.equal(tryBuildPivotProject({ ...draft, drawingWorkflow: workflow }).ok, false);
+  for (const point of draft.fieldBoundary) {
+    workflow = reduceDraftDrawingWorkflow(workflow, draft.projectCrs, {
+      type: "append_vertex", id: "drawing", vertex: { point, recordedAt: "2026-09-27T00:00:00Z", wgs84: null, elevation: null },
+    });
+    assert.equal(tryBuildPivotProject(roundtrip({ ...draft, drawingWorkflow: workflow })).ok, false);
+  }
+  for (const command of [{ type: "finish", id: "drawing" }, { type: "pause", id: "drawing" }] as const) {
+    workflow = reduceDraftDrawingWorkflow(workflow, draft.projectCrs, command);
+    const pending = roundtrip({ ...draft, drawingWorkflow: workflow });
+    const completeness = evaluateDesignDraftCompleteness(pending);
+    assert.equal(completeness.complete, false);
+    assert.ok(completeness.blockers.some(issue => issue.code === "unfinished_drawing"));
+    assert.equal(tryBuildPivotProject(pending).ok, false);
+  }
+  workflow = reduceDraftDrawingWorkflow(workflow, draft.projectCrs, { type: "discard", id: "drawing" });
+  const cleared = { ...draft, drawingWorkflow: workflow };
+  const result = tryBuildPivotProject(cleared);
+  assert.equal(result.ok, true);
+  if (result.ok) assert.equal(Object.hasOwn(result.project, "drawingWorkflow"), false);
+  assert.equal(cleared.drawingWorkflow.lockedCrs, draft.projectCrs);
+  assertInvalidDraft({ ...cleared, projectCrs: "EPSG:32614" });
 });
 
 test("settings must be real supplied values and cannot silently receive legacy defaults", () => {

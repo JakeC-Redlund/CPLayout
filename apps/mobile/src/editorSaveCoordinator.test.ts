@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createDesignDraftEditorState, defaultProjectSettings, reduceDesignDraftEditorState, sampleProject, type DesignDraft } from "@cplayout/core";
+import { convertPivotProjectToFieldDesign, createDesignDraftEditorState, defaultProjectSettings, reduceDesignDraftEditorState, sampleProject, serializeProjectDocument, type DesignDraft, type DraftDrawingCommand } from "@cplayout/core";
 import { createVersionedProjectRepository } from "../../../packages/project-store/src/versionedProjectRepository";
 import { WEB_WORKSPACE_KEY, type WorkspaceLocks } from "../../../packages/project-store/src/webWorkspaceStore";
 import { createEditorSaveCoordinator, type EditorSavePayload, type EditorSaveTarget } from "./editorSaveCoordinator";
@@ -10,6 +10,79 @@ function deferred() {
   const promise = new Promise<void>(done => { resolve = done; });
   return { promise, resolve };
 }
+
+test("recorded operations wait for admitted saves and use the resulting receipt without reopening", async () => {
+  const coordinator = createEditorSaveCoordinator();
+  const session = coordinator.open({ kind: "draft", payloadId: "draft", designId: "design", workspaceRevision: 5, designRevision: 2 });
+  const gate = deferred();
+  const order: string[] = [];
+  const saving = coordinator.save({ session, payload: { kind: "draft", draft: blank() }, editorRevision: 1,
+    onCommitted(completion) { order.push("acknowledge"); assert.equal(completion.persistenceRevision, 6); },
+    async write(_payload, target) {
+      order.push("save"); await gate.promise;
+      assert.equal(target.workspaceRevision, 5);
+      return { saved: true, persistenceRevision: 6, designRevision: 3 };
+    } });
+  const recording = coordinator.transact({ session, isCurrent: () => true,
+    async write(target, owner) {
+      order.push("record"); assert(owner.isCurrent());
+      assert.equal(target.workspaceRevision, 6);
+      assert.equal(target.kind !== "project" && target.designRevision, 3);
+      return { value: "committed shape membership", persistenceRevision: 7, designRevision: 3 };
+    } });
+  await Promise.resolve(); assert.deepEqual(order, ["save"]);
+  gate.resolve(); await saving; assert.equal(await recording, "committed shape membership");
+  assert.deepEqual(order, ["save", "acknowledge", "record"]);
+  assert.equal(coordinator.receipt(session).workspaceRevision, 7);
+  const receipt = coordinator.receipt(session);
+  assert.equal(receipt.kind !== "project" && receipt.designRevision, 3);
+});
+
+test("retired live or mode owners reject queued capture while an admitted ordinary save still completes", async () => {
+  const coordinator = createEditorSaveCoordinator();
+  const session = coordinator.open({ kind: "draft", payloadId: "draft", designId: "design", workspaceRevision: 5, designRevision: 2 });
+  const gate = deferred(); let interactionCurrent = true, called = false;
+  const saving = coordinator.save({ session, payload: { kind: "draft", draft: blank() }, editorRevision: 1,
+    async write() { await gate.promise; return { saved: true, persistenceRevision: 6, designRevision: 3 }; } });
+  const recording = coordinator.transact({ session, isCurrent: () => interactionCurrent,
+    async write() { called = true; return { value: null, persistenceRevision: 7, designRevision: 4 }; } });
+  const rejected = assert.rejects(recording, /changed.*waited/);
+  interactionCurrent = false; gate.resolve();
+  assert.equal((await saving).saved, true); await rejected;
+  assert.equal(called, false); assert.equal(coordinator.receipt(session).workspaceRevision, 6);
+});
+
+test("recorded transactions expose a live predicate through awaited work and reject invalid receipt jumps", async () => {
+  const coordinator = createEditorSaveCoordinator();
+  const session = coordinator.open({ kind: "field", payloadId: "field", designId: "design", workspaceRevision: 5, designRevision: 2 });
+  const gate = deferred(); let interactionCurrent = true;
+  const attempt = coordinator.transact({ session, isCurrent: () => interactionCurrent,
+    async write(_target, owner) {
+      await gate.promise; if (!owner.isCurrent()) throw new Error("Synthetic repository final owner check");
+      return { value: null, persistenceRevision: 6, designRevision: 3 };
+    } });
+  const rejected = assert.rejects(attempt, /final owner/);
+  await Promise.resolve(); interactionCurrent = false; gate.resolve(); await rejected;
+  assert.equal(coordinator.receipt(session).workspaceRevision, 5);
+  await assert.rejects(coordinator.transact({ session, isCurrent: () => true,
+    async write() { return { value: null, persistenceRevision: 6, designRevision: 4 }; } }), /unexpectedly/);
+  assert.equal(coordinator.receipt(session).workspaceRevision, 5);
+});
+
+test("a pending recorded transaction blocks a later stale Save snapshot and releases the barrier after failure", async () => {
+  const coordinator = createEditorSaveCoordinator();
+  const session = coordinator.open({ kind: "draft", payloadId: "draft", designId: "design", workspaceRevision: 5, designRevision: 2 });
+  const heldLock = deferred(); let writes = 0;
+  const capture = coordinator.transact({ session, isCurrent: () => true,
+    async write() { await heldLock.promise; return { value: "actual recorded change", persistenceRevision: 6, designRevision: 3 }; } });
+  await assert.rejects(coordinator.save({ session, payload: { kind: "draft", draft: blank() }, editorRevision: 0,
+    async write() { writes++; return { saved: true, persistenceRevision: 7, designRevision: 4 }; } }), /recorded.*operation/);
+  assert.equal(writes, 0); heldLock.resolve(); await capture;
+  await assert.rejects(coordinator.transact({ session, isCurrent: () => true, async write() { throw new Error("Synthetic quota failure"); } }), /quota/);
+  const saved = await coordinator.save({ session, payload: { kind: "draft", draft: blank() }, editorRevision: 1,
+    async write(_payload, target) { writes++; assert.equal(target.workspaceRevision, 6); return { saved: true, persistenceRevision: 7, designRevision: 4 }; } });
+  assert(saved.saved); assert.equal(writes, 1);
+});
 const project = () => structuredClone(sampleProject);
 const projectTarget = (workspaceRevision: number | null | undefined = 5): Extract<EditorSaveTarget, { kind: "project" }> => ({
   kind: "project", payloadId: sampleProject.id, designId: null, workspaceRevision,
@@ -46,6 +119,55 @@ test("queued saves snapshot immediately and use only their own preceding acknowl
   assert.deepEqual(writes, [{ name: "First requested edit", revision: 5 }, { name: "Second requested edit", revision: 6 }]);
   assert.equal(source.name, "Later unsaved edit");
   assert.equal(coordinator.receipt(session).workspaceRevision, 7);
+});
+
+test("classified project saves retain the versioned metadata and detach the accepted snapshot", async () => {
+  const coordinator = createEditorSaveCoordinator();
+  const session = coordinator.open(projectTarget());
+  const source = project();
+  source.drawingMetadata = { schemaVersion: "project-drawing-metadata-v1", autosaveEnabled: false, records: [] };
+  const gate = deferred();
+  const pending = coordinator.save({ session, payload: { kind: "project", project: source }, editorRevision: 1,
+    write: async (payload) => {
+      await gate.promise;
+      assert.equal(payload.kind, "project");
+      if (payload.kind !== "project") throw new Error("Expected project");
+      assert.deepEqual(payload.project.drawingMetadata, { schemaVersion: "project-drawing-metadata-v1", autosaveEnabled: false, records: [] });
+      assert.equal(JSON.parse(serializeProjectDocument(payload.project)).documentVersion, "pivot-project-v2");
+      return { saved: true, persistenceRevision: 6 };
+    } });
+  source.drawingMetadata.autosaveEnabled = true;
+  gate.resolve();
+  assert.equal((await pending).saved, true);
+});
+
+test("field saves own exact unequal machine snapshots and reject incomplete or stale acknowledgments", async () => {
+  const field = convertPivotProjectToFieldDesign(serializeProjectDocument(project()), {
+    fieldId: "field", waterSourceId: "water", powerSourceId: "power",
+  }).field;
+  field.machines.push({ ...structuredClone(field.machines[0]), id: "second",
+    configuration: { ...structuredClone(field.machines[0].configuration), spanLengthsMeters: [31.125, 27.0625] } });
+  const coordinator = createEditorSaveCoordinator();
+  const session = coordinator.open({ kind: "field", payloadId: field.id, designId: "design", workspaceRevision: 5, designRevision: 2 });
+  const expected = structuredClone(field);
+  const gate = deferred();
+  const pending = coordinator.save({ session, payload: { kind: "field", field }, editorRevision: 8,
+    write: async (payload, target) => {
+      await gate.promise;
+      assert.deepEqual(payload, { kind: "field", field: expected });
+      assert.equal(target.kind, "field");
+      return { saved: true, persistenceRevision: 6, designRevision: 3 };
+    } });
+  field.machines[1].configuration.spanLengthsMeters[0] = 99;
+  gate.resolve();
+  assert.equal((await pending).editorRevision, 8);
+  const receipt = coordinator.receipt(session);
+  assert.deepEqual(receipt, { kind: "field", payloadId: field.id, designId: "design", workspaceRevision: 6, designRevision: 3 });
+  for (const designRevision of [undefined, 3, 5]) {
+    await assert.rejects(coordinator.save({ session, payload: { kind: "field", field }, editorRevision: 9,
+      write: async () => ({ saved: true, persistenceRevision: 7, designRevision }) }), /revision/i);
+    assert.deepEqual(coordinator.receipt(session), receipt);
+  }
 });
 
 test("same-ID reopen isolates old receipt and feedback while honoring an already accepted save", async () => {
@@ -287,6 +409,42 @@ test("draft reducer saves use actual versioned repository receipts, not undo rev
   assert.deepEqual(reopened.draft.machine.spanLengthsMeters, [null, 25]);
 });
 
+test("paused drawing saves snapshot vertices and preferences before later resumed edits", async () => {
+  const { coordinator, session, write, draft, api } = await draftRepository();
+  let editor = reduceDesignDraftEditorState(createDesignDraftEditorState(draft), { type: "set_crs", projectCrs: "EPSG:32613" });
+  const drawing = (command: DraftDrawingCommand) => {
+    editor = reduceDesignDraftEditorState(editor, { type: "drawing", expectedRevision: editor.revision, command });
+    assert.equal(editor.lastError, null);
+  };
+  drawing({ type: "begin", id: "boundary", name: "Field boundary", geometryType: "Polygon" });
+  drawing({ type: "append_vertex", id: "boundary", vertex: {
+    point: { x: 500000, y: 4400000 }, recordedAt: "2026-09-27T00:00:00Z", wgs84: null, elevation: null,
+  } });
+  drawing({ type: "set_autosave", enabled: false });
+  drawing({ type: "pause", id: "boundary" });
+  const paused = structuredClone(editor.draft);
+  const gate = deferred();
+  const pending = coordinator.save({ session, payload: { kind: "draft", draft: editor.draft }, editorRevision: editor.revision,
+    write: async (payload, target) => { await gate.promise; return write(payload, target); } });
+  drawing({ type: "resume", id: "boundary" });
+  drawing({ type: "append_vertex", id: "boundary", vertex: {
+    point: { x: 500010, y: 4400000 }, recordedAt: "2026-09-27T00:00:01Z", wgs84: null, elevation: null,
+  } });
+  gate.resolve();
+  const receipt = await pending;
+  assert.notEqual(receipt.editorRevision, editor.revision);
+  const reopened = await api.readDesignAsync("design");
+  assert.ok(reopened.kind === "draft");
+  assert.deepEqual(reopened.draft, paused);
+  assert.equal(reopened.draft.drawingWorkflow!.activeCaptureId, null);
+  assert.equal(reopened.draft.drawingWorkflow!.autosaveEnabled, false);
+  assert.equal(reopened.draft.drawingWorkflow!.captures[0].vertices.length, 1);
+  await coordinator.save({ session, payload: { kind: "draft", draft: editor.draft }, editorRevision: editor.revision, write });
+  const latest = await api.readDesignAsync("design");
+  assert.ok(latest.kind === "draft");
+  assert.deepEqual(latest.draft, editor.draft);
+});
+
 test("lost acknowledgment cannot silently rebase or overwrite with the next queued draft save", async () => {
   const { coordinator, session, write, draft, api, values, loseNextAcknowledgment } = await draftRepository();
   loseNextAcknowledgment();
@@ -303,4 +461,188 @@ test("lost acknowledgment cannot silently rebase or overwrite with the next queu
   assert.ok(reread.kind === "draft");
   assert.equal(reread.draft.name, "Committed without acknowledgment");
   assert.equal(reread.workspaceRevision, 4);
+});
+
+async function retainedProjectRepository(owned = true) {
+  const { api, values } = await draftRepository();
+  const now = "2026-09-28T12:00:00.000Z";
+  if (owned) await api.executeAsync(3, { type: "create_project_with_initial_design", now,
+    input: { clientId: "client", project: project(), fieldMapId: "source-field", designId: "source-design" } });
+  else await api.executeAsync(3, { type: "save_project", now, project: project(), createOnly: true });
+  const coordinator = createEditorSaveCoordinator();
+  const session = coordinator.open({ ...projectTarget(4), designId: owned ? "source-design" : null });
+  const read = () => api.readAsync();
+  const write = async (payload: EditorSavePayload, target: EditorSaveTarget) => {
+    assert.equal(payload.kind, "project"); assert.equal(target.kind, "project");
+    if (payload.kind !== "project" || target.kind !== "project" || typeof target.workspaceRevision !== "number") throw new Error("Expected saved project fixture");
+    const receipt = await api.executeAsync(target.workspaceRevision, target.designId
+      ? { type: "save_design_project", now, designId: target.designId, project: payload.project }
+      : { type: "save_project", now, project: payload.project, createOnly: false });
+    return { saved: true, persistenceRevision: receipt.workspace.revision };
+  };
+  const sibling = async (id: string) => {
+    const snapshot = await read();
+    return api.executeAsync(snapshot.revision, { type: "create_client", now, id,
+      input: { primaryContactFirstName: "Sibling", primaryContactLastName: id } });
+  };
+  return { api, values, now, coordinator, session, read, write, sibling };
+}
+
+test("retained project proof advances only workspace receipt after multiple sibling writes, preserving session and dirty snapshot", async () => {
+  for (const owned of [false, true]) {
+    const f = await retainedProjectRepository(owned);
+    const baseline = await f.coordinator.captureRetainedProject({ session: f.session, read: f.read });
+    assert.equal(baseline.sourceStored, true); assert.equal(baseline.workspaceRevision, 4);
+    const dirty = project(); dirty.pivotCenter.x += 0.125; const beforeDirty = structuredClone(dirty);
+    await f.sibling("first-sibling"); await f.sibling("second-sibling");
+    const before = f.values.get(WEB_WORKSPACE_KEY);
+    assert.equal(await f.coordinator.reconcileRetainedProject({ baseline, read: f.read }), true);
+    assert.equal(f.coordinator.isCurrent(f.session), true); assert.equal(f.coordinator.receipt(f.session).workspaceRevision, 6);
+    assert.deepEqual(dirty, beforeDirty); assert.equal(f.values.get(WEB_WORKSPACE_KEY), before);
+    // A repeated visible-return check is harmless; it does not create another session or save.
+    assert.equal(await f.coordinator.reconcileRetainedProject({ baseline, read: f.read }), true);
+    await f.coordinator.save({ session: f.session, payload: { kind: "project", project: dirty }, editorRevision: 9, write: f.write });
+    assert.equal(f.coordinator.receipt(f.session).workspaceRevision, 7);
+    const stored = (await f.read()).projectDocuments.find(item => item.summary.id === dirty.id)!;
+    assert.deepEqual(JSON.parse(stored.document).project.pivotCenter, dirty.pivotCenter);
+  }
+});
+
+test("retained project capture drains accepted saves and reconciliation orders the next save after its read", async () => {
+  const f = await retainedProjectRepository(); const saveGate = deferred(); let reads = 0;
+  const latest = { ...project(), name: "Acknowledged before capture" };
+  const save = f.coordinator.save({ session: f.session, payload: { kind: "project", project: latest }, editorRevision: 1,
+    write: async (payload, target) => { await saveGate.promise; return f.write(payload, target); } });
+  const capture = f.coordinator.captureRetainedProject({ session: f.session, read: async () => { reads++; return f.read(); } });
+  await Promise.resolve(); assert.equal(reads, 0);
+  saveGate.resolve(); await save;
+  const baseline = await capture; assert.equal(reads, 1); assert.equal(baseline.workspaceRevision, 5);
+  await f.sibling("new-customer"); const readGate = deferred();
+  const reconcile = f.coordinator.reconcileRetainedProject({ baseline, read: async () => { await readGate.promise; return f.read(); } });
+  let nextSaveStarted = false;
+  const nextSave = f.coordinator.save({ session: f.session, payload: { kind: "project", project: { ...latest, name: "Later unsaved edit" } }, editorRevision: 2,
+    write: async (payload, target) => { nextSaveStarted = true; assert.equal(target.workspaceRevision, 6); return f.write(payload, target); } });
+  await Promise.resolve(); assert.equal(nextSaveStarted, false);
+  readGate.resolve(); await reconcile; await nextSave;
+  assert.equal(f.coordinator.receipt(f.session).workspaceRevision, 7);
+});
+
+test("source edit, deletion, equal-byte revision and field/customer ownership drift cannot rebase a retained project", async () => {
+  const variants = ["edit", "delete", "same_bytes_revision", "field_move", "customer_move", "source_whitespace"] as const;
+  for (const variant of variants) {
+    const f = await retainedProjectRepository();
+    const baseline = await f.coordinator.captureRetainedProject({ session: f.session, read: f.read });
+    const originalReceipt = f.coordinator.receipt(f.session);
+    if (variant === "edit" || variant === "same_bytes_revision") {
+      await f.api.executeAsync(4, { type: "save_design_project", now: f.now, designId: "source-design", project: variant === "edit" ? { ...project(), name: "Other editor" } : project() });
+    } else if (variant === "delete") {
+      await f.api.executeAsync(4, { type: "delete_design", now: f.now, designId: "source-design", expectedDesignRevision: 0 });
+    } else if (variant === "customer_move") {
+      await f.sibling("destination");
+      await f.api.executeAsync(5, { type: "move_project_to_client", now: f.now, projectId: project().id, clientId: "destination" });
+    } else {
+      const snapshot = await f.read();
+      if (variant === "field_move") snapshot.catalog.designs.find(item => item.id === "source-design")!.fieldMapId = "field";
+      else snapshot.projectDocuments.find(item => item.summary.id === project().id)!.document += "\n";
+      snapshot.revision++;
+      f.values.set(WEB_WORKSPACE_KEY, JSON.stringify(snapshot));
+    }
+    const before = f.values.get(WEB_WORKSPACE_KEY);
+    await assert.rejects(f.coordinator.reconcileRetainedProject({ baseline, read: f.read }), /changed|removed|ownership/i, variant);
+    assert.deepEqual(f.coordinator.receipt(f.session), originalReceipt);
+    assert.equal(f.values.get(WEB_WORKSPACE_KEY), before);
+  }
+});
+
+test("an absent unsaved sample stays create-only and refuses an identity saved or reserved elsewhere", async () => {
+  for (const collision of [false, true, "folder", "tombstone"] as const) {
+    const f = await retainedProjectRepository();
+    const sampleId = "unsaved-sample";
+    const session = f.coordinator.open({ kind: "project", payloadId: sampleId, designId: null, workspaceRevision: null });
+    const baseline = await f.coordinator.captureRetainedProject({ session, read: f.read });
+    assert.equal(baseline.sourceStored, false);
+    if (collision === true || collision === "tombstone") {
+      await f.api.executeAsync(4, { type: "save_project", now: f.now, createOnly: true, project: { ...project(), id: sampleId } });
+      if (collision === "tombstone") await f.api.executeAsync(5, { type: "delete_project", now: f.now, projectId: sampleId });
+    } else if (collision === "folder") {
+      await f.api.executeAsync(4, { type: "create_project_record", now: f.now, input: { id: sampleId, clientId: "client", name: "Reserved", projectCrs: "EPSG:32613", unitSystem: "metric" } });
+    } else await f.sibling("unrelated");
+    if (collision) await assert.rejects(f.coordinator.reconcileRetainedProject({ baseline, read: f.read }), /saved or reserved/i);
+    else assert.equal(await f.coordinator.reconcileRetainedProject({ baseline, read: f.read }), true);
+    assert.equal(f.coordinator.receipt(session).workspaceRevision, null);
+  }
+});
+
+test("retained proof rejects foreign tokens, stale capture, native sessions and invalid snapshots without touching receipts", async () => {
+  const f = await retainedProjectRepository();
+  const baseline = await f.coordinator.captureRetainedProject({ session: f.session, read: f.read });
+  await assert.rejects(f.coordinator.reconcileRetainedProject({ baseline: { ...baseline }, read: f.read }), /not owned/i);
+  await f.sibling("newer");
+  await assert.rejects(f.coordinator.captureRetainedProject({ session: f.session, read: f.read }), /workspace changed/i);
+  const invalid = await f.read(); invalid.catalog.designs.find(item => item.id === "source-design")!.fieldMapId = "missing";
+  await assert.rejects(f.coordinator.reconcileRetainedProject({ baseline, read: async () => invalid }), /reference|invalid/i);
+  assert.equal(f.coordinator.receipt(f.session).workspaceRevision, 4);
+  const native = f.coordinator.open({ ...projectTarget(), workspaceRevision: undefined }); let read = false;
+  await assert.rejects(f.coordinator.captureRetainedProject({ session: native, read: async () => { read = true; return f.read(); } }), /versioned/i);
+  assert.equal(read, false);
+});
+
+test("receipt changes after capture and same-ID reopen during either read cannot bless obsolete state", async () => {
+  const f = await retainedProjectRepository();
+  const baseline = await f.coordinator.captureRetainedProject({ session: f.session, read: f.read });
+  await f.coordinator.save({ session: f.session, payload: { kind: "project", project: project() }, editorRevision: 1, write: f.write });
+  await assert.rejects(f.coordinator.reconcileRetainedProject({ baseline, read: f.read }), /receipt changed/i);
+  for (const operation of ["capture", "reconcile"] as const) {
+    const g = await retainedProjectRepository();
+    const proof = await g.coordinator.captureRetainedProject({ session: g.session, read: g.read });
+    const gate = deferred(); let started!: () => void; const didStart = new Promise<void>(resolve => { started = resolve; });
+    const read = async () => { started(); await gate.promise; return g.read(); };
+    const pending = operation === "capture" ? g.coordinator.captureRetainedProject({ session: g.session, read })
+      : g.coordinator.reconcileRetainedProject({ baseline: proof, read });
+    const rejected = assert.rejects(pending, /replaced/i);
+    await didStart;
+    const reopened = g.coordinator.open({ ...projectTarget(4), designId: "source-design" });
+    gate.resolve(); await rejected;
+    assert.equal(g.coordinator.receipt(reopened).workspaceRevision, 4); assert.equal(g.coordinator.isCurrent(reopened), true);
+  }
+});
+
+test("a concurrent write after proof read still meets the normal save revision conflict gate", async () => {
+  const f = await retainedProjectRepository();
+  const baseline = await f.coordinator.captureRetainedProject({ session: f.session, read: f.read });
+  await f.sibling("first");
+  await f.coordinator.reconcileRetainedProject({ baseline, read: async () => { const snapshot = await f.read(); await f.sibling("after-read"); return snapshot; } });
+  assert.equal(f.coordinator.receipt(f.session).workspaceRevision, 5);
+  await assert.rejects(f.coordinator.save({ session: f.session, payload: { kind: "project", project: { ...project(), name: "Do not overwrite" } }, editorRevision: 1, write: f.write }), /revision changed/i);
+  assert.equal(f.coordinator.receipt(f.session).workspaceRevision, 5);
+});
+
+
+test("catalog/Layout exclusive sibling blocks later Save and releases admission after quota failure without advancing receipts", async () => {
+  const coordinator = createEditorSaveCoordinator();
+  const session = coordinator.open({ kind: "draft", payloadId: "draft", designId: "design", workspaceRevision: 5, designRevision: 2 });
+  const gate = deferred(); let started!: () => void; const didStart = new Promise<void>(resolve => { started = resolve; });
+  const operation = coordinator.exclusive({ session, isCurrent: () => true, async write() { started(); await gate.promise; throw new Error("Synthetic quota failure"); } });
+  const failed = assert.rejects(operation, /quota/); await didStart;
+  let saved = false;
+  await assert.rejects(coordinator.save({ session, payload: { kind: "draft", draft: blank() }, editorRevision: 0,
+    async write() { saved = true; return { saved: true, persistenceRevision: 6, designRevision: 3 }; } }), /recorded workspace operation/);
+  assert.equal(saved, false); gate.resolve(); await failed;
+  assert.equal(coordinator.receipt(session).workspaceRevision, 5);
+  assert.equal((await coordinator.save({ session, payload: { kind: "draft", draft: blank() }, editorRevision: 0,
+    async write() { return { saved: true, persistenceRevision: 6, designRevision: 3 }; } })).saved, true);
+});
+
+test("successful sibling receipt publishes before queue release even if interaction retires after the final commit", async () => {
+  const coordinator = createEditorSaveCoordinator(), order: string[] = [];
+  const session = coordinator.open({ kind: "field", payloadId: "field", designId: "design", workspaceRevision: 5, designRevision: 2 });
+  let interactionCurrent = true;
+  const result = await coordinator.exclusive({ session, isCurrent: () => interactionCurrent,
+    async write(_target, owner) { assert.equal(owner.isCurrent(), true); order.push("committed"); interactionCurrent = false;
+      return { value: "durable receipt", previousRevision: 5, persistenceRevision: 6, designRevision: 2 }; },
+    onCommitted(value) { assert.equal(value, "durable receipt"); assert.equal(coordinator.receipt(session).workspaceRevision, 6); order.push("published"); } });
+  assert.equal(result, "durable receipt"); assert.equal(coordinator.isCurrent(session), true); assert.deepEqual(order, ["committed", "published"]);
+  await coordinator.exclusive({ session, isCurrent: () => true, async write(target) { assert.equal(target!.workspaceRevision, 6); order.push("next");
+    return { value: null, previousRevision: 6, persistenceRevision: 7, designRevision: 2 }; } });
+  assert.deepEqual(order, ["committed", "published", "next"]);
 });

@@ -1,5 +1,7 @@
 # Agent Tree Rollout
 
+Historical rollout record: its dated observations are preserved. On 2026-10-10 the owner withdrew the preceding AGENTS.md instructions; this record's old phase instructions and proposed endpoint work are not current authority. The active scope is the [unified refocus](unified-workspace-refocus-2026-10-10.md); no managed deployment or external-session restart is selected.
+
 Decision record for the 2026-09-27 governance rollout. Local facts come from the CPLayout checkout; external behavior claims are bounded by the primary sources below. The goal is a lean coordinator/leaf workflow with explicit ownership and measurable context, not a promise of superior agent performance.
 
 ## Verified Starting Point

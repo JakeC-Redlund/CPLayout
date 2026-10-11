@@ -1,0 +1,863 @@
+diff --git a/node_modules/expo-sqlite/android/build.gradle b/node_modules/expo-sqlite/android/build.gradle
+index 687d67e..01d19ad 100644
+--- a/node_modules/expo-sqlite/android/build.gradle
++++ b/node_modules/expo-sqlite/android/build.gradle
+@@ -55,6 +55,7 @@ android {
+     versionCode 18
+     versionName "55.0.20"
+     buildConfigField "boolean", "USE_LIBSQL", project.ext.USE_LIBSQL.toString()
++    buildConfigField "boolean", "CPLAYOUT_EXISTING_ONLY_BUILD", (!project.ext.USE_LIBSQL && !project.ext.USE_SQLCIPHER && !project.ext.WITH_SQLITE_VEC && (findProperty('expo.sqlite.customBuildFlags') ?: '') == '').toString()
+     buildConfigField "boolean", "WITH_SQLITE_VEC", project.ext.WITH_SQLITE_VEC.toString()
+ 
+     externalNativeBuild {
+diff --git a/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/SQLiteOptions.kt b/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/SQLiteOptions.kt
+index 030b42c..3c3ac43 100644
+--- a/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/SQLiteOptions.kt
++++ b/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/SQLiteOptions.kt
+@@ -12,6 +12,12 @@ internal data class OpenDatabaseOptions(
+   @Field
+   val useNewConnection: Boolean = false,
+ 
++  @Field
++  val cplayoutExistingOnly: Boolean = false,
++
++  @Field
++  val cplayoutSourceLease: Boolean = false,
++
+   @Field
+   val finalizeUnusedStatementsBeforeClosing: Boolean = true,
+ 
+diff --git a/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/SQLiteModule.kt b/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/SQLiteModule.kt
+index ac800ac..dda0b60 100644
+--- a/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/SQLiteModule.kt
++++ b/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/SQLiteModule.kt
+@@ -29,6 +29,14 @@ class SQLiteModule : Module() {
+   override fun definition() = ModuleDefinition {
+     Name("ExpoSQLite")
+ 
++    Constant("cplayoutExistingOnlyVersion") {
++      if (BuildConfig.CPLAYOUT_EXISTING_ONLY_BUILD) 1 else 0
++    }
++
++    Constant("cplayoutSourceLeaseVersion") {
++      if (BuildConfig.CPLAYOUT_EXISTING_ONLY_BUILD) 1 else 0
++    }
++
+     Constant("defaultDatabaseDirectory") {
+       context.filesDir.canonicalPath + File.separator + "SQLite"
+     }
+@@ -58,11 +66,13 @@ class SQLiteModule : Module() {
+     }
+ 
+     OnDestroy {
+-      try {
+-        removeAllCachedDatabases().forEach {
++      removeAllCachedDatabases().forEach {
++        try {
+           closeDatabase(it)
++        } catch (error: Throwable) {
++          android.util.Log.w("ExpoSQLite", "Database close failed during module teardown", error)
+         }
+-      } catch (_: Throwable) {}
++      }
+     }
+ 
+     AsyncFunction("deleteDatabaseAsync") { databasePath: String ->
+@@ -81,7 +91,11 @@ class SQLiteModule : Module() {
+       if (!assetFile.isFile) {
+         throw OpenDatabaseException(assetDatabasePath)
+       }
+-      assetFile.copyTo(dbFile, forceOverwrite)
++      if (BuildConfig.CPLAYOUT_EXISTING_ONLY_BUILD) {
++        CPLayoutDatabaseOwnership.copyUnowned(assetFile, dbFile, forceOverwrite)
++      } else {
++        assetFile.copyTo(dbFile, forceOverwrite)
++      }
+     }.runOnQueue(moduleCoroutineScope)
+ 
+     AsyncFunction("ensureDatabasePathExistsAsync") { databasePath: String ->
+@@ -103,7 +117,13 @@ class SQLiteModule : Module() {
+     Class(NativeDatabase::class) {
+       Constructor { databasePath: String, options: OpenDatabaseOptions, serializedData: ByteArray? ->
+         val database: NativeDatabase
+-        if (serializedData != null) {
++        if (options.cplayoutSourceLease && !options.cplayoutExistingOnly) {
++          throw InvalidArgumentsException("Source leasing requires existing-only opening")
++        }
++        if (options.cplayoutExistingOnly) {
++          validateExistingOnlyOpen(databasePath, options, serializedData)
++          database = CPLayoutDatabaseOwnership.open(databasePath, databasePath, options, File(context.filesDir.canonicalFile, "SQLite"))
++        } else if (serializedData != null) {
+           database = deserializeDatabase(serializedData, options)
+         } else {
+           // Try to find opened database for fast refresh
+@@ -113,6 +133,11 @@ class SQLiteModule : Module() {
+           }
+ 
+           val dbPath = ensureDatabasePathExists(databasePath)
++          if (BuildConfig.CPLAYOUT_EXISTING_ONLY_BUILD) {
++            val tracked = CPLayoutDatabaseOwnership.open(databasePath, dbPath, options, File(context.filesDir.canonicalFile, "SQLite"))
++            addCachedDatabase(tracked)
++            return@Constructor tracked
++          }
+           database = NativeDatabase(databasePath, options)
+           if (BuildConfig.USE_LIBSQL) {
+             val libSQLUrl = options.libSQLUrl ?: throw InvalidArgumentsException("libSQLUrl must be provided")
+@@ -140,6 +165,10 @@ class SQLiteModule : Module() {
+         initDb(database)
+       }
+ 
++      AsyncFunction("assertSourceLeaseAsync") { database: NativeDatabase ->
++        CPLayoutDatabaseOwnership.assertSourceLease(database)
++      }.runOnQueue(moduleCoroutineScope)
++
+       AsyncFunction("isInTransactionAsync") { database: NativeDatabase ->
+         maybeThrowForClosedDatabase(database)
+         return@AsyncFunction database.ref.sqlite3_get_autocommit() == 0
+@@ -324,6 +353,19 @@ class SQLiteModule : Module() {
+   }
+ 
+   @Throws(OpenDatabaseException::class)
++  private fun validateExistingOnlyOpen(databasePath: String, options: OpenDatabaseOptions, serializedData: ByteArray?) {
++    if (!BuildConfig.CPLAYOUT_EXISTING_ONLY_BUILD || BuildConfig.USE_LIBSQL ||
++      !options.useNewConnection || serializedData != null ||
++      options.libSQLUrl != null || options.libSQLAuthToken != null || options.libSQLRemoteOnly) {
++      throw InvalidArgumentsException("Unsupported existing-only database configuration")
++    }
++    if (databasePath.length > 4096 || !Regex("/[A-Za-z0-9_.-]+(/[A-Za-z0-9_.-]+)*").matches(databasePath) ||
++      databasePath.split('/').any { it == "." || it == ".." } ||
++      File(databasePath).canonicalPath != databasePath) {
++      throw InvalidArgumentsException("Existing-only database path must be canonical ASCII")
++    }
++  }
++
+   private fun ensureDatabasePathExists(databasePath: String): String {
+     if (databasePath == MEMORY_DB_NAME) {
+       return databasePath
+@@ -342,6 +384,10 @@ class SQLiteModule : Module() {
+   }
+ 
+   private fun deserializeDatabase(serializedData: ByteArray, options: OpenDatabaseOptions): NativeDatabase {
++    if (BuildConfig.CPLAYOUT_EXISTING_ONLY_BUILD) {
++      return CPLayoutDatabaseOwnership.open(MEMORY_DB_NAME, MEMORY_DB_NAME, options,
++        File(context.filesDir.canonicalFile, "SQLite"), serializedData)
++    }
+     val database = NativeDatabase(MEMORY_DB_NAME, options)
+     if (database.ref.sqlite3_open(MEMORY_DB_NAME) != NativeDatabaseBinding.SQLITE_OK) {
+       throw OpenDatabaseException(MEMORY_DB_NAME)
+@@ -503,6 +549,7 @@ class SQLiteModule : Module() {
+   @Throws(AccessClosedResourceException::class, SQLiteErrorException::class)
+   private fun loadExtension(database: NativeDatabase, libPath: String, entryPoint: String?) {
+     maybeThrowForClosedDatabase(database)
++    if (BuildConfig.CPLAYOUT_EXISTING_ONLY_BUILD) throw IOException("Extensions are not supported by the ownership-guarded profile")
+     database.ref.sqlite3_enable_load_extension(1)
+     val ret = database.ref.sqlite3_load_extension(libPath, entryPoint ?: "")
+     if (ret != NativeDatabaseBinding.SQLITE_OK) {
+@@ -512,12 +559,14 @@ class SQLiteModule : Module() {
+ 
+   @Throws(AccessClosedResourceException::class, SQLiteErrorException::class)
+   private fun closeDatabase(database: NativeDatabase) {
+-    maybeFinalizeAllStatements(database)
+-    val ret = database.ref.sqlite3_close()
+-    if (ret != NativeDatabaseBinding.SQLITE_OK) {
+-      throw SQLiteErrorException(database.ref.convertSqlLiteErrorToString())
++    CPLayoutDatabaseOwnership.close(database) {
++      maybeFinalizeAllStatements(database)
++      val ret = database.ref.sqlite3_close()
++      if (ret != NativeDatabaseBinding.SQLITE_OK) {
++        throw SQLiteErrorException(database.ref.convertSqlLiteErrorToString())
++      }
++      database.isClosed = true
+     }
+-    database.isClosed = true
+   }
+ 
+   private fun deleteDatabase(databasePath: String) {
+@@ -532,16 +581,25 @@ class SQLiteModule : Module() {
+     if (!dbFile.exists()) {
+       throw DatabaseNotFoundException(databasePath)
+     }
+-    if (!dbFile.delete()) {
+-      throw DeleteDatabaseFileException(databasePath)
++    val remove = { if (!dbFile.delete()) throw DeleteDatabaseFileException(databasePath) }
++    if (BuildConfig.CPLAYOUT_EXISTING_ONLY_BUILD) {
++      CPLayoutDatabaseOwnership.mutateUnowned(dbFile.path, remove)
++    } else {
++      remove()
+     }
+   }
+ 
+   @Throws(AccessClosedResourceException::class, SQLiteErrorException::class)
+-  private fun backupDatabase(destDatabase: NativeDatabase, destDatabaseName: String, sourceDatabase: NativeDatabase, sourceDatabaseName: String) {
++  private fun backupDatabase(destDatabase: NativeDatabase, destDatabaseName: String, sourceDatabase: NativeDatabase, sourceDatabaseName: String) = CPLayoutDatabaseOwnership.withOwnershipLock {
+     maybeThrowForClosedDatabase(destDatabase)
+     maybeThrowForClosedDatabase(sourceDatabase)
++    if (destDatabase.openOptions.cplayoutSourceLease) throw IOException("Backup cannot overwrite a leased source")
++    if (BuildConfig.CPLAYOUT_EXISTING_ONLY_BUILD && (sourceDatabaseName != "main" || destDatabaseName != "main")) {
++      throw IOException("The ownership-guarded profile supports main database backups only")
++    }
++    if (sourceDatabase.openOptions.cplayoutSourceLease) CPLayoutDatabaseOwnership.assertSourceLease(sourceDatabase)
+     NativeDatabaseBinding.sqlite3_backup(destDatabase.ref, destDatabaseName, sourceDatabase.ref, sourceDatabaseName)
++    if (sourceDatabase.openOptions.cplayoutSourceLease) CPLayoutDatabaseOwnership.assertSourceLease(sourceDatabase)
+   }
+ 
+   @Throws(AccessClosedResourceException::class)
+@@ -593,7 +651,7 @@ class SQLiteModule : Module() {
+ 
+   @Synchronized
+   private fun removeAllCachedDatabases(): List<NativeDatabase> {
+-    val databases = cachedDatabases
++    val databases = cachedDatabases.toList()
+     cachedDatabases.clear()
+     return databases
+   }
+diff --git a/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/NativeDatabaseBinding.kt b/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/NativeDatabaseBinding.kt
+index 2e1c3c1..735d75f 100644
+--- a/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/NativeDatabaseBinding.kt
++++ b/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/NativeDatabaseBinding.kt
+@@ -53,6 +53,9 @@ internal class NativeDatabaseBinding : Closeable {
+   external fun sqlite3_last_insert_rowid(): Long
+   external fun sqlite3_load_extension(libPath: String, entryPoint: String): Int
+   external fun sqlite3_open(dbPath: String): Int
++  external fun sqlite3_open_existing_only(dbPath: String): Int
++  external fun sqlite3_check_main_not_moved(): Int
++  external fun sqlite3_install_ownership_guard(): Int
+   external fun sqlite3_prepare_v2(source: String, statement: NativeStatementBinding): Int
+   external fun sqlite3_serialize(databaseName: String): ByteArray
+   external fun sqlite3_deserialize(databaseName: String, serializedData: ByteArray): Int
+diff --git a/node_modules/expo-sqlite/android/src/main/cpp/NativeDatabaseBinding.h b/node_modules/expo-sqlite/android/src/main/cpp/NativeDatabaseBinding.h
+index 34ece65..8d5dde1 100644
+--- a/node_modules/expo-sqlite/android/src/main/cpp/NativeDatabaseBinding.h
++++ b/node_modules/expo-sqlite/android/src/main/cpp/NativeDatabaseBinding.h
+@@ -31,6 +31,9 @@ public:
+   int sqlite3_load_extension(const std::string &libPath,
+                              const std::string &entryPoint);
+   int sqlite3_open(const std::string &dbPath);
++  int sqlite3_open_existing_only(const std::string &dbPath);
++  int sqlite3_check_main_not_moved();
++  int sqlite3_install_ownership_guard();
+   int sqlite3_prepare_v2(
+       const std::string &source,
+       jni::alias_ref<NativeStatementBinding::javaobject> statement);
+@@ -70,7 +73,7 @@ private:
+   friend HybridBase;
+ 
+   jni::global_ref<NativeDatabaseBinding::javaobject> javaPart_;
+-  sqlite3 *db;
++  sqlite3 *db = nullptr;
+ };
+ 
+ } // namespace expo
+diff --git a/node_modules/expo-sqlite/android/src/main/cpp/NativeDatabaseBinding.cpp b/node_modules/expo-sqlite/android/src/main/cpp/NativeDatabaseBinding.cpp
+index fe13df8..e8149fc 100644
+--- a/node_modules/expo-sqlite/android/src/main/cpp/NativeDatabaseBinding.cpp
++++ b/node_modules/expo-sqlite/android/src/main/cpp/NativeDatabaseBinding.cpp
+@@ -12,6 +12,10 @@ namespace {
+ 
+ constexpr char TAG[] = "expo-sqlite";
+ 
++int ownershipAuthorizer(void *, int action, const char *, const char *, const char *, const char *) {
++  return action == SQLITE_ATTACH ? SQLITE_DENY : SQLITE_OK;
++}
++
+ } // namespace
+ 
+ // static
+@@ -35,6 +39,12 @@ void NativeDatabaseBinding::registerNatives() {
+       makeNativeMethod("sqlite3_load_extension",
+                        NativeDatabaseBinding::sqlite3_load_extension),
+       makeNativeMethod("sqlite3_open", NativeDatabaseBinding::sqlite3_open),
++      makeNativeMethod("sqlite3_open_existing_only",
++                       NativeDatabaseBinding::sqlite3_open_existing_only),
++      makeNativeMethod("sqlite3_check_main_not_moved",
++                       NativeDatabaseBinding::sqlite3_check_main_not_moved),
++      makeNativeMethod("sqlite3_install_ownership_guard",
++                       NativeDatabaseBinding::sqlite3_install_ownership_guard),
+       makeNativeMethod("sqlite3_prepare_v2",
+                        NativeDatabaseBinding::sqlite3_prepare_v2),
+       makeNativeMethod("sqlite3_serialize",
+@@ -66,9 +76,10 @@ void NativeDatabaseBinding::sqlite3_finalize_all_statement() {
+ }
+ 
+ int NativeDatabaseBinding::sqlite3_close() {
+-  // Not setting `db = nullptr` here because we may need the db pointer to get
+-  // error messages if exsqlite3_close has errors.
+-  return ::exsqlite3_close(db);
++  const int result = ::exsqlite3_close(db);
++  // Failed handles remain available for diagnostics and quarantine, never retry.
++  if (result == SQLITE_OK) db = nullptr;
++  return result;
+ }
+ 
+ std::string
+@@ -116,6 +127,55 @@ int NativeDatabaseBinding::sqlite3_open(const std::string &dbPath) {
+   return ::exsqlite3_open(dbPath.c_str(), &db);
+ }
+ 
++int NativeDatabaseBinding::sqlite3_open_existing_only(const std::string &dbPath) {
++  if (db != nullptr) {
++    return SQLITE_MISUSE;
++  }
++  sqlite3 *opened = nullptr;
++  constexpr int flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_FULLMUTEX |
++                        SQLITE_OPEN_PRIVATECACHE | SQLITE_OPEN_NOFOLLOW;
++  int result = ::exsqlite3_open_v2(dbPath.c_str(), &opened, flags, nullptr);
++  if (result == SQLITE_OK && ::exsqlite3_db_readonly(opened, "main") != 0) {
++    result = SQLITE_READONLY;
++  }
++  if (result == SQLITE_OK &&
++      (::exsqlite3_threadsafe() == 0 || ::exsqlite3_db_mutex(opened) == nullptr)) {
++    result = SQLITE_MISUSE;
++  }
++  if (result != SQLITE_OK) {
++    // Failed opens can still allocate a handle; no statements have escaped.
++    const int closeResult = ::exsqlite3_close_v2(opened);
++    if (closeResult != SQLITE_OK) {
++      db = opened;
++      jni::throwNewJavaException(SQLiteErrorException::create(
++          "Existing-only open failed (" + std::to_string(result) +
++          "); cleanup failed (" + std::to_string(closeResult) + ")").get());
++    }
++    return result;
++  }
++  db = opened;
++  return SQLITE_OK;
++}
++
++int NativeDatabaseBinding::sqlite3_check_main_not_moved() {
++  if (db == nullptr) {
++    return SQLITE_MISUSE;
++  }
++  int moved = -1;
++  const int result = ::exsqlite3_file_control(db, "main", SQLITE_FCNTL_HAS_MOVED, &moved);
++  if (result != SQLITE_OK) {
++    return result;
++  }
++  return moved == 0 ? SQLITE_OK : SQLITE_IOERR;
++}
++
++int NativeDatabaseBinding::sqlite3_install_ownership_guard() {
++  if (db == nullptr) return SQLITE_MISUSE;
++  const int disabled = ::exsqlite3_enable_load_extension(db, 0);
++  if (disabled != SQLITE_OK) return disabled;
++  return ::exsqlite3_set_authorizer(db, ownershipAuthorizer, nullptr);
++}
++
+ int NativeDatabaseBinding::sqlite3_prepare_v2(
+     const std::string &source,
+     jni::alias_ref<NativeStatementBinding::javaobject> statement) {
+diff --git a/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/NativeDatabase.kt b/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/NativeDatabase.kt
+index d00b71b..9c341de 100644
+--- a/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/NativeDatabase.kt
++++ b/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/NativeDatabase.kt
+@@ -7,6 +7,9 @@ import java.util.concurrent.atomic.AtomicInteger
+ 
+ internal class NativeDatabase(val databasePath: String, val openOptions: OpenDatabaseOptions) : SharedRef<NativeDatabaseBinding>(NativeDatabaseBinding()) {
+   var isClosed = false
++  var cplayoutTicket: CPLayoutConnectionRegistry.Ticket? = null
++  var cplayoutSourceDescriptor: CPLayoutSourceDescriptor? = null
++  var cplayoutHybridReleasePending = false
+   private val refCount = AtomicInteger(1)
+ 
+   internal fun addRef(): Int {
+@@ -27,6 +30,6 @@ internal class NativeDatabase(val databasePath: String, val openOptions: OpenDat
+ 
+   override fun sharedObjectDidRelease() {
+     super.sharedObjectDidRelease()
+-    this.ref.close()
++    CPLayoutDatabaseOwnership.releaseHybrid(this)
+   }
+ }
+diff --git a/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/CPLayoutDatabaseOwnership.kt b/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/CPLayoutDatabaseOwnership.kt
+new file mode 100644
+index 0000000..3393efb
+--- /dev/null
++++ b/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/CPLayoutDatabaseOwnership.kt
+@@ -0,0 +1,216 @@
++package expo.modules.sqlite
++
++import android.os.Process
++import android.system.ErrnoException
++import android.system.Os
++import android.system.OsConstants
++import android.system.StructStat
++import java.io.File
++import java.io.FileDescriptor
++import java.io.IOException
++import java.util.Collections
++
++internal fun cplayoutIdentity(stat: StructStat) = CPLayoutConnectionRegistry.FileIdentity(stat.st_dev, stat.st_ino)
++
++internal fun cplayoutProbe(path: String): CPLayoutConnectionRegistry.FileIdentity? {
++  val stat = try { Os.lstat(path) } catch (error: ErrnoException) {
++    if (error.errno == OsConstants.ENOENT) return null
++    throw error
++  }
++  if (!OsConstants.S_ISREG(stat.st_mode)) throw IOException("Database path is not a regular file")
++  return cplayoutIdentity(stat)
++}
++
++internal class CPLayoutSourceDescriptor private constructor(
++  val path: String,
++  private val fd: FileDescriptor,
++  private val initial: StructStat,
++  private val directory: File,
++  private val initialDirectory: StructStat
++) {
++  private var closeAttempted = false
++
++  fun verify(): CPLayoutConnectionRegistry.FileIdentity {
++    if (closeAttempted) throw IOException("Source descriptor is no longer available")
++    verifyDirectory(directory, initialDirectory)
++    verifySidecars(path)
++    val descriptorStat = Os.fstat(fd)
++    val pathStat = Os.lstat(path)
++    for (stat in listOf(descriptorStat, pathStat)) {
++      if (!OsConstants.S_ISREG(stat.st_mode) || stat.st_nlink != 1L || stat.st_uid != Process.myUid() ||
++        stat.st_mode != initial.st_mode || cplayoutIdentity(stat) != cplayoutIdentity(initial)) {
++        throw IOException("Source identity or ownership changed")
++      }
++    }
++    if (File(path).canonicalPath != path) throw IOException("Source path changed")
++    return cplayoutIdentity(initial)
++  }
++
++  fun close() {
++    if (closeAttempted) throw IOException("Source descriptor close already attempted")
++    closeAttempted = true
++    Os.close(fd)
++  }
++
++  companion object {
++    private fun verifySidecars(path: String) {
++      for (suffix in listOf("-wal", "-shm", "-journal")) {
++        val stat = try { Os.lstat(path + suffix) } catch (error: ErrnoException) {
++          if (error.errno == OsConstants.ENOENT) continue
++          throw error
++        }
++        CPLayoutSidecarPolicy.requireSafe(OsConstants.S_ISREG(stat.st_mode), stat.st_nlink, stat.st_uid, Process.myUid())
++      }
++    }
++
++    private fun verifyDirectory(directory: File, expected: StructStat) {
++      val current = Os.lstat(directory.path)
++      if (!OsConstants.S_ISDIR(current.st_mode) || current.st_uid != Process.myUid() ||
++        current.st_mode != expected.st_mode || cplayoutIdentity(current) != cplayoutIdentity(expected) ||
++        directory.canonicalPath != directory.path) throw IOException("Source directory identity or ownership changed")
++    }
++
++    fun open(path: String, expected: CPLayoutConnectionRegistry.FileIdentity, sourceDirectory: File): CPLayoutSourceDescriptor {
++      val directoryStat = Os.lstat(sourceDirectory.path)
++      verifyDirectory(sourceDirectory, directoryStat)
++      if (File(path).parentFile?.path != sourceDirectory.path || File(path).canonicalPath != path) {
++        throw IOException("Source must be in the app-private SQLite directory")
++      }
++      val before = Os.lstat(path)
++      if (!OsConstants.S_ISREG(before.st_mode) || before.st_nlink != 1L || before.st_uid != Process.myUid() ||
++        cplayoutIdentity(before) != expected) throw IOException("Source is not exclusively linked and app-owned")
++      verifySidecars(path)
++      val fd = Os.open(path, OsConstants.O_RDONLY or OsConstants.O_NOFOLLOW or OsConstants.O_CLOEXEC, 0)
++      val descriptor = CPLayoutSourceDescriptor(path, fd, before, sourceDirectory, directoryStat)
++      // The caller must retain this object before validation so failed close is quarantined.
++      return descriptor
++    }
++  }
++}
++
++internal object CPLayoutDatabaseOwnership {
++  private val registry = CPLayoutConnectionRegistry.PROCESS
++  private val quarantine = Collections.synchronizedList(mutableListOf<NativeDatabase>())
++
++  fun open(cachePath: String, path: String, options: OpenDatabaseOptions, sourceDirectory: File,
++    serializedData: ByteArray? = null): NativeDatabase = synchronized(registry) {
++    val transient = path == ":memory:"
++    if (transient && options.cplayoutSourceLease) throw IOException("A memory database cannot be leased")
++    if (serializedData != null && !transient) throw IOException("Deserialization requires a memory database")
++    val before = if (transient) null else cplayoutProbe(path)
++    val ticket = if (transient) registry.beginTransientOpen() else registry.beginOpen(path, before, options.cplayoutSourceLease)
++    var database: NativeDatabase? = null
++    var descriptor: CPLayoutSourceDescriptor? = null
++    var nativeStarted = false
++    var nativeReturned = false
++    var nativeSucceeded = false
++    try {
++      database = NativeDatabase(cachePath, options)
++      database.cplayoutTicket = ticket
++      if (options.cplayoutSourceLease) {
++        descriptor = CPLayoutSourceDescriptor.open(path, before ?: throw IOException("Source is missing"), sourceDirectory)
++        database.cplayoutSourceDescriptor = descriptor
++        descriptor.verify()
++      }
++      nativeStarted = true
++      val result = if (options.cplayoutExistingOnly) database.ref.sqlite3_open_existing_only(path) else database.ref.sqlite3_open(path)
++      nativeReturned = true
++      nativeSucceeded = result == NativeDatabaseBinding.SQLITE_OK
++      if (!nativeSucceeded) throw SQLiteErrorException("Tracked database open failed ($result)")
++      if (serializedData != null && database.ref.sqlite3_deserialize("main", serializedData) != NativeDatabaseBinding.SQLITE_OK) {
++        throw SQLiteErrorException("Tracked database deserialization failed")
++      }
++      // SQLite deserialization internally prepares ATTACH; the reserved handle has not escaped yet.
++      if (database.ref.sqlite3_install_ownership_guard() != NativeDatabaseBinding.SQLITE_OK) throw IOException("SQLite ownership guard unavailable")
++      if (options.cplayoutSourceLease) {
++        descriptor!!.verify()
++        if (database.ref.sqlite3_check_main_not_moved() != NativeDatabaseBinding.SQLITE_OK) throw IOException("SQLite source moved or cannot be checked")
++      }
++      if (transient) registry.transientOpened(ticket) else {
++        val observed = cplayoutProbe(path) ?: throw IOException("Database path vanished during open")
++        registry.opened(ticket, observed)
++      }
++      database
++    } catch (error: Throwable) {
++      var cleaned = !nativeStarted || nativeReturned
++      val failed = database
++      if (failed != null && nativeReturned && (nativeSucceeded || !options.cplayoutExistingOnly)) {
++        try {
++          if (failed.ref.sqlite3_close() != NativeDatabaseBinding.SQLITE_OK) throw IOException("Failed-open SQLite cleanup failed")
++          failed.isClosed = true
++        } catch (cleanupError: Throwable) { cleaned = false; error.addSuppressed(cleanupError) }
++      }
++      // Closing any descriptor for a Unix SQLite file can release process locks.
++      // Keep it until SQL closure is confirmed, and keep uncertain JNI objects alive.
++      if (cleaned) {
++        try { descriptor?.close() } catch (cleanupError: Throwable) { cleaned = false; error.addSuppressed(cleanupError) }
++      }
++      if (cleaned) {
++        try { failed?.ref?.close() } catch (cleanupError: Throwable) { cleaned = false; error.addSuppressed(cleanupError) }
++      }
++      registry.openFailed(ticket, cleaned)
++      if (failed != null) {
++        if (!cleaned) quarantine.add(failed) else {
++          failed.cplayoutTicket = null
++          failed.cplayoutSourceDescriptor = null
++        }
++      }
++      throw error
++    }
++  }
++
++  fun assertSourceLease(database: NativeDatabase): Map<String, String> = synchronized(registry) {
++    if (database.isClosed || !database.openOptions.cplayoutSourceLease) throw IOException("Source lease is not open")
++    val ticket = database.cplayoutTicket ?: throw IOException("Source lease has no registry owner")
++    val descriptor = database.cplayoutSourceDescriptor ?: throw IOException("Source descriptor is missing")
++    val identity = descriptor.verify()
++    registry.assertExclusive(ticket, identity)
++    if (database.ref.sqlite3_check_main_not_moved() != NativeDatabaseBinding.SQLITE_OK) throw IOException("SQLite source moved or cannot be checked")
++    descriptor.verify()
++    mapOf("path" to descriptor.path, "device" to java.lang.Long.toUnsignedString(identity.device), "inode" to java.lang.Long.toUnsignedString(identity.inode))
++  }
++
++  fun close(database: NativeDatabase, closeSql: () -> Unit) = synchronized(registry) {
++    val ticket = database.cplayoutTicket
++    if (ticket == null) { closeSql(); return@synchronized }
++    registry.beginClose(ticket)
++    try {
++      closeSql()
++      database.cplayoutSourceDescriptor?.close()
++      if (database.cplayoutHybridReleasePending) database.ref.close()
++    } catch (error: Throwable) {
++      registry.closeCompleted(ticket, false)
++      if (!quarantine.contains(database)) quarantine.add(database)
++      throw error
++    }
++    registry.closeCompleted(ticket, true)
++    database.cplayoutTicket = null
++    database.cplayoutSourceDescriptor = null
++    database.cplayoutHybridReleasePending = false
++    quarantine.remove(database)
++  }
++
++  fun releaseHybrid(database: NativeDatabase) = synchronized(registry) {
++    // SharedObject release is not evidence of SQLite closure. Preserve live/uncertain handles.
++    if (database.cplayoutTicket != null) {
++      database.cplayoutHybridReleasePending = true
++      if (!quarantine.contains(database)) quarantine.add(database)
++    } else {
++      database.ref.close()
++    }
++  }
++
++  fun <T> withOwnershipLock(operation: () -> T): T = synchronized(registry) { operation() }
++
++  fun copyUnowned(source: File, destination: File, overwrite: Boolean) = synchronized(registry) {
++    val sourcePath = source.canonicalPath
++    registry.assertUnowned(sourcePath, cplayoutProbe(sourcePath))
++    registry.assertUnowned(destination.path, cplayoutProbe(destination.path))
++    source.copyTo(destination, overwrite)
++  }
++
++  fun mutateUnowned(path: String, mutation: () -> Unit) = synchronized(registry) {
++    registry.assertUnowned(path, cplayoutProbe(path))
++    mutation()
++  }
++}
+diff --git a/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/CPLayoutConnectionRegistry.java b/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/CPLayoutConnectionRegistry.java
+new file mode 100644
+index 0000000..4b006d6
+--- /dev/null
++++ b/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/CPLayoutConnectionRegistry.java
+@@ -0,0 +1,247 @@
++package expo.modules.sqlite;
++
++import java.util.ArrayList;
++import java.util.List;
++
++/**
++ * Process-local handle ownership bookkeeping, based solely on caller-supplied snapshots.
++ * This class performs no filesystem probes and supplies no physical ownership proof.
++ */
++public final class CPLayoutConnectionRegistry {
++  /** Survives module/JS refresh within this class loader, not OS process replacement. */
++  public static final CPLayoutConnectionRegistry PROCESS = new CPLayoutConnectionRegistry(256);
++
++  public static final class FileIdentity {
++    public final long device;
++    public final long inode;
++
++    public FileIdentity(long device, long inode) {
++      this.device = device;
++      this.inode = inode;
++    }
++
++    @Override
++    public boolean equals(Object other) {
++      if (this == other) {
++        return true;
++      }
++      if (!(other instanceof FileIdentity)) {
++        return false;
++      }
++      FileIdentity identity = (FileIdentity) other;
++      return device == identity.device && inode == identity.inode;
++    }
++
++    @Override
++    public int hashCode() {
++      return 31 * Long.hashCode(device) + Long.hashCode(inode);
++    }
++  }
++
++  private enum State {
++    OPENING, OPEN, CLOSING, POISONED, RELEASED
++  }
++
++  public static final class Ticket {
++    private final CPLayoutConnectionRegistry owner;
++    private final String path;
++    private final FileIdentity beforeIdentity;
++    private FileIdentity observedIdentity;
++    private final boolean exclusive;
++    private final boolean transientHandle;
++    private State state = State.OPENING;
++    private boolean openCompletionAttempted;
++
++    private Ticket(CPLayoutConnectionRegistry owner, String path,
++        FileIdentity beforeIdentity, boolean exclusive, boolean transientHandle) {
++      this.owner = owner;
++      this.path = path;
++      this.beforeIdentity = beforeIdentity;
++      this.exclusive = exclusive;
++      this.transientHandle = transientHandle;
++    }
++  }
++
++  private final int maxTickets;
++  private final List<Ticket> tickets = new ArrayList<Ticket>();
++
++  public CPLayoutConnectionRegistry(int maxTickets) {
++    if (maxTickets <= 0) {
++      throw new IllegalArgumentException("maxTickets must be positive");
++    }
++    this.maxTickets = maxTickets;
++  }
++
++  public synchronized Ticket beginOpen(String canonicalASCIIPath,
++      FileIdentity beforeNullable, boolean exclusive) {
++    validatePath(canonicalASCIIPath, exclusive);
++    if (exclusive && beforeNullable == null) {
++      throw new IllegalArgumentException("Exclusive opens require a before identity");
++    }
++    if (tickets.size() >= maxTickets) {
++      throw new IllegalStateException("Connection ticket capacity reached");
++    }
++    // A previously exposed connection may already have attached another database.
++    if (exclusive && !tickets.isEmpty()) {
++      throw new IllegalStateException("Exclusive open requires an empty registry");
++    }
++    for (Ticket existing : tickets) {
++      if ((exclusive || existing.exclusive)
++          && conflicts(existing, canonicalASCIIPath, beforeNullable)) {
++        throw new IllegalStateException("Connection ownership conflict");
++      }
++      if (!exclusive && beforeNullable == null && existing.exclusive) {
++        throw new IllegalStateException("Unknown identity while an exclusive ticket is held");
++      }
++    }
++    Ticket ticket = new Ticket(this, canonicalASCIIPath, beforeNullable, exclusive, false);
++    tickets.add(ticket);
++    return ticket;
++  }
++
++  /** Tracks memory/deserialized handles without inventing a filesystem identity. */
++  public synchronized Ticket beginTransientOpen() {
++    if (tickets.size() >= maxTickets) {
++      throw new IllegalStateException("Connection ticket capacity reached");
++    }
++    for (Ticket existing : tickets) {
++      if (existing.exclusive) {
++        throw new IllegalStateException("Transient open while an exclusive ticket is held");
++      }
++    }
++    Ticket ticket = new Ticket(this, null, null, false, true);
++    tickets.add(ticket);
++    return ticket;
++  }
++
++  public synchronized void transientOpened(Ticket ticket) {
++    requireState(ticket, State.OPENING);
++    if (!ticket.transientHandle) {
++      throw new IllegalStateException("File tickets require an observed filesystem identity");
++    }
++    ticket.openCompletionAttempted = true;
++    ticket.state = State.OPEN;
++  }
++
++  public synchronized void opened(Ticket ticket, FileIdentity observedNonNull) {
++    requireState(ticket, State.OPENING);
++    if (ticket.transientHandle) {
++      throw new IllegalStateException("Transient tickets cannot receive a filesystem identity");
++    }
++    if (ticket.openCompletionAttempted) {
++      throw new IllegalStateException("Open completion has already been attempted");
++    }
++    // Keep the observed alias even when validation fails, until cleanup is confirmed.
++    ticket.openCompletionAttempted = true;
++    ticket.observedIdentity = observedNonNull;
++    if (observedNonNull == null) {
++      throw new IllegalArgumentException("Opened handles require an observed identity");
++    }
++    if (ticket.beforeIdentity != null && !ticket.beforeIdentity.equals(observedNonNull)) {
++      throw new IllegalStateException("File identity changed during open");
++    }
++    for (Ticket existing : tickets) {
++      if (existing != ticket && (ticket.exclusive || existing.exclusive)
++          && conflicts(existing, ticket.path, observedNonNull)) {
++        throw new IllegalStateException("Observed identity conflicts with exclusive ownership");
++      }
++    }
++    ticket.state = State.OPEN;
++  }
++
++  public synchronized void openFailed(Ticket ticket, boolean cleanupConfirmed) {
++    requireState(ticket, State.OPENING);
++    finish(ticket, cleanupConfirmed);
++  }
++
++  public synchronized void beginClose(Ticket ticket) {
++    requireState(ticket, State.OPEN);
++    ticket.state = State.CLOSING;
++  }
++
++  public synchronized void closeCompleted(Ticket ticket, boolean closed) {
++    requireState(ticket, State.CLOSING);
++    finish(ticket, closed);
++  }
++
++  public synchronized void assertExclusive(Ticket ticket, FileIdentity current) {
++    requireState(ticket, State.OPEN);
++    if (!ticket.exclusive) {
++      throw new IllegalStateException("Ticket is not exclusive");
++    }
++    if (current == null || !ticket.beforeIdentity.equals(ticket.observedIdentity)
++        || !ticket.observedIdentity.equals(current)) {
++      throw new IllegalStateException("Exclusive identity assertion failed");
++    }
++  }
++
++  public synchronized int liveCount() {
++    return tickets.size();
++  }
++
++  /** The caller must hold this registry's monitor across this check and its filesystem operation. */
++  public synchronized void assertUnowned(String canonicalPath, FileIdentity identityNullable) {
++    validatePath(canonicalPath, false);
++    for (Ticket ticket : tickets) {
++      if (ticket.transientHandle || conflicts(ticket, canonicalPath, identityNullable)
++          || (identityNullable == null && ticket.exclusive)) {
++        throw new IllegalStateException("A live connection ticket prevents the filesystem operation");
++      }
++    }
++  }
++
++  private void requireState(Ticket ticket, State required) {
++    if (ticket == null || ticket.owner != this) {
++      throw new IllegalArgumentException("Ticket does not belong to this registry");
++    }
++    if (ticket.state != required || !tickets.contains(ticket)) {
++      throw new IllegalStateException("Ticket is not in the required state: " + required);
++    }
++  }
++
++  private void finish(Ticket ticket, boolean cleanupConfirmed) {
++    if (cleanupConfirmed) {
++      tickets.remove(ticket);
++      ticket.state = State.RELEASED;
++    } else {
++      ticket.state = State.POISONED;
++    }
++  }
++
++  private static boolean conflicts(Ticket ticket, String path, FileIdentity identity) {
++    // Compare exact database/sidecar names in both directions, never broad prefixes.
++    return (ticket.path != null && (path.equals(ticket.path)
++        || isSidecar(ticket.path, path) || isSidecar(path, ticket.path))) || (identity != null
++        && (identity.equals(ticket.beforeIdentity) || identity.equals(ticket.observedIdentity)));
++  }
++
++  private static boolean isSidecar(String databasePath, String candidatePath) {
++    return candidatePath.equals(databasePath + "-wal")
++        || candidatePath.equals(databasePath + "-shm")
++        || candidatePath.equals(databasePath + "-journal");
++  }
++
++  private static void validatePath(String path, boolean strictASCII) {
++    if (path == null || path.length() < 2 || path.length() > 4096 || path.charAt(0) != '/') {
++      throw new IllegalArgumentException("An absolute canonical file path of at most 4096 characters is required");
++    }
++    int segmentStart = 1;
++    for (int i = 1; i <= path.length(); i++) {
++      if (i == path.length() || path.charAt(i) == '/') {
++        int length = i - segmentStart;
++        if (length == 0 || (length == 1 && path.charAt(segmentStart) == '.')
++            || (length == 2 && path.charAt(segmentStart) == '.'
++                && path.charAt(segmentStart + 1) == '.')) {
++          throw new IllegalArgumentException("Empty or relative path segments are forbidden");
++        }
++        segmentStart = i + 1;
++      } else {
++        char c = path.charAt(i);
++        if (c == 0 || (strictASCII && !((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')
++            || (c >= '0' && c <= '9') || c == '_' || c == '.' || c == '-'))) {
++          throw new IllegalArgumentException("Path contains a forbidden character");
++        }
++      }
++    }
++  }
++}
+diff --git a/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/CPLayoutSidecarPolicy.java b/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/CPLayoutSidecarPolicy.java
+new file mode 100644
+index 0000000..2b0f5b5
+--- /dev/null
++++ b/node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/CPLayoutSidecarPolicy.java
+@@ -0,0 +1,12 @@
++package expo.modules.sqlite;
++
++/** Validates caller-supplied metadata only; the Android adapter owns lstat. */
++public final class CPLayoutSidecarPolicy {
++  private CPLayoutSidecarPolicy() {}
++
++  public static void requireSafe(boolean regularFile, long linkCount, int ownerUid, int appUid) {
++    if (!regularFile || linkCount != 1L || ownerUid != appUid) {
++      throw new IllegalStateException("Source sidecar must be regular, singly linked and app-owned");
++    }
++  }
++}

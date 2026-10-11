@@ -13,7 +13,7 @@ Do not use this skill to create a Google imagery cache, scrape or bulk-process G
 
 ## Quick Start
 
-1. Re-read `AGENTS.md`, then run `git status --short` and preserve pre-existing work.
+1. Read the current user task, then run `git status --short` and preserve pre-existing work.
 2. Review current Google Earth/KML records before making claims: `docs/google-earth-map-improvement-loop.md`, `docs/google-earth-import-wizard-research.md`, `docs/kml-kmz-google-earth-source-ledger.md`, and `docs/imagery-provider-tool-policy-ledger.md`.
 3. Keep source-backed facts separate from local facts, assumptions, unknowns, and recommendations. For KML semantics, check the Google KML Reference, Google KML tutorial, and OGC KML page.
 4. Inventory local screenshots, KML, and KMZ files with `scripts/inventory_ge_artifacts.py` before visual analysis when artifact proof matters.

@@ -69,3 +69,11 @@ function buildCommandMenuConfig(menu: CplayoutLeftNavCommandMenuDefinition, inpu
 export function catalogActionKey(action: CplayoutLeftNavCatalogActionDefinition): CplayoutLeftNavMenuActionId {
   return action.action;
 }
+
+/** The next creation step follows the deepest selected catalog container. */
+export function nextCatalogCreateAction(context: LeftNavContext["activeContext"]): CplayoutLeftNavMenuActionId {
+  if (context?.fieldMapId) return "create_design";
+  if (context?.projectId) return "create_field_map";
+  if (context?.clientId) return "create_project";
+  return "create_client";
+}

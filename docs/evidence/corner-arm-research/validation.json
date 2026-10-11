@@ -1,0 +1,198 @@
+{
+  "claimClass": "source_and_synthetic_numerical_research",
+  "researchTypeScriptTests": 42,
+  "researchPythonTests": 11,
+  "finalCliTests": 2,
+  "syntheticFixtureExpectedOutcomes": 26,
+  "independentQa": "accepted_bounded_research_scope",
+  "npmAudit": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "dependencies": {
+      "prod": 698,
+      "dev": 32,
+      "optional": 39,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 741
+    }
+  },
+  "initialWorktreeAttempt": {
+    "createdAt": "2026-09-28T01:10:09.951398+00:00",
+    "results": [
+      {
+        "check": "aggregate",
+        "command": [
+          "npm",
+          "run",
+          "validate"
+        ],
+        "exitCode": 2,
+        "seconds": 58.924
+      },
+      {
+        "check": "design-guides",
+        "command": [
+          "npm",
+          "run",
+          "validate:design-guides"
+        ],
+        "exitCode": 0,
+        "seconds": 0.299
+      },
+      {
+        "check": "service-manuals",
+        "command": [
+          "npm",
+          "run",
+          "validate:corner-service-manuals"
+        ],
+        "exitCode": 0,
+        "seconds": 0.333
+      },
+      {
+        "check": "skills",
+        "command": [
+          "npm",
+          "run",
+          "validate:skills"
+        ],
+        "exitCode": 1,
+        "seconds": 21.024
+      },
+      {
+        "check": "context-map",
+        "command": [
+          "npm",
+          "run",
+          "context-map:check"
+        ],
+        "exitCode": 1,
+        "seconds": 1.465
+      },
+      {
+        "check": "diff-check",
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exitCode": 0,
+        "seconds": 4.108
+      },
+      {
+        "check": "audit",
+        "command": [
+          "npm",
+          "audit",
+          "--json"
+        ],
+        "exitCode": 0,
+        "seconds": 0.679
+      }
+    ],
+    "sourceFilesHashed": 441,
+    "changedSourcePaths": [
+      "apps/mobile/App.tsx",
+      "apps/mobile/src/components/FieldDesignWorkspace.tsx",
+      "apps/mobile/src/components/fieldMachineInputs.ts",
+      "packages/core/src/drawingMetadata.test.ts",
+      "packages/core/src/fieldLayoutTarget.test.ts",
+      "packages/core/src/fieldLayoutTarget.ts",
+      "packages/core/src/index.ts",
+      "packages/core/src/projectDocument.test.ts",
+      "packages/core/src/projectDocument.ts",
+      "packages/core/src/projectReducer.ts",
+      "packages/project-store/src/fieldDesignArchive.test.ts",
+      "packages/project-store/src/fieldWorkspace.test.ts",
+      "packages/project-store/src/projectArchive.test.ts",
+      "tools/corner-arm-research/python/run_comparison.py"
+    ]
+  },
+  "finalWorktreeAttempt": {
+    "createdAt": "2026-09-28T01:17:39.219325+00:00",
+    "results": [
+      {
+        "check": "research-typecheck",
+        "command": [
+          "node_modules/.bin/tsc",
+          "-p",
+          "tools/corner-arm-research/tsconfig.json"
+        ],
+        "exitCode": 0,
+        "seconds": 1.92
+      },
+      {
+        "check": "aggregate",
+        "command": [
+          "npm",
+          "run",
+          "validate"
+        ],
+        "exitCode": 1,
+        "seconds": 304.569
+      },
+      {
+        "check": "context-build",
+        "command": [
+          "npm",
+          "run",
+          "context-map:build"
+        ],
+        "exitCode": 0,
+        "seconds": 1.16
+      },
+      {
+        "check": "skills",
+        "command": [
+          "npm",
+          "run",
+          "validate:skills"
+        ],
+        "exitCode": 0,
+        "seconds": 15.925
+      },
+      {
+        "check": "context-check",
+        "command": [
+          "npm",
+          "run",
+          "context-map:check"
+        ],
+        "exitCode": 0,
+        "seconds": 1.21
+      },
+      {
+        "check": "diff-check",
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exitCode": 0,
+        "seconds": 2.169
+      }
+    ],
+    "sourceFilesHashed": 370,
+    "changedSourcePaths": [
+      "packages/core/src/drawingProjectEdits.test.ts",
+      "packages/core/src/drawingProjectMutation.ts",
+      "packages/core/src/projectImports.ts",
+      "packages/core/src/projectReducer.ts",
+      "packages/geometry/src/advisoryTemplatePlanner.test.ts",
+      "packages/geometry/src/layoutSearchCandidates.ts",
+      "packages/geometry/src/layoutSearchCoverage.ts",
+      "packages/geometry/src/layoutSearchDiagnostics.ts",
+      "packages/geometry/src/layoutSearchFeasibility.ts",
+      "packages/geometry/src/layoutSearchTypes.ts"
+    ]
+  },
+  "aggregateAccepted": false,
+  "browserNativeFieldChecks": "not_run_not_claimed"
+}

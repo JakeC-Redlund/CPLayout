@@ -1,0 +1,13 @@
+Portable CV toolkit
+
+Source owner: Redlund CV Analytics (JakeC-Redlund/redlund-cv-analytics).
+The wheel contains the source files identified by its SHA-256 source manifest.
+Its CPLayout vendor record identifies the published source revision and artifact.
+
+This notice records provenance; it grants no additional source-code license.
+Optional Python runtimes, model weights, font assets and media retain their own
+terms. They are not bundled in this wheel. The standalone plugin distribution
+includes its own third-party font notice where that font is included.
+
+Source tests and synthetic screening do not establish field accuracy, survey
+accuracy, native-device behavior, model superiority or a production release.

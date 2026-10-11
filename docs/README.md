@@ -7,6 +7,10 @@ CPLayout is an offline-first, no-cost center-pivot planning app. Canonical proje
 - `AGENTS.md`: durable repository rules, preflight, reasoning policy, subagent policy, and validation gates.
 - `docs/agent-tree-protocol.md`: coordinator/leaf handoff, first-read selection, decision and proof boundaries.
 
+Broad development resumes: [current status and next queue](development-status.md).
+The [2026-09-27 process review](development-review-20260927.md) reconciles older
+plans and defines measurement; historical logs are not default first reads.
+
 Use `docs/agent-context-map.md` as a task-specific index, not an unconditional third read. Open the matching leaf skill or module first; use `docs/agent-prompt-registry.md` and generated governance records only for routing/governance work.
 
 ## Task-Specific Docs
@@ -21,6 +25,12 @@ Use `docs/agent-context-map.md` as a task-specific index, not an unconditional t
 - Direct package inventory, current alignment, advisories, and upgrade gates: `docs/dependency-upgrade-plan.md`.
 - Shared mapping controller, renderer boundaries, and regression coverage: [mapping-refactor-plan.md](mapping-refactor-plan.md).
 - Polygon, Line and Point drawing, measurements, research and safety boundaries: [drawing-tools-refactor.md](drawing-tools-refactor.md).
+- Received drawing questionnaire answers, partial visual implementation and remaining classification/autosave/pause work: [drawing-review-response-plan.md](drawing-review-response-plan.md).
+- Durable unfinished drawings, document compatibility and pause/save integration: [drawing-workflow-contract.md](drawing-workflow-contract.md).
+- Independent machines, common-field document and conversion/editor contracts: [field-design-contract.md](field-design-contract.md).
+- Calculation report fields, temporary inputs, save boundaries and evidence limits: [calculation-report-workflow.md](calculation-report-workflow.md).
+- Visible Windows Edge screenshots, annotation and reliable answer-recording procedure: [windows-edge-visual-review-plan.md](windows-edge-visual-review-plan.md).
+- Live browser answers, agent updates, durable receipts and review-tab replacement: [interactive-browser-review.md](interactive-browser-review.md).
 - Agricultural mapping/RTK quality review, comparison criteria, and improvement packets: [mapping-rtk-quality-program.md](mapping-rtk-quality-program.md).
 - Current Design-to-Layout safety packet, verification and remaining implementation sequence: [mapping-workflow-review.md](mapping-workflow-review.md).
 - Active full-refactor execution queue, worker ownership, checkpoints and resumption gates: [full-refactor-execution.md](full-refactor-execution.md).
@@ -29,6 +39,7 @@ Use `docs/agent-context-map.md` as a task-specific index, not an unconditional t
 - Imagery, KML/KMZ, Google Earth, ML/CV: `docs/kml-kmz-google-earth-source-ledger.md`, `packages/core/src/imageryEvidence.ts`, `docs/imagery-ml-capability-roadmap.md`.
 - Interface and visible web/native proof: `apps/mobile/App.tsx`, `packages/map-adapters/src/SvgMapSurface.tsx`, `docs/android-native-verification.md`.
 - Pivot, corner-arm, and irrigation design evidence: `docs/design-guides/topic-index.md`, `docs/corner-service-manuals/topic-index.md`, `packages/geometry/src/index.ts`.
+- Corner-arm mechanism research, reconciled sources, synthetic trajectory verification and graph/spline experiments: [research and development handoff](corner-arm-geometry-research-plan.md), [source/package matrix](corner-arm-research-sources.md), [reproduction commands](../tools/corner-arm-research/README.md).
 
 ## Optional Deep Records
 
@@ -43,5 +54,6 @@ Use `docs/agent-context-map.md` as a task-specific index, not an unconditional t
 - `npm run context-map:check`: fail when generated context-map outputs are stale.
 - `npm run validate:skills`: validate skills, hooks, route data, context map, required docs, and process records.
 - `npm run validate`: run TypeScript and workspace tests after TypeScript or UI changes.
+- `npm run test:visual-review`: validate answer receipts, questionnaire restore/export and image-bearing packets; semantic browser tests supplement visible Edge review.
 - `git diff --check`: catch whitespace errors.
 - `npm audit`: report dependency advisories without force fixes.

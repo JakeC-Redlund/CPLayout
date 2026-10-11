@@ -6,3 +6,6 @@ export * from "./mapTools";
 export * from "./mapOverlayGeoJson";
 export * from "./mapWorkbenchStyle";
 export * from "./types";
+export * from "./workspaceMapScene";
+export * from "./WorkspaceMapSurface";
+export * from "./workspaceMapSurfaceTypes";

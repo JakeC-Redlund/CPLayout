@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "name": "sprintf-js",
+  "version": "1.0.3",
+  "packageRoot": "node_modules/sprintf-js",
+  "consumers": [
+    "node_modules/argparse"
+  ],
+  "patchSha256": "02abefa147bca77c903c6db25a65a85eb554738788c1fa49ac240178e919d363",
+  "pins": {
+    "package.json": "f7ed5a0dc9b4c939e92be6acdf3bd83abc3d7e5def9c1307f3c9f53bd7cb2f8c"
+  },
+  "files": [
+    {
+      "target": "node_modules/sprintf-js/src/sprintf.js",
+      "original": "9904b0d448280bfdfcb0329bdac995883033597727404f9c058d051d9174b7c7",
+      "patched": "e85398cc91d46d81ae2fc8a2a211d2c85d2fc55f211a43d9abcf8e903f3774e1"
+    }
+  ]
+}

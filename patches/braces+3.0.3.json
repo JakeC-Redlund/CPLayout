@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "name": "braces",
+  "version": "3.0.3",
+  "packageRoot": "node_modules/braces",
+  "consumers": [
+    "node_modules/micromatch"
+  ],
+  "patchSha256": "e4e25644fd90476bb6733254b3e9df554fec7b01393c97fb8112b5ac3753c3eb",
+  "pins": {
+    "package.json": "56f08b888a4f30dc7cf8a7dbb36ffe92b737912ba36abe9d069d32167c957ac7",
+    "index.js": "332ea07c7b006361aad12aa994ca75dc1db8e8382b884909e2f38f10b85c88a4",
+    "lib/utils.js": "b5a7596aa67730412b3c029ef09e84e6b67b8e445cffd35d1d295549c89066c7",
+    "lib/constants.js": "c18ac5adb57308f1ce42a28552da3a31f5d83709743ebd9a636336813a744d4b"
+  },
+  "files": [
+    {
+      "target": "node_modules/braces/lib/parse.js",
+      "original": "e572166565f15fa6ad9865ae49d678218e32aabfd1b3720f6d0d43d39800d310",
+      "patched": "680f042a9ac7eb510cb994516d9fdb2b59b19daab865962a518601635d11ead6"
+    },
+    {
+      "target": "node_modules/braces/lib/compile.js",
+      "original": "dc98f22eee3d511785d92a00758d5f0d48efed5f5813bdecc2de430c529b5c9f",
+      "patched": "2370f1d9d8474aa7d88583615dfab3b4e65192bdc37089d178f49ffc2eba5b0d"
+    },
+    {
+      "target": "node_modules/braces/lib/expand.js",
+      "original": "41ccc196ebfa7b7781a634e721eb744e4e7bcb54cba427a7e3d6806a1b9e58f7",
+      "patched": "6002587df0dd4bed08443a1b55a7f370a237fb25b96580889b3e39eb6fc90350"
+    },
+    {
+      "target": "node_modules/braces/lib/stringify.js",
+      "original": "379f22d77bfa1478341ccd49c5e4267464aabcbba03558bab332aac23fc6f23a",
+      "patched": "5156de1a2faf242a40f06dc891592bec78e821d515ab97a2573e74e7033340c4"
+    },
+    {
+      "target": "node_modules/braces/lib/depth.js",
+      "original": null,
+      "patched": "2baee13264a9cf3baa1361accd28a4d8e1c8d4763bfb8f4e448fc744144d6e83"
+    }
+  ]
+}

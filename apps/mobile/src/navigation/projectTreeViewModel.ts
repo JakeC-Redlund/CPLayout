@@ -65,14 +65,14 @@ export function buildProjectTreeViewModel(catalog: ProjectCatalog | WorkspaceDes
           return {
             id: projectRecord.id,
             label: projectRecord.name,
-            meta: `${fieldMaps.length} map file${fieldMaps.length === 1 ? "" : "s"} - ${designCount} design file${designCount === 1 ? "" : "s"}`,
+            meta: `${fieldMaps.length} field${fieldMaps.length === 1 ? "" : "s"} - ${designCount} design${designCount === 1 ? "" : "s"}`,
             showChildren: activeContext.projectId === null || activeContext.projectId === projectRecord.id,
             fieldMaps: fieldMaps.map((fieldMap) => {
               const designs = catalog.designs.filter((design) => design.fieldMapId === fieldMap.id);
               return {
                 id: fieldMap.id,
                 label: fieldMap.name,
-                meta: `${designs.length} design file${designs.length === 1 ? "" : "s"}`,
+                meta: `${designs.length} design${designs.length === 1 ? "" : "s"}`,
                 designs: [
                   ...designs.filter((design) => design.isActive).map((design) => ({
                     id: design.id,

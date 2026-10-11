@@ -9,7 +9,7 @@ Use this skill when a CPLayout task touches coordinate systems, geometry authori
 
 ## Operating Rules
 
-1. Start from `AGENTS.md` and the current local files named by the coordinator.
+1. Start from the current user task and the current local files named by the coordinator.
 2. Stay read-only unless a bounded worker scope is explicitly assigned.
 3. Preserve projected/local `XY` in the project CRS as canonical geometry.
 4. Treat WGS84, KML/KMZ coordinates, imagery labels, screenshots, OCR/CV output, TileJSON metadata, and operator labels as input/display/evidence until a reducer-backed projected-XY workflow accepts them.

@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 import sys
 import unittest
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -26,10 +27,15 @@ assert builder_spec is not None and builder_spec.loader is not None
 builder = importlib.util.module_from_spec(builder_spec)
 builder_spec.loader.exec_module(builder)
 
+subagent_spec = importlib.util.spec_from_file_location("context_tests_subagent", SUBAGENT_START_PATH)
+assert subagent_spec and subagent_spec.loader
+subagent = importlib.util.module_from_spec(subagent_spec)
+subagent_spec.loader.exec_module(subagent)
+
 
 class ContextMapTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.context_map = json.loads(CONTEXT_MAP_PATH.read_text(encoding="utf-8"))
+        self.context_map = builder._build_context_map()
 
     def pack_ids_for_prompt(self, prompt: str) -> list[str]:
         matches = triage.match_routes(prompt)
@@ -40,7 +46,49 @@ class ContextMapTests(unittest.TestCase):
         ]
 
     def hook_context(self, prompt: str, context_map: dict[str, object] | None = None) -> str:
-        return triage._context(prompt, triage.match_routes(prompt), False, context_map)  # noqa: SLF001
+        return triage._context(prompt, triage.match_routes(prompt), False, self.context_map if context_map is None else context_map)  # noqa: SLF001
+
+    def test_every_role_index_stays_inside_hook_pack_budget(self) -> None:
+        budget = self.context_map["limits"]["maxContextPacksPerHook"]
+        for field in ("routeContext", "agentContext"):
+            for role, refs in self.context_map[field].items():
+                with self.subTest(field=field, role=role):
+                    self.assertLessEqual(len(refs), budget)
+
+    def test_unified_preservation_is_primary_with_role_contract_and_proof_refs(self) -> None:
+        roles = {
+            "cplayout_interface_developer": "interface_ui",
+            "cplayout_database_specialist": "storage_archive_native",
+            "cplayout_gis_geometry_guardian": "gis_geometry_guardrails",
+        }
+        for field in ("routeContext", "agentContext"):
+            for role, contract in roles.items():
+                with self.subTest(field=field, role=role):
+                    self.assertEqual(self.context_map[field][role], ["workspace_preflight", "unified_mode_preservation", contract])
+        packs = {pack["id"]: pack for pack in self.context_map["contextPacks"]}
+        self.assertIn("docs/android-native-verification.md", packs["unified_mode_preservation"]["secondaryPaths"])
+        self.assertIn("packages/gnss/src/index.ts", packs["unified_mode_preservation"]["secondaryPaths"])
+        for contract in ("interface_ui", "gis_geometry_guardrails"):
+            self.assertIn("docs/rtk-gnss-integration-plan.md", packs[contract]["secondaryPaths"])
+        self.assertIn("packages/core/src/projectDocument.ts", packs["storage_archive_native"]["secondaryPaths"])
+        self.assertIn("runtime_proof_gates", self.context_map["routeContext"]["cplayout_runtime_proof_gatekeeper"])
+        self.assertIn("rtk_gnss_hardware", self.context_map["routeContext"]["cplayout_runtime_proof_gatekeeper"])
+
+    def test_generator_rejects_over_budget_role_indices(self) -> None:
+        import copy
+        for field in ("routeContext", "agentContext"):
+            mutated = copy.deepcopy(self.context_map)
+            mutated[field]["cplayout_interface_developer"].append("rtk_gnss_hardware")
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                builder._validate_context_map(mutated)
+
+    def test_unified_modes_select_preservation_contract(self) -> None:
+        prompt = "Unify Design Survey Layout in one workspace; preserve dirty input and receiver ownership during mode switches."
+        context = self.hook_context(prompt, self.context_map)
+        self.assertIn("unified_mode_preservation", context)
+        self.assertIn("docs/unified-workspace-decision-2026-10-10.md", context)
+        self.assertNotIn("Read first: AGENTS.md", context)
+        self.assertLessEqual(len(context.encode("utf-8")), 1200)
 
     def test_context_map_check_command_passes(self) -> None:
         result = subprocess.run(
@@ -70,6 +118,7 @@ class ContextMapTests(unittest.TestCase):
                 "runtime_proof_gates",
                 "gis_geometry_guardrails",
                 "qa_validation_evidence",
+                "unified_mode_preservation",
             }.issubset(pack_ids)
         )
         self.assertIn("cplayout_kb_curator", self.context_map["routeContext"])
@@ -159,19 +208,11 @@ class ContextMapTests(unittest.TestCase):
         )
         self.assertIn("CPLayout advisory routes:", context)
         self.assertNotIn("Context packs", context)
-        self.assertIn("Read first: AGENTS.md.", context)
+        self.assertIn("Read first: docs/agent-tree-protocol.md.", context)
 
     def test_subagent_start_includes_agent_context_packs(self) -> None:
-        result = subprocess.run(
-            [sys.executable, str(SUBAGENT_START_PATH)],
-            cwd=ROOT,
-            input=json.dumps({"hook_event_name": "SubagentStart", "agent_type": "cplayout_kb_curator"}),
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            check=True,
-        )
-        context = json.loads(result.stdout)["hookSpecificOutput"]["additionalContext"]
+        with patch.object(subagent, "_load_context_map", return_value=self.context_map):
+            context = subagent._context({"agent_type": "cplayout_kb_curator"})
         self.assertIn("Context packs:", context)
         self.assertIn("governance_hooks_skills", context)
         self.assertIn("preserve other work and keep assigned scopes separate", context)

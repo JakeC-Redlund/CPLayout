@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 import tomllib
@@ -135,6 +136,7 @@ REQUIRED_CONTEXT_PACK_IDS = {
     "runtime_proof_gates",
     "gis_geometry_guardrails",
     "qa_validation_evidence",
+    "unified_mode_preservation",
 }
 
 HOOK_SAMPLES = (
@@ -336,7 +338,7 @@ def validate_route_data() -> list[str]:
 
     if route_data.get("maxRoutes") != 3:
         errors.append("cplayout_route_data.json: maxRoutes must be 3")
-    if not isinstance(route_data.get("minScore"), int):
+    if type(route_data.get("minScore")) is not int or route_data["minScore"] < 0:
         errors.append("cplayout_route_data.json: minScore must be an integer")
     if "defaultComplexityBand" in route_data or "defaultReasoningEffort" in route_data:
         errors.append("cplayout_route_data.json: hidden default complexity/reasoning fields are not allowed")
@@ -417,10 +419,18 @@ def validate_route_data() -> list[str]:
                 missing_keywords = sorted(REQUIRED_ROUTE_KEYWORDS[route_id] - terms)
                 for missing_keyword in missing_keywords:
                     errors.append(f"cplayout_route_data.json: {route_id}.positiveKeywords missing {missing_keyword}")
+            normalized_terms: set[tuple[str, ...]] = set()
             for keyword in keywords:
                 weight = keyword.get("weight") if isinstance(keyword, dict) else None
-                if not isinstance(weight, int) or weight <= 0:
-                    errors.append(f"cplayout_route_data.json: {route_id}.{field} has non-positive weight")
+                term = keyword.get("term") if isinstance(keyword, dict) else None
+                if type(weight) is not int or weight <= 0:
+                    errors.append(f"cplayout_route_data.json: {route_id}.{field} has invalid weight")
+                normalized = tuple(re.findall(r"[a-z0-9_]+", term.lower())) if isinstance(term, str) else ()
+                if not normalized:
+                    errors.append(f"cplayout_route_data.json: {route_id}.{field} has invalid term")
+                elif normalized in normalized_terms:
+                    errors.append(f"cplayout_route_data.json: {route_id}.{field} has duplicate normalized term")
+                normalized_terms.add(normalized)
 
     duplicates = sorted({route_id for route_id in route_ids if route_ids.count(route_id) > 1})
     for duplicate in duplicates:

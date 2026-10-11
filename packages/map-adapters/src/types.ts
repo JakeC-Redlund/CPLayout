@@ -59,6 +59,7 @@ export interface MapSurfaceProps {
   onMoveInfrastructurePoint?: (pointType: InfrastructurePoint, point: XY, wgs84?: LonLat) => MapMutationOutcome;
   onAddSurveyPoint?: (point: Omit<SurveyPoint, "id" | "observedAt"> & { id?: string; observedAt?: string }) => MapMutationOutcome;
   onAddMapFeature?: (feature: Omit<ProjectMapFeature, "id"> & { id?: string }) => void;
+  onUnfinishedDrawingChange?: (scope: { projectId: string; projectCrs: string; projectGeneration: number }, unfinished: boolean) => void;
   onCreateMapFeatureDraft?: (draft: PendingMapFeatureDraft) => MapDraftHandoffResult | void;
   onSelectMapFeature?: (featureId: string | null) => void;
   onManualDesignCapture?: (capture: ManualDesignMapCapture) => void;

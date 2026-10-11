@@ -1,4 +1,4 @@
-import { assertMetricCalculationCrs } from "@cplayout/core";
+import { assertMetricCalculationCrs, assertNoStrippedFields, assertProjectCalculationSafe, PivotProjectSchema, snapshotJsonValue } from "@cplayout/core";
 import * as polygonClipping from "polygon-clipping";
 
 import type {
@@ -27,9 +27,11 @@ import {
   machineRadiusMeters,
   multiPolygonAreaSquareMeters,
   polygonAreaSquareMeters,
+  validateWetCoverageWithinField,
 } from "./geometry";
 import { optimizePivotCenterSteps, type PivotCenterAlternative, type PivotCenterSeedKind } from "./pivotCenterOptimizer";
 import { completeCalculation, type Calculation } from "./calculation";
+import { evaluatePivotPairSeparation } from "./machineSeparation";
 
 type ClipPosition = [number, number];
 type ClipPolygon = ClipPosition[][];
@@ -74,6 +76,10 @@ export interface PivotPlacementScoreBreakdown {
 }
 
 export interface AdvisoryCostInput {
+  pricing?:
+    | { kind: "machine_price"; amount: number; machine: PivotMachine }
+    | { kind: "length_tower_estimate"; baseCost: number; costPerMeter: number; costPerTower: number };
+  /** Legacy caller lane; cannot be combined with an explicit pricing basis. */
   fixedMachineCost?: number;
   costPerMeter?: number;
   costPerTower?: number;
@@ -295,6 +301,91 @@ export interface AdvisoryFieldPivotPlanOptions extends PivotPlacementCandidateOp
   candidatePoolSize?: number;
   collisionBufferMeters?: number;
   minimumMachineSeparationMeters?: number;
+}
+
+/** Optional alternatives, not required installed machines or verified vendor packages. */
+export interface AdvisoryPivotTemplate {
+  id: string;
+  machine: PivotMachine;
+  maximumCount: number;
+  costInput?: AdvisoryCostInput;
+}
+
+export type AdvisoryTemplatePlanOptions = Omit<AdvisoryFieldPivotPlanOptions, "costInput">;
+
+export interface AdvisoryTemplatePlanCandidate {
+  id: string;
+  templateId: string;
+  machine: PivotMachine;
+  pivotCenter: XY;
+  structuralReachMeters: number;
+  placementCandidate: PivotPlacementCandidate;
+  modeledCoverage: MultiPolygonXY;
+  incrementalIrrigatedAcres: number;
+}
+
+export interface AdvisoryTemplateFieldPlan {
+  advisoryOnly: true;
+  canonicalGeometryMutation: false;
+  qualifiedReviewRequired: true;
+  objective: "greedy_union_coverage";
+  templateRole: "optional_alternatives";
+  projectCrs: string;
+  maximumMachineCount: number;
+  status: "no_feasible_candidates" | "candidates_found";
+  candidates: AdvisoryTemplatePlanCandidate[];
+  templates: { id: string; machine: PivotMachine; maximumCount: number; candidateCount: number; feasibleCount: number }[];
+  excludedTemplates: { id: string; reason: string }[];
+  pairChecks: {
+    leftCandidateId: string; rightCandidateId: string;
+    centerDistanceMeters: number; minimumRequiredSeparationMeters: number; pairBufferMeters: number;
+  }[];
+  modeledCoverageUnion: MultiPolygonXY;
+  modeledIrrigatedUnionAcres: number;
+  modeledIrrigatedAcresSum: number;
+  duplicateModeledCoverageAcres: number;
+  fieldUnirrigatedAcres: number;
+  cost: {
+    status: "complete" | "unavailable";
+    estimatedCost: number | null; costPerIrrigatedAcre: number | null; currencyCode: string | null;
+  };
+  warnings: string[];
+}
+
+/** Computational limits for this planner, not equipment or field-size limits. */
+export const ADVISORY_FIELD_PIVOT_PLAN_LIMITS = Object.freeze({
+  maxMachines: 8,
+  gridDivisions: 24,
+  candidatePoolSize: 128,
+  maxCandidates: 128,
+});
+
+function validateFieldPivotPlanOptions(input: AdvisoryFieldPivotPlanOptions): AdvisoryFieldPivotPlanOptions {
+  if (input === null || typeof input !== "object" || Array.isArray(input)) {
+    throw new TypeError("Field-pivot plan options must be an object.");
+  }
+  // Own numeric settings for the lifetime of a suspended calculation.
+  const options = { ...input };
+  for (const key of ["maxMachines", "gridDivisions", "candidatePoolSize", "maxCandidates"] as const) {
+    const value = options[key];
+    const minimum = key === "gridDivisions" ? 3 : 1;
+    if (value !== undefined && (!Number.isSafeInteger(value) || value < minimum || value > ADVISORY_FIELD_PIVOT_PLAN_LIMITS[key])) {
+      throw new RangeError(`${key} must be an integer from ${minimum} to ${ADVISORY_FIELD_PIVOT_PLAN_LIMITS[key]} (computational budget).`);
+    }
+  }
+  for (const key of ["collisionBufferMeters", "minimumMachineSeparationMeters", "obstacleBufferMeters",
+    "minimumBoundaryClearanceMeters", "minimumObstacleClearanceMeters", "boundaryEpsilonSquareMeters"] as const) {
+    const value = options[key];
+    if (value !== undefined) assertFieldPivotPlanDistance(value, key);
+  }
+  for (const key of ["waterSourceWeight", "powerSourceWeight", "accessWeight"] as const) {
+    if (options[key] !== undefined && !Number.isFinite(options[key])) throw new RangeError(`${key} must be finite.`);
+  }
+  return options;
+}
+
+function assertFieldPivotPlanDistance(value: number, name: string): void {
+  if (!Number.isFinite(value) || value < 0) throw new RangeError(`${name} must be finite and nonnegative.`);
 }
 
 export interface AdvisoryFieldPivotPlanCandidate {
@@ -1044,19 +1135,231 @@ export function planAdvisoryFieldPivots(
   return completeCalculation(planAdvisoryFieldPivotsSteps(project, options));
 }
 
+export const ADVISORY_TEMPLATE_PLAN_LIMITS = Object.freeze({ maxTemplates: 4 });
+
+/** Capture inputs at invocation, before a scheduler can suspend the calculation. */
+export function planAdvisoryPivotTemplatesSteps(
+  project: PivotProject,
+  templates: AdvisoryPivotTemplate[],
+  options: AdvisoryTemplatePlanOptions = {},
+): Calculation<AdvisoryTemplateFieldPlan> {
+  const owned = snapshotJsonValue({ project, templates, options }, "templatePlan") as {
+    project: PivotProject; templates: AdvisoryPivotTemplate[]; options: AdvisoryTemplatePlanOptions;
+  };
+  const parsed = PivotProjectSchema.parse(owned.project);
+  assertNoStrippedFields(owned.project, parsed);
+  assertMetricCalculationCrs(owned.project.projectCrs);
+  assertProjectCalculationSafe(owned.project);
+  const allowedOptions = new Set([
+    "maxMachines", "candidatePoolSize", "collisionBufferMeters", "minimumMachineSeparationMeters",
+    "gridDivisions", "maxCandidates", "boundaryEpsilonSquareMeters", "obstacleBufferMeters",
+    "waterSourceWeight", "powerSourceWeight", "accessWeight", "includeMaximumInscribedCircleSeed",
+    "maximumInteriorSeedRefinement", "includeMachineZoneReviews", "minimumBoundaryClearanceMeters",
+    "minimumObstacleClearanceMeters", "obstacleCrossingProfiles", "sourceRefs",
+  ]);
+  for (const key of Object.keys(owned.options)) {
+    if (!allowedOptions.has(key)) throw new Error(`Unsupported template plan option: ${key}. Prices belong to individual templates.`);
+  }
+  owned.options = validateFieldPivotPlanOptions(owned.options);
+  if (!Array.isArray(owned.templates) || owned.templates.length < 1
+    || owned.templates.length > ADVISORY_TEMPLATE_PLAN_LIMITS.maxTemplates) {
+    throw new RangeError(`Supply 1 to ${ADVISORY_TEMPLATE_PLAN_LIMITS.maxTemplates} explicit pivot templates.`);
+  }
+  const ids = new Set<string>();
+  for (const template of owned.templates) {
+    if (!template || typeof template !== "object" || Array.isArray(template)
+      || Object.keys(template).some(key => !["id", "machine", "maximumCount", "costInput"].includes(key))) {
+      throw new Error("Unsupported pivot template data.");
+    }
+    if (typeof template.id !== "string" || !template.id.trim() || ids.has(template.id)) {
+      throw new Error("Pivot template IDs must be nonempty and unique.");
+    }
+    ids.add(template.id);
+    if (!Number.isSafeInteger(template.maximumCount) || template.maximumCount < 1
+      || template.maximumCount > ADVISORY_FIELD_PIVOT_PLAN_LIMITS.maxMachines) {
+      throw new RangeError("Template maximumCount must be an integer from 1 to 8.");
+    }
+    const machine = PivotProjectSchema.shape.machine.parse(template.machine);
+    assertNoStrippedFields(template.machine, machine);
+    assertProjectCalculationSafe({ ...owned.project, machine: template.machine });
+  }
+  owned.templates.sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+  return planOwnedPivotTemplatesSteps(owned.project, owned.templates, owned.options);
+}
+
+export function planAdvisoryPivotTemplates(
+  project: PivotProject,
+  templates: AdvisoryPivotTemplate[],
+  options: AdvisoryTemplatePlanOptions = {},
+): AdvisoryTemplateFieldPlan {
+  return completeCalculation(planAdvisoryPivotTemplatesSteps(project, templates, options));
+}
+
+type TemplateSearchCandidate = {
+  template: AdvisoryPivotTemplate; placement: PivotPlacementCandidate; layout: LayoutResult;
+};
+
+function templateStructuralReach(machine: PivotMachine): number {
+  return machineRadiusMeters(machine);
+}
+
+function templatePairCheck(left: TemplateSearchCandidate, right: TemplateSearchCandidate, options: AdvisoryTemplatePlanOptions) {
+  // A pair clearance is a gap, not a per-machine radius expansion. Keep the
+  // larger configured gap; an explicit request may increase, never reduce it.
+  return evaluatePivotPairSeparation(
+    { machine: left.template.machine, pivotCenter: left.placement.pivotCenter },
+    { machine: right.template.machine, pivotCenter: right.placement.pivotCenter }, options);
+}
+
+function* planOwnedPivotTemplatesSteps(
+  project: PivotProject, templates: AdvisoryPivotTemplate[], options: AdvisoryTemplatePlanOptions,
+): Calculation<AdvisoryTemplateFieldPlan> {
+  const sourceRefs = options.sourceRefs ?? DEFAULT_ADVISORY_PLACEMENT_SOURCE_REFS;
+  const maximumMachineCount = options.maxMachines ?? 3;
+  const pool: TemplateSearchCandidate[] = [];
+  const templateResults: AdvisoryTemplateFieldPlan["templates"] = [];
+  const excludedTemplates: AdvisoryTemplateFieldPlan["excludedTemplates"] = [];
+  for (const template of templates) {
+    const summary = { id: template.id, machine: template.machine, maximumCount: template.maximumCount, candidateCount: 0, feasibleCount: 0 };
+    templateResults.push(summary);
+    if (template.machine.cornerArm) {
+      excludedTemplates.push({ id: template.id, reason: "Corner motion and machine-scoped guidance are not assessed by this template planner." });
+      continue;
+    }
+    if (project.fieldBoundary.length < 3) continue;
+    const input = { ...project, machine: template.machine };
+    const cache = new Map<LayoutCoordinateKey, Map<LayoutCoordinateKey, LayoutResult>>();
+    const evaluateAtCenter: LayoutAtCenter = pivotCenter => {
+      const x = layoutCoordinateKey(pivotCenter.x), y = layoutCoordinateKey(pivotCenter.y);
+      let row = cache.get(x);
+      const cached = row?.get(y);
+      if (cached) return cached;
+      const result = evaluateLayout({ ...input, pivotCenter });
+      if (!row) { row = new Map(); cache.set(x, row); }
+      row.set(y, result);
+      return result;
+    };
+    const candidates = yield* buildFieldPivotPlanCandidatePool(input,
+      { ...options, costInput: template.costInput }, sourceRefs, Math.min(maximumMachineCount, template.maximumCount), evaluateAtCenter);
+    summary.candidateCount = candidates.length;
+    for (const placement of candidates) {
+      if (!placement.feasible || !placement.insideFieldBoundary) continue;
+      const layout = evaluateAtCenter(placement.pivotCenter);
+      // Grid candidates historically have weaker admission than optimizer
+      // candidates. Apply the same hard checks to both in this new lane.
+      if (layout.metrics.hardMechanicalConflictCount > 0 || layout.metrics.obstacleConflictCount > 0
+        || layout.metrics.outsideFieldAcres > 0.0001 || layout.metrics.coveragePercent < 1
+        || !validateWetCoverageWithinField({ ...input, pivotCenter: placement.pivotCenter },
+          options.boundaryEpsilonSquareMeters ?? DEFAULT_BOUNDARY_EPSILON_SQUARE_METERS).feasible) {
+        yield;
+        continue;
+      }
+      summary.feasibleCount += 1;
+      pool.push({ template, placement, layout });
+      yield;
+    }
+  }
+
+  const selected: TemplateSearchCandidate[] = [];
+  const candidates: AdvisoryTemplatePlanCandidate[] = [];
+  const pairChecks: AdvisoryTemplateFieldPlan["pairChecks"] = [];
+  let runningCoverage: MultiPolygonXY = [];
+  let unionAcres = 0;
+  let grossAcres = 0;
+  while (selected.length < maximumMachineCount) {
+    let best: { candidate: TemplateSearchCandidate; coverage: MultiPolygonXY; acres: number } | undefined;
+    for (const candidate of pool) {
+      if (selected.includes(candidate)
+        || selected.filter(value => value.template.id === candidate.template.id).length >= candidate.template.maximumCount) continue;
+      if (selected.some(value => {
+        const check = templatePairCheck(value, candidate, options);
+        return check.centerDistanceMeters < check.minimumRequiredSeparationMeters;
+      })) continue;
+      const coverage = intersectMultiPolygons(unionMultiPolygons([...runningCoverage, ...candidate.layout.allowedCoverage]), [[project.fieldBoundary]]);
+      const acres = squareMetersToAcres(multiPolygonAreaSquareMeters(coverage));
+      if (!Number.isFinite(acres)) throw new Error("Template coverage must be finite.");
+      // Only positive new coverage earns an optional machine. Stable pool order
+      // breaks exact ties, not an inferred equipment price or a count target.
+      if (acres > unionAcres && (!best || acres > best.acres)) best = { candidate, coverage, acres };
+      yield;
+    }
+    if (!best) break;
+    const chosen = best.candidate;
+    const id = JSON.stringify([chosen.template.id, selected.length + 1]);
+    selected.forEach((prior, index) => pairChecks.push({
+      leftCandidateId: candidates[index].id, rightCandidateId: id, ...templatePairCheck(prior, chosen, options),
+    }));
+    selected.push(chosen);
+    candidates.push({
+      id, templateId: chosen.template.id, machine: chosen.template.machine,
+      pivotCenter: chosen.placement.pivotCenter, structuralReachMeters: templateStructuralReach(chosen.template.machine),
+      placementCandidate: chosen.placement, modeledCoverage: chosen.layout.allowedCoverage,
+      incrementalIrrigatedAcres: best.acres - unionAcres,
+    });
+    runningCoverage = best.coverage;
+    unionAcres = best.acres;
+    grossAcres += squareMetersToAcres(multiPolygonAreaSquareMeters(
+      intersectMultiPolygons(chosen.layout.allowedCoverage, [[project.fieldBoundary]])));
+    yield;
+  }
+
+  let estimatedCost = 0;
+  let currencyCode: string | null = null;
+  let costsComplete = selected.length > 0;
+  for (const candidate of selected) {
+    const input = candidate.template.costInput;
+    const cost = resolveCostInput(input, candidate.template.machine);
+    const currency = typeof input?.currencyCode === "string" ? input.currencyCode.trim().toUpperCase() : "";
+    if (cost.status !== "complete" || !/^[A-Z]{3}$/.test(currency)
+      || (currencyCode !== null && currencyCode !== currency)) { costsComplete = false; continue; }
+    currencyCode = currency;
+    estimatedCost += cost.estimatedCost;
+  }
+  const costPerIrrigatedAcre = estimatedCost / unionAcres;
+  costsComplete = costsComplete && Number.isFinite(estimatedCost) && Number.isFinite(costPerIrrigatedAcre);
+  const result: AdvisoryTemplateFieldPlan = {
+    advisoryOnly: true, canonicalGeometryMutation: false, qualifiedReviewRequired: true,
+    objective: "greedy_union_coverage", templateRole: "optional_alternatives", projectCrs: project.projectCrs,
+    maximumMachineCount, status: selected.length ? "candidates_found" : "no_feasible_candidates",
+    candidates, templates: templateResults, excludedTemplates, pairChecks,
+    modeledCoverageUnion: runningCoverage, modeledIrrigatedUnionAcres: unionAcres,
+    modeledIrrigatedAcresSum: grossAcres, duplicateModeledCoverageAcres: Math.max(0, grossAcres - unionAcres),
+    fieldUnirrigatedAcres: Math.max(0, squareMetersToAcres(polygonAreaSquareMeters(project.fieldBoundary)) - unionAcres),
+    cost: costsComplete ? { status: "complete", estimatedCost, costPerIrrigatedAcre, currencyCode }
+      : { status: "unavailable", estimatedCost: null, costPerIrrigatedAcre: null, currencyCode: null },
+    warnings: [
+      "Templates are optional alternatives; maximum counts are ceilings, not required quantities.",
+      "Greedy sampled-center search is not a globally optimal design and may miss feasible layouts.",
+      "Pair screening uses full structural reach circles and one maximum configured gap; end-gun water overlap is separate from structural clearance.",
+      "Corner machines are excluded until their motion and explicitly associated guidance can be assessed.",
+      "No saved machines are created. Equipment availability, hydraulics, terrain, controls and field accuracy require separate qualification.",
+      "Costs include supplied per-machine amounts only, not shared infrastructure or annual operations.",
+      ...(!costsComplete ? ["Aggregate cost is unavailable without valid matching prices and explicit common currency for every selected configuration."] : []),
+    ],
+  };
+  // Returned instances must not share mutable configurations with siblings.
+  return snapshotJsonValue(result, "templatePlanResult") as AdvisoryTemplateFieldPlan;
+}
+
 export function* planAdvisoryFieldPivotsSteps(
   project: PivotProject,
   options: AdvisoryFieldPivotPlanOptions = {},
 ): Calculation<AdvisoryFieldPivotPlan> {
+  options = validateFieldPivotPlanOptions(options);
   assertMetricCalculationCrs(project.projectCrs);
   const sourceRefs = options.sourceRefs ?? DEFAULT_ADVISORY_PLACEMENT_SOURCE_REFS;
-  const requestedMachineCount = Math.max(1, Math.floor(options.maxMachines ?? 3));
+  const requestedMachineCount = options.maxMachines ?? 3;
   const machineRadius = machineRadiusMeters(project.machine);
-  const collisionBufferMeters = Math.max(0, options.collisionBufferMeters ?? project.machine.machineClearanceBufferMeters ?? 0);
+  assertFieldPivotPlanDistance(machineRadius, "machineRadiusMeters");
+  const configuredCollisionBufferMeters = project.machine.machineClearanceBufferMeters ?? 0;
+  assertFieldPivotPlanDistance(configuredCollisionBufferMeters, "collisionBufferMeters");
+  const collisionBufferMeters = Math.max(options.collisionBufferMeters ?? 0, configuredCollisionBufferMeters);
+  assertFieldPivotPlanDistance(collisionBufferMeters, "collisionBufferMeters");
   const minimumRequiredSeparationMeters = Math.max(
-    Math.max(0, options.minimumMachineSeparationMeters ?? 0),
+    options.minimumMachineSeparationMeters ?? 0,
     machineRadius * 2 + collisionBufferMeters,
   );
+  assertFieldPivotPlanDistance(minimumRequiredSeparationMeters, "minimumRequiredSeparationMeters");
   const base = {
     advisoryOnly: true as const,
     canonicalGeometryMutation: false as const,
@@ -1334,7 +1637,7 @@ export function compareAdvisoryMachineStrategies(
       status: "no_boundary",
       strategies: [],
       bestStrategy: null,
-      costInputStatus: costInputStatusForInput(options.costInput),
+      costInputStatus: costInputStatusForInput(options.costInput, project.machine),
       blockers: ["At least three projected-XY field boundary vertices are required before advisory machine strategy comparison."],
       warnings: ["Machine strategy comparison did not run because the field boundary is incomplete."],
     };
@@ -1345,7 +1648,7 @@ export function compareAdvisoryMachineStrategies(
     .map((strategy) => evaluateMachineStrategy(project, strategy, options, sourceRefs))
     .sort(compareMachineStrategyResults);
   const bestStrategy = strategies.find((strategy) => strategy.status === "ready") ?? null;
-  const costInputStatus = firstCostStatus(strategies, options.costInput);
+  const costInputStatus = firstCostStatus(strategies, options.costInput, project.machine);
   const blockers = bestStrategy
     ? []
     : ["No advisory machine strategy produced a feasible center candidate."];
@@ -1360,7 +1663,9 @@ export function compareAdvisoryMachineStrategies(
     warnings: [
       "Machine strategy comparison is advisory and does not mutate canonical projected XY, machine settings, zones, or project storage.",
       "Generated full-circle strategies are approximate planning templates derived from the current span package; operator/vendor confirmation is required.",
-      ...(costInputStatus === "missing_cost_input" ? ["Cost ranking is incomplete because no explicit local cost input was supplied."] : []),
+      ...(costInputStatus === "missing_cost_input" ? [options.costInput?.pricing
+        ? "Cost ranking is incomplete because explicit local pricing is missing for one or more machine configurations."
+        : "Cost ranking is incomplete because no explicit local cost input was supplied."] : []),
       ...(costInputStatus === "invalid_cost_input" ? ["Cost ranking is blocked because the supplied local cost input is invalid."] : []),
       ...blockers,
     ],
@@ -1891,7 +2196,18 @@ function candidateFromProject(
   const distanceToWaterSourceMeters = distance(pivotCenter, originalProject.waterSource);
   const distanceToPowerSourceMeters = distance(pivotCenter, originalProject.powerSource);
   const distanceToAccessMeters = distanceToAccess(pivotCenter, originalProject);
-  const feasible = alternative?.feasible ?? (result.metrics.outsideFieldAcres <= 0.0001 && result.metrics.obstacleConflictCount === 0);
+  // Every seed source, including the extra grid and interior seed, uses the
+  // same hard admission. Ranking cannot compensate for failed containment.
+  const boundary = validateWetCoverageWithinField(project,
+    options.boundaryEpsilonSquareMeters ?? DEFAULT_BOUNDARY_EPSILON_SQUARE_METERS);
+  const hardReasons = [
+    ...(result.metrics.hardMechanicalConflictCount > 0 ? ["A hard obstacle intersects the mechanical sweep."] : []),
+    ...(result.metrics.obstacleConflictCount > 0 ? ["Obstacle conflicts are hard infeasible for pivot-center alternatives."] : []),
+    ...(result.metrics.outsideFieldAcres > 0.0001 ? ["Outside-field acreage exceeds the permitted maximum."] : []),
+    ...(result.metrics.coveragePercent < 1 ? ["Coverage is below the required minimum."] : []),
+    ...(!boundary.feasible ? [`Wet coverage exceeds field boundary by ${boundary.outsideFieldAreaSquareMeters.toFixed(3)} square meters.`] : []),
+  ];
+  const feasible = (alternative?.feasible ?? true) && hardReasons.length === 0;
   const costAssessment = assessAdvisoryCost(originalProject, result.metrics.irrigatedAcres, options.costInput, sourceRefs);
   const scoreBreakdown = placementScoreBreakdown({
     metrics: result.metrics,
@@ -1910,6 +2226,7 @@ function candidateFromProject(
   const score = totalPlacementScore(scoreBreakdown);
   const disqualificationReasons = [
     ...(alternative?.disqualificationReasons ?? []),
+    ...hardReasons.filter(reason => !alternative?.disqualificationReasons.includes(reason)),
     ...(!insideFieldBoundary ? ["Candidate pivot center is outside the field boundary."] : []),
     ...(boundaryClearanceMeters < minimumRequiredBoundaryClearanceMeters ? [`Candidate boundary clearance ${boundaryClearanceMeters.toFixed(2)} meters is below required ${minimumRequiredBoundaryClearanceMeters.toFixed(2)} meters.`] : []),
     ...(minimumObstacleClearanceMeters !== null && minimumObstacleClearanceMeters < 0 ? [`Candidate is inside obstacle buffer by ${Math.abs(minimumObstacleClearanceMeters).toFixed(2)} meters.`] : []),
@@ -1940,7 +2257,8 @@ function candidateFromProject(
     costAssessment,
     warnings: [
       ...result.warnings,
-      ...(costAssessment.status === "missing_cost_input" ? ["Cost efficiency is incomplete because no explicit local cost input was supplied."] : []),
+      ...(costAssessment.status === "missing_cost_input" ? options.costInput?.pricing
+        ? costAssessment.warnings : ["Cost efficiency is incomplete because no explicit local cost input was supplied."] : []),
       ...(obstacleCrossingProfileIds.length > 0 ? [`${obstacleCrossingProfileIds.length} obstacle crossing profile${obstacleCrossingProfileIds.length === 1 ? "" : "s"} are advisory only; layout metrics still use project hard/no-spray obstacle settings.`] : []),
       "Placement candidate is advisory; apply requires explicit operator confirmation.",
     ],
@@ -1987,11 +2305,92 @@ function totalPlacementScore(breakdown: PivotPlacementScoreBreakdown): number {
   return round(Object.values(breakdown).reduce((sum, value) => sum + value, 0));
 }
 
+type ResolvedCostInput =
+  | { status: "complete"; estimatedCost: number }
+  | { status: "missing_cost_input" | "invalid_cost_input"; warning: string };
+
+function resolveCostInput(input: AdvisoryCostInput | undefined, machine: PivotMachine): ResolvedCostInput {
+  const invalid = (warning: string): ResolvedCostInput => ({ status: "invalid_cost_input", warning });
+  if (!input) {
+    return { status: "missing_cost_input", warning: "No explicit local cost input was supplied; CPLayout did not infer machine price." };
+  }
+  if (typeof input !== "object" || Array.isArray(input)) return invalid("Cost input must be an object.");
+  let fixedMachineCost: number;
+  let costPerMeter: number;
+  let costPerTower: number;
+  if (input.pricing !== undefined) {
+    if ([input.fixedMachineCost, input.costPerMeter, input.costPerTower].some((value) => value !== undefined)) {
+      return invalid("An explicit pricing basis cannot be combined with legacy fixed, per-meter, or per-tower cost fields.");
+    }
+    const pricing = input.pricing;
+    if (!pricing || typeof pricing !== "object" || Array.isArray(pricing)) return invalid("Pricing basis must be an object.");
+    if (pricing.kind === "machine_price") {
+      if (!Number.isFinite(pricing.amount) || pricing.amount <= 0) return invalid("Supplied machine price must be finite and positive.");
+      if (!PivotProjectSchema.shape.machine.safeParse(pricing.machine).success) {
+        return invalid("Supplied machine price requires a valid, complete machine configuration.");
+      }
+      if (!advisoryMachinePriceMatches(pricing.machine, machine)) {
+        return {
+          status: "missing_cost_input",
+          warning: "No supplied price covers this exact machine configuration; the price for a different configuration was not applied.",
+        };
+      }
+      return { status: "complete", estimatedCost: pricing.amount };
+    }
+    if (pricing.kind !== "length_tower_estimate") return invalid("Unknown pricing basis; no machine price was inferred.");
+    fixedMachineCost = pricing.baseCost;
+    costPerMeter = pricing.costPerMeter;
+    costPerTower = pricing.costPerTower;
+  } else {
+    fixedMachineCost = input.fixedMachineCost ?? 0;
+    costPerMeter = input.costPerMeter ?? 0;
+    costPerTower = input.costPerTower ?? 0;
+  }
+  if (
+    ![fixedMachineCost, costPerMeter, costPerTower].every((value) => Number.isFinite(value) && value >= 0)
+    || !(fixedMachineCost > 0 || costPerMeter > 0 || costPerTower > 0)
+  ) {
+    return invalid("Cost components must be explicit finite nonnegative values, with at least one positive value.");
+  }
+  const estimatedCost = fixedMachineCost
+    + machineRadiusMeters(machine) * costPerMeter
+    + machine.spanLengthsMeters.length * costPerTower;
+  if (!Number.isFinite(estimatedCost) || estimatedCost < 0) return invalid("Computed equipment cost must be finite and nonnegative.");
+  return { status: "complete", estimatedCost };
+}
+
+/** Exact supplied-price scope; only the top-level machine ID may differ. */
+export function advisoryMachinePriceMatches(priced: PivotMachine, current: PivotMachine): boolean {
+  if (!PivotProjectSchema.shape.machine.safeParse(priced).success
+    || !PivotProjectSchema.shape.machine.safeParse(current).success) return false;
+  // Compare original values: schema defaults or stripped metadata must not
+  // broaden the scope of the supplied price.
+  const { id: pricedId, ...pricedConfiguration } = priced;
+  const { id: currentId, ...currentConfiguration } = current;
+  return sameCostConfiguration(pricedConfiguration, currentConfiguration);
+}
+
+function sameCostConfiguration(left: unknown, right: unknown, ancestors = new Set<object>()): boolean {
+  if (typeof left !== "object" || left === null || typeof right !== "object" || right === null) {
+    return left === right && (typeof left !== "number" || Number.isFinite(left));
+  }
+  if (ancestors.has(left) || ancestors.has(right) || Array.isArray(left) !== Array.isArray(right)) return false;
+  if (Array.isArray(left) && Array.isArray(right) && left.length !== right.length) return false;
+  // Optional undefined properties have no JSON value in a detached price snapshot.
+  const leftKeys = Object.keys(left).filter((key) => (left as Record<string, unknown>)[key] !== undefined);
+  const rightKeys = Object.keys(right).filter((key) => (right as Record<string, unknown>)[key] !== undefined);
+  if (leftKeys.length !== rightKeys.length) return false;
+  const nextAncestors = new Set([...ancestors, left, right]);
+  return leftKeys.every((key) => Object.prototype.hasOwnProperty.call(right, key)
+    && sameCostConfiguration((left as Record<string, unknown>)[key], (right as Record<string, unknown>)[key], nextAncestors));
+}
+
 function assessAdvisoryCost(
   project: PivotProject,
   irrigatedAcres: number,
   input: AdvisoryCostInput | undefined,
   defaultSourceRefs: AdvisorySourceReference[],
+  equipmentAlternative?: "bender/second-pivot" | "linear/lateral",
 ): AdvisoryCostAssessment {
   const sourceRefs = input?.sourceRefs ?? defaultSourceRefs;
   const base = {
@@ -1999,37 +2398,33 @@ function assessAdvisoryCost(
     canonicalGeometryMutation: false as const,
     estimatedCost: null,
     costPerIrrigatedAcre: null,
-    currencyCode: input?.currencyCode?.trim() || "USD",
+    currencyCode: typeof input?.currencyCode === "string" ? input.currencyCode.trim() || "USD" : "USD",
     sourceRefs,
   };
-  if (!input) {
+  const resolved = resolveCostInput(input, project.machine);
+  if (resolved.status !== "complete") {
+    return {
+      ...base,
+      status: resolved.status,
+      warnings: [resolved.warning],
+    };
+  }
+  if (input?.pricing?.kind === "machine_price" && equipmentAlternative) {
     return {
       ...base,
       status: "missing_cost_input",
-      warnings: ["No explicit local cost input was supplied; CPLayout did not infer machine price."],
+      warnings: [`The supplied pivot price does not establish equipment pricing for the ${equipmentAlternative} alternative.`],
     };
   }
-  const fixedMachineCost = input.fixedMachineCost ?? 0;
-  const costPerMeter = input.costPerMeter ?? 0;
-  const costPerTower = input.costPerTower ?? 0;
-  if (
-    !Number.isFinite(fixedMachineCost)
-    || !Number.isFinite(costPerMeter)
-    || !Number.isFinite(costPerTower)
-    || fixedMachineCost < 0
-    || costPerMeter < 0
-    || costPerTower < 0
-    || fixedMachineCost + costPerMeter + costPerTower <= 0
-  ) {
+  const estimatedCost = resolved.estimatedCost;
+  const costPerIrrigatedAcre = estimatedCost / irrigatedAcres;
+  if (!Number.isFinite(irrigatedAcres) || (irrigatedAcres > 0 && !Number.isFinite(costPerIrrigatedAcre))) {
     return {
       ...base,
       status: "invalid_cost_input",
-      warnings: ["Cost input must include at least one nonnegative fixed, per-meter, or per-tower value."],
+      warnings: ["Cost per irrigated acre must be finite; check the supplied cost and modeled area."],
     };
   }
-  const estimatedCost = fixedMachineCost
-    + machineRadiusMeters(project.machine) * costPerMeter
-    + project.machine.spanLengthsMeters.length * costPerTower;
   if (irrigatedAcres <= 0) {
     return {
       ...base,
@@ -2042,10 +2437,10 @@ function assessAdvisoryCost(
     ...base,
     status: "complete",
     estimatedCost: round(estimatedCost),
-    costPerIrrigatedAcre: round(estimatedCost / irrigatedAcres),
+    costPerIrrigatedAcre: round(costPerIrrigatedAcre),
     warnings: [
       "Cost efficiency uses operator-supplied local cost inputs only and is not a price quote.",
-      ...(input.notes ? [input.notes] : []),
+      ...(input?.notes ? [input.notes] : []),
     ],
   };
 }
@@ -2163,6 +2558,8 @@ function* buildFieldPivotPlanCandidatePool(
   requestedMachineCount: number,
   evaluateAtCenter: LayoutAtCenter,
 ): Calculation<PivotPlacementCandidate[]> {
+  // Bounds are checked before the first yield. The pool sizes the optimizer
+  // shortlist; the separately bounded grid can add candidates to that shortlist.
   const candidatePoolSize = Math.max(
     requestedMachineCount,
     Math.floor(options.candidatePoolSize ?? Math.max(requestedMachineCount * 10, 18)),
@@ -2461,7 +2858,7 @@ function buildMachineEnvelopeConflicts(
   scenarios: AdvisoryMachineScenario[],
   options: AdvisoryMultiMachineReviewOptions,
 ): AdvisoryMachineEnvelopeConflict[] {
-  const collisionBufferMeters = Math.max(0, options.collisionBufferMeters ?? 0);
+  const collisionBufferMeters = Math.max(0, options.collisionBufferMeters ?? 0, project.machine.machineClearanceBufferMeters);
   const explicitMinimumSeparationMeters = Math.max(0, options.minimumMachineSeparationMeters ?? 0);
   const conflicts: AdvisoryMachineEnvelopeConflict[] = [];
 
@@ -2473,7 +2870,10 @@ function buildMachineEnvelopeConflicts(
       const rightCenter = right.bestCandidate?.pivotCenter;
       if (!leftCenter || !rightCenter) continue;
 
-      const envelopeSeparation = left.machineRadiusMeters + right.machineRadiusMeters;
+      // Scenario radii are rounded report values. Physical screening uses the
+      // original configuration shared by these legacy scenarios.
+      const structuralReach = machineRadiusMeters(project.machine);
+      const envelopeSeparation = structuralReach * 2;
       const minimumRequiredSeparationMeters = Math.max(
         explicitMinimumSeparationMeters,
         envelopeSeparation + collisionBufferMeters,
@@ -2490,12 +2890,12 @@ function buildMachineEnvelopeConflicts(
       const separationReviewBufferMeters = Math.max(0, (minimumRequiredSeparationMeters - envelopeSeparation) / 2);
       const separationReviewZone = separationReviewBufferMeters > 0
         ? intersectMultiPolygons(
-          machineEnvelopeFor(project, leftCenter, left.machineRadiusMeters + separationReviewBufferMeters),
-          machineEnvelopeFor(project, rightCenter, right.machineRadiusMeters + separationReviewBufferMeters),
+          machineEnvelopeFor(project, leftCenter, structuralReach + separationReviewBufferMeters),
+          machineEnvelopeFor(project, rightCenter, structuralReach + separationReviewBufferMeters),
         )
         : collisionZone;
       const separationReviewZoneAcres = squareMetersToAcres(multiPolygonAreaSquareMeters(separationReviewZone));
-      const status = envelopeOverlapAcres > 0.001
+      const status = multiPolygonAreaSquareMeters(collisionZone) > 0.000001
         ? "machine_envelope_overlap"
         : "separation_buffer_warning";
       const severity = status === "machine_envelope_overlap" ? "critical_overlap" : "buffer_intrusion";
@@ -2904,7 +3304,7 @@ function evaluateBenderSecondPivotStrategy(
   }
 
   const bender = evaluateBenderSecondPivotEnvelope(project, machine, point);
-  const costAssessment = assessAdvisoryCost({ ...project, machine }, bender.metrics.irrigatedAcres, options.costInput, sourceRefs);
+  const costAssessment = assessAdvisoryCost({ ...project, machine }, bender.metrics.irrigatedAcres, options.costInput, sourceRefs, "bender/second-pivot");
   const costEfficiencyAcresPerHundredThousand = costAssessment.estimatedCost
     ? round(bender.metrics.irrigatedAcres / (costAssessment.estimatedCost / 100000))
     : null;
@@ -2918,7 +3318,7 @@ function evaluateBenderSecondPivotStrategy(
 
   return {
     ...unsupportedBase,
-    status: bender.metrics.irrigatedAcres > 0 && bender.tailRadiusMeters > 0 ? "ready" : "no_feasible_candidate",
+    status: strategyMetricsEligible(bender.metrics) && bender.tailRadiusMeters > 0 ? "unsupported_model" : "no_feasible_candidate",
     candidateCount: 1,
     irrigatedAcres: bender.metrics.irrigatedAcres,
     outsideFieldAcres: bender.metrics.outsideFieldAcres,
@@ -2932,6 +3332,7 @@ function evaluateBenderSecondPivotStrategy(
       `${strategy.label} is an advisory bender/second-pivot opportunity envelope only; applying it requires explicit operator edits and validation.`,
       "Tail coverage is approximated as a full-circle sweep around the labeled projected-XY second pivot point using the remaining machine length beyond that point.",
       "The model does not verify drive-tower hinge hardware, steering sequence, sprinkler timing, water supply, slope, interlocks, or manufacturer-specific controls.",
+      "This circular opportunity proxy is excluded from eligible strategies until articulated motion and stopped-span water states are modeled.",
       ...(strategy.notes ? [strategy.notes] : []),
       ...bender.warnings,
     ],
@@ -3061,7 +3462,7 @@ function evaluateLinearLateralStrategy(
   }
 
   const linear = evaluateLinearLateralCoverage(project, machine, pathFeature.geometry.vertices);
-  const costAssessment = assessAdvisoryCost({ ...project, machine }, linear.metrics.irrigatedAcres, options.costInput, sourceRefs);
+  const costAssessment = assessAdvisoryCost({ ...project, machine }, linear.metrics.irrigatedAcres, options.costInput, sourceRefs, "linear/lateral");
   const costEfficiencyAcresPerHundredThousand = costAssessment.estimatedCost
     ? round(linear.metrics.irrigatedAcres / (costAssessment.estimatedCost / 100000))
     : null;
@@ -3074,7 +3475,7 @@ function evaluateLinearLateralStrategy(
 
   return {
     ...unsupportedBase,
-    status: linear.metrics.irrigatedAcres > 0 ? "ready" : "no_feasible_candidate",
+    status: strategyMetricsEligible(linear.metrics) ? "unsupported_model" : "no_feasible_candidate",
     candidateCount: 1,
     irrigatedAcres: linear.metrics.irrigatedAcres,
     outsideFieldAcres: linear.metrics.outsideFieldAcres,
@@ -3086,10 +3487,18 @@ function evaluateLinearLateralStrategy(
       `${strategy.label} is an advisory linear/lateral move approximation only; applying it requires explicit operator edits and validation.`,
       "Swept-strip coverage assumes the supplied path is the machine centerline and uses the current machine radius as half-width.",
       "The model does not verify hose/ditch water supply, cable guidance, slope, reversal timing, tower alignment, or manufacturer constraints.",
+      "This radius-based path proxy is excluded from eligible strategies; a straight-travel model needs explicit left/right extents, heading, endpoints and supply association.",
       ...(strategy.notes ? [strategy.notes] : []),
       ...linear.warnings,
     ],
   };
+}
+
+function strategyMetricsEligible(metrics: LayoutMetrics): boolean {
+  return Object.values(metrics).every(value => typeof value !== "number" || Number.isFinite(value))
+    && metrics.irrigatedAcres > 0 && metrics.coveragePercent >= 1
+    && metrics.outsideFieldAcres <= 0.0001
+    && metrics.hardMechanicalConflictCount === 0 && metrics.obstacleConflictCount === 0;
 }
 
 function evaluateLinearLateralCoverage(
@@ -3285,29 +3694,20 @@ function strategyStatusRank(status: AdvisoryMachineStrategyStatus): number {
 function firstCostStatus(
   strategies: AdvisoryMachineStrategyResult[],
   input: AdvisoryCostInput | undefined,
+  machine: PivotMachine,
 ): AdvisoryCostAssessment["status"] {
+  if (input?.pricing !== undefined) {
+    const statuses = strategies.flatMap((strategy) => strategy.costAssessment ? [strategy.costAssessment.status] : []);
+    if (statuses.includes("invalid_cost_input")) return "invalid_cost_input";
+    if (statuses.includes("missing_cost_input")) return "missing_cost_input";
+  }
   const status = strategies.find((strategy) => strategy.costAssessment)?.costAssessment?.status;
   if (status) return status;
-  return costInputStatusForInput(input);
+  return costInputStatusForInput(input, machine);
 }
 
-function costInputStatusForInput(input: AdvisoryCostInput | undefined): AdvisoryCostAssessment["status"] {
-  if (!input) return "missing_cost_input";
-  const fixedMachineCost = input.fixedMachineCost ?? 0;
-  const costPerMeter = input.costPerMeter ?? 0;
-  const costPerTower = input.costPerTower ?? 0;
-  if (
-    !Number.isFinite(fixedMachineCost)
-    || !Number.isFinite(costPerMeter)
-    || !Number.isFinite(costPerTower)
-    || fixedMachineCost < 0
-    || costPerMeter < 0
-    || costPerTower < 0
-    || fixedMachineCost + costPerMeter + costPerTower <= 0
-  ) {
-    return "invalid_cost_input";
-  }
-  return "complete";
+function costInputStatusForInput(input: AdvisoryCostInput | undefined, machine: PivotMachine): AdvisoryCostAssessment["status"] {
+  return resolveCostInput(input, machine).status;
 }
 
 function dryCornerPolygonsFor(project: PivotProject, allowedCoverage: MultiPolygonXY): MultiPolygonXY {

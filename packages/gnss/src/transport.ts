@@ -11,6 +11,9 @@ export type GnssTransportEvent =
       bytes: Uint8Array;
       receivedAt: string;
       receivedMonotonicMs: number;
+      ingressAgeAtReceiptMs?: number;
+      ingressSequence?: number;
+      invalidated?: boolean;
     }
   | {
       type: "ended";

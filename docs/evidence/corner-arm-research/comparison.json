@@ -1,0 +1,298 @@
+{
+  "schemaVersion": "cplayout-corner-research-comparison-v1",
+  "syntheticOnly": true,
+  "environment": {
+    "python": "3.12.3",
+    "packages": {
+      "numpy": "2.5.3",
+      "scipy": "1.18.1",
+      "shapely": "2.1.2",
+      "pyproj": "3.8.0"
+    },
+    "sourceSha256": "d432789bf49cf6b3a112b8d8f595657306d97a5027a786a1feec80e6dfb84c38",
+    "lockSha256": "ba15e515931c4cbfcb3dacbfc079d1a444724369b54afe50857a449cc06f416e",
+    "projVersion": "9.8.1",
+    "projNetworkEnabled": false,
+    "networkRequiredAfterInstall": false
+  },
+  "sourceAndFixtureSha256": {
+    "fixtures/corner-arm-research/articulation-limit.json": "7afd9f114120af8d07b4c090edc13919b6621938d976c49ce1a1a1e251836de3",
+    "fixtures/corner-arm-research/between-sample-collision.json": "95589b2452eb02f038f8d2ef307ba83c40487b0f5c2919705a54ac69c5981edf",
+    "fixtures/corner-arm-research/budget-unresolved.json": "4deb1e3dfe132874630985bf5bff747d7df6251f6afc746b00e9682e835164c4",
+    "fixtures/corner-arm-research/clipped-endpoint-negative.json": "1841407f539f7974984c4810c2a3ccd72e0f349a04b759f6a168c9dfa5d1694d",
+    "fixtures/corner-arm-research/close-positive-gap.json": "60a5f7e202c0e9450cac5aa558397cedc560ba9d041b2b1577034f99bfc9876c",
+    "fixtures/corner-arm-research/concave-clear.json": "e8dcd8813716b82f3d8d523df039a8bf9b8be965502901d88ed52339d710ef68",
+    "fixtures/corner-arm-research/concave-interior-exit.json": "5262ebde91267403426a5ce4db98cea93e76cacb5d061c01e1bb9e4abdf630b9",
+    "fixtures/corner-arm-research/derivative-cycle-open.json": "1ff17ea82ceb0444a8dbd7d4bcd3457b484ae196b7941e9adff32e01c2473fba",
+    "fixtures/corner-arm-research/hole-interior-collision.json": "fa17bb2c5f23db0e6e4e4f4966df9f04f99c7ca4e7b340fe3219fbebd00a0cd2",
+    "fixtures/corner-arm-research/invalid-bowtie.json": "436f51feba1b462c8630abdfa36a5d844fe9736ecb7ccbad231e3b29b270f780",
+    "fixtures/corner-arm-research/invalid-knot-order.json": "f96cc4f3e61f83d5f96d4db335d7748a46ff3599807c092343e06ca2324c76e0",
+    "fixtures/corner-arm-research/invalid-missing-sweep-end.json": "503affa40d3162ffade8f494a12e784e50145124cbcb577a45d5f0597a18d1a2",
+    "fixtures/corner-arm-research/joint-cycle-open.json": "1f5a67ac648513fcd9044e5f0dd1171ef3e29e654d56f565713a7357611d9627",
+    "fixtures/corner-arm-research/large-translated-coordinates.json": "f180aefa65432f38c6107df9485eb42bb53183454eec4cce150b28ba43c8d563",
+    "fixtures/corner-arm-research/manifest.json": "674e73e49a4f89965490b5fda950decb0e7b2f5df81d9df60762b96340297c2f",
+    "fixtures/corner-arm-research/obstacle-main-interior.json": "a200026ad7a2e29de91e8debe3edf3e9eb7ec5a12f16f5dc0b1ab5421a7b45fb",
+    "fixtures/corner-arm-research/obstacle-overhang.json": "210669c4a4bbf902c98ae909c2f3ea8c99770f9971e0589baaf6f26b7165a039",
+    "fixtures/corner-arm-research/offset-only-collision.json": "60bb88684dd0dbbc0afb2a63c9c7402a3efcdd9a89ab93d4cdd1d06c1710410f",
+    "fixtures/corner-arm-research/partial-no-closure-required.json": "a94d0b391b5a01d936816351382b7f55223e226ed6196a3454971da540970668",
+    "fixtures/corner-arm-research/rectangle-open.json": "b99e8eb2f3c1bd4f5dd94fb5868b74312bb2c2512a35608180b2b40888e8cda8",
+    "fixtures/corner-arm-research/reverse-full-circle.json": "cf634f8e76097eb2606c05dd5b7d3280ea28fe02d3ea75ed2e533d8e7023bfe6",
+    "fixtures/corner-arm-research/reverse-open-offsets.json": "ec91adacbc74766bcc42b939ceec89a8693d634c289f9fa76949f50cafd3ed80",
+    "fixtures/corner-arm-research/roomy-circle.json": "147e141d3a90044dfa6b39256f498dc6b11d3e17a5f117b96e64f538365b6111",
+    "fixtures/corner-arm-research/slope-limit.json": "6d826f86de3c1411746f96d0e79c55a030ada20d2edc595aa24d8d2152d5cd47",
+    "fixtures/corner-arm-research/square-layout.json": "85e97044649ba5ebd8b3d8abdc2538f56a559b30e736ff48fc0cd3af319b076e",
+    "fixtures/corner-arm-research/straight-sdu-knot-guide.json": "4fed6439afefc2829bcc692a2cfae75d3d32cad89b8b788785f8e4eee7214d02",
+    "fixtures/corner-arm-research/tangent-buffer.json": "7836696620e267247e70da77ce71488cc195bc2f0d3ec99512918eecc6ab0857",
+    "tools/corner-arm-research/cli.ts": "641feb54b55fbfbb964f86df4b7a635df47565d71ad606b01c05337523c6639f",
+    "tools/corner-arm-research/core.ts": "f85bdc775d85bab42c5d450bd7343ffba0301c470275df657c92dc1bc8ccb9aa",
+    "tools/corner-arm-research/fixtures.ts": "64ef51684036b91689ee27c41c1441da225378373a1390cfa2ced0e523706205",
+    "tools/corner-arm-research/harness.test.ts": "b26e78952ba8f67d33a00477a8b3cf54371e9ad72c4265f77889dbce89f9f472",
+    "tools/corner-arm-research/python/companion.py": "d432789bf49cf6b3a112b8d8f595657306d97a5027a786a1feec80e6dfb84c38",
+    "tools/corner-arm-research/python/pyproject.toml": "906cf3be2af38beb52a6f4f5b4be0c2adb88553756eba99467f5b85cc75af7b2",
+    "tools/corner-arm-research/python/run_comparison.py": "192d4d57b89b058a7a4e5326202e92e4cad27a7ac92157b1ab8473e76c51913c",
+    "tools/corner-arm-research/python/test_companion.py": "1d4103df32b74f8306ff7c1625ae26a4d13214a9188f392ce992002c5f0864e4",
+    "tools/corner-arm-research/python/uv.lock": "ba15e515931c4cbfcb3dacbfc079d1a444724369b54afe50857a449cc06f416e",
+    "tools/corner-arm-research/tsconfig.json": "d62863d9abcfcdf2ed43aaf55a047b0401de51914e9089a6fede62318a2b98ef"
+  },
+  "sourceAndFixturesUnchanged": true,
+  "typescriptFixtureCount": 26,
+  "typescriptFixturePass": true,
+  "typescriptBenchmarkWallSeconds": 1.2143937650034786,
+  "independentReferences": {
+    "polygonAreasM2": {
+      "union": 20.0,
+      "intersection": 4.0,
+      "difference": 8.0,
+      "xor": 16.0
+    },
+    "expectedPolygonAreasM2": {
+      "union": 20,
+      "intersection": 4,
+      "difference": 8,
+      "xor": 16
+    },
+    "polygonMaxErrorM2": 0.0,
+    "utmCentralMeridianErrorM": 0.0,
+    "crsRoundTripErrorDeg": 0.0,
+    "clippedEndpointNegativeControlLengthErrorM": 5.0
+  },
+  "comparisons": [
+    {
+      "fixture": "roomy-circle",
+      "baseline": {
+        "verificationStatus": "verified_within_model",
+        "objective": 0.30329329065283467,
+        "wallSeconds": 0.6603609060039162,
+        "crossCheck": {
+          "comparedPoints": 18,
+          "maximumCoordinateResidualM": 7.160723346098895e-15,
+          "shapeCountsMatch": true,
+          "posesAvailable": true,
+          "coordinateComparisonToleranceM": 1e-07,
+          "sampledOracle": {
+            "claimClass": "synthetic_sampled_geometry",
+            "continuousClearanceProved": false,
+            "sampleCount": 5,
+            "minimumSampledClearanceOrPenaltyM": 20.19281277848685,
+            "negativeValueMeaning": "collision penalty, not physical penetration distance",
+            "maximumRigidLengthResidualM": 1.7763568394002505e-15,
+            "sampledCollision": false,
+            "terrainStatus": "planar_model_only_terrain_unresolved"
+          },
+          "contradiction": false,
+          "pass": true
+        }
+      },
+      "graph": {
+        "searchStatus": "candidate_found",
+        "wallSeconds": 0.7706796220008982,
+        "transitionsChecked": 2520,
+        "proofIntervalsVisited": 288,
+        "stoppedAtBudget": false,
+        "verificationStatus": "verified_within_model",
+        "candidateSha256": "8e98ea83b346656e608adb24c1cfd54a8f37ef18d13ff90587358464ece2efc4",
+        "objective": 0.0,
+        "crossCheck": {
+          "comparedPoints": 576,
+          "maximumCoordinateResidualM": 7.944109290391274e-15,
+          "shapeCountsMatch": true,
+          "posesAvailable": true,
+          "coordinateComparisonToleranceM": 1e-07,
+          "sampledOracle": {
+            "claimClass": "synthetic_sampled_geometry",
+            "continuousClearanceProved": false,
+            "sampleCount": 129,
+            "minimumSampledClearanceOrPenaltyM": 16.25,
+            "negativeValueMeaning": "collision penalty, not physical penetration distance",
+            "maximumRigidLengthResidualM": 5.329070518200751e-15,
+            "sampledCollision": false,
+            "terrainStatus": "planar_model_only_terrain_unresolved"
+          },
+          "contradiction": false,
+          "pass": true
+        }
+      },
+      "spline": {
+        "status": "candidate_requires_independent_verification",
+        "solverWallSeconds": 0.7938866010008496,
+        "verificationWallSeconds": 0.7150513520027744,
+        "attempts": [
+          {
+            "seedRad": 0.0,
+            "solverSuccess": true,
+            "message": "Optimization terminated successfully",
+            "iterations": 1,
+            "objective": 0.0,
+            "minimumCollocationConstraint": 1.4
+          },
+          {
+            "seedRad": 0.98,
+            "solverSuccess": true,
+            "message": "Optimization terminated successfully",
+            "iterations": 6,
+            "objective": 2.6814631688792476e-12,
+            "minimumCollocationConstraint": 1.3999976773824552
+          }
+        ],
+        "verificationStatus": "verified_within_model",
+        "candidateSha256": "e542a4a464ea027951cdc6912bdf1071a4168b736d0da3382f5419dc9a24c443",
+        "issues": [],
+        "objective": 0.0,
+        "crossCheck": {
+          "comparedPoints": 2304,
+          "maximumCoordinateResidualM": 7.944109290391274e-15,
+          "shapeCountsMatch": true,
+          "posesAvailable": true,
+          "coordinateComparisonToleranceM": 1e-07,
+          "sampledOracle": {
+            "claimClass": "synthetic_sampled_geometry",
+            "continuousClearanceProved": false,
+            "sampleCount": 513,
+            "minimumSampledClearanceOrPenaltyM": 16.25,
+            "negativeValueMeaning": "collision penalty, not physical penetration distance",
+            "maximumRigidLengthResidualM": 5.329070518200751e-15,
+            "sampledCollision": false,
+            "terrainStatus": "planar_model_only_terrain_unresolved"
+          },
+          "contradiction": false,
+          "pass": true
+        }
+      }
+    },
+    {
+      "fixture": "square-layout",
+      "baseline": {
+        "verificationStatus": "verified_within_model",
+        "objective": 0.30329329065283467,
+        "wallSeconds": 0.6599511599997641,
+        "crossCheck": {
+          "comparedPoints": 18,
+          "maximumCoordinateResidualM": 7.160723346098895e-15,
+          "shapeCountsMatch": true,
+          "posesAvailable": true,
+          "coordinateComparisonToleranceM": 1e-07,
+          "sampledOracle": {
+            "claimClass": "synthetic_sampled_geometry",
+            "continuousClearanceProved": false,
+            "sampleCount": 5,
+            "minimumSampledClearanceOrPenaltyM": 2.1928127784868465,
+            "negativeValueMeaning": "collision penalty, not physical penetration distance",
+            "maximumRigidLengthResidualM": 1.7763568394002505e-15,
+            "sampledCollision": false,
+            "terrainStatus": "planar_model_only_terrain_unresolved"
+          },
+          "contradiction": false,
+          "pass": true
+        }
+      },
+      "graph": {
+        "searchStatus": "candidate_found",
+        "wallSeconds": 1.1314758349981275,
+        "transitionsChecked": 2119,
+        "proofIntervalsVisited": 2799,
+        "stoppedAtBudget": false,
+        "verificationStatus": "verified_within_model",
+        "candidateSha256": "106a6ea3e09eec9ff83f5523e3b0e1629a2117d81cd6622e4655a806d433d09b",
+        "objective": 0.14702840687911195,
+        "crossCheck": {
+          "comparedPoints": 576,
+          "maximumCoordinateResidualM": 7.32410687763558e-15,
+          "shapeCountsMatch": true,
+          "posesAvailable": true,
+          "coordinateComparisonToleranceM": 1e-07,
+          "sampledOracle": {
+            "claimClass": "synthetic_sampled_geometry",
+            "continuousClearanceProved": false,
+            "sampleCount": 129,
+            "minimumSampledClearanceOrPenaltyM": 0.19347663412369087,
+            "negativeValueMeaning": "collision penalty, not physical penetration distance",
+            "maximumRigidLengthResidualM": 3.552713678800501e-15,
+            "sampledCollision": false,
+            "terrainStatus": "planar_model_only_terrain_unresolved"
+          },
+          "contradiction": false,
+          "pass": true
+        }
+      },
+      "spline": {
+        "status": "candidate_requires_independent_verification",
+        "solverWallSeconds": 1.7813770849970751,
+        "verificationWallSeconds": 0.8869871670030989,
+        "attempts": [
+          {
+            "seedRad": 0.7,
+            "solverSuccess": true,
+            "message": "Optimization terminated successfully",
+            "iterations": 6,
+            "objective": 0.14048050895311992,
+            "minimumCollocationConstraint": -8.816403163081077e-11
+          },
+          {
+            "seedRad": 1.19,
+            "solverSuccess": true,
+            "message": "Optimization terminated successfully",
+            "iterations": 8,
+            "objective": 0.14048050874819268,
+            "minimumCollocationConstraint": -4.262146191535976e-13
+          }
+        ],
+        "verificationStatus": "constraint_violated",
+        "candidateSha256": "39f9edda6b69619a876239fb296e7a434a09f246455d20d30929174fc1dc427a",
+        "issues": [
+          {
+            "code": "knot_member_collision",
+            "message": "A supplied knot violates whole-member/offset clearance."
+          }
+        ],
+        "objective": 0.14051447047617846,
+        "crossCheck": {
+          "comparedPoints": 2304,
+          "maximumCoordinateResidualM": 1.0048591735576161e-14,
+          "shapeCountsMatch": true,
+          "posesAvailable": true,
+          "coordinateComparisonToleranceM": 1e-07,
+          "sampledOracle": {
+            "claimClass": "synthetic_sampled_geometry",
+            "continuousClearanceProved": false,
+            "sampleCount": 513,
+            "minimumSampledClearanceOrPenaltyM": -0.06732143012710867,
+            "negativeValueMeaning": "collision penalty, not physical penetration distance",
+            "maximumRigidLengthResidualM": 5.329070518200751e-15,
+            "sampledCollision": true,
+            "terrainStatus": "planar_model_only_terrain_unresolved"
+          },
+          "contradiction": false,
+          "pass": true
+        }
+      }
+    }
+  ],
+  "interpretation": [
+    "All inputs synthetic. Numerical guards and dimensions are experiment settings, not manufacturer limits.",
+    "Only the exported linear trajectory is checked by the interval verifier; original cubic curves remain unverified.",
+    "Positive verifier result covers stated planar geometry and supplied constraints; timing, rolling, terrain and water are unqualified.",
+    "No candidate and failed optimization do not establish physical infeasibility. Scores are not irrigated area.",
+    "Wall times include local process overhead and are descriptive single-run observations, not general speed claims."
+  ],
+  "checksPassed": true
+}

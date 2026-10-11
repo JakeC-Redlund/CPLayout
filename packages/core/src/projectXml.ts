@@ -69,6 +69,7 @@ export interface CplayoutMapXmlImportResult {
 }
 
 export function exportProjectMapXml(project: PivotProject): string {
+  if (project.drawingMetadata !== undefined) throw new Error("This format cannot retain classified drawing metadata; use the lossless project document or project ZIP archive.");
   const parsed = withWgs84Companion(PivotProjectSchema.parse(project));
   const companion = parsed.wgs84Companion;
   const lines: string[] = [

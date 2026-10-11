@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "cplayout-vflex-standalone-observation-v1",
+  "recordedAt": "2026-09-28T16:59:37.426388+00:00",
+  "application": {
+    "product": "Valley Corner GPS Mapping",
+    "fileVersion": "1.0.7.0",
+    "productVersion": "1.0.7.0",
+    "exeSha256": "2a83e1cf1f977ca8d9e106599bdc9e60dbf8317cf1107322345656b070b06903",
+    "configSha256": "5410eeae1c4951a93cf1f03f15a9a7975c3fd6d4dc8715990cff1e691efa1b51"
+  },
+  "claimClass": "desktop_runtime_observation_only",
+  "ownedProcessId": 27100,
+  "observations": [
+    "Normal standalone entrypoint opened without a login prompt.",
+    "File menu and empty Add New Field form opened.",
+    "GGS Config Settings dialog opened for inspection only.",
+    "Application configuration declares GGSConfig_Autoconnect=True; effective connection behavior was not tested."
+  ],
+  "oemExchange": "not_run",
+  "ggsInterfaceOpened": false,
+  "fieldSaved": false,
+  "settingsChangedByOperator": false,
+  "controllerConnectionAttempted": false,
+  "pairingEstablished": false,
+  "pilotCompatibility": "unverified",
+  "captureEvidence": [
+    {
+      "name": "add-field.png",
+      "sha256": "5b1707026ae1d9526a8c9d2328f894c5d5e01a145e9d41fa770f256e36bcfb10",
+      "status": "private_runtime_observation"
+    },
+    {
+      "name": "file-menu.png",
+      "sha256": "2623a2061d89f0660a2387a0580ce327474819d564ff101efe73f97618d28e15",
+      "status": "private_runtime_observation"
+    },
+    {
+      "name": "foreground.png",
+      "sha256": "9728d438342d4429f07e3ad0a78668da5596597897c585fc77dd206f609b928f",
+      "status": "private_runtime_observation"
+    },
+    {
+      "name": "ggs-config-dialog.png",
+      "sha256": "28a1211d70fa7fbf6b08d6237e3d8f9b5db4f4188379a5fbc70e3351000ae9f8",
+      "status": "private_runtime_observation"
+    },
+    {
+      "name": "ggs-options.png",
+      "sha256": "ba71beee6aac3543f292f1b6ec2c4e1cb7541b21fa6c7da7a7dbc2afdd285085",
+      "status": "private_runtime_observation"
+    },
+    {
+      "name": "new-field-dialog.png",
+      "sha256": "232994c7e411ed7ec3be1314c604eadb775ebd602d1217461844395a58ca81e7",
+      "status": "private_runtime_observation"
+    },
+    {
+      "name": "settings-menu.png",
+      "sha256": "76cfcc4c3ba8fee37aa3e0c32d73571dcdc39d036da03ec652d06d519f5d102e",
+      "status": "private_runtime_observation"
+    },
+    {
+      "name": "startup.png",
+      "sha256": "f041ced77398d1b926f43ac27c4cc61b6371cb7061b4591188c6fe2c0329fe36",
+      "status": "failed_foreground_identity"
+    }
+  ],
+  "captureRetention": "private_local_only; not embedded or published",
+  "cleanup": {
+    "settingsDialogClosedWithoutApplying": true,
+    "emptyFieldFormClosed": true,
+    "ownedProcessExited": true,
+    "remainingFltGpsMapGgsInterfaceProcesses": 0
+  },
+  "nextGate": "Use a confirmed file-only OEM export/reimport workflow or readable matched GGS/review artifacts; no compatibility follows from the standalone UI opening."
+}

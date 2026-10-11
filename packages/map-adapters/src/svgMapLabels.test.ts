@@ -94,6 +94,31 @@ test("controls reserve space independently of geographic features", () => {
   assert.deepEqual(placeMapLabels([label("a")], viewport, screen, [], [{ x: 0, y: 0, ...screen }]), []);
 });
 
+test("an otherwise unlabeled view can show one nearby caption without moving anchors", () => {
+  const input = [
+    { ...label("power", 70), text: "Power" },
+    { ...label("water", 60), text: "Water" },
+  ];
+  const handles = [[240, 200], [178, 200], [200, 170], [200, 235]].map(([x, y]) => ({
+    x: 500000 + x / 400 * 1000,
+    y: 4501000 - y / 400 * 1000,
+  }));
+  const before = structuredClone({ input, handles });
+  const result = placeMapLabels(input, viewport, screen, handles);
+  assert.equal(result.length, 1);
+  assert.equal(result[0].id, "power");
+  assert.deepEqual(result[0].box, { x: 112, y: 189, width: 48, height: 22 });
+  assert.deepEqual(result[0].point, input[0].point);
+  assert.deepEqual(placeMapLabels([...input].reverse(), viewport, screen, handles), result);
+  assert.deepEqual({ input, handles }, before);
+  assert.deepEqual(placeMapLabels(input, viewport, screen, handles, [{ x: 0, y: 0, ...screen }]), []);
+});
+
+test("ordinary label placement retains its original nearby slot", () => {
+  const [result] = placeMapLabels([label("a")], viewport, screen);
+  assert.deepEqual(result.box, { x: 220, y: 189, width: 64, height: 22 });
+});
+
 test("short point captions preserve the full accessible name", () => {
   const [result] = placeMapLabels([{ ...label("a"), text: "Western supply well", caption: "Well" }], viewport, screen);
   assert.equal(result.text, "Western supply well");

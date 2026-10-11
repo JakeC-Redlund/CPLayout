@@ -1,0 +1,7 @@
+{
+  "source": "wave9-recovery-r4b",
+  "sourceFingerprint": "a8ffc09f0d11b17dfda45ca4c908cb2889d489f7a999e50b9b534335b8ec15ab",
+  "moduleVersion": "cplayout-unified-edit-recovery-v1",
+  "outputSha256": "071d363bd871cdde8d8536660b7e603c641dd9073b22097cc8eed634b87b16af",
+  "claim": "frozen actual old recovery reader; never regenerate after changing its contract"
+}

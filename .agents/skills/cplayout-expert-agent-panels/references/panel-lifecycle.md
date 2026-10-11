@@ -4,7 +4,7 @@ Use this lifecycle when a CPLayout task requests expert panels, multi-agent revi
 
 ## 1. Preflight
 
-- Read `AGENTS.md` and task-specific docs named by the user.
+- Read the current user task and task-specific docs named by the user.
 - Read `.agents/skills/cplayout-workspace-preflight/SKILL.md`.
 - Run `git status --short` and note pre-existing changes.
 - Confirm whether the task is read-only, documentation-only, implementation, architecture, native/runtime, release, or deployment affecting.
@@ -57,7 +57,7 @@ A panel pass should return:
 - validation gates,
 - knowledge-record updates or explicitly skipped record updates for read-only work.
 
-Use subagents for non-trivial matched CPLayout work under the owner's standing authorization when the runtime exposes the tools and the delegated scope is bounded. If tools are unavailable or spawning would not add independent evidence, record `Accepted fallback:` and continue locally.
+Use subagents for non-trivial matched CPLayout work under the current user's authorization when the runtime exposes the tools and the delegated scope is bounded. If tools are unavailable or spawning would not add independent evidence, record `Accepted fallback:` and continue locally.
 
 ## 6. Action Selection
 

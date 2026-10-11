@@ -1,0 +1,170 @@
+{
+  "recordedAt": "2026-09-28",
+  "sourcePolicy": "existing_local_windows_pc_files_only",
+  "records": [
+    {
+      "id": "local-flt-review-001",
+      "exitCode": 3,
+      "evidence": {
+        "schemaVersion": "cplayout-flt-review-inspection-v1",
+        "sources": {
+          "csv": {
+            "sha256": "2256ac7560f9895a6c1b6a83413c4a4b51cd2efee662b6ec4da9abe64ed10269",
+            "sizeBytes": 65493
+          },
+          "out": {
+            "sha256": "fa924540d6ad2dc8eab837f8b816d70a46dfd1a4c7dfcdc289f379a2355c5039",
+            "sizeBytes": 18
+          },
+          "pairing": "caller_supplied_unverified"
+        },
+        "status": "numerically_unresolved",
+        "csvStatus": "parsed_observed_format",
+        "outStatus": "reported_path_successful",
+        "summary": {
+          "rowCount": 385,
+          "footerCount": 6,
+          "endgunEventCount": 1,
+          "qualifiedTrajectory": false
+        },
+        "coordinates": {
+          "sourceColumns": [
+            "corner end X",
+            "corner end Y"
+          ],
+          "numericRepresentation": "binary64",
+          "units": "unresolved",
+          "referencePoint": "unresolved",
+          "crs": "unresolved",
+          "interpolation": "unresolved",
+          "canonicalGeometryImported": false
+        },
+        "closure": {
+          "firstLastCornerEnd": "different",
+          "appendedClosingRow": false,
+          "cycleQualification": "unresolved"
+        },
+        "diagnostics": [
+          {
+            "code": "trajectory_unqualified",
+            "message": "Format admission and reported OUT status do not establish CSV/OUT pairing, machine type, units, reference point, CRS, interpolation, continuous clearance, or controller compatibility."
+          }
+        ],
+        "controllerFileAssociation": "unverified",
+        "qualifiedTrajectory": false
+      }
+    },
+    {
+      "id": "local-flt-review-002",
+      "exitCode": 2,
+      "evidence": {
+        "schemaVersion": "cplayout-flt-review-inspection-v1",
+        "sources": {
+          "csv": {
+            "sha256": "61306f61ffe5bcde03f090158a86822147047cedb1c252370b018a3e513b7ec1",
+            "sizeBytes": 62050
+          },
+          "out": {
+            "sha256": "8b8cc3a764a50015bb0131b4934df5fe48bada0ecdb5da42932c23d838ce6600",
+            "sizeBytes": 147
+          },
+          "pairing": "caller_supplied_unverified"
+        },
+        "status": "constraint_violated",
+        "csvStatus": "parsed_observed_format",
+        "outStatus": "reported_unsafe",
+        "summary": {
+          "rowCount": 385,
+          "footerCount": 6,
+          "endgunEventCount": 0,
+          "qualifiedTrajectory": false
+        },
+        "coordinates": {
+          "sourceColumns": [
+            "corner end X",
+            "corner end Y"
+          ],
+          "numericRepresentation": "binary64",
+          "units": "unresolved",
+          "referencePoint": "unresolved",
+          "crs": "unresolved",
+          "interpolation": "unresolved",
+          "canonicalGeometryImported": false
+        },
+        "closure": {
+          "firstLastCornerEnd": "different",
+          "appendedClosingRow": false,
+          "cycleQualification": "unresolved"
+        },
+        "diagnostics": [
+          {
+            "code": "out_unsafe",
+            "message": "Paired OUT reports unsafe end-gun boundary distance and required machine-length adjustment; CSV rows do not override this report."
+          },
+          {
+            "code": "trajectory_unqualified",
+            "message": "Format admission and reported OUT status do not establish CSV/OUT pairing, machine type, units, reference point, CRS, interpolation, continuous clearance, or controller compatibility."
+          }
+        ],
+        "controllerFileAssociation": "unverified",
+        "qualifiedTrajectory": false
+      }
+    },
+    {
+      "id": "local-flt-review-003",
+      "exitCode": 2,
+      "evidence": {
+        "schemaVersion": "cplayout-flt-review-inspection-v1",
+        "sources": {
+          "csv": {
+            "sha256": "ed04ebe530e2467a7f49257b029a81817625a895d2f0fa943f6af594547fe6bd",
+            "sizeBytes": 65752
+          },
+          "out": {
+            "sha256": "8b8cc3a764a50015bb0131b4934df5fe48bada0ecdb5da42932c23d838ce6600",
+            "sizeBytes": 147
+          },
+          "pairing": "caller_supplied_unverified"
+        },
+        "status": "constraint_violated",
+        "csvStatus": "parsed_observed_format",
+        "outStatus": "reported_unsafe",
+        "summary": {
+          "rowCount": 385,
+          "footerCount": 6,
+          "endgunEventCount": 4,
+          "qualifiedTrajectory": false
+        },
+        "coordinates": {
+          "sourceColumns": [
+            "corner end X",
+            "corner end Y"
+          ],
+          "numericRepresentation": "binary64",
+          "units": "unresolved",
+          "referencePoint": "unresolved",
+          "crs": "unresolved",
+          "interpolation": "unresolved",
+          "canonicalGeometryImported": false
+        },
+        "closure": {
+          "firstLastCornerEnd": "different",
+          "appendedClosingRow": false,
+          "cycleQualification": "unresolved"
+        },
+        "diagnostics": [
+          {
+            "code": "out_unsafe",
+            "message": "Paired OUT reports unsafe end-gun boundary distance and required machine-length adjustment; CSV rows do not override this report."
+          },
+          {
+            "code": "trajectory_unqualified",
+            "message": "Format admission and reported OUT status do not establish CSV/OUT pairing, machine type, units, reference point, CRS, interpolation, continuous clearance, or controller compatibility."
+          }
+        ],
+        "controllerFileAssociation": "unverified",
+        "qualifiedTrajectory": false
+      }
+    }
+  ]
+}

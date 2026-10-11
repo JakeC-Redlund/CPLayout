@@ -21,6 +21,7 @@ import {
 import { maplibregl, maplibreErrorMessage } from "./maplibreRuntime.web";
 import { createVertexDragSession } from "./vertexDragSession";
 import { createMapCameraSession, type MapCameraFrame } from "./mapCameraSession";
+import { createInitialMapCameraAdmission, hasVisibleMapSize } from "./initialMapCamera";
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 
@@ -66,24 +67,32 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
     onMappingWorkflowModeChange, onSelectMapFeature, onSettingsChange,
   } = props;
   const homeView = props.homeView === true;
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const compactLayout = width < 760;
+  const shortFallback = width > height && height < 500;
   const [panelWidth, setPanelWidth] = useState<number | null>(null);
+  const [panelHeight, setPanelHeight] = useState<number | null>(null);
   const [sheetInsetBottom, setSheetInsetBottom] = useState(0);
   const compactHud = panelWidth === null ? compactLayout : panelWidth < 600;
+  const compactHeader = compactHud || shortFallback;
+  const shortLandscapeHud = panelWidth !== null && panelWidth >= 400
+    && panelHeight !== null && panelHeight > 0 && panelHeight < 400;
+  const navigationClearanceStyle = shortLandscapeHud ? { maxWidth: panelWidth - 120 } : undefined;
   const externalHudLayout = controlLayout === "externalHud";
   const designMode = settings.mappingWorkflowMode === "design";
   const canEditOnMap = designMode && !homeView;
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
+  const cameraAdmissionRef = useRef<ReturnType<typeof createInitialMapCameraAdmission> | null>(null);
+  const [readyCamera, setReadyCamera] = useState<ReturnType<typeof createInitialMapCameraAdmission> | null>(null);
   const disposeVertexDragRef = useRef<(() => void) | null>(null);
   const cancelVertexDragRef = useRef<(() => void) | null>(null);
   const cancelMapTapRef = useRef<(() => void) | null>(null);
   const bottomDockHeightRef = useRef(0);
   const toolHudBoundsRef = useRef({ x: 0, y: 0, width: 0, height: 0 });
   const revealSelectedVertexRef = useRef<((explicitSelection?: boolean) => void) | null>(null);
-  const selectedVertexVisibleRef = useRef<(() => boolean) | null>(null);
+  const selectedVertexVisibleRef = useRef<((size?: { width: number; height: number }) => boolean) | null>(null);
   useLayoutEffect(() => {
     if (!compactLayout || !externalHudLayout) {
       setSheetInsetBottom(0);
@@ -98,15 +107,30 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
     const frameRect = frame.getBoundingClientRect();
     const sheetRect = sheet.getBoundingClientRect();
     const intersects = sheetRect.top < frameRect.bottom && sheetRect.bottom > frameRect.top;
-    setSheetInsetBottom(intersects ? Math.max(0, frameRect.bottom - sheetRect.top + 8) : 0);
+    const nextInset = intersects ? Math.max(0, frameRect.bottom - sheetRect.top + 8) : 0;
+    // Opening a panel may rescue a previously visible selection. Data-driven
+    // sheet reflow must not turn the newly edited point into a reveal request.
+    const current = renderStateRef.current;
+    const cameraFrame = cameraFrameRef.current;
+    const renderer = mapRef.current;
+    if (nextInset > sheetInsetBottom && cameraFrame && renderer && selectedVertex
+      && current.overlay === overlayState.featureCollection && current.status === status
+      && interactionRef.current.selectedVertex === selectedVertex
+      && selectedVertexVisibleRef.current?.()) {
+      pendingSelectionRevealRef.current = { frame: cameraFrame, selection: selectedVertex, layout: true, renderer };
+    }
+    setSheetInsetBottom(nextInset);
   });
   useLayoutEffect(() => {
-    if (sheetInsetBottom > 0) revealSelectedVertexRef.current?.(true);
+    if (sheetInsetBottom > 0) revealSelectedVertexRef.current?.();
   }, [sheetInsetBottom]);
   const [cameraSession] = useState(createMapCameraSession);
   const cameraFrameRef = useRef<MapCameraFrame | null>(null);
   const mapSequenceRef = useRef(0);
-  const revealedSelectionRef = useRef<{ frame: MapCameraFrame; selection: typeof selectedVertex } | null>(null);
+  const revealedSelectionRef = useRef<{ frame: MapCameraFrame; selection: typeof selectedVertex; project: typeof project } | null>(null);
+  const pendingSelectionRevealRef = useRef<{ frame: MapCameraFrame; selection: typeof selectedVertex; layout: boolean;
+    renderer: maplibregl.Map | null } | null>(null);
+  const dataReflowSizeRef = useRef<{ map: maplibregl.Map; width: number; height: number } | null>(null);
   const referenceView = useMemo(() => buildMapReferenceViewModel({
     settings, mapPackages: project.mapPackages ?? [],
     target: "web_maplibre_gl_js", surface: "workbench",
@@ -200,14 +224,31 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
     ...visibleMapAttributions(workbenchStyle),
   ].filter(Boolean).join(" · ") || "Map attribution unavailable";
   const renderStateRef = useRef({ project, homeView, canEditOnMap, projectionFrame, activeImagery,
-    referenceOverlay, referencePreferences: settings.referenceOverlay, overlay: overlayState.featureCollection });
+    referenceOverlay, referencePreferences: settings.referenceOverlay, overlay: overlayState.featureCollection, status });
   useLayoutEffect(() => {
+    // Snapshot the outgoing view before retiring its frame, including navigation during movement.
+    const previousFrame = cameraFrameRef.current;
+    const previousMap = mapRef.current;
+    if (previousFrame && previousMap && cameraSession.isCurrent(previousFrame)
+      && previousMap.getContainer().dataset.mapCameraReady === "true") {
+      const center = previousMap.getCenter();
+      cameraSession.remember(previousFrame, { center: [center.lng, center.lat], zoom: previousMap.getZoom(),
+        bearing: previousMap.getBearing(), pitch: previousMap.getPitch() });
+    }
+    const previousRender = renderStateRef.current;
+    if (previousMap && (previousRender.overlay !== overlayState.featureCollection || previousRender.status !== status)) {
+      // Measure the committed data layout before the owned observer runs. Neither
+      // a geometry/status change nor advisory output grants camera movement.
+      const container = previousMap.getContainer();
+      dataReflowSizeRef.current = { map: previousMap, width: container.clientWidth, height: container.clientHeight };
+      pendingSelectionRevealRef.current = null;
+    }
     // Commit ownership before passive cleanup; an abandoned render must not retire a live camera.
     cameraFrameRef.current = cameraSession.useFrame(cameraIdentity);
     interactionRef.current = controller;
     selectionCallbackRef.current = onSelectMapFeature;
     renderStateRef.current = { project, homeView, canEditOnMap, projectionFrame, activeImagery,
-      referenceOverlay, referencePreferences: settings.referenceOverlay, overlay: overlayState.featureCollection };
+      referenceOverlay, referencePreferences: settings.referenceOverlay, overlay: overlayState.featureCollection, status };
   });
   useEffect(() => {
     const cameraFrame = cameraFrameRef.current;
@@ -220,19 +261,12 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
       registerPmtilesProtocolOnce();
       map = new maplibregl.Map({
         attributionControl: false,
-        // Bounds are only for a new project frame, never a same-frame style replacement.
-        ...(restoredCamera ?? { bounds: [
-          [current.projectionFrame.bounds[0], current.projectionFrame.bounds[1]],
-          [current.projectionFrame.bounds[2], current.projectionFrame.bounds[3]],
-        ] as [[number, number], [number, number]] }),
+        // Initial bounds fitting happens only after measuring the actual visible container.
+        ...(restoredCamera ?? { center: current.projectionFrame.center, zoom: 0 }),
         container: containerRef.current,
         // One owned observer captures visibility before resizing, including large panel changes.
         trackResize: typeof ResizeObserver === "undefined",
         dragRotate: false,
-        fitBoundsOptions: {
-          maxZoom: current.activeImagery ? Math.min(17, current.activeImagery.maxzoom) : 17,
-          padding: 48,
-        },
         pitchWithRotate: false,
         style: buildWorkbenchStyle(current.activeImagery, current.overlay, current.referenceOverlay, current.referencePreferences),
       });
@@ -245,19 +279,56 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
     mapRef.current = map;
     let disposed = false;
     const ownsMap = () => !disposed && mapRef.current === map && cameraSession.isCurrent(cameraFrame);
+    const cameraAdmission = createInitialMapCameraAdmission(restoredCamera !== null, ownsMap);
+    cameraAdmissionRef.current = cameraAdmission;
     const container = map.getContainer();
+    let styleLoaded = false;
     container.dataset.mapLoaded = "false";
+    container.dataset.mapCameraReady = "false";
+    delete container.dataset.mapCamera;
     container.dataset.mapInstance = String(++mapSequenceRef.current);
-    const recordCamera = () => {
-      if (!ownsMap()) return;
+    const recordCamera = (retiring = false) => {
+      if (!ownsMap() || !cameraAdmission.isReady()
+        || (!retiring && !hasVisibleMapSize({ width: container.clientWidth, height: container.clientHeight }))) return;
       const center = map.getCenter();
       const view = { center: [center.lng, center.lat] as [number, number], zoom: map.getZoom(), bearing: map.getBearing(), pitch: map.getPitch() };
       cameraSession.remember(cameraFrame, view);
       container.dataset.mapCamera = JSON.stringify([...view.center, view.zoom, view.bearing, view.pitch]);
     };
-    recordCamera();
-    map.on("moveend", recordCamera);
-    map.once("load", () => { if (ownsMap()) container.dataset.mapLoaded = "true"; });
+    const initializeCamera = () => {
+      if (!ownsMap()) return;
+      try {
+        const initialized = cameraAdmission.initialize({ width: container.clientWidth, height: container.clientHeight }, padding => {
+          map.resize();
+          const camera = restoredCamera ?? map.cameraForBounds([
+            [current.projectionFrame.bounds[0], current.projectionFrame.bounds[1]],
+            [current.projectionFrame.bounds[2], current.projectionFrame.bounds[3]],
+          ], { padding, maxZoom: current.activeImagery ? Math.min(17, current.activeImagery.maxzoom) : 17 });
+          if (!camera) return null;
+          map.jumpTo({ ...camera, pitch: restoredCamera?.pitch ?? 0, padding: { top: 0, right: 0, bottom: 0, left: 0 } });
+          const center = map.getCenter();
+          return { center: [center.lng, center.lat], zoom: map.getZoom(), bearing: map.getBearing(), pitch: map.getPitch() };
+        });
+        if (initialized) {
+          container.dataset.mapCameraReady = "true";
+          recordCamera();
+          // A retained selection can attach its marker only after this renderer's
+          // initial fit/restoration succeeds, including a later resize retry.
+          setReadyCamera(cameraAdmission);
+        }
+        container.dataset.mapLoaded = String(styleLoaded && cameraAdmission.isReady());
+      } catch (error) {
+        if (ownsMap()) setRuntimeError(maplibreErrorMessage(error instanceof Error ? error : { message: String(error) }));
+      }
+    };
+    // Keep both the live session and its receipt current during public drags,
+    // even when a terminal movement event is delayed or absent.
+    const updateCameraReceipt = () => recordCamera();
+    map.on("move", updateCameraReceipt);
+    map.on("moveend", updateCameraReceipt);
+    map.on("resize", initializeCamera);
+    map.once("load", () => { if (ownsMap()) { styleLoaded = true; initializeCamera(); } });
+    initializeCamera();
 
     let lastTouchHandledAt = 0;
     let touchStartPoint: { x: number; y: number } | null = null;
@@ -270,7 +341,7 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
       lngLat: { lng: number; lat: number },
       closeRequested: boolean,
     ): void => {
-      if (!ownsMap() || !tapAllowed) return;
+      if (!ownsMap() || !cameraAdmission.isReady() || !tapAllowed) return;
       const current = interactionRef.current;
       const rendered = renderStateRef.current;
       if (rendered.homeView) {
@@ -319,7 +390,7 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
       applyMapEvent(event.point, event.lngLat, false);
     });
     map.on("dblclick", (event) => {
-      if (!ownsMap() || !tapAllowed) return;
+      if (!ownsMap() || !cameraAdmission.isReady() || !tapAllowed) return;
       event.preventDefault();
       const current = interactionRef.current;
       if (renderStateRef.current.homeView) return;
@@ -333,8 +404,15 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
 
     setMapInstance(map);
     return () => {
-      recordCamera();
+      recordCamera(true);
       disposed = true;
+      map.off("move", updateCameraReceipt);
+      map.off("moveend", updateCameraReceipt);
+      // Camera-frame identity survives imagery reconstruction; layout authority
+      // belongs to this renderer and must retire with it.
+      if (pendingSelectionRevealRef.current?.renderer === map) pendingSelectionRevealRef.current = null;
+      if (cameraAdmissionRef.current === cameraAdmission) cameraAdmissionRef.current = null;
+      setReadyCamera(current => current === cameraAdmission ? null : current);
       cancelMapTap();
       pointerTracking.dispose();
       if (cancelMapTapRef.current === cancelMapTap) cancelMapTapRef.current = null;
@@ -343,6 +421,7 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
       setMapInstance(null);
       map.remove();
       delete container.dataset.mapLoaded;
+      delete container.dataset.mapCameraReady;
       delete container.dataset.mapCamera;
       delete container.dataset.mapInstance;
     };
@@ -369,18 +448,41 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
     const cameraFrame = cameraFrameRef.current;
     if (!cameraFrame || !map || map !== mapRef.current || typeof ResizeObserver === "undefined") return undefined;
     const container = map.getContainer();
+    const workbench = container.closest('[data-testid="browser-map-workbench"]');
+    let previousWorkbench = workbench?.getBoundingClientRect();
     let previous = { width: map.getCanvas().clientWidth, height: map.getCanvas().clientHeight };
+    let hiddenSelection: typeof interactionRef.current.selectedVertex = null;
+    let visibleBeforeHide = false;
     const observer = new ResizeObserver(() => {
       if (map !== mapRef.current || !cameraSession.isCurrent(cameraFrame)) return;
       const next = { width: container.clientWidth, height: container.clientHeight };
       if (next.width === previous.width && next.height === previous.height) return;
+      const nextWorkbench = workbench?.getBoundingClientRect();
+      const workbenchResized = Boolean(nextWorkbench && previousWorkbench
+        && (nextWorkbench.width !== previousWorkbench.width || nextWorkbench.height !== previousWorkbench.height));
+      const dataReflow = dataReflowSizeRef.current;
+      const dataDrivenResize = dataReflow?.map === map && dataReflow.width === next.width && dataReflow.height === next.height;
+      if (dataReflow?.map === map) dataReflowSizeRef.current = null;
+      const currentSelection = interactionRef.current.selectedVertex;
+      const wasVisible = hasVisibleMapSize(previous)
+        ? selectedVertexVisibleRef.current?.(previous) ?? false
+        : hiddenSelection === currentSelection && visibleBeforeHide;
       previous = next;
+      previousWorkbench = nextWorkbench;
       cancelVertexDragRef.current?.();
       cancelMapTapRef.current?.();
-      const wasVisible = selectedVertexVisibleRef.current?.() ?? false;
+      if (!hasVisibleMapSize(next)) {
+        hiddenSelection = currentSelection;
+        visibleBeforeHide = wasVisible;
+        return;
+      }
+      hiddenSelection = null;
+      visibleBeforeHide = false;
+      const rescueSelection = wasVisible && workbenchResized && !dataDrivenResize;
+      if (rescueSelection && currentSelection) pendingSelectionRevealRef.current = { frame: cameraFrame, selection: currentSelection, layout: true, renderer: map };
       map.resize();
       map.redraw();
-      if (wasVisible) revealSelectedVertexRef.current?.(true);
+      if (rescueSelection) revealSelectedVertexRef.current?.();
     });
     observer.observe(container);
     return () => observer.disconnect();
@@ -391,13 +493,29 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
     const cameraFrame = cameraFrameRef.current;
     if (!canEditOnMap || mode !== "edit_vertices" || !selectedVertex) {
       revealedSelectionRef.current = null;
+      pendingSelectionRevealRef.current = null;
       return undefined;
     }
-    if (!cameraFrame || !map || map !== mapRef.current || !cameraSession.isCurrent(cameraFrame)) return undefined;
+    if (!cameraFrame || !cameraSession.isCurrent(cameraFrame)) return undefined;
+    const revealed = revealedSelectionRef.current;
+    const geometryUnchanged = revealed?.project.fieldBoundary === project.fieldBoundary
+      && revealed.project.obstacles === project.obstacles && revealed.project.mapFeatures === project.mapFeatures;
+    const explicitSelection = revealed?.frame !== cameraFrame || (revealed.selection !== selectedVertex && geometryUnchanged);
+    const cameraAdmission = cameraAdmissionRef.current;
+    if (!map || map !== mapRef.current || !cameraAdmission || readyCamera !== cameraAdmission || !cameraAdmission.canUseCamera()) {
+      // Explicit selection may arrive before a usable renderer exists. It can
+      // bind once; a retired renderer's layout request can never use this lane.
+      if (explicitSelection) pendingSelectionRevealRef.current = {
+        frame: cameraFrame, selection: selectedVertex, layout: false, renderer: null,
+      };
+      return undefined;
+    }
     const selectedPoint = selectedProjectVertexPoint(project, selectedVertex);
     if (!selectedPoint) return undefined;
     const coordinate = projectXyToLonLat(selectedPoint, project.projectCrs);
-    const ownsSelection = () => map === mapRef.current && cameraSession.isCurrent(cameraFrame)
+    let disposed = false;
+    const ownsSelection = () => !disposed && cameraAdmissionRef.current === cameraAdmission && cameraAdmission.canUseCamera()
+      && map === mapRef.current && cameraSession.isCurrent(cameraFrame)
       && renderStateRef.current.project === project && renderStateRef.current.canEditOnMap
       && interactionRef.current.mode === "edit_vertices" && interactionRef.current.selectedVertex === selectedVertex;
     const element = document.createElement("button");
@@ -434,6 +552,7 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
     };
     const session = createVertexDragSession({
       preview: (point) => {
+        if (!ownsSelection()) { session.cancel(); return; }
         const canvas = map.getCanvas().getBoundingClientRect();
         marker.setLngLat(map.unproject([point.x - canvas.left - grabOffset.x, point.y - canvas.top - grabOffset.y]));
       },
@@ -443,34 +562,51 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
         const target = map.unproject([point.x - canvas.left - grabOffset.x, point.y - canvas.top - grabOffset.y]);
         element.dataset.dragState = "finished";
         restoreNavigation();
+        if (!ownsSelection()) return;
         // The preview is never canonical, including when reducer admission rejects the move.
         marker.setLngLat([coordinate.longitude, coordinate.latitude]);
-        interactionRef.current.moveSelectedVertexToPoint(projectLonLatToXy({ longitude: target.lng, latitude: target.lat }, project.projectCrs));
+        if (ownsSelection()) interactionRef.current.moveSelectedVertexToPoint(projectLonLatToXy({ longitude: target.lng, latitude: target.lat }, project.projectCrs));
       },
       cancel: () => {
         element.dataset.dragState = "cancelled";
         restoreNavigation();
-        marker.setLngLat([coordinate.longitude, coordinate.latitude]);
+        if (ownsSelection()) marker.setLngLat([coordinate.longitude, coordinate.latitude]);
       },
     });
-    const selectedVertexVisible = (): boolean => {
+    const selectedVertexVisible = (size?: { width: number; height: number }): boolean => {
       if (!ownsSelection()) return false;
-      const canvas = map.getCanvas().getBoundingClientRect();
+      const canvas = size ?? map.getCanvas().getBoundingClientRect();
       const point = map.project(marker.getLngLat());
-      return point.x + 22 >= 0 && point.y + 22 >= 0 && point.x - 22 <= canvas.width && point.y - 22 <= canvas.height;
+      // Resize eligibility requires the entire handle in the previous viewport.
+      return point.x - 22 >= 0 && point.y - 22 >= 0 && point.x + 22 <= canvas.width && point.y + 22 <= canvas.height;
     };
     const revealSelectedVertex = (explicitSelection = false): void => {
       if (session.activePointerId !== null || !ownsSelection()) return;
-      if (!explicitSelection && !selectedVertexVisible()) return;
+      const pending = pendingSelectionRevealRef.current;
+      const requested = explicitSelection || (pending?.frame === cameraFrame && pending.selection === selectedVertex
+        && (pending.renderer === map || (!pending.layout && pending.renderer === null)));
+      // Visibility after an edit is an observation, never camera intent.
+      // Passive dock/tool/sheet callbacks may only finish an admitted request.
+      if (!requested) return;
+      if (explicitSelection || pending?.renderer === null) pendingSelectionRevealRef.current = {
+        frame: cameraFrame, selection: selectedVertex, layout: false, renderer: map,
+      };
       const canvas = map.getCanvas().getBoundingClientRect();
       const toolHud = toolHudBoundsRef.current;
-      const offset = panOffsetToRevealPoint(map.project(marker.getLngLat()), canvas, {
+      const insets = {
         left: !externalHudLayout && compactLayout ? toolHud.x + toolHud.width : 0,
         top: !externalHudLayout && !compactLayout ? toolHud.y + toolHud.height : 0,
         right: 96,
         bottom: Math.max(bottomDockHeightRef.current + 8,
           visibleBottomMapInset(canvas, map.getContainer().parentElement, compactLayout, externalHudLayout)),
-      }, 26);
+      };
+      // Keep resize eligibility until the responsive dock has a usable rectangle.
+      if (canvas.width < insets.left + insets.right + 52 || canvas.height < insets.top + insets.bottom + 52) return;
+      const offset = panOffsetToRevealPoint(map.project(marker.getLngLat()), canvas, insets, 26);
+      // A real resize can report its canvas before the final responsive dock.
+      // Retain that admitted layout request through those callbacks; data edits,
+      // advisory/status updates and deliberate map movement invalidate it.
+      if (!pendingSelectionRevealRef.current?.layout) pendingSelectionRevealRef.current = null;
       if (offset) map.panBy([offset.x, offset.y], { duration: 0 });
     };
     const moveMarker = (event: PointerEvent): void => {
@@ -484,6 +620,7 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
     const startDrag = (event: PointerEvent): void => {
       if (!ownsSelection()) return;
       if (!session.begin(event)) return;
+      pendingSelectionRevealRef.current = null;
       event.preventDefault();
       event.stopPropagation();
       element.dataset.dragState = "active";
@@ -498,7 +635,10 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
       for (const handler of enabledNavigation) handler.disable();
     };
     const cancelPointer = (event: PointerEvent): void => session.cancel(event.pointerId);
-    const cancelDrag = (): void => session.cancel();
+    const cancelDrag = (event?: unknown): void => {
+      session.cancel();
+      if (event && typeof event === "object" && "originalEvent" in event && event.originalEvent) pendingSelectionRevealRef.current = null;
+    };
     const cancelHiddenDrag = (): void => { if (document.hidden) session.cancel(); };
     const cancelWithEscape = (event: KeyboardEvent): void => { if (event.key === "Escape") session.cancel(); };
     const stopHandleClick = (event: Event): void => { event.stopPropagation(); };
@@ -516,10 +656,9 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
     cancelVertexDragRef.current = cancelDrag;
     revealSelectedVertexRef.current = revealSelectedVertex;
     selectedVertexVisibleRef.current = selectedVertexVisible;
-    const revealed = revealedSelectionRef.current;
-    if (revealed?.frame !== cameraFrame || revealed.selection !== selectedVertex) revealSelectedVertex(true);
-    revealedSelectionRef.current = { frame: cameraFrame, selection: selectedVertex };
-    let disposed = false;
+    if (explicitSelection) revealSelectedVertex(true);
+    else revealSelectedVertex();
+    revealedSelectionRef.current = { frame: cameraFrame, selection: selectedVertex, project };
     const dispose = (): void => {
       if (disposed) return;
       disposed = true;
@@ -542,12 +681,12 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
     };
     disposeVertexDragRef.current = dispose;
     return dispose;
-  }, [cameraIdentity, cameraSession, mapInstance, canEditOnMap, compactLayout, externalHudLayout, mode, project, selectedVertex]);
+  }, [cameraIdentity, cameraSession, mapInstance, readyCamera, canEditOnMap, compactLayout, externalHudLayout, mode, project, selectedVertex]);
 
   if (projectionError || mapInitializationError || svgRecoveryRequested) {
     return (
-      <View style={styles.fallbackShell} testID="browser-map-renderer-fallback">
-        <Text style={styles.fallbackText} testID="browser-map-renderer-fallback-notice">
+      <View style={[styles.fallbackShell, shortFallback && styles.fallbackShellShort]} testID="browser-map-renderer-fallback">
+        <Text style={[styles.fallbackText, shortFallback && styles.fallbackTextShort]} testID="browser-map-renderer-fallback-notice">
           {projectionError
             ? `Browser imagery is unavailable for this project view: ${projectionError}`
             : mapInitializationError ?? "SVG map selected. Imagery preview is disabled."}
@@ -569,19 +708,38 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
   const editStepMeters = Math.max(1, settings.drawing.panStepMeters / 4);
   const canToggleReferenceOverlay = Boolean(onSettingsChange && referenceOverlay.canRender);
   const advisoryFieldPivotPlanVisible = !homeView && (advisoryFieldPivotPlan?.selectedMachineCount ?? 0) > 0;
-  const showHudActions = !compactLayout
+  const shortAdvisoryHeader = shortLandscapeHud && advisoryFieldPivotPlanVisible;
+  const advisoryPlanDescription = advisoryFieldPivotPlan
+    ? `Generated advisory plan · ${advisoryFieldPivotPlan.selectedMachineCount}/${advisoryFieldPivotPlan.requestedMachineCount} centers · review only`
+    : "";
+  const showHudActions = (!compactLayout && !shortLandscapeHud)
     || canCommitDraft
     || canSaveFeature
     || mode === "edit_vertices"
     || draftVertices.length > 0;
 
+  const sourceControl = <Pressable accessibilityRole="button" accessibilityLabel="Map source details"
+    onPress={() => { cancelVertexDragRef.current?.(); setSourceDetailsOpen(true); }}
+    style={[styles.attributionHud, compactHud && styles.attributionHudCompact,
+      shortLandscapeHud ? styles.attributionHeader : navigationClearanceStyle]} testID="browser-map-attribution-hud">
+    <Satellite size={13} color="#173428" />
+    <Text numberOfLines={shortLandscapeHud ? 1 : undefined} style={styles.attributionText} testID="browser-map-attribution-credit">{attributionCredit}</Text>
+    <Info size={16} color="#173428" />
+  </Pressable>;
   return (
-    <View style={styles.shell} testID="browser-map-workbench">
-      <View style={[styles.headerRow, compactHud && styles.headerRowCompact]}>
-        <View style={[styles.headerTitle, compactHud && styles.compactHeaderTitle]}>
-          {!compactHud ? <Text style={styles.title}>{homeView ? "North America Map" : "Imagery Workbench"}</Text> : null}
-          <Text style={styles.subtitle}>{compactHud ? homeView ? "Catalog" : project.projectCrs
-            : `${homeView ? "Client/project catalog view" : `${project.projectCrs} canonical geometry`} · ${activeImagery?.name ?? "offline overlay"}`}</Text>
+    <View style={[styles.shell, shortLandscapeHud && styles.shellShort]} testID="browser-map-workbench">
+      <View style={[styles.headerRow, compactHeader && styles.headerRowCompact, shortFallback && styles.headerRowShort]}>
+        <View style={[styles.headerTitle, compactHeader && styles.compactHeaderTitle,
+          shortAdvisoryHeader && styles.advisoryHeaderTitle]}>
+          {!compactHeader ? <Text style={styles.title}>{homeView ? "North America Map" : "Imagery Workbench"}</Text> : null}
+          {shortAdvisoryHeader && advisoryFieldPivotPlan ?
+            <View pointerEvents="none" accessibilityLabel={advisoryPlanDescription}
+              testID="browser-advisory-generated-field-pivot-layer">
+              <Text numberOfLines={1} style={styles.advisoryPlanHeader}>Advisory {advisoryFieldPivotPlan.selectedMachineCount}/{advisoryFieldPivotPlan.requestedMachineCount}</Text>
+              <Text numberOfLines={1} style={styles.advisoryPlanHeader}>review only</Text>
+            </View> :
+            <Text numberOfLines={compactHeader ? 1 : undefined} style={styles.subtitle}>{compactHeader ? homeView ? "Catalog" : project.projectCrs
+              : `${homeView ? "Customer/project catalog view" : `${project.projectCrs} canonical geometry`} · ${activeImagery?.name ?? "offline overlay"}`}</Text>}
         </View>
         <Pressable
           accessibilityRole="button"
@@ -592,23 +750,24 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
           onPress={() => setSvgRecoveryRequested(true)}
           onHoverIn={() => setRecoveryHovered(true)} onHoverOut={() => setRecoveryHovered(false)}
           onFocus={() => setRecoveryHovered(true)} onBlur={() => setRecoveryHovered(false)}
-          style={[styles.toolButton, styles.recoveryButton, compactHud && styles.recoveryButtonCompact, draftVertices.length > 0 && styles.hudButtonDisabled]}
+          style={[styles.toolButton, styles.recoveryButton, compactHeader && styles.recoveryButtonCompact, draftVertices.length > 0 && styles.hudButtonDisabled]}
           testID="browser-map-use-svg"
         >
           <MapPinned size={17} color="#173428" />
-          {!compactHud ? <Text style={styles.toolButtonText}>Use SVG map</Text> : null}
-          {compactHud && recoveryHovered ? <Text style={styles.recoveryTooltip}>Use SVG map</Text> : null}
+          {!compactHeader ? <Text style={styles.toolButtonText}>Use SVG map</Text> : null}
+          {compactHeader && recoveryHovered ? <Text style={styles.recoveryTooltip}>Use SVG map</Text> : null}
         </Pressable>
+        {shortLandscapeHud ? sourceControl : null}
         <View style={styles.segmented}>
           <ModeSwitch
             active={settings.mappingWorkflowMode === "design"}
-            label="Design"
+            label="Edit map"
             onPress={() => onMappingWorkflowModeChange?.("design")}
             testID="browser-workflow-design"
           />
           <ModeSwitch
             active={settings.mappingWorkflowMode === "layout"}
-            label="Layout"
+            label="Inspect map"
             onPress={() => onMappingWorkflowModeChange?.("layout")}
             testID="browser-workflow-layout"
           />
@@ -616,7 +775,10 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
       </View>
 
       <View style={[styles.mapFrame, compactLayout && styles.mapFrameCompact]} testID="browser-map-frame"
-        onLayout={event => setPanelWidth(event.nativeEvent.layout.width)}>
+        onLayout={event => {
+          setPanelWidth(event.nativeEvent.layout.width);
+          setPanelHeight(event.nativeEvent.layout.height);
+        }}>
         {React.createElement("div", {
           "aria-label": "CPLayout MapLibre imagery workbench",
           ref: containerRef,
@@ -629,6 +791,8 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
             const map = mapRef.current;
             const frame = cameraFrameRef.current;
             if (!map || !frame || !cameraSession.isCurrent(frame) || !fieldFitBounds) return;
+            // Fit replaces prior camera intent, including resize rescue requests.
+            pendingSelectionRevealRef.current = null;
             const rect = map.getContainer().getBoundingClientRect();
             const padding = { top: 80, right: 24, bottom: bottomDockHeightRef.current + 24, left: 24 };
             const panel = map.getContainer().parentElement;
@@ -754,7 +918,7 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
         {!canEditOnMap ? (
           <View style={[styles.layoutHud, compactLayout && styles.layoutHudCompact]} testID="browser-map-layout-hud">
             <MapPinned size={17} color="#173428" />
-            <Text style={styles.layoutHudText}>{homeView ? "Catalog map: open a field map or design before editing." : "Layout mode: RTK-only geometry changes; pointer gestures inspect only."}</Text>
+            <Text style={styles.layoutHudText}>{homeView ? "Catalog map: open a field map or design before editing." : "Inspect map: pointer gestures select and view. Form edits remain available."}</Text>
           </View>
         ) : null}
 
@@ -764,33 +928,26 @@ export function BrowserMapSurface(props: MapSurfaceProps): React.JSX.Element {
           bottomDockHeightRef.current = height;
           revealSelectedVertexRef.current?.();
         }}>
-          {advisoryFieldPivotPlanVisible && advisoryFieldPivotPlan ? (
-            <View pointerEvents="none" style={[styles.advisoryPlanHud, compactLayout && styles.advisoryPlanHudCompact]} testID="browser-advisory-generated-field-pivot-layer">
+          {advisoryFieldPivotPlanVisible && advisoryFieldPivotPlan && !shortLandscapeHud ? (
+            <View pointerEvents="none" accessibilityLabel={advisoryPlanDescription}
+              style={[styles.advisoryPlanHud, compactLayout && styles.advisoryPlanHudCompact]} testID="browser-advisory-generated-field-pivot-layer">
               <MapPinned size={13} color="#5b21b6" />
               <Text numberOfLines={compactLayout ? 1 : undefined} style={styles.advisoryPlanText}>
                 Generated advisory plan · {advisoryFieldPivotPlan.selectedMachineCount}/{advisoryFieldPivotPlan.requestedMachineCount} centers · review only
               </Text>
             </View>
           ) : null}
-          <Pressable accessibilityRole="button" accessibilityLabel="Map source details"
-            onPress={() => { cancelVertexDragRef.current?.(); setSourceDetailsOpen(true); }}
-            style={[styles.attributionHud, compactHud && styles.attributionHudCompact]} testID="browser-map-attribution-hud">
-            <Satellite size={13} color="#173428" />
-            <Text style={styles.attributionText} testID="browser-map-attribution-credit">
-              {attributionCredit}
-            </Text>
-            <Info size={16} color="#173428" />
-          </Pressable>
+          {!shortLandscapeHud ? sourceControl : null}
           <View pointerEvents={showHudActions ? "box-none" : "none"}
-            style={[styles.statusHud, compactHud && styles.statusHudCompact,
+            style={[styles.statusHud, compactHud && styles.statusHudCompact, shortLandscapeHud && styles.statusHudShort, navigationClearanceStyle,
               sheetInsetBottom > 0 && [styles.statusHudAboveSheet, { bottom: sheetInsetBottom }]]}
             testID="browser-map-status-hud">
             <View pointerEvents="none" style={styles.statusTextGroup}>
               <Text style={styles.statusText} testID="browser-map-action-status">{status}</Text>
-              <Text style={styles.statusMeta}>{statusMetaText}</Text>
+              {!(shortLandscapeHud && mode === "edit_vertices") && <Text style={styles.statusMeta}>{statusMetaText}</Text>}
               {draftVertices.length > 1 ? <Text style={styles.statusMeta} testID="browser-map-draft-measurement">{draftMeasurementText(mode === "measure" ? controller.activeFeatureGeometry : "Polygon", draftVertices, project.projectCrs, settings.unitSystem)}</Text> : null}
             </View>
-            {showHudActions ? <HudActionRow compact={compactHud}>
+            {showHudActions ? <HudActionRow compact={compactHud || shortLandscapeHud}>
               {mode !== "edit_vertices" ? <>
                 {mode !== "measure" ? <HudButton disabled={!canCommitDraft} icon={<Check size={15} color={canCommitDraft ? "#ffffff" : "#718077"} />} label="Commit" onPress={commitDraft} primary={canCommitDraft} testID="browser-action-commit" /> : null}
                 {mode === "measure" ? <HudButton disabled={!canSaveFeature} icon={<Check size={15} color={canSaveFeature ? "#ffffff" : "#718077"} />} label={activeMapFeatureKind ? "Save Feature" : "Finish"} onPress={saveMapFeatureFromDraft} primary={canSaveFeature} testID="browser-action-save-feature" /> : null}
@@ -1055,6 +1212,7 @@ const styles = StyleSheet.create({
     minWidth: 0,
     overflow: "hidden",
   },
+  shellShort: { gap: 4 },
   headerRow: {
     alignItems: "center",
     backgroundColor: "#fbfdf9",
@@ -1073,7 +1231,9 @@ const styles = StyleSheet.create({
     fontWeight: "900",
   },
   headerRowCompact: { paddingHorizontal: 8, paddingVertical: 6, gap: 6 },
+  headerRowShort: { paddingVertical: 2, flexWrap: "nowrap" },
   compactHeaderTitle: { flex: 1, minWidth: 0 },
+  advisoryHeaderTitle: { minWidth: 72 },
   recoveryButtonCompact: { flexBasis: 44, width: 44, paddingHorizontal: 0 },
   recoveryTooltip: { position: "absolute", top: 44, right: 0, width: 100, padding: 6, borderRadius: 4,
     backgroundColor: "#26392f", color: "#ffffff", fontSize: 12, zIndex: 10 },
@@ -1322,6 +1482,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 9,
     paddingVertical: 7,
   },
+  advisoryPlanHeader: { lineHeight: 14, color: "#4c1d95", backgroundColor: "#faf5ff", fontSize: 10, fontWeight: "800" },
   advisoryPlanHudCompact: {
     maxWidth: "100%",
     overflow: "hidden",
@@ -1351,6 +1512,7 @@ const styles = StyleSheet.create({
     gap: 6,
     maxWidth: "100%",
   },
+  statusHudShort: { padding: 4, gap: 4 },
   statusHudAboveSheet: {
     left: 0,
     position: "absolute",
@@ -1465,6 +1627,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 9,
     paddingVertical: 7,
   },
+  attributionHeader: { alignSelf: "center", maxWidth: "40%", flexShrink: 1, paddingHorizontal: 6 },
   attributionHudCompact: {
     maxWidth: "100%",
     paddingVertical: 5,
@@ -1506,6 +1669,8 @@ const styles = StyleSheet.create({
     minHeight: 0,
     minWidth: 0,
   },
+  fallbackShellShort: { gap: 2 },
+  fallbackTextShort: { paddingVertical: 2, paddingHorizontal: 8 },
   fallbackText: {
     backgroundColor: "#fff2df",
     borderColor: "#e4b56d",

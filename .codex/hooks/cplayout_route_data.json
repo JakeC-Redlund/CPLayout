@@ -4,7 +4,7 @@
   "unmatchedComplexity": "complexity analysis required before mutation",
   "unmatchedReasoningEffort": "select reasoning effort after task complexity analysis",
   "baseValidationExpectations": [
-    "Re-read AGENTS.md and run git status --short before non-trivial work.",
+    "Read the current user task and coordinator scope; inspect git status --short and preserve existing work.",
     "Record complexity band, selected reasoning effort, and subagent decision before mutation.",
     "Run npm run validate:skills for hook, skill, agent, or record changes.",
     "Run git diff --check and npm audit before reporting success."
@@ -45,7 +45,6 @@
         { "term": "import wizard", "weight": 7 },
         { "term": "import bpf", "weight": 10 },
         { "term": "bpf import", "weight": 10 },
-        { "term": "cornergpsmap", "weight": 8 },
         { "term": "places layers", "weight": 6 },
         { "term": "field boundary", "weight": 8 },
         { "term": "operator boundary", "weight": 8 },
@@ -105,14 +104,11 @@
         { "term": "map workspace", "weight": 10 },
         { "term": "bottom hud", "weight": 10 },
         { "term": "right-sidebar", "weight": 12 },
-        { "term": "right sidebar", "weight": 12 },
         { "term": "right-drawer", "weight": 12 },
-        { "term": "right drawer", "weight": 12 },
         { "term": "toolbar", "weight": 10 },
         { "term": "top toolbar", "weight": 11 },
         { "term": "workspace toolbar", "weight": 12 },
         { "term": "ui-proof", "weight": 12 },
-        { "term": "ui proof", "weight": 12 },
         { "term": "hud", "weight": 8 },
         { "term": "interface", "weight": 8 },
         { "term": "component", "weight": 7 },
@@ -135,7 +131,16 @@
         { "term": "ui", "weight": 6 },
         { "term": "ux", "weight": 5 },
         { "term": "web", "weight": 3 },
-        { "term": "layout", "weight": 2 }
+        { "term": "layout", "weight": 2 },
+        { "term": "unified workspace", "weight": 12 },
+        { "term": "design survey layout", "weight": 12 },
+        { "term": "design survey and layout", "weight": 12 },
+        { "term": "mode switch", "weight": 12 },
+        { "term": "mode toggle", "weight": 12 },
+        { "term": "shared map", "weight": 12 },
+        { "term": "dirty input", "weight": 12 },
+        { "term": "camera retention", "weight": 12 },
+        { "term": "receiver ownership", "weight": 12 }
       ],
       "negativeKeywords": [
         { "term": "database only", "weight": 7 },
@@ -183,7 +188,6 @@
         { "term": "sdu", "weight": 8 },
         { "term": "lrdu sdu", "weight": 12 },
         { "term": "safety zone", "weight": 9 },
-        { "term": "safety-zone", "weight": 9 },
         { "term": "drive unit tire", "weight": 9 },
         { "term": "tire option", "weight": 8 },
         { "term": "motor rpm", "weight": 9 },
@@ -235,7 +239,11 @@
         { "term": "schema", "weight": 7 },
         { "term": "archive", "weight": 7 },
         { "term": "crud", "weight": 6 },
-        { "term": "zip", "weight": 6 }
+        { "term": "zip", "weight": 6 },
+        { "term": "survey collection", "weight": 12 },
+        { "term": "complete workspace bundle", "weight": 12 },
+        { "term": "pending survey export", "weight": 12 },
+        { "term": "immutable observation ledger", "weight": 12 }
       ],
       "negativeKeywords": [
         { "term": "ui only", "weight": 7 },
@@ -272,7 +280,6 @@
         { "term": "native proof", "weight": 12 },
         { "term": "release gate", "weight": 12 },
         { "term": "production-ready claim", "weight": 14 },
-        { "term": "production ready claim", "weight": 14 },
         { "term": "Android verification", "weight": 12 },
         { "term": "iOS verification", "weight": 12 },
         { "term": "Android native proof", "weight": 14 },
@@ -314,7 +321,6 @@
       "positiveKeywords": [
         { "term": "projected XY", "weight": 13 },
         { "term": "projected local XY", "weight": 14 },
-        { "term": "projected/local XY", "weight": 14 },
         { "term": "canonical geometry", "weight": 13 },
         { "term": "canonical geometry guardian", "weight": 15 },
         { "term": "projected XY guardian", "weight": 15 },
@@ -327,7 +333,6 @@
         { "term": "source crs confirmation", "weight": 13 },
         { "term": "WGS84 display", "weight": 12 },
         { "term": "WGS84 input/display", "weight": 14 },
-        { "term": "WGS84 input display", "weight": 14 },
         { "term": "coordinate transform", "weight": 12 },
         { "term": "geometry mutation", "weight": 12 },
         { "term": "no automatic geometry mutation", "weight": 14 },
@@ -339,7 +344,9 @@
         { "term": "MBTiles", "weight": 11 },
         { "term": "GIS evidence boundary", "weight": 12 },
         { "term": "KML/KMZ visual metadata boundary", "weight": 13 },
-        { "term": "styleUrl visual-only", "weight": 13 }
+        { "term": "styleUrl visual-only", "weight": 13 },
+        { "term": "immutable layout target", "weight": 12 },
+        { "term": "frozen layout target", "weight": 12 }
       ],
       "negativeKeywords": [
         { "term": "imagery only", "weight": 7 },
@@ -413,7 +420,6 @@
         { "term": "process enforcement", "weight": 12 },
         { "term": "prompt triage", "weight": 12 },
         { "term": "context-map", "weight": 12 },
-        { "term": "context map", "weight": 10 },
         { "term": "route data", "weight": 10 },
         { "term": "governance keyword", "weight": 10 },
         { "term": "governance keywords", "weight": 10 },

@@ -1,4 +1,5 @@
 param(
+  [string]$Distro = 'Ubuntu-24.04',
   [string]$GoogleEarthPath = "C:\Program Files\Google\Google Earth Pro\client\googleearth.exe",
   [string]$OutputDir = "reports\google-earth-visual-fidelity",
   [string]$InputArtifactPath = "",
@@ -17,6 +18,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot 'windows/CPLayoutPaths.ps1')
+. (Join-Path $PSScriptRoot 'windows/GoogleEarthIdentity.ps1')
 
 $signature = @"
 using System;
@@ -60,24 +63,16 @@ function Initialize-ZipAssemblies {
 }
 
 function Convert-ToWindowsPath([string]$Path) {
+  if ([string]::IsNullOrWhiteSpace($Path)) { return $Path }
   $resolved = Resolve-Path -LiteralPath $Path -ErrorAction SilentlyContinue
-  if ($resolved) {
-    $Path = $resolved.Path
-  }
-  if ($Path -match "^/mnt/([a-z])/(.*)$") {
-    $drive = $matches[1].ToUpperInvariant()
-    $tail = $matches[2] -replace "/", "\"
-    return "${drive}:\$tail"
-  }
+  if ($resolved) { $Path = $resolved.Path }
+  if ($Path.StartsWith('/') -or $Path -match '^[A-Za-z]:' -or $Path.StartsWith('\\')) { return ConvertTo-CPLayoutWindowsPath $Path $Distro }
   return $Path
 }
 
 function Convert-ToWslPath([string]$Path) {
-  if ($Path -match "^([a-zA-Z]):[\\/](.*)$") {
-    $drive = $matches[1].ToLowerInvariant()
-    $tail = $matches[2] -replace "\\", "/"
-    return "/mnt/$drive/$tail"
-  }
+  if ([string]::IsNullOrWhiteSpace($Path)) { return $Path }
+  if ($Path.StartsWith('/') -or $Path -match '^[A-Za-z]:' -or $Path.StartsWith('\\')) { return ConvertTo-CPLayoutWslPath $Path $Distro }
   return $Path
 }
 
@@ -117,16 +112,25 @@ function Resolve-ArtifactPath([string]$Path, [string]$RepoRoot) {
 }
 
 function Get-GoogleEarthProcess([string]$Path) {
-  $process = Get-Process -Name "googleearth" -ErrorAction SilentlyContinue | Select-Object -First 1
-  if ($process) {
+  $script:GoogleEarthAcquisitionAttempted = $true
+  $processes = @(Get-Process -Name 'googleearth' -ErrorAction SilentlyContinue)
+  $process = Select-CPLayoutGoogleEarthProcess $processes $Path
+  if ($script:GoogleEarthTargetIdentity) {
+    if (-not $process) { throw 'The selected Google Earth process exited during capture.' }
+    $actual = Get-CPLayoutGoogleEarthIdentity $process
+    Assert-CPLayoutGoogleEarthIdentity $actual $script:GoogleEarthTargetIdentity.id $script:GoogleEarthTargetIdentity.startTime $script:GoogleEarthTargetIdentity.path
     return $process
   }
-  if (-not (Test-Path -LiteralPath $Path)) {
-    throw "Google Earth Pro was not found at $Path"
+  $ownership = 'reused_matching_executable'
+  if (-not $process) {
+    if (-not (Test-Path -LiteralPath $Path)) { throw "Google Earth Pro was not found at $Path" }
+    $process = Start-Process -FilePath $Path -PassThru
+    $ownership = 'created_by_capture'
+    Start-Sleep -Seconds $StartupSeconds
   }
-  Start-Process -FilePath $Path | Out-Null
-  Start-Sleep -Seconds $StartupSeconds
-  return Get-Process -Name "googleearth" -ErrorAction Stop | Select-Object -First 1
+  $script:GoogleEarthTargetIdentity = Get-CPLayoutGoogleEarthIdentity $process
+  $script:GoogleEarthTargetOwnership = $ownership
+  return $process
 }
 
 function Wait-ForMainWindow($Process) {
@@ -337,6 +341,9 @@ function Invoke-GoogleEarthCleanup([string]$RepoRoot, [string]$OutputPath, $Targ
   if ($GenerateOnly) {
     return New-GoogleEarthCleanupRecord -Requested $false -LeaveOpen $false -TargetProcessId $TargetProcessId -Status "not_requested" -ErrorMessage $null
   }
+  if (-not $TargetProcessId -and $script:GoogleEarthAcquisitionAttempted -and -not $LeaveGoogleEarthOpen) {
+    return New-GoogleEarthCleanupRecord -Requested $true -LeaveOpen $false -TargetProcessId $null -Status 'blocked' -ErrorMessage 'Process acquisition failed before a verifiable target identity was recorded.'
+  }
   if (-not $TargetProcessId) {
     return New-GoogleEarthCleanupRecord -Requested $true -LeaveOpen $false -TargetProcessId $TargetProcessId -Status "closed_gracefully" -ErrorMessage $null -CloseMethod "already_closed"
   }
@@ -349,6 +356,8 @@ function Invoke-GoogleEarthCleanup([string]$RepoRoot, [string]$OutputPath, $Targ
   try {
     $cleanupArgs = @{
       TargetProcessId = $TargetProcessId
+      TargetProcessStartTime = $script:GoogleEarthTargetIdentity.startTime
+      Distro = $Distro
       GoogleEarthPath = $GoogleEarthPath
       OutputRecordPath = $recordPath
       CleanupTimeoutSeconds = $CleanupTimeoutSeconds
@@ -600,13 +609,7 @@ writeFileSync(metadataPath, JSON.stringify({
     if (-not $wsl) {
       throw "Proof fixture generation failed with exit code $npmExitCode."
     }
-    $wslRepoRoot = Quote-BashPath (Convert-ToWslPath $RepoRoot)
-    $wslGeneratorPath = Quote-BashPath (Convert-ToWslPath $generatorPath)
-    $wslKmlPath = Quote-BashPath (Convert-ToWslPath $kmlPath)
-    $wslKmzPath = Quote-BashPath (Convert-ToWslPath $kmzPath)
-    $wslMetadataPath = Quote-BashPath (Convert-ToWslPath $metadataPath)
-    $bashCommand = "cd $wslRepoRoot && npm exec tsx -- $wslGeneratorPath $wslKmlPath $wslKmzPath $wslMetadataPath"
-    & wsl.exe bash -lc $bashCommand
+    'exec npm exec -- tsx "$@" # CRLF-safe' | & wsl.exe -d $Distro --cd (Convert-ToWslPath $RepoRoot) -- bash -l -s -- (Convert-ToWslPath $generatorPath) (Convert-ToWslPath $kmlPath) (Convert-ToWslPath $kmzPath) (Convert-ToWslPath $metadataPath)
     if ($LASTEXITCODE -ne 0) {
       throw "Proof fixture generation failed through npm and WSL fallback. npm exit code: $npmExitCode; WSL exit code: $LASTEXITCODE."
     }
@@ -620,6 +623,8 @@ writeFileSync(metadataPath, JSON.stringify({
   }
 }
 
+$script:GoogleEarthTargetIdentity = $null
+$script:GoogleEarthAcquisitionAttempted = $false
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $outputPath = Join-Path $repoRoot $OutputDir
 if (-not $IsLinux) {
@@ -661,7 +666,8 @@ if (-not $GenerateOnly) {
       throw "Google Earth Pro was not found at $GoogleEarthPath"
     }
 
-    Start-Process -FilePath $GoogleEarthPath -ArgumentList @("`"$artifactPath`"") | Out-Null
+    $process = Get-GoogleEarthProcess -Path $GoogleEarthPath
+    $cleanupTargetProcessId = $process.Id
     Start-Sleep -Seconds $StartupSeconds
     $process = Get-GoogleEarthProcess -Path $GoogleEarthPath
     $handle = Wait-ForMainWindow -Process $process
@@ -680,6 +686,7 @@ if (-not $GenerateOnly) {
     $processInfo = [pscustomobject]@{
       id = $process.Id
       processName = $process.ProcessName
+      ownership = $script:GoogleEarthTargetOwnership
       mainWindowTitle = $process.MainWindowTitle
       path = $process.Path
       startTime = if ($process.StartTime) { $process.StartTime.ToUniversalTime().ToString("o") } else { $null }

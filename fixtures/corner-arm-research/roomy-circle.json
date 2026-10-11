@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "cplayout-corner-research-v1",
+  "id": "roomy-circle",
+  "model": {
+    "pivot": [
+      0,
+      0
+    ],
+    "mainRadiusM": 30,
+    "armLengthM": 10,
+    "overhangM": 3,
+    "bodyHalfWidthM": 0.25,
+    "antennaOffsetM": [
+      -0.5,
+      0.3
+    ],
+    "wheelOffsetsM": [
+      [
+        0,
+        -0.4
+      ],
+      [
+        0,
+        0.4
+      ]
+    ],
+    "towerRadiiM": [
+      10,
+      20,
+      30
+    ]
+  },
+  "limits": {
+    "articulationRad": [
+      -1.4,
+      1.4
+    ],
+    "maxArticulationSlope": 1.5
+  },
+  "field": {
+    "outer": [
+      [
+        -60,
+        -60
+      ],
+      [
+        60,
+        -60
+      ],
+      [
+        60,
+        60
+      ],
+      [
+        -60,
+        60
+      ]
+    ],
+    "holes": []
+  },
+  "obstacles": [],
+  "sweep": {
+    "startRad": 0,
+    "endRad": 6.283185307179586,
+    "fullCircle": true
+  },
+  "clearanceM": 0.5,
+  "maxDepth": 18,
+  "toleranceM": 1e-7,
+  "trajectory": {
+    "interpolation": "linear",
+    "knots": [
+      {
+        "thetaRad": 0,
+        "alphaRad": 0.8
+      },
+      {
+        "thetaRad": 6.283185307179586,
+        "alphaRad": 0.8
+      }
+    ]
+  }
+}

@@ -1,4 +1,4 @@
-import type { DesignDraft, LayoutResult, PivotProject } from "@cplayout/core";
+import type { DesignDraft, FieldDesign, LayoutResult, PivotProject } from "@cplayout/core";
 import type { WorkspaceDesignRecord, WorkspaceDocument } from "./workspaceDocument";
 import type { WorkspaceCommand, WorkspaceCommandValue } from "./workspaceCommands";
 
@@ -147,18 +147,24 @@ type OpenedDesignContext = {
 };
 export type WorkspaceDesignRead =
   | { kind: "not_found"; workspaceRevision: number }
+  | (OpenedDesignContext & { kind: "field"; design: Extract<WorkspaceDesignRecord, { kind: "field" }>; field: FieldDesign; originalProjectDocument?: string })
   | (OpenedDesignContext & { kind: "draft"; design: Extract<WorkspaceDesignRecord, { kind: "draft" }>; draft: DesignDraft })
   | (OpenedDesignContext & { kind: "project"; design: Extract<WorkspaceDesignRecord, { kind: "project" }>; project: PivotProject });
 
 export interface VersionedWorkspaceRepository {
   readAsync(): Promise<WorkspaceDocument>;
+  /** Browser-only bounded read lease; callback must assertCurrent before publication. */
+  readLeaseAsync?<T>(expectedRevision: number, action: (workspace: WorkspaceDocument, assertCurrent: () => void) => T | PromiseLike<T>,
+    isCurrent: () => boolean): Promise<T>;
   readDesignAsync(designId: string): Promise<WorkspaceDesignRead>;
-  executeAsync(expectedRevision: number, command: WorkspaceCommand): Promise<{ workspace: WorkspaceDocument; value: WorkspaceCommandValue }>;
+  /** New-live Survey append requires isCurrent; checked under lock and immediately before persistence. */
+  executeAsync(expectedRevision: number, command: WorkspaceCommand, isCurrent?: () => boolean): Promise<{ workspace: WorkspaceDocument; value: WorkspaceCommandValue }>;
   exportRecoveryAsync(): Promise<string>;
 }
 
 export interface ProjectRepository {
   versionedWorkspace?: VersionedWorkspaceRepository;
+  describeWorkspace?(workspace: WorkspaceDocument): ProjectRepositoryBackendInfo;
   listProjectsAsync(): Promise<ProjectSummary[]>;
   listProjectCatalogAsync(): Promise<ProjectCatalog>;
   saveProjectAsync(project: PivotProject, result?: LayoutResult): Promise<void>;

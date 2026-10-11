@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "name": "node-forge",
+  "version": "1.4.0",
+  "packageRoot": "node_modules/node-forge",
+  "consumers": [
+    "node_modules/@expo/code-signing-certificates",
+    "node_modules/expo/node_modules/@expo/cli"
+  ],
+  "patchSha256": "14cc07f411a4cca2eccb957489ba79244255d58860f24c2646f2c86f05841eb6",
+  "pins": {
+    "package.json": "a907bca8a62d97478062f2bd8ed5cd47d00b79385d3f08a8cad1c3bd7e3eb5bf",
+    "lib/asn1.js": "271047be6eab614060ef361cce2c8a92abf066c40fb329f44cfac3269214b912",
+    "lib/index.js": "c231851a9d065df1fae045d6e6fb17cf5688b260f9ee0db4965fe1ef3c0607ab",
+    "lib/forge.js": "4300955cc75f3cb5b71287b0fa37ec07d3a6bb721a9f6f8b7db19328801046bf"
+  },
+  "files": [
+    {
+      "target": "node_modules/node-forge/lib/rsa.js",
+      "original": "fd4740238145ec26470eb3f06a627c72039538ce1307dbdce40521f94dfd0a50",
+      "patched": "6d3c1d2a454f006df03bfa49a6aab63d39ba8999c40bbdff682f08ae77cf4af0"
+    }
+  ],
+  "source": "https://github.com/digitalbazaar/forge/pull/1152",
+  "reviewNote": "Independent stricter guard: exact captured OID/optional NULL arity, with empty primitive NULL content. Upstream <=2 alone is insufficient."
+}

@@ -1,4 +1,4 @@
-# Example managed requirements for CPLayout Codex hooks.
+# Optional managed requirements example; not selected or deployed by the 2026-10-10 refocus.
 # Install this as a managed requirements.toml after copying hook scripts to the
 # absolute managed directories below. Replace the paths for your fleet.
 
