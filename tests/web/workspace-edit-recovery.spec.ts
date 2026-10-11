@@ -1,3 +1,4 @@
+import { fillActiveCatalogFormInput } from "./catalog-form-readiness";
 import { expect, test, type BrowserContext, type Locator, type Page } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import { formatDistanceInputValue, parseDesignDraftDocument, parseLayoutSessionDocument, parseSurveyCollectionDocument } from "../../packages/core/src/index";
@@ -176,8 +177,8 @@ test("actual hidden-Catalog raw edit checkpoints automatically and reload Restor
 test("actual Catalog-only unfinished customer form checkpoints and reload Restore preserves invalid fields and errors without records", async ({ context, page }) => {
   const fixture = await packageFixture("draft", false); fixture.workspace = emptyWorkspaceDocument(); await seed(context, fixture, null); await page.goto("/");
   await expect(page.getByTestId("workspace-catalog")).toBeVisible(); await expect(page.getByTestId("catalog-new")).toBeEnabled();
-  await page.getByTestId("catalog-new").click(); await page.getByTestId("client-profile-first-name-input").fill("  Unfinished first  ");
-  await page.getByTestId("client-profile-last-name-input").fill("  "); await page.getByTestId("client-profile-company-input").fill("  Exact raw company  ");
+  await page.getByTestId("catalog-new").click(); await fillActiveCatalogFormInput(page, "client-profile-first-name-input", "  Unfinished first  ", "client-profile-dialog", "");
+  await fillActiveCatalogFormInput(page, "client-profile-last-name-input", "  ", "client-profile-dialog", ""); await fillActiveCatalogFormInput(page, "client-profile-company-input", "  Exact raw company  ", "client-profile-dialog", "");
   await page.getByTestId("client-profile-details-toggle").click(); await page.getByTestId("client-profile-notes-input").fill("  Notes\nretained  ");
   await page.getByTestId("client-profile-save").click(); await expect(page.getByTestId("client-profile-last-name-input-error")).toBeVisible();
   const error = await page.getByTestId("client-profile-last-name-input-error").innerText(), before = await workspaceStorageBytes(page); let checkpoint!: WorkspaceEditRecoveryCandidate;

@@ -150,8 +150,10 @@ test("dual-subject startup retains the exact Layout target and acknowledges Layo
   expect(renamedLayout.targetDocument).toBe(frozen.targetDocument); expect(renamedLayout.targetHash).toBe(frozen.targetHash); expect(renamedLayout.observations).toEqual(frozen.observations);
   await page.getByTestId("workspace-mode-design").click();
   await page.getByTestId("command-menu-workspace-file").click(); await page.getByRole("menuitem", { name: "Rename current design", exact: true }).click();
-  await page.getByRole("textbox", { name: "Design name", exact: true }).fill("Separately acknowledged Design");
-  await page.getByRole("button", { name: "Apply name", exact: true }).click(); await page.getByTestId("workspace-save").click();
+  const name = page.getByTestId("field-name-input"); await expect(name).toBeFocused();
+  await expect(name).toHaveValue(sourcePayload(fixture.workspace, fixture.designId).data.name);
+  await name.fill("Separately acknowledged Design"); await expect(name).toHaveValue("Separately acknowledged Design");
+  await page.getByTestId("field-rename").click(); await page.getByTestId("workspace-save").click();
   await expect.poll(async () => sourcePayload(await readWorkspace(page), fixture.designId).data.name).toBe("Separately acknowledged Design");
   const afterDesign = await readWorkspace(page), beforeSource = sourcePayload(fixture.workspace, fixture.designId), afterSource = sourcePayload(afterDesign, fixture.designId);
   expect({ ...afterSource.data, name: beforeSource.data.name }).toEqual(beforeSource.data);

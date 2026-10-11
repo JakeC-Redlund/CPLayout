@@ -1,3 +1,4 @@
+import { activeCatalogFormInput, fillActiveCatalogFormInput } from "./catalog-form-readiness";
 import { expect, test, type BrowserContext, type Locator, type Page } from "@playwright/test";
 import { parseUnifiedWorkspaceResume, UNIFIED_WORKSPACE_RESUME_KEY, type UnifiedWorkspaceResume } from "../../apps/mobile/src/navigation/unifiedWorkspaceResume";
 import { parseWorkspaceEditRecovery, WORKSPACE_EDIT_RECOVERY_VERSION, type WorkspaceEditRecoveryCandidate } from "../../apps/mobile/src/workspace/workspaceEditRecovery";
@@ -244,12 +245,12 @@ test(`current-field New in ${mode} keeps Browse B and dirty Source A until an ex
   await file(page, "New design in current field…"); const form = page.getByTestId("catalog-dialog");
   await expect(form.getByTestId("catalog-form-recheck")).toHaveCount(0);
   await expect(page.getByTestId("catalog-dialog-context")).toHaveText("Source customer → Source project → Source field");
-  await form.getByTestId("catalog-dialog-name-input").fill("Cancelled intention"); await form.getByTestId("catalog-dialog-cancel").click();
+  await fillActiveCatalogFormInput(page, "catalog-dialog-name-input", "Cancelled intention", "catalog-dialog", ""); await form.getByTestId("catalog-dialog-cancel").click();
   await expect(page.getByTestId(`catalog-field-${packageIds.destination}`)).toHaveAttribute("aria-pressed", "true");
   expect(await workspaceStorageBytes(page)).toEqual(bytes); await closeCatalog(page);
   await expect(page.getByTestId("workspace-map-readout")).toHaveText(camera, { useInnerText: true }); expect(await visibleBoundary(page, expectedVertices)).toBe(boundary);
   await file(page, "New design in current field…"); await expect(page.getByTestId("catalog-dialog-context")).toHaveText("Source customer → Source project → Source field");
-  const name = `New independent ${mode} draft`; await page.getByTestId("catalog-dialog-name-input").fill(name); await page.getByTestId("catalog-dialog-create").click();
+  const name = `New independent ${mode} draft`; await fillActiveCatalogFormInput(page, "catalog-dialog-name-input", name, "catalog-dialog", ""); await page.getByTestId("catalog-dialog-create").click();
   await expect(page.getByTestId("catalog-dialog")).toBeHidden();
   await expect.poll(async () => (await readWorkspace(page)).catalog.designs.some(item => item.name === name)).toBe(true);
   const after = await readWorkspace(page), created = after.catalog.designs.find(item => item.name === name)!;
@@ -278,7 +279,9 @@ test("early customer entry keeps an emptied required name, validates it and pres
   const fixture = await packageFixture("field"); await seed(context, fixture); await page.goto("/"); await ready(page);
   const bytes = await workspaceStorageBytes(page); await catalog(page); await page.getByTestId("catalog-edit-customer").click();
   await expect(page.getByTestId("catalog-form-recheck")).toHaveCount(0);
-  const first = page.getByTestId("client-profile-first-name-input"); await first.fill("");
+  const first = await activeCatalogFormInput(page, "client-profile-first-name-input", "client-profile-dialog");
+  await expect(first).toHaveValue(fixture.workspace.catalog.clients.find(item => item.id === packageIds.customer)!.primaryContactFirstName!);
+  await first.fill(""); await expect(first).toHaveValue("");
   await page.getByTestId("client-profile-save").click();
   await expect(first).toHaveValue("");
   await expect(page.getByTestId("client-profile-first-name-input-error")).toContainText(/first name/i);
@@ -299,7 +302,7 @@ test("field container Rename is metadata-only, reachable on a short viewport and
   await page.setViewportSize({ width: 390, height: 430 }); await catalog(page); await page.getByTestId("catalog-rename-field").click();
   await expect(page.getByTestId("catalog-dialog")).toContainText("Rename field"); await expect(page.getByTestId("catalog-dialog-name-input")).toHaveValue("Source field");
   await expect(page.getByTestId("catalog-dialog-create")).toHaveAttribute("aria-label", "Save field name");
-  const name = "Operator field container"; await page.getByTestId("catalog-dialog-name-input").fill(name);
+  const name = "Operator field container"; await fillActiveCatalogFormInput(page, "catalog-dialog-name-input", name, "catalog-dialog", "Source field");
   const checkpoint = await findFieldRenameCheckpoint(page, name); expect(checkpoint.candidate.recoveryVersion).toBe(WORKSPACE_EDIT_RECOVERY_VERSION);
   expect(checkpoint.candidate.ui.catalog.form!.defaultName).toBe("Source field"); expect(checkpoint.candidate.ui.catalog.form!.context.fieldMapId).toBe(packageIds.field);
   await page.getByTestId("catalog-dialog-create").click(); await expect(page.getByTestId("catalog-dialog")).toBeHidden();
@@ -321,9 +324,7 @@ test("invalid field rename reloads through File Review/Restore as its original r
   const fixture = await packageFixture("draft"); await seed(context, fixture); await page.goto("/"); await ready(page); const bytes = await workspaceStorageBytes(page);
   await catalog(page); await page.getByTestId("catalog-rename-field").click();
   // The nested modal owns focus only after RNWeb marks it as the active dialog.
-  const dialog = page.getByRole("dialog").filter({ has: page.getByTestId("catalog-dialog") });
-  await expect(dialog).toBeVisible();
-  const name = dialog.getByTestId("catalog-dialog-name-input"); await name.focus(); await expect(name).toBeFocused();
+  const name = await activeCatalogFormInput(page, "catalog-dialog-name-input");
   await expect(name).toHaveValue(fixture.workspace.catalog.fieldMaps.find(item => item.id === packageIds.field)!.name);
   await name.fill(""); await expect(name).toHaveValue("");
   await page.getByTestId("catalog-dialog-create").click(); await expect(page.getByTestId("catalog-dialog-error")).toContainText("Enter a name");
@@ -336,7 +337,7 @@ test("invalid field rename reloads through File Review/Restore as its original r
   await expect(page.getByRole("button", { name: "Close recovery", exact: true })).toBeHidden();
   await expect(page.getByTestId("catalog-dialog")).toContainText("Rename field"); await expect(page.getByTestId("catalog-dialog-name-input")).toHaveValue("");
   await expect(page.getByTestId("catalog-dialog-error")).toHaveText(held.candidate.ui.catalog.form!.error!);
-  await page.getByTestId("catalog-dialog-name-input").fill("Recovered field container"); await page.getByTestId("catalog-dialog-create").click();
+  await fillActiveCatalogFormInput(page, "catalog-dialog-name-input", "Recovered field container", "catalog-dialog", ""); await page.getByTestId("catalog-dialog-create").click();
   await expect(page.getByTestId("catalog-dialog-save-error")).toContainText("Recheck the recovered form"); expect(await workspaceStorageBytes(page)).toEqual(bytes);
   await page.getByTestId("catalog-form-recheck").click(); await page.getByTestId("catalog-dialog-create").click();
   await expect(page.getByTestId("catalog-dialog")).toBeHidden(); const after = await readWorkspace(page);

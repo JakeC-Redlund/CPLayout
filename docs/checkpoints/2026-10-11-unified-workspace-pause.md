@@ -88,10 +88,12 @@ attribute. Text diffs and other whitespace checks remain; no global exclusion,
 binary marker, regeneration or hook bypass is used. [Git per-path attributes](https://git-scm.com/docs/gitattributes#_checking_whitespace_errors)
 support this preservation boundary. Require equal before/after emitted JS for
 the two formatting changes, unchanged reader working/index/archive hashes, and
-a new source freeze recording the explicit R6-to-publication equivalence bridge.
+a new source freeze recording the explicit R6-to-R7 whitespace equivalence bridge.
 Before/after emitted JavaScript is identical for both ordinary source cleanups.
-R6 runtime evidence remains bound to its original edition; final export must
-match its bundle hash and exact-head CI must independently pass before merge.
+The R7 export also matches the R6 bundle exactly. This is historical evidence for
+that whitespace-only extension; R6 runtime evidence stays bound to its edition.
+Later production changes, including the Catalog animation repair, require their
+own source/build/served fingerprints and matching protected CI.
 
 The corrected R6 focused proof passed all nine cases across the three viewports.
 Six new Windows Edge PNG/DOM figures match served bundle
@@ -102,6 +104,56 @@ exact dependency mitigation verification pass. Final aggregate and complete
 allow ordinary commit/push to start CI concurrently; they do not authorize merge
 until all local and exact-head protected CI gates pass. Actual terminal results
 and final main OIDs are recorded in the coordination receipt and PR2.
+
+The complete R6 browser run subsequently finished with 221 passed and four failed
+of 225. Preserve its full failure archive. Three startup failures use the obsolete
+Field Rename button label. The fourth entered the intended new-design name and
+received a real under-lock ownership refusal before mutation while the nested
+modal was still activating. The trace does not identify the retiring epoch.
+Do not call that refusal an empty-name error or weaken the CAS/source guard.
+
+Independent reviews select a bounded current-fixture batch (4.75/4.90): use the
+retained Field name input and its actual Apply action; establish active inner
+dialog/focus/default/value acknowledgement for fresh Catalog entry, current-field
+Cancel/Create and Field Rename/Restore flows. Preserve all existing mutation,
+source, target, history, camera, raw-input, validation and guarded-Open assertions.
+No retry, fixed sleep or automatic Recheck manufactures success. If the ownership
+refusal persists after that handshake, diagnose its exact predicate before any
+source correction. Refresh full discovery/inventory and run focused affected
+cases, then the complete candidate gate. The pushed 3856acb checkpoint cannot
+merge on the failed R6 evidence; subsequent corrections require an ordinary new
+commit and matching protected CI.
+
+R8 focused execution passed 21 of 24 and failed three active-inner-dialog checks.
+After ten seconds the outer Catalog still owned the dialog role while the visible
+Create Design form lacked it. This demonstrates a production activation defect;
+more waiting or a weaker locator is vetoed. Installed RNWeb promotes a modal when
+its `onShow` fires. Two sibling fades can complete in the wrong order, letting the
+outer Catalog permanently reclaim role/focus after the child has opened.
+
+Independent votes 4.85/4.75 select a web-only outer Catalog `animationType="none"`.
+Its visibility effect registers the parent before the child fade completes.
+The child animation, value owners, recovery and strict under-lock guards remain.
+Non-web keeps its previous fade; native qualification is still unknown. Stateful
+visibility coordination or a complete embedded-form rewrite adds unnecessary
+ownership changes during this pause checkpoint. Preserve R8 failures and rerun
+all affected flows and the complete frozen gate before publication.
+
+The web activation repair passes all 24 focused cases with the strict role/focus
+helper. Old-commit CI (3856acb, run 38157569648) passed source validation and failed
+browser shards with 215 passed/10 failed; its logs/artifacts are retained. The
+extra customer-edit failures also typed before the profile dialog owned focus.
+Apply the same single-fill active-dialog handshake to that earliest interactive
+entry, preserving all post-Save empty/error/storage assertions and the separate
+deferred-effect initializer tests. The focused set becomes 27 executions.
+
+All 27 corrected focused executions now pass across desktop/tablet/narrow,
+including cancel/reopen, current-field creation in all three modes, actual early
+customer validation, restored Field rename and separate Layout/Design saves.
+Two independent complete source/archive reviews accept the 1118-file edition;
+they are checkpoint reviews, not the two outstanding whole-workflow reviews.
+The only new app behavior is the Web Catalog animation ordering fix. Root keeps
+the full local run, aggregate and protected exact-head CI required before merge.
 
 ## Verified implementation and evidence
 

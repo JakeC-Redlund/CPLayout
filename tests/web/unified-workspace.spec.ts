@@ -1,3 +1,4 @@
+import { fillActiveCatalogFormInput } from "./catalog-form-readiness";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import { readFile, writeFile } from "node:fs/promises";
 import { newDesignDraft } from "../../apps/mobile/src/newDesignDraft";
@@ -159,12 +160,12 @@ test("empty default App creates explicit customer/project/first field/CRS and op
   const empty = await readWorkspace(page); expect(empty.catalog.designs).toEqual([]); expect(empty.projectDocuments).toEqual([]);
   await expect(page.getByTestId("workspace-map-surface")).toHaveCount(0);
   await catalog(page); await page.getByTestId("catalog-new").click();
-  await page.getByTestId("client-profile-first-name-input").fill("Actual entered");
-  await page.getByTestId("client-profile-last-name-input").fill("Customer");
-  await page.getByTestId("client-profile-company-input").fill("Explicit browser farm");
+  await fillActiveCatalogFormInput(page, "client-profile-first-name-input", "Actual entered", "client-profile-dialog", "");
+  await fillActiveCatalogFormInput(page, "client-profile-last-name-input", "Customer", "client-profile-dialog", "");
+  await fillActiveCatalogFormInput(page, "client-profile-company-input", "Explicit browser farm", "client-profile-dialog", "");
   await page.getByTestId("client-profile-save").click(); await expect(page.getByTestId("catalog-new")).toHaveAttribute("aria-label", "New project");
-  await page.getByTestId("catalog-new").click(); await page.getByTestId("catalog-dialog-name-input").fill("Explicit project name");
-  await page.getByTestId("catalog-dialog-first-field-input").fill(""); await page.getByTestId("catalog-dialog-create").click();
+  await page.getByTestId("catalog-new").click(); await fillActiveCatalogFormInput(page, "catalog-dialog-name-input", "Explicit project name", "catalog-dialog", "");
+  await fillActiveCatalogFormInput(page, "catalog-dialog-first-field-input", "", "catalog-dialog", "Field 1"); await page.getByTestId("catalog-dialog-create").click();
   await expect(page.getByTestId("catalog-dialog-first-field-input-error")).toBeVisible();
   await page.getByTestId("catalog-dialog-first-field-input").fill("Operator entered first field");
   await expect(page.getByTestId("catalog-project-crs")).toHaveValue(""); await page.getByTestId("catalog-dialog-create").click();
@@ -174,7 +175,7 @@ test("empty default App creates explicit customer/project/first field/CRS and op
   await expect(page.getByTestId("catalog-new")).toHaveAttribute("aria-label", "New design");
   const created = await readWorkspace(page); expect(created.catalog.projects[0]).toMatchObject({ name: "Explicit project name", projectCrs: "EPSG:32613", unitSystem: "metric" });
   expect(created.catalog.fieldMaps[0].name).toBe("Operator entered first field");
-  await page.getByTestId("catalog-new").click(); await page.getByTestId("catalog-dialog-name-input").fill("Actual first draft"); await page.getByTestId("catalog-dialog-create").click();
+  await page.getByTestId("catalog-new").click(); await fillActiveCatalogFormInput(page, "catalog-dialog-name-input", "Actual first draft", "catalog-dialog", ""); await page.getByTestId("catalog-dialog-create").click();
   await expect.poll(async () => (await readWorkspace(page)).catalog.designs.length).toBe(1);
   const stored = await readWorkspace(page), design = stored.catalog.designs[0]; expect(design.kind).toBe("draft");
   const draft = parseDesignDraftDocument(stored.draftDocuments[0].document); expect(draft.fieldBoundary).toEqual([]); expect(draft.pivotCenter).toBeNull(); expect(draft.machine).toEqual({}); expect(draft.projectCrs).toBe("EPSG:32613");

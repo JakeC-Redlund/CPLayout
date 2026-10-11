@@ -659,7 +659,8 @@ export function WorkspaceCatalog(props: WorkspaceCatalogProps): React.JSX.Elemen
         <Button label="Open saved copy" disabled={blocked} onPress={() => void open(savedImportId)} testID="workspace-import-open" /></View>}
       {!props.recoveryParticipants && formDialogs}
     </View>;
-  const presentationView = presentation === "embedded" ? content : <Modal visible={visible} animationType="fade" onRequestClose={requestClose}>{content}</Modal>;
+  // RNWeb promotes a modal onShow. A late outer fade must not steal its child form's focus.
+  const presentationView = presentation === "embedded" ? content : <Modal visible={visible} animationType={Platform.OS === "web" ? "none" : "fade"} onRequestClose={requestClose}>{content}</Modal>;
   // Runtime handles and child value owners survive the outer Modal's hidden-child boundary.
   return props.recoveryParticipants ? <><CatalogRecoveryBridge registry={props.recoveryParticipants} participant={recoveryParticipant} />{presentationView}{formDialogs}</> : presentationView;
 }
