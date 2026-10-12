@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-12T15:07:25.518341+00:00",
+  "classification": "hosted_ci_online_expo_compatibility_failure",
+  "claimClass": "source",
+  "result": "fail",
+  "commit": "bfe3ac2319eccf0a34f7933e879f49eaee29ea26",
+  "sourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r16.json",
+  "sourceFingerprint": "04c54f0adc5bf306c39d009411f7c188fccad30f241c7c661f851d4fd3f34230",
+  "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+  "ci": {
+    "runId": 38266980439,
+    "runUrl": "https://github.com/JakeC-Redlund/CPLayout/actions/runs/38266980439",
+    "pr": 3,
+    "sourceStep": "Check Expo SDK compatibility",
+    "command": "npx expo install --check",
+    "stepExitCode": 1,
+    "terminalRequiredGateExitCode": 1,
+    "sourceValidateReached": false,
+    "browserExecutionReached": false,
+    "overallSuccessClaimed": false
+  },
+  "observedRecommendations": [
+    {
+      "package": "expo",
+      "installed": "57.0.27",
+      "expected": "~57.0.28"
+    },
+    {
+      "package": "expo-dev-client",
+      "installed": "57.0.19",
+      "expected": "~57.0.20"
+    },
+    {
+      "package": "expo-sharing",
+      "installed": "57.0.22",
+      "expected": "~57.0.23"
+    },
+    {
+      "package": "expo-splash-screen",
+      "installed": "57.0.9",
+      "expected": "~57.0.10"
+    }
+  ],
+  "log": {
+    "originalPath": "/tmp/cplayout-ci-r16-second-failure-20261012.log",
+    "retainedPath": "/home/cyber/cplayout-production-proof-20261011/ci-r16-second-failure-20261012.log",
+    "bytes": 2731,
+    "sha256": "1b8c27db3e4cff71edeb6a4aeacd629cb8c06c1cbec30dd3bb21d4779aa2f043"
+  },
+  "diagnosis": "The required online Expo check reported four newer SDK patch recommendations and exited1 before source validation/browser execution. The inspected installed CLI selects remote recommendations online and the installed bundledNativeModules map under EXPO_OFFLINE. This is an actual failed compatibility/publication attempt, not evidence that prior R16 local checks were never run.",
+  "proposedRemediation": "Root-owned coherent stable patch cohort/exact lock update; required installed-matrix check uses EXPO_OFFLINE=1 and npx --no-install; daily discovery remains online. Fresh complete source/current hosted browser qualification required.",
+  "boundary": "Failed R16 CI remains failed. Prior complete source/browser/review receipts retain their actual editions; no new R17 source/browser/native or hosted success claimed."
+}

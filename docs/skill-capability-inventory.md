@@ -1,6 +1,6 @@
 # Skill capability inventory
 
-Reviewed 2026-10-11. All 67 exposed host entrypoint sources and 11 CPLayout sources are documented with observed source hashes in [the inventory JSON](skill-capability-inventory.json). Six CV entries are symlinks owned by the separate canonical CV repository. Eleven local sources have source-only quick validation records; the three owned interface/planning/database sources were freshly updated and quick-validated for the clarified hierarchy. This is not a host-loading or invocation result. Source presence, instruction validation, reported guidance use and actual host/runtime invocation are different claims. Unexposed plugin-cache helpers/templates are not additional active skills.
+Source fingerprints refreshed 2026-10-12: all 67 exposed host entrypoints and 11 CPLayout sources are present; only the owned database skill changed and was quick-validated for the SDK peer/patch lesson. Other 77 source fingerprints are unchanged, including the other 10 local skills with their prior validation records. Six CV entries are symlinks owned by the separate canonical CV repository. Source presence, instruction validation, reported guidance use and actual host/runtime invocation are different claims. Unexposed plugin-cache helpers/templates are not additional active skills.
 
 Relevant skills support this task; conditional skills need a selected applicable lane; unrelated skills remain installed for their proper domain and are not deletion candidates. The requested image/Resolve splash lane is conditional later polish and cannot delay business workflow completion. No Resolve connection/render or cloud/GPU capability is proved by this inventory.
 
@@ -74,7 +74,7 @@ Relevant skills support this task; conditional skills need a selected applicable
 | plugin-management:plugin-management | conditional | Connector discovery if an actual missing external capability is needed. | not_run / not measured |
 | sites:sites | conditional | Explicit Sites website publication; not the selected existing Expo app host. | not_run / not measured |
 | cplayout-center-pivot-design-agent | conditional | Task-selected CPLayout domain guidance; preserve actual source/runtime/field boundaries. | frontmatter validated / runtime not measured |
-| cplayout-database-agent | relevant | Account/policy/read finaladmission, immutableV3Webhistory andV1-onlynative refusal, exactancestry/import/source retention. | current source quick validated / runtime not measured |
+| cplayout-database-agent | relevant | Account/policy admission, retained V3 history/ancestry/imports and complete workspace SDK/SQLite peer inventory. | current source quick validated / runtime not measured |
 | cplayout-expert-agent-panels | relevant | Task-selected CPLayout domain guidance; preserve actual source/runtime/field boundaries. | frontmatter validated / runtime not measured |
 | cplayout-gis-geometry-guard-agent | relevant | Task-selected CPLayout domain guidance; preserve actual source/runtime/field boundaries. | frontmatter validated / runtime not measured |
 | cplayout-google-earth-imagery-analysis | conditional | Task-selected CPLayout domain guidance; preserve actual source/runtime/field boundaries. | frontmatter validated / runtime not measured |

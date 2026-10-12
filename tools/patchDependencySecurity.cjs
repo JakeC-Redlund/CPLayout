@@ -115,7 +115,7 @@ function whollyAbsentFormatter(root, manifest, installed) {
   const expoFile = path.join(root, 'node_modules/expo/package.json');
   if (!fs.existsSync(expoFile)) return false;
   const expo = json(root, 'node_modules/expo/package.json');
-  const supported = { '56.0.23': ['56.0.27', '56.0.6'], '57.0.27': ['57.0.21', '57.0.4'] };
+  const supported = { '56.0.23': ['56.0.27', '56.0.6'], '57.0.27': ['57.0.21', '57.0.4'], '57.0.28': ['57.0.22', '57.0.4'] };
   if (!Object.hasOwn(supported, expo.version) || expo.name !== 'expo') return false;
   const [coreVersion, sqliteVersion] = supported[expo.version];
   const core = json(root, 'node_modules/expo-modules-core/package.json'), sqlite = json(root, 'node_modules/expo-sqlite/package.json');

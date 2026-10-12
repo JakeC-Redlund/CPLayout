@@ -69,7 +69,7 @@ Live workflow authority: `docs/workflow-registry.json` is a pointer only; regist
 ## Source Hashes
 
 - `.agents/skills/cplayout-center-pivot-design-agent/SKILL.md`: `326284bba432248b7ca4df40ddd17ead448b9b89664b0267bb8abe02c27fe4a6`
-- `.agents/skills/cplayout-database-agent/SKILL.md`: `a927f3af448717938e250975fcc60825b70c5686fbfaff04b647f65fc6c1499d`
+- `.agents/skills/cplayout-database-agent/SKILL.md`: `ef8f3e131852cc98ed6daacb0c96a67f21aeacb8a9cd6b2392a800555a57e264`
 - `.agents/skills/cplayout-expert-agent-panels/SKILL.md`: `150443e68710cc3e6cb2ca0eab4a6feddb939e74e495b530268522e654d58a04`
 - `.agents/skills/cplayout-expert-agent-panels/references/agent-prompts.md`: `9e8286e64bc379e5110c5a2259c8f11c3d157ca9a58be04ad4db340896570760`
 - `.agents/skills/cplayout-expert-agent-panels/references/evidence-and-records.md`: `2ea7b9b196d4dc1cfe8700bff832f6892bfd395c5e183ce310036e31a3ca16fd`
@@ -121,7 +121,7 @@ Live workflow authority: `docs/workflow-registry.json` is a pointer only; regist
 - `docs/operator-workflow-guide.md`: `4d04c97c970625a699ca3c80c13324b9eaca5099519412386e85bc4ee2e69ccd`
 - `docs/production-workflow-improvement-plan.md`: `245481ea182a148c484d0f0b977ef660b3182f09c756f0b9e9ed3dcaff6d3fe3`
 - `docs/rtk-gnss-integration-plan.md`: `355a83416053732bf62969ecc23d539e54e0aabd118e50e76fe9a1b10e21ee44`
-- `package.json`: `23086a3544cab425da56e7fe60a46e2580966a6d82b6fec678c7a467ef7f3235`
+- `package.json`: `e03d3a7ad14b8c92249805410a06e85a9bdc491343c5c7e1f36b0b43f8ff7862`
 - `packages/auth-client/src/apiClient.ts`: `b19b1d40261c360b0547e7c38317e06c1f87a35d9f9e22a80250d9eac9744660`
 - `packages/core/src/cornerGpsMapImport.ts`: `35e170203a5bdf5669b3bfd088f549c7e2326ad05891c319fa9ce717a19a258f`
 - `packages/core/src/index.ts`: `61c4d5aa60b6a6a509bcc5e2286b4d855d3e0b57357de2d69dcf0af391b22bb0`

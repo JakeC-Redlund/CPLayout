@@ -13,7 +13,7 @@ const lock = JSON.parse(readFileSync(join(root, "package-lock.json"), "utf8")) a
 const metroVersion = "0.84.5";
 const wrapperVersion = "56.0.2";
 const metroFamily = /^(?:metro(?:-[a-z-]+)?|ob1)$/;
-const reviewedConsumers = { expo: "57.0.27", "@expo/metro": wrapperVersion, "@expo/metro-config": "57.0.13",
+const reviewedConsumers = { expo: "57.0.28", "@expo/metro": wrapperVersion, "@expo/metro-config": "57.0.13",
   "@react-native/community-cli-plugin": "0.86.3", "react-native": "0.86.3" };
 const reviewedMetroPackages = ["metro", "metro-babel-transformer", "metro-cache", "metro-cache-key", "metro-config", "metro-core",
   "metro-file-map", "metro-minify-terser", "metro-resolver", "metro-runtime", "metro-source-map", "metro-symbolicate",

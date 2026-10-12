@@ -1,0 +1,324 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-12T15:15:18.703787+00:00",
+  "reviewer": "/root/final_workflow_review_one",
+  "classification": "independent_primary_published_source_compatibility_review",
+  "claimClass": "source",
+  "result": "accepted_source_compatibility_not_runtime_acceptance",
+  "authorization": "Coordinator explicitly requested this metadata-only public receipt; no other source or Git writes.",
+  "method": {
+    "source": "Official npm registry package metadata and published tarballs fetched directly, processed in memory; published SHA512 SRI independently verified before comparing every regular archive member.",
+    "comparison": "Complete regular-member census, byte comparison, changed-source inspection, named consumed-API hashes and SQLite patch import/include inspection.",
+    "resourceActions": "No npm/install, Git, browser, server, export, native build or device actions by reviewer.",
+    "rawResearchDisposition": "Network metadata/tarballs were handled in memory; this public receipt retains sanitized source URLs, hashes and findings only. No private research artifacts are admitted for publication."
+  },
+  "reviewedMatrix": {
+    "before": {
+      "expo": "57.0.27",
+      "expo-modules-core": "57.0.21",
+      "expo-sqlite": "57.0.4",
+      "expo-modules-jsi": "57.1.1"
+    },
+    "proposedAfter": {
+      "expo": "57.0.28",
+      "expo-modules-core": "57.0.22",
+      "expo-sqlite": "57.0.4",
+      "expo-modules-jsi": "57.1.2"
+    },
+    "currentOwnershipMetadataVersionsObserved": {
+      "expo": "57.0.28",
+      "expo-sqlite": "57.0.4",
+      "expo-modules-core": "57.0.22"
+    },
+    "transitiveRequirement": "Core 57.0.22 requires expo-modules-jsi ~57.1.2; coherent installation/lock resolution must include it."
+  },
+  "coreComparison": {
+    "before": {
+      "name": "expo-modules-core",
+      "version": "57.0.21",
+      "registryUrl": "https://registry.npmjs.org/expo-modules-core/57.0.21",
+      "metadataSha256": "c9f67cecc3d21420540975e2ae79c98c73f3685686b19cd6089e1691db57a658",
+      "tarballUrl": "https://registry.npmjs.org/expo-modules-core/-/expo-modules-core-57.0.21.tgz",
+      "tarballSha256": "c55f4990e1bc4307aac87b918af8a8ee0f30b9666c55513ed1ee06b3ddc22d3b",
+      "publishedIntegrity": "sha512-g0pf9/tQ6IdJWCzr6PDrEiYT8mTaOhMRnXm3T2XtSzJJaNYgnyyDonkkPN1wd2+PqojIBPhytqqzeLxjM5y/Wg==",
+      "publishedIntegrityVerified": true,
+      "regularFileCount": 899
+    },
+    "after": {
+      "name": "expo-modules-core",
+      "version": "57.0.22",
+      "registryUrl": "https://registry.npmjs.org/expo-modules-core/57.0.22",
+      "metadataSha256": "9ac9d9ece89dfd9bb4441863a81a6312a58741f4b015c0127bf30bc27ce85560",
+      "tarballUrl": "https://registry.npmjs.org/expo-modules-core/-/expo-modules-core-57.0.22.tgz",
+      "tarballSha256": "badee44bbf209afbad7b1787793b81d0ce04904980feccd0fa77d26d7ac1a466",
+      "publishedIntegrity": "sha512-IQTSHU690fleLZ6b36OCqt04KFStxA/k7El2vweOWhlFZ58hpNSQMK2Fosc1nIvlOnqqVRDcTAq+prJEOHLmBg==",
+      "publishedIntegrityVerified": true,
+      "regularFileCount": 899
+    },
+    "changedFiles": [
+      "package/CHANGELOG.md",
+      "package/android/build.gradle",
+      "package/android/src/main/java/expo/modules/kotlin/views/ShadowNodeProxy.kt",
+      "package/common/cpp/fabric/ExpoViewComponentDescriptor.h",
+      "package/common/cpp/fabric/ExpoViewShadowNode.h",
+      "package/package.json",
+      "package/prebuilds/output/debug/xcframeworks/ExpoModulesCore.tar.gz",
+      "package/prebuilds/output/debug/xcframeworks/ExpoModulesWorklets.tar.gz",
+      "package/prebuilds/output/release/xcframeworks/ExpoModulesCore.tar.gz",
+      "package/prebuilds/output/release/xcframeworks/ExpoModulesWorklets.tar.gz"
+    ],
+    "addedFiles": [],
+    "removedFiles": [],
+    "unchangedRegularFileCount": 889,
+    "sqliteConsumedApiReview": {
+      "namedByteIdenticalFiles": [
+        {
+          "path": "package/android/src/main/java/expo/modules/kotlin/sharedobjects/SharedRef.kt",
+          "beforeAndAfterSha256": "d3cb816f1f896fbdd3e861211a373b2424d79bca667eaa9676f02125cee7b29c",
+          "byteIdentical": true
+        },
+        {
+          "path": "package/android/src/main/java/expo/modules/kotlin/sharedobjects/SharedObject.kt",
+          "beforeAndAfterSha256": "3e28882bd88e6e5d5d7eed793f3de08c086f8fdedac3b66f195ab52869782207",
+          "byteIdentical": true
+        },
+        {
+          "path": "package/android/src/main/java/expo/modules/kotlin/records/Field.kt",
+          "beforeAndAfterSha256": "b6656369b0a5b4750f58b1ef98557b03d361f146e4005c8bdbf0ce1d71ac19a8",
+          "byteIdentical": true
+        },
+        {
+          "path": "package/android/src/main/java/expo/modules/kotlin/records/Record.kt",
+          "beforeAndAfterSha256": "1280acfcc447bd5624195ecd44e266274b9eab7515ceacc8b5d327d9b9410b38",
+          "byteIdentical": true
+        },
+        {
+          "path": "package/android/src/main/java/expo/modules/kotlin/types/OptimizedRecord.kt",
+          "beforeAndAfterSha256": "58c76ab5f96c81a8e2394647174fff5dbfb566c4b49dbf58c28f4896424617aa",
+          "byteIdentical": true
+        },
+        {
+          "path": "package/android/src/main/java/expo/modules/kotlin/types/Enumerable.kt",
+          "beforeAndAfterSha256": "818a21c3781ea674b2b717d96b781ac4fa249393334051316b8b413d5271b213",
+          "byteIdentical": true
+        },
+        {
+          "path": "package/android/src/main/java/expo/modules/kotlin/jni/ArrayBuffer.kt",
+          "beforeAndAfterSha256": "ead492560f16680b35cb154253aa7fb62bd3e7e2fed73d60458a9475eab74368",
+          "byteIdentical": true
+        },
+        {
+          "path": "package/android/src/main/java/expo/modules/kotlin/jni/JavaScriptArrayBuffer.kt",
+          "beforeAndAfterSha256": "d8471a954c2a7c5d26096fcf4ea43edd3e8114692f3a15a00aaaf29068a4004a",
+          "byteIdentical": true
+        },
+        {
+          "path": "package/android/src/main/java/expo/modules/kotlin/jni/NativeArrayBuffer.kt",
+          "beforeAndAfterSha256": "43dec1572af7d907d63fc6340c12689e79d128a2f45b7b9a0b768e1a57f22b0f",
+          "byteIdentical": true
+        },
+        {
+          "path": "package/android/src/main/java/expo/modules/kotlin/modules/Module.kt",
+          "beforeAndAfterSha256": "613b7a9f64e37fa3c25d55b849e8cb77b76e10f3ac4f56b0ea0125c43626a244",
+          "byteIdentical": true
+        },
+        {
+          "path": "package/android/src/main/java/expo/modules/kotlin/modules/ModuleDefinitionBuilder.kt",
+          "beforeAndAfterSha256": "f0e5a813be01e2dc28ada1f07218062e19f1c1ce857521b459cb2eefbc72a1c5",
+          "byteIdentical": true
+        },
+        {
+          "path": "package/android/src/main/java/expo/modules/kotlin/AppContext.kt",
+          "beforeAndAfterSha256": "53072909167ce440fc8fd854a4d366b8b0901decabdd631508586677c1a364b8",
+          "byteIdentical": true
+        },
+        {
+          "path": "package/android/src/main/java/expo/modules/kotlin/exception/CommonExceptions.kt",
+          "beforeAndAfterSha256": "387575c48789829f9b80dbd732b1c11f5a998ed529cf2f502170c738180480a2",
+          "byteIdentical": true
+        },
+        {
+          "path": "package/android/src/main/java/expo/modules/kotlin/exception/CodedException.kt",
+          "beforeAndAfterSha256": "0830cb5be1866ec2f14f15a447699074b7a7fe52994a48c82cd4005acd3503ec",
+          "byteIdentical": true
+        },
+        {
+          "path": "package/android/src/main/java/expo/modules/core/interfaces/DoNotStrip.java",
+          "beforeAndAfterSha256": "f88bde014cb772ae65b8007586749bd0ea3643d3603f5267dfbd16377183bcaa",
+          "byteIdentical": true
+        }
+      ],
+      "relatedAndroidApiDirectoriesChecked": [
+        "package/android/src/main/java/expo/modules/kotlin/sharedobjects/",
+        "package/android/src/main/java/expo/modules/kotlin/records/",
+        "package/android/src/main/java/expo/modules/kotlin/jni/",
+        "package/android/src/main/java/expo/modules/kotlin/modules/",
+        "package/android/src/main/java/expo/modules/kotlin/exception/"
+      ],
+      "relatedAndroidApiRegularFilesChecked": 49,
+      "relatedAndroidApiChangedFiles": [],
+      "finding": "SharedRef/ref and SharedObject release semantics, records/Field/OptimizedRecord, Enumerable, JNI ArrayBuffer types, Module definition DSL, AppContext, exception handling and DoNotStrip source are byte-identical."
+    },
+    "changedSourceFindings": [
+      {
+        "path": "package/android/build.gradle",
+        "finding": "Only package/versionName advance from 57.0.21 to 57.0.22."
+      },
+      {
+        "path": "package/android/src/main/java/expo/modules/kotlin/views/ShadowNodeProxy.kt",
+        "finding": "Adds UI-thread annotations and a single-posted asynchronous main-queue fallback for attached views; unrelated to SQLite ownership API."
+      },
+      {
+        "path": "package/common/cpp/fabric/ExpoViewComponentDescriptor.h",
+        "finding": "Applies host-view alignment and style dimensions before direct measured dimensions, updating Yoga props once."
+      },
+      {
+        "path": "package/common/cpp/fabric/ExpoViewShadowNode.h",
+        "finding": "Constrains hosted content to measured point dimensions on unmatched axes."
+      },
+      {
+        "path": "package/package.json",
+        "finding": "Version/gitHead advance; expo-modules-jsi dependency advances from ~57.1.1 to ~57.1.2."
+      }
+    ],
+    "applePrebuildChangedFileCount": 4
+  },
+  "jsiComparison": {
+    "before": {
+      "name": "expo-modules-jsi",
+      "version": "57.1.1",
+      "registryUrl": "https://registry.npmjs.org/expo-modules-jsi/57.1.1",
+      "metadataSha256": "0dbd5a1cdb36cb3ed57e531d16b3dd7a3fb9a37dbc775932e1eeae71ac36b52d",
+      "tarballUrl": "https://registry.npmjs.org/expo-modules-jsi/-/expo-modules-jsi-57.1.1.tgz",
+      "tarballSha256": "4ad8388eab258091a0118339f2ed4f05e89d952bd43f606b87a8ebe6d87c4f77",
+      "publishedIntegrity": "sha512-ssnwz3ZuIgCbZj5A3J6NlhQrXZojg+BjkeWrOWqVJhyMHlV/A/cRT7s986chKku97BFt6ucmDu6/BCzrV45Wcw==",
+      "publishedIntegrityVerified": true,
+      "regularFileCount": 103
+    },
+    "after": {
+      "name": "expo-modules-jsi",
+      "version": "57.1.2",
+      "registryUrl": "https://registry.npmjs.org/expo-modules-jsi/57.1.2",
+      "metadataSha256": "8fb792bda974809dc59453d4ca27e583f71f8d5a8245dc5970f3a8968919f242",
+      "tarballUrl": "https://registry.npmjs.org/expo-modules-jsi/-/expo-modules-jsi-57.1.2.tgz",
+      "tarballSha256": "4d4dfa3eaccd14db721e49ea340575505f7a529b9d7fd7a10ba0b7eb38ec6deb",
+      "publishedIntegrity": "sha512-DYhBwO0fqcKIUma4jF16zRDP/m6ZbawEZbo4eX3gdekREIFqrrz8HKWXydgNUqOyOQcUkdrkZatxi2I9+V6E8g==",
+      "publishedIntegrityVerified": true,
+      "regularFileCount": 104
+    },
+    "changedFiles": [
+      "package/CHANGELOG.md",
+      "package/apple/Sources/ExpoModulesJSI-Cxx/include/RuntimeScheduler.h",
+      "package/apple/Sources/ExpoModulesJSI/Runtime/JavaScriptRuntime.swift",
+      "package/apple/Sources/ExpoModulesJSI/Utilities/UncheckedSendable.swift",
+      "package/package.json"
+    ],
+    "addedFiles": [
+      "package/apple/Sources/ExpoModulesJSI/Utilities/UncheckedSendable.swift"
+    ],
+    "removedFiles": [],
+    "unchangedRegularFileCount": 99,
+    "androidChangedFiles": [],
+    "finding": "Five changed files: changelog/package metadata and Apple RuntimeScheduler header, JavaScriptRuntime.swift and UncheckedSendable.swift. Android source has zero deltas. RuntimeScheduler changes constructor exposure to static create factories; changelog describes an Xcode 26/Swift 6.2 build fix. This review does not compile or execute Apple native code."
+  },
+  "ownershipPatch": {
+    "path": "patches/expo-sqlite+57.0.4.patch",
+    "sha256": "ddc9a6ee0155cd258d1b62c0026bd79ff077b277221f63b99bf7ba972f0c6595",
+    "r16ManifestPatchSha256": "ddc9a6ee0155cd258d1b62c0026bd79ff077b277221f63b99bf7ba972f0c6595",
+    "patchBytesUnchangedFromR16Verified": true,
+    "sqliteNativeIncludesInspected": [
+      "fbjni/fbjni.h",
+      "NativeStatementBinding.h",
+      "sqlite3.h",
+      "string",
+      "Exceptions.h"
+    ],
+    "finding": "The ownership patch consumes byte-identical Expo Kotlin APIs. Its native includes do not consume either changed Expo Fabric header. Existing SharedObject release does not prove SQLite closure; the patch retains its independent closure/ownership handling.",
+    "coordinatorReportedMetadataChange": "Only reviewed matrix version rows changed to Expo 57.0.28/core 57.0.22; all upstream pin and expected patched-byte hashes retained. The reviewer directly verified the patch hash against R16 and current metadata; this receipt does not independently reconstruct historical JSON pin fields.",
+    "admission": "Support exact reviewed matrix metadata/whitelist extension after complete installed-plus-lock positive and refusal regressions; do not refresh patch/pin/expected-byte hashes blindly."
+  },
+  "weightedDecision": {
+    "scoreScale": "Reviewer judgment, 1 lowest to 5 highest; these are comparative source-backed decisions, not measured performance or test scores.",
+    "weights": {
+      "compatibility": 0.3,
+      "preservation": 0.25,
+      "context": 0.2,
+      "proof": 0.15,
+      "maintenance": 0.1
+    },
+    "alternatives": [
+      {
+        "choice": "Coherent stable SDK patch upgrade, scoped offline required compatibility check, online daily discovery",
+        "scores": {
+          "compatibility": 5,
+          "preservation": 5,
+          "context": 4,
+          "proof": 5,
+          "maintenance": 5
+        },
+        "weightedScore": 4.8,
+        "selected": true,
+        "rationale": "Uses the reviewed installed cohort for reproducible required validation, preserves online update discovery and exact ownership/security guards; requires fresh qualification after dependency changes.",
+        "veto": false
+      },
+      {
+        "choice": "Upgrade SDK patches and retain mutable online recommendations in required CI",
+        "scores": {
+          "compatibility": 5,
+          "preservation": 5,
+          "context": 2,
+          "proof": 3,
+          "maintenance": 3
+        },
+        "weightedScore": 3.9,
+        "selected": false,
+        "rationale": "Current patches can be compatible while future recommendation changes invalidate an unchanged source edition before tests.",
+        "veto": false
+      },
+      {
+        "choice": "Scope required compatibility offline but retain prior SDK patch cohort",
+        "scores": {
+          "compatibility": 4,
+          "preservation": 5,
+          "context": 4,
+          "proof": 3,
+          "maintenance": 3
+        },
+        "weightedScore": 4.0,
+        "selected": false,
+        "rationale": "Stabilizes the gate but omits the now-reviewed coherent published patch update and its fresh qualification.",
+        "veto": false
+      },
+      {
+        "choice": "Disable Expo dependency validation",
+        "scores": {
+          "compatibility": 2,
+          "preservation": 5,
+          "context": 4,
+          "proof": 1,
+          "maintenance": 2
+        },
+        "weightedScore": 3.0,
+        "selected": false,
+        "rationale": "A disabled check cannot substantiate a compatibility claim.",
+        "veto": true,
+        "vetoReason": "False compatibility qualification"
+      }
+    ],
+    "selectedWeightedScore": 4.8,
+    "requiredCompatibilityCommand": "CI=1 EXPO_OFFLINE=1 npx --no-install expo install --check",
+    "requiredCompatibilityScope": "Only the required Expo SDK compatibility step uses the installed bundled matrix; dependency validation remains enabled.",
+    "maintenanceScope": "Daily dependency discovery remains ONLINE; weekly proposal policy remains unchanged.",
+    "supportingPolicyReceipt": "docs/evidence/production-workflow-dependencies-20261011/expo-locked-compatibility-source-20261012.json"
+  },
+  "relatedPrimaryMetadataReceipt": "docs/evidence/production-workflow-dependencies-20261011/expo-patch-matrix-primary-sources-20261012.json",
+  "retainedFailureReceipt": "docs/evidence/production-workflow-review-20261011/ci-r16-online-expo-compatibility-failed.json",
+  "qualificationLimits": [
+    "Source compatibility supports the proposed reviewed version matrix; it does not prove a completed install or installed-byte/lock checks.",
+    "Core Fabric/view sizing and Apple prebuilds changed, and JSI Apple code changed; no native compilation, atomicity, device operation or physical/RTK accuracy is qualified.",
+    "Dependency changes require a frozen new source edition and appropriate fresh installed security/ownership checks, audit, export/aggregate and protected hosted browser/CI qualification.",
+    "Retained R15 267-execution and R16 source receipts remain historical evidence with their original source bindings; this receipt does not relabel them as new runtime executions.",
+    "The failed R16 hosted online compatibility run remains a failure. This receipt is neither an R16 CI pass nor an accepted R17 final workflow review.",
+    "No live hook execution, deployment or human acceptance is inferred."
+  ]
+}

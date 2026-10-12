@@ -1,8 +1,8 @@
 {
   "versions": {
-    "expo": "57.0.27",
+    "expo": "57.0.28",
     "expo-sqlite": "57.0.4",
-    "expo-modules-core": "57.0.21"
+    "expo-modules-core": "57.0.22"
   },
   "pins": {
     "android/build.gradle": "cbac6bfa980788e1c044f714bd4c519fc191622ddf6117f8292129f1e16d7a60",
@@ -79,5 +79,18 @@
     ],
     "ownershipFix": "Existing-only/source-lease behavior is not upstream-fixed; same reviewed ownership hunks apply with versionName context changed only.",
     "qualification": "Published source/patch applicability and exact bytes only; no native build/device proof."
+  },
+  "compatibilityMatrixReview": {
+    "observedOn": "2026-10-12",
+    "priorVersions": {
+      "expo": "57.0.27",
+      "expo-sqlite": "57.0.4",
+      "expo-modules-core": "57.0.21"
+    },
+    "primarySourceReceipt": "docs/evidence/production-workflow-dependencies-20261011/expo-patch-matrix-primary-sources-20261012.json",
+    "coreSourceReview": "Independent official SRI-verified core21/22 and JSI1/2 comparison: all49 relevant core API-directory files unchanged; core ten deltas and JSI five deltas separately retained. Android JSI unchanged; native view sizing/scheduling and Apple runtime still need device qualification.",
+    "patchAndAllPinsUnchanged": true,
+    "qualification": "Exact published dependency matrix, ownership-hunk applicability and byte guards only. No native build/device or field qualification.",
+    "reviewReceipt": "docs/evidence/production-workflow-dependencies-20261011/expo-core-sqlite-matrix-review-20261012.json"
   }
 }

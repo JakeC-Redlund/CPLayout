@@ -58,8 +58,10 @@ jobs:
           fi
           git cat-file -e "$HEAD_SHA^{commit}"
           git diff --check "$BASE_SHA" "$HEAD_SHA" --
-      - name: Check Expo SDK compatibility
-        run: npx expo install --check
+      - name: Check locked Expo SDK compatibility
+        env:
+          EXPO_OFFLINE: "1"
+        run: npx --no-install expo install --check
         working-directory: apps/mobile
       - run: npm run context-map:check
       - run: npm run validate:skills

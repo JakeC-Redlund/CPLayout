@@ -7,8 +7,8 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "peerDependencies": {
-    "expo": "57.0.27",
-    "expo-modules-core": "57.0.21",
+    "expo": "57.0.28",
+    "expo-modules-core": "57.0.22",
     "react-native": "0.86.3"
   }
 }

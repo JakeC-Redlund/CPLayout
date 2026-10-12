@@ -100,17 +100,18 @@ function assertUnchanged(f) {
     assert.equal(fs.existsSync(file) ? hash(fs.readFileSync(file)) : null, spec.original);
   }
 }
-function retiredFormatterFixture(t) {
+function retiredFormatterFixture(t, versions = ['56.0.23', '56.0.27', '56.0.6']) {
   const f = fixture(t);
   fs.rmSync(path.join(f.root, 'node_modules/sprintf-js'), { recursive: true });
   fs.rmSync(path.join(f.root, 'node_modules/consumer-sprintf-js'), { recursive: true });
   delete f.lock.packages['node_modules/sprintf-js']; delete f.lock.packages['node_modules/consumer-sprintf-js'];
   f.write('package.json', JSON.stringify({ name: 'cplayout-test', version: '0.1.0' }));
-  f.write('node_modules/expo/package.json', JSON.stringify({ name: 'expo', version: '56.0.23' }));
-  f.write('node_modules/expo-modules-core/package.json', JSON.stringify({ name: 'expo-modules-core', version: '56.0.27' }));
-  f.write('node_modules/expo-sqlite/package.json', JSON.stringify({ name: 'expo-sqlite', version: '56.0.6' }));
+  const [expoVersion, coreVersion, sqliteVersion] = versions;
+  f.write('node_modules/expo/package.json', JSON.stringify({ name: 'expo', version: expoVersion }));
+  f.write('node_modules/expo-modules-core/package.json', JSON.stringify({ name: 'expo-modules-core', version: coreVersion }));
+  f.write('node_modules/expo-sqlite/package.json', JSON.stringify({ name: 'expo-sqlite', version: sqliteVersion }));
   f.lock.name = 'cplayout-test'; f.lock.version = '0.1.0'; f.lock.packages[''] = {};
-  for (const [name, version] of [['expo', '56.0.23'], ['expo-modules-core', '56.0.27'], ['expo-sqlite', '56.0.6']]) f.lock.packages['node_modules/' + name] = { version };
+  for (const [name, version] of [['expo', expoVersion], ['expo-modules-core', coreVersion], ['expo-sqlite', sqliteVersion]]) f.lock.packages['node_modules/' + name] = { version };
   f.write('package-lock.json', JSON.stringify(f.lock));
   return f;
 }
@@ -120,6 +121,20 @@ test('reviewed new SDK graph may retire formatter only when lock, physical copie
   assert.equal(verifyDependencySecurity(f.root), 'already-installed');
   assert.equal(fs.existsSync(path.join(f.root, 'node_modules/sprintf-js')), false);
   for (const manifest of f.manifests.slice(0, 2)) for (const spec of manifest.files) assert.equal(hash(f.read(spec.target)), spec.patched);
+});
+test('current Expo57 patch matrix admits formatter absence only with its exact installed and locked cohort', t => {
+  const f = retiredFormatterFixture(t, ['57.0.28', '57.0.22', '57.0.4']);
+  assert.equal(patchDependencySecurity(f.root), 'installed');
+  assert.equal(verifyDependencySecurity(f.root), 'already-installed');
+  for (const kind of ['oldCore', 'oldCoreLock', 'otherSqlite', 'unreviewedExpo']) {
+    const rejected = retiredFormatterFixture(t, ['57.0.28', '57.0.22', '57.0.4']);
+    if (kind === 'oldCore') rejected.write('node_modules/expo-modules-core/package.json', JSON.stringify({ name: 'expo-modules-core', version: '57.0.21' }));
+    if (kind === 'oldCoreLock') { rejected.lock.packages['node_modules/expo-modules-core'].version = '57.0.21'; rejected.write('package-lock.json', JSON.stringify(rejected.lock)); }
+    if (kind === 'otherSqlite') rejected.write('node_modules/expo-sqlite/package.json', JSON.stringify({ name: 'expo-sqlite', version: '56.0.6' }));
+    if (kind === 'unreviewedExpo') rejected.write('node_modules/expo/package.json', JSON.stringify({ name: 'expo', version: '57.0.29' }));
+    assert.throws(() => patchDependencySecurity(rejected.root), /formatter|sprintf-js/);
+    for (const manifest of rejected.manifests.slice(0, 2)) assert.equal(rejected.read(manifest.files[0].target), 'original\n');
+  }
 });
 test('formatter partial installation, nested alias, stale lock or remaining declarations never qualify retirement', t => {
   for (const kind of ['lock', 'nested', 'declaration', 'alias', 'matrix', 'matrixLock', 'schema']) {

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "reviewedOn": "2026-10-11",
+  "reviewedOn": "2026-10-12",
   "sourceRoots": {
     "r0": "Codex home skills; exact source root supplied by active host catalog",
     "r2": "Versioned curated plugin cache; exact source root supplied by active host catalog",
@@ -1040,20 +1040,20 @@
       "source": {
         "root": "workspace",
         "path": ".agents/skills/cplayout-database-agent/SKILL.md",
-        "sha256": "a927f3af448717938e250975fcc60825b70c5686fbfaff04b647f65fc6c1499d",
+        "sha256": "ef8f3e131852cc98ed6daacb0c96a67f21aeacb8a9cd6b2392a800555a57e264",
         "present": true,
         "externalOwner": null
       },
       "applicability": "relevant",
-      "purpose": "Account/policy/read finaladmission, immutableV3Webhistory andV1-onlynative refusal, exactancestry/import/source retention.",
+      "purpose": "Account/policy admission, retained V3 history/ancestry/imports and complete workspace SDK/SQLite peer inventory.",
       "validation": "source_frontmatter_body_quick_validated",
       "runtimeInvocation": "not_measured",
       "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance.",
-      "validationMethod": "Finaledited skill-creator quick_validate.py exit0; instruction source only, not loading/invocation.",
+      "validationMethod": "skill-creator quick_validate.py exit0 after the bounded SDK patch/peer inventory lesson; source only, not loading/invocation.",
       "sourceReview": {
-        "observedAtUtc": "2026-10-12T05:07:05.780382+00:00",
-        "scope": "Ownedfinalsource contract aligned to frozenmapping/backend receipts: latestpositive-tolerance officialstations, matchedrevisionCatalog/orphanZIP, genericWebguard/V1-onlySQLite and finalread/account/policy/actor admission. Currentproof remainsregistry-linked.",
-        "contractReference": "docs/workflow-acceptance-protocol.md",
+        "observedAtUtc": "2026-10-12T15:19:59.605761+00:00",
+        "scope": "Existing hierarchy/V3/account/source-retention guidance preserved; bounded SDK patch lesson inventories all workspace exact peers incl backup-artifacts and native Expo/core/JSI/SQLite patch matrix, retains install/guard refusals and requires clean installed checks without runtime inference.",
+        "contractReference": "docs/dependency-maintenance.md",
         "hostInvocation": "not_measured"
       }
     },
@@ -1215,19 +1215,20 @@
       "validationMethod": "skill-creator quick_validate.py; current local source only, not host invocation/hook execution."
     }
   ],
-  "claims": "All67 catalog and11 current-checkout entrypoint sources are present and freshly hashed. Eleven local sources pass the source-only skill-creator quick validator. Guidance use, host loading, runtime invocation and hook execution remain separate claims.",
+  "claims": "All67 exposed host and11 workspace entrypoint sources are present and freshly fingerprint-checked. Source validation, reported guidance use, actual host loading/invocation and runtime capability remain separate. The database guidance passed its bounded source validator; other local source-validation receipts remain for unchanged sources.",
   "refresh": {
-    "method": "Read and hash all67 exposed host entrypoint files plus11 current checkout skill entrypoints; quick-validate the11 local skill sources.",
+    "method": "Read/hash all67 exposed host entrypoint files plus11 current checkout skill sources; update only owned database source and quick-validate that one changed skill.",
     "presentSources": 78,
     "localSourcesValidated": 11,
+    "currentValidationScope": "Only the changed database source quick-validated now; other10 local entrypoints unchanged with prior validation records.",
     "changedSourceIds": [
-      "cplayout-database-agent",
-      "cplayout-interface-development-agent"
+      "cplayout-database-agent"
     ],
+    "otherSourceFingerprintsUnchanged": 77,
     "runtimeInvocation": "not_measured",
     "genuineHookExecution": "unknown",
     "hostLoadClaim": "not_established",
-    "boundary": "Current67host+11local source refresh after qualified direct Survey guide/skill edits. No installation, host loading, runtime invocation or hook execution measured.",
-    "observedAtUtc": "2026-10-12T00:13:59.534379+00:00"
+    "boundary": "Source-only fingerprint/guidance refresh; no installation, host loading, genuine invocation or equipment/runtime capability measured.",
+    "observedAtUtc": "2026-10-12T15:19:59.605761+00:00"
   }
 }

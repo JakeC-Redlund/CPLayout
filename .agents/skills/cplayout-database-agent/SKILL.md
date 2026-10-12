@@ -24,6 +24,8 @@ Preserve CPLayout's offline-first storage split and archive contracts. Database 
 - Use prepared statements or parameter binding for user input.
 - Plan migrations, indexes, constraints, transaction boundaries, validation, rollback, and export/import compatibility before edits.
 - Do not claim Android, iOS, web SQLite, ZIP sharing, or native MapLibre runtime behavior without the relevant device/browser verification evidence.
+- Before an Expo SDK patch install, inventory exact peers across every workspace manifest, including `packages/backup-artifacts/package.json`, and the SQLite ownership-patch support matrix. Review the coherent Expo/core/JSI/SQLite source and lock together; retain failed peer or core-guard refusals and never bypass guards to complete an install.
+- Recheck installed guards after a clean exact-lock install. Consumed-API and patch-source compatibility, installed-matrix validation, online update discovery and rebuilt native runtime are separate claims; follow `docs/dependency-maintenance.md` and the registry's actual receipts.
 
 ## Non-Goals
 
