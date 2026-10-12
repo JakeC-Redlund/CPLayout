@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-12",
+  "classification": "synthetic",
+  "claimClass": "source",
+  "result": "pass_HTTP_PostgreSQL_smoke",
+  "exitCode": 0,
+  "counts": {
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "cancelled": 0
+  },
+  "sourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r15.json",
+  "sourceFingerprint": "39cf1a097447da8749b64c3ca1c143a916c4830d8b6ba0a5cd11155e70c60012",
+  "log": {
+    "sha256": "2b8bb8a62d8db625eefe62a15c0a9d71b417bad367b9fb8b5a94d3e96f4b0497",
+    "bytes": 336,
+    "hashCountsVerified": true
+  },
+  "runtime": "ActualPG18.6/currentexportgateway percoordinator; controlledsyntheticretainedGGA/accountdata.",
+  "boundary": "CurrentHTTP/DBsmoke only; actualsourceaggregate remainsR14+R15test-onlybridge; nophysical/client-live/native/deployment inference."
+}

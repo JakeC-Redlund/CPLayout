@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-12",
+  "classification": "synthetic",
+  "claimClass": "source",
+  "result": "pass_HTTP_PostgreSQL_smoke",
+  "exitCode": 0,
+  "counts": {
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "cancelled": 0
+  },
+  "sourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r14.json",
+  "sourceFingerprint": "d6af4cec8c4b78888bf0a8e2df11a7e4a5e1ac9f69f3978cd5c1dcbc40f373d5",
+  "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+  "log": {
+    "sha256": "9d6cf91c31797c7569450e09158435ebe1c0d8ba8053248aebe88f00089d9766",
+    "bytes": 336,
+    "hashAndCountsVerified": true
+  },
+  "runtime": "Coordinator-owned actualPostgreSQL18.6 gateway withfreshR14export; controlledsyntheticaccount/retainedGGAfixtures.",
+  "resourceDisposition": "Ownerreportsitsown schema/gateway selfclosed; nochildresourceactions.",
+  "boundary": "HTTP/DB exactsource/authentication smoke1/1; notnewphysicaldevice/GNSS accuracy orfullcurrentApp/field/deployment/publication qualification."
+}

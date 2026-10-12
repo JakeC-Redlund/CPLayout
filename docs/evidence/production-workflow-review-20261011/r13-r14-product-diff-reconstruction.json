@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-12",
+  "claimClass": "source",
+  "result": "pass_narrow_diff_reconstruction_reported",
+  "priorManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r13.json",
+  "currentManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r14.json",
+  "method": "Mapping owner reversed only retained memo/timer hunks in memory and reproduced complete R13 file hashes exactly. No files were changed and no private Git index was used.",
+  "provenance": "Coordinator delivered mapping owner exact reconstruction receipt; no separate artifact path supplied or invented. Governance independently matches all three before/after hashes to immutable manifests and current files; it did not rerun owner reconstruction.",
+  "files": [
+    {
+      "path": "apps/mobile/src/workspace/useWorkspaceController.ts",
+      "beforeSha256": "df2c517ef516a244dc90742adf0cad3e604243d9a7587b81544143a3aec47dd0",
+      "afterSha256": "949e01314902d9f2c3c0c8ccf794530d58d3a12c97b8697c84b3fcbfb97d14f2"
+    },
+    {
+      "path": "apps/mobile/src/workspace/WorkspaceModePanels.tsx",
+      "beforeSha256": "7e70ba4f16a1d8e6e530386045c5dac1c82aff9ba314ebe5f30014a3c57b0807",
+      "afterSha256": "8c00b626ba0916f86fa7c2cc11803fa38da29e53daf3f0322b4d5dfd7ea686dd"
+    },
+    {
+      "path": "apps/mobile/src/workspace/WorkspaceCatalog.tsx",
+      "beforeSha256": "0aeed4b158aa4de1d3323cd4e3e0b765e37fbb2cc334ebcb8e7a029372f6b5ed",
+      "afterSha256": "04f7190198adc45c26196e5cfe39860ff1943c4508de052c424550fffe92f7d8"
+    }
+  ],
+  "qualifiedConclusion": "The disclosed retained display memoization/timer hunks account for all byte changes in these three production files; other guard/source/receipt bytes match the R13 originals after reversal.",
+  "boundary": "Narrow source-diff proof only. Display behavior changed and is separately scoped-tested; this does not establish runtime equivalence, complete current267browser success, clockrootcause orphysicalqualification."
+}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "kind": "sanitized_external_owner_source_reference",
+  "sourceName": "CPLAYOUT CONCEPTUAL DESIGN PREFEREN.md",
+  "canonicalRepository": "Canonical CPLayout checkout only; owner file remains untracked and untouched.",
+  "sha256": "ab477ad4569179c868d71a1dd9aa8421127f4139148341507f3572452dab45dc",
+  "provenance": "Coordinator directly reread the canonical owner preference file and delivered its hash/sanitized findings. Raw contents were not copied or staged.",
+  "confirmedPreferences": [
+    "Branding, loading and version presentation",
+    "Username/password access levels",
+    "Preferred PostgreSQL"
+  ],
+  "workflowHeading": "Later workflow heading is unfinished; no additional workflow facts are inferred from it.",
+  "disposition": "Functional startup/sign-in/PostgreSQL work follows the current user task. Resolve/generated splash animation remains separately selected later polish, not a capability or acceptance claim for this packet.",
+  "boundary": "File provenance and preferences do not prove animation runtime, device access, database deployment or human acceptance."
+}

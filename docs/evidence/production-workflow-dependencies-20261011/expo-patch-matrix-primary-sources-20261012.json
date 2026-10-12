@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-12T15:05:09.140610+00:00",
+  "registryPackages": [
+    {
+      "name": "expo",
+      "version": "57.0.28",
+      "registryUrl": "https://registry.npmjs.org/expo/57.0.28",
+      "rawSha256": "570b1dee367938e3e23b35e8750acd5025f8997949aa9aece7350df5bb84f751",
+      "dependencies": {
+        "@expo/cli": "^57.0.29",
+        "expo-font": "~57.0.4",
+        "expo-asset": "~57.0.19",
+        "@expo/metro": "~56.0.2",
+        "@expo/config": "~57.0.10",
+        "@expo/log-box": "^57.0.4",
+        "pretty-format": "^29.7.0",
+        "react-refresh": "^0.14.2",
+        "@babel/runtime": "^7.20.0",
+        "@expo/devtools": "~57.0.1",
+        "expo-constants": "~57.0.21",
+        "expo-keep-awake": "~57.0.2",
+        "expo-file-system": "~57.0.7",
+        "@expo/dom-webview": "~57.0.1",
+        "@expo/fingerprint": "^0.20.14",
+        "babel-preset-expo": "~57.0.15",
+        "expo-modules-core": "~57.0.22",
+        "@expo/metro-config": "~57.0.13",
+        "whatwg-url-minimum": "^0.1.2",
+        "@expo/config-plugins": "~57.0.10",
+        "@ungap/structured-clone": "^1.3.0",
+        "expo-modules-autolinking": "~57.0.15",
+        "@expo/local-build-cache-provider": "^57.0.9"
+      },
+      "distIntegrity": "sha512-Bh9PgT1wLdcSOi8uXvUtHYh12zz9kx3zjD8Pm7O8EAsZW0W42dVog3/UhY2qJnlOkSDpTQJTnX8jsi2J5xn2OA=="
+    },
+    {
+      "name": "expo-dev-client",
+      "version": "57.0.20",
+      "registryUrl": "https://registry.npmjs.org/expo-dev-client/57.0.20",
+      "rawSha256": "ec1c1151eb339e7bc0eb88cc89446dc2ff50dcca517ea06e435dbda04904e2ef",
+      "dependencies": {
+        "expo-dev-menu": "~57.0.20",
+        "expo-manifests": "~57.0.2",
+        "expo-dev-launcher": "~57.0.21",
+        "expo-updates-interface": "~57.0.2",
+        "expo-dev-menu-interface": "~57.0.0"
+      },
+      "distIntegrity": "sha512-ko5FzWsUPuG4aiQfmqxQA5yAdmal6SSICB70KJLChQYzWo+XDoTpXRgEpzQSr1Ku8KyKW0lkEa48xbnKSgd1xQ=="
+    },
+    {
+      "name": "expo-sharing",
+      "version": "57.0.23",
+      "registryUrl": "https://registry.npmjs.org/expo-sharing/57.0.23",
+      "rawSha256": "a7b3c9b89a5a4e991d39ed48228edc626e10507f9f998cd542b9793fc7c3c3b7",
+      "dependencies": {
+        "@expo/plist": "^0.8.1",
+        "@expo/config-types": "^57.0.2",
+        "@expo/config-plugins": "^57.0.10"
+      },
+      "distIntegrity": "sha512-fN+jrqoWwOpIo+X4utiu/ayCWym23DMgvrTJUHoopkBeO6rEa79ZY4f6ApOlRxvEx2NgQgJEQX+cbPJrjOSRog=="
+    },
+    {
+      "name": "expo-splash-screen",
+      "version": "57.0.10",
+      "registryUrl": "https://registry.npmjs.org/expo-splash-screen/57.0.10",
+      "rawSha256": "b2dbd8789669f436e37863101c82c664ef0b58659071315745afe8796379cbb9",
+      "dependencies": {
+        "xml2js": "0.6.0",
+        "@expo/image-utils": "^0.11.6",
+        "@expo/config-plugins": "~57.0.10"
+      },
+      "distIntegrity": "sha512-W7++tMiyVMviWPTvaTXKpcOwwu5SbriwA2n0ewEhC+ic1LFaUNTUXiIXr95MVMSHaLRgtIG9dGyCTCb+NkekkA=="
+    },
+    {
+      "name": "expo-modules-core",
+      "version": "57.0.22",
+      "registryUrl": "https://registry.npmjs.org/expo-modules-core/57.0.22",
+      "rawSha256": "9ac9d9ece89dfd9bb4441863a81a6312a58741f4b015c0127bf30bc27ce85560",
+      "dependencies": {
+        "invariant": "^2.2.4",
+        "expo-modules-jsi": "~57.1.2",
+        "@expo/expo-modules-macros-plugin": "0.6.1"
+      },
+      "distIntegrity": "sha512-IQTSHU690fleLZ6b36OCqt04KFStxA/k7El2vweOWhlFZ58hpNSQMK2Fosc1nIvlOnqqVRDcTAq+prJEOHLmBg=="
+    }
+  ],
+  "onlineFailure": {
+    "runId": 38266980439,
+    "head": "bfe3ac2319eccf0a34f7933e879f49eaee29ea26",
+    "step": "Check Expo SDK compatibility",
+    "result": "fail",
+    "logSha256": "1b8c27db3e4cff71edeb6a4aeacd629cb8c06c1cbec30dd3bb21d4779aa2f043"
+  },
+  "officialDocumentation": "https://docs.expo.dev/more/expo-cli/",
+  "installedCliObservation": "EXPO_OFFLINE=1 selects getBundledNativeModulesAsync from installed expo/bundledNativeModules.json rather than remote SDK matrix; compatibility validation remains enabled.",
+  "boundary": "Published package metadata verified; installation, offline negative probe, audit/export/current runtime/CI qualification pending separately."
+}

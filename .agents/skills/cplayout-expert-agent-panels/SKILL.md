@@ -93,3 +93,7 @@ The panel loop is complete when:
 - KML/KMZ loops record artifact paths, SHA-256 hashes, browser screenshots when available, and native/Google Earth proof caveats,
 - durable records are updated or explicitly skipped because the task is read-only,
 - unrelated user or pre-existing changes were preserved.
+
+## Current workflow record
+
+Use `docs/workflow-registry.json` for requirement IDs, dependencies, owners, source-bound evidence and next action; `docs/development-status.md` is its generated projection. The current owner delegates decisions without further questionnaires. Keep human receipts separate from delegated acceptance, retain failed/deferred evidence and do not reinstate withdrawn AGENTS rules. The relevant maintenance guide defines qualified retirement; source presence, frontmatter/configuration validation and actual runtime remain different capability claims.

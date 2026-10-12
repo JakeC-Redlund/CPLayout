@@ -64,6 +64,9 @@ const hooks = { ...React,
 };
 loader._load = function (name, parent, isMain) {
   if (name === "react") return hooks;
+  // This fixture qualifies Survey collection controls only. The retained
+  // information owner has separate real-input, controller and browser checks.
+  if (name === "./SurveyKnownInformationPanel") return { SurveyKnownInformationPanel: () => null };
   if (name === "react-native") return { View: "div", Text: "span", Pressable: "button", TextInput: "input",
     Platform: { OS: "web" }, StyleSheet: { create: (value: unknown) => value } };
   return originalLoad(name, parent, isMain);
@@ -164,7 +167,7 @@ test("legacy non-reference Apply forwards no metadata and keeps disconnected his
 test("unsupported references show an honest disabled Apply while preserving saved observations", () => {
   const f = new SurveyFixture(); f.controller.referenceApplicationSupported = false;
   const tree = f.render(); assert.equal(element(tree, "survey-apply").props.disabled, true);
-  assert.match(text(tree), /Applying a reference feature requires the recorded-reference document support/);
+  assert.match(text(tree), /Your reference observations are saved.*compatible field file/);
   assert.deepEqual(f.applyCalls, []); assert.equal(f.controller.selectedCollection!.observations.length, 2);
 });
 
@@ -239,4 +242,23 @@ test("reopened metadata uses the latest current attachment name and real geometr
   assert.equal(f.state.editable.editor.lastError, null); f.sync(); tree = f.render();
   assert.match(text(element(tree, "survey-reference-provenance")), /Edited reference geometry.*original Survey observations retained/);
   assert.equal(element(tree, "survey-reference-name").props.value, "Latest attached reference");
+});
+test("v5 Survey exposes actual collection controls and applied shapes remain selectable for explicit review", async () => {
+  const f = new SurveyFixture(); f.controller.repository.workspaceVersion = "cplayout-workspace-v5";
+  f.controller.actorId = "synthetic-operator";
+  const calls: readonly string[][] = []; const selected: string[][] = calls as string[][];
+  f.controller.completeSurvey = async ids => { selected.push([...(ids ?? [])]); return false; };
+  f.commit({ name: "Applied reference" }); let tree = f.render();
+  assert.equal(f.controller.selectedCollection!.activePointIds.length, 0); assert.equal(f.controller.selectedCollection!.state, "applied");
+  assert(element(tree, "survey-start")); assert.equal(find(tree, item => item.props.testID === "survey-enable"), null);
+  assert.equal(element(tree, "survey-review-include-reference").props.accessibilityState.checked, true);
+  const createDOMProps = require("react-native-web/dist/modules/createDOMProps").default as (tag: string, props: ElementProps) => ElementProps;
+  const originalCollections = JSON.stringify(f.state.collections);
+  assert.equal(createDOMProps("div", element(tree, "survey-review-include-reference").props)["aria-checked"], true);
+  press(tree, "survey-review-include-reference"); tree = f.render();
+  assert.equal(element(tree, "survey-review-include-reference").props.accessibilityState.checked, false);
+  assert.equal(createDOMProps("div", element(tree, "survey-review-include-reference").props)["aria-checked"], false);
+  press(tree, "survey-review-include-reference"); tree = f.render(); assert.equal(JSON.stringify(f.state.collections), originalCollections);
+  assert.equal(element(tree, "survey-complete-review").props.disabled, false);
+  press(tree, "survey-complete-review"); await flush(); assert.deepEqual(calls, [["reference"]]);
 });

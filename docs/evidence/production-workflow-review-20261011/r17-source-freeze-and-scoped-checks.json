@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-12T15:23:20.927114+00:00",
+  "classification": "source_freeze_and_scoped_validation",
+  "claimClass": "source",
+  "result": "partial",
+  "sourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r17.json",
+  "sourceFingerprint": "2ecce6cfdefe83a39d25d9028f1e19f3c0419a7f18dc78575b3dcfda1fe97b36",
+  "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+  "canonicalPathCount": 961,
+  "changedFromR16": [
+    ".agents/skills/cplayout-database-agent/SKILL.md",
+    ".codex/hooks/cplayout_context_map.json",
+    ".github/workflows/cplayout-required.yml",
+    "apps/mobile/package.json",
+    "docs/agent-context-map.md",
+    "docs/dependency-maintenance.md",
+    "docs/skill-capability-inventory.json",
+    "docs/skill-capability-inventory.md",
+    "package-lock.json",
+    "package.json",
+    "packages/backup-artifacts/package.json",
+    "patches/expo-sqlite+57.0.4.json",
+    "tools/metroDependency.test.ts",
+    "tools/patchDependencySecurity.cjs",
+    "tools/patchDependencySecurity.test.cjs"
+  ],
+  "byteIdenticalOtherPaths": 946,
+  "criteriaUnchanged": true,
+  "sourceDrift": [],
+  "scopedChecks": {
+    "databaseSkillQuickValidate": {
+      "exitCode": 0,
+      "boundary": "Source validation only; no host runtime/invocation."
+    },
+    "sourceInventory": {
+      "hostEntries": 67,
+      "workspaceEntries": 11,
+      "present": 78,
+      "changedSkill": "cplayout-database-agent",
+      "otherSkillFingerprintsUnchanged": 77
+    },
+    "contextBuild": {
+      "exitCode": 0,
+      "changedOutputs": [
+        ".codex/hooks/cplayout_context_map.json",
+        "docs/agent-context-map.md"
+      ]
+    },
+    "contextCheck": {
+      "exitCode": 0
+    },
+    "skillsValidator": {
+      "exitCode": 0,
+      "logSha256": "b1dffc63061a3ecc0340ee9708e65b8240cba4aa45bb48508aeb73e67d04670d",
+      "logBytes": 2914
+    }
+  },
+  "installedAndPublishedSourceReferences": [
+    {
+      "path": "docs/evidence/production-workflow-dependencies-20261011/expo-current-patch-install-and-compatibility-20261012.json",
+      "sha256": "581bbab64f48b10bfd851c512b748abb35b50894475ff9287477eaae99dc3700"
+    },
+    {
+      "path": "docs/evidence/production-workflow-dependencies-20261011/expo-core-sqlite-matrix-review-20261012.json",
+      "sha256": "74a8d5874523abed3eadeb5b68671f4ceda81e125790cbf36256c60fdfbec7bc"
+    }
+  ],
+  "directInstalledSourceComparison": "All10 recorded installed package versions and3 CLI/bundled-matrix hashes match current installation.",
+  "actualCommandBoundaries": {
+    "freshFullR17Aggregate": "pending coordinator execution",
+    "freshR17Browser267": "pending actual hosted run",
+    "freshExactHeadProtectedCI": "pending",
+    "priorBrowserCommandEdition": "R15",
+    "nativeDevicePhysical": "unqualified"
+  },
+  "boundary": "Freeze/limited validator/installed-source proof only. No new aggregate, browser, native/physical/hook/human/deployment/publication result claimed; bothfailedCI attempts/installrefusals preserved."
+}

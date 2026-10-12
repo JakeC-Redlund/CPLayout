@@ -1,5 +1,4 @@
 import {
-  isNativeMapLibreTarget,
   resolveAerialReferenceImagerySource,
   type AerialReferenceImageryResolution,
   type TileRuntimeTarget,
@@ -72,6 +71,6 @@ export function buildMapReferenceViewModel({ settings, mapPackages, target, surf
     // Eligibility describes source configuration, never observed rendering or geometry authority.
     layers: { roads: layer("roads"), borders: layer("borders"), labels: layer("labels") },
     evidenceLabel: "Reference only",
-    runtimeLabel: isNativeMapLibreTarget(target) ? "Native runtime unverified" : null,
+    runtimeLabel: null,
   };
 }

@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "checkedOn": "2026-10-11",
+  "source": "Official public npm registry exact-version responses, fetched directly without installing or executing package lifecycle scripts.",
+  "packages": [
+    {
+      "name": "expo",
+      "version": "57.0.27",
+      "url": "https://registry.npmjs.org/expo/57.0.27",
+      "responseSha256": "26ae8612a06fc25c31b38c50fc4e34892dfbe5cc77b217f6e76627fed37ac9b5",
+      "integrity": "sha512-Jc3nByHsmzjakvIrqV3/3viVj+jFw1OCfMc+WpClemwL3/hSrS7ktkVCACSTI7/j+1uH+eHmBJwe1kujDLMnbQ==",
+      "reviewedDependencies": {
+        "@expo/metro": "~56.0.2"
+      },
+      "installedDeclarationsMatch": true,
+      "lockIntegrityMatch": true
+    },
+    {
+      "name": "@expo/metro",
+      "version": "56.0.2",
+      "url": "https://registry.npmjs.org/%40expo%2Fmetro/56.0.2",
+      "responseSha256": "95ab30324518bfcb3db57e2968890207ab59e194bf108e484cbf1a65e0546bbf",
+      "integrity": "sha512-Ld5AeYMCCDa8bLeWhfuLbZFFjlV3f6ORqyPz2glGh6RltIngMuLf9BTC2yvHFjkKuGxL5SynijmA8xmNNWn5iA==",
+      "reviewedDependencies": {
+        "metro": "0.84.5",
+        "metro-core": "0.84.5",
+        "metro-cache": "0.84.5",
+        "metro-config": "0.84.5",
+        "metro-runtime": "0.84.5",
+        "metro-file-map": "0.84.5",
+        "metro-resolver": "0.84.5",
+        "metro-cache-key": "0.84.5",
+        "metro-source-map": "0.84.5",
+        "metro-symbolicate": "0.84.5",
+        "metro-minify-terser": "0.84.5",
+        "metro-transform-worker": "0.84.5",
+        "metro-babel-transformer": "0.84.5",
+        "metro-transform-plugins": "0.84.5"
+      },
+      "installedDeclarationsMatch": true,
+      "lockIntegrityMatch": true
+    },
+    {
+      "name": "@expo/metro-config",
+      "version": "57.0.13",
+      "url": "https://registry.npmjs.org/%40expo%2Fmetro-config/57.0.13",
+      "responseSha256": "401230a16f2f15dd31395c3b201077cb6c730ed7d6c86b31eaa16641f761c480",
+      "integrity": "sha512-r+YCwqh8FM5cymkC3MdYO32DqLZQ2wDWkGEnzwgwI40Bj355BvL4XoY0hGgao9vNHjYa7be7XxbVqtMTi76snw==",
+      "reviewedDependencies": {
+        "@expo/metro": "~56.0.2"
+      },
+      "installedDeclarationsMatch": true,
+      "lockIntegrityMatch": true
+    },
+    {
+      "name": "@react-native/community-cli-plugin",
+      "version": "0.86.3",
+      "url": "https://registry.npmjs.org/%40react-native%2Fcommunity-cli-plugin/0.86.3",
+      "responseSha256": "ae5a402a4dccfaa4bb271978120dd2c626d609d4a49df9398405b8c77d08b08b",
+      "integrity": "sha512-qSDL9LQc5mZSZPNczT95WU9YQuPzxBklgON9vLhhqfI0yWIwKInqFx88dQ/uiEXBtf0yossthaQIqA4Ml6bF6g==",
+      "reviewedDependencies": {
+        "metro": "^0.84.3",
+        "metro-core": "^0.84.3",
+        "metro-config": "^0.84.3"
+      },
+      "installedDeclarationsMatch": true,
+      "lockIntegrityMatch": true
+    },
+    {
+      "name": "react-native",
+      "version": "0.86.3",
+      "url": "https://registry.npmjs.org/react-native/0.86.3",
+      "responseSha256": "2731073da9a29419aef882360abdcb45c48b31db2a53e289c4b0fb1e8f6b375d",
+      "integrity": "sha512-JR5s3bM9ezud+Mw24GlNXNfthqPIKwrQgPPJcam+L97t2sKjjEavhCzBn+fyqZZRcM5+XlhYxpTxVkK7e1n38Q==",
+      "reviewedDependencies": {
+        "metro-runtime": "^0.84.3",
+        "metro-source-map": "^0.84.3"
+      },
+      "installedDeclarationsMatch": true,
+      "lockIntegrityMatch": true
+    },
+    {
+      "name": "metro",
+      "version": "0.84.5",
+      "url": "https://registry.npmjs.org/metro/0.84.5",
+      "responseSha256": "ebde4f9a611b369345d6b0c203aad398cb33588533b3dbf98302ca3639110d88",
+      "integrity": "sha512-r1liLkyFZMVSEMNjU1CJU5pRzs3NdkxHqXS60O25c0rCIqAR+cGk7rPydw/g0WAIKVXojIBIF45yYBPagJGcgw==",
+      "reviewedDependencies": {
+        "metro-core": "0.84.5",
+        "metro-cache": "0.84.5",
+        "metro-config": "0.84.5",
+        "metro-runtime": "0.84.5",
+        "metro-file-map": "0.84.5",
+        "metro-resolver": "0.84.5",
+        "metro-cache-key": "0.84.5",
+        "metro-source-map": "0.84.5",
+        "metro-symbolicate": "0.84.5",
+        "metro-transform-worker": "0.84.5",
+        "metro-babel-transformer": "0.84.5",
+        "metro-transform-plugins": "0.84.5"
+      },
+      "installedDeclarationsMatch": true,
+      "lockIntegrityMatch": true
+    },
+    {
+      "name": "ob1",
+      "version": "0.84.5",
+      "url": "https://registry.npmjs.org/ob1/0.84.5",
+      "responseSha256": "d213f1b551255b0fa4dc9d9f0b17083d4c78ca6436ac46b4139537e2eaca41ee",
+      "integrity": "sha512-aH9RkoZc7w/90HBamFxTw8ZLFr05wXS+iOnvmrgo53Ep8Pyrm5FieQSaPIVROkfFVQISeD/zo92fes26TOwe+A==",
+      "reviewedDependencies": {},
+      "installedDeclarationsMatch": true,
+      "lockIntegrityMatch": true
+    }
+  ],
+  "boundary": "Published declarations/lock integrity and installed manifest equality do not establish native/browser/aggregate runtime acceptance."
+}

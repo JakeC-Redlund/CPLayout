@@ -124,7 +124,7 @@ test("native recovery refuses store operations before storage/source reads while
   const f = await fixture("native"), before = f.snapshot(); f.effects.length = 0;
   await f.owner.checkpoint(); assert.equal(f.owner.getSnapshot().phase, "error"); await f.owner.refresh();
   assert.equal(await f.owner.prepareRestore("offered-writer"), null); assert.equal(await f.owner.discard("offered-writer", 1), false);
-  await assert.rejects(f.owner.exportRawLedger(), /browser storage/i); await assert.rejects(f.owner.exportCandidate("offered-writer"), /browser storage/i);
+  await assert.rejects(f.owner.exportRawLedger(), /Automatic recovery is unavailable on this device/i); await assert.rejects(f.owner.exportCandidate("offered-writer"), /Automatic recovery is unavailable on this device/i);
   assert.equal(parseWorkspaceEditRecovery(f.owner.exportCurrent()).ui.file.text, "live raw input");
   assert.deepEqual(f.snapshot(), before); assert.deepEqual(f.effects, []); assert.deepEqual(f.events, []);
 });
@@ -247,6 +247,6 @@ test("reviewed-candidate origin lease expires its escaped guard and preserves ex
 });
 test("reviewed-candidate lease on unsupported native refuses before source or storage reads", async () => {
   const f = await fixture("native"), raw = serializeWorkspaceEditRecovery(f.make("offered-writer", 1)); f.effects.length = 0; let effects = 0;
-  await assert.rejects(f.realStore.withReviewedCandidate("offered-writer", 1, raw, () => true, () => { effects++; }), /browser storage/);
+  await assert.rejects(f.realStore.withReviewedCandidate("offered-writer", 1, raw, () => true, () => { effects++; }), /Automatic recovery is unavailable on this device/);
   assert.equal(effects, 0); assert.deepEqual(f.effects, []); assert.deepEqual(f.events, []);
 });

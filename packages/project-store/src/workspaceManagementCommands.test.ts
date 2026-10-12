@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   sampleProject, defaultProjectSettings, serializeProjectDocument, convertPivotProjectToFieldDesign,
-  createFieldLayoutTarget, serializeFieldLayoutTarget, parseFieldDesignDocument,
+  createFieldLayoutTarget, serializeFieldLayoutTarget, parseFieldDesignDocument, createLayoutSessionDocument, serializeLayoutSessionDocument,
   createSurveyCollection, projectLonLatToXy, readSurveyDesignDocument,
   type DesignDraft, type PivotProject, type FieldDesign, type SurveyPoint, type OperationalFixedGgaEvidence,
 } from "@cplayout/core";
@@ -72,10 +72,12 @@ function fixture(): WorkspaceDocument {
   const savedField = parseFieldDesignDocument(source(workspace, "field").document);
   const targetDocument = `\n${serializeFieldLayoutTarget(createFieldLayoutTarget(savedField,
     { inputRevision: 1, expectedRevision: 1, selectedMachineIds: [savedField.machines[0].id] }))}\n`;
-  workspace = apply(workspace, { type: "create_layout_session", now, sessionId: "layout", fieldMapId: "field-container", name: "Frozen Layout", targetDocument });
   const point = observed("layout-point");
-  workspace = apply(workspace, { type: "append_layout_observation", now, sessionId: "layout", expectedSessionRevision: 0,
-    observation: { id: "layout-observation", sessionId: "layout", capturedAt: now, projected: point.projected, evidence: point.captureEvidence } });
+  // Historical evidence is imported for preservation tests. New captures into
+  // unreviewed legacy targets are deliberately unavailable in the current store.
+  const historical = createLayoutSessionDocument({ id: "layout", fieldMapId: "field-container", name: "Frozen Layout", targetDocument, now });
+  historical.observations.push({ id: "layout-observation", sessionId: "layout", capturedAt: now, projected: point.projected, evidence: point.captureEvidence }); historical.revision = 1;
+  workspace = apply(workspace, { type: "import_layout_session", now, fieldMapId: "field-container", document: serializeLayoutSessionDocument(historical) });
   workspace = apply(workspace, { type: "create_design_draft", now, designId: "retired", fieldMapId: "field-container", name: "Archived", draft: draft("retired-payload") });
   workspace = apply(workspace, { type: "create_survey_collection", now, expectedDesignRevision: 0,
     collection: createSurveyCollection({ id: "retired-survey", now, purpose: { kind: "field_boundary" },

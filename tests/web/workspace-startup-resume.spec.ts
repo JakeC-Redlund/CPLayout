@@ -1,4 +1,4 @@
-import { expect, test, type BrowserContext, type Page } from "@playwright/test";
+import { expect, test, type BrowserContext, type Page } from "./authenticated-test";
 import { parseUnifiedWorkspaceResume, UNIFIED_WORKSPACE_RESUME_KEY, type UnifiedWorkspaceResume } from "../../apps/mobile/src/navigation/unifiedWorkspaceResume";
 import { parseFieldLayoutTarget } from "../../packages/core/src/fieldLayoutTarget";
 import { parseLayoutSessionDocument } from "../../packages/core/src/layoutSession";
@@ -7,14 +7,13 @@ import { sha256Text } from "../../packages/core/src/sha256";
 import { applyWorkspaceCommand } from "../../packages/project-store/src/workspaceCommands";
 import { serializeWorkspaceDocument, type WorkspaceDocument } from "../../packages/project-store/src/workspaceDocument";
 import { packageFixture, packageIds, seedPackageWorkspace, sourcePayload } from "./workspace-package-fixtures";
-import { readWorkspace, workspaceKey, workspaceStorageBytes } from "./workspace-fixtures";
+import { readWorkspace, workspaceKey, workspaceStorageBytes, readAccountPreference, writeAccountPreference, writeWorkspaceFixture, browseDesignParents } from "./workspace-fixtures";
 
 // Real default App, durable repository-created source records, and the strict v2
 // preference boundary. No controller/store replacement, public Open restoration,
 // raw-input/undo/camera recovery, or physical receiver qualification is asserted.
 test.use({ actionTimeout: 15_000 });
 type Fixture = Awaited<ReturnType<typeof packageFixture>>;
-const emptySelection = { clientId: null, projectId: null, fieldMapId: null, designId: null };
 const sourceSelection = (id: string) => ({ clientId: packageIds.customer, projectId: packageIds.project, fieldMapId: packageIds.field, designId: id });
 const destinationSelection = { clientId: "package-customer-b", projectId: "package-project-b", fieldMapId: packageIds.destination, designId: null };
 const errors = new WeakMap<Page, string[]>();
@@ -45,7 +44,7 @@ async function seed(context: BrowserContext, fixture: Fixture, hint: UnifiedWork
   if (hint !== null) fixture.values.set(UNIFIED_WORKSPACE_RESUME_KEY, typeof hint === "string" ? hint : JSON.stringify(hint));
   await seedPackageWorkspace(context, fixture);
 }
-const rawHint = (page: Page) => page.evaluate(key => localStorage.getItem(key), UNIFIED_WORKSPACE_RESUME_KEY);
+const rawHint = (page: Page) => readAccountPreference(page, UNIFIED_WORKSPACE_RESUME_KEY);
 async function acceptedHint(page: Page, expected: UnifiedWorkspaceResume) {
   await expect.poll(() => rawHint(page)).toBe(JSON.stringify(expected));
   expect(parseUnifiedWorkspaceResume((await rawHint(page))!)).toEqual(expected);
@@ -139,7 +138,8 @@ test("dual-subject startup retains the exact Layout target and acknowledges Layo
   await page.getByTestId("workspace-save").click(); await expect(page.getByTestId("workspace-save-state")).toHaveText("Saved");
   await assertSeedUnchanged(page, fixture);
   await page.getByRole("button", { name: "Session details & actions", exact: true }).click();
-  await expect(page.getByTestId("unified-layout-panel")).toContainText(`Target hash: ${hint.workspace.layout!.targetHash}`);
+  const restoredTarget = parseLayoutSessionDocument((await readWorkspace(page)).layoutSessions!.find(item => item.id === hint.workspace.layout!.sessionId)!.document);
+  expect(restoredTarget.targetHash).toBe(hint.workspace.layout!.targetHash); expect(restoredTarget.targetDocument).toBe(parseLayoutSessionDocument(fixture.workspace.layoutSessions![0].document).targetDocument);
   await page.getByRole("textbox", { name: "Layout session name", exact: true }).fill("Separately acknowledged Layout");
   await page.getByTestId("workspace-save").click();
   await expect.poll(async () => parseLayoutSessionDocument((await readWorkspace(page)).layoutSessions![0].document).name).toBe("Separately acknowledged Layout");
@@ -195,7 +195,8 @@ test(`Layout-only startup ${archived ? "keeps archived collection disabled" : "o
   await expect(page.getByTestId("workspace-context")).toHaveAttribute("aria-label", /Layout session: Frozen existing Layout$/);
   await expect(page.getByTestId("workspace-catalog")).toBeHidden(); await tools(page);
   await expect(page.getByTestId("layout-collect")).toBeDisabled(); await assertFrozenGeometry(page, fixture.workspace);
-  if (archived) await expect(page.getByTestId("layout-readiness")).toHaveText("Restore this session to collect.");
+  const saved = parseLayoutSessionDocument(fixture.workspace.layoutSessions!.find(item => item.id === packageIds.layout)!.document); expect(saved.archived).toBe(archived);
+  await expect(page.getByTestId("layout-readiness")).toHaveText("This saved target is available for viewing and export. Review Survey and create a new Layout before recording positions.");
   await page.getByTestId("workspace-mode-design").click();
   // A Layout-only owner can keep its frozen map visible in other modes; no
   // editable design or Design Save target may be manufactured from that target.
@@ -218,9 +219,8 @@ test(`${group} startup hints fall back without preference or workspace-byte writ
       { name: "foreign", raw: JSON.stringify({ ...valid, workspace: { ...valid.workspace, design: { ...valid.workspace.design!, payloadId: "foreign-payload" }, layout: null } }), workspace: fixture.workspace }];
   await seed(context, fixture, null); await page.goto("/"); await expect(page.getByTestId("workspace-catalog")).toBeVisible();
   for (const item of cases) await test.step(item.name, async () => {
-    await page.evaluate(({ workspaceRaw, raw, key, preference }) => {
-      localStorage.setItem(key, workspaceRaw); if (raw === null) localStorage.removeItem(preference); else localStorage.setItem(preference, raw);
-    }, { workspaceRaw: serializeWorkspaceDocument(item.workspace), raw: item.raw, key: workspaceKey, preference: UNIFIED_WORKSPACE_RESUME_KEY });
+    await writeWorkspaceFixture(page, serializeWorkspaceDocument(item.workspace));
+    await writeAccountPreference(page, UNIFIED_WORKSPACE_RESUME_KEY, item.raw);
     const bytes = await workspaceStorageBytes(page); await page.reload();
     await expect(page.getByTestId("workspace-catalog")).toBeVisible(); await expect(page.getByTestId("catalog-refresh")).toBeEnabled();
     await expect(page.getByTestId("workspace-map-surface")).toHaveCount(0); await expect(page.getByTestId("workspace-save")).toBeDisabled();
@@ -232,11 +232,12 @@ test(`${group} startup hints fall back without preference or workspace-byte writ
 test("operator Open, mode, collection, Browse and catalog visibility publish accepted hints that reload automatically", async ({ context, page }) => {
   const fixture = await packageFixture("draft"), base = hintFor(fixture), expected = { ...base, workspace: { ...base.workspace, layout: null, collectionId: null, mode: "design" as const } };
   await seed(context, fixture, null); await page.goto("/"); await expect(page.getByTestId("workspace-catalog")).toBeVisible();
+  const selectedParents = await browseDesignParents(page, fixture.designId);
   await page.getByTestId(`catalog-recent-open-${fixture.designId}`).click(); await expect(page.getByTestId("workspace-catalog")).toBeHidden();
-  await acceptedHint(page, { ...expected, catalogSelection: emptySelection });
+  await acceptedHint(page, { ...expected, catalogSelection: selectedParents });
   await page.getByTestId("workspace-mode-survey").click(); await tools(page);
   await page.getByTestId("survey-collection").selectOption("source-pending");
-  const survey = { ...expected, catalogSelection: emptySelection, workspace: { ...expected.workspace, mode: "survey" as const, collectionId: "source-pending" } };
+  const survey = { ...expected, catalogSelection: selectedParents, workspace: { ...expected.workspace, mode: "survey" as const, collectionId: "source-pending" } };
   await acceptedHint(page, survey); await catalog(page);
   await page.getByTestId("catalog-client-package-customer-b").click(); await page.getByTestId("catalog-project-package-project-b").click();
   await page.getByTestId(`catalog-field-${packageIds.destination}`).click();
@@ -257,14 +258,14 @@ test(`${refusal} Open refusal keeps the previous accepted hint and saved source 
     await page.getByTestId("design-task-inputs").click(); await page.getByTestId("draft-machine-span-0").fill("unfinished 12' x  ");
     await expect(page.getByTestId("workspace-save-state")).toHaveText("Inputs awaiting Apply");
   }
-  await catalog(page); const accepted = await rawHint(page); const target = page.getByTestId("catalog-recent-open-package-base-design"); await expect(target).toBeVisible();
+  await catalog(page); await browseDesignParents(page, "package-base-design"); const accepted = await rawHint(page); const target = page.getByTestId("catalog-recent-open-package-base-design"); await expect(target).toBeVisible();
   let expectedWorkspace = fixture.workspace;
   if (refusal === "externally deleted destination") {
     // A real valid external repository command invalidates the rendered old Open
     // entry. Only durable seed bytes change; no method or read result is mocked.
     const record = fixture.workspace.catalog.designs.find(item => item.id === "package-base-design")!;
     expectedWorkspace = applyWorkspaceCommand(fixture.workspace, { type: "delete_design", now: "2026-10-11T12:00:00.000Z", designId: record.id, expectedDesignRevision: record.revision }).workspace;
-    await page.evaluate(({ key, raw }) => localStorage.setItem(key, raw), { key: workspaceKey, raw: serializeWorkspaceDocument(expectedWorkspace) });
+    await writeWorkspaceFixture(page, serializeWorkspaceDocument(expectedWorkspace));
   }
   const bytes = await workspaceStorageBytes(page); await target.click();
   await expect(page.getByTestId("workspace-catalog")).toContainText("Open was blocked. Save or preserve your current work before opening this design.");

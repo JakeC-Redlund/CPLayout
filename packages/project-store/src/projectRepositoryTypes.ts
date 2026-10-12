@@ -24,7 +24,7 @@ export interface CatalogProjectRecord {
   id: string;
   clientId: string;
   name: string;
-  projectCrs: string;
+  projectCrs: string | null;
   unitSystem: string;
   createdAt: string;
   updatedAt: string;
@@ -129,7 +129,7 @@ export interface CreatedProjectFieldMapWorkspace {
 export interface ProjectRepositoryBackendInfo {
   backendLabel: string;
   runtime: "native" | "web";
-  storageEngine: "sqlite" | "local_storage";
+  storageEngine: "sqlite" | "local_storage" | "postgres_with_local_cache";
   durable: boolean;
   schemaVersion?: number;
   projectCount?: number;

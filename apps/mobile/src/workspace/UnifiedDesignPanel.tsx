@@ -4,6 +4,7 @@ import type { AppSettings } from "../../../../packages/core/src/settings";
 import type { LayoutResult } from "../../../../packages/core/src/types";
 import { tryBuildPivotProject, type DesignDraftBlocker } from "../../../../packages/core/src/designDraft";
 import { DesignDraftInputs, type DesignDraftInputsHandle } from "../components/DesignDraftInputs";
+import { WorkspaceLateralInputs } from "./WorkspaceLateralInputs";
 import { FieldDesignInputs, type FieldDesignInputsProps, type FieldDesignInputsHandle } from "../components/FieldDesignInputs";
 import { FieldLayoutSearchPanel } from "../components/FieldLayoutSearchPanel";
 import { FieldLateralReview } from "../components/FieldLateralReview";
@@ -18,8 +19,21 @@ export type UnifiedDesignTask = "drawing" | "inputs" | "machines" | "review";
 export function visibleDesignRoot(root: { readonly isConnected: boolean; getClientRects(): { readonly length: number } } | null): boolean {
   return !!root?.isConnected && root.getClientRects().length > 0;
 }
+/** Align the actual input, whose label and heading may exceed a short viewport,
+ * without moving the map, document, or outer page. */
+export function revealDesignInput(scroller: HTMLElement, input: HTMLElement, viewport?: { top: number; bottom: number }): boolean {
+  if (!visibleDesignRoot(scroller) || !visibleDesignRoot(input) || !scroller.contains(input)) return false;
+  const bounds = scroller.getBoundingClientRect(), target = input.getBoundingClientRect();
+  const top = Math.max(bounds.top, viewport?.top ?? bounds.top), bottom = Math.min(bounds.bottom, viewport?.bottom ?? bounds.bottom);
+  if (![top, bottom, target.top, target.bottom, scroller.scrollTop, scroller.scrollHeight, scroller.clientHeight].every(Number.isFinite) || bottom <= top) return false;
+  const delta = target.bottom - target.top > bottom - top ? target.top - top
+    : target.bottom > bottom ? target.bottom - bottom : target.top < top ? target.top - top : 0;
+  const next = Math.max(0, Math.min(scroller.scrollHeight - scroller.clientHeight, scroller.scrollTop + delta));
+  if (next !== scroller.scrollTop) scroller.scrollTop = next;
+  return true;
+}
 export function unifiedDesignTasks(kind: WorkspaceEditableDocument["kind"]): readonly UnifiedDesignTask[] {
-  return kind === "field" ? ["machines", "review"] : ["drawing", "inputs", "review"];
+  return kind === "field" ? ["drawing", "machines", "review"] : ["drawing", "inputs", "review"];
 }
 export function draftReviewBlockerTarget(blocker: DesignDraftBlocker): { task: UnifiedDesignTask; section: string | null } {
   const section = blocker.path.split(".")[0];
@@ -55,6 +69,8 @@ export function draftReviewActions(blockers: readonly DesignDraftBlocker[]): Dra
   }
   return [...groups.values()];
 }
+function permitsFieldEdit<T extends { type: string }>(action: T): action is Exclude<T, { type: "load_field" }> { return action.type !== "load_field"; }
+
 export function designTabFocusTarget(tasks: readonly UnifiedDesignTask[], task: UnifiedDesignTask, key: string): UnifiedDesignTask | null {
   const index = tasks.indexOf(task);
   if (index < 0) return null;
@@ -90,6 +106,7 @@ export interface UnifiedDesignPanelProps {
   readonly onDiscardFieldComparison?: () => void;
   readonly onFieldComparisonAccepted?: () => void;
   readonly disabled?: boolean;
+  readonly informationOwnedBySurvey?: boolean;
   readonly onPendingChange?: (pending: boolean) => void;
   readonly onRawInputChange?: () => void;
 }
@@ -118,12 +135,22 @@ export const UnifiedDesignPanel = React.forwardRef<UnifiedDesignPanelHandle, Uni
   const ownsPane = () => ownerRef.current === identity && paneOwner.current.epoch === renderEpoch && !props.disabled;
   const [fieldPendingState, setFieldPendingState] = useState({ identity, pending: false });
   const fieldPending = fieldPendingState.identity === identity && fieldPendingState.pending;
-  const fieldPendingRef = useRef(false);
+  const fieldPendingRef = useRef(false), machinePendingRef = useRef(false), lateralPendingRef = useRef(false);
   const reportFieldPending = useCallback((pending: boolean) => {
     if (!ownsPane()) return;
-    fieldPendingRef.current = pending;
-    setFieldPendingState(previous => previous.identity === identity && previous.pending === pending ? previous : { identity, pending });
-    props.onPendingChange?.(pending);
+    machinePendingRef.current = pending;
+    const combined = pending || lateralPendingRef.current;
+    fieldPendingRef.current = combined;
+    setFieldPendingState(previous => previous.identity === identity && previous.pending === combined ? previous : { identity, pending: combined });
+    props.onPendingChange?.(combined);
+  }, [identity, renderEpoch, props.onPendingChange]);
+  const reportLateralPending = useCallback((pending: boolean) => {
+    if (!ownsPane()) return;
+    lateralPendingRef.current = pending;
+    const combined = pending || machinePendingRef.current;
+    fieldPendingRef.current = combined;
+    setFieldPendingState(previous => previous.identity === identity && previous.pending === combined ? previous : { identity, pending: combined });
+    props.onPendingChange?.(combined);
   }, [identity, renderEpoch, props.onPendingChange]);
   const latestTask = useRef(props.activeTask); latestTask.current = props.activeTask;
   const latestDisabled = useRef(props.disabled); latestDisabled.current = props.disabled;
@@ -144,7 +171,7 @@ export const UnifiedDesignPanel = React.forwardRef<UnifiedDesignPanelHandle, Uni
   const retainedIdentity = useRef(identity);
   if (retainedIdentity.current !== identity) {
     scrollPositions.current.clear(); sectionPositions.current.clear(); surfaceFocus.current.clear(); focusRequest.current = null; designNameFocus.current = null;
-    fieldPendingRef.current = false;
+    fieldPendingRef.current = false; machinePendingRef.current = false; lateralPendingRef.current = false;
     retainedIdentity.current = identity;
   }
   const restore = () => {
@@ -158,7 +185,7 @@ export const UnifiedDesignPanel = React.forwardRef<UnifiedDesignPanelHandle, Uni
     if (retained.selection && "setSelectionRange" in retained.node && retained.node.type !== "number") retained.node.setSelectionRange(retained.selection.start, retained.selection.end);
     return true;
   };
-  function focusRequestedName(): boolean {
+  function focusRequestedName(consume = false): boolean {
     const request = designNameFocus.current;
     if (!request) return false;
     if (request.identity !== identity || !request.isCurrent()) { designNameFocus.current = null; return false; }
@@ -166,7 +193,16 @@ export const UnifiedDesignPanel = React.forwardRef<UnifiedDesignPanelHandle, Uni
     scrollers.current.get(request.task)?.scrollTo({ y: editable.kind === "draft" ? sectionPositions.current.get("name") ?? 0 : 0, animated: false });
     const focused = editable.kind === "field" ? fieldRef.current?.focusDesignName() ?? false
       : editable.kind === "draft" ? (draftRef.current?.focusSection("name"), !!draftRef.current) : false;
-    if (focused) designNameFocus.current = null;
+    if (focused && Platform.OS === "web" && typeof document !== "undefined") {
+      const scroller = scrollers.current.get(request.task)?.getScrollableNode() as HTMLElement | undefined;
+      const input = document.activeElement;
+      if (scroller && input instanceof HTMLElement) revealDesignInput(scroller, input,
+        typeof window !== "undefined" ? { top: 0, bottom: window.innerHeight } : undefined);
+      if (scroller && Number.isFinite(scroller.scrollTop)) scrollPositions.current.set(request.task, scroller.scrollTop);
+    }
+    // A frame/parent focus callback can run before our scheduled afterCommit.
+    // Keep that request for the final layout pass instead of restoring old scroll.
+    if (focused && consume) designNameFocus.current = null;
     return focused;
   }
   useImperativeHandle(ref, () => ({ requestDesignNameFocus(isCurrent = () => true) {
@@ -216,7 +252,7 @@ export const UnifiedDesignPanel = React.forwardRef<UnifiedDesignPanelHandle, Uni
     const afterCommit = () => {
       if (!ownsPane() || !rootIsVisible() || ownerRef.current !== committedIdentity) return;
       const request = focusRequest.current;
-      if (focusRequestedName()) { focusRequest.current = null; }
+      if (focusRequestedName(true)) { focusRequest.current = null; }
       else if (request?.identity === identity && props.activeTask === "inputs" && editable.kind === "draft") {
         const y = sectionPositions.current.get(request.section) ?? 0;
         scrollers.current.get("inputs")?.scrollTo({ y, animated: false }); draftRef.current?.focusSection(request.section); focusRequest.current = null;
@@ -263,9 +299,9 @@ export const UnifiedDesignPanel = React.forwardRef<UnifiedDesignPanelHandle, Uni
         accessibilityState={{ selected: props.activeTask === task, disabled: props.disabled }} disabled={props.disabled} testID={`design-task-${task}`}
         style={[styles.tab, props.activeTask === task && styles.selected]} onPress={() => { navigate(task); }}><Text style={styles.label}>{task === "drawing" ? "Drawing" : task === "inputs" ? "Inputs" : task === "machines" ? "Machines" : "Review"}</Text></Pressable>)}
     </View>
-    {editable.kind !== "field" && surface("drawing", drawing)}
+    {surface("drawing", drawing)}
     {editable.kind === "draft" ? <>
-      {surface("inputs", <DesignDraftInputs ref={draftRef} editor={editable.editor} disabled={props.disabled || props.activeTask !== "inputs"} onAction={action => { if (ownsPane()) props.dispatch({ kind: "draft", action }); }}
+      {!props.informationOwnedBySurvey && surface("inputs", <DesignDraftInputs ref={draftRef} editor={editable.editor} disabled={props.disabled || props.activeTask !== "inputs"} onAction={action => { if (ownsPane()) props.dispatch({ kind: "draft", action }); }}
         onSectionLayout={(section, y) => { if (ownsPane()) sectionPositions.current.set(section, y); }} onPendingChange={pending => { if (ownsPane()) props.onPendingChange?.(pending); }} onRawInputChange={() => { if (ownsPane()) props.onRawInputChange?.(); }} />)}
       {surface("review", <><Text style={styles.heading}>Design review</Text>
       {blockers.length > 0 ? <><Text style={styles.meta}>Supply or repair these inputs before creating a complete design.</Text>{reviewActions.map((action, index) => button(action.label, `draft-review-blocker-${index}`, () => {
@@ -273,17 +309,20 @@ export const UnifiedDesignPanel = React.forwardRef<UnifiedDesignPanelHandle, Uni
         if (!navigate(action.target.task)) focusRequest.current = null;
       }))}
       {button(diagnosticDetails ? "Hide validation details" : "Show validation details", "draft-review-details-toggle", () => setDiagnosticState({ identity, open: !diagnosticDetails }))}
-      {diagnosticDetails && <View testID="draft-review-validation-details">{blockers.map((blocker, index) => <View key={`${blocker.path}-${blocker.code}-${index}`}><Text selectable style={styles.meta}>{blocker.path} · {blocker.code}</Text><Text selectable style={styles.meta}>{blocker.message}</Text></View>)}</View>}
-      </> : <Text style={styles.meta}>Applied inputs are eligible for the current planar preview. Field qualification remains separate.</Text>}
+      {diagnosticDetails && <View testID="draft-review-validation-details">{blockers.map((blocker, index) => <View key={`${blocker.path}-${blocker.code}-${index}`}><Text selectable style={styles.meta}>Input needs review</Text><Text selectable style={styles.meta}>{blocker.message}</Text></View>)}</View>}
+      </> : <Text style={styles.meta}>The entered information is ready for a planning calculation. Complete Survey before Layout.</Text>}
       {button("Calculate preview", "draft-calculate", props.onCalculate)}
       {button("Create complete design", "draft-create-complete", props.onCompleteDesign, !build?.ok)}
       {props.savedCompleteDesignId && button("Open saved complete design", "draft-open-saved-complete", () => props.onOpenCompleteDesign?.(props.savedCompleteDesignId!), !props.onOpenCompleteDesign)}
-      {calculation && <Text testID="draft-calculation-result">Coverage {calculation.results[0]?.result.metrics.coveragePercent.toFixed(1)}% · Applied input revision {calculation.inputRevision}</Text>}
+      {calculation && <Text testID="draft-calculation-result">Coverage {calculation.results[0]?.result.metrics.coveragePercent.toFixed(1)}%</Text>}
       </>)}
-    </> : editable.kind === "field" ? <FieldDesignInputs ref={fieldRef} editor={editable.editor} createMachineId={props.createEntityId} disabled={props.disabled}
+    </> : editable.kind === "field" && !props.informationOwnedBySurvey ? <FieldDesignInputs ref={fieldRef} editor={editable.editor} createMachineId={props.createEntityId} disabled={props.disabled}
       presentation={{ sourceGeneration: props.sourceGeneration, activeSurface: props.activeTask === "review" ? "review" : "machines",
-        renderSurface: (task, content) => surface(task, <>{task === "machines" && (drawing ?? <Text style={styles.meta}>Manual Field geometry editing is unavailable. Its saved geometry and recorded Survey remain separate from machine configuration.</Text>)}
-          {task === "review" && fieldPending && <><Text style={styles.meta}>Apply or discard pending machine or field name entries before calculating or adopting a plan.</Text>{button("Back to Machines", "field-review-pending-inputs", () => { navigate("machines"); })}</>}{content}</>) }}
+        renderSurface: (task, content) => surface(task, <>{content}{task === "machines" && <WorkspaceLateralInputs editor={editable.editor} disabled={props.disabled || props.activeTask !== "machines"}
+          sourceGeneration={props.sourceGeneration} createMachineId={props.createEntityId} onAction={action => ownsPane() && permitsFieldEdit(action) && props.dispatch({ kind: "field", action })}
+          onActionBatch={actions => ownsPane() && actions.every(permitsFieldEdit) && props.dispatchBatch(actions.map(action => ({ kind: "field" as const, action })))}
+          onPendingChange={reportLateralPending} onRawInputChange={() => { if (ownsPane()) props.onRawInputChange?.(); }} />}
+          {task === "review" && fieldPending && <><Text style={styles.meta}>Apply or discard your machine and field entries before calculating.</Text>{button("Back to Machines", "field-review-pending-inputs", () => { navigate("machines"); })}</>}</>) }}
       onAction={action => ownsPane() && action.type !== "load_field" && props.dispatch({ kind: "field", action })} onRenameField={name => ownsPane() && props.dispatch({ kind: "field", action: { type: "rename", name } })}
       onCalculate={() => { if (ownsPane()) props.onCalculate(); }} onPendingChange={reportFieldPending} onRawInputChange={() => { if (ownsPane()) props.onRawInputChange?.(); }}
       comparison={props.fieldComparison} onDiscardComparison={props.onDiscardFieldComparison ? () => { if (ownsPane()) props.onDiscardFieldComparison?.(); } : undefined} onComparisonAccepted={props.onFieldComparisonAccepted ? () => { if (ownsPane()) props.onFieldComparisonAccepted?.(); } : undefined}
@@ -294,12 +333,12 @@ export const UnifiedDesignPanel = React.forwardRef<UnifiedDesignPanelHandle, Uni
           && props.dispatch({ kind: "field", action: { type: "adopt_plan", machines, expectedRevision, allowedReplacementMachineIds } })} />,
         lateralReview: <FieldLateralReview field={editable.editor.field} revision={editable.editor.revision} blocked={props.disabled === true || props.activeTask !== "review" || fieldPending} />,
         machineClearance: <FieldMachinePairReview field={editable.editor.field} revision={editable.editor.revision} blocked={props.disabled === true || props.activeTask !== "review" || fieldPending} /> }} />
-      : <>
+    : editable.kind === "project" ? <>
         <ProjectDesignPanel {...props.project} editor={editable.editor} settings={props.settings} disabled={props.disabled} onAction={action => ownsPane() && props.dispatch({ kind: "project", action })}
           presentation={{ sourceGeneration: props.sourceGeneration, activeSurface: props.activeTask === "inputs" || props.activeTask === "review" ? props.activeTask : null,
             renderSurface: (task, content) => surface(task, <>{content}{task === "review" && button("Save as independent-machine field", "create-independent-field", props.onCreateFieldFromProject)}</>) }}
           onCalculate={() => { if (ownsPane()) props.onCalculate(); }} result={calculation?.results.find(row => row.machineId === editable.editor.project.machine.id)?.result ?? null} />
-      </>}
+    </> : null}
   </View>;
 });
 const styles = StyleSheet.create({ root: { flex: 1, minHeight: 0 }, tabs: { flexDirection: "row", flexShrink: 0, gap: 4, paddingBottom: 6 },

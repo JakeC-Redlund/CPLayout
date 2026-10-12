@@ -114,7 +114,7 @@ export function FieldDesignWorkspace({ initial, onClose, onOpenLayout, visible =
       && saveOwnerMountedRef.current && saveCoordinator.isCurrent(session);
     try {
       const versioned = projectRepository.versionedWorkspace;
-      if (!versioned) throw new Error("This runtime cannot verify the saved field. Export this work before reopening it.");
+      if (!versioned) throw new Error("Saved field work cannot be checked on this device. Export this work before reopening it.");
       const read = await versioned.readDesignAsync(target.designId);
       if (!isCurrent()) return;
       const fieldTarget = { ...target, kind: "field" as const };
@@ -193,7 +193,7 @@ export function FieldDesignWorkspace({ initial, onClose, onOpenLayout, visible =
         inputRevision: captured.revision, scope: "all-machines", machineIds });
       const bytes = exportFieldDesignArchiveZip(bundle);
       const result = await exportZipFileAsync(`${output.stem}.field-design.cplayout.zip`, bytes);
-      if (saveOwnerMountedRef.current) setMessage(`${result.message}${result.ok ? ` Includes all ${machineIds.length} machines. Input revision ${captured.revision}; snapshot ${output.hash.slice(0, 12)}.` : ""}`);
+      if (saveOwnerMountedRef.current) setMessage(`${result.message}${result.ok ? ` Includes all ${machineIds.length} machines.` : ""}`);
     } catch (error) { if (saveOwnerMountedRef.current) setMessage(String(error)); }
   }
   async function reviewImport(): Promise<void> {
@@ -347,7 +347,7 @@ export function FieldDesignWorkspace({ initial, onClose, onOpenLayout, visible =
         <Text style={styles.heading}>Prepare for RTK Layout</Text>
         <Text style={styles.meta}>Apply inputs → Save field → Calculate preview → Freeze target → Open in Layout</Text>
         <Text style={styles.label} accessibilityLiveRegion="polite" testID="field-layout-next">Next: {handoffNext}</Text>
-        <Text style={styles.meta}>{selected ? `${selected.configuration.name} · ${selected.id}` : "No machine selected"} · Input revision {editor.revision} · Saved design revision {fieldSavedRevision ?? "not confirmed"}</Text>
+        <Text style={styles.meta}>{selected ? selected.configuration.name : "No machine selected"} · Saved version {fieldSavedRevision ?? "not confirmed"}</Text>
         <Text style={styles.meta}>Freeze keeps an exact target for the selected machine. RTK observations are collected separately in Layout.</Text>
       <IconCommandButton id="freeze" label="Freeze layout target" icon={<LockKeyhole />} showLabel disabled={receiptUnavailable || blocked || saving || editor.revision !== savedRevision || !currentPreview || (frozen !== null && !frozenExported)} onPress={freezeTarget} testID="field-freeze-target" />
       </View>
@@ -356,7 +356,7 @@ export function FieldDesignWorkspace({ initial, onClose, onOpenLayout, visible =
         <Text style={styles.meta}>{frozenExported ? "Saved or exported." : "Open in Layout or export this target before replacing it or leaving."}</Text>
         <Pressable accessibilityRole="button" accessibilityLabel="Frozen target export details" accessibilityState={{ expanded: targetExportDetailsOpen }} aria-expanded={targetExportDetailsOpen} onPress={() => setTargetExportDetailsOpen(value => !value)} style={styles.outputDisclosure} testID="field-target-export-details-toggle"><Text style={styles.outputDisclosureText}>{targetExportDetailsOpen ? "▾" : "▸"} Export details</Text></Pressable>
         {targetExportDetailsOpen && <View style={styles.outputDetails} testID="field-target-export-details">
-          <Text selectable style={styles.meta}>Target: {frozenSource.field.name} ({frozenSource.source.fieldId}) · Input revision {frozen.revision}</Text>
+          <Text selectable style={styles.meta}>Layout plan: {frozenSource.field.name}</Text>
           <Text selectable style={styles.meta}>Selected target machines: {frozenSource.source.selectedMachineIds.map(id => `${frozenSource.field.machines.find(machine => machine.id === id)?.configuration.name ?? "Machine"} (${id})`).join("; ")}</Text>
           <Text selectable style={styles.meta}>Snapshot SHA-256: {frozenOutput.hash}</Text>
         </View>}
@@ -374,7 +374,7 @@ export function FieldDesignWorkspace({ initial, onClose, onOpenLayout, visible =
       </View>
       <View style={styles.outputSummary}><Text style={[styles.meta, styles.outputSummaryText]} testID="field-output-source">Export: all {editor.field.machines.length + (editor.field.lateralMachines?.length ?? 0)} machines · Saved revision {fieldSavedRevision ?? "not confirmed"}{editor.revision !== savedRevision ? " + current applied changes" : ""}{pending || adding ? ". Pending entries excluded." : ""}</Text>
         <Pressable accessibilityRole="button" accessibilityLabel="Field export details" accessibilityState={{ expanded: exportDetailsOpen }} aria-expanded={exportDetailsOpen} onPress={() => setExportDetailsOpen(value => !value)} style={styles.outputDisclosure} testID="field-export-details-toggle"><Text style={styles.outputDisclosureText}>{exportDetailsOpen ? "▾" : "▸"} Export details</Text></Pressable></View>
-      {exportDetailsOpen && <View style={styles.card} testID="field-export-details"><Text selectable style={styles.meta}>Design ID: {initial.context.designId} · Field design ID: {editor.field.id} · Input revision {editor.revision}</Text>
+      {exportDetailsOpen && <View style={styles.card} testID="field-export-details"><Text selectable style={styles.meta}>Saved file: {editor.field.name}</Text>
         <Text selectable style={styles.meta}>Snapshot SHA-256: {fieldSnapshotHash}</Text>
         <Text style={styles.meta}>Includes every pivot and lateral in this field, regardless of the selected machine. Form entries waiting for Apply are excluded.</Text>
         <Text selectable style={styles.meta}>Machines: {[...editor.field.machines.map(machine => `${machine.configuration.name} (${machine.id})`), ...(editor.field.lateralMachines ?? []).map(machine => `${machine.name} (${machine.id})`)].join("; ") || "None"}</Text>
@@ -451,7 +451,7 @@ function MachineForm({ machine, field, onPending, onApply, onDiscard }: {
 
 function Choice({ label, value, options, onChange, testID }: { label: string; value: string; options: { value: string; label: string }[]; onChange: (value: string) => void; testID: string }): React.JSX.Element {
   return <View style={styles.inputGroup}><Text style={styles.label}>{label}</Text><View style={styles.options} testID={testID}>{options.map((option, index) =>
-    <Pressable key={option.value} accessibilityRole="radio" accessibilityState={{ checked: option.value === value }} accessibilityLabel={`${label}: ${option.label}`} onPress={() => onChange(option.value)} style={[styles.option, value === option.value && styles.selected]} testID={`${testID}-${index}`}>
+    <Pressable key={option.value} accessibilityRole="radio" accessibilityState={{ checked: option.value === value }} aria-checked={option.value === value} accessibilityLabel={`${label}: ${option.label}`} onPress={() => onChange(option.value)} style={[styles.option, value === option.value && styles.selected]} testID={`${testID}-${index}`}>
       <Text style={styles.meta}>{option.label}</Text>
     </Pressable>)}</View></View>;
 }

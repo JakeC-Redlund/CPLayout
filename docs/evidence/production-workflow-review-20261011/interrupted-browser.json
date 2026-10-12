@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "result": "interrupted_with_failures",
+  "provenance": "Direct bounded inspection of the retained coordinator log and source manifest, plus explicitly attributed coordinator delivery.",
+  "retainedArtifacts": {
+    "directory": "External coordinator-owned current-interrupted-for-remediation packet",
+    "logSha256": "93fcbfe43d1cf3b47e155912bff093c0c50913d99c58b7ca1a4318e745aa5dc1",
+    "sourceManifestSha256": "c9b9ec0643b3150817d3a7fa0867b3bca2c108a40e20d2cdeb66c35e527b8e4a",
+    "sourceFingerprint": "b762f2cd09575ab2664c97a469cb5754a321bba17b539566f6363c132e1082a2",
+    "sourcePathCount": 766,
+    "classification": "synthetic_app_and_source",
+    "baseCommit": "2649d1a9b1f1c55dff2eea4a6fe9faaa54be3824",
+    "boundary": "Retained external packet; this file is its curated summary. No raw traces, credential material or private paths are copied. Current source edits require new checks."
+  },
+  "loggedCounts": {
+    "planned": 252,
+    "passed": 21,
+    "failed": 9,
+    "interrupted": 1,
+    "didNotRun": 221
+  },
+  "authSubsetAtInterruptedEdition": {
+    "passed": 8,
+    "failed": 1,
+    "surveyFirst": "passed",
+    "extendedNewCustomerManualBoundary": "failed"
+  },
+  "earlierFocusedEdition": {
+    "passed": 8,
+    "failed": 1,
+    "surveyFirst": "failed",
+    "boundary": "Preceded the manual-boundary scenario extension; distinct from the interrupted broader run."
+  },
+  "withdrawnReport": {
+    "claim": "A later nine-auth-case passing rerun existed.",
+    "disposition": "Withdrawn by the coordinator after reconciling the actual retained log. No such rerun exists."
+  },
+  "coordinatorRemediation": "Update Home readiness, Machines tab and point wording expectations while preserving their semantic contracts; correct legacy Layout navigation safely and inspect the actual extended manual Design failure.",
+  "custody": "Coordinator reports the wrapper was stopped after custody verification. Interruption is not a passing result.",
+  "sourceAggregate": {
+    "result": "stopped_on_failure",
+    "reportedError": "API test TypeScript TS7022",
+    "source": "coordinator delivery; no aggregate artifact was supplied to this record",
+    "subsequentDisposition": "Worker reports a source fix. Complete fresh aggregate remains pending."
+  },
+  "nonClaims": [
+    "No full browser acceptance",
+    "No final aggregate pass",
+    "No native/device or physical GNSS qualification",
+    "No accepted final independent review"
+  ]
+}

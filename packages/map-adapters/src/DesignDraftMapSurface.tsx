@@ -328,7 +328,7 @@ function MapButton({ icon: Icon, label, displayLabel, hint, onPress, active = fa
 
 const styles = StyleSheet.create({
   root: { flex: 1, minHeight: 0, minWidth: 0, width: "100%", backgroundColor: "#f1f5f3", position: "relative", overflow: "hidden" },
-  canvas: { ...StyleSheet.absoluteFillObject },
+  canvas: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   tools: { flexDirection: "row", gap: 6, width: 360, maxWidth: "100%" },
   button: { minHeight: 48, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 5,
     paddingHorizontal: 8, backgroundColor: "#fff", borderWidth: 2, borderColor: "#a6b7af", borderRadius: 5, position: "relative", flexShrink: 1 },

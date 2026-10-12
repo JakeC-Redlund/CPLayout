@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "checkedOn": "2026-10-11",
+  "baseCommit": "2649d1a9b1f1c55dff2eea4a6fe9faaa54be3824",
+  "scope": "Owned package/guard source snapshot; not an entire application source freeze.",
+  "sourceFingerprint": "a5bcf64200eb668976047bde7ff49d0ed3ddd08f6ebe360d4a364e95f4f0e4b6",
+  "sourceHashes": {
+    "package.json": "49b1399b7edd1c06fe5f84ad06f19bc197d1735bb23466586dcd75fe7c9dcbd0",
+    "package-lock.json": "1b7423056c6e14f1081468ed1fc79ab899b78fa7434879d944ecc257f5cf797e",
+    ".nvmrc": "73fb1b615e2043a933be1c0895cde4358036acc28d785692509b822aa53c761f",
+    "apps/mobile/package.json": "13ae8f6e6be58a894b41a2b015a8028f3f31a7c306d3248050dd089f934ccba0",
+    "packages/project-store/package.json": "c6818cfcd7be878ce40061a4706340302b48d7fb0de64aad7f95ce26a6ebce99",
+    "packages/map-adapters/package.json": "62297aa8f39d5ecb9ac64efda3a796226a4a5fb53a5aac012d8f51c1949e9612",
+    "packages/backup-artifacts/package.json": "c2e2054c755959251992450fe5ea2ee145d7ebc58bc47aeb0a8b50892cdb034a",
+    "tools/patchExpoSqliteOwnership.cjs": "cd68f37d3191aff632a85e2336c279b300169e76ed36c0ff43c1e206661f47b9",
+    "tools/patchExpoSqliteOwnership.test.cjs": "bd0f422f5c3bd4629c472cad67f2e902fcf3a3635e9f87f7ec101d62203a20fb",
+    "tools/patchDependencySecurity.cjs": "85ec33b127e1e4f2167e91a715d8f8dd061e855235a5e73927627a4a82bceeab",
+    "tools/patchDependencySecurity.test.cjs": "f4d8a678757fe6d5851bdda311e0baa7bc545576acca6e00b0b59c4a3ca59c42",
+    "tools/dependencyAudit.cjs": "6cfa981aaf3bfd442d68c0ff8c57e87a837600cbc65816f45c0a428d5cd6a6df",
+    "tools/dependencyAudit.test.cjs": "7bf1c1f7e177be6b986148b7efed2cc33f268b439333660a2a81824261037dff",
+    "patches/expo-sqlite+55.0.20.json": "eee599eda730e5574b46b5f75afc22a3ab0c7c7de85f7c95b351eb786a0f962a",
+    "patches/expo-sqlite+55.0.20.patch": "a9000c0456ed78a4ebcff5fb019e19865ab001c9dfda52ae5c6a0963425964fa",
+    "patches/expo-sqlite+56.0.6.json": "90b3b28361b4727a1181ad9c5242a291fc63019232eedacf858d1c2f28ba77a0",
+    "patches/expo-sqlite+56.0.6.patch": "b1a820952adc5400533e955e7bdd33067d1fb3f948c964fa350fb1a9dfdcdae6",
+    "patches/expo-sqlite+57.0.4.json": "9b5bd98700e992a6d76ddb283740779a975a1f596adf2a84ed849cf96a016ded",
+    "patches/expo-sqlite+57.0.4.patch": "ddc9a6ee0155cd258d1b62c0026bd79ff077b277221f63b99bf7ba972f0c6595",
+    "patches/legacy-sprintf-js-1.0.3-fixture.json": "38994b6dcc470b5447e6e495af43b4f9f946576ada87003aef52e4e7e0ceb927"
+  },
+  "selected": {
+    "node": "24.21.0",
+    "npm": "11.19.0",
+    "expo": "57.0.27",
+    "expoModulesCore": "57.0.21",
+    "expoSqlite": "57.0.4",
+    "react": "19.2.3",
+    "reactNative": "0.86.3",
+    "typescript": "6.0.3",
+    "playwright": "1.64.0",
+    "maplibreNative": "11.5.0",
+    "maplibreWeb": "6.14.0"
+  },
+  "checks": {
+    "intermediate56TypecheckExit": 0,
+    "intermediate57TypecheckExit": 0,
+    "finalTypecheckExit": 0,
+    "finalMapAdapterCommandExit": 0,
+    "finalMapAdapterCases": 213,
+    "dependencyGovernanceCases": 68,
+    "installedOwnership": "already-installed",
+    "installedSecurity": "already-installed",
+    "expoCompatibility": "pass",
+    "finalRawAudit": {
+      "high": 16,
+      "moderate": 0,
+      "total": 16
+    },
+    "auditAdmission": "admitted-local-mitigations"
+  },
+  "rejected": [
+    {
+      "candidate": "TypeScript7.0.2",
+      "availableStable": true,
+      "typecheckExit": 0,
+      "expoCompatibilityExit": 1,
+      "reason": "Unmodified Expo57 compatibility check expects~6.0.3; supported compiler restored."
+    },
+    {
+      "candidate": "Initial mixed SDK56 roots",
+      "reason": "Old exact backup-artifact peer pins retained Expo55/RN0.83; source guard refused before ownership overwrite; matrix aligned without force/legacy-peer-deps."
+    }
+  ],
+  "retainedProof": "Private original logs and exact off-worktree baseline/intermediate source manifests retained by coordinator. No private paths, credentials, customer data or transcripts copied here.",
+  "removedFormatter": "Proven absent from reviewed SDK matrix, matching lock, physical package inventory, all workspace/installed declarations and resolver reachability. Legacy source+licenses retained only as reproducible regression fixture.",
+  "nonClaims": [
+    "native compilation and device behavior",
+    "physical receiver and field accuracy",
+    "entire workflow/browser acceptance",
+    "genuine agent hook execution",
+    "hosted dependency schedule activation",
+    "zero raw npm audit findings",
+    "current canonical node_modules repair"
+  ],
+  "reports": {
+    "sdk56-typecheck-green-gate.log": {
+      "sha256": "74c892cb9c8a697ae90c6578d2cbfce2ba84e8b59265bf69b7f70851fc57baa8",
+      "retainedPrivately": true
+    },
+    "sdk57-typecheck.log": {
+      "sha256": "74c892cb9c8a697ae90c6578d2cbfce2ba84e8b59265bf69b7f70851fc57baa8",
+      "retainedPrivately": true
+    },
+    "latest-typescript7-typecheck.log": {
+      "sha256": "74c892cb9c8a697ae90c6578d2cbfce2ba84e8b59265bf69b7f70851fc57baa8",
+      "retainedPrivately": true
+    },
+    "final-typecheck.log": {
+      "sha256": "74c892cb9c8a697ae90c6578d2cbfce2ba84e8b59265bf69b7f70851fc57baa8",
+      "retainedPrivately": true
+    },
+    "final-map-adapter-tests.log": {
+      "sha256": "7929a261b402826e313a4a34f55b824e5ce30e4668b555ee588daa8be305902e",
+      "retainedPrivately": true
+    },
+    "final-dependency-governance-tests.log": {
+      "sha256": "0976fb915d18f18d1ccc2d871d41614dc58a32a996f343ab7eb4454d31ba4ce2",
+      "retainedPrivately": true
+    },
+    "final-audit-verified.log": {
+      "sha256": "3e1821abb49e9baa3fe4e4f99ca0a622a73b86ad845346c654ad1ecc977f0260",
+      "retainedPrivately": true
+    },
+    "final-dependency-governance-tests-r2.log": {
+      "sha256": "50dae9fb1d3bd9363c5dfc0393d27a6339529b676336794e0c43e7851231a7c8",
+      "retainedPrivately": true
+    }
+  },
+  "previousEdition": {
+    "path": "docs/evidence/production-workflow-dependencies-20261011/source-checks-r1.json",
+    "sha256": "78052998a878acf255477ba08c7b2ee0555292354b93bb973ca018dec7bbec16",
+    "boundary": "Previous source checks precede the stronger SDK matrix-to-lock retirement recheck; retained as dated evidence."
+  }
+}

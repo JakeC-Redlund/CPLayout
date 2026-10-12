@@ -2,8 +2,16 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { convertPivotProjectToFieldDesign, serializeProjectDocument, sampleProject, validateFieldDesign } from "@cplayout/core";
 import { assertSameFieldPlanContext, fieldCoordinatesInFeet, fieldMachineInputs, parseFieldMachineInputs } from "./fieldMachineInputs";
+import { workflowTestPoint } from "../../../../packages/core/src/productionWorkflowTestFixtures";
 
 function field() { return convertPivotProjectToFieldDesign(serializeProjectDocument(sampleProject), { fieldId: "field", waterSourceId: "water", powerSourceId: "power" }).field; }
+test("adding a machine from a recorded pivot preserves exact GPS coordinates despite formatted or altered display strings", () => {
+  const current = field(), point = workflowTestPoint(19, "pivot_center"); current.surveyPoints.push(point);
+  const values = { ...fieldMachineInputs(current.machines[0], current), recordedPivotId: point.id, x: "rounded display", y: "rounded display", name: "Supplied machine" };
+  const created = parseFieldMachineInputs(values, "new-observed-machine", undefined, current);
+  assert.deepEqual(created.pivotCenter, point.projected); assert.equal(created.pivotObservationId, point.id); validateFieldDesign({ ...current, machines: [created] });
+  assert.throws(() => parseFieldMachineInputs({ ...values, recordedPivotId: "foreign-point" }, "not-created", undefined, current), /from this field/);
+});
 
 test("editing one length retains every unrelated configuration and sibling", () => {
   const current = field();

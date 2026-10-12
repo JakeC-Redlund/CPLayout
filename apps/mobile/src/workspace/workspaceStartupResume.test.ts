@@ -113,6 +113,9 @@ class ControllerFixture {
 }
 const reactHooks = {
   ...React,
+  // These retained-slot tests exercise the existing isolated repository owner.
+  // Authenticated provider/actor admission is tested by the real auth suites.
+  useContext: () => null,
   useState<T>(initial: T | (() => T)) {
     if (!active) return React.useState(initial);
     const owner = active, slot = owner.slot("useState", () => typeof initial === "function" ? (initial as () => T)() : initial);

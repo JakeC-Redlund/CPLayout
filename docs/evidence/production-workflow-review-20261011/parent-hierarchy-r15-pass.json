@@ -1,0 +1,534 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-12",
+  "classification": "synthetic",
+  "claimClass": "browser",
+  "result": "pass_affected_scope",
+  "exitCode": 0,
+  "counts": {
+    "selected": 39,
+    "passed": 39,
+    "failed": 0,
+    "flaky": 0,
+    "skipped": 0,
+    "didNotRun": 0,
+    "uniqueTitles": 13
+  },
+  "sourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r15.json",
+  "sourceFingerprint": "39cf1a097447da8749b64c3ca1c143a916c4830d8b6ba0a5cd11155e70c60012",
+  "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+  "sourceDrift": [],
+  "custody": {
+    "sha256": "def36fa90fe6bdb3e5c522a5c553ad15d865f7f8b59463136ecfbbedad9771de",
+    "declaredArtifacts": 24,
+    "hashesAndBytesVerified": true,
+    "artifacts": [
+      {
+        "path": "playwright-html/index.html",
+        "bytes": 1045140,
+        "sha256": "8817d29855ce71ecd7b1a44149ced19b13d8333ed37ac8f63d0511a2d1da01fd"
+      },
+      {
+        "path": "playwright-results/.last-run.json",
+        "bytes": 45,
+        "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-0a457-text-until-explicit-Discard-desktop/actual-downloaded-design-workspace.zip",
+        "bytes": 8159,
+        "sha256": "cdd43ac135e440133f6a543d8eff1c75fb4b4ca99438c1ed4f3e6d67a1f2cc08"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-0a457-text-until-explicit-Discard-mobile-390/actual-downloaded-design-workspace.zip",
+        "bytes": 8159,
+        "sha256": "cdd43ac135e440133f6a543d8eff1c75fb4b4ca99438c1ed4f3e6d67a1f2cc08"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-0a457-text-until-explicit-Discard-tablet-768/actual-downloaded-design-workspace.zip",
+        "bytes": 8159,
+        "sha256": "cdd43ac135e440133f6a543d8eff1c75fb4b4ca99438c1ed4f3e6d67a1f2cc08"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-0f6e2-opy-and-reloads-Recent-Open-desktop/actual-downloaded-design-workspace.zip",
+        "bytes": 8159,
+        "sha256": "cdd43ac135e440133f6a543d8eff1c75fb4b4ca99438c1ed4f3e6d67a1f2cc08"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-0f6e2-opy-and-reloads-Recent-Open-mobile-390/actual-downloaded-design-workspace.zip",
+        "bytes": 8159,
+        "sha256": "cdd43ac135e440133f6a543d8eff1c75fb4b4ca99438c1ed4f3e6d67a1f2cc08"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-0f6e2-opy-and-reloads-Recent-Open-tablet-768/actual-downloaded-design-workspace.zip",
+        "bytes": 8159,
+        "sha256": "cdd43ac135e440133f6a543d8eff1c75fb4b4ca99438c1ed4f3e6d67a1f2cc08"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-fa2e4-opy-and-reloads-Recent-Open-desktop/actual-downloaded-design-workspace.json",
+        "bytes": 23810,
+        "sha256": "448563fdac3154fa79cad8424170b7724aee6f29e45a7c550bdaa63a03f04e97"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-fa2e4-opy-and-reloads-Recent-Open-mobile-390/actual-downloaded-design-workspace.json",
+        "bytes": 23810,
+        "sha256": "448563fdac3154fa79cad8424170b7724aee6f29e45a7c550bdaa63a03f04e97"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-fa2e4-opy-and-reloads-Recent-Open-tablet-768/actual-downloaded-design-workspace.json",
+        "bytes": 23810,
+        "sha256": "448563fdac3154fa79cad8424170b7724aee6f29e45a7c550bdaa63a03f04e97"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-8cf1b-opy-and-reloads-Recent-Open-desktop/actual-downloaded-design-workspace.json",
+        "bytes": 34172,
+        "sha256": "a8413fdb23e42ddd0506ea65d009d61e5355a19bc1bc756589834507e857da7c"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-8cf1b-opy-and-reloads-Recent-Open-mobile-390/actual-downloaded-design-workspace.json",
+        "bytes": 34172,
+        "sha256": "a8413fdb23e42ddd0506ea65d009d61e5355a19bc1bc756589834507e857da7c"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-8cf1b-opy-and-reloads-Recent-Open-tablet-768/actual-downloaded-design-workspace.json",
+        "bytes": 34172,
+        "sha256": "a8413fdb23e42ddd0506ea65d009d61e5355a19bc1bc756589834507e857da7c"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-ada9c-opy-and-reloads-Recent-Open-desktop/actual-downloaded-design-workspace.zip",
+        "bytes": 11832,
+        "sha256": "39b28474e51826335f496ea31e9b45d327fdb637e53a9b716dd4745a08c6827a"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-ada9c-opy-and-reloads-Recent-Open-mobile-390/actual-downloaded-design-workspace.zip",
+        "bytes": 11832,
+        "sha256": "39b28474e51826335f496ea31e9b45d327fdb637e53a9b716dd4745a08c6827a"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-ada9c-opy-and-reloads-Recent-Open-tablet-768/actual-downloaded-design-workspace.zip",
+        "bytes": 11832,
+        "sha256": "39b28474e51826335f496ea31e9b45d327fdb637e53a9b716dd4745a08c6827a"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-3f997-opy-and-reloads-Recent-Open-desktop/actual-downloaded-design-workspace.zip",
+        "bytes": 10003,
+        "sha256": "7a6a936c99613cbcdb1bf8ce353452b1e6c443107c54b87c7d9745770a7b70c9"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-3f997-opy-and-reloads-Recent-Open-mobile-390/actual-downloaded-design-workspace.zip",
+        "bytes": 10003,
+        "sha256": "7a6a936c99613cbcdb1bf8ce353452b1e6c443107c54b87c7d9745770a7b70c9"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-3f997-opy-and-reloads-Recent-Open-tablet-768/actual-downloaded-design-workspace.zip",
+        "bytes": 10003,
+        "sha256": "7a6a936c99613cbcdb1bf8ce353452b1e6c443107c54b87c7d9745770a7b70c9"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-f4530-opy-and-reloads-Recent-Open-desktop/actual-downloaded-design-workspace.json",
+        "bytes": 28146,
+        "sha256": "441c3d3aa9529c8c005e158c3ae2522ccd8263119536f870419b1f0818af5895"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-f4530-opy-and-reloads-Recent-Open-mobile-390/actual-downloaded-design-workspace.json",
+        "bytes": 28146,
+        "sha256": "441c3d3aa9529c8c005e158c3ae2522ccd8263119536f870419b1f0818af5895"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-f4530-opy-and-reloads-Recent-Open-tablet-768/actual-downloaded-design-workspace.json",
+        "bytes": 28146,
+        "sha256": "441c3d3aa9529c8c005e158c3ae2522ccd8263119536f870419b1f0818af5895"
+      },
+      {
+        "path": "raw.log",
+        "bytes": 10346,
+        "sha256": "0b347b548aac9c25ee41bf398b192bda5e0e1271c36f2c2fb6dcfe9b1d3765d7"
+      }
+    ]
+  },
+  "embeddedStats": {
+    "total": 39,
+    "expected": 39,
+    "unexpected": 0,
+    "flaky": 0,
+    "skipped": 0,
+    "ok": true
+  },
+  "cases": [
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "current-field New in design keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-6e44b3c58e2c40815fea"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "current-field New in survey keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-2b80082b5f357439e36b"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "current-field New in layout keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-e72d0fb12198394e0ff0"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "current-field New in design keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-5e0b8a482ba40ef73eca"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "current-field New in survey keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-045b3b0fac7a8afe987d"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "current-field New in layout keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-1443f60ce21a5c03d160"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "current-field New in design keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-e379ef6445b54679449a"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "current-field New in survey keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-2c5f8b8667a141070174"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "current-field New in layout keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-3a1873319f0c16a7c3b6"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "draft actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-d15a054e44e4f25c0693"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "draft actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-a6fed40984e9c9a7143a"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "project actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-1eec1257c49aa0313c6c"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "project actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-36613df6603c97fafd94"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "field actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-2e385aa42e03555f7308"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "field actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-b5ce0baf2b72b1d5ec4b"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "actual saved-copy Open refuses dirty current input and retains raw text until explicit Discard",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-1b96a0779bad05381b51"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "draft actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-4ac92b141643867d2889"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "draft actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-a7864e1e8439e1e37c0c"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "project actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-de3064ad72c0af7a6d78"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "project actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-a1f2b1f74be07fa1ce89"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "field actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-a12eb52d1d12b58776d6"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "field actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-33117c6b3c95f7a02d79"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "actual saved-copy Open refuses dirty current input and retains raw text until explicit Discard",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-e7442feeb44b26d7a63f"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "draft actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-3ffbffdcb901eb2537c6"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "draft actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-8db708bfef2ada1c3ca3"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "project actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-c0cccee4749e740dbedb"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "project actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-a528578548563f557bdb"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "field actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-99a273d0d1757418976c"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "field actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-8b0676ea4d61069b8c63"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "actual saved-copy Open refuses dirty current input and retains raw text until explicit Discard",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-9c62bb02f7640655aad5"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "operator Open, mode, collection, Browse and catalog visibility publish accepted hints that reload automatically",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-c254a223025736ed176d"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "dirty input Open refusal keeps the previous accepted hint and saved source exact",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-741858ae5ad16d3549c5"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "externally deleted destination Open refusal keeps the previous accepted hint and saved source exact",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-3224bc8536b7c6268733"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "operator Open, mode, collection, Browse and catalog visibility publish accepted hints that reload automatically",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-1042ddc73d1c49a343cc"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "dirty input Open refusal keeps the previous accepted hint and saved source exact",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-87f4c132e3f80ddc230e"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "externally deleted destination Open refusal keeps the previous accepted hint and saved source exact",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-17327eff484b335608d3"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "operator Open, mode, collection, Browse and catalog visibility publish accepted hints that reload automatically",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-e7622b6d8dd8354b1c49"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "dirty input Open refusal keeps the previous accepted hint and saved source exact",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-c92dea51533ff924cb19"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "externally deleted destination Open refusal keeps the previous accepted hint and saved source exact",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-09f803b803b86a901fda"
+    }
+  ],
+  "priorFullFailureCoverage": {
+    "matchedFailedTitleGroups": 11,
+    "matchedTitles": [
+      [
+        "workspace-management.spec.ts",
+        "current-field New in design keeps Browse B and dirty Source A until an explicit guarded Open"
+      ],
+      [
+        "workspace-management.spec.ts",
+        "current-field New in layout keeps Browse B and dirty Source A until an explicit guarded Open"
+      ],
+      [
+        "workspace-management.spec.ts",
+        "current-field New in survey keeps Browse B and dirty Source A until an explicit guarded Open"
+      ],
+      [
+        "workspace-package-import.spec.ts",
+        "actual saved-copy Open refuses dirty current input and retains raw text until explicit Discard"
+      ],
+      [
+        "workspace-package-import.spec.ts",
+        "draft actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open"
+      ],
+      [
+        "workspace-package-import.spec.ts",
+        "draft actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open"
+      ],
+      [
+        "workspace-package-import.spec.ts",
+        "field actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open"
+      ],
+      [
+        "workspace-package-import.spec.ts",
+        "field actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open"
+      ],
+      [
+        "workspace-package-import.spec.ts",
+        "project actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open"
+      ],
+      [
+        "workspace-package-import.spec.ts",
+        "project actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open"
+      ],
+      [
+        "workspace-startup-resume.spec.ts",
+        "operator Open, mode, collection, Browse and catalog visibility publish accepted hints that reload automatically"
+      ]
+    ],
+    "remainingFailedTitleGroups": 9,
+    "remainingTitles": [
+      [
+        "workspace-package-import.spec.ts",
+        "actual JSON package without Survey history imports without fabricated collections"
+      ],
+      [
+        "workspace-package-import.spec.ts",
+        "actual ZIP package without Survey history imports without fabricated collections"
+      ],
+      [
+        "workspace-package-import.spec.ts",
+        "actual upload of corrupt replacement retires previously admitted package without records"
+      ],
+      [
+        "workspace-package-import.spec.ts",
+        "actual upload of unknown replacement retires previously admitted package without records"
+      ],
+      [
+        "workspace-package-import.spec.ts",
+        "v1 actual package prepares the retained Field/Layout/Survey chain before one saved-copy import"
+      ],
+      [
+        "workspace-package-import.spec.ts",
+        "v2 actual package prepares the retained Field/Layout/Survey chain before one saved-copy import"
+      ],
+      [
+        "workspace-package-import.spec.ts",
+        "v3 actual complete upload refuses mismatched CRS atomically including workspace version"
+      ],
+      [
+        "workspace-package-import.spec.ts",
+        "v3 actual storage Prepare refuses wrong CRS without an upgrade or any byte change"
+      ],
+      [
+        "workspace-package-import.spec.ts",
+        "v4 actual complete upload refuses mismatched CRS atomically including workspace version"
+      ]
+    ],
+    "additionalNegativeTitleGroups": 2,
+    "additionalTitles": [
+      [
+        "workspace-startup-resume.spec.ts",
+        "dirty input Open refusal keeps the previous accepted hint and saved source exact"
+      ],
+      [
+        "workspace-startup-resume.spec.ts",
+        "externally deleted destination Open refusal keeps the previous accepted hint and saved source exact"
+      ]
+    ],
+    "verification": "Direct title/file set comparison against all20failedR14title groups. Eleven rerun groupspass acrossthreeviewports; nine legacyvariantgroups remain forfullsuite."
+  },
+  "negativeGuards": "Actual dirty-input and externally-deleted-destination Open refusal cases pass in all3views, preserving previousaccepted hint and exactsaved source; actualUI rather than purehelper9checks.",
+  "sourceBridge": "docs/evidence/production-workflow-review-20261011/hierarchy-r14-to-r15-test-only-bridge.json",
+  "boundary": "ActualR15affected39passes/13titles×3views. Thiscloses only11of20priorfailedtitle groups; neverall60priorfailures orfull267QA. Completeactualaggregate remainsR14; newfull267/visible/finalreviews/publication/native/physical claims pending."
+}

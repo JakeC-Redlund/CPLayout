@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "classification": "owner_input_preservation",
+  "originalCanonicalPath": "/mnt/h/cplayout/CPLAYOUT CONCEPTUAL DESIGN PREFEREN.md",
+  "originalSha256": "ab477ad4569179c868d71a1dd9aa8421127f4139148341507f3572452dab45dc",
+  "originalBytes": 1622,
+  "recoveryCopy": "/home/cyber/cplayout-production-proof-20261011/main-cleanup-recovery/CPLAYOUT CONCEPTUAL DESIGN PREFEREN.original.md",
+  "recoveryBytesVerified": true,
+  "trackedPath": "CPLAYOUT CONCEPTUAL DESIGN PREFEREN.md",
+  "trackedSha256": "4783cef9b653e5d77cbc9352453a5abadab1b387c154b6dabf2fb45b7342c054",
+  "trackedBytes": 1578,
+  "normalization": "CRLF to LF and whitespace-only trailing spacing/empty EOF; all non-whitespace content and wording preserved. Original exact bytes retained in verified private recovery copy.",
+  "authorityBoundary": "Existing owner preference input; current workflow and qualification remain governed by the master contract and registry. No software code, source criterion or test was changed."
+}

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-12T13:07:53.651208+00:00",
+  "classification": "hosted_ci_source_failure",
+  "claimClass": "source",
+  "result": "fail",
+  "commit": "a66c37b2e2181d62ee3ef714a0b84b9e875a7ed3",
+  "sourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r15.json",
+  "sourceFingerprint": "39cf1a097447da8749b64c3ca1c143a916c4830d8b6ba0a5cd11155e70c60012",
+  "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+  "publicationAttempt": {
+    "pr": 3,
+    "url": "https://github.com/JakeC-Redlund/CPLayout/pull/3",
+    "runId": 38252797564,
+    "runUrl": "https://github.com/JakeC-Redlund/CPLayout/actions/runs/38252797564",
+    "sourceJob": "failed",
+    "overallResult": "Coordinator reported failed; no success/merge claim."
+  },
+  "trackerResults": {
+    "selected": 23,
+    "passed": 14,
+    "failed": 9,
+    "skipped": 0,
+    "cancelled": 0
+  },
+  "log": {
+    "originalPath": "/tmp/cplayout-ci-source-first-failure-20261012.log",
+    "retainedPath": "/home/cyber/cplayout-production-proof-20261011/ci-source-first-failure-20261012.log",
+    "sha256": "b8cd6969878453466757f2c8ea51a84c431b3007f5e2195a252ec4767536ee41",
+    "bytes": 45959
+  },
+  "diagnosis": "The unit fixture copied17 verified requirements into placeholder sources lacking their actual matching manifests. Nine unrelated synthetic cases failed early with Verified requirement has no matching current scoped source evidence before their intended assertions. The real validator correctly failed closed. Earlier complete aggregates and final reviewers ran before final registry statuses were promoted.",
+  "correctionScope": "Only tools/workflowStatus.test.cjs synthetic fixture neutralizes inherited verified statuses to source_implemented; explicit per-case promotion and actual checkout positive remain. Validate the synthetic baseline before each callback. No validator/shipping/API/browser/criteria change.",
+  "intermediateLocalAttempt": {
+    "counts": {
+      "selected": 23,
+      "passed": 22,
+      "failed": 1,
+      "skipped": 0,
+      "cancelled": 0
+    },
+    "log": {
+      "originalPath": "/tmp/cplayout-workflow-fixture-r16-root.log",
+      "retainedPath": "/home/cyber/cplayout-production-proof-20261011/workflow-fixture-r16-root-intermediate.log",
+      "sha256": "8f018de83e6d0c96dc1ae62d06a8d27c950da2e5e2e01c582bdf385b538a2442",
+      "bytes": 3489
+    },
+    "source": "Coordinator ran correctedfixture before pending R16 metadata was updated.",
+    "boundary": "All synthetic cases passed; real checkout correctly rejected the stale R15 test hash. This is an actual intermediate failure, not a relaxed validator or completed pass."
+  },
+  "boundary": "Actual failed hosted source attempt and intermediate local source-binding failure preserved. No run38252797564 success, full local R16 aggregate, new R16 browser run, merge or main synchronization inferred."
+}

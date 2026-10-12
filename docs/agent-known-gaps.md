@@ -1,5 +1,33 @@
 # CPLayout Agent Known Gaps
 
+## Current source and proof gaps — 2026-10-11
+
+Use [workflow-registry.json](workflow-registry.json) for current requirement/status IDs and exact evidence. The current request resumes improvement with delegated independent decisions; old pause and mandatory questionnaire directions are historical.
+
+The published 2649d1a9 checkpoint includes shared workspace/customer catalog, complete package import, saved-context resume, unfinished-edit recovery and immutable Layout targets. Its source aggregate and 225 selected browser cases passed; 960 deferred browser contracts and two complete whole-workflow reviews remain. Earlier statements that drafts/storage/UI or frozen targets were not integrated describe preceding editions.
+
+This candidate adds production workflow progression, operator wording and authenticated-service work under their recorded module owners. Real sign-in, full current-candidate proof, native/device transports and measured field accuracy remain separately qualified. No installed package, fixture, profile or skill source establishes those claims.
+
+The [initial independent review record](evidence/production-workflow-review-20261011/initial-review.json) curates the coordinator-forwarded agent delivery, not an existing reviewer-written artifact. Its 16-anchor edition was vetoed by three P1 findings: unapplied Layout tolerance on session replacement, denial-marker quota failure permitting cold cached authorization revival, and legacy API/auth loading changing raw source bytes. These map to Layout, authentication and recovery requirements in the registry and remain open until their exact source-bound rechecks pass. No final independent whole-workflow review has been accepted.
+
+The initial desktop authenticated run was reported by the coordinator as eight passes and one Survey-first failure. Browser inventory declares 32 suites, 404 unique cases and 252 current-scope/960 deferred executions, 1212 total. A subsequent direct registry check passed seven of eleven cases and failed four after a deliberate authenticated-scenario hash change; [the intermediate failure](evidence/production-workflow-review-20261011/inventory-drift.json) is retained. Full deliberate discovery regeneration and current checks are pending; discovery accounting is not browser execution or acceptance. Newly added scripts also make the preceding dependency script bridge stale until reverified.
+
+The [second initial review](evidence/production-workflow-review-20261011/second-initial-review.json) reproduced three more P1 defects: changing units discards dirty raw Project input; delayed logout can retire a newer account session; and a repository action held at its final lock can cross account/cache ownership. Worker changes remain subject to the specified rechecks. Both initial reviews were vetoed and neither counts toward the two required final reviews.
+
+The [broader browser attempt](evidence/production-workflow-review-20261011/interrupted-browser.json) was interrupted after observed failures: 21 passed, nine failed, one was interrupted and 221 did not run. Survey-first passed, but the extended new-customer/manual-boundary case failed. The coordinator explicitly withdrew the incorrect claim of a later nine-auth-case passing rerun; no such run exists. Complete aggregate proof also remains pending after its API compiler failure and reported source correction.
+
+A WebGL error in the unified-workspace screenshots is fixture-enforced: its setup returns null for both WebGL context types to measure SVG geometry. The [source-backed investigation](evidence/production-workflow-review-20261011/webgl-fixture-investigation.json) keeps that fact, the primary Chromium documentation and the separately reported blank-page software-renderer probe distinct. It establishes no hardware failure, native GPU qualification or need for a host flag change.
+
+Further intermediate evidence remains separate: [31 desktop cases](evidence/production-workflow-review-20261011/desktop-review-31.json) produced 25 passes and six failures, with log/failure text retained but previous image/trace output not copied. The subsequent [cross-viewport accessibility run](evidence/production-workflow-review-20261011/accessibility-first-current.json) passed desktop/tablet and found a serious mobile map-readout keyboard-focus violation. Source focus/navigation corrections need their actual rechecks; automated passes do not establish full accessibility conformance. [One real PostgreSQL gateway smoke](evidence/production-workflow-review-20261011/service-smoke-current.json) passed with no skips, within its intermediate scope.
+
+The [authorized direct Draft→Field Survey preparation](evidence/production-workflow-review-20261011/optional-design-decision.json) now has frozen-owner [focused source qualification](evidence/production-workflow-review-20261011/direct-survey-source-checks.json): 55 affected and 105 controller/panel cases pass, with core/store/mobile TypeScript success. It preserves the original Draft, actual supplied boundary/CRS/configuration and Survey lineage; unknown infrastructure remains absent and partial machine/pose entries refuse without loss. The guide/skills now describe that source behavior. Actual final served-App/browser and native/physical qualification remain pending. The separate final auth fixture has 12 titles and includes actual recorded boundary/pivot/linear paths; its presence is not execution evidence.
+
+Canonical installed security patch verification failed at preflight: all seven target files remained original despite 45 passing fixtures; raw audit is 21 high/5 moderate. The root's isolated exact-lock install and direct installed verification are separate observations. Hook discovery succeeded but guarded execution emitted zero events, cause unknown; genuine execution remains unknown and Stop disabled.
+
+## Historical gap ledger
+
+Dated statements below preserve original evidence and constraints. They are not a current queue; compare the referenced source edition before reopening or closing a gap.
+
 This file tracks gaps in the agent/skill process layer. It does not replace product validation checklists.
 
 This is a dated gap/evidence ledger. Some earlier implementation-status statements

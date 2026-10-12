@@ -1,7 +1,10 @@
+import { parseDesignWorkspaceBundle, designBundleOperationalObservationPayloads } from "./designWorkspaceBundle";
+import { parseSurveyReview } from "../../core/src/surveyReview";
+import { WorkflowWorkItemSchema, WorkflowConversionSchema, validateWorkflowConversion } from "./productionWorkflowSchemas";
 import { parseSurveyCollectionDocument, assertSurveyCollectionTransition, type SurveyCollection } from "../../core/src/surveyCollection";
 import { projectDataKey } from "../../core/src/projectDataComparison";
 import { gnssV2CaptureConflicts } from "../../core/src/gnssEvidence";
-import { operationalObservationPayloads, parseLayoutSessionDocument, parseDesignDraftDocument, parseFieldDesignDocument, parseProjectDocument, PROJECT_DOCUMENT_VERSIONS,
+import { operationalObservationPayloads, parseFieldLayoutTarget, parseLayoutSessionDocument, parseDesignDraftDocument, parseFieldDesignDocument, parseProjectDocument, PROJECT_DOCUMENT_VERSIONS,
   seedRecordedReferenceOrigins, serializeProjectDocument, serializeDesignDraftDocument, serializeFieldDesignDocument } from "@cplayout/core";
 import { z } from "zod";
 
@@ -15,6 +18,7 @@ export const WORKSPACE_DOCUMENT_VERSION = "cplayout-workspace-v1";
 export const FIELD_WORKSPACE_DOCUMENT_VERSION = "cplayout-workspace-v2";
 export const LAYOUT_WORKSPACE_DOCUMENT_VERSION = "cplayout-workspace-v3";
 export const SURVEY_WORKSPACE_DOCUMENT_VERSION = "cplayout-workspace-v4";
+export const PRODUCTION_WORKSPACE_DOCUMENT_VERSION = "cplayout-workspace-v5";
 
 const id = z.string().min(1);
 const revision = z.number().int().min(0).max(Number.MAX_SAFE_INTEGER);
@@ -26,7 +30,7 @@ const ClientSchema: z.ZodType<ClientRecord> = z.object({
   primaryContactSuffix: z.string(), email: z.string(), phone: z.string(), location: z.string(), notes: z.string(), ...dated,
 }).strict();
 const ProjectSchema: z.ZodType<CatalogProjectRecord> = z.object({
-  id, clientId: id, name: id, projectCrs: z.string(), unitSystem: z.string(), ...dated,
+  id, clientId: id, name: id, projectCrs: z.string().nullable(), unitSystem: z.string(), ...dated,
 }).strict();
 const FieldMapSchema: z.ZodType<FieldMapRecord> = z.object({ id, projectId: id, name: id, ...dated }).strict();
 const SummarySchema: z.ZodType<ProjectSummary> = z.object({
@@ -49,7 +53,7 @@ const TombstoneSchema = z.object({
   entity: z.enum(["design", "project_document", "draft_document", "field_document"]), id, revision, deletedAt: timestamp,
 }).strict();
 const WorkspaceSchema = z.object({
-  workspaceVersion: z.enum([WORKSPACE_DOCUMENT_VERSION, FIELD_WORKSPACE_DOCUMENT_VERSION, LAYOUT_WORKSPACE_DOCUMENT_VERSION, SURVEY_WORKSPACE_DOCUMENT_VERSION]), revision,
+  workspaceVersion: z.enum([WORKSPACE_DOCUMENT_VERSION, FIELD_WORKSPACE_DOCUMENT_VERSION, LAYOUT_WORKSPACE_DOCUMENT_VERSION, SURVEY_WORKSPACE_DOCUMENT_VERSION, PRODUCTION_WORKSPACE_DOCUMENT_VERSION]), revision,
   catalog: z.object({
     clients: z.array(ClientSchema), projects: z.array(ProjectSchema), fieldMaps: z.array(FieldMapSchema), designs: z.array(DesignSchema),
   }).strict(),
@@ -61,6 +65,11 @@ const WorkspaceSchema = z.object({
   layoutSessions: z.array(z.object({ id, document: z.string() }).strict()).optional(),
   originalPreviousWorkspaceDocument: z.string().optional(),
   originalSurveyUpgradeDocument: z.string().optional(),
+  originalWorkflowUpgradeDocument: z.string().optional(),
+  workItems: z.array(WorkflowWorkItemSchema).optional(),
+  surveyReviews: z.array(z.object({ id, document: z.string() }).strict()).optional(),
+  workflowConversions: z.array(WorkflowConversionSchema).optional(),
+  workflowBundleArchives: z.array(z.object({ designId: id, document: z.string().min(1) }).strict()).optional(),
   surveyCollections: z.array(z.object({ id, document: z.string() }).strict()).optional(),
   surveyOwnerArchives: z.array(z.object({ design: DesignSchema, document: z.string(), originalProjectDocument: z.string().optional() }).strict()).optional(),
 }).strict();
@@ -92,7 +101,7 @@ export function parseWorkspaceDocument(document: string): WorkspaceDocument {
   try {
     const value = parseStrictJson(document);
     if (value !== null && typeof value === "object" && "workspaceVersion" in value
-      && value.workspaceVersion !== WORKSPACE_DOCUMENT_VERSION && value.workspaceVersion !== FIELD_WORKSPACE_DOCUMENT_VERSION && value.workspaceVersion !== LAYOUT_WORKSPACE_DOCUMENT_VERSION && value.workspaceVersion !== SURVEY_WORKSPACE_DOCUMENT_VERSION) fail("unsupported_version", "Workspace version is unsupported; preserve the original data for recovery.");
+      && value.workspaceVersion !== WORKSPACE_DOCUMENT_VERSION && value.workspaceVersion !== FIELD_WORKSPACE_DOCUMENT_VERSION && value.workspaceVersion !== LAYOUT_WORKSPACE_DOCUMENT_VERSION && value.workspaceVersion !== SURVEY_WORKSPACE_DOCUMENT_VERSION && value.workspaceVersion !== PRODUCTION_WORKSPACE_DOCUMENT_VERSION) fail("unsupported_version", "Workspace version is unsupported; preserve the original data for recovery.");
     return validateWorkspaceDocument(value);
   } catch (error) {
     if (error instanceof WorkspaceDocumentError) throw error;
@@ -110,14 +119,30 @@ export function parseV1WorkspaceDocument(document: string): WorkspaceDocument {
 /** Frozen v1/v2 readers cannot silently discard Layout sessions. */
 export function parseV2WorkspaceDocument(document: string): WorkspaceDocument {
   const value = parseWorkspaceDocument(document);
-  if (value.workspaceVersion === LAYOUT_WORKSPACE_DOCUMENT_VERSION || value.workspaceVersion === SURVEY_WORKSPACE_DOCUMENT_VERSION) fail("unsupported_version", "Layout sessions require a v3-aware reader; preserve the original data.");
+  if (value.workspaceVersion === LAYOUT_WORKSPACE_DOCUMENT_VERSION || (value.workspaceVersion === SURVEY_WORKSPACE_DOCUMENT_VERSION || value.workspaceVersion === PRODUCTION_WORKSPACE_DOCUMENT_VERSION)) fail("unsupported_version", "Layout sessions require a v3-aware reader; preserve the original data.");
   return value;
 }
 
 export function parseV3WorkspaceDocument(document: string): WorkspaceDocument {
   const value = parseWorkspaceDocument(document);
-  if (value.workspaceVersion === SURVEY_WORKSPACE_DOCUMENT_VERSION) fail("unsupported_version", "Survey workspaces require a v4-aware reader; preserve the original data.");
+  if ((value.workspaceVersion === SURVEY_WORKSPACE_DOCUMENT_VERSION || value.workspaceVersion === PRODUCTION_WORKSPACE_DOCUMENT_VERSION)) fail("unsupported_version", "Survey workspaces require a v4-aware reader; preserve the original data.");
   return value;
+}
+export function parseV4WorkspaceDocument(document: string): WorkspaceDocument {
+  const value = parseWorkspaceDocument(document);
+  if (value.workspaceVersion === PRODUCTION_WORKSPACE_DOCUMENT_VERSION) fail("unsupported_version", "Workflow reviews require a v5 reader; preserve the exact source.");
+  return value;
+}
+export function upgradeWorkspaceDocumentToV5(originalDocument: string): WorkspaceDocument {
+  let previous = parseV4WorkspaceDocument(originalDocument);
+  const originalVersion = previous.workspaceVersion;
+  if (previous.workspaceVersion === WORKSPACE_DOCUMENT_VERSION || previous.workspaceVersion === FIELD_WORKSPACE_DOCUMENT_VERSION) previous = upgradeWorkspaceDocumentToV3(originalDocument);
+  if (previous.workspaceVersion === LAYOUT_WORKSPACE_DOCUMENT_VERSION) previous = upgradeWorkspaceDocumentToV4(originalVersion === LAYOUT_WORKSPACE_DOCUMENT_VERSION ? originalDocument : serializeWorkspaceDocument(previous));
+  if (previous.workspaceVersion !== SURVEY_WORKSPACE_DOCUMENT_VERSION) fail("unsupported_version", "Workflow storage requires a supported previous workspace.");
+  const exactV4 = originalVersion === SURVEY_WORKSPACE_DOCUMENT_VERSION ? originalDocument : serializeWorkspaceDocument(previous);
+  return validateWorkspaceDocument({ ...previous, workspaceVersion: PRODUCTION_WORKSPACE_DOCUMENT_VERSION,
+    revision: increment(previous.revision), originalWorkflowUpgradeDocument: exactV4,
+    workItems: [], surveyReviews: [], workflowConversions: [], workflowBundleArchives: [] });
 }
 export function upgradeWorkspaceDocumentToV4(originalDocument: string): WorkspaceDocument {
   const previous = parseV3WorkspaceDocument(originalDocument);
@@ -150,10 +175,10 @@ export function validateWorkspaceDocument(input: unknown): WorkspaceDocument {
     rejectPrototypeMetadata(input);
     const workspace = WorkspaceSchema.parse(input);
     const { catalog } = workspace;
-    if (workspace.workspaceVersion !== LAYOUT_WORKSPACE_DOCUMENT_VERSION && workspace.workspaceVersion !== SURVEY_WORKSPACE_DOCUMENT_VERSION && (workspace.layoutSessions !== undefined || workspace.originalPreviousWorkspaceDocument !== undefined)) {
+    if (workspace.workspaceVersion !== LAYOUT_WORKSPACE_DOCUMENT_VERSION && workspace.workspaceVersion !== SURVEY_WORKSPACE_DOCUMENT_VERSION && workspace.workspaceVersion !== PRODUCTION_WORKSPACE_DOCUMENT_VERSION && (workspace.layoutSessions !== undefined || workspace.originalPreviousWorkspaceDocument !== undefined)) {
       fail("unsupported_version", "Layout sessions require an explicit workspace v3 upgrade.");
     }
-    if (workspace.workspaceVersion === LAYOUT_WORKSPACE_DOCUMENT_VERSION || workspace.workspaceVersion === SURVEY_WORKSPACE_DOCUMENT_VERSION) {
+    if (workspace.workspaceVersion === LAYOUT_WORKSPACE_DOCUMENT_VERSION || workspace.workspaceVersion === SURVEY_WORKSPACE_DOCUMENT_VERSION || workspace.workspaceVersion === PRODUCTION_WORKSPACE_DOCUMENT_VERSION) {
       if (workspace.layoutSessions === undefined || workspace.originalPreviousWorkspaceDocument === undefined || workspace.fieldDocuments === undefined) fail("invalid_document", "Workspace v3 requires the exact previous workspace and session collection.");
       const raw = parseStrictJson(workspace.originalPreviousWorkspaceDocument);
       if (!raw || typeof raw !== "object" || !("workspaceVersion" in raw) || ![WORKSPACE_DOCUMENT_VERSION, FIELD_WORKSPACE_DOCUMENT_VERSION].includes(raw.workspaceVersion as string)) fail("invalid_document", "Layout upgrade source must be a v1 or v2 workspace.");
@@ -177,13 +202,41 @@ export function validateWorkspaceDocument(input: unknown): WorkspaceDocument {
       const original = validateWorkspaceDocument(source);
       if (original.revision >= workspace.revision) fail("invalid_document", "Workspace v2 must advance the retained v1 revision.");
     }
-    if (workspace.workspaceVersion !== SURVEY_WORKSPACE_DOCUMENT_VERSION && (workspace.surveyCollections !== undefined || workspace.surveyOwnerArchives !== undefined || workspace.originalSurveyUpgradeDocument !== undefined)) fail("unsupported_version", "Survey state requires an explicit workspace v4 upgrade.");
-    if (workspace.workspaceVersion === SURVEY_WORKSPACE_DOCUMENT_VERSION) {
+    if (workspace.workspaceVersion !== SURVEY_WORKSPACE_DOCUMENT_VERSION && workspace.workspaceVersion !== PRODUCTION_WORKSPACE_DOCUMENT_VERSION && (workspace.surveyCollections !== undefined || workspace.surveyOwnerArchives !== undefined || workspace.originalSurveyUpgradeDocument !== undefined)) fail("unsupported_version", "Survey state requires an explicit workspace v4 upgrade.");
+    if (workspace.workspaceVersion === SURVEY_WORKSPACE_DOCUMENT_VERSION || workspace.workspaceVersion === PRODUCTION_WORKSPACE_DOCUMENT_VERSION) {
       if (!workspace.surveyCollections || !workspace.surveyOwnerArchives || !workspace.originalSurveyUpgradeDocument) fail("invalid_document", "Survey workspace requires collections, owner archives and exact v3 source.");
       const raw = parseStrictJson(workspace.originalSurveyUpgradeDocument);
       if (!raw || typeof raw !== "object" || !("workspaceVersion" in raw) || raw.workspaceVersion !== LAYOUT_WORKSPACE_DOCUMENT_VERSION) fail("invalid_document", "Survey upgrade source must be a v3 workspace.");
       const previous = validateWorkspaceDocument(raw);
       if (previous.revision >= workspace.revision || previous.originalPreviousWorkspaceDocument !== workspace.originalPreviousWorkspaceDocument || previous.originalV1Document !== workspace.originalV1Document) fail("invalid_document", "Survey upgrade must advance revision and preserve earlier exact upgrade sources.");
+    }
+    if (workspace.workspaceVersion !== PRODUCTION_WORKSPACE_DOCUMENT_VERSION) {
+      if (catalog.projects.some(item => item.projectCrs === null) || workspace.originalWorkflowUpgradeDocument !== undefined
+        || workspace.workItems !== undefined || workspace.surveyReviews !== undefined || workspace.workflowConversions !== undefined || workspace.workflowBundleArchives !== undefined) fail("unsupported_version", "Unspecified coordinates and workflow review records require workspace v5.");
+    } else {
+      if (!workspace.originalWorkflowUpgradeDocument || !workspace.workItems || !workspace.surveyReviews || !workspace.workflowConversions || !workspace.workflowBundleArchives) fail("invalid_document", "Workflow workspace requires its exact v4 source and complete workflow records.");
+      const prior = parseV4WorkspaceDocument(workspace.originalWorkflowUpgradeDocument);
+      if (prior.workspaceVersion !== SURVEY_WORKSPACE_DOCUMENT_VERSION || prior.revision >= workspace.revision
+        || prior.originalSurveyUpgradeDocument !== workspace.originalSurveyUpgradeDocument
+        || prior.originalPreviousWorkspaceDocument !== workspace.originalPreviousWorkspaceDocument || prior.originalV1Document !== workspace.originalV1Document) fail("invalid_document", "Workflow upgrade must preserve exact previous source documents.");
+      const workIds = new Set<string>();
+      for (const work of workspace.workItems) {
+        if (workIds.has(work.designId) || !catalog.designs.some(item => item.id === work.designId) && !workspace.surveyOwnerArchives?.some(item => item.design.id === work.designId) && !workspace.tombstones.some(item => item.entity === "design" && item.id === work.designId)) fail("invalid_document", "Work item must retain one actual managed design identity.");
+        workIds.add(work.designId);
+      }
+      unique(workspace.surveyReviews, "Survey review");
+      for (const entry of workspace.surveyReviews) {
+        const review = parseSurveyReview(entry.document);
+        if (entry.id !== review.id) fail("identity_mismatch", "Survey review identity differs from its document.");
+        const source = workspaceDesignSource(workspace, review.owner.designId);
+        if (source.kind !== review.owner.documentKind || source.payloadId !== review.owner.payloadId || source.design.fieldMapId !== review.owner.fieldMapId) fail("identity_mismatch", "Survey review must retain its actual managed or archived owner.");
+      }
+      unique(workspace.workflowConversions, "Workflow conversion");
+      for (const entry of workspace.workflowConversions) validateWorkflowConversion(entry);
+      for (const entry of workspace.workflowBundleArchives) {
+        parseDesignWorkspaceBundle(entry.document);
+        if (!catalog.designs.some(item => item.id === entry.designId) && !workspace.surveyOwnerArchives?.some(item => item.design.id === entry.designId) && !workspace.tombstones.some(item => item.entity === "design" && item.id === entry.designId)) fail("identity_mismatch", "Imported workflow source requires its actual current or historical owner.");
+      }
     }
     const clients = unique(catalog.clients, "client");
     const projects = unique(catalog.projects, "project");
@@ -229,6 +282,8 @@ export function validateWorkspaceDocument(input: unknown): WorkspaceDocument {
     unique(workspace.layoutSessions ?? [], "Layout session");
     for (const entry of workspace.layoutSessions ?? []) {
       const session = parseLayoutSessionDocument(entry.document);
+      if (session.documentVersion === "layout-session-v3" && workspace.workspaceVersion !== PRODUCTION_WORKSPACE_DOCUMENT_VERSION)
+        fail("unsupported_version", "Use the production workflow reader for RTK Layout maps; earlier workspace editions remain unchanged.");
       if (session.id !== entry.id) fail("identity_mismatch", "Layout session identity differs from its document.");
       requireReference(maps, session.fieldMapId, "Layout session field");
     }
@@ -456,11 +511,63 @@ function requireReference(items: Map<string, unknown>, key: string, label: strin
 }
 
 /** Operational observation identities are immutable across documents, copies, and standalone saves. */
+export function assertRetainedLayoutHistory(previous: WorkspaceDocument, next: WorkspaceDocument): void {
+  const current = new Map((next.layoutSessions ?? []).map(entry => [entry.id, entry]));
+  for (const entry of previous.layoutSessions ?? []) {
+    const retained = current.get(entry.id); if (!retained) fail("conflict", "Retain recorded Layout history; archive it instead of deleting it.");
+    const a = parseLayoutSessionDocument(entry.document), b = parseLayoutSessionDocument(retained!.document);
+    if (a.documentVersion !== b.documentVersion || a.targetDocument !== b.targetDocument || a.targetHash !== b.targetHash || a.fieldMapId !== b.fieldMapId || a.createdAt !== b.createdAt)
+      fail("conflict", "A retained Layout cannot change its version, frozen target, field or creation history.");
+    if (a.documentVersion === "layout-session-v3" && b.documentVersion === "layout-session-v3") {
+      if (projectDataKey(a.creationLock) !== projectDataKey(b.creationLock) || a.referenceSourceDocument !== b.referenceSourceDocument
+        || a.finalization !== null && projectDataKey({ value: a.finalization }) !== projectDataKey({ value: b.finalization }))
+        fail("conflict", "Retain the exact RTK creation lock, original reference source and official finalization receipt.");
+      if ((a.finalization !== null || a.referenceSourceDocument !== undefined) && projectDataKey(a.observations) !== projectDataKey(b.observations))
+        fail("conflict", "Finalized and reference station observations are retained history.");
+      if (b.observations.length < a.observations.length || a.observations.some((observation, index) => projectDataKey(observation) !== projectDataKey(b.observations[index])))
+        fail("conflict", "Recorded RTK station history is append-only, including its actor, target, tolerance, label and capture time.");
+    } else if (projectDataKey(a.observations) !== projectDataKey(b.observations)) fail("conflict", "Historical Layout observations are read-only; start a current RTK Layout for new stations.");
+  }
+  // Protect known ancestry across every transactional port while continuing to
+  // read older already-orphaned archives without fabricated replacement parents.
+  const fields = new Set([...(previous.surveyCollections ?? []).map(entry => parseSurveyCollectionDocument(entry.document).owner.fieldMapId),
+    ...(previous.surveyOwnerArchives ?? []).map(entry => entry.design.fieldMapId)]);
+  for (const fieldId of fields) {
+    const field = previous.catalog.fieldMaps.find(item => item.id === fieldId); if (!field) continue;
+    if (!next.catalog.fieldMaps.some(item => item.id === fieldId && item.projectId === field.projectId)) fail("conflict", "Retained field surveys require their original field and project context.");
+    const project = previous.catalog.projects.find(item => item.id === field.projectId); if (!project) continue;
+    if (!next.catalog.projects.some(item => item.id === project.id)) fail("conflict", "Retained field surveys require their project folder.");
+    const customer = previous.catalog.clients.find(item => item.id === project.clientId);
+    if (customer && !next.catalog.clients.some(item => item.id === customer.id)) fail("conflict", "Retained field surveys require their customer folder.");
+  }
+}
+export function layoutTransitionsRequiringLiveOwner(previous: WorkspaceDocument, next: WorkspaceDocument) {
+  const before = new Map((previous.layoutSessions ?? []).map(entry => [entry.id, parseLayoutSessionDocument(entry.document)]));
+  return (next.layoutSessions ?? []).flatMap(entry => {
+    const session = parseLayoutSessionDocument(entry.document); if (session.documentVersion !== "layout-session-v3" || session.referenceSourceDocument !== undefined) return [];
+    const prior = before.get(entry.id);
+    const changed = !prior || prior.documentVersion !== "layout-session-v3" || prior.finalization === null && session.finalization !== null
+      || projectDataKey(prior.observations) !== projectDataKey(session.observations);
+    return changed ? [{ session, isNew: prior === undefined }] : [];
+  });
+}
+export function layoutTransitionRequiresLiveOwner(previous: WorkspaceDocument, next: WorkspaceDocument): boolean {
+  return layoutTransitionsRequiringLiveOwner(previous, next).length > 0;
+}
 export function workspaceOperationalObservations(workspace: WorkspaceDocument): Map<string, string> {
   const result = new Map<string, string>();
   for (const entry of [...workspace.projectDocuments, ...workspace.draftDocuments, ...(workspace.fieldDocuments ?? []), ...(workspace.layoutSessions ?? []), ...(workspace.surveyCollections ?? []), ...(workspace.surveyOwnerArchives ?? [])]) {
     operationalObservationPayloads(parseStrictJson(entry.document), result);
   }
+  for (const entry of workspace.layoutSessions ?? []) operationalObservationPayloads(parseFieldLayoutTarget(parseLayoutSessionDocument(entry.document).targetDocument).field, result);
+  const reviewDocuments = [...(workspace.surveyReviews ?? []).map(entry => entry.document), ...(workspace.workflowConversions ?? []).flatMap(entry => entry.sourceReviews)];
+  for (const document of reviewDocuments) {
+    const review = parseSurveyReview(document);
+    for (const source of [review.sourceDocument, ...review.collections.map(entry => entry.document)]) operationalObservationPayloads(parseStrictJson(source), result);
+  }
+  for (const conversion of workspace.workflowConversions ?? []) for (const source of [conversion.source.document, conversion.destination.document,
+    ...conversion.collectionMappings.flatMap(entry => [entry.sourceDocument, entry.destinationDocument])]) operationalObservationPayloads(parseStrictJson(source), result);
+  for (const entry of workspace.workflowBundleArchives ?? []) designBundleOperationalObservationPayloads(parseDesignWorkspaceBundle(entry.document), result);
   return result;
 }
 export function assertRetainedOperationalEvidence(previous: WorkspaceDocument, next: WorkspaceDocument): void {
@@ -553,5 +660,19 @@ export function assertRetainedSurveyHistory(previous: WorkspaceDocument, next: W
   for (const old of previous.surveyOwnerArchives ?? []) {
     const retained = next.surveyOwnerArchives?.find(item => item.design.id === old.design.id);
     if (!retained || projectDataKey(old) !== projectDataKey(retained)) fail("conflict", "Archived Survey source provenance cannot be removed or rewritten.");
+  }
+}
+
+export function assertRetainedWorkflowHistory(previous: WorkspaceDocument, next: WorkspaceDocument): void {
+  for (const old of previous.surveyReviews ?? []) {
+    const retained = next.surveyReviews?.find(entry => entry.id === old.id);
+    if (!retained || retained.document !== old.document) fail("conflict", "Survey review snapshots cannot be removed or rewritten.");
+  }
+  for (const old of previous.workflowBundleArchives ?? []) {
+    if (!next.workflowBundleArchives?.some(entry => entry.designId === old.designId && entry.document === old.document)) fail("conflict", "Imported workflow package source cannot be removed or rewritten.");
+  }
+  for (const old of previous.workflowConversions ?? []) {
+    const retained = next.workflowConversions?.find(entry => entry.id === old.id);
+    if (!retained || projectDataKey(retained) !== projectDataKey(old)) fail("conflict", "Conversion lineage cannot be removed or rewritten.");
   }
 }

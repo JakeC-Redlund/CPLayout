@@ -1,0 +1,60 @@
+# Production workflow improvement master delivery plan
+
+The master behavior contract is [the unified workspace refocus](unified-workspace-refocus-2026-10-10.md). The only current execution/status authority is [workflow-registry.json](workflow-registry.json), with its generated [current status](development-status.md). This delivery plan organizes the existing work into cohesive phases; it creates no parallel completion tracker.
+
+The operator journey is Sign in → Customer → Project → Field. Each field organizes its actual machine designs, map designs and field Surveys; an official precision Layout map belongs under the matching saved Survey. These are logical folders over the retained database identities and links, not a physical filesystem move or a new set of copied design entities. Home begins with customers, including customers with no projects. Selecting a folder browses its contents; explicit Open changes the working context after unfinished work is preserved.
+
+New projects start in Design and may proceed directly to Survey. Design is optional, manually drawn and needs no receiver. Live Survey collection, official Layout creation and Layout marking require fresh owned RTK Fixed admission and a matched coordinate reference. Stored maps may be viewed or exported offline within the operator's authorization. Planned geometry remains planned geometry; a Fixed label does not make a manual point measured or establish physical field accuracy.
+
+The current user clarification extends the original objective. Earlier accepted subsets are foundation evidence for their exact editions, not acceptance of the customer-first hierarchy or source-specific official maps. The registry records implementation, current proof and publication separately.
+
+## Phases and module contracts
+
+| Phase | Modules and acceptance |
+| --- | --- |
+| P0 | Preserve baseline, preference source, frozen readers, failed proof and held modeling packet; one registry, exact historical archive and explicit retirement manifest. |
+| P1 | Authenticated customer-first Home and logical Customer → Project → Field navigation. Use an actual authorized catalog snapshot, including empty customers; preserve local cache/recovery, authorization, archive state and revision conflicts. |
+| P2 | Field machine/map design categories, optional manual Design, durable Survey and source-specific official Layout maps. Retain ancestors referenced by saved Survey evidence; admit official creation and live actions only through fresh owned RTK Fixed checks. |
+| P3 | Operator wording, accurate guidance, responsive controls and accessible navigation. Explain actual actions and errors in business language; keep diagnostics in explicit support paths. |
+| P4 | Exact installed mitigation proof, daily dependency reports/weekly grouped update PRs, truthful skill capability inventory and separately qualified hook events. |
+| P5 | Freeze the clarified hierarchy, guards, source census and fixtures; complete current source/browser/accessibility/failure verification and two independent whole-workflow reviews; publish with matching protected CI and actual OIDs. |
+
+The registry assigns requirement IDs, owners, dependencies, source paths and explicit acceptance. Existing recovery/import/management/GNSS/field contracts remain module references. Integrate proven foundations rather than restart historical implementation cycles. Optional generated splash art and Resolve animation are a later polish lane and cannot substitute for a working operator journey.
+
+## Hierarchy and preservation modules
+
+| Module | Required behavior and decisive checks |
+| --- | --- |
+| Customer entry | Use the actual authorized customer snapshot under the workspace row lock, including zero-project customers, archive inheritance, revision and actual principal/policy identity. Validate the captured account/policy before publication, preserving work on mismatch. Never derive the entire customer list from projects. Test duplicate names, empty customers, archived descendants and permitted read-only browsing; keep the old project endpoint compatible. |
+| Project and Field navigation | Resolve actual customer/project/field links and retain them through Open, copy, import, save, recovery and mode changes. Labels and logical folder placement cannot change stored IDs or raw documents. |
+| Field content | Machine designs address the actual saved document and machine ID; map designs address the actual saved document/content. These categories do not invent document kinds, duplicate equipment or convert manual geometry into measurements. |
+| Survey and official maps | Anchor each field Survey in its actual saved review and included collections. Start/mark/finalize RTK Layout through current owned Fixed admission. Official finalization requires the latest recorded station within entered positive tolerance for every immutable target; measured stations remain separate from planned targets. Wrong-source, stale revision, stale/non-Fixed receiver and changed-owner cases refuse without losing work. |
+| Official-map exchange | Refuse any V3 map in whole-workspace/raw import without original service/workspace/account proof. Keep original GET/view/export and dedicated same-original-field reference import; retain exact target/review IDs and original raw source, clear official finalization, and refuse cross-field import. Shared writers must reject V3→V2 or removal/rewrite of creation/finalization/reference metadata. |
+| Retained ancestry | Block future ancestor deletion when retained active or archived Survey evidence references that field. Previously orphaned history remains readable/exportable with parent unavailable; never fabricate a folder or rewrite an old schema to hide the missing parent. |
+| Current proof | Inventory all canonical implementation, fixture, patch, context-selected documentation and validation inputs. Recheck the new hierarchy and RTK contracts in the served App, then obtain two complete independent reviews of the matching edition. |
+
+Field-content classification uses only the revision-matched whole-workspace snapshot; it cannot fall back to a guessed association. The actual field content projection retains saved document/machine addresses, empty Drafts, exact review/target associations, unreviewed collections and separate legacy/reference maps. Catalog loading, error and Retry states remain truthful. Retained missing-parent Survey history provides read-only source viewing and original-source ZIP export. Generic Web operations require current source/Survey and the final live predicate; the current SQLite workspace adapter is V1-only and refuses newer workflow versions.
+
+Independent source counterprobes identified ancestor deletion and official-map import/history preservation defects. Their exact provenance, remediation checks and remaining acceptance live in the registry. Source guard checks alone cannot establish current served-App behavior. Retain each original finding and limited closure rather than keeping a second status queue here.
+
+## Decisions and coordination
+
+The user delegates decisions to independent source-backed review without further questionnaires. Compare material alternatives on compatibility .30, preservation .25, context efficiency .20, reproducible proof .15 and maintainability .10; use 1–5 scores, record the rationale and disagreements, and veto lost data, false capability or violated user intent. Scores express judgments, not probabilities. One coordinator serializes integration, Git, aggregate/export/browser and resource custody; workers receive disjoint write ownership and return source-bound evidence.
+
+The selected governance consolidation scores 4.75 (5/5/5/4/4), parallel handwritten master/trackers 2.95 (3/4/2/3/2), unchanged 3.20 (4/4/2/2/3), replacement framework/wholesale archival 1.90 (2/1/2/3/2; preservation veto). These are the independent governance review's comparisons; do not invent additional votes.
+
+For the clarified hierarchy, the coordinator and independent reviewer selected the existing v5 logical tree with retained ancestors and explicit RTK qualification: 4.85 (5/5/5/4/5), versus record/schema replacement 3.25 (3/4/3/3/3). Flat presentation scores 3.65 but is vetoed by the user's hierarchy requirement. The workflow reviewer separately selected an actual typed customer snapshot and customer-first Home at 4.85 over a flat project-derived customer view at 3.25; the latter cannot represent customers with no projects. These are delivered judgments, not measured outcomes or invented vote counts. API and UI implementation proof is recorded separately.
+
+The intermediate official-map review selected refusal of any V3 bulk/raw import at 4.75 (5/5/5/4/4), over a future versioned owner-bound restore at 3.65 (3/5/3/4/3). Destructive qualification rewriting scores 2.80 (4/1/3/3/3) with a preservation veto; unchanged raw import scores 3.80 (4/5/4/1/4) with a false-official-status veto. Preserve original files and existing official reads/exports, with dedicated same-field reference import. Scores are delivered judgments; current implementation and proof are tracked only in the registry.
+
+## Evidence, release and maintenance
+
+Checkpoint publication, source checks, browser cases, native/device behavior, measured field accuracy, hook discovery/execution and human acceptance remain separate. The baseline main checkpoint passed protected CI and 225 selected App cases. The later R7 edition passed all 264 selected browser executions; R8 added a literal-only wording requalification and actual PostgreSQL/visible Edge scene proof. The corresponding complete source aggregate was R4; bounded later requalifications are not fresh aggregate runs. These are historical foundations after the new intent. Current deferred obligations, reviews and acceptance are recorded in the registry.
+
+The [first initial review](evidence/production-workflow-review-20261011/initial-review.json), [second initial review](evidence/production-workflow-review-20261011/second-initial-review.json), inventory-drift, failed and interrupted browser packets remain unchanged. Their delivered alternatives, scores, defects and limited closures stay in the registry. Only complete independent reviews against the current matching packet can satisfy the final-review gate.
+
+Previous 902-path censuses omitted 13 mandatory patch inputs and 28 root fixtures plus 12 actual context/validator documentation inputs. The intermediate 915-path census fixed patches but still omitted those 40 inputs. Keep those snapshots as actual incomplete scopes. The corrected census directly found 955 paths and passed 23 tracker tests before the clarified UI changes; that tool proof does not show that all 955 inputs or the new interface were tested. Compute the next complete census from the final source rather than relabeling an earlier manifest.
+
+Direct Draft→Field Survey preparation is a retained foundation: no mandatory planning Project completion or invented water/power coordinates. Qualify the actual customer snapshot, logical hierarchy, ancestry guards and official-map RTK/provenance contract through their assigned modules. Regenerate discovery, routing context and the complete source census after all indexed changes freeze; then verify the matching App and obtain both final independent reviews. Use the registry for current module status.
+
+Update a requirement only from exact source/results, retain failures and supersession links, then regenerate current status. Regenerate context-map outputs only after indexed source freezes. Dependency configuration is source-implemented until hosted scheduling/PRs are observed. Historical canonical preflight found seven unpatched mitigation targets despite passing fixture tests; the repaired isolated install and its later checks are separate editions. No inspected source/evidence file qualifies for deletion. Use the [maintenance guide](workflow-maintenance-guide.md) and [retirement manifest](workflow-retirement-manifest.json).

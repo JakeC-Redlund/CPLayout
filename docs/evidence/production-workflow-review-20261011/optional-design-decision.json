@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "status": "authorized_implementation_in_progress",
+  "receiptSource": "Coordinator-delivered independent decision, with source confirmation supplied by /root/mapping_gps_review. Independent reviewer identity and individual criterion vectors were not supplied.",
+  "options": [
+    {
+      "id": "A",
+      "description": "Reuse Draft\u2192Project completion\u2192Field conversion.",
+      "score": 4.3,
+      "veto": "user_intent",
+      "reason": "Requires Design input/review/completion and a Project schema requiring waterSource/powerSource XY plus planning eligibility, despite those infrastructure locations being optional for Field and unnecessary for stakes."
+    },
+    {
+      "id": "B",
+      "description": "Prepare a Field directly from the saved Draft in Survey using the existing Field schema.",
+      "score": 3.9,
+      "selected": true,
+      "conditions": [
+        "No guessed geometry or equipment configuration",
+        "No target/schema redesign",
+        "Preserve exact Draft/Field source and complete Survey collection lineage",
+        "Fresh explicit destination review",
+        "Empty machines/infrastructure are valid; partially supplied equipment must satisfy full existing configuration and actual pose rather than be silently discarded"
+      ]
+    }
+  ],
+  "boundary": "Scores are supplied reviewer judgments; the intent veto governs selection. Authorization is not implementation or runtime qualification.",
+  "sourceAnchors": [
+    "packages/core/src/projectDocument.ts",
+    "packages/core/src/fieldDesignDocument.ts",
+    "packages/core/src/designDraft.ts"
+  ],
+  "sourceConfirmation": "Directly inspected Project requires waterSource/powerSource XY and Draft completion/calculation admission; Field declares optional infrastructure references.",
+  "qualification": "Focused source/tests awaited from mapping owner; guide/skill behavior instructions will update only after verified implementation."
+}

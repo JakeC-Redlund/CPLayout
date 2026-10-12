@@ -2,7 +2,7 @@
   "name": "cplayout",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "npm@11.17.0",
+  "packageManager": "npm@11.19.0",
   "engines": {
     "node": ">=20.19.4 <25",
     "npm": ">=10 <12"
@@ -37,13 +37,13 @@
     "verify:native-maplibre": "tsx tools/nativeMapLibreProof.ts",
     "review:android-app": "tsx tools/androidAppReview.ts",
     "typecheck": "tsc -p tsconfig.tools.json && npm run typecheck --workspaces --if-present",
-    "test": "tsx tools/browserProofRegistry.test.ts && tsx tools/inspectReceiverLog.test.ts && tsx tools/referenceOverlayBuilder.test.ts && tsx tools/pngMetrics.test.ts && tsx tools/androidResources.test.ts && tsx tools/androidFileUiEvidence.test.ts && tsx tools/devServerManager.test.ts && tsx tools/webBuildLease.test.ts && tsx tools/serveStaticWeb.test.ts && tsx tools/receiverCompanion.test.ts && tsx tools/prepareMapLibreAssets.test.ts && tsx tools/metroDependency.test.ts && tsx tools/windowsLauncherScripts.test.ts && tsx tools/generateRealPivotFixtureManifest.test.ts && tsx tools/generateClientKmzAdvisoryReport.test.ts && tsx tools/verifyImageryEvidencePacket.test.ts && tsx tools/roadmapCompletion.test.ts && tsx tools/androidAppReview.test.ts && tsx tools/cornerGpsFltInventory.test.ts && tsx tools/inspectFltLayoutReview.test.ts && npm run test --workspaces --if-present",
+    "test": "tsx tools/browserProofRegistry.test.ts && tsx tools/inspectReceiverLog.test.ts && tsx tools/referenceOverlayBuilder.test.ts && tsx tools/pngMetrics.test.ts && tsx tools/androidResources.test.ts && tsx tools/androidFileUiEvidence.test.ts && tsx tools/devServerManager.test.ts && tsx tools/webBuildLease.test.ts && tsx tools/serveStaticWeb.test.ts && tsx --test tools/serveProductionApp.test.ts tools/syntheticProofIdentity.test.ts && tsx tools/receiverCompanion.test.ts && tsx tools/prepareMapLibreAssets.test.ts && tsx tools/metroDependency.test.ts && tsx tools/windowsLauncherScripts.test.ts && tsx tools/generateRealPivotFixtureManifest.test.ts && tsx tools/generateClientKmzAdvisoryReport.test.ts && tsx tools/verifyImageryEvidencePacket.test.ts && tsx tools/roadmapCompletion.test.ts && tsx tools/androidAppReview.test.ts && tsx tools/cornerGpsFltInventory.test.ts && tsx tools/inspectFltLayoutReview.test.ts && npm run test --workspaces --if-present",
     "context-map:build": "python3 tools/build_cplayout_context_map.py --write",
     "context-map:check": "python3 tools/build_cplayout_context_map.py --check",
     "validate:corner-service-manuals": "python3 tools/validate_corner_service_manuals.py",
     "validate:design-guides": "python3 tools/validate_design_guides.py",
     "validate:skills": "python3 tools/validate_cplayout_skills.py",
-    "validate": "npm run typecheck && npm run test:sqlite-ownership && npm run test:dependency-security && npm test",
+    "validate": "npm run typecheck && npm run test:sqlite-ownership && npm run test:dependency-security && npm run test:workflow-status && npm test",
     "audit:moderate": "npm audit --audit-level=moderate",
     "check:android-tools": "tsx tools/check_android_tools.ts",
     "gnss:inspect": "tsx tools/inspectReceiverLog.ts",
@@ -60,13 +60,21 @@
     "patch:dependency-security": "node tools/patchDependencySecurity.cjs",
     "test:dependency-security": "node --test tools/patchDependencySecurity.test.cjs tools/dependencyAudit.test.cjs",
     "audit:verified": "node tools/dependencyAudit.cjs",
-    "proof:inventory": "tsx tools/buildBrowserProofInventory.ts"
+    "proof:inventory": "tsx tools/buildBrowserProofInventory.ts",
+    "workflow:status": "node tools/workflowStatus.cjs --write",
+    "workflow:check": "node tools/workflowStatus.cjs --check",
+    "test:workflow-status": "node --test tools/workflowStatus.test.cjs",
+    "start:service": "tsx tools/serveProductionApp.ts",
+    "test:service-smoke": "tsx --test tools/productionServiceSmoke.test.ts"
   },
   "devDependencies": {
-    "@playwright/test": "^1.60.0",
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.64.0",
     "@types/node": "^24.13.3",
+    "expo": "57.0.28",
+    "react-native": "0.86.3",
     "tsx": "4.22.4",
-    "typescript": "~5.9.2",
+    "typescript": "~6.0.3",
     "yaml": "2.9.0"
   },
   "overrides": {

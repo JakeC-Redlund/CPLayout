@@ -1,0 +1,23 @@
+{
+  "name": "@cplayout/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/start.ts",
+    "migrate": "tsx src/migrate.ts",
+    "bootstrap": "tsx src/bootstrap.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "tsx --test src/*.test.ts"
+  },
+  "dependencies": {
+    "@cplayout/auth-client": "*",
+    "@cplayout/core": "*",
+    "@cplayout/project-store": "*",
+    "@noble/curves": "2.4.0",
+    "argon2": "0.45.1",
+    "fastify": "5.12.5",
+    "pg": "8.23.1"
+  },
+  "devDependencies": { "@types/pg": "8.23.1" }
+}

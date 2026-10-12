@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "command": "PATH=<selected Node24.21 toolchain> node node_modules/tsx/dist/cli.mjs tools/browserProofRegistry.test.ts",
+  "result": "fail",
+  "passed": 7,
+  "failed": 4,
+  "total": 11,
+  "diagnostic": "Browser proof inventory classification/hash drift: tests/web/production-auth-workflow.spec.ts",
+  "observedSpecSha256": "21386a447daad56444975c7d3dc3e98ee265c76beb05d1823e5a89cfb5e07265",
+  "recordedInventorySpecSha256": "f960017164db0aeb7996eff94f5c63ae33040fcbe71f98f824c10169277676e8",
+  "observedInventorySha256": "95034756cc02fb553c2834f8fbaaebf46869714cf1a3675652a3bea5f789da89",
+  "previousCoordinatorReportedResult": "11/11 passed before the deliberate spec extension.",
+  "inventoryDeclaredCountsAtEarlierRead": {
+    "files": 32,
+    "uniqueCases": 404,
+    "currentExecutions": 252,
+    "deferredExecutions": 960,
+    "allExecutions": 1212
+  },
+  "sourceIdentityPartial": true,
+  "boundary": "Direct intermediate source-only failure during continued editing. The full source edition was not frozen. It neither rejects a later regenerated edition nor proves runtime acceptance.",
+  "coordinatorDisposition": "Backend deliberately extended the existing Design scenario with UTM13, manual boundary classification, Save/Sync and exact polygon reload. Nine scenario titles remain. Coordinator will regenerate complete discovery/inventory and rerun after source freeze; no inventory write was performed by this agent."
+}

@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "claimClass": "source",
+  "result": "partial_bounded_checks_complete_browser_pending",
+  "priorSource": {
+    "manifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r10.json",
+    "paths": 961,
+    "fingerprint": "b76c1c2a5b5d10eeb245d0c5e116ca1bda3c6a719e4767163e1edc8ab68d03d2"
+  },
+  "currentSource": {
+    "manifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r11.json",
+    "paths": 961,
+    "fingerprint": "6a51db4cb57a87506ccc7cc8f94db98114f5b7d50b8ffae6bec289c0c4616dd0"
+  },
+  "changedPaths": [
+    {
+      "path": "tests/web/browser-proof-inventory.json",
+      "beforeSha256": "865f48606a884c28e310e6af3b7bbc2529fcff54021745943a72b808cb1af9b8",
+      "afterSha256": "e0e01b1d8e57d09d11ee748e1cdab0787dfad9316f3aa0aad1398c43f8f9dd42"
+    },
+    {
+      "path": "tests/web/unified-workspace.spec.ts",
+      "beforeSha256": "6cc9b04cd48f407b682353886dfa3a4bd66d27aea2a501ff221131209b26344f",
+      "afterSha256": "b6137eef0eba766e9e46dea0adaa83e0f8239cfd6605f79dea134eaca0da7f06"
+    }
+  ],
+  "byteIdenticalPaths": 959,
+  "currentSourceBytesVerified": true,
+  "currentDrift": [],
+  "criteriaUnchanged": true,
+  "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+  "retainedAggregate": "docs/evidence/production-workflow-review-20261011/source-hierarchy-r10-pass.json",
+  "sourceAggregateLog": {
+    "sha256": "a5d2ffbac666e0dfd9a8b72e87c28b9383c3500f692a98b3de151bef3f76460c",
+    "bytes": 304881,
+    "hashVerified": true,
+    "exitCode": 0,
+    "boundary": "ActualcompleteR10npmvalidate, not newlyexecutedR11aggregate; no reportednonzerofail/skip."
+  },
+  "actualAffectedChecks": {
+    "browserRegistry": {
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "provenance": "Coordinator completedsourcecheck receipt."
+    },
+    "contextCheck": {
+      "exitCode": 0,
+      "provenance": "Coordinator completedcheck receipt."
+    },
+    "discoveryAccounting": "Actualregeneratedinventory33files409unique267current960deferred1227total; counts/sourcefingerprint directlyread."
+  },
+  "didNotRerun": [
+    "FreshfullR11npmvalidate",
+    "CompletedR11focused15browserresults",
+    "CompleteR11current267browserpacket",
+    "Bothcompleteacceptedfinalindependentreviews"
+  ],
+  "diagnosisReference": "docs/evidence/production-workflow-review-20261011/critical-hierarchy-r10-failed.json",
+  "semanticBoundary": "Onlyexistingbrowserhelper controlinteraction and regeneratedinventory changed; all959otherdeclared paths includingimplementation/dependencies/guides/criteria bytesidentical. Root correction provenance is explicit; nooldhashrefresh.",
+  "pending": "Focused15currentlyrunning; no result inferred. Wholebrowser/visible/finalreviews/publication separately pending."
+}

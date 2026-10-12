@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "claimClass": "source",
+  "result": "partial_bounded_sync_fixture_checks_complete_browser_pending",
+  "priorSource": {
+    "manifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r12.json",
+    "paths": 961,
+    "fingerprint": "a2a6433e13c7914cb48ba5bdf1c967fefc6bd4972779b62c807a4ca015bb96fb"
+  },
+  "currentSource": {
+    "manifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r13.json",
+    "paths": 961,
+    "fingerprint": "32e503e2893f31d5b74433cf91b06c48afdd287a5c568de81c6d456bafd502c2"
+  },
+  "changedPaths": [
+    {
+      "path": "tests/web/browser-proof-inventory.json",
+      "beforeSha256": "571c5990b099075b047484e3835e5a499788f7212618ef582c925411845358b0",
+      "afterSha256": "ad217a51786e4f6b3d266848cbfe09e7b774ec94fc50e736bcc9ef6dcc884577"
+    },
+    {
+      "path": "tests/web/production-auth-workflow.spec.ts",
+      "beforeSha256": "706567c9f602cf9a022f0aa5f6bb94f75b81b3d518fa6fe7e648a32d7c631031",
+      "afterSha256": "9da52bb40c763be7ed31da4abc1d75ae92232db8114e2d8f7a9e0c5b7acdab6d"
+    }
+  ],
+  "byteIdenticalPaths": 959,
+  "currentSourceBytesVerified": true,
+  "currentDrift": [],
+  "criteriaUnchanged": true,
+  "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+  "cumulativeFromR10": {
+    "changedPaths": [
+      "tests/web/browser-proof-inventory.json",
+      "tests/web/production-auth-workflow.spec.ts",
+      "tests/web/unified-workspace.spec.ts"
+    ],
+    "byteIdenticalPaths": 958,
+    "actualAggregate": "docs/evidence/production-workflow-review-20261011/source-hierarchy-r10-pass.json",
+    "boundary": "ActualR10aggregate retained; proofhelper/authfixture/inventory changes are explicit, notnewaggregate execution."
+  },
+  "actualAffectedChecks": {
+    "browserRegistry": {
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "logSha256": "fbb2275f20caa99641b052f04f0d33f071bb64a98a0e6e2f34294779aa66ae04"
+    },
+    "contextCheck": {
+      "exitCode": 0,
+      "logSha256": "cf0524310319d026dded2161af9395c1def74041048b20861fdcee87b1502123",
+      "provenance": "Coordinator completedexitreceipt/up-to-datelog."
+    },
+    "inventoryAccounting": {
+      "files": 33,
+      "uniqueCases": 409,
+      "currentExecutions": 267,
+      "deferredExecutions": 960,
+      "allExecutions": 1227
+    }
+  },
+  "sourceReview": "Currentfixture independently read: actualqueue-length poll bounded30sec, Syncmessage wait bounded30sec, databaseexactTEXT===readWorkspaceRaw plus exactpreviouslyfinalizedV3receipt andofficialstatus. These assertions do notrelax existing target/station/source/qualification checks.",
+  "failureReference": "docs/evidence/production-workflow-review-20261011/critical-hierarchy-r12-failed.json",
+  "notExecutedInThisReceipt": [
+    "FreshR13fullaggregate",
+    "CompletedR13focused15",
+    "Completecurrent267browser/visiblepacket",
+    "Twoacceptedfinalreviews"
+  ],
+  "boundary": "Exactlyexistingauthenticatedproofhelper andinventorychanged;959R12paths/criteria identical. Currentall961R13bytesverified. Freshfocused15running andfreshR13aggregate plannedbycoordinator; neither outcome inferred."
+}

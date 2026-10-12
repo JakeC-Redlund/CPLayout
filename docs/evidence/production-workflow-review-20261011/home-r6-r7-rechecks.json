@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "classification": "synthetic",
+  "priorR6": {
+    "result": "automated_pass_standards_review_veto",
+    "scope": "Intermediate six Home bounds/keyboard/Axe cases, not full standards conformance",
+    "counts": {
+      "selected": 6,
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "didNotRun": 0,
+      "exitCode": 0
+    },
+    "sourceFingerprint": "9f4b8666fe3fc20bbaa86282be008917b146af9912ef248650bbbffc881d2d71",
+    "custodySha256": "602daaf340c576ec4f997287cef1db3acf3debbc666d477e44c60f2539cc877e",
+    "artifactHashes": {
+      "playwright-html/data/018cc972dd45c82546a3e6363c5a1a41333fc981.png": "bccd728730a40f1889c95d5205c4549cc1cf1d6adffcb384c59ba0c0b4e570d0",
+      "playwright-html/data/062900a36b71abc851648e5d1488bef4c99d433b.png": "550536ea9502bcc7294e5e4bdb79b44d1fa72050a8cae8bf6c6df23c6bc96b7b",
+      "playwright-html/data/06a78f6a892b0381d1e73902970f4a46774ff69f.png": "68a9d781efffee55ebe6da3bd1ab50bc0d07139cb631250c90219dd58fc58abe",
+      "playwright-html/data/27ec6433c71b05e20b51dd05940c1f46c46a13f4.png": "8788c3cc1dc78def97206e9ebfe02638ae5687a92917c812cef06456d4b418fe",
+      "playwright-html/data/523edb9b6eed1467d15ff875eb331bce5245d9ba.png": "c18f15b0c545beedbfae914190a5fea11543164c88f77c2e9910b09852b04439",
+      "playwright-html/data/589be6beb4d56292a2df43dbad81ee6c4707ffd4.png": "d282d2a07041ffb48f4745223290f2792670ce53a00ac9b89a2e837496db32ea",
+      "playwright-html/data/6333851c3c65772126ca558f05e759c452002f88.png": "22502b111114f66fe9e29875918cf0d2adb66ae69fe52f18f4ca98afba4978be",
+      "playwright-html/data/9175836a77523b0ce2512dad98f2d1e706a49daa.png": "765182e857c07b0fb6596088fc9dbad2d5f5c63c8e90e97fe5156ed306ab2c5e",
+      "playwright-html/data/a2fbc7484735449e9519cc398ebd7cffae25ae6e.png": "645c0c027e48cce1af8d160070b7557304b437dc81de246b0ed6adc67c748dd1",
+      "playwright-html/data/a45e465f72447941780c2be0b70996cc2efd9d4b.png": "8ed7838a98b303503e69f1ac3bc7f77eaa867f2cc2cdc94e5d21fc80a740d883",
+      "playwright-html/data/b80b64d4bda5683dd4889c5b8bd32f322d8ad289.png": "bd12ae52151133d53c02c084d5c1638e48234fda2ce00ada7f9ceb3a1aeebdcd",
+      "playwright-html/data/c472d7837b87e89128c26b0bcb09af307cb44fd6.png": "0d21ee65f559d2784cfb83a3481c9adb92038495a183dd736db3644a6ebf1854",
+      "playwright-html/data/c8163f2a79ad231e5b937238a0abc39751098561.png": "f82a8e4c80464df3c2942eb99e8696e16e628035b79c58bc60f6be6a79a72ec3",
+      "playwright-html/data/ea49270e0fde994e6f92307ec8aa8605aadbb084.png": "b24850d36550a6cc527b494d9cd82265e3c4bdb5c52a59fe8cea883957b41048",
+      "playwright-html/data/fff05a0c48c1e19e1db06e845de35da6c801b251.png": "de1783fd4692a1a00740b65454e5cfca329ec04b1ff7c390b95a3c1117c210ce",
+      "playwright-html/index.html": "e774becb9c535af1ca351433aa5579c9da5cd4e1997b51250628b50fa0cd5d09",
+      "playwright-results/.last-run.json": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "run.log": "7b8507b93d91e671e160b01b22586ea911cdf6360d17312082ed619bf04bd238"
+    },
+    "declaredArtifacts": 18,
+    "hashesVerified": true,
+    "veto": "Visible Openproject phrase was not included in the full accessible name, despite automated passes."
+  },
+  "currentR7": {
+    "result": "focused_pass_final_visual_and_fullbrowser_pending",
+    "counts": {
+      "selected": 6,
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "didNotRun": 0,
+      "exitCode": 0
+    },
+    "sourceFingerprint": "1e54a0f96066d7c61e6ff2abff7798989e6752eebb44bd323782c90c906c89b7",
+    "custodySha256": "380571233dc95d31f8ae8586f0bb534211df6cddab54d7ace2cf47f7286b2416",
+    "artifactHashes": {
+      "context-skill-registry.log": "96cafe0f412a8f7192682c5d268c8b11c11604182b513a012d30a61c163f59bd",
+      "playwright-html/data/018cc972dd45c82546a3e6363c5a1a41333fc981.png": "bccd728730a40f1889c95d5205c4549cc1cf1d6adffcb384c59ba0c0b4e570d0",
+      "playwright-html/data/062900a36b71abc851648e5d1488bef4c99d433b.png": "550536ea9502bcc7294e5e4bdb79b44d1fa72050a8cae8bf6c6df23c6bc96b7b",
+      "playwright-html/data/06a78f6a892b0381d1e73902970f4a46774ff69f.png": "68a9d781efffee55ebe6da3bd1ab50bc0d07139cb631250c90219dd58fc58abe",
+      "playwright-html/data/224170f1d6f283313db69124238ca748c573ddc0.png": "9b66fffeb3cd1e189ede800002693243f5d0217211061e82fefb3a346b8b2287",
+      "playwright-html/data/2927b3cdf78bacb01dc485c932d049098f6e25c8.png": "8b97464d196f75013b2860a63f46646c70f30862ad3c4809a51dfdeae3d279dc",
+      "playwright-html/data/3265982731f15e13052a605e770d023f752729c3.png": "ee0102a7805d453d758ab2944e1a8f02c5bcd41b478787b61cd2eb648f834eba",
+      "playwright-html/data/6333851c3c65772126ca558f05e759c452002f88.png": "22502b111114f66fe9e29875918cf0d2adb66ae69fe52f18f4ca98afba4978be",
+      "playwright-html/data/a2fbc7484735449e9519cc398ebd7cffae25ae6e.png": "645c0c027e48cce1af8d160070b7557304b437dc81de246b0ed6adc67c748dd1",
+      "playwright-html/data/a45e465f72447941780c2be0b70996cc2efd9d4b.png": "8ed7838a98b303503e69f1ac3bc7f77eaa867f2cc2cdc94e5d21fc80a740d883",
+      "playwright-html/data/b57676855fae019dd75b1a2f2ea7c55bebfbe541.png": "1da31cf632a8c142b69c2f6a5670746022f76b601f120f1a16aa44c3b7133ff6",
+      "playwright-html/data/b80b64d4bda5683dd4889c5b8bd32f322d8ad289.png": "bd12ae52151133d53c02c084d5c1638e48234fda2ce00ada7f9ceb3a1aeebdcd",
+      "playwright-html/data/c472d7837b87e89128c26b0bcb09af307cb44fd6.png": "0d21ee65f559d2784cfb83a3481c9adb92038495a183dd736db3644a6ebf1854",
+      "playwright-html/data/c8163f2a79ad231e5b937238a0abc39751098561.png": "f82a8e4c80464df3c2942eb99e8696e16e628035b79c58bc60f6be6a79a72ec3",
+      "playwright-html/data/fbb4d418cd7be5572d8b55b08f175438143faa60.png": "893908dcb88bb9b88e9a53506ccf9a5631f9f89b16b6f8aadc93fa3a6333de9e",
+      "playwright-html/data/fff05a0c48c1e19e1db06e845de35da6c801b251.png": "de1783fd4692a1a00740b65454e5cfca329ec04b1ff7c390b95a3c1117c210ce",
+      "playwright-html/index.html": "1a3cb86c43cb8653f06516424e17f4675da1613927516a742338ef2800d4d1eb",
+      "playwright-results/.last-run.json": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "run.log": "43992677c27692c2dd63d0a52bb333ba69f452e8a9bbc24082e28cf6c92b341c",
+      "typecheck.log": "74c892cb9c8a697ae90c6578d2cbfce2ba84e8b59265bf69b7f70851fc57baa8"
+    },
+    "declaredArtifacts": 20,
+    "hashesVerified": true,
+    "scope": "Actual390x500 Home button/text/card/viewport bounds,keyboard,visible Open included in unchanged exact accessible identity,explicit project/catalog selection and retained map, plus automatedAxe three-viewport scenes."
+  },
+  "limitedDecision": {
+    "provenance": "Coordinator forwarded independent workflow primary-source review and its own selection; no final whole-workflow review implied.",
+    "primarySource": "https://www.w3.org/WAI/WCAG22/Understanding/label-in-name.html",
+    "weights": [
+      0.3,
+      0.25,
+      0.2,
+      0.15,
+      0.1
+    ],
+    "scoreOrder": [
+      "compatibility",
+      "preservation",
+      "contextEfficiency",
+      "reproducibleProof",
+      "maintainability"
+    ],
+    "choices": [
+      {
+        "option": "Concise visible Open with full exact accessible project/customer context",
+        "scores": [
+          5,
+          5,
+          5,
+          4,
+          5
+        ],
+        "weighted": 4.85,
+        "selected": true
+      },
+      {
+        "option": "Wrapped longer visible action",
+        "scores": [
+          4,
+          5,
+          3,
+          3,
+          4
+        ],
+        "weighted": 3.9
+      },
+      {
+        "option": "Original clipped action",
+        "scores": [
+          2,
+          5,
+          1,
+          2,
+          4
+        ],
+        "weighted": 2.75,
+        "veto": "observed clipped control"
+      }
+    ],
+    "boundary": "Supplied individual judgments, not measured human acceptance, extra committee votes or full WCAG conformance."
+  },
+  "closureBoundary": "Focused bounds/label/name rechecks pass; matching fresh Edge pixel review and full264R7 completion still pending."
+}

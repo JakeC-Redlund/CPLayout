@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "result": "fail",
+  "scope": "One synthetic accessibility journey in desktop, tablet-768 and mobile-390; intermediate source edition.",
+  "runtime": {
+    "axePlaywright": "4.13.0",
+    "axeCore": "4.13.0",
+    "playwright": "1.64.0",
+    "verification": "Installed manifests matched exact published npm declarations and lock integrity; see the separate metadata record."
+  },
+  "counts": {
+    "passed": 2,
+    "failed": 1,
+    "desktop": "pass",
+    "tablet-768": "pass",
+    "mobile-390": "fail"
+  },
+  "finding": {
+    "rule": "scrollable-region-focusable",
+    "impact": "serious",
+    "targetReported": ".r-o1t6rw",
+    "coordinatorIdentification": "map-readout scroll region",
+    "status": "open_final_recheck_pending",
+    "correctionSource": "packages/map-adapters/src/WorkspaceMapFrame.tsx",
+    "currentSourceObservation": "Web ScrollView now has tabIndex0 and the accessible label Field map information. A real keyboard focus assertion is being added by the coordinator.",
+    "boundary": "Source correction is not a passing runtime result."
+  },
+  "artifactCustody": {
+    "packet": "coordinator-owned accessibility-first-current",
+    "files": 39,
+    "hashes": {
+      "html/data/062900a36b71abc851648e5d1488bef4c99d433b.png": "550536ea9502bcc7294e5e4bdb79b44d1fa72050a8cae8bf6c6df23c6bc96b7b",
+      "html/data/0b5b1d4a2131ee844affc3de3cfb891122d10a74.png": "f298d167ab59789e43da19ef23b13de9abd83f5af0395d796a7885dc6550e835",
+      "html/data/357e696cb3bc9330f87a93da94540a5a75fd0bf1.png": "bc1faa8815012424d9b394e6e3d4c17e1d374a90beb5d4a7c8d4eda6e3df2701",
+      "html/data/359bfdf84840797b5d6da40fd22dba2e8073c68a.png": "c94d6c303fb4d9f16c8eb307291f4e021e3d65c88db7674e4e7ff2930123b357",
+      "html/data/426a2b6ce45fc93a918d80354f0c78044a3654e2.png": "a7c58c202b82060b4ab1d728bc721cf3b177a87eea33914758528b63d8a1b5c6",
+      "html/data/8037cf3e9a39d25ef57be027162c9d18fddaa3fb.png": "cfaf5892560696b6ac45a0f8141d34fd5412d672cf7a8968e4467ace20309f76",
+      "html/data/8eab0630e8df1c5f3e3cbb53edd1411fc8cb4f1f.png": "b659102923735c152fd3d46baaabab50d39ab712d71fb13d48b583173cab1d2f",
+      "html/data/98a4bbb6c72732106033c1ade594556fa5d45533.png": "0c8f16775b68f30ec839a3ff305871ac501d6c0808c1cc6101916564c7eb1b2b",
+      "html/data/a2fbc7484735449e9519cc398ebd7cffae25ae6e.png": "645c0c027e48cce1af8d160070b7557304b437dc81de246b0ed6adc67c748dd1",
+      "html/data/b084ac13aed730681424c45f8fcfba5033c55e98.png": "f6ad19ae0b08c966cb9b58605c5a64a0c71f207c2be9613bac22cad9a7752cec",
+      "html/data/bfff82571e0bc7f3a1c872834aa595282638dc04.zip": "55c21868e9f523b4b6ee5f4fb0d19a9ef395898fc6ba5e5e06da754c18c222d5",
+      "html/data/c472d7837b87e89128c26b0bcb09af307cb44fd6.png": "0d21ee65f559d2784cfb83a3481c9adb92038495a183dd736db3644a6ebf1854",
+      "html/data/c5adc8a59fb973996c9ad19c8188b2ef8d9a1ab3.png": "9c9ead3406dacb0ab807590e6cbad8c999d6f52f5a107134372a97492a471a06",
+      "html/data/e10820e7e3db0d1e4a7deca76992caa5ba6c174e.png": "d531a8bfa6a8eab5f48a86b572c75a41426484fd11b4c7110792a16b0a6bae48",
+      "html/data/e1b0ef9c01abba361cbfb512513b85b27c5da4e1.md": "36d0dc6db42205b5b4aa28526571c7da0d71f83b6e3458d5b5edf8cf07a9737b",
+      "html/index.html": "9fbc15176edaebf69df13caed3743f60e28281b5204b91c5ab81f0f341e38a9f",
+      "html/trace/assets/codeMirrorModule-BEB2e8M3.js": "0da75d228abc1d8b940aa04ec086570dace7b2e7b2ccc5f4bc16f05e79bdb7d7",
+      "html/trace/assets/defaultSettingsView-D-g2vrvf.js": "554bdef910d18e763118f1221667b809edafba46e29e3f8de4b9dcf21c6b7d79",
+      "html/trace/assets/urlMatch-L3liM589.js": "1bc6321e32d11c31a452bc75896f0b344e6153321854d9f1658818be7f845c16",
+      "html/trace/codeMirrorModule.-QdMvsKi.css": "20be824a82832b62cc04642d31da3c609fd280b23f1cdcb1e622c4f40aac5ab8",
+      "html/trace/codicon.DCmgc-ay.ttf": "0f1d5219934e96e83b8db162d60b4d8c09b5de1e7d38031cbafe4a3c0f2889c9",
+      "html/trace/defaultSettingsView.C8BeHuxd.css": "278101b68ab48ee6323a6afbf4e0e629324e10e96902a62a0875643a1bba3d94",
+      "html/trace/index.7-c5LSTW.js": "ce1eb956b15739b52a45c9fc2b9a0c529448242426b2b124d5c3167915910ff1",
+      "html/trace/index.B_TqY17P.css": "08a212fcacae1866f44f065654afcc4c7d03409c68c74b3315c5bda17a0ca003",
+      "html/trace/index.html": "b80661d46bc580d1e7be45c2c2b0e891c466f3f67e52c33e4f111f000f3532c6",
+      "html/trace/manifest.webmanifest": "d8540500603a32a39fe7e5a0375dc0f9ebafd11118e06a846db7efc608223ab9",
+      "html/trace/playwright-logo.svg": "6b0a4367bdeab10995bc239278f04c68c10e48adbec15e799e01909a0d66dcb9",
+      "html/trace/snapshot.B_Jk1wbt.js": "d4d09e05451d107d8e1a6bbd041405fe518b9fd2833890e4ebaaad83b7f554f5",
+      "html/trace/snapshot.html": "c608c8899c95c5a74d3f556e20146c3d852b9df85ae2854c659a7cc773c9b727",
+      "html/trace/sw.bundle.js": "d1d6fec6687eb3fd93a8990bd9daa3951422695afffae2382f97f10811cf1c30",
+      "html/trace/uiMode.CYwC_gH1.js": "c920eaa161f65b6c0dd431a642c4bdf2e6262ae51335c02d155b187f48c0296c",
+      "html/trace/uiMode.CyMfwkXJ.css": "fb403cf0b07007bc1d771e29737f7408924da300e2fab8b289a3ef2e8fc08d7b",
+      "html/trace/uiMode.html": "6de2f5db7f7532c30e8b1381752a1daf23facbdef6bea130cef0cfa5a003eb22",
+      "html/trace/xtermModule.kHJ-D0s7.css": "0dd60056134e6a2994a86b59a1e9789b9f04e92924da109aef8c923acaf08ce5",
+      "results/.last-run.json": "23b9e990a1dfdcf92af76af9c07e085040c9b2502908fd34e9cf3c14f601f5ec",
+      "results/production-accessibility-o-2cc19-omated-accessibility-checks-mobile-390/error-context.md": "36d0dc6db42205b5b4aa28526571c7da0d71f83b6e3458d5b5edf8cf07a9737b",
+      "results/production-accessibility-o-2cc19-omated-accessibility-checks-mobile-390/test-failed-1.png": "b659102923735c152fd3d46baaabab50d39ab712d71fb13d48b583173cab1d2f",
+      "results/production-accessibility-o-2cc19-omated-accessibility-checks-mobile-390/trace.zip": "55c21868e9f523b4b6ee5f4fb0d19a9ef395898fc6ba5e5e06da754c18c222d5",
+      "run.log": "d6dd856e5617ecc806a14d232280d5c75ebd578bc94f3a57bda3ddd892a77cc4"
+    },
+    "boundary": "Hashes preserve packet identity without copying raw screenshots, DOM, traces or credential/session material into this record."
+  },
+  "primarySources": [
+    {
+      "url": "https://dequeuniversity.com/rules/axe/4.13/scrollable-region-focusable",
+      "version": "4.13",
+      "verifiedNow": "retrieved successfully by governance agent",
+      "earlierObservation": "Coordinator reported the4.13 URL unavailable and used4.10. That earlier unavailability is historical, superseded by this direct successful retrieval."
+    },
+    {
+      "url": "https://dequeuniversity.com/rules/axe/4.10/scrollable-region-focusable",
+      "version": "4.10",
+      "verifiedNow": "retrieved successfully; version remains explicitly distinct from runtime4.13"
+    },
+    {
+      "url": "https://www.w3.org/WAI/WCAG22/Understanding/keyboard.html",
+      "verifiedNow": "retrieved successfully; explains keyboard operability"
+    },
+    {
+      "url": "https://playwright.dev/docs/accessibility-testing",
+      "verifiedNow": "retrieved successfully; automated scans cover the state actually reached and do not establish full accessibility conformance"
+    }
+  ],
+  "notEstablished": [
+    "Complete accessibility conformance",
+    "Final cross-viewport current-App acceptance",
+    "Native accessibility behavior",
+    "Inclusive or human operator acceptance"
+  ]
+}

@@ -1,5 +1,7 @@
 # Drawing Review: Responses And Rework
 
+Current task disposition (2026-10-11): the owner delegates decisions to independent source-bound review without further human questionnaires. Use current registry requirements and actual served-source visual evidence. Human response/receipt procedures below remain available only for an explicitly requested human review; they are historical task guidance, not a mandatory new gate. Preserve existing answers verbatim and never relabel delegated or synthetic review as human acceptance.
+
 Status: human responses received 2026-09-27; **rework requested**, not accepted.
 The authoritative transcription is retained privately. The public
 [review summary](evidence/drawing-review-20260927/retained-review-summary.md)

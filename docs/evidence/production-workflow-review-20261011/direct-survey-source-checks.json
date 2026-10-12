@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "checkedOn": "2026-10-11",
+  "baseCommit": "2649d1a9b1f1c55dff2eea4a6fe9faaa54be3824",
+  "scope": "Direct saved Draft\u2192Field preparation and Survey known-information/linear source handlers; not complete browser, native or physical GPS acceptance.",
+  "sourceHashes": {
+    "apps/mobile/src/workspace/SurveyKnownInformationPanel.tsx": "7f85fa49e4044d6e388ba773dd26c88fd240906d85b7620141da67b8094a9e47",
+    "apps/mobile/src/workspace/WorkspaceLateralInputs.test.ts": "e1ff16f0a878726b2ac6cef556ceec73037b64b96d1a99ae7f8adcd8587e2d80",
+    "apps/mobile/src/workspace/WorkspaceLateralInputs.tsx": "71d3c703b34f00b043c731ac932e4aefacb73d6b67bae59cdececbcbc117f636",
+    "apps/mobile/src/workspace/WorkspaceModePanels.tsx": "98ab062053ccf20da652bda0323c323a231ab6ff68e85bedf135dc80b4a6907f",
+    "apps/mobile/src/workspace/useWorkspaceController.ts": "4eeb15fec5d14b52d59406bdc6b7b3628a406636bbd3cf7853c9c2ba279ca933",
+    "packages/core/src/surveyDraftField.ts": "0ec04116a2340a404e7691f685673ef1ac958d722f63f970adb69cdf18cfce8c",
+    "packages/project-store/src/productionWorkflow.test.ts": "8bff6c079abbe7daae752bea37a87ee756cb951f2b8e003552f81dfee182cad4",
+    "packages/project-store/src/workspaceCommands.ts": "01c13af0b15acdcf2300f432a93c115061cf22ace9883c6c490011631e508d64"
+  },
+  "sourceFingerprint": "7b325c465b6c50ccb93e3232da2f314ba43adf9b56e622ac1047afa5badf5931",
+  "semantics": [
+    "Existing Field schema, no planning Project/calculation requirement or guessed coordinates",
+    "Saved boundary at least3 positions and actual declaredCRS required",
+    "Absent machine/pivot permits empty machine set; partially supplied values require full existing valid configuration and actual pose",
+    "Unknown infrastructure stays absent",
+    "Exact original Draft bytes and complete collection lineage retained, including noncanonicalCRLF archive roundtrip",
+    "Fresh prepared destination source/Survey review precedes v2Layout targets",
+    "One retained known-information owner; Survey coordinates are not manually replaceable; linear inputs reuse actual saved path"
+  ],
+  "focusedResults": {
+    "mappingAffected": {
+      "passed": 55,
+      "failed": 0,
+      "skipped": 0,
+      "logSha256": "da955af591104da997aa968ab16c42c13ab07f98a2b16dc8d6a6e4edfde805d2"
+    },
+    "mappingControllerPanels": {
+      "passed": 105,
+      "failed": 0,
+      "skipped": 0,
+      "logSha256": "c3bd9217946f2a2246a57acad3c234ba0e5689d3785eddb6a3c8d0480a7f6d78"
+    },
+    "coreStoreMobileTypecheck": {
+      "exit": 0,
+      "provenance": "mapping owner delivered completed focused receipt; full source freeze not supplied"
+    },
+    "linearHandler": {
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "provenance": "workflow owner delivered source/handler receipt"
+    }
+  },
+  "proofBoundary": "Both implementation owners report their source frozen. Current code/handler scope is hashed directly; the unexecuted auth browser fixture is now a separately identified pending browser artifact, not a source-pass input. Whole final census/export/browser remains coordinator-owned.",
+  "notEstablished": [
+    "Complete current-App/browser acceptance",
+    "Native/device operation",
+    "Physical GPS precision",
+    "Accepted final whole-workflow review"
+  ],
+  "previousEdition": {
+    "path": "docs/evidence/production-workflow-review-20261011/direct-survey-source-checks-initial-scope.json",
+    "sha256": "244cda16a26c2c688fcb20c715c4c31b243485fb552dd6010a7828e367dc911d",
+    "boundary": "Preceding source record included an unexecuted browser fixture. That fixture subsequently changed customer labels; retained rather than blindly refreshed."
+  },
+  "pendingBrowserFixture": {
+    "path": "tests/web/production-auth-workflow.spec.ts",
+    "sha256": "e7e6fee877d41dc77d895ad5e5cd41cd900f8b842a98fb219941b3fd3e637d18",
+    "titles": 12,
+    "executedForThisFinalEdition": false
+  }
+}

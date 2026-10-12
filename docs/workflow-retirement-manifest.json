@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-10-11",
+  "qualifiedDeletionTargets": [],
+  "preservation": [
+    "CPLAYOUT CONCEPTUAL DESIGN PREFEREN.md (owner source remains canonical untracked)",
+    "docs/archive/agents-before-refocus-2026-10-10.md",
+    "frozen historical document/recovery readers",
+    "failed and partial browser/runtime evidence",
+    "960 deferred browser obligations",
+    "held modeling r3 packet and dirty/recovery worktrees"
+  ],
+  "supersessions": [
+    {
+      "source": "docs/development-status.md",
+      "historicalCopy": "docs/archive/development-status-before-production-workflow-2026-10-11.md",
+      "originalSha256": "8b04c79360bd29f6fc54d73b522f87e7677cd3e0af8a4612c461291f25287ad9",
+      "replacement": "docs/workflow-registry.json",
+      "disposition": "historical_bytes_preserved_current_status_generated"
+    },
+    {
+      "source": "docs/unified-workspace-management-plan.md",
+      "replacement": "docs/workflow-registry.json",
+      "disposition": "module_contract_retained_scheduling_superseded"
+    },
+    {
+      "source": "docs/full-refactor-execution.md",
+      "replacement": "docs/workflow-registry.json",
+      "disposition": "historical_record_retained_not_current_queue"
+    }
+  ],
+  "duplicateGroup": {
+    "sha256": "260151f9cf274aadf97d02826dd280b5c6288552a64dc17632091e1473763a4b",
+    "paths": [
+      "docs/evidence/draft-repository-20260925/audit.json",
+      "docs/evidence/draft-workspace-20260926/audit.json",
+      "docs/evidence/svg-map-labels-20260925/audit.json"
+    ],
+    "disposition": "retain_distinct_provenance"
+  },
+  "deletionQualification": [
+    "prove ownership and preserve dirty/ignored state",
+    "scan inbound source/doc/skill/hook/test and recovery references",
+    "record exact hashes, provenance and replacement",
+    "verify off-worktree backup and restoration",
+    "independent review confirms no unique required evidence or active resource custody",
+    "delete only individually qualified paths; record actual result"
+  ]
+}

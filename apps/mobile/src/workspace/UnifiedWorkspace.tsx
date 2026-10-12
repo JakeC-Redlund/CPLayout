@@ -3,6 +3,7 @@ import { Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimen
 import { FolderOpen, PanelLeft, Radio, Save, Undo2, Redo2 } from "lucide-react-native";
 import { WorkspaceMapSurface, type WorkspaceMapPointEvent, type WorkspaceMapScene, type WorkspaceSceneLayer } from "@cplayout/map-adapters";
 import { CommandBar, IconCommandButton, type CommandMenuItemConfig } from "../components/CommandSurface";
+import { WorkspaceSelect } from "./WorkspaceModePanels";
 import { ReceiverConnectionPanel } from "../components/ReceiverConnectionPanel";
 import { InputRetentionProvider } from "../inputRetention";
 import type { useWorkspaceController } from "./useWorkspaceController";
@@ -30,7 +31,7 @@ export interface UnifiedWorkspaceProps {
   readonly toolsRevealRequest?: number;
   readonly fileInputIntent?: "copy" | "rename" | null;
 }
-const modes = [{ id: "design", label: "Design" }, { id: "survey", label: "Survey" }, { id: "layout", label: "RTK Layout" }] as const;
+const modes = [{ id: "design", label: "Design" }, { id: "survey", label: "Survey" }, { id: "layout", label: "Layout" }] as const;
 
 /** Common composition only. The supplied controller remains the sole document,
  * receiver, save and input owner. Mode panels contain no competing working maps. */
@@ -138,12 +139,13 @@ export function UnifiedWorkspace({ controller, panels, onOpenCatalog, fileAction
     : context;
   const fieldEditor = state.editable?.kind === "field" ? state.editable.editor : null;
   const selectedMachine = fieldEditor?.field.machines.find(item => item.id === fieldEditor.selectedMachineId);
+  const selectedLateral = fieldEditor?.field.lateralMachines?.find(item => item.id === fieldEditor.selectedMachineId);
   const frozenTarget = showingSession ? parseFieldLayoutTarget(state.layout!.session.targetDocument) : null;
   const machineContext = frozenTarget ? `Frozen target: ${frozenTarget.source.selectedMachineIds.map(id => {
     const machine = frozenTarget.field.machines.find(item => item.id === id);
-    return `${machine?.configuration.name || id} (${id})`;
+    return machine?.configuration.name || frozenTarget.field.lateralMachines?.find(item => item.id === id)?.name || "Unavailable machine";
   }).join(", ") || "No machines"}`
-    : selectedMachine ? `Selected machine: ${selectedMachine.configuration.name || selectedMachine.id} (${selectedMachine.id})` : null;
+    : selectedMachine ? `Selected machine: ${selectedMachine.configuration.name}` : selectedLateral ? `Selected machine: ${selectedLateral.name}` : null;
   const savedListName = !showingSession && state.editable?.identity.designId
     ? (repository.designCatalog ?? repository.catalog).designs.find(item => item.id === state.editable!.identity.designId)?.name : null;
   const receiver = controller.receiver.getSnapshot();
@@ -183,7 +185,7 @@ export function UnifiedWorkspace({ controller, panels, onOpenCatalog, fileAction
       <IconCommandButton id="workspace-projects" label="Customers & projects" icon={<FolderOpen />} showLabel={!compact} onPress={onOpenCatalog} />
       <View style={styles.modes} accessibilityLabel="Workspace mode" testID="workspace-mode-toggle">
         {modes.map(item => <Pressable key={item.id} accessibilityRole="button" accessibilityLabel={`${item.label} mode`}
-          accessibilityState={{ selected: mode === item.id }} aria-pressed={mode === item.id}
+          accessibilityState={{ selected: mode === item.id, disabled: item.id === "layout" && !state.layout && controller.surveyReadiness?.status !== "ready" }} disabled={item.id === "layout" && !state.layout && controller.surveyReadiness?.status !== "ready"} aria-pressed={mode === item.id}
           testID={`workspace-mode-${item.id}`} onPress={() => controller.selectMode(item.id)}
           style={[styles.mode, mode === item.id && styles.activeMode]}><Text style={[styles.modeText, mode === item.id && styles.activeText]}>{item.label}</Text></Pressable>)}
       </View>
@@ -203,6 +205,12 @@ export function UnifiedWorkspace({ controller, panels, onOpenCatalog, fileAction
       <IconCommandButton id="workspace-tools" label={toolsVisible ? "Hide tools" : "Show tools"} icon={<PanelLeft />} showLabel={!compact} selected={toolsVisible} disabled={!hasWorkingDocument}
         onPress={() => changeToolsVisibility(!toolsOpenRef.current)} testID="workspace-tools-toggle" />
     </View>
+    {state.editable && state.editable.identity.projectCrs === null && <View style={{ padding: 10, backgroundColor: "#edf3ec", gap: 6 }} testID="workspace-coordinate-onboarding">
+      <Text style={styles.status}>Choose the field coordinate system before drawing or collecting positions. No GPS is needed for Design.</Text>
+      <WorkspaceSelect label="Choose field coordinate system" value="" disabled={controller.busy}
+        choices={[{ id: "", label: "Choose the actual WGS84 UTM coordinate system…" }, ...["North", "South"].flatMap((hemisphere, h) => Array.from({ length: 60 }, (_, i) => ({ id: `EPSG:${(h === 0 ? 32600 : 32700) + i + 1}`, label: `WGS84 / UTM zone ${i + 1} ${hemisphere}` })))]}
+        onChange={value => { if (value) void controller.declareCoordinateSystem(value); }} />
+    </View>}
     <View style={styles.receiverStatus}>
       <Text style={styles.status} testID="workspace-receiver-summary">Receiver: {receiver.phase} · Data: {receiver.incomingData} · {receiver.receiverQuality?.fixType === "rtk_fixed" ? "RTK Fixed — receiver reported" : receiver.receiverQuality?.fixType?.replaceAll("_", " ") ?? "Fix unknown"}</Text>
       {controller.recovery.available && <Text style={styles.status} accessibilityLiveRegion="polite" testID="workspace-unfinished-status">
@@ -223,7 +231,7 @@ export function UnifiedWorkspace({ controller, panels, onOpenCatalog, fileAction
           pointInputEnabled={mapVisible && mode === "design" && canDigitize && !controller.busy} selectionEnabled={mapVisible}
           onPoint={event => { if (ownsEvent(event) && mode === "design") onDesignPoint?.({ ...event, interactionKey: parentInteractionKey }); }}
           onSelect={event => { if (ownsEvent(event)) controller.selectAddress(event.address); }} />
-          : <View style={styles.emptyMap}><Text style={styles.emptyTitle}>Your field workspace</Text><Text style={styles.emptyHelp}>Create or open a design to begin. Design, Survey and RTK Layout share this map and the same file and receiver controls.</Text>
+          : <View style={styles.emptyMap}><Text style={styles.emptyTitle}>Your field workspace</Text><Text style={styles.emptyHelp}>Create or open a design to begin. Design, Survey and Layout share this map and the same file and receiver controls.</Text>
             <IconCommandButton id="workspace-empty-open" label="Customers & projects" icon={<FolderOpen />} showLabel onPress={onOpenCatalog} /></View>}
       </View>
       <View style={[styles.tools, compact && styles.dock, compact && { height: fullTools ? "100%" : dockHeight }, { display: toolsVisible ? "flex" : "none" }]} testID="workspace-mode-tools">

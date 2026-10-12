@@ -2,6 +2,8 @@ import { seedRecordedReferenceOrigins, mergeRetainedReferenceOrigins, isRecorded
 import { validateFieldDesign, type FieldDesign, type FieldPivotMachine } from "./fieldDesignDocument";
 import { snapshotJsonValue } from "./jsonDataSnapshot";
 import { projectDataKey } from "./projectDataComparison";
+import { applyClassifiedFieldDrawing, type ClassifiedFieldDrawingCommand } from "./classifiedFieldDrawing";
+import type { StraightLateralMachine } from "./straightLateral";
 
 export interface FieldDesignEditorState {
   field: FieldDesign;
@@ -13,8 +15,13 @@ export interface FieldDesignEditorState {
 }
 
 export type FieldDesignEditorAction =
+  | ClassifiedFieldDrawingCommand
   | { type: "load_field"; field: FieldDesign }
   | { type: "select_machine"; id: string | null }
+  | { type: "select_lateral"; id: string | null }
+  | { type: "add_lateral"; machine: StraightLateralMachine }
+  | { type: "update_lateral"; machine: StraightLateralMachine }
+  | { type: "remove_lateral"; id: string }
   | { type: "rename"; name: string }
   | { type: "add_machine"; machine: FieldPivotMachine }
   | { type: "update_machine"; machine: FieldPivotMachine }
@@ -25,6 +32,8 @@ export type FieldDesignEditorAction =
   | { type: "clear_error" };
 
 const actionKeys: Record<FieldDesignEditorAction["type"], readonly string[]> = {
+  commit_manual_geometry: ["type", "fieldId", "projectCrs", "expectedRevision", "captureId", "geometryType", "vertices", "classification", "target"],
+  select_lateral: ["type", "id"], add_lateral: ["type", "machine"], update_lateral: ["type", "machine"], remove_lateral: ["type", "id"],
   load_field: ["type", "field"],
   select_machine: ["type", "id"],
   rename: ["type", "name"],
@@ -52,13 +61,26 @@ export function reduceFieldDesignEditorState(state: FieldDesignEditorState, inpu
       case "load_field": return createFieldDesignEditorState(action.field.id === state.field.id ? mergeRetainedReferenceOrigins(state.field, action.field) : action.field);
       case "clear_error": return { ...state, lastError: null };
       case "rename": return commit(state, { ...state.field, name: action.name });
+      case "commit_manual_geometry": return commit(state, applyClassifiedFieldDrawing(state.field, action, state.revision), false);
+      case "select_lateral":
+        if (action.id !== null && !state.field.lateralMachines?.some(machine => machine.id === action.id)) throw new Error("Selected lateral was not found.");
+        return { ...state, selectedMachineId: action.id, lastError: null };
       case "select_machine":
-        if (action.id !== null && !state.field.machines.some(machine => machine.id === action.id)) {
+        if (action.id !== null && ![...state.field.machines, ...(state.field.lateralMachines ?? [])].some(machine => machine.id === action.id)) {
           throw new Error("Selected machine was not found.");
         }
         return { ...state, selectedMachineId: action.id, lastError: null };
       case "undo":
       case "redo": return travel(state, action.type);
+      case "add_lateral":
+        if ([...state.field.machines, ...(state.field.lateralMachines ?? [])].some(machine => machine.id === action.machine.id)) throw new Error("Machine identity already exists.");
+        return commit(state, { ...state.field, lateralMachines: [...(state.field.lateralMachines ?? []), action.machine] });
+      case "update_lateral":
+        if (!state.field.lateralMachines?.some(machine => machine.id === action.machine.id)) throw new Error("Lateral was not found.");
+        return commit(state, { ...state.field, lateralMachines: state.field.lateralMachines.map(machine => machine.id === action.machine.id ? action.machine : machine) });
+      case "remove_lateral":
+        if (!state.field.lateralMachines?.some(machine => machine.id === action.id)) throw new Error("Lateral was not found.");
+        return commit(state, { ...state.field, lateralMachines: state.field.lateralMachines.filter(machine => machine.id !== action.id) });
       case "add_machine":
         if (state.field.machines.some(machine => machine.id === action.machine.id)) {
           throw new Error("Machine identity already exists.");
@@ -106,8 +128,9 @@ export function reduceFieldDesignEditorState(state: FieldDesignEditorState, inpu
   }
 }
 
-function commit(state: FieldDesignEditorState, candidate: FieldDesign): FieldDesignEditorState {
-  const field = validateFieldDesign(seedRecordedReferenceOrigins(validateMachineEdit(state.field, mergeRetainedReferenceOrigins(state.field, candidate))));
+function commit(state: FieldDesignEditorState, candidate: FieldDesign, reconcileMachineEdit = true): FieldDesignEditorState {
+  const retained = mergeRetainedReferenceOrigins(state.field, candidate);
+  const field = validateFieldDesign(seedRecordedReferenceOrigins(reconcileMachineEdit ? validateMachineEdit(state.field, retained) : retained));
   if (projectDataKey(field) === projectDataKey(state.field)) {
     return state.lastError ? { ...state, lastError: null } : state;
   }
@@ -149,7 +172,7 @@ function travel(state: FieldDesignEditorState, direction: "undo" | "redo"): Fiel
 }
 
 function retainedSelection(field: FieldDesign, id: string | null): string | null {
-  return field.machines.some(machine => machine.id === id) ? id : null;
+  return [...field.machines, ...(field.lateralMachines ?? [])].some(machine => machine.id === id) ? id : null;
 }
 
 function snapshotAction(input: FieldDesignEditorAction): FieldDesignEditorAction {
@@ -158,7 +181,7 @@ function snapshotAction(input: FieldDesignEditorAction): FieldDesignEditorAction
     throw new Error("Unsupported field editor action.");
   }
   const keys = actionKeys[action.type];
-  const optionalKeys = action.type === "adopt_plan" ? ["allowedReplacementMachineIds"] : [];
+  const optionalKeys = action.type === "adopt_plan" ? ["allowedReplacementMachineIds"] : action.type === "commit_manual_geometry" ? ["replaceExisting"] : [];
   if (Object.keys(action).some(key => !keys.includes(key) && !optionalKeys.includes(key)) || keys.some(key => !Object.hasOwn(action, key))
     || (action.type === "adopt_plan" && Object.hasOwn(action, "allowedReplacementMachineIds") && action.allowedReplacementMachineIds === undefined)) {
     throw new Error("Field editor action contains missing or unsupported properties.");

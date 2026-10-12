@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "result": "bounded_source_equivalence_and_affected_rechecks_pass_full_browser_pending",
+  "protocol": "docs/workflow-acceptance-protocol.md",
+  "priorSource": {
+    "path": "docs/evidence/production-workflow-review-20261011/candidate-source-r4.json",
+    "sha256": "66d874c64a2b255a7081ff77a675f8136b6654a47e0f6b7d0b418f8d3dd50ad8",
+    "fingerprint": "5e8face8256e4c22282aef22e3989e88b82b521e603f8b29f0c3ba78aa0f7d02",
+    "sourceCount": 902
+  },
+  "newSource": {
+    "path": "docs/evidence/production-workflow-review-20261011/candidate-source-r5.json",
+    "sha256": "abf6a07b1ec4cf5276cf292ad8a805ce0ce96d833f49f85c0a84246b9791c8e1",
+    "fingerprint": "00135b89fccb53e027c031079e4aff4e3f6122b7da78f01bf391417d988c51e7",
+    "sourceCount": 902
+  },
+  "changedPaths": [
+    {
+      "path": "tests/web/browser-proof-inventory.json",
+      "priorSha256": "c488afa02f004a65179c70cfe8fd8cf8110b385c0b77e5ff98f2e06f2b9d135f",
+      "newSha256": "2754c121ec029424af3bc752fe80541db2072ac5515c2e969b79b451a450aa91"
+    },
+    {
+      "path": "tests/web/workspace-management.spec.ts",
+      "priorSha256": "43cb100da40fe98128f2dc8909048b7849c4326126c53fb9789a149cba00ae07",
+      "newSha256": "a1393e504fab2d684afdcd9e0a757de1f896816abd0c65684770bf2cc3af8de9"
+    }
+  ],
+  "unchangedCanonicalPaths": 900,
+  "method": "Direct comparison of immutable complete r4/r5 source hash manifests, then every current file against r5. Exactly two proof paths differ;900 other canonical files are byte-identical.",
+  "sourceAggregateReference": "docs/evidence/production-workflow-review-20261011/source-r4-pass.json",
+  "sourceAggregateBoundary": "Retained r4 npmvalidate exit0 remains its actual edition. Unchanged implementation can be reviewed through this bounded bridge; changed proof inputs require fresh rechecks. No old manifest or result was refreshed.",
+  "independentReview": "Coordinator forwarded independent workflow trace/source review: visible map aspect changes span; existing independent pixel scale is the proper expected readout. Logical camera/source/center/7dp assertions retained.",
+  "currentSpecInspection": "Current helper retains per-vertex seven-decimal placement and exact logical center assertions, then expects width divided by the independently calculated scale.",
+  "allowedChange": "Proof-helper assertion and corresponding source inventory only; no application/component/dependency/criterion/guide change.",
+  "requiredNewEvidence": [
+    "Completed full264r5 browser",
+    "Final two complete independent reviews"
+  ],
+  "recheckState": {
+    "contextFreshnessExit": 0,
+    "browserRegistry": {
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0
+    },
+    "affectedBrowser": {
+      "selected": 9,
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0,
+      "didNotRun": 0,
+      "viewports": [
+        "desktop",
+        "tablet-768",
+        "mobile-390"
+      ],
+      "modes": [
+        "design",
+        "survey",
+        "layout"
+      ],
+      "exitCode": 0
+    },
+    "sourceChecksLogSha256": "8a67080e43b991831f7ac58a533b215ab741abb3ed814f7a2cc793d21b97a9d0",
+    "custodyManifestSha256": "570ea4bdc829bb1a9930eeebd6fbe14e0dd60c1cba269588d14153dda70f524d",
+    "verifiedArtifacts": 4,
+    "artifactHashes": {
+      "affected-source-checks.log": "8a67080e43b991831f7ac58a533b215ab741abb3ed814f7a2cc793d21b97a9d0",
+      "playwright-html/index.html": "87c57bd041fd0bddd5c8546608e95aaef70dc4e5814fe225970c8c699d878474",
+      "playwright-results/.last-run.json": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "run.log": "e3053d2ca1155dba4168c165cdad29bfabef595735abfb8ef19fedf082a831d9"
+    }
+  },
+  "notEstablished": [
+    "New aggregate/browser pass by hash refresh",
+    "Field/native/device/genuine hook qualification",
+    "Final accepted review or publication"
+  ],
+  "previousEdition": {
+    "path": "docs/evidence/production-workflow-review-20261011/r4-to-r5-equivalence-before-rechecks.json",
+    "sha256": "2861b5f24640c5a4391c52771619eb79f7f859dbce1b1f01d213de340b80f2c7",
+    "boundary": "Earlier proposed bridge with rechecks pending retained unchanged."
+  },
+  "didRerun": [
+    "Context source freshness",
+    "Current full-discovery inventory/registry checks",
+    "Nine affected actual mode/viewport camera/preservation journeys"
+  ],
+  "didNotRerun": [
+    "Raw whole npmvalidate against r5; retained r4 exit0 is linked through exact900-file unchanged implementation and reviewed proof-only delta",
+    "Full264r5 browser completion not yet supplied",
+    "Final two whole-workflow independent reviews not yet accepted",
+    "Native/device/physical/hook/deployment qualification"
+  ],
+  "remainingEvidence": [
+    "Completed full264r5 browser",
+    "Final reviews vet this bounded equivalence scope explicitly"
+  ],
+  "syntheticIdentityEpoch": {
+    "actualWrapperVariable": "CPLAYOUT_TEST_SIGNING_SEED",
+    "ignoredEarlierVariable": "CPLAYOUT_OFFLINE_SIGNING_SEED_FILE",
+    "earlierProofs": "Wrapper-generated ephemeral private seeds legitimately matched app and fixture, rotating served bundle hashes across proof epochs.",
+    "finalR5": "Coordinator verified actual CPLAYOUT_TEST_SIGNING_SEED private path mode600 and valid32-byte format; no seed bytes or private path exposed.",
+    "provenance": "Coordinator directly verified wrapper environment/source behavior.",
+    "boundary": "Synthetic proof identity only. Bind each epoch to its actual app/fixture/bundle; rotating public keys do not imply application source drift or production deployment."
+  }
+}

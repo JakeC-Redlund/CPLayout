@@ -12,7 +12,7 @@ import { runBrowserProofInventory } from "./buildBrowserProofInventory";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const inventory = JSON.parse(readFileSync(join(root, BROWSER_PROOF_INVENTORY_PATH), "utf8")) as BrowserProofInventory;
 function report(value = inventory) {
-  return { errors: [], stats: { expected: 0, skipped: 1185 }, suites: value.files.map(file => ({ title: file.file.split("/").at(-1), file: file.file.split("/").at(-1),
+  return { errors: [], stats: { expected: 0, skipped: 1227 }, suites: value.files.map(file => ({ title: file.file.split("/").at(-1), file: file.file.split("/").at(-1),
     specs: file.cases.flatMap(c => c.projects.map(projectName => ({ file: file.file.split("/").at(-1), title: c.title, line: c.line, column: c.column, tests: [{ projectName }] }))) })) };
 }
 function fixture() {
@@ -24,23 +24,23 @@ function selected(scope: BrowserProofScope, file: string, title: string, project
   return browserProofSelection(scope).grep.some(regex => regex.test(`${project} ${file} ${title}`));
 }
 
-test("actual source inventory has 395 concrete cases and all1185 executions without counting stats.expected", () => {
+test("actual source inventory has 409 concrete cases and all1227 executions without counting stats.expected", () => {
   assertBrowserProofInventory(root, inventory);
-  const parsed = parseFullBrowserDiscovery(report()); assert.equal(parsed.length, 395);
-  assert.equal(parsed.reduce((count, c) => count + c.projects.length, 0), 1185);
+  const parsed = parseFullBrowserDiscovery(report()); assert.equal(parsed.length, 409);
+  assert.equal(parsed.reduce((count, c) => count + c.projects.length, 0), 1227);
   assert.deepEqual(buildBrowserProofInventory(root, report()), inventory);
   assert(inventory.files.find(f => f.file.endsWith("browser-workflow.spec.ts"))!.cases.some(c => c.title.startsWith("touch vertex ownership ")));
 });
-test("current/all/deferred filters partition every actual concrete execution and require all eight whole current suites", () => {
+test("current/all/deferred filters partition every actual concrete execution and require all ten whole current suites", () => {
   let all = 0, active = 0, deferred = 0;
   for (const f of inventory.files) for (const c of f.cases) for (const project of c.projects) {
     const a = selected("current", f.file, c.title, project), d = selected("deferred", f.file, c.title, project);
     assert(selected("all", f.file, c.title, project)); assert.notEqual(a, d, `${f.file}: ${c.title}`);
     assert.equal(a, c.disposition === "current"); all++; if (a) active++; if (d) deferred++;
   }
-  assert.deepEqual({ all, active, deferred }, { all: 1185, active: 225, deferred: 960 });
-  assert.equal(BROWSER_PROOF_REGISTRY.filter(e => e.category === "current-app" || e.category === "platform").length, 8);
-  assert.equal(browserProofSelection("current").testMatch.length, 10);
+  assert.deepEqual({ all, active, deferred }, { all: 1227, active: 267, deferred: 960 });
+  assert.equal(BROWSER_PROOF_REGISTRY.filter(e => e.category === "current-app" || e.category === "platform").length, 10);
+  assert.equal(browserProofSelection("current").testMatch.length, 12);
 });
 test("mixed files retain only their three exact independent titles, rejecting near matches and wrong-file/title collisions", () => {
   for (const entry of BROWSER_PROOF_REGISTRY.filter(e => e.category === "mixed")) for (const title of entry.currentTitles!) {

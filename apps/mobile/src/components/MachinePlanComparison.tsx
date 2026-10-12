@@ -50,7 +50,7 @@ export function MachinePlanComparison({ field, proposed, revision, sourceName, s
   const count = (status: string) => comparison.filter(item => item.status === status).length;
   return <View style={styles.review} testID={testID}>
     <Text style={styles.title}>{sourceName} · {field.name}</Text>
-    <Text selectable style={styles.meta} testID={`${testID}-source`}>Review revision {revision} · Proposal {snapshot}{sourceDetail ? ` · ${sourceDetail}` : ""}</Text>
+    <Text selectable style={styles.meta} testID={`${testID}-source`}>Compare the current field with the proposed machine plan{sourceDetail ? ` · ${sourceDetail}` : ""}</Text>
     <View style={styles.previews}>
       {([{ title: "Current", machines: field.machines, key: "current", color: "#58695e" },
         { title: "Proposed", machines: proposed, key: "proposed", color: "#236b89" }] as const).map(panel => <View style={styles.preview} key={panel.key} testID={`${testID}-${panel.key}`}>
@@ -82,6 +82,7 @@ export function MachinePlanComparison({ field, proposed, revision, sourceName, s
         <Text style={styles.title}>{exactOpen ? "Hide exact values ▴" : "Exact values ▾"}</Text>
       </Pressable>
       {exactOpen && <View style={styles.machine} testID={`${testID}-exact`}>
+        <Text selectable style={styles.meta}>Review reference: {revision}-{snapshot}</Text>
         <Text style={styles.meta}>Stored dimensions are shown in meters without rounding. Main readings above use feet.</Text>
         {comparison.filter(item => item.status !== "unchanged").map(item => <View key={item.id} style={styles.machine}>
           <Text style={styles.title}>{item.name}</Text>

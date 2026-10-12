@@ -457,9 +457,9 @@ export function ProjectFilesPanel({
       </View>
       <View style={[styles.statusBox, statusToneStyle(status.tone)]} testID="files-status" {...webStatusProps()}>
         <Database size={17} color={statusToneColor(status.tone)} />
-        <Text style={[styles.statusText, statusTextToneStyle(status.tone)]}>{dirty ? "Unsaved edits. " : ""}{repository.statusMessage} · {status.text}</Text>
+        <Text style={[styles.statusText, statusTextToneStyle(status.tone)]}>{dirty ? "Unsaved edits. " : ""}{status.text}</Text>
       </View>
-      <Text style={styles.backendNote} testID="files-output-source">Outputs use {project.name} · {project.machine.name} ({project.machine.id}) · saved revision {outputContext?.designRevision ?? "not confirmed"}, edit {outputContext?.editRevision ?? 0}{dirty ? " (includes unsaved applied edits)" : ""}. Snapshot {snapshotHash.slice(0, 12)}. Unapplied form entries are not included.</Text>
+      <Text style={styles.backendNote} testID="files-output-source">Outputs include the applied entries for {project.name} · {project.machine.name}{dirty ? ", including changes awaiting Save" : ""}. Apply form entries before exporting.</Text>
       <FileLane icon={<Archive size={18} color="#254234" />} title="Project Package">
         <View style={styles.actionRow}>
           <FileAction accessibilityLabel="Save local project" icon={<Save size={18} color="#ffffff" />} label={dirty ? "Save *" : "Save"} primary onPress={onSaveProject} testID="files-action-save-local" />
@@ -474,23 +474,11 @@ export function ProjectFilesPanel({
           <FileAction accessibilityLabel="Delete local project" icon={<Trash2 size={18} color="#8b1e18" />} label="Delete Local Project" danger onPress={() => void onDeleteProject(project.id)} testID="files-action-delete-local-project" />
         </View>
       </FileLane>
-      {repository.backendInfo && (
-        <View style={styles.backendGrid}>
-          <BackendTile label="Backend" value={repository.backendInfo.backendLabel} />
-          <BackendTile label="Runtime" value={repository.backendInfo.runtime} />
-          <BackendTile label="Schema" value={repository.backendInfo.schemaVersion === undefined ? "n/a" : `v${repository.backendInfo.schemaVersion}`} />
-          <BackendTile label="Projects" value={`${repository.backendInfo.projectCount ?? repository.projects.length}`} />
-        </View>
-      )}
-      {repository.backendInfo?.notes.map((note) => (
-        <Text key={note} style={styles.backendNote}>{note}</Text>
-      ))}
-
       <FileLane icon={<Map size={18} color="#254234" />} title="Offline Maps">
         <View style={styles.actionRow}>
           <FileAction accessibilityLabel="Import map package ZIP" icon={<Upload size={18} color="#254234" />} label="Import Map Package" onPress={importMapPackageZip} testID="files-action-import-map-package" />
         </View>
-        <Text style={styles.backendNote}>Map package ZIPs install generated local tiles. Project archives store logical package metadata and visible attribution, not tile binaries.</Text>
+        <Text style={styles.backendNote}>Import map packages to use their imagery offline. Keep the original map package ZIP to transfer the imagery to another device; project files do not include the imagery.</Text>
       </FileLane>
 
       <FileLane icon={<Download size={18} color="#254234" />} title="GIS Exchange">
@@ -677,15 +665,6 @@ function FileLane({ children, icon, title }: { children: React.ReactNode; icon: 
         <Text style={styles.groupTitle}>{title}</Text>
       </View>
       {children}
-    </View>
-  );
-}
-
-function BackendTile({ label, value }: { label: string; value: string }): React.JSX.Element {
-  return (
-    <View style={styles.backendTile}>
-      <Text style={styles.backendLabel}>{label}</Text>
-      <Text style={styles.backendValue}>{value}</Text>
     </View>
   );
 }
@@ -995,32 +974,6 @@ const styles = StyleSheet.create({
   },
   statusTextError: {
     color: "#8b1e18",
-  },
-  backendGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-  },
-  backendTile: {
-    backgroundColor: "#f8faf4",
-    borderColor: "#d8e0d4",
-    borderRadius: 8,
-    borderWidth: 1,
-    minWidth: 128,
-    paddingHorizontal: 10,
-    paddingVertical: 9,
-  },
-  backendLabel: {
-    color: "#5a6c60",
-    fontSize: 11,
-    fontWeight: "900",
-    textTransform: "uppercase",
-  },
-  backendValue: {
-    color: "#21382b",
-    fontSize: 13,
-    fontWeight: "900",
-    marginTop: 3,
   },
   backendNote: {
     color: "#53655a",

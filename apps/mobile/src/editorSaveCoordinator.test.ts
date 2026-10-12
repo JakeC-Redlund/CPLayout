@@ -4,12 +4,33 @@ import { convertPivotProjectToFieldDesign, createDesignDraftEditorState, default
 import { createVersionedProjectRepository } from "../../../packages/project-store/src/versionedProjectRepository";
 import { WEB_WORKSPACE_KEY, type WorkspaceLocks } from "../../../packages/project-store/src/webWorkspaceStore";
 import { createEditorSaveCoordinator, type EditorSavePayload, type EditorSaveTarget } from "./editorSaveCoordinator";
+import { emptyWorkspaceDocument, upgradeWorkspaceDocumentToV5, serializeWorkspaceDocument } from "../../../packages/project-store/src/workspaceDocument";
 
 function deferred() {
   let resolve!: () => void;
   const promise = new Promise<void>(done => { resolve = done; });
   return { promise, resolve };
 }
+test("an explicit retained v5 migration admits its exact multi-step receipt; ordinary or fabricated jumps cannot rebase", async () => {
+  const source = emptyWorkspaceDocument(), upgraded = upgradeWorkspaceDocumentToV5(serializeWorkspaceDocument(source));
+  const coordinator = createEditorSaveCoordinator();
+  const result = await coordinator.exclusive({ isCurrent: () => true, write: async () => ({ previousRevision: source.revision,
+    persistenceRevision: upgraded.revision, value: upgraded, migration: { kind: "workspace_v5_upgrade", sourceWorkspace: source, resultWorkspace: upgraded } }) });
+  assert.equal(result.revision, 3); assert.equal(result.workspaceVersion, "cplayout-workspace-v5");
+  await assert.rejects(coordinator.exclusive({ isCurrent: () => true, write: async () => ({ previousRevision: source.revision, persistenceRevision: upgraded.revision, value: upgraded }) }), /exactly once/);
+  const changed = { ...upgraded, revision: upgraded.revision + 10 };
+  await assert.rejects(coordinator.exclusive({ isCurrent: () => true, write: async () => ({ previousRevision: source.revision,
+    persistenceRevision: changed.revision, value: changed, migration: { kind: "workspace_v5_upgrade", sourceWorkspace: source, resultWorkspace: changed } }) }), /source chain/);
+});
+test("navigation's read-only queue drain waits for admitted Save acknowledgement without another write", async () => {
+  const coordinator = createEditorSaveCoordinator(), session = coordinator.open({ kind: "draft", payloadId: "draft", designId: "design", workspaceRevision: 5, designRevision: 2 });
+  const release = deferred(), order: string[] = [];
+  const saved = coordinator.save({ session, payload: { kind: "draft", draft: blank() }, editorRevision: 1,
+    async write() { order.push("write"); await release.promise; return { saved: true, persistenceRevision: 6, designRevision: 3 }; }, onCommitted() { order.push("acknowledge"); } });
+  const idle = coordinator.whenIdle().then(() => { order.push("idle"); });
+  await Promise.resolve(); assert.deepEqual(order, ["write"]); release.resolve(); await Promise.all([saved, idle]);
+  assert.deepEqual(order, ["write", "acknowledge", "idle"]); assert.equal(coordinator.receipt(session).workspaceRevision, 6);
+});
 
 test("recorded operations wait for admitted saves and use the resulting receipt without reopening", async () => {
   const coordinator = createEditorSaveCoordinator();

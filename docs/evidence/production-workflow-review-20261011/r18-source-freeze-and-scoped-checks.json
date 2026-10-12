@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-12T19:46:58.257963+00:00",
+  "classification": "source_freeze_and_scoped_CAS_remediation_checks",
+  "claimClass": "source",
+  "result": "partial",
+  "sourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r18.json",
+  "sourceFingerprint": "3c146000b31bd17d3779e9a3c6853297e831a837e5ad21feb298a5a8ae1095d8",
+  "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+  "canonicalPathCount": 962,
+  "changedFromR17": [
+    ".agents/skills/cplayout-database-agent/SKILL.md",
+    ".codex/hooks/cplayout_context_map.json",
+    "apps/api/src/database.test.ts",
+    "apps/api/src/recoveryImportCasTestFixtures.ts",
+    "apps/api/src/server.test.ts",
+    "apps/api/src/server.ts",
+    "docs/agent-context-map.md",
+    "docs/skill-capability-inventory.json",
+    "docs/skill-capability-inventory.md",
+    "docs/workflow-maintenance-guide.md"
+  ],
+  "addedFromR17": [
+    "apps/api/src/recoveryImportCasTestFixtures.ts"
+  ],
+  "removedFromR17": [],
+  "byteIdenticalOtherPaths": 952,
+  "criteriaUnchanged": true,
+  "sourceDrift": [],
+  "rootSourceCorrection": {
+    "reference": "docs/evidence/production-workflow-review-20261011/cas-import-revision-correction-scoped-20261012.json",
+    "sha256": "4baf54e2f985d04480cd2b9eca74e08f2d9e85bde1d36704d19653ada5fffec2",
+    "fourDeclaredSourceHashesVerified": true,
+    "boundedClaim": "Scoped syntheticservice/V3 and actualPGrefusal/forwardraw/concurrentwriter checks; fullR18/source/browser/closingreviews pending."
+  },
+  "hostedR17Preserved": {
+    "reference": "docs/evidence/production-workflow-review-20261011/hosted-source-and-browser-r17-pass.json",
+    "sha256": "017392fab80c6b389b66893a271081d39bb191c2702b10eefea5d3ff9c549baf",
+    "runId": 38270802731,
+    "sourceHead": "40821521fe8a556bb1c320d66164a5a21ce95763",
+    "result": "pass_source_and267browser_with_unresolved_CAS_P1_publication_veto",
+    "boundary": "This successful CI didnotdetectCASfinding and cannotclose protectedconversation/currentQA."
+  },
+  "scopedOwnedChecks": {
+    "databaseSkillQuickValidate": {
+      "exitCode": 0,
+      "sourceOnly": true
+    },
+    "skillInventory": {
+      "host": 67,
+      "workspace": 11,
+      "changedSkill": "cplayout-database-agent",
+      "otherFingerprintsUnchanged": 77,
+      "hostInvocation": "not_measured"
+    },
+    "contextBuild": {
+      "exitCode": 0,
+      "changedOutputs": [
+        ".codex/hooks/cplayout_context_map.json",
+        "docs/agent-context-map.md"
+      ]
+    },
+    "contextCheck": {
+      "exitCode": 0
+    },
+    "skillsValidator": {
+      "exitCode": 0,
+      "logSha256": "b1dffc63061a3ecc0340ee9708e65b8240cba4aa45bb48508aeb73e67d04670d",
+      "logBytes": 2914
+    }
+  },
+  "implementedImportBoundary": "Under existing destination row lock after V3 refusal, imported revision<=stored returns409import_revision_conflict. Exactraw file notrewritten; V5publicbootstraprevision4 isnotrevision0restore. Legacy insertion/read/sourceupgrade remainseparate.",
+  "boundary": "Freeze/scoped checks only; actualR18aggregate/protectedCI267/closingreviews/conversation/merge/mainsync pending. Priorimmutable passes/failures remain unchanged."
+}

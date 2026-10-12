@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-12",
+  "claimClass": "source",
+  "result": "partial_test_only_bridge_checks_complete_runtime_pending",
+  "priorSource": {
+    "manifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r14.json",
+    "paths": 961,
+    "fingerprint": "d6af4cec8c4b78888bf0a8e2df11a7e4a5e1ac9f69f3978cd5c1dcbc40f373d5"
+  },
+  "currentSource": {
+    "manifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r15.json",
+    "paths": 961,
+    "fingerprint": "39cf1a097447da8749b64c3ca1c143a916c4830d8b6ba0a5cd11155e70c60012"
+  },
+  "changedPaths": [
+    {
+      "path": "tests/web/browser-proof-inventory.json",
+      "beforeSha256": "b8f13a13a13ede8bc9c97ecaf69f852012f369bf28f43985d8c496711099a73f",
+      "afterSha256": "1a51ef1caa7414f6d422d1686b1fb97204d98523d27205eb08f28a2b82eb730e"
+    },
+    {
+      "path": "tests/web/unified-workspace.spec.ts",
+      "beforeSha256": "b6137eef0eba766e9e46dea0adaa83e0f8239cfd6605f79dea134eaca0da7f06",
+      "afterSha256": "79fda29cec81ce4114bdc5ed556b6f18cdecdeebec7afdbe8133c9192210fa46"
+    },
+    {
+      "path": "tests/web/workspace-fixtures.ts",
+      "beforeSha256": "a9cf1e581f446f01b7f6173af6289409aed3b0ef9de162e3ee3f842a42671116",
+      "afterSha256": "217fd7d5abb4139782f37fd23a9392f4f9bd8cebbaeafd3c5c64ce6541a8acd4"
+    },
+    {
+      "path": "tests/web/workspace-management.spec.ts",
+      "beforeSha256": "901ad0ea891656c5626ad3bc123907a81114173d7808384b83f71a8686cf569f",
+      "afterSha256": "ac1dd015d3a4c5e69eadeb9f849fff6dcfd2131985216aabb34a7c414932f38d"
+    },
+    {
+      "path": "tests/web/workspace-package-import.spec.ts",
+      "beforeSha256": "63404aade58f5de8b27bb9d7eb7d210c5b31d107c5357c31b28506d9b2f2a62a",
+      "afterSha256": "db514eec4f19f6b34410cb38017ddb293ebed0cd765cc1849f529b15b9c2edaf"
+    },
+    {
+      "path": "tests/web/workspace-startup-resume.spec.ts",
+      "beforeSha256": "c171780dc129057d562ac67aec9a587c71956e4476f8120813277bfb919c2f4b",
+      "afterSha256": "13c31e7f3f081ba009282c278eb72420b6d6963aba609e29ba147287e7e47cdf"
+    }
+  ],
+  "byteIdenticalPaths": 955,
+  "currentSourceBytesVerified": true,
+  "currentDrift": [],
+  "criteriaUnchanged": true,
+  "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+  "shippingBoundary": "Every shipping/API/core/store/dependency/guide/criteria path is byte-identical. Changes are only four existing webspecs, shared workspace-fixtures and regenerated discovery inventory. No source production fix is inferred.",
+  "titleIdentityCheck": {
+    "currentTitles": 89,
+    "currentExecutions": 267,
+    "actualEquality": "Direct comparison of fullR14embeddedHTML(file,title,project) againstactualR15declaredcurrent inventory yields identical267tuples/89titles.",
+    "deferred": 960,
+    "allExecutions": 1227
+  },
+  "actualAffectedChecks": {
+    "browserRegistry": {
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "logSha256": "109dbb97d80398d34df174a7bf0c61f8fb2b5440274656904cd3e8c95d1ef8b6"
+    },
+    "contextCheck": {
+      "exitCode": 0,
+      "logSha256": "cf0524310319d026dded2161af9395c1def74041048b20861fdcee87b1502123"
+    },
+    "parentNavigationHelper": {
+      "checks": 9,
+      "verifiedKinds": 3,
+      "sourceAndDestinationParents": true,
+      "missingDesignRefusedBeforeUI": true,
+      "documentBytesUnchanged": true,
+      "automaticDocumentOpen": false,
+      "logSha256": "b42249d6dc7bc8a33095261de19a0764875faaecabeecca4fafc9016b1175a5a",
+      "boundary": "Actual fixture/helper contract only; no renderedGUI claim."
+    }
+  },
+  "helperSourceRead": "browseDesignParents readsactualsaveddesign→field→project→customer links, refusesmissingparents beforeUI, deliberatelyselectsactualCatalogparents+mapcategory, assertsaria-pressed andreturnsdesignIdnull. It doesnotautomaticallyOpen or inventparents.",
+  "retainedAggregate": {
+    "reference": "docs/evidence/production-workflow-review-20261011/source-hierarchy-r14-pass.json",
+    "result": "pass",
+    "boundary": "CompleteactualR14aggregate retained. No freshR15aggregate executed orrelabeled in thisbridge."
+  },
+  "retainedFullFailure": "docs/evidence/production-workflow-review-20261011/full-hierarchy-r14-failed.json",
+  "retainedFailedIdentityCount": 20,
+  "pending": "Full267R15browser nowrunning; ninepreviousfailedlegacyvarianttitle groups andcompletecurrentworkflow stillrequirewholepacket. No newR15aggregate claimed; bothfinalreviews/publication pending.",
+  "boundary": "Exacttest-onlysixpath bridge withcurrent961sourcebyteschecked. Unchangedshipping code andactualsource/helperchecks do notestablish wholebrowser/everysemanticassertion/finalQA acceptance.",
+  "actualAffectedRuntimeRecheck": {
+    "reference": "docs/evidence/production-workflow-review-20261011/parent-hierarchy-r15-pass.json",
+    "selected": 39,
+    "passed": 39,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "didNotRun": 0,
+    "matchedPriorFailedTitleGroups": 11,
+    "remainingPriorFailedTitleGroups": 9,
+    "extraNegativeGuards": 2
+  }
+}

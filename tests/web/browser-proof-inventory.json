@@ -6,13 +6,13 @@
     "tablet-768",
     "mobile-390"
   ],
-  "discoveryFingerprint": "871954d3be402bc875d26d8f6a8935ff68f3b5183b44b097970dc3f3474b2869",
+  "discoveryFingerprint": "24128a2593a83e3b64330068b92a4c5c8961a71b61e3ca9a15e1ee323fcc01af",
   "counts": {
-    "files": 31,
-    "uniqueCases": 395,
-    "currentExecutions": 225,
+    "files": 33,
+    "uniqueCases": 409,
+    "currentExecutions": 267,
     "deferredExecutions": 960,
-    "allExecutions": 1185
+    "allExecutions": 1227
   },
   "files": [
     {
@@ -3364,6 +3364,178 @@
       ]
     },
     {
+      "file": "tests/web/production-accessibility.spec.ts",
+      "sha256": "57cd9f6e83fa3476db3af60e14dc70671721c8a2c0eb4e26d71105aeb14c3b60",
+      "category": "current-app",
+      "coverageGap": null,
+      "cases": [
+        {
+          "title": "operator sign-in, Home, Design and Survey stay keyboard reachable and pass automated accessibility checks",
+          "line": 51,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        }
+      ]
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "sha256": "7926cc66fb6c14e2b673a56807b04e0d224063b63527bdb1a778bca243ea6683",
+      "category": "current-app",
+      "coverageGap": null,
+      "cases": [
+        {
+          "title": "real username/password sign-in rejects anonymous API access and retains the workspace when visiting Home",
+          "line": 67,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "new customer and project open Design without GPS or fabricated coordinate and machine data",
+          "line": 125,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "Survey-first project skips manual Design and still requires actual survey evidence before Layout",
+          "line": 173,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "Survey-first recorded boundary and pivot progress through fresh field review to an immutable marked Layout without invented infrastructure",
+          "line": 180,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "Support cannot read field data through the server even with a supplied workspace membership",
+          "line": 376,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "prepared offline reload verifies the signed grant and rejects tampering while retaining exact field data",
+          "line": 385,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "short narrow sign-in keeps focused credentials, submit and help reachable without horizontal overflow",
+          "line": 394,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "service denial preserves unfinished customer modal before hiding it for renewed sign-in",
+          "line": 403,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "cold service session denial prevents subsequent offline grant revival while retaining exact work",
+          "line": 419,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "post-login device quota reconciles service identity and then isolates a read-only operator account",
+          "line": 431,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "actual Catalog customer archive and restore retain field history through an acknowledged status-read failure",
+          "line": 457,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "two actual App pages serialize sign-out response cookies before a newer username/password sign-in",
+          "line": 491,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        }
+      ]
+    },
+    {
       "file": "tests/web/project-copy.spec.ts",
       "sha256": "02848e1841357f18e2065dc26ff04b9ca760d64de72f4727902a251dda55200d",
       "category": "deferred-legacy",
@@ -3845,13 +4017,13 @@
     },
     {
       "file": "tests/web/unified-workspace.spec.ts",
-      "sha256": "7aad9b1d6e113bd092c065a8299ee214faddcb74026036351bbfdd2d969de8f8",
+      "sha256": "79fda29cec81ce4114bdc5ed556b6f18cdecdeebec7afdbe8133c9192210fa46",
       "category": "current-app",
       "coverageGap": null,
       "cases": [
         {
           "title": "empty default App creates explicit customer/project/first field/CRS and opens an actual empty Draft",
-          "line": 157,
+          "line": 178,
           "column": 5,
           "projects": [
             "desktop",
@@ -3863,7 +4035,7 @@
         },
         {
           "title": "Draft map clicks classify inline and save/reopen exact ordered geometry, labels and digitized times",
-          "line": 187,
+          "line": 206,
           "column": 5,
           "projects": [
             "desktop",
@@ -3874,8 +4046,8 @@
           "coverageGap": null
         },
         {
-          "title": "Design/Survey/Layout retain one map node and camera while malformed machine text and caret survive mode changes",
-          "line": 208,
+          "title": "Design/Survey retain one map and unfinished input while missing Survey review blocks Layout without changing source",
+          "line": 227,
           "column": 5,
           "projects": [
             "desktop",
@@ -3887,7 +4059,7 @@
         },
         {
           "title": "calculation is preview only and explicit completion creates a separate saved child before explicit Open",
-          "line": 235,
+          "line": 274,
           "column": 5,
           "projects": [
             "desktop",
@@ -3899,7 +4071,7 @@
         },
         {
           "title": "task tabs retire held map gestures and retain malformed input, caret and independent scroll positions",
-          "line": 250,
+          "line": 298,
           "column": 5,
           "projects": [
             "desktop",
@@ -3911,7 +4083,7 @@
         },
         {
           "title": "unequal Field machines freeze an exact selected Layout target and observations survive save, later design edit and reopen",
-          "line": 289,
+          "line": 337,
           "column": 5,
           "projects": [
             "desktop",
@@ -3923,7 +4095,7 @@
         },
         {
           "title": "Survey retains immutable evidence through mode changes and clear/Undo, then applies a real line while disconnected",
-          "line": 324,
+          "line": 395,
           "column": 5,
           "projects": [
             "desktop",
@@ -3935,7 +4107,7 @@
         },
         {
           "title": "common Save shows unapplied inputs, refuses without storage error, and File copy exports exact applied source",
-          "line": 348,
+          "line": 419,
           "column": 5,
           "projects": [
             "desktop",
@@ -3947,7 +4119,7 @@
         },
         {
           "title": "Layout common Save names its session while hidden Design input and newer names remain separate",
-          "line": 399,
+          "line": 470,
           "column": 5,
           "projects": [
             "desktop",
@@ -3958,8 +4130,8 @@
           "coverageGap": null
         },
         {
-          "title": "opening saved Layout refuses an unfinished new-session name and explicit Discard preserves the saved target",
-          "line": 447,
+          "title": "unreviewed Design refuses new Layout while explicit Catalog Open preserves a historical saved target",
+          "line": 519,
           "column": 5,
           "projects": [
             "desktop",
@@ -3971,7 +4143,7 @@
         },
         {
           "title": "recorded LineString reference applies in actual draft while disconnected and reopens honest provenance",
-          "line": 471,
+          "line": 536,
           "column": 17,
           "projects": [
             "desktop",
@@ -3983,7 +4155,7 @@
         },
         {
           "title": "recorded LineString reference applies in actual field while disconnected and reopens honest provenance",
-          "line": 471,
+          "line": 536,
           "column": 17,
           "projects": [
             "desktop",
@@ -3995,7 +4167,7 @@
         },
         {
           "title": "recorded LineString reference applies in actual project while disconnected and reopens honest provenance",
-          "line": 471,
+          "line": 536,
           "column": 17,
           "projects": [
             "desktop",
@@ -4007,7 +4179,7 @@
         },
         {
           "title": "recorded Point reference applies in actual draft while disconnected and reopens honest provenance",
-          "line": 471,
+          "line": 536,
           "column": 17,
           "projects": [
             "desktop",
@@ -4019,7 +4191,7 @@
         },
         {
           "title": "recorded Point reference applies in actual field while disconnected and reopens honest provenance",
-          "line": 471,
+          "line": 536,
           "column": 17,
           "projects": [
             "desktop",
@@ -4031,7 +4203,7 @@
         },
         {
           "title": "recorded Point reference applies in actual project while disconnected and reopens honest provenance",
-          "line": 471,
+          "line": 536,
           "column": 17,
           "projects": [
             "desktop",
@@ -4043,7 +4215,7 @@
         },
         {
           "title": "recorded Polygon reference applies in actual draft while disconnected and reopens honest provenance",
-          "line": 471,
+          "line": 536,
           "column": 17,
           "projects": [
             "desktop",
@@ -4055,7 +4227,7 @@
         },
         {
           "title": "recorded Polygon reference applies in actual field while disconnected and reopens honest provenance",
-          "line": 471,
+          "line": 536,
           "column": 17,
           "projects": [
             "desktop",
@@ -4067,7 +4239,7 @@
         },
         {
           "title": "recorded Polygon reference applies in actual project while disconnected and reopens honest provenance",
-          "line": 471,
+          "line": 536,
           "column": 17,
           "projects": [
             "desktop",
@@ -4377,7 +4549,7 @@
     },
     {
       "file": "tests/web/workspace-edit-recovery.spec.ts",
-      "sha256": "bb06de4631c7d256771b553404f48a276b17818f917843cda65f6ebe3c5cc32d",
+      "sha256": "04f78cf754d4791401bbf936710d11c5f9c257de10d7efb46732ded1d3bc221a",
       "category": "current-app",
       "coverageGap": null,
       "cases": [
@@ -4419,7 +4591,7 @@
         },
         {
           "title": "actual hidden-Catalog raw edit checkpoints automatically and reload Restore returns its exact unfinished input",
-          "line": 160,
+          "line": 162,
           "column": 5,
           "projects": [
             "desktop",
@@ -4431,7 +4603,7 @@
         },
         {
           "title": "actual Catalog-only unfinished customer form checkpoints and reload Restore preserves invalid fields and errors without records",
-          "line": 177,
+          "line": 179,
           "column": 5,
           "projects": [
             "desktop",
@@ -4443,7 +4615,7 @@
         },
         {
           "title": "actual checkpoint Export and conditional Discard preserve exact candidate bytes and every durable source",
-          "line": 197,
+          "line": 199,
           "column": 5,
           "projects": [
             "desktop",
@@ -4455,7 +4627,7 @@
         },
         {
           "title": "actual corrupt-checkpoint refusal keeps exact opaque ledger Export available without normalization or source writes",
-          "line": 207,
+          "line": 209,
           "column": 5,
           "projects": [
             "desktop",
@@ -4467,7 +4639,7 @@
         },
         {
           "title": "actual Review refuses a changed saved source while retaining the checkpoint and newer design exact",
-          "line": 218,
+          "line": 220,
           "column": 5,
           "projects": [
             "desktop",
@@ -4479,7 +4651,7 @@
         },
         {
           "title": "actual Restore refuses a connected synthetic receiver and never reconnects it implicitly",
-          "line": 230,
+          "line": 232,
           "column": 5,
           "projects": [
             "desktop",
@@ -4493,13 +4665,25 @@
     },
     {
       "file": "tests/web/workspace-management.spec.ts",
-      "sha256": "b34e0cb3d87a1142defe0e9d6a49263f625ead10fd80de1edea4a810048aa1c5",
+      "sha256": "ac1dd015d3a4c5e69eadeb9f849fff6dcfd2131985216aabb34a7c414932f38d",
       "category": "current-app",
       "coverageGap": null,
       "cases": [
         {
+          "title": "retained Survey with unavailable original folders remains readable and exports its exact source without inventing parents",
+          "line": 44,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
           "title": "draft applied title synchronizes its saved list name only on ordinary Save and preserves field/history/targets",
-          "line": 174,
+          "line": 220,
           "column": 5,
           "projects": [
             "desktop",
@@ -4511,7 +4695,7 @@
         },
         {
           "title": "field applied title synchronizes its saved list name only on ordinary Save and preserves field/history/targets",
-          "line": 174,
+          "line": 220,
           "column": 5,
           "projects": [
             "desktop",
@@ -4523,7 +4707,7 @@
         },
         {
           "title": "project applied title synchronizes its saved list name only on ordinary Save and preserves field/history/targets",
-          "line": 174,
+          "line": 220,
           "column": 5,
           "projects": [
             "desktop",
@@ -4535,7 +4719,7 @@
         },
         {
           "title": "draft File Rename focuses its retained raw name from collapsed tools without a duplicate File form",
-          "line": 204,
+          "line": 250,
           "column": 5,
           "projects": [
             "desktop",
@@ -4547,7 +4731,7 @@
         },
         {
           "title": "field File Rename focuses its retained raw name from collapsed tools without a duplicate File form",
-          "line": 204,
+          "line": 250,
           "column": 5,
           "projects": [
             "desktop",
@@ -4559,42 +4743,6 @@
         },
         {
           "title": "current-field New in design keeps Browse B and dirty Source A until an explicit guarded Open",
-          "line": 232,
-          "column": 5,
-          "projects": [
-            "desktop",
-            "tablet-768",
-            "mobile-390"
-          ],
-          "disposition": "current",
-          "coverageGap": null
-        },
-        {
-          "title": "current-field New in layout keeps Browse B and dirty Source A until an explicit guarded Open",
-          "line": 232,
-          "column": 5,
-          "projects": [
-            "desktop",
-            "tablet-768",
-            "mobile-390"
-          ],
-          "disposition": "current",
-          "coverageGap": null
-        },
-        {
-          "title": "current-field New in survey keeps Browse B and dirty Source A until an explicit guarded Open",
-          "line": 232,
-          "column": 5,
-          "projects": [
-            "desktop",
-            "tablet-768",
-            "mobile-390"
-          ],
-          "disposition": "current",
-          "coverageGap": null
-        },
-        {
-          "title": "early customer entry keeps an emptied required name, validates it and preserves all saved design work",
           "line": 278,
           "column": 5,
           "projects": [
@@ -4606,8 +4754,44 @@
           "coverageGap": null
         },
         {
+          "title": "current-field New in layout keeps Browse B and dirty Source A until an explicit guarded Open",
+          "line": 278,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "current-field New in survey keeps Browse B and dirty Source A until an explicit guarded Open",
+          "line": 278,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
+          "title": "early customer entry keeps an emptied required name, validates it and preserves all saved design work",
+          "line": 329,
+          "column": 5,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null
+        },
+        {
           "title": "field container Rename is metadata-only, reachable on a short viewport and checkpointed as recovery v2",
-          "line": 300,
+          "line": 351,
           "column": 5,
           "projects": [
             "desktop",
@@ -4619,7 +4803,7 @@
         },
         {
           "title": "invalid field rename reloads through File Review/Restore as its original rename form and requires Recheck",
-          "line": 323,
+          "line": 374,
           "column": 5,
           "projects": [
             "desktop",
@@ -4633,13 +4817,13 @@
     },
     {
       "file": "tests/web/workspace-package-import.spec.ts",
-      "sha256": "38e05df9ce3589c0ad5933e198a972748fe3d75dba60909835073b07bb629c2f",
+      "sha256": "db514eec4f19f6b34410cb38017ddb293ebed0cd765cc1849f529b15b9c2edaf",
       "category": "current-app",
       "coverageGap": null,
       "cases": [
         {
           "title": "draft actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
-          "line": 197,
+          "line": 200,
           "column": 5,
           "projects": [
             "desktop",
@@ -4651,7 +4835,7 @@
         },
         {
           "title": "draft actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
-          "line": 197,
+          "line": 200,
           "column": 5,
           "projects": [
             "desktop",
@@ -4663,7 +4847,7 @@
         },
         {
           "title": "field actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
-          "line": 197,
+          "line": 200,
           "column": 5,
           "projects": [
             "desktop",
@@ -4675,7 +4859,7 @@
         },
         {
           "title": "field actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
-          "line": 197,
+          "line": 200,
           "column": 5,
           "projects": [
             "desktop",
@@ -4687,7 +4871,7 @@
         },
         {
           "title": "project actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
-          "line": 197,
+          "line": 200,
           "column": 5,
           "projects": [
             "desktop",
@@ -4699,7 +4883,7 @@
         },
         {
           "title": "project actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
-          "line": 197,
+          "line": 200,
           "column": 5,
           "projects": [
             "desktop",
@@ -4711,7 +4895,7 @@
         },
         {
           "title": "actual JSON package without Survey history imports without fabricated collections",
-          "line": 222,
+          "line": 225,
           "column": 5,
           "projects": [
             "desktop",
@@ -4723,7 +4907,7 @@
         },
         {
           "title": "actual ZIP package without Survey history imports without fabricated collections",
-          "line": 222,
+          "line": 225,
           "column": 5,
           "projects": [
             "desktop",
@@ -4734,8 +4918,8 @@
           "coverageGap": null
         },
         {
-          "title": "v1 actual package individually prepares Field/Layout then Survey before one saved-copy import",
-          "line": 234,
+          "title": "v1 actual package prepares the retained Field/Layout/Survey chain before one saved-copy import",
+          "line": 240,
           "column": 5,
           "projects": [
             "desktop",
@@ -4746,8 +4930,8 @@
           "coverageGap": null
         },
         {
-          "title": "v2 actual package individually prepares Field/Layout then Survey before one saved-copy import",
-          "line": 234,
+          "title": "v2 actual package prepares the retained Field/Layout/Survey chain before one saved-copy import",
+          "line": 240,
           "column": 5,
           "projects": [
             "desktop",
@@ -4759,7 +4943,7 @@
         },
         {
           "title": "v3 actual storage Prepare refuses wrong CRS without an upgrade or any byte change",
-          "line": 252,
+          "line": 258,
           "column": 5,
           "projects": [
             "desktop",
@@ -4771,7 +4955,7 @@
         },
         {
           "title": "actual upload of corrupt replacement retires previously admitted package without records",
-          "line": 265,
+          "line": 271,
           "column": 5,
           "projects": [
             "desktop",
@@ -4783,7 +4967,7 @@
         },
         {
           "title": "actual upload of unknown replacement retires previously admitted package without records",
-          "line": 265,
+          "line": 271,
           "column": 5,
           "projects": [
             "desktop",
@@ -4795,7 +4979,7 @@
         },
         {
           "title": "v3 actual complete upload refuses mismatched CRS atomically including workspace version",
-          "line": 282,
+          "line": 288,
           "column": 5,
           "projects": [
             "desktop",
@@ -4807,7 +4991,7 @@
         },
         {
           "title": "v4 actual complete upload refuses mismatched CRS atomically including workspace version",
-          "line": 282,
+          "line": 288,
           "column": 5,
           "projects": [
             "desktop",
@@ -4819,7 +5003,7 @@
         },
         {
           "title": "actual saved-copy Open refuses dirty current input and retains raw text until explicit Discard",
-          "line": 294,
+          "line": 300,
           "column": 5,
           "projects": [
             "desktop",
@@ -4833,13 +5017,13 @@
     },
     {
       "file": "tests/web/workspace-startup-resume.spec.ts",
-      "sha256": "fb2f01b87ad8f6f1e75d69ac7480581c44a81730a8c2b26448a8185fc6f964ff",
+      "sha256": "13c31e7f3f081ba009282c278eb72420b6d6963aba609e29ba147287e7e47cdf",
       "category": "current-app",
       "coverageGap": null,
       "cases": [
         {
           "title": "draft automatically reloads the exact saved design, Survey collection and immutable histories",
-          "line": 116,
+          "line": 115,
           "column": 5,
           "projects": [
             "desktop",
@@ -4851,7 +5035,7 @@
         },
         {
           "title": "field automatically reloads the exact saved design, Survey collection and immutable histories",
-          "line": 116,
+          "line": 115,
           "column": 5,
           "projects": [
             "desktop",
@@ -4863,7 +5047,7 @@
         },
         {
           "title": "project automatically reloads the exact saved design, Survey collection and immutable histories",
-          "line": 116,
+          "line": 115,
           "column": 5,
           "projects": [
             "desktop",
@@ -4875,7 +5059,7 @@
         },
         {
           "title": "dual-subject startup retains the exact Layout target and acknowledges Layout and Design saves separately",
-          "line": 133,
+          "line": 132,
           "column": 5,
           "projects": [
             "desktop",
@@ -4923,7 +5107,7 @@
         },
         {
           "title": "absent/malformed startup hints fall back without preference or workspace-byte writes",
-          "line": 210,
+          "line": 211,
           "column": 5,
           "projects": [
             "desktop",
@@ -4935,7 +5119,7 @@
         },
         {
           "title": "deleted/foreign startup hints fall back without preference or workspace-byte writes",
-          "line": 210,
+          "line": 211,
           "column": 5,
           "projects": [
             "desktop",
@@ -4959,7 +5143,7 @@
         },
         {
           "title": "dirty input Open refusal keeps the previous accepted hint and saved source exact",
-          "line": 253,
+          "line": 254,
           "column": 5,
           "projects": [
             "desktop",
@@ -4971,7 +5155,7 @@
         },
         {
           "title": "externally deleted destination Open refusal keeps the previous accepted hint and saved source exact",
-          "line": 253,
+          "line": 254,
           "column": 5,
           "projects": [
             "desktop",

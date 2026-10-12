@@ -1,0 +1,423 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-12T15:35:30.567362+00:00",
+  "classification": "independent_scoped_source_dependency_review",
+  "claimClass": "source",
+  "result": "pass_source_dependency_scope_runtime_pending",
+  "decision": "accept_second_R17_source_dependency_supplement",
+  "reviewer": "/root/production_workflow_second_review",
+  "supplementalReviewOrdinal": 2,
+  "independence": {
+    "sourceTestsCriteriaEdited": false,
+    "gitNpmInstallExportBrowserServerActions": false,
+    "onlyWrite": "This metadata-only public supplemental receipt",
+    "freshCIOrBrowserRunByReviewer": false
+  },
+  "source": {
+    "manifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r17.json",
+    "manifestFileSha256": "05e696362b2cc884c470843af160cb31d2eebd97a79cb1c713a17046f6264a41",
+    "sourceFingerprint": "2ecce6cfdefe83a39d25d9028f1e19f3c0419a7f18dc78575b3dcfda1fe97b36",
+    "baseCommit": "bfe3ac2319eccf0a34f7933e879f49eaee29ea26",
+    "canonicalPathCount": 961,
+    "completeCensusVerified": true,
+    "missingPaths": [],
+    "extraPaths": [],
+    "sourceDrift": [],
+    "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+    "all19CriteriaUnchanged": true,
+    "changedPaths": [
+      ".agents/skills/cplayout-database-agent/SKILL.md",
+      ".codex/hooks/cplayout_context_map.json",
+      ".github/workflows/cplayout-required.yml",
+      "apps/mobile/package.json",
+      "docs/agent-context-map.md",
+      "docs/dependency-maintenance.md",
+      "docs/skill-capability-inventory.json",
+      "docs/skill-capability-inventory.md",
+      "package-lock.json",
+      "package.json",
+      "packages/backup-artifacts/package.json",
+      "patches/expo-sqlite+57.0.4.json",
+      "tools/metroDependency.test.ts",
+      "tools/patchDependencySecurity.cjs",
+      "tools/patchDependencySecurity.test.cjs"
+    ],
+    "byteIdenticalOtherPaths": 946,
+    "exactShippingTypeScriptAndBrowserInputBytesUnchanged": true
+  },
+  "exactDiffVerification": {
+    "privatePatchSha256": "ea2fef88551beb12e9822c9e2e5bec53047790c86ddd8ae5fc1a25b1a76e484d",
+    "privatePatchBytes": 41659,
+    "paths": 15,
+    "method": "Independently reversed every supplied unified hunk in memory against current files; every reconstructed before-file matches R16 manifest hash and every after-file matches R17. No Git invocation or file mutation by reviewer.",
+    "allBeforeAndAfterHashesMatch": true,
+    "sqliteOwnershipMetadata": "Only Expo/core version rows and new compatibility-review metadata differ. Removing that metadata and restoring prior rows reconstructs exact R16 JSON hash; all pins/expected patched bytes and SQLite patch itself unchanged.",
+    "securityTable": "Removing only new exact Expo57.0.28/core57.0.22/SQLite57.0.4 row reconstructs exact R16 guard source hash; all strict baseline/lock/copy/resolver checks remain.",
+    "lockChangedInstalledPackageEntries": [
+      "@expo/fingerprint",
+      "@expo/inline-modules",
+      "@expo/local-build-cache-provider",
+      "@expo/prebuild-config",
+      "babel-preset-expo",
+      "expo",
+      "expo-dev-client",
+      "expo-dev-launcher",
+      "expo-dev-menu",
+      "expo-modules-autolinking",
+      "expo-modules-core",
+      "expo-modules-jsi",
+      "expo-sharing",
+      "expo-splash-screen",
+      "expo/node_modules/@expo/cli"
+    ],
+    "transitiveBoundary": "More than four direct package versions change in the coherent lock graph, including Babel/CLI/native packages. Fresh runtime proof is required; no blind carry-forward of earlier browser results."
+  },
+  "installedMatrix": {
+    "expo": "57.0.28",
+    "expo-dev-client": "57.0.20",
+    "expo-sharing": "57.0.23",
+    "expo-splash-screen": "57.0.10",
+    "expo-modules-core": "57.0.22",
+    "expo-modules-jsi": "57.1.2",
+    "expo-sqlite": "57.0.4",
+    "react": "19.2.3",
+    "react-native": "0.86.3",
+    "@expo/cli": "57.0.29"
+  },
+  "all10InstalledAndLockedVersionBindingsIndependentlyMatch": true,
+  "all3RecordedInstalledCliHashesIndependentlyMatch": true,
+  "compatibilitySemantics": {
+    "upgradedCliVersion": "57.0.29",
+    "installedSourceReviewed": [
+      "node_modules/expo/node_modules/@expo/cli/build/src/start/doctor/dependencies/bundledNativeModules.js",
+      "node_modules/expo/node_modules/@expo/cli/build/src/install/checkPackages.js",
+      "node_modules/expo/bundledNativeModules.json"
+    ],
+    "callchain": "install/checkPackages.js directly calls getVersionedDependenciesAsync, resolves installed known-package versions and rejects incorrect versions. EXPO_OFFLINE gates remote lookup in getVersionedNativeModulesAsync and selects installed bundledNativeModules.json; it does not activate the generic validation wrapper early return for this --check path.",
+    "validationDisabled": false,
+    "actualOutsideSourceNegativeProbe": {
+      "installedSyntheticReactNative": "0.0.0",
+      "expectedBundledReactNative": "0.86.3",
+      "actualOwnerExitCode": 1,
+      "logBytes": 318,
+      "logSha256": "5a580a92b4af5563fd0640fed2406016a3ccabb94708bf7332d328a3239dd155",
+      "logDirectlyInspectedAndVerified": true,
+      "cliWarningRetained": "Dependency validation is unreliable in offline-mode",
+      "boundary": "Observed actual wrong known-package refusal supports installed-matrix checking. This remains Expo best-effort known-package validation, not universal dependency/native-runtime certification."
+    },
+    "positiveActualOwnerCheck": {
+      "exitCode": 0,
+      "logBytes": 80,
+      "logSha256": "28adcc05dfc4b32af564b8765a9b02b663448cfb9640eefa9b9a48494f703f91",
+      "logVerified": true
+    },
+    "requiredWorkflowScope": "Exactly one required source-job step has EXPO_OFFLINE=1, runs npx --no-install expo install --check from apps/mobile, and retains CI=1. Neither global/job env nor any package exclusion disables validation.",
+    "dailyOnlineWorkflowByteIdentical": true,
+    "weeklyProposalPolicyUnchanged": true,
+    "documentation": {
+      "url": "https://docs.expo.dev/more/expo-cli/#environment-variables",
+      "accessedOn": "2026-10-12",
+      "findings": "Official documentation defines EXPO_OFFLINE applicable network avoidance and immutable --check failure in CI; implementation and actual refusal independently checked."
+    }
+  },
+  "independentChecks": [
+    {
+      "command": "Node24.21.0 --test tools/patchDependencySecurity.test.cjs",
+      "exitCode": 0,
+      "passed": 28,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "meaningfulNewNegatives": [
+        "wrong installed core",
+        "wrong locked core",
+        "other SQLite",
+        "unreviewed Expo"
+      ],
+      "noPartialMutationOnRefusal": true
+    },
+    {
+      "command": "Node24.21.0 tools/patchDependencySecurity.cjs --check",
+      "exitCode": 0,
+      "result": "already-installed"
+    },
+    {
+      "command": "Node24.21.0 tools/patchExpoSqliteOwnership.cjs --check",
+      "exitCode": 0,
+      "result": "already-installed"
+    },
+    {
+      "command": "Node24.21.0 --import tsx tools/metroDependency.test.ts",
+      "exitCode": 0,
+      "result": "Expo/React Native Metro dependency cohort and config compatibility checks passed."
+    },
+    {
+      "command": "Read-only canonical source census/fingerprint, full15 patch reversal, YAML env/command scope, installed/locked matrix and source inventory/context hashes",
+      "result": "pass",
+      "sourcePaths": 961,
+      "changedPaths": 15,
+      "criteriaCount": 19,
+      "indexedContextHashes": 65,
+      "localSkillHashes": 11,
+      "drift": 0
+    }
+  ],
+  "otherOwnerActualEvidence": {
+    "exactInstall": {
+      "exitCode": 0,
+      "sha256": "03e3e87fe207fc1e235475439ea340561938cfa6bbd807600a6c55a28da6638c",
+      "bytes": 903
+    },
+    "cleanLockedInstall": {
+      "exitCode": 0,
+      "sha256": "548d7e8b44170c9b4e777b7f92a55e3cfd02d65872ed123ed9ceb4abeb36ae11",
+      "bytes": 893
+    },
+    "rawAuditAndAdmission": {
+      "exitCode": 0,
+      "sha256": "61380f785e5c09c25a16c7f08a6688c9398a638881b6c336cc22f4484ceb370c",
+      "bytes": 517
+    },
+    "allFiveInstallAuditCompatibilityLogsHashAndLengthIndependentlyVerified": true,
+    "rawAudit": {
+      "high": 16,
+      "moderate": 0,
+      "namedLocalMitigations": 3
+    },
+    "freshCurrentExportAndPGHttp": "Root reports fresh R17 export and owned actual PostgreSQL HTTP1/1 pass; not executed by this reviewer, separate from new full browser acceptance.",
+    "fullAggregate": "Root-owned complete R17 aggregate session46628 running at review assignment; no completion inferred by this receipt."
+  },
+  "consumedApiSourceReview": {
+    "reference": "docs/evidence/production-workflow-dependencies-20261011/expo-core-sqlite-matrix-review-20261012.json",
+    "sha256": "74a8d5874523abed3eadeb5b68671f4ceda81e125790cbf36256c60fdfbec7bc",
+    "reviewer": "/root/final_workflow_review_one",
+    "assessment": "Preserved official SRI-verified source comparison records unchanged49 consumed core API-directory files/Android JSI and separate core10/JSI5 changes, including native view scheduling/sizing and Apple runtime. This reviewer independently verified current matrix and unchanged SQLite hunk/pins rather than claiming to have rerun that entire published tarball comparison.",
+    "nativeBuildDeviceQualified": false
+  },
+  "preservedFailures": {
+    "hostedOnlineExpoMismatch": "CI38266980439 at prior bfe3ac source failed before tests; no relabeling as pass.",
+    "earlierTrackerCI": "Run38252797564 and its14pass9fail fixture result remain preserved.",
+    "failedPeerInstallSha256": "3358166ac0649a1467c8e1c46682aa1ac820e90355edcd8c56a109d6459193b4",
+    "failedCoreGuardInstallSha256": "2ca00152deccce9bd5426d5b5ae8437d6c9e24060455bf0be110af7861996572",
+    "bothFailedInstallLogsIndependentlyHashed": true,
+    "peerOrGuardBypassUsed": false
+  },
+  "requirementSourceImpact": [
+    {
+      "id": "GOV-01",
+      "currentSourceAssessment": "Authority/status validator and acceptance criteria remain exact; generated context and source inventory reflect the narrow cohort lesson without new execution claims.",
+      "directDeclaredChangedPaths": [],
+      "newRuntimeAcceptance": "pending where affected by changed dependency cohort; no new R17 browser claim"
+    },
+    {
+      "id": "ENTRY-01",
+      "currentSourceAssessment": "Customer/project entry source is exact unchanged R16; dependency-level rendered behavior needs the new current browser run.",
+      "directDeclaredChangedPaths": [],
+      "newRuntimeAcceptance": "pending where affected by changed dependency cohort; no new R17 browser claim"
+    },
+    {
+      "id": "AUTH-01",
+      "currentSourceAssessment": "Account/API/RBAC/cache source is unchanged; retained actor/read/write preservation remains structurally intact. Root actual fresh PG HTTP is separate from reviewer execution and new full CI.",
+      "directDeclaredChangedPaths": [],
+      "newRuntimeAcceptance": "pending where affected by changed dependency cohort; no new R17 browser claim"
+    },
+    {
+      "id": "HIERARCHY-01",
+      "currentSourceAssessment": "Logical customer/project/field and Survey-map associations remain exact source; no new entities or parent rewrites introduced by cohort changes.",
+      "directDeclaredChangedPaths": [],
+      "newRuntimeAcceptance": "pending where affected by changed dependency cohort; no new R17 browser claim"
+    },
+    {
+      "id": "FLOW-01",
+      "currentSourceAssessment": "Optional Design/direct Survey/accepted Open contracts remain unchanged; changed Expo runtime must be freshly executed rather than inherit R15 browser acceptance.",
+      "directDeclaredChangedPaths": [],
+      "newRuntimeAcceptance": "pending where affected by changed dependency cohort; no new R17 browser claim"
+    },
+    {
+      "id": "DRAW-01",
+      "currentSourceAssessment": "Drawing reducers, canonical geometry and raw provenance remain unchanged; full new browser qualification remains necessary.",
+      "directDeclaredChangedPaths": [],
+      "newRuntimeAcceptance": "pending where affected by changed dependency cohort; no new R17 browser claim"
+    },
+    {
+      "id": "SURVEY-01",
+      "currentSourceAssessment": "Fresh owned Fixed/CRS/review gates are unchanged and not bypassed by dependency validation policy.",
+      "directDeclaredChangedPaths": [],
+      "newRuntimeAcceptance": "pending where affected by changed dependency cohort; no new R17 browser claim"
+    },
+    {
+      "id": "LAYOUT-01",
+      "currentSourceAssessment": "V3 creation/mark/finalization, immutable targets, current-source admission and station evidence code remain exact unchanged; no native/physical promotion follows from cohort installation.",
+      "directDeclaredChangedPaths": [],
+      "newRuntimeAcceptance": "pending where affected by changed dependency cohort; no new R17 browser claim"
+    },
+    {
+      "id": "ANCESTRY-01",
+      "currentSourceAssessment": "Shared source/store ancestry retention and historical orphan readers remain unchanged.",
+      "directDeclaredChangedPaths": [],
+      "newRuntimeAcceptance": "pending where affected by changed dependency cohort; no new R17 browser claim"
+    },
+    {
+      "id": "RECOVERY-01",
+      "currentSourceAssessment": "Raw input/source/history/cache/actor preservation writers remain exact; installed SQLite guard preserves its actual original hunk/pin/expected-byte proof, not native runtime acceptance.",
+      "directDeclaredChangedPaths": [],
+      "newRuntimeAcceptance": "pending where affected by changed dependency cohort; no new R17 browser claim"
+    },
+    {
+      "id": "UI-01",
+      "currentSourceAssessment": "Operator wording/layout source is unchanged; Babel and other Expo transitives changed, requiring new rendered browser proof before current acceptance.",
+      "directDeclaredChangedPaths": [],
+      "newRuntimeAcceptance": "pending where affected by changed dependency cohort; no new R17 browser claim"
+    },
+    {
+      "id": "DOC-01",
+      "currentSourceAssessment": "Maintenance guide and owned database skill accurately separate installed matrix, online available updates, consumed API/source review and native runtime; original operator contracts/criteria are unchanged.",
+      "directDeclaredChangedPaths": [],
+      "newRuntimeAcceptance": "pending where affected by changed dependency cohort; no new R17 browser claim"
+    },
+    {
+      "id": "DEP-01",
+      "currentSourceAssessment": "Exact patch cohort and backup peers are coherent in installed/lock snapshots. Independent 28 security regressions, positive/negative matrix admission, installed security/SQLite guards and Metro check pass. Raw audit remains 16 high; no upstream-zero or native claim.",
+      "directDeclaredChangedPaths": [
+        "tools/patchDependencySecurity.cjs"
+      ],
+      "newRuntimeAcceptance": "pending where affected by changed dependency cohort; no new R17 browser claim"
+    },
+    {
+      "id": "DEP-02",
+      "currentSourceAssessment": "Required step alone uses EXPO_OFFLINE=1 with npx --no-install; daily online workflow and weekly proposal policy are byte-identical. No hosted scheduler activation claim.",
+      "directDeclaredChangedPaths": [
+        "docs/dependency-maintenance.md"
+      ],
+      "newRuntimeAcceptance": "pending where affected by changed dependency cohort; no new R17 browser claim"
+    },
+    {
+      "id": "SKILL-01",
+      "currentSourceAssessment": "67 host/11 local entries remain; only owned database source lesson and inventory/context changed. All local hashes and 65 indexed context input hashes independently match; invocation remains unproved.",
+      "directDeclaredChangedPaths": [
+        "docs/skill-capability-inventory.json",
+        "docs/skill-capability-inventory.md",
+        ".agents/skills/cplayout-database-agent/SKILL.md"
+      ],
+      "newRuntimeAcceptance": "pending where affected by changed dependency cohort; no new R17 browser claim"
+    },
+    {
+      "id": "HOOK-01",
+      "currentSourceAssessment": "Hook scripts/configuration are unchanged; generated context is updated source metadata only. Stop/genuine execution/managed trust boundaries remain.",
+      "directDeclaredChangedPaths": [],
+      "newRuntimeAcceptance": "pending where affected by changed dependency cohort; no new R17 browser claim"
+    },
+    {
+      "id": "CLEAN-01",
+      "currentSourceAssessment": "No source/evidence retirement or resource cleanup was performed; prior CI/install failures remain preserved.",
+      "directDeclaredChangedPaths": [],
+      "newRuntimeAcceptance": "pending where affected by changed dependency cohort; no new R17 browser claim"
+    },
+    {
+      "id": "QA-01",
+      "currentSourceAssessment": "Complete 961 census and unchanged 19 criteria independently verified. This is a scoped R17 source/dependency review; actual fresh complete aggregate and fresh current-head 267 browser/protected CI remain separate pending gates.",
+      "directDeclaredChangedPaths": [],
+      "newRuntimeAcceptance": "pending where affected by changed dependency cohort; no new R17 browser claim"
+    },
+    {
+      "id": "PUBLISH-01",
+      "currentSourceAssessment": "Required CI compatibility step now uses installed SDK matrix deterministically while all source/browser/protected barrier jobs remain. Root owns normal commit/push/merge/main synchronization and their actual OID/CI receipts.",
+      "directDeclaredChangedPaths": [
+        ".github/workflows/cplayout-required.yml"
+      ],
+      "newRuntimeAcceptance": "pending where affected by changed dependency cohort; no new R17 browser claim"
+    }
+  ],
+  "newMaterialFindings": [],
+  "unresolvedMaterialDefectsInThisSourceDependencyScope": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 0
+  },
+  "weightedJudgment": {
+    "weights": {
+      "compatibility": 0.3,
+      "preservation": 0.25,
+      "contextEfficiency": 0.2,
+      "reproducibleProof": 0.15,
+      "maintainability": 0.1
+    },
+    "scoresAreThisReviewersJudgmentsOnly": true,
+    "alternatives": [
+      {
+        "choice": "Coherent current stable SDK patches with strict installed-matrix required check and online daily discovery",
+        "scores": [
+          5,
+          5,
+          4,
+          5,
+          4
+        ],
+        "weightedScore": 4.7,
+        "selected": true,
+        "rationale": "Exact peer/lock/guard bindings and actual negative CLI refusal establish deterministic known-package compatibility checking; online release discovery and fresh qualification of changed runtime remain required."
+      },
+      {
+        "choice": "Same patch updates with mutable online recommendation lookup in required compatibility CI",
+        "scores": [
+          4,
+          5,
+          3,
+          3,
+          4
+        ],
+        "weightedScore": 3.9,
+        "selected": false,
+        "rationale": "A future recommendation change can fail an unchanged reviewed source before its actual tests; daily discovery already provides that information."
+      },
+      {
+        "choice": "Prior patch versions with offline required checking",
+        "scores": [
+          3,
+          4,
+          5,
+          4,
+          4
+        ],
+        "weightedScore": 3.9,
+        "selected": false,
+        "rationale": "Would preserve repeatability but omit the reviewed current-stable patch cohort and its coherent source/peer updates."
+      }
+    ],
+    "falseCompatibilityOrPreservationVetoTriggered": false
+  },
+  "pendingQualification": [
+    "This is SOURCE/DEPENDENCY acceptance only, with the complete R17 aggregate, fresh current-head full267 browser executions and protected cplayout-required still awaiting their actual completed receipts.",
+    "R15/R16 full browser, Edge, Fit and review records retain original editions. Unchanged application/browser TypeScript does not prove runtime equivalence after SDK/Babel/CLI changes.",
+    "Later independent CI-closing review must bind actual completed source job and every browser shard to the exact R17 head and current export, with no skipped/flaky/unrun obligations.",
+    "960 deferred browser contracts remain inventoried. Native/device/atomic receiver and physical field accuracy, full manual accessibility/WCAG, genuine hook/skill execution, hosted daily maintenance activation, deployment and human acceptance remain unqualified.",
+    "Root owns Git/staging/publication/merge/main OIDs, resource cleanup and clean workspace convergence; no reviewer success claim or Git/resource action."
+  ],
+  "references": [
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/candidate-source-r16.json",
+      "sha256": "a6cb84e509b0d597b6b381f6fd4cd07a120126a6b711abd1649a8e8f0053c4c0"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/candidate-source-r17.json",
+      "sha256": "05e696362b2cc884c470843af160cb31d2eebd97a79cb1c713a17046f6264a41"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/r17-source-freeze-and-scoped-checks.json",
+      "sha256": "ee1349b228773fcf74e0474f3f921730cb6def2c7a4879280afc8f779478e8f7"
+    },
+    {
+      "path": "docs/evidence/production-workflow-dependencies-20261011/expo-current-patch-install-and-compatibility-20261012.json",
+      "sha256": "581bbab64f48b10bfd851c512b748abb35b50894475ff9287477eaae99dc3700"
+    },
+    {
+      "path": "docs/evidence/production-workflow-dependencies-20261011/expo-core-sqlite-matrix-review-20261012.json",
+      "sha256": "74a8d5874523abed3eadeb5b68671f4ceda81e125790cbf36256c60fdfbec7bc"
+    },
+    {
+      "path": "docs/evidence/production-workflow-dependencies-20261011/expo-locked-compatibility-source-20261012.json",
+      "sha256": "bf656ec79bfe1fa0358235fb0373588089ab67a87b346ccef6ee8ffb12a5073b"
+    }
+  ],
+  "boundary": "Scoped independent approval of the frozen coherent dependency/policy/guard/skill/context source packet. This receipt does not fabricate a fresh browser/aggregate/protected CI run, carry prior runtime acceptance blindly, or establish publication/native/device/physical/deployment/human acceptance. Only this public review metadata file was written."
+}

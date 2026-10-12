@@ -1,12 +1,12 @@
-import { expect, test, type Page, type TestInfo } from "@playwright/test";
+import { expect, test, type Page, type TestInfo } from "./authenticated-test";
 import { readFile } from "node:fs/promises";
 import { isRecordedReferenceMetadataRecord } from "../../packages/core/src/drawingMetadata";
 import { parseSurveyCollectionDocument } from "../../packages/core/src/surveyCollection";
 import { parseLayoutSessionDocument } from "../../packages/core/src/layoutSession";
 import { buildDesignWorkspaceBundle, importDesignWorkspaceBundleZip, parseDesignWorkspaceBundle } from "../../packages/project-store/src/designWorkspaceBundle";
-import { serializeWorkspaceDocument, type WorkspaceDocument } from "../../packages/project-store/src/workspaceDocument";
+import { parseWorkspaceDocument, serializeWorkspaceDocument, upgradeWorkspaceDocumentToV5, type WorkspaceDocument } from "../../packages/project-store/src/workspaceDocument";
 import { packageFixture, packageIds, seedPackageWorkspace, sourcePayload } from "./workspace-package-fixtures";
-import { readWorkspace, workspaceStorageBytes } from "./workspace-fixtures";
+import { readWorkspace, workspaceStorageBytes, browseDesignParents } from "./workspace-fixtures";
 
 // Actual default App → browser download → actual file chooser → saved import →
 // explicit Open → reload/Recent/Open. No controller, archive or store replacement.
@@ -30,7 +30,7 @@ async function showCatalog(page: Page) {
   await expect(page.getByTestId("workspace-catalog")).toBeVisible();
 }
 async function openRecent(page: Page, id: string) {
-  await showCatalog(page); await page.getByTestId(`catalog-recent-open-${id}`).click();
+  await showCatalog(page); await browseDesignParents(page, id); await page.getByTestId(`catalog-recent-open-${id}`).click();
   // Open preserves the current mode; this helper requests Design tools explicitly.
   await page.getByTestId("workspace-mode-design").click();
   await showTools(page); await expect(page.getByTestId("unified-design-panel")).toBeVisible();
@@ -71,25 +71,25 @@ async function assertImportPresentation(page: Page, collections: number) {
 async function prepareStorageStep(page: Page) {
   const before = await readWorkspace(page), rawBefore = (await workspaceStorageBytes(page))[0];
   expect(rawBefore).toBe(serializeWorkspaceDocument(before));
-  const nextVersion = before.workspaceVersion === "cplayout-workspace-v3" ? "cplayout-workspace-v4" : "cplayout-workspace-v3";
+  if (rawBefore === null) throw new Error("The actual saved import source is missing.");
+  const expected = upgradeWorkspaceDocumentToV5(rawBefore);
   await expect(page.getByTestId("workspace-import-prepare")).toBeEnabled(); await page.getByTestId("workspace-import-prepare").click();
-  await expect.poll(async () => (await readWorkspace(page)).revision).toBe(before.revision + 1);
-  await expect(page.getByTestId("workspace-catalog")).toContainText(nextVersion === "cplayout-workspace-v4" ? "Survey storage is prepared." : "Field and Layout storage is prepared.");
+  await expect.poll(async () => readWorkspace(page)).toEqual(expected);
+  await expect(page.getByTestId("workspace-catalog")).toContainText("Saved field work is prepared. Import saved copy will now save the package separately.");
   await expect(page.getByTestId("workspace-import-save")).toBeEnabled();
-  const after = await readWorkspace(page); expect(after.workspaceVersion).toBe(nextVersion); assertExistingPreserved(before, after);
+  const after = await readWorkspace(page); expect(after.workspaceVersion).toBe("cplayout-workspace-v5"); assertExistingPreserved(before, after, rawBefore);
   expect(after.catalog).toEqual(before.catalog);
-  const retained = { ...after, workspaceVersion: before.workspaceVersion, revision: before.revision };
-  if (nextVersion === "cplayout-workspace-v4") {
-    expect(after.originalSurveyUpgradeDocument).toBe(rawBefore); expect(after.surveyCollections).toEqual([]); expect(after.surveyOwnerArchives).toEqual([]);
-    delete retained.originalSurveyUpgradeDocument; delete retained.surveyCollections; delete retained.surveyOwnerArchives;
-    await expect(page.getByTestId("workspace-import-prepare")).toHaveCount(0);
+  const v4 = parseWorkspaceDocument(after.originalWorkflowUpgradeDocument!);
+  expect(v4.workspaceVersion).toBe("cplayout-workspace-v4");
+  if (before.workspaceVersion === "cplayout-workspace-v4") {
+    expect(after.originalWorkflowUpgradeDocument).toBe(rawBefore);
   } else {
-    expect(after.originalPreviousWorkspaceDocument).toBe(rawBefore); delete retained.originalPreviousWorkspaceDocument;
-    if (before.fieldDocuments === undefined) { expect(after.fieldDocuments).toEqual([]); delete retained.fieldDocuments; }
-    expect(after.layoutSessions).toEqual([]); delete retained.layoutSessions;
-    await expect(page.getByTestId("workspace-import-prepare")).toBeEnabled();
+    const v3 = parseWorkspaceDocument(v4.originalSurveyUpgradeDocument!); expect(v3.workspaceVersion).toBe("cplayout-workspace-v3");
+    if (before.workspaceVersion === "cplayout-workspace-v3") expect(v4.originalSurveyUpgradeDocument).toBe(rawBefore);
+    else expect(v3.originalPreviousWorkspaceDocument).toBe(rawBefore);
   }
-  expect(retained).toEqual(before); return after;
+  expect(after.surveyReviews).toEqual([]); expect(after.workflowConversions).toEqual([]); await expect(page.getByTestId("workspace-import-prepare")).toHaveCount(0);
+  expect(after).toEqual(expected); return after;
 }
 async function saveImport(page: Page, before: WorkspaceDocument) {
   await page.getByTestId(`workspace-import-field-${packageIds.destination}`).click();
@@ -103,22 +103,25 @@ async function saveImport(page: Page, before: WorkspaceDocument) {
   expect(after.catalog.projects.find(project => project.id === "package-project-b")?.clientId).toBe("package-customer-b");
   return { after, copyId: added[0].id };
 }
-function assertExistingPreserved(before: WorkspaceDocument, after: WorkspaceDocument) {
+function assertExistingPreserved(before: WorkspaceDocument, after: WorkspaceDocument, exactUpgradeSource?: string) {
   for (const key of ["clients", "projects", "fieldMaps"] as const) expect(after.catalog[key]).toEqual(before.catalog[key]);
   expect(after.catalog.designs.filter(item => before.catalog.designs.some(source => source.id === item.id))).toEqual(before.catalog.designs);
   expect(after.projectDocuments.filter(item => before.projectDocuments.some(source => source.summary.id === item.summary.id))).toEqual(before.projectDocuments);
   for (const key of ["draftDocuments", "fieldDocuments", "layoutSessions", "surveyCollections"] as const)
     expect((after[key] ?? []).filter(item => (before[key] ?? []).some(source => source.id === item.id))).toEqual(before[key] ?? []);
   for (const key of ["tombstones", "originalV1Document"] as const) expect(after[key]).toEqual(before[key]);
-  if ((before.workspaceVersion === "cplayout-workspace-v1" || before.workspaceVersion === "cplayout-workspace-v2") && after.workspaceVersion === "cplayout-workspace-v3")
-    expect(after.originalPreviousWorkspaceDocument).toBe(serializeWorkspaceDocument(before));
+  if ((before.workspaceVersion === "cplayout-workspace-v1" || before.workspaceVersion === "cplayout-workspace-v2")
+    && ["cplayout-workspace-v3", "cplayout-workspace-v4", "cplayout-workspace-v5"].includes(after.workspaceVersion)) {
+    expect(exactUpgradeSource).toBeDefined(); expect(after.originalPreviousWorkspaceDocument).toBe(exactUpgradeSource);
+  }
   else expect(after.originalPreviousWorkspaceDocument).toBe(before.originalPreviousWorkspaceDocument);
   // The real v3→v4 upgrade introduces empty collection/archive arrays. Retained
   // entries and the exact predecessor remain authoritative, including when empty.
   expect(after.surveyOwnerArchives ?? []).toEqual(before.surveyOwnerArchives ?? []);
   if (before.workspaceVersion === "cplayout-workspace-v4") expect(after.originalSurveyUpgradeDocument).toBe(before.originalSurveyUpgradeDocument);
-  else if (before.workspaceVersion === "cplayout-workspace-v3" && after.workspaceVersion === "cplayout-workspace-v4")
-    expect(after.originalSurveyUpgradeDocument).toBe(serializeWorkspaceDocument(before));
+  else if (before.workspaceVersion === "cplayout-workspace-v3" && ["cplayout-workspace-v4", "cplayout-workspace-v5"].includes(after.workspaceVersion)) {
+    expect(exactUpgradeSource).toBeDefined(); expect(after.originalSurveyUpgradeDocument).toBe(exactUpgradeSource);
+  }
   if (before.layoutSessions?.length) {
     const oldLayout = parseLayoutSessionDocument(before.layoutSessions[0].document), newLayout = parseLayoutSessionDocument(after.layoutSessions![0].document);
     expect(newLayout.targetDocument).toBe(oldLayout.targetDocument); expect(newLayout.targetHash).toBe(oldLayout.targetHash);
@@ -219,19 +222,22 @@ test(`${kind} actual ${format.toUpperCase()} download uploads retained history t
 });
 
 for (const format of ["json", "zip"] as const)
-test(`actual ${format.toUpperCase()} package without Survey history imports without fabricated collections`, async ({ context, page }, info) => {
+test(`actual ${format.toUpperCase()} package without Survey history imports without fabricated collections`, async ({ context, page, authenticatedService }, info) => {
   const fixture = await packageFixture("draft", false); await seedPackageWorkspace(context, fixture); await page.goto("/"); await openRecent(page, fixture.designId);
   const before = await readWorkspace(page), file = await downloadPackage(page, format, info); expect(file.bundle.surveyDocuments).toEqual([]);
   await upload(page, file.path); await assertImportPresentation(page, 0); await page.getByTestId(`workspace-import-field-${packageIds.destination}`).click();
-  const prepared = await prepareStorageStep(page); expect(prepared.revision).toBe(before.revision + 1);
+  const originalReceiptCount = authenticatedService.database.state.receipts.length;
+  const prepared = await prepareStorageStep(page);
   const { after, copyId } = await saveImport(page, prepared); expect(after.revision).toBe(prepared.revision + 1);
+  const receipts = authenticatedService.database.state.receipts.slice(originalReceiptCount);
+  expect(receipts.map(receipt => JSON.parse(receipt.responseDocument).revision)).toEqual([prepared.revision, after.revision]);
   assertCopy(prepared, after, fixture.designId, copyId); expect(after.surveyCollections).toEqual([]);
   await page.getByTestId("workspace-import-open").click(); await showTools(page); await assertOpenedContext(page, sourcePayload(after, copyId).data.name);
   await reloadSavedWorkspace(page); await openRecent(page, copyId); expect(await readWorkspace(page)).toEqual(after);
 });
 
 for (const version of ["v1", "v2"] as const)
-test(`${version} actual package individually prepares Field/Layout then Survey before one saved-copy import`, async ({ context, page }, info) => {
+test(`${version} actual package prepares the retained Field/Layout/Survey chain before one saved-copy import`, async ({ context, page, authenticatedService }, info) => {
   const fixture = await packageFixture("draft", false, version); await seedPackageWorkspace(context, fixture); await page.goto("/"); await openRecent(page, fixture.designId);
   const file = await downloadPackage(page, "json", info); await upload(page, file.path); await assertImportPresentation(page, 0);
   await page.getByTestId(`workspace-import-field-${packageIds.destination}`).click();
@@ -239,12 +245,12 @@ test(`${version} actual package individually prepares Field/Layout then Survey b
   await page.getByTestId("workspace-import-save").click();
   await expect(page.getByTestId("workspace-catalog")).toContainText("Prepare storage for this import before saving the copy.");
   expect(await workspaceStorageBytes(page)).toEqual(rawBefore);
-  const layoutReady = await prepareStorageStep(page); expect(layoutReady.revision).toBe(original.revision + 1);
-  expect(layoutReady.workspaceVersion).toBe("cplayout-workspace-v3"); expect(layoutReady.catalog.designs).toEqual(original.catalog.designs);
-  const surveyReady = await prepareStorageStep(page); expect(surveyReady.revision).toBe(layoutReady.revision + 1);
-  expect(surveyReady.originalPreviousWorkspaceDocument).toBe(rawBefore[0]);
-  const { after, copyId } = await saveImport(page, surveyReady); expect(after.revision).toBe(surveyReady.revision + 1);
-  assertCopy(surveyReady, after, fixture.designId, copyId); expect(after.surveyCollections).toEqual([]);
+  const originalReceiptCount = authenticatedService.database.state.receipts.length, prepared = await prepareStorageStep(page);
+  expect(prepared.catalog.designs).toEqual(original.catalog.designs); expect(prepared.originalPreviousWorkspaceDocument).toBe(rawBefore[0]);
+  const { after, copyId } = await saveImport(page, prepared); expect(after.revision).toBe(prepared.revision + 1);
+  const receipts = authenticatedService.database.state.receipts.slice(originalReceiptCount);
+  expect(receipts.map(receipt => JSON.parse(receipt.responseDocument).revision)).toEqual([prepared.revision, after.revision]);
+  assertCopy(prepared, after, fixture.designId, copyId); expect(after.surveyCollections).toEqual([]);
   await page.getByTestId("workspace-import-open").click(); await showTools(page); await assertOpenedContext(page, sourcePayload(after, copyId).data.name);
   await reloadSavedWorkspace(page); await openRecent(page, copyId); expect(await readWorkspace(page)).toEqual(after);
 });

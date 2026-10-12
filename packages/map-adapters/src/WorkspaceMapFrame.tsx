@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { zoomViewport } from "../../geometry/src/mapInteraction";
 import { workspaceSceneBounds } from "./workspaceSceneRendering";
 import { useWorkspaceMapCamera } from "./useWorkspaceMapCamera";
@@ -27,11 +27,12 @@ export function WorkspaceMapFrame(props: WorkspaceMapFrameProps): React.JSX.Elem
       {button("Zoom out", () => { retireGesture(value => value + 1); camera.setViewport(zoomViewport(camera.viewport, 1 / 1.5)); })}
       {button("Fit", () => { retireGesture(value => value + 1); camera.fit(); }, !bounds)}
     </View>
-    <ScrollView style={styles.readout} contentContainerStyle={{ padding: 4 }} testID="workspace-map-readout">
+    <ScrollView style={styles.readout} contentContainerStyle={{ padding: 4 }} testID="workspace-map-readout"
+      accessibilityLabel="Field map information" {...(Platform.OS === "web" ? { tabIndex: 0 } : {})}>
       <Text style={styles.meta}>{props.scene.identity.projectCrs ?? "Coordinate system unconfirmed"}</Text>
-      <Text style={styles.meta}>{readout ? `X ${readout.x.toFixed(3)} · Y ${readout.y.toFixed(3)}` : `Center X ${camera.viewport.center.x.toFixed(3)} · Y ${camera.viewport.center.y.toFixed(3)}`}</Text>
-      <Text style={styles.meta}>View width {(camera.viewport.baseWidthMeters / camera.viewport.zoomLevel).toFixed(2)} XY units · {props.selectedAddress ? "Feature selected" : "No selection"}</Text>
-      <Text style={styles.meta}>Purple: drawing · Orange: Survey · Green: target · Blue: observations · Pink: receiver</Text>
+      {props.scene.identity.projectCrs && <Text style={styles.meta}>{readout ? `X ${readout.x.toFixed(3)} · Y ${readout.y.toFixed(3)}` : `Center X ${camera.viewport.center.x.toFixed(3)} · Y ${camera.viewport.center.y.toFixed(3)}`}</Text>}
+      {props.scene.identity.projectCrs && <Text style={styles.meta}>Map span {(camera.viewport.baseWidthMeters / camera.viewport.zoomLevel).toFixed(2)} coordinate units · {props.selectedAddress ? "Feature selected" : "No selection"}</Text>}
+      <Text style={styles.meta}>Purple: drawing · Orange: Survey · Green: planned geometry · Blue: observations · Teal: official RTK stations · Pink: receiver</Text>
       <Text style={styles.meta}>Nominal ring: machine length only; coverage requires calculation.</Text>
     </ScrollView>
   </View>;

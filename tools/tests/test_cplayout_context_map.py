@@ -66,8 +66,9 @@ class ContextMapTests(unittest.TestCase):
                 with self.subTest(field=field, role=role):
                     self.assertEqual(self.context_map[field][role], ["workspace_preflight", "unified_mode_preservation", contract])
         packs = {pack["id"]: pack for pack in self.context_map["contextPacks"]}
-        self.assertIn("docs/android-native-verification.md", packs["unified_mode_preservation"]["secondaryPaths"])
-        self.assertIn("packages/gnss/src/index.ts", packs["unified_mode_preservation"]["secondaryPaths"])
+        self.assertEqual(packs["unified_mode_preservation"]["readFirstPaths"], ["docs/production-workflow-improvement-plan.md", "docs/operator-workflow-guide.md"])
+        self.assertIn("apps/api/src/server.ts", packs["unified_mode_preservation"]["secondaryPaths"])
+        self.assertIn("packages/core/src/surveyDraftField.ts", packs["unified_mode_preservation"]["secondaryPaths"])
         for contract in ("interface_ui", "gis_geometry_guardrails"):
             self.assertIn("docs/rtk-gnss-integration-plan.md", packs[contract]["secondaryPaths"])
         self.assertIn("packages/core/src/projectDocument.ts", packs["storage_archive_native"]["secondaryPaths"])
@@ -82,11 +83,26 @@ class ContextMapTests(unittest.TestCase):
             with self.subTest(field=field), self.assertRaises(ValueError):
                 builder._validate_context_map(mutated)
 
+    def test_production_workflow_routes_current_sources_without_receipt_hash_cycle(self) -> None:
+        matches = triage.match_routes("CPLayout sign in authenticated workspace customer project workflow SurveyKnownInformation production workflow acceptance")
+        routes = {match.route.route_id for match in matches}
+        self.assertTrue({"cplayout_interface_developer", "cplayout_database_specialist", "cplayout_qa_validation_reviewer"}.issubset(routes))
+        for prompt in ["CPLayout sign in authenticated workspace", "SurveyKnownInformation optional Design survey preparation"]:
+            self.assertIn("unified_mode_preservation", self.pack_ids_for_prompt(prompt))
+        for path in ["apps/api/src/server.ts", "packages/auth-client/src/apiClient.ts", "apps/mobile/src/auth/authenticatedRepository.ts", "apps/mobile/src/workspace/SurveyKnownInformationPanel.tsx"]:
+            self.assertIn(path, self.context_map["sourceHashes"])
+        for authority in ["docs/workflow-registry.json", "docs/development-status.md"]:
+            self.assertNotIn(authority, self.context_map["sourceHashes"])
+            self.assertFalse(any(authority in pack["readFirstPaths"] for pack in self.context_map["contextPacks"]))
+        self.assertTrue(any(ref["path"] == "docs/workflow-registry.json" and ref["kind"] == "live-authority-pointer" for ref in self.context_map["globalContext"]))
+        with patch.object(builder, "SOURCE_HASH_PATHS", builder.SOURCE_HASH_PATHS + ["docs/workflow-registry.json"]), self.assertRaisesRegex(ValueError, "remain pointers"):
+            builder._source_hashes()
+
     def test_unified_modes_select_preservation_contract(self) -> None:
         prompt = "Unify Design Survey Layout in one workspace; preserve dirty input and receiver ownership during mode switches."
         context = self.hook_context(prompt, self.context_map)
         self.assertIn("unified_mode_preservation", context)
-        self.assertIn("docs/unified-workspace-decision-2026-10-10.md", context)
+        self.assertIn("docs/production-workflow-improvement-plan.md", context)
         self.assertNotIn("Read first: AGENTS.md", context)
         self.assertLessEqual(len(context.encode("utf-8")), 1200)
 

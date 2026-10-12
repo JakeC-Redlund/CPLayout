@@ -3,6 +3,7 @@ import { createCatalogId, type WorkspaceDocument } from "@cplayout/project-store
 import type { AppSettings } from "@cplayout/core";
 import type { InputRetentionStore } from "../inputRetention";
 import type { UnifiedWorkspaceResume } from "../navigation/unifiedWorkspaceResume";
+import { useWorkspaceRepositoryAccess } from "./WorkspaceRepositoryContext";
 import { createWorkspaceEditRecoveryOwner } from "./workspaceEditRecoveryOwner";
 import { createWorkspaceEditRecoveryStore } from "./workspaceEditRecoveryStore";
 import type { WorkspaceControllerState } from "./workspaceControllerState";
@@ -35,6 +36,7 @@ export interface WorkspaceRecoveryUiDelivery extends WorkspaceRecoveryDelivery {
  * receipts and the temporary publication/delivery barrier. */
 export function useWorkspaceEditRecovery(runtime: WorkspaceEditRecoveryRuntime, inputs: InputRetentionStore,
   participants: WorkspaceRecoveryParticipants) {
+  const account = useWorkspaceRepositoryAccess();
   const latest = useRef(runtime); latest.current = runtime;
   const alive = useRef(true), epoch = useRef(0), activation = useRef<object>({});
   const storage = useRef<ReturnType<typeof createWorkspaceEditRecoveryStore> | null>(null);
@@ -45,10 +47,10 @@ export function useWorkspaceEditRecovery(runtime: WorkspaceEditRecoveryRuntime, 
     if (backend !== "web") return createWorkspaceEditRecoveryStore({ backend: "native", storage: null, withExclusiveLock: null });
     if (!storage.current) {
       // Browser getters may throw. They affect edit recovery only, never Save.
-      let browserStorage: Storage | null = null, locks: LockManager | null = null;
-      try { browserStorage = globalThis.localStorage ?? null; locks = globalThis.navigator?.locks ?? null; } catch { /* Explicit unsupported recovery surface. */ }
+      let browserStorage: import("./workspaceEditRecoveryStore").StorageLike | null = null, locks: LockManager | null = null;
+      try { browserStorage = account.storage; locks = globalThis.navigator?.locks ?? null; } catch { /* Explicit unsupported recovery surface. */ }
       storage.current = createWorkspaceEditRecoveryStore({ backend: "web", storage: browserStorage,
-        withExclusiveLock: locks ? async (name, task) => await locks!.request(name, { mode: "exclusive" }, task) : null });
+        withExclusiveLock: locks ? async (name, task) => await locks!.request(`${account.partition}:${name}`, { mode: "exclusive" }, task) : null });
     }
     return storage.current;
   }

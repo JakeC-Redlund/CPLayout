@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "claimClass": "source",
+  "result": "partial_bounded_fixture_checks_complete_browser_pending",
+  "priorSource": {
+    "manifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r11.json",
+    "paths": 961,
+    "fingerprint": "6a51db4cb57a87506ccc7cc8f94db98114f5b7d50b8ffae6bec289c0c4616dd0"
+  },
+  "currentSource": {
+    "manifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r12.json",
+    "paths": 961,
+    "fingerprint": "a2a6433e13c7914cb48ba5bdf1c967fefc6bd4972779b62c807a4ca015bb96fb"
+  },
+  "changedPaths": [
+    {
+      "path": "tests/web/browser-proof-inventory.json",
+      "beforeSha256": "e0e01b1d8e57d09d11ee748e1cdab0787dfad9316f3aa0aad1398c43f8f9dd42",
+      "afterSha256": "571c5990b099075b047484e3835e5a499788f7212618ef582c925411845358b0"
+    },
+    {
+      "path": "tests/web/production-auth-workflow.spec.ts",
+      "beforeSha256": "c670f1f61abd22055a5fc78d84fae22fe3cef96037c0ea9ada93e44f097d835a",
+      "afterSha256": "706567c9f602cf9a022f0aa5f6bb94f75b81b3d518fa6fe7e648a32d7c631031"
+    }
+  ],
+  "byteIdenticalPaths": 959,
+  "fromActualAggregateR10": {
+    "changedPaths": [
+      "tests/web/browser-proof-inventory.json",
+      "tests/web/production-auth-workflow.spec.ts",
+      "tests/web/unified-workspace.spec.ts"
+    ],
+    "byteIdenticalPaths": 958,
+    "aggregate": "docs/evidence/production-workflow-review-20261011/source-hierarchy-r10-pass.json",
+    "boundary": "R10actualaggregate plus explicitboundedhelper/fixture/inventorychain; nofreshR11/R12aggregate."
+  },
+  "currentSourceBytesVerified": true,
+  "currentDrift": [],
+  "criteriaUnchanged": true,
+  "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+  "actualAffectedChecks": {
+    "browserRegistry": {
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "logSha256": "2e0bee338fe5928f6033f7f3da9720e931b8fba0df25bc7c7c66ba49aa9672e4"
+    },
+    "contextCheck": {
+      "exitCode": 0,
+      "logSha256": "cf0524310319d026dded2161af9395c1def74041048b20861fdcee87b1502123",
+      "completionProvenance": "Coordinator exitreceipt plus up-to-date log."
+    },
+    "pureFixtureTimeline": {
+      "steps": 15,
+      "fixedAccepted": 12,
+      "nonfixedRefused": 3,
+      "stale2001msRefused": 2,
+      "utcAndIngressDeltasMatch": true,
+      "logSha256": "dcc855f2674a7fdcc94677cfb41892bd618134e11a13580b7b7b8714914ed8e1",
+      "boundary": "Purefixture/sourceguard check, not15browserexecutions or physicalRTKproof."
+    },
+    "discoveryAccounting": {
+      "files": 33,
+      "uniqueCases": 409,
+      "currentExecutions": 267,
+      "deferredExecutions": 960,
+      "allExecutions": 1227
+    }
+  },
+  "diagnosisReference": "docs/evidence/production-workflow-review-20261011/critical-hierarchy-r11-failed.json",
+  "didNotRerun": [
+    "FreshfullR12npmvalidate",
+    "CompletedR12focused15browserresults",
+    "CompleteR12current267browserpacket",
+    "Bothcompleteacceptedfinalreviews"
+  ],
+  "boundary": "Only the existing authenticated browser fixture timeline, expected UTC values and inventory changed. The other 959 R11 paths, including guards, implementation, guides and criteria, are byte-identical. From R10, three proof paths changed and 958 remain identical. Fresh R12 focused browser checks are running; no result is inferred."
+}

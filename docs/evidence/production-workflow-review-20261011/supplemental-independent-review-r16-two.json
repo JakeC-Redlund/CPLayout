@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-12T14:53:01.687377+00:00",
+  "classification": "independent_scoped_source_bridge_review",
+  "claimClass": "source",
+  "result": "pass_scoped_bridge",
+  "decision": "accept_second_supplemental_R16_fixture_repair_and_prior_unchanged_shipping_browser_scope",
+  "reviewer": "/root/production_workflow_second_review",
+  "supplementalReviewOrdinal": 2,
+  "independence": {
+    "sourceTestsCriteriaEdited": false,
+    "gitInstallExportBrowserServerActions": false,
+    "onlyWrite": "This new public supplemental review metadata receipt",
+    "priorReviewBoundary": "Original accepted R15 reviews and browser/source artifacts remain immutable R15 evidence; this supplemental result does not relabel their execution edition."
+  },
+  "source": {
+    "sourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r16.json",
+    "manifestFileSha256": "a6cb84e509b0d597b6b381f6fd4cd07a120126a6b711abd1649a8e8f0053c4c0",
+    "sourceFingerprint": "04c54f0adc5bf306c39d009411f7c188fccad30f241c7c661f851d4fd3f34230",
+    "priorSourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r15.json",
+    "priorSourceFingerprint": "39cf1a097447da8749b64c3ca1c143a916c4830d8b6ba0a5cd11155e70c60012",
+    "canonicalPathCount": 961,
+    "completeCanonicalCensusVerified": true,
+    "missingPaths": [],
+    "extraPaths": [],
+    "currentSourceDrift": [],
+    "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+    "criteriaUnchanged": true,
+    "changedPaths": [
+      "tools/workflowStatus.test.cjs"
+    ],
+    "byteIdenticalOtherPaths": 960
+  },
+  "exactDiffVerification": {
+    "beforeTestSha256": "4c865eb7e2499ae8e8db0e3ca106804995b03cf7114ae4628560073b8fc93c34",
+    "afterTestSha256": "10db49289edd225e0f32a518888627b40b4110cf1674fdd560d30df35c49807d",
+    "sixAddedLinesOnly": true,
+    "reverseSixLineReconstructionMatchesExactR15Hash": true,
+    "unchangedProductionValidatorSha256": "43635d59f3302f11da9c00b985bd1e1dd2181c75899ee31737e181aa96ef2b88",
+    "actualScope": "Five lines reset only verified requirement statuses in freshly parsed synthetic fixture data to source_implemented; one line validates that placeholder baseline before the existing callback. No real-checkout status reset, no production-validator edit, no removed negative assertion, and no changed per-case explicit verified promotion."
+  },
+  "failedPublicationEvidence": {
+    "reference": "docs/evidence/production-workflow-review-20261011/ci-source-r15-registry-fixture-failed.json",
+    "commit": "a66c37b2e2181d62ee3ef714a0b84b9e875a7ed3",
+    "pr": 3,
+    "runId": 38252797564,
+    "result": "fail",
+    "actualTrackerCounts": {
+      "passed": 14,
+      "failed": 9,
+      "skipped": 0,
+      "cancelled": 0
+    },
+    "privateFailureLogSha256": "b8cd6969878453466757f2c8ea51a84c431b3007f5e2195a252ec4767536ee41",
+    "privateFailureLogBytes": 45959,
+    "logIndependentlyVerified": true,
+    "assessment": "Placeholder synthetic sources inherited 17 verified statuses from the promoted real registry, so nine intended negative cases failed early with missing-current-scope evidence. The real validator correctly refused unsupported proof. The original CI failure remains failed; neither local fixture success nor this review proves that hosted run or PR head passed."
+  },
+  "independentChecks": [
+    {
+      "command": "Node24.21.0 --test tools/workflowStatus.test.cjs",
+      "exitCode": 0,
+      "counts": {
+        "selected": 23,
+        "passed": 23,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      "coverage": "Includes unchanged actual-checkout positive validation and fail-closed stale/source/claim/whole-census/debt/authority tests, plus the new pre-callback fixture validation."
+    },
+    {
+      "command": "Node24.21.0 tools/workflowStatus.cjs --check",
+      "exitCode": 0,
+      "requirements": 19,
+      "sourceBoundEvidenceRecords": 76
+    },
+    {
+      "command": "Read-only complete canonical census, R15/R16 source/hash/criteria comparison and exact reversal of the six added lines",
+      "result": "pass",
+      "canonicalPaths": 961,
+      "changedPaths": 1,
+      "byteIdenticalOtherPaths": 960,
+      "sourceDrift": 0
+    },
+    {
+      "command": "In-memory cloned real registry: promote QA-01 using only E-FULL-HIERARCHY-R15-PASS; invoke unchanged production validateRegistry",
+      "result": "expected_refusal",
+      "messageClass": "Verified requirement has no matching current scoped source evidence",
+      "realRegistryMutated": false,
+      "productionValidatorFailClosed": true
+    }
+  ],
+  "otherOwnerScopedProof": {
+    "reference": "docs/evidence/production-workflow-review-20261011/r15-to-r16-tracker-fixture-bridge.json",
+    "actualPassed": 23,
+    "scopedLogSha256": "e3325c97e8bb41775d8898dcd81ddc1bfd4644f06e1312f128178d68cfa83a97",
+    "scopedLogBytes": 2629,
+    "retainedScopedLogIndependentlyVerified": true,
+    "notReviewerExecution": true
+  },
+  "carryForwardAssessment": {
+    "accepted": true,
+    "requirementIds": [
+      "GOV-01",
+      "ENTRY-01",
+      "AUTH-01",
+      "HIERARCHY-01",
+      "FLOW-01",
+      "DRAW-01",
+      "SURVEY-01",
+      "LAYOUT-01",
+      "ANCESTRY-01",
+      "RECOVERY-01",
+      "UI-01",
+      "DOC-01",
+      "DEP-01",
+      "DEP-02",
+      "SKILL-01",
+      "HOOK-01",
+      "CLEAN-01",
+      "QA-01",
+      "PUBLISH-01"
+    ],
+    "priorNineteenRequirementAcceptance": "Continues only through this explicit source-equivalence/affected-check bridge. All shipping/API/core/store/receiver/map/dependency/guide/criteria bytes and all browser source/fixtures/selection inputs are exact R15 bytes; all 22 earlier finding closures remain bound to their actual reviewed contracts.",
+    "priorBrowserReference": "docs/evidence/production-workflow-review-20261011/full-hierarchy-r15-pass.json",
+    "retainedActualCounts": {
+      "passed": 267,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0,
+      "unrun": 0,
+      "titles": 89,
+      "projects": 3
+    },
+    "browserCommandOnR16ExecutedByReviewer": false,
+    "newR16BrowserRunClaimed": false,
+    "automatedAccessibilityBoundary": "R15 retained 18 Axe4.13 scans/zero violations/16 incomplete outcomes remain scoped prior evidence, not a new scan or full WCAG claim.",
+    "priorReviewReceipts": [
+      "docs/evidence/production-workflow-review-20261011/final-independent-review-r15-one.json",
+      "docs/evidence/production-workflow-review-20261011/final-independent-review-r15-two.json"
+    ],
+    "excludedInference": "The historical R15 global fingerprint is stale on one tracker test path and cannot directly qualify global R16 evidence. Current qualification requires the explicit bridge plus affected checks and separately recorded aggregate/CI outcomes."
+  },
+  "weightedJudgment": {
+    "weights": {
+      "compatibility": 0.3,
+      "preservation": 0.25,
+      "contextEfficiency": 0.2,
+      "reproducibleProof": 0.15,
+      "maintainability": 0.1
+    },
+    "scoresAreThisReviewersJudgmentsOnly": true,
+    "alternatives": [
+      {
+        "choice": "Accept the exact one-path fixture bridge with fresh tracker checks and unchanged shipping/browser evidence",
+        "scores": [
+          5,
+          5,
+          5,
+          4,
+          5
+        ],
+        "weightedScore": 4.85,
+        "selected": true,
+        "rationale": "The synthetic baseline now states its actual proof capacity; exact source reversal proves narrow repair, all negative gates remain, and actual prior complete browser evidence still addresses identical application inputs. Fresh global aggregate and protected CI remain separate."
+      },
+      {
+        "choice": "Require another full browser run for the unchanged shipping/browser inputs before any bridge acceptance",
+        "scores": [
+          5,
+          5,
+          2,
+          5,
+          4
+        ],
+        "weightedScore": 4.3,
+        "selected": false,
+        "rationale": "Adds a new command receipt but repeats unchanged browser obligations; the bounded protocol and direct one-path negative checks qualify this source-only repair."
+      }
+    ],
+    "preservationOrFalseClaimVetoTriggered": false
+  },
+  "newMaterialFindings": [],
+  "unresolvedMaterialDefectsInThisSupplementalScope": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 0
+  },
+  "pendingAndLimits": [
+    "Root-owned fresh complete R16 aggregate was running at review assignment; this receipt does not claim its completion or result. Record its actual completed outcome separately.",
+    "Protected current-head CI, ordinary publication commit/push, PR merge/main OIDs and clean-main/worktree synchronization remain root-owned and unproved by this local review.",
+    "Hosted run38252797564 and the intermediate local stale-source rejection remain preserved failures.",
+    "No new R16 full browser command, Edge session, PostgreSQL service or export was run by this reviewer.",
+    "960 legacy browser obligations, native/device/atomic receiver qualification, physical accuracy, genuine hook/host-skill execution, hosted maintenance activation, deployment, human acceptance and full manual accessibility remain separately unqualified."
+  ],
+  "references": [
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/candidate-source-r15.json",
+      "sha256": "cf6adebf2ca8cce2c78e85cec6f783d226cf91cbf98d9bdf2c1512f3287d5cdd"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/candidate-source-r16.json",
+      "sha256": "a6cb84e509b0d597b6b381f6fd4cd07a120126a6b711abd1649a8e8f0053c4c0"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/r15-to-r16-tracker-fixture-bridge.json",
+      "sha256": "ceb41fc72389108c57dfa33e0097f465014892861b2c7a49879c5efeb2a1fbbd"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/ci-source-r15-registry-fixture-failed.json",
+      "sha256": "fbc2f0846186c341fd676b797faa8473df9a77f48703c53e5547d5ac091e5a20"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/final-independent-review-r15-one.json",
+      "sha256": "94d11f76276402898766800550694f1fc2ec028b8f5a5a23535acc109092f3b5"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/final-independent-review-r15-two.json",
+      "sha256": "5672cfcdfe2d36f4a4b66ab8929d8bee9714ea8dedf55b395aaafe7f2098b70d"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/full-hierarchy-r15-pass.json",
+      "sha256": "988027ebc1d097eedb5bc546a62b5a4e295235f6201436402d9153ce5d624eb5"
+    }
+  ],
+  "boundary": "Supplemental independent acceptance of a verified narrow fixture-only repair and explicitly unchanged prior shipping/browser scope. It is neither a fabricated complete R16 aggregate/browser run nor hosted CI/publication/deployment/human/native/physical acceptance. Only this receipt was written; root retains all Git/resources/status-promotion ownership."
+}

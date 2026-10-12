@@ -6,6 +6,8 @@ import { resolve } from "node:path";
 import { defaultProjectSettings } from "../../../../packages/core/src/settings";
 import { serializeDesignDraftDocument } from "../../../../packages/core/src/designDraft";
 import { serializeProjectDocument } from "../../../../packages/core/src/projectDocument";
+import { convertPivotProjectToFieldDesign, serializeFieldDesignDocument } from "../../../../packages/core/src/fieldDesignDocument";
+import { workspaceMapSceneFromField, withWorkspaceManualDrawing } from "../../../../packages/map-adapters/src/workspaceMapScene";
 import { sampleProject } from "../../../../packages/core/src/sampleProject";
 import { isRecordedReferenceMetadataRecord, type DrawingMetadataRecord } from "../../../../packages/core/src/drawingMetadata";
 import { editableFromIndependentDocument, reduceWorkspaceEditable, reduceWorkspaceEditableBatch, type WorkspaceEditableDocument } from "./workspaceDocumentAdapters";
@@ -172,4 +174,86 @@ test("Project operational classification asks for replacement consent and keeps 
   if (editable.kind !== "project") throw new Error("Expected Project.");
   const record = digitized(editable.editor.project.drawingMetadata!.records[0]); assert.equal(record.classification.name, "Actual water label  "); assert.equal(record.classification.notes, "Saved exact notes\nsecond line"); assert.deepEqual(record.capture.vertexRecordedAt, [now]);
   assert.equal(interaction.captureId, null); assert.deepEqual(interaction.vertices, []); assert.deepEqual(interaction.vertexRecordedAt, []);
+});
+
+function actualField() {
+  const field = convertPivotProjectToFieldDesign(serializeProjectDocument(sampleProject), { fieldId: "manual-field", waterSourceId: "water", powerSourceId: "power" }).field;
+  const editable = editableFromIndependentDocument("field", serializeFieldDesignDocument(field));
+  if (editable.kind !== "field") throw new Error("Expected actual Field.");
+  return editable;
+}
+function fieldDrawing(geometryType: "Point" | "LineString" | "Polygon", points: Array<{ x: number; y: number }>): { editable: Extract<WorkspaceEditableDocument, { kind: "field" }>; interaction: WorkspaceDrawingInteraction } {
+  const editable = actualField();
+  let interaction: WorkspaceDrawingInteraction = { ...drawing.initialWorkspaceDrawingInteraction(editable), geometryType };
+  for (const point of points) {
+    const prepared = drawing.prepareWorkspaceDrawingPoint(editable, interaction, point, "actual-field-capture", now);
+    assert.deepEqual(prepared.actions, []); interaction = prepared.interaction;
+  }
+  return { editable, interaction: { ...interaction, stage: "classification" as const, name: "Actual raw name  ", notes: "Exact notes\nretain" } };
+}
+test("Field manual boundary shares rendered tools, explicitly replaces geometry and retains exact source/history", () => {
+  let { editable, interaction } = fieldDrawing("Polygon", [{ x: 500900.125, y: 4506100.875 }, { x: 501400, y: 4506100 }, { x: 501400, y: 4506700 }]);
+  const original = structuredClone(editable.editor.field), source = editable.sourceDocument;
+  interaction = { ...interaction, selectionId: "field_boundary" };
+  let admissions = 0;
+  const dispatch = (action: Parameters<typeof reduceWorkspaceEditable>[1]) => {
+    admissions++; const next = reduceWorkspaceEditable(editable, action);
+    if (next.kind !== "field" || next.editor.lastError) return false;
+    editable = next; return true;
+  };
+  const render = () => { controls.clear(); return renderToStaticMarkup(React.createElement(drawing.WorkspaceDrawingPanel, { editable, interaction,
+    onInteractionChange: next => { interaction = next; }, dispatch, dispatchBatch: () => false, createEntityId: () => "unused" })); };
+  const markup = render(); assert(markup.includes("workspace-drawing-panel")); assert.equal(controls.has("drawing-tool-Polygon"), true); assert.equal(controls.has("drawing-tool-Circle"), false);
+  (controls.get("drawing-classification-keep")!.onPress as () => void)(); assert.equal(admissions, 0); assert.equal(interaction.replacing, true);
+  render(); (controls.get("drawing-classification-keep")!.onPress as () => void)();
+  assert.equal(admissions, 1); assert.equal(editable.editor.revision, 1); assert.deepEqual(editable.editor.field.surveyPoints, original.surveyPoints);
+  assert.equal(editable.sourceDocument, source); assert.deepEqual(editable.editor.past, [original]);
+  const metadata = editable.editor.field.drawingMetadata!.records.at(-1)!; assert(!isRecordedReferenceMetadataRecord(metadata));
+  assert.equal(metadata.capture.source, "map_digitized"); assert.deepEqual(metadata.capture.vertexRecordedAt, [now, now, now]);
+  assert.equal(metadata.classification.name, "Actual raw name  "); assert.equal(metadata.classification.notes, "Exact notes\nretain");
+  const undone = reduceWorkspaceEditable(editable, { kind: "field", action: { type: "undo" } });
+  if (undone.kind !== "field") throw new Error("Expected Field."); assert.deepEqual(undone.editor.field, original);
+});
+test("Field obstacle, point and line drawing use fresh actual identities and preserve ordered click provenance", () => {
+  for (const [geometry, selection, points] of [
+    ["Polygon", "exclusion_both", [{ x: 501000, y: 4506200 }, { x: 501050, y: 4506200 }, { x: 501050, y: 4506250 }]],
+    ["Point", "well", [{ x: 501025.123456789, y: 4506235.987654321 }]],
+    ["LineString", "pipeline:underground", [{ x: 501010, y: 4506200 }, { x: 501050, y: 4506250 }]],
+  ] as const) {
+    const { editable, interaction } = fieldDrawing(geometry, [...points]);
+    const before = structuredClone(editable.editor.field);
+    const action = drawing.workspaceFieldDrawingAction(editable, { ...interaction, selectionId: selection }, "fresh-feature");
+    assert.equal(action.kind, "field"); assert.equal(action.action.type, "commit_manual_geometry");
+    const next = reduceWorkspaceEditable(editable, action);
+    if (next.kind !== "field") throw new Error("Expected Field."); assert.equal(next.editor.lastError, null);
+    assert.deepEqual(next.editor.field.fieldBoundary, before.fieldBoundary); assert.deepEqual(next.editor.field.machines, before.machines);
+    const metadata = next.editor.field.drawingMetadata!.records.at(-1)!; assert(!isRecordedReferenceMetadataRecord(metadata));
+    assert.deepEqual(metadata.capture.vertexRecordedAt, points.map(() => now)); assert.equal(metadata.capture.wgs84, null);
+    assert.equal(metadata.classification.notes, "Exact notes\nretain");
+    if (geometry === "Polygon") assert.equal(next.editor.field.obstacles.at(-1)!.hardConflict, true);
+    else assert.equal(next.editor.field.mapFeatures!.at(-1)!.id, "fresh-feature");
+    assert.deepEqual(editable.editor.field, before);
+  }
+});
+test("Field location choices bind explicit machine/infrastructure IDs and cannot invent missing targets", () => {
+  const { editable, interaction } = fieldDrawing("Point", [{ x: 501025, y: 4506235 }]);
+  const pivot = JSON.stringify(["pivot_center", editable.editor.field.machines[0].id]);
+  assert(drawing.workspaceDrawingChoices(editable, "Point").some(option => option.id === pivot));
+  const action = drawing.workspaceFieldDrawingAction(editable, { ...interaction, selectionId: pivot, replacing: true }, "unused");
+  const next = reduceWorkspaceEditable(editable, action); if (next.kind !== "field") throw new Error("Expected Field.");
+  assert.equal(next.editor.lastError, null); assert.deepEqual(next.editor.field.machines[0].pivotCenter, interaction.vertices[0]);
+  assert.throws(() => drawing.workspaceFieldDrawingAction(editable, { ...interaction, selectionId: JSON.stringify(["pivot_center", "invented"]) }, "unused"), /actual field location/);
+  assert.throws(() => drawing.workspaceFieldDrawingAction(editable, { ...interaction, selectionId: "project_water_source" }, "unused"), /actual field location/);
+  assert.throws(() => drawing.prepareWorkspaceDrawingPoint(editable, { ...interaction, stage: "drawing", geometryType: "Circle" }, { x: 1, y: 2 }, "circle", now), /Point, Line or Polygon/);
+});
+test("Field pending drawing preview retains its actual source, revision and same-scene ownership", () => {
+  const { editable, interaction } = fieldDrawing("LineString", [{ x: 501000.25, y: 4506200.75 }, { x: 501100.125, y: 4506300.875 }]);
+  const preview = drawing.workspaceDrawingPreview(editable, interaction)!;
+  assert.equal(preview.sourceDocumentId, editable.editor.field.id); assert.equal(preview.inputRevision, editable.editor.revision);
+  const scene = workspaceMapSceneFromField(editable.editor.field, { id: "actual-field-frame", generation: 0, inputRevision: editable.editor.revision });
+  const rendered = withWorkspaceManualDrawing(scene, preview); assert.equal(rendered.sourceDocument.kind, "field");
+  assert.deepEqual(rendered.entities.find(item => item.sourcePath === "manualDrawing")!.geometry, preview.geometry);
+  assert.equal(scene.entities.some(item => item.sourcePath === "manualDrawing"), false);
+  assert.throws(() => withWorkspaceManualDrawing(scene, { ...preview, sourceDocumentId: "other-field" }), /another source document/);
+  assert.throws(() => withWorkspaceManualDrawing(scene, { ...preview, inputRevision: preview.inputRevision + 1 }), /another source document/);
 });

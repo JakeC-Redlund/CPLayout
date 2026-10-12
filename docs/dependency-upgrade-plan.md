@@ -1,5 +1,29 @@
 # Dependency Inventory and Upgrade Plan
 
+## Current qualification — 2026-10-11
+
+Use [workflow-registry.json](workflow-registry.json) for the current installed edition and [dependency-maintenance.md](dependency-maintenance.md) for daily reports/weekly update groups. Canonical preflight raw audit is 21 high/5 moderate; direct installed-check failed because all seven patch targets were original despite 45 passing fixtures. An isolated exact-lock installation/verification is a separate result. Historical zero-audit/admitted-mitigation statements below apply only to their dated graph. New automation remains source configuration until hosted execution is observed.
+
+Dated isolated package checks: the recorded SDK57 edition passed installed guards, Expo compatibility, TypeScript, 213 map-adapter cases and 68 dependency/governance cases. Its raw audit was 16 high/0 moderate. Subsequent source/lock changes make the earlier matching records stale; they are not the final current aggregate. Playwright 1.64 Chromium 156/revision 1248 was installed in a private proof directory. TypeScript 7.0.2 compiled but failed the unchanged Expo57 recommendation of ~6.0.3; supported 6.0.3 was retained. MapLibre RN 11.5.0/GL 6.14.0 remain separately subject to rendered/native proof. [Original scoped record](evidence/production-workflow-dependencies-20261011/source-checks.json).
+
+The current installed accessibility tooling is `@axe-core/playwright@4.13.0`, `axe-core@4.13.0` and `@playwright/test@1.64.0`. [Exact published metadata](evidence/production-workflow-dependencies-20261011/accessibility-published-manifests.json) matches installed declarations and lock integrity; the wrapper README also matches its integrity-verified published tarball. Its API supports `AxeBuilder.analyze()` and tagged scans. [Playwright's official guidance](https://playwright.dev/docs/accessibility-testing) requires reaching the intended page state and distinguishes automated findings from complete accessibility assessment. These sources prove tooling support, not CPLayout conformance. The [intermediate cross-viewport run](evidence/production-workflow-review-20261011/accessibility-first-current.json) passed desktop/tablet and found a serious mobile keyboard-focus violation; current corrections require an actual rerun.
+
+## SDK56 → SDK57 source migration packet — 2026-10-11
+
+The selected supported toolchain is Node24.21.0/npm11.19.0, directly executed from the isolated toolchain. Primary npm dist tags identify Expo57.0.27 as latest stable, Expo56.0.23 as the preceding SDK line, Playwright1.64.0, TypeScript7.0.2, MapLibre RN11.5.0 and GL6.14.0. Next/canary versions were not selected. These availability facts are not compatibility acceptance.
+
+Published Expo bundles specify SDK56 React19.2.3/RN0.85.3/SQLite56.0.6/modules-core56.0.27 and SDK57 React19.2.3/RN0.86.3/SQLite57.0.4/modules-core57.0.21. Mobile, shared map/store and the backup-artifact exact peers must use one coherent matrix. The old exact backup-artifact55 peer declarations initially retained incompatible root copies; the guard refused them. No force or legacy-peer workaround was used. Root Expo/RN tool dependencies now explicitly select the same matrix.
+
+The original ownership patch/manifests for55.0.20 remain unchanged. Published SQLite56/57 differ in build version, the options OptimizedRecord annotation and buffer/statement handling; existing-only/source-lease ownership code is not upstream-fixed. The same reviewed ownership hunks apply to each exact published source with only versionName context adjusted. New version-specific manifests separately record original and patched hashes. Kotlin/Java custom backup code remains unchanged; source API presence and patch applicability do not establish native compilation or device behavior.
+
+SDK56 compatibility required TypeScript6.0.3, explicit portable absolute-position styles and an exact installed MapLibre CSS module declaration. Failed moving-source typechecks and the initial peer/source guard refusals remain historical evidence. Current corrected source checks and the final SDK57 edition are recorded by their actual result, never inferred from this plan.
+
+SDK56 removed sprintf-js and its old argparse1 dependency. The new raw audit reports17high/0moderate, all rooted in the two remaining named advisories. Local verified guards remain necessary. Formatter retirement requires the reviewed SDK matrix, valid matching lock with no package/alias entry, physical inventory, all workspace/installed declarations and resolution absence. Missing/partial old55 installation or any present changed/nested/aliased vulnerable package still fails. The exact legacy sprintf/argparse source+license fixture preserves original compatibility assertions without reintroducing a dead vulnerable active dependency.
+
+Sources actually retrieved: [Expo56 published manifest](https://registry.npmjs.org/expo/56.0.23), [Expo57 published manifest](https://registry.npmjs.org/expo/57.0.27), [SQLite56](https://registry.npmjs.org/expo-sqlite/56.0.6), [SQLite57](https://registry.npmjs.org/expo-sqlite/57.0.4), and their immutable version tarballs including bundledNativeModules.json. Versioned patch provenance is in its own manifest. No SDK native prebuild, global configuration/tool installation or device acceptance is implied.
+
+## Historical upgrade packets
+
 Last reviewed: 2026-09-27 UTC
 Status: active package and toolchain decision record
 

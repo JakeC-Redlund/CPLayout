@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "2649d1a9b1f1c55dff2eea4a6fe9faaa54be3824",
+  "sourcePath": "apps/mobile/src/workspace/workspaceEditRecovery.ts",
+  "preservedPath": "apps/mobile/src/workspace/workspaceEditRecoveryV2Reader.ts",
+  "moduleVersion": "cplayout-unified-edit-recovery-v2",
+  "sourceSha256": "70c8de4183f3a4fe0575b3b9b2d3e062212642f2388da45febc8b7c5ef19ed86",
+  "purpose": "Exact original v2 reader; retain opaque v3 refusal and legacy serialization behavior. Dependencies remain referenced, not vendor-copied."
+}

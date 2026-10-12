@@ -1,0 +1,227 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "classification": "scoped_source_receipts",
+  "sourceOwnerDisposition": "Mapping/backend owners report source frozen; coordinator-owned helper/map and later smoke/spec changes remain separately scoped.",
+  "sourceHashes": {
+    "packages/core/src/officialLayout.ts": "db395b05a4f4f763eb1563c74f0fee17a50d02ccf758d9460e5bad04e46275ca",
+    "packages/core/src/layoutSession.ts": "91c3f6e2bb56a7a3c51ad6c837dd929426d039454287d7940378bc52193169df",
+    "packages/project-store/src/workspaceCommands.ts": "08cbe4ba6913bc548afc1726ce6563b6bb94166e6986c429a1ca255e0ae7c6f8",
+    "packages/project-store/src/workspaceDocument.ts": "89194c2be3963c6bba930d076e29f2d545afa79ce22e29b0f34da7d9f118b750",
+    "packages/project-store/src/productionWorkflow.ts": "af8b770516e9fd638fbc80906a74fbee9300f532430d146ce08f36dfd2465308",
+    "packages/project-store/src/webWorkspaceStore.ts": "4a622153271d664d799d72d5283b674a17e2078bc2f7506bf38599093141cb73",
+    "packages/project-store/src/sqliteWorkspaceStore.ts": "781ffbe4e33890bc87f3753413c48c9dbc9a4ca94068afabec2864fd6613b2a2",
+    "packages/project-store/src/workspaceFieldContents.ts": "4a7e17a8ee7dae7750c5eb109e70d6930ced741df3915a5eaa911e73502853c2",
+    "packages/project-store/src/workspaceFieldContents.test.ts": "d8768cb7d1cc29505261f2a7efd6d8f6533105b30a57f256eea89d0dba07ca3f",
+    "apps/mobile/src/workspace/WorkspaceCatalog.tsx": "0aeed4b158aa4de1d3323cd4e3e0b765e37fbb2cc334ebcb8e7a029372f6b5ed",
+    "apps/mobile/src/workspace/useWorkspaceController.ts": "df2c517ef516a244dc90742adf0cad3e604243d9a7587b81544143a3aec47dd0",
+    "apps/mobile/src/workspace/WorkspaceModePanels.tsx": "7e70ba4f16a1d8e6e530386045c5dac1c82aff9ba314ebe5f30014a3c57b0807",
+    "apps/api/src/server.ts": "3fc7b52d00c926affc4dcd413cd6743d037634860555e4868df171f8c301ce0b",
+    "packages/auth-client/src/apiClient.ts": "b19b1d40261c360b0547e7c38317e06c1f87a35d9f9e22a80250d9eac9744660",
+    "apps/mobile/src/auth/authenticatedRepository.ts": "615bbc05a7a0fd828c4744af7131595c565455db58b8f517d6f42329d7a927ab",
+    "apps/mobile/src/auth/AuthenticatedWorkspace.tsx": "5821bd4549a627c012ddeb0a83386988fae2cb6c4a25f31e687a6731cdf4946d"
+  },
+  "sourceHashBoundary": "Selected actual contract anchors only; no complete/global edition manifest and no invented execution coverage.",
+  "receipts": {
+    "catalog_controller": {
+      "claimClass": "source",
+      "result": "pass",
+      "logName": "cplayout-hierarchy-v3-catalog-final.log",
+      "logSha256": "c2751a7003907f81cf5cc985db518d898ed5941a0576bf805cf47b4754a53090",
+      "bytes": 13282,
+      "counts": {
+        "tests": 114,
+        "pass": 114,
+        "fail": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      "provenance": "Direct scoped log inspection/hash after coordinator/owner delivery; execution by its authorized owner."
+    },
+    "v3_store_ancestry": {
+      "claimClass": "source",
+      "result": "pass",
+      "logName": "cplayout-v3-import-ancestry-final-r2.log",
+      "logSha256": "c65607d079003a9167f5b19d14d89b93344a871c7a6a6c8e558d3c98dc399eb5",
+      "bytes": 2461,
+      "counts": {
+        "tests": 18,
+        "pass": 18,
+        "fail": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      "provenance": "Direct scoped log inspection/hash after coordinator/owner delivery; execution by its authorized owner."
+    },
+    "wider_intermediate_failed": {
+      "claimClass": "source",
+      "result": "fail",
+      "logName": "cplayout-hierarchy-v3-final-affected.log",
+      "logSha256": "0af9d87174ae003afd7d41d9fbf1b5ec3c369c92435ba701fe882223192d50aa",
+      "bytes": 31995,
+      "counts": {
+        "tests": 269,
+        "pass": 267,
+        "fail": 2,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      "provenance": "Direct scoped log inspection/hash after coordinator/owner delivery; execution by its authorized owner."
+    },
+    "auth_read_final": {
+      "claimClass": "source",
+      "result": "pass",
+      "logName": "cplayout-auth-read-admission-final-scoped.log",
+      "logSha256": "63912f948d0ad19237aa0da1623c9f8994bf1254e42b72c775ba1b6c5ee5080e",
+      "bytes": 5922,
+      "counts": {
+        "tests": 53,
+        "pass": 53,
+        "fail": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      "provenance": "Direct scoped log inspection/hash after coordinator/owner delivery; execution by its authorized owner."
+    },
+    "auth_before_fix_failed": {
+      "claimClass": "source",
+      "result": "fail",
+      "logName": "cplayout-auth-read-admission-before-fix-locks.log",
+      "logSha256": "42eb7c06cf4b37a964ba94ba47397758c780d88e0b50ed9a9df243c33f440e66",
+      "bytes": 3467,
+      "counts": {
+        "tests": 4,
+        "pass": 0,
+        "fail": 4,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      "provenance": "Direct scoped log inspection/hash after coordinator/owner delivery; execution by its authorized owner."
+    },
+    "operator_copy": {
+      "claimClass": "source",
+      "result": "pass",
+      "logName": "cplayout-auth-operator-copy-scoped.log",
+      "logSha256": "7b3dff02930837578fbc19002342946230aed4bce772fa8e9aaa62dc5a6acf9d",
+      "bytes": 490,
+      "counts": {
+        "tests": 3,
+        "pass": 3,
+        "fail": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      "provenance": "Direct scoped log inspection/hash after coordinator/owner delivery; execution by its authorized owner."
+    },
+    "field_projection_r13": {
+      "claimClass": "source",
+      "result": "pass",
+      "logName": "cplayout-field-contents-tests-r13.log",
+      "logSha256": "ee5a7b2735f90842ae9ac3fada53495bcd14a57d2eefd27494794431d1350b0f",
+      "bytes": 837,
+      "counts": {
+        "tests": 6,
+        "pass": 6,
+        "fail": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      "provenance": "Direct scoped log inspection/hash after coordinator/owner delivery; execution by its authorized owner."
+    },
+    "http_pg_r12": {
+      "claimClass": "source",
+      "result": "pass",
+      "logName": "cplayout-production-service-smoke-r12.log",
+      "logSha256": "f08657acdb1726d73a7c80ba36c8775f433456ec085f674eb6cd0ebf80a28656",
+      "bytes": 336,
+      "counts": {
+        "tests": 1,
+        "pass": 1,
+        "fail": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      "provenance": "Direct scoped log inspection/hash after coordinator/owner delivery; execution by its authorized owner."
+    },
+    "http_pg_r13": {
+      "claimClass": "source",
+      "result": "pass",
+      "logName": "cplayout-production-service-smoke-r13.log",
+      "logSha256": "3bc9806272d17f6f775bc5987e492f7d70e254f754b063e20206eed167ff3c91",
+      "bytes": 336,
+      "counts": {
+        "tests": 1,
+        "pass": 1,
+        "fail": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      "provenance": "Coordinator-owned actualPG18.6 HTTP source run; logcounts/hash directlyverified.",
+      "boundary": "NewretainedSurveyProjectDELETEbeforeANYLayout409refusal, DBTEXT/receiptcountunchanged, thenV3create/mark/finalize+parent/actor/exactSQLTEXT. SyntheticretainedGGAonly; oldr8HTMLused, not currentApp/device/physical qualification."
+    },
+    "tools_types_r11": {
+      "claimClass": "source",
+      "result": "pass",
+      "logName": "cplayout-production-tools-types-r11.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "exitCode": 0,
+      "provenance": "Coordinator toolcompletion explicitlyreported exit0; actual loghash verified, not inferred from empty output."
+    }
+  },
+  "reportedTypechecks": {
+    "mapping": "Core/store/mobile exit0 per final owner receipt.",
+    "backend": "API/SDK exit0; current global typecheck remains separately pending."
+  },
+  "preservedFailedAttempts": {
+    "wider269": "Actual267pass2fixturefail; complete affectedfiles114rerun passes. The failed wider packet is not relabeled pass.",
+    "auth_before_fix": "Allfour stale-read expectedrejection assertions failed beforefix in the same actual shared workspace; not a foreign-tenant leak.",
+    "field_helper": "Priorr11five-pass receipt and r12five-pass/one-negative legacyProject extension fixture remain historical; finalr13sixpasses qualify corrected reader projection.",
+    "smoke": "Priorr10alreadyV5upgrade and r11wrongmetadataID fixture assumptions remain preserved per coordinator; no invented artifact paths."
+  },
+  "httpPgBoundary": "ActualPG18.6 HTTP r12andlatest r13source smoke1/1each; r13addsretainedSurveyProjectDELETE409beforeANYLayout withunchangedDBTEXT/receipts, thenV3/parents/actors/SQLTEXT. Bothserveoldr8staticHTML and syntheticretainedGGA; not currentApp/device/physical proof. OwnerclosedonlyitsGateway/droppedownschema; nochildresourceaction.",
+  "pending": [
+    "Current complete source aggregate",
+    "Actual267declaredcurrentApp executions on finalmatching source/bundle",
+    "Matching currentApp/browser/visible-pixel packet",
+    "Two accepted complete final independent reviews",
+    "Publication/exact-head protected CI",
+    "NativeV3runtime/device activation",
+    "PhysicalGNSSaccuracy",
+    "Genuinehook/hostskillruntime",
+    "Deployment/humanacceptance"
+  ],
+  "boundary": "Finalscopedsource receipts incl latestPGHTTP only; not globaledition/browser/native/physical/finalreview/publication. Successfulremotecommits remain authoritative when laterclientdelivery retires; no rollback/exactlyonceUI inference.",
+  "discoveryAccounting": {
+    "counts": {
+      "files": 33,
+      "uniqueCases": 409,
+      "currentExecutions": 267,
+      "deferredExecutions": 960,
+      "allExecutions": 1227
+    },
+    "discoveryFingerprint": "2077f5522169150241a6e85e96ea63804c8d9b0a193472d8a46733075f92d1ea",
+    "inventorySha256": "865f48606a884c28e310e6af3b7bbc2529fcff54021745943a72b808cb1af9b8",
+    "rootProjects": 3,
+    "sourceRegistryTests": {
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0
+    },
+    "logs": {
+      "cplayout-hierarchy-inventory-r11.log": {
+        "sha256": "ce5f71dc5664b520999a0f548ed32427b72053bfe1e6acead65f314f4036d6ad",
+        "bytes": 86
+      },
+      "cplayout-hierarchy-browser-registry-r11.log": {
+        "sha256": "825b39cba3b73238ccb27dd8e60a6f9fc814ec1babc777b98c9c7507037d92e9",
+        "bytes": 1549
+      },
+      "cplayout-hierarchy-discovery-r10.log": {
+        "sha256": "4cdc1ecbdd913647a21f1fdd4cc5cbebbef7453e0b255b8d89d8a040fb8cacaf",
+        "bytes": 100
+      }
+    },
+    "boundary": "Direct currentinventory/accounting andloghash verification; revieweddrift refusal beforeexplicitregeneration is a guard, notAppfailure. No267execution/native/physical/finalreviewclaim."
+  }
+}

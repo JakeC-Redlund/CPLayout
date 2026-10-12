@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "result": "bounded_unchanged_source_and_affected_requalification_pass_full_gate_pending",
+  "priorSource": {
+    "path": "docs/evidence/production-workflow-review-20261011/candidate-source-r4.json",
+    "fingerprint": "5e8face8256e4c22282aef22e3989e88b82b521e603f8b29f0c3ba78aa0f7d02",
+    "sourceCount": 902,
+    "manifestSha256": "66d874c64a2b255a7081ff77a675f8136b6654a47e0f6b7d0b418f8d3dd50ad8"
+  },
+  "currentSource": {
+    "path": "docs/evidence/production-workflow-review-20261011/candidate-source-r7.json",
+    "fingerprint": "1e54a0f96066d7c61e6ff2abff7798989e6752eebb44bd323782c90c906c89b7",
+    "sourceCount": 902,
+    "manifestSha256": "f25a13693a7f1216b623d8d87b9db7c9e2b1812444a52fd46660db64b27709ff"
+  },
+  "changedPaths": [
+    {
+      "path": ".agents/skills/cplayout-interface-development-agent/SKILL.md",
+      "classification": "Instruction source lesson from actual clipping and verified W3C Label in Name",
+      "priorSha256": "38ac0e2b726a577efbd2a64433718dc50f0370f2898752cbc046166ece4877bd",
+      "currentSha256": "b33eb328cfebe1fff31e763c63b09677281d58dba9eb28a35b89823b3b3802af"
+    },
+    {
+      "path": ".codex/hooks/cplayout_context_map.json",
+      "classification": "Regenerated indexed source references after implementation/skill changes",
+      "priorSha256": "4e446ae593fd46f94b7e16f2a7d43aa5fc14dbdda00c0bda19b8c3eba1bbb203",
+      "currentSha256": "2717462d28ba1d7bc393673926ba9bb7703c19f15904aa368722d85299488ae0"
+    },
+    {
+      "path": "apps/mobile/src/auth/AuthenticatedWorkspace.tsx",
+      "classification": "Actual Home visible copy/layout implementation change; cannot be hidden in a proof-only bridge",
+      "priorSha256": "e6eb7918a40de08348b2035675ce9447483724af4b23218fdbd119178e8c4104",
+      "currentSha256": "d5491572d05af2104f628dd40e959d36ebe5a0935e749ec4e047de59f5dd7680"
+    },
+    {
+      "path": "docs/skill-capability-inventory.json",
+      "classification": "Corresponding source-only skill identity/validation metadata",
+      "priorSha256": "cf3b422b7dd42a5726ef1cf1e82f7264b07d65812c6bf0b06e954f082d591d59",
+      "currentSha256": "85954ebf1accaecaf6053561596517e7655a3fc4b18fc2e1aa95599995f38c67"
+    },
+    {
+      "path": "docs/skill-capability-inventory.md",
+      "classification": "Rendered corresponding source-only skill inventory row",
+      "priorSha256": "fdd7479b85af32ba96049cfcc20b10c126e6abb4f4f9ed9d3b4a49a7391a767c",
+      "currentSha256": "21851cc9267e04080694beedb5b7653761f7ea8a33ec6d50701832d0fec16098"
+    },
+    {
+      "path": "tests/web/browser-proof-inventory.json",
+      "classification": "Regenerated current-source spec hashes/discovery inventory",
+      "priorSha256": "c488afa02f004a65179c70cfe8fd8cf8110b385c0b77e5ff98f2e06f2b9d135f",
+      "currentSha256": "49e3ab0be5cba9b9a873da2e29c790ffb0f480dacc14d873599dd8245da94566"
+    },
+    {
+      "path": "tests/web/production-auth-workflow.spec.ts",
+      "classification": "Existing Home bounds/keyboard/visible-label/accessibility proof expansion without new case count",
+      "priorSha256": "499f1141f65abc5d5978bf4388533b0ac25f239ba623b4b22cd1015300a44458",
+      "currentSha256": "db3b09be8c6d75398409bb18abb59261d4c02501d1f08298676e7ab24623ef0e"
+    },
+    {
+      "path": "tests/web/workspace-management.spec.ts",
+      "classification": "Independent visible camera width/scale proof-helper correction",
+      "priorSha256": "43cb100da40fe98128f2dc8909048b7849c4326126c53fb9789a149cba00ae07",
+      "currentSha256": "a1393e504fab2d684afdcd9e0a757de1f896816abd0c65684770bf2cc3af8de9"
+    }
+  ],
+  "unchangedSourceCount": 894,
+  "verification": "Complete immutable manifest comparison and every current file againstR7. Exactly eight classified paths changed;894others byte-identical.",
+  "didRerun": [
+    "Current full workspace TypeScript exit0",
+    "Auth access/navigation/denial source tests7pass0skip",
+    "Context build/freshness and full skills/source validator exit0",
+    "Current browser source registry11pass0skip",
+    "Actual six focused Home/bounds/keyboard/label and three-viewport automatedAxe executions6pass0fail/skip/unrun"
+  ],
+  "didNotRerun": [
+    "Raw full npmvalidate onR7: retained completed aggregate isR4, linked for unchanged source only",
+    "Full264R7browser completion not yet supplied",
+    "Fresh Edge8pixel review not yet supplied",
+    "Two final independent complete reviews0of2accepted",
+    "Native/device/physical/hook/deployment qualification"
+  ],
+  "affectedReceipts": {
+    "homeSourceTypecheckLogSha256": "74c892cb9c8a697ae90c6578d2cbfce2ba84e8b59265bf69b7f70851fc57baa8",
+    "contextSkillRegistryLogSha256": "96cafe0f412a8f7192682c5d268c8b11c11604182b513a012d30a61c163f59bd",
+    "homeFocusedReference": "docs/evidence/production-workflow-review-20261011/home-r6-r7-rechecks.json",
+    "authSourceProvenance": "Coordinator completed seven current auth-source checks; earlier ownedsource log preserved."
+  },
+  "rawAggregateReference": "docs/evidence/production-workflow-review-20261011/source-r4-pass.json",
+  "boundary": "This is scoped requalification with a real one-file implementation change, not complete source-byte equivalence or a freshly rerun full aggregate. Final reviewers must vet scope; no old manifest/pass refreshed."
+}

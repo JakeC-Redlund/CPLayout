@@ -18,3 +18,6 @@ export { readWorkspaceDesign, workspaceBackendInfo, workspaceDesignCatalog, work
 export { createCatalogId } from "./projectCatalog";
 export * from "./layoutSessionArchive";
 export * from "./designWorkspaceBundle";
+
+export * from "./productionWorkflow";
+export * from "./workspaceCommandPermission";

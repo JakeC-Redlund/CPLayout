@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "checkedOn": "2026-10-11",
+  "scope": "Primary-source image availability and exact action pins; no Docker, hosted workflow or deployment execution.",
+  "image": {
+    "tag": "postgres:18.6",
+    "officialLibraryUrl": "https://raw.githubusercontent.com/docker-library/official-images/master/library/postgres",
+    "officialLibraryObservation": "18.6 listed as official18/trixie, GitCommit e00e1bd34ec5c8a8e7ad89b273b3d42efaf6d5bc; amd64 and other architectures declared.",
+    "publicDockerHubUrl": "https://hub.docker.com/v2/repositories/library/postgres/tags/18.6",
+    "responseSha256": "b37f467e7039fd27bf1bc367a723c78a2039a228c136e6da43f945ce57584195",
+    "indexDigest": "sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336",
+    "lastUpdated": "2026-10-07T13:08:43.034772Z",
+    "imageDigests": [
+      {
+        "os": "linux",
+        "architecture": "amd64",
+        "variant": null,
+        "digest": "sha256:885953109528ad3dfc90362b1a6f50a78620b5315be19f187753d267e484dc5b"
+      },
+      {
+        "os": "linux",
+        "architecture": "ppc64le",
+        "variant": null,
+        "digest": "sha256:58fff7c2d8fad6acec136b663c917c56f33ec82ef1ca32aefc94e1b0687bfbf2"
+      },
+      {
+        "os": "linux",
+        "architecture": "386",
+        "variant": null,
+        "digest": "sha256:05464a702a665b5cc80c5b5d842ffd31c5503be58274f4c8cf96c50d3fa4d7a3"
+      },
+      {
+        "os": "linux",
+        "architecture": "s390x",
+        "variant": null,
+        "digest": "sha256:3b1b1289edf5a217a154b5e64c4eba5844f393b9b81e08995a043c5a9acdf81b"
+      },
+      {
+        "os": "linux",
+        "architecture": "arm",
+        "variant": "v7",
+        "digest": "sha256:06bfcdeb7719e2730a9852ff32a4b487aa01efaad7844833262955b1d1f88aea"
+      },
+      {
+        "os": "linux",
+        "architecture": "arm64",
+        "variant": "v8",
+        "digest": "sha256:a63b24165ea0eacced7585766d790ac08bbaefe10a1841f87783a4505d29a69c"
+      },
+      {
+        "os": "linux",
+        "architecture": "arm",
+        "variant": "v5",
+        "digest": "sha256:f999d2cde93ef81bd1dcbcd245c7bf767adbca02dbe6c92a661a9f852de705d9"
+      },
+      {
+        "os": "linux",
+        "architecture": "riscv64",
+        "variant": null,
+        "digest": "sha256:2337683c7a1556e93a8472ecb3c23a86d8d4c34daa534ef6ea0af23c082037f2"
+      },
+      {
+        "os": "unknown",
+        "architecture": "unknown",
+        "variant": null,
+        "digest": "sha256:a0694154be01f273c26b7be37257b9388aef3c3843c51f4484fb7df248ec508c"
+      },
+      {
+        "os": "unknown",
+        "architecture": "unknown",
+        "variant": null,
+        "digest": "sha256:9d0bd7eeaee4c65b0222fe2fb0e91de08f5121a321be78131f12b92f1021621b"
+      },
+      {
+        "os": "unknown",
+        "architecture": "unknown",
+        "variant": null,
+        "digest": "sha256:2aa0f3ec573a73a04926158ac131db33c271b32990e2922fd96f548ef6f3e57a"
+      },
+      {
+        "os": "unknown",
+        "architecture": "unknown",
+        "variant": null,
+        "digest": "sha256:2c3cdda80eceaf969f7f1671182328968c8f24b50e541c1c008592f884239eab"
+      },
+      {
+        "os": "unknown",
+        "architecture": "unknown",
+        "variant": null,
+        "digest": "sha256:e74003681cd9cc6b004ed45e384cef11d839e46f1f0cc05a427ec8d6f5987077"
+      },
+      {
+        "os": "unknown",
+        "architecture": "unknown",
+        "variant": null,
+        "digest": "sha256:29017ab82e7806066ce0e7bf5b5f683a3e010aa411a45dde9676888b58c6cb58"
+      },
+      {
+        "os": "unknown",
+        "architecture": "unknown",
+        "variant": null,
+        "digest": "sha256:65b00dacb9bc36aa1f33d704277072ab690e79cbc083e6f7259325ce77dfc881"
+      },
+      {
+        "os": "unknown",
+        "architecture": "unknown",
+        "variant": null,
+        "digest": "sha256:441c79f80b21b9981f1ccadc5f2d9e54eb17e9cbef4446b48ddf09fa615cf37b"
+      }
+    ],
+    "boundary": "The current tag/digests are an observed registry edition and may move. No container was pulled or started."
+  },
+  "actions": [
+    {
+      "uses": "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+      "exactSourceUrl": "https://raw.githubusercontent.com/actions/checkout/d23441a48e516b6c34aea4fa41551a30e30af803/action.yml",
+      "actionManifestSha256": "d59219cb79590abdb877deaa14e3b65a00c05318bf5a6f3b989b9162b5d08c35",
+      "name": "Checkout",
+      "runtime": "node24",
+      "verification": "Exact pinned action source exists under its official actions repository."
+    },
+    {
+      "uses": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020",
+      "exactSourceUrl": "https://raw.githubusercontent.com/actions/setup-node/820762786026740c76f36085b0efc47a31fe5020/action.yml",
+      "actionManifestSha256": "5d765941ab5d8bef27f08e81b0b041cdb2df2050ea0261dc925d157a2bafbd2b",
+      "name": "Setup Node.js environment",
+      "runtime": "node24",
+      "verification": "Exact pinned action source exists under its official actions repository."
+    },
+    {
+      "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+      "exactSourceUrl": "https://raw.githubusercontent.com/actions/upload-artifact/ea165f8d65b6e75b540449e92b4886f43607fa02/action.yml",
+      "actionManifestSha256": "29b21270ff44638a165ea12abb4481796770c629e513217af7b4df1aa3821177",
+      "name": "Upload a Build Artifact",
+      "runtime": "node20",
+      "verification": "Exact pinned action source exists under its official actions repository."
+    }
+  ],
+  "notEstablished": [
+    "Hosted CI execution for this candidate",
+    "Docker image startup/database behavior",
+    "Production deployment",
+    "Genuine hook runtime"
+  ],
+  "sourceHashes": {
+    ".github/workflows/cplayout-required.yml": "1ad547d12066e28c2aa76340c97a60e0660196ea8edf700b604bd3eef6629073",
+    ".github/workflows/dependency-maintenance.yml": "85e3df77235a148720e5e0992461bb1c8b789b9714fc6a897be2d6a89dc49584"
+  },
+  "sourceFingerprint": "6901ea46454d7871b0bfd13e011016226ec65a9cfd114295fe1b27c43a5dd182",
+  "configurationChecks": {
+    "result": "pass",
+    "method": "Direct YAML inspection verifies all actions against their fetched exact official manifests and the required PostgreSQL service against the observed18.6 index digest.",
+    "workflows": [
+      {
+        "path": ".github/workflows/cplayout-required.yml",
+        "exactActionPinsVerified": true
+      },
+      {
+        "path": ".github/workflows/dependency-maintenance.yml",
+        "exactActionPinsVerified": true
+      }
+    ],
+    "postgresImage": "postgres:18.6@sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336",
+    "hostedExecution": "not_established"
+  }
+}

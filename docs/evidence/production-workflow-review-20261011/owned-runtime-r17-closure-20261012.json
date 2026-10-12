@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-12T15:39:54.170842+00:00",
+  "ownedResource": "Root PostgreSQL18.6 reopened only for current R17 source/export/HTTP qualification",
+  "pid": 330527,
+  "freshExecutableAndDataDirectoryVerifiedBeforeStop": true,
+  "stopExitCode": 0,
+  "pidAbsent": true,
+  "ownedUnixSocketAbsent": true,
+  "dataRetained": true,
+  "unrelatedSystemPostgresUntouched": true,
+  "priorClosuresRetained": true,
+  "boundary": "Own current R17 test service closed; historical/other-owner resources remain separate."
+}

@@ -192,9 +192,8 @@ function LayoutSessionCatalogBody({ fieldMapId, visible = true, onOpenSession, o
           onPress={() => run(async () => { const nextRevision = await repository.upgradeLayoutWorkspace(revision()); setExpectedTargetRevision(nextRevision); setMessage("Layout sessions enabled. The previous workspace has been retained."); })} testID="layout-upgrade-confirm" />
       </View>}
       {candidate && <View style={styles.card} testID="layout-import-review"><Text style={styles.heading}>{candidate.kind === "target" ? "Create session from frozen target" : "Import saved Layout session"}</Text>
-        <Text style={styles.meta}>Target: {candidate.target.field.name} · Design revision {candidate.target.source.inputRevision}</Text>
-        <Text selectable style={styles.meta}>Source field ID: {candidate.target.source.fieldId}</Text>
-        {candidate.target.source.selectedMachineIds.map(id => <Text key={id} selectable style={styles.label}>Machine: {candidate.target.field.machines.find(machine => machine.id === id)?.configuration.name ?? id} · {id}</Text>)}
+        <Text style={styles.meta}>Target: {candidate.target.field.name}</Text>
+        {candidate.target.source.selectedMachineIds.map(id => <Text key={id} selectable style={styles.label}>Machine: {candidate.target.field.machines.find(machine => machine.id === id)?.configuration.name ?? "Machine name unavailable"}</Text>)}
         <Text style={styles.label}>Save under: {field ? `${project?.name ?? "Project"} / ${field.name}` : "Choose a field above"}</Text>
         <Text style={styles.label}>Layout session name</Text><TextInput value={name} editable={visible && !busy && candidate.kind === "target"} onChangeText={value => { if (mayStart()) setName(value); }} accessibilityLabel="Layout session name" style={styles.input} testID="layout-new-name" />
         {candidate.kind === "session" && <Text style={styles.meta}>The imported session retains its name, identity, target, and observations. If it already exists, open it and use Copy to create an empty session.</Text>}
@@ -207,8 +206,7 @@ function LayoutSessionCatalogBody({ fieldMapId, visible = true, onOpenSession, o
       <View style={styles.header}><Text style={styles.heading}>Saved for this field</Text><IconCommandButton id="layout-show-archived" label={showArchived ? "Hide archived" : "Show archived"} icon={<ArchiveRestore />} showLabel selected={showArchived} disabled={!visible || busy} onPress={() => { if (mayStart()) setShowArchived(value => !value); }} testID="layout-show-archived" /></View>
       {sessions.length === 0 && <Text style={styles.meta}>No {showArchived ? "" : "active "}Layout sessions for this field. Open a frozen target from a completed design, or import one above.</Text>}
       {sessions.map(session => <View style={styles.card} key={session.id} testID={`layout-session-row-${session.id}`}><Text style={styles.heading}>{session.name}{session.archived ? " · Archived" : ""}</Text>
-        <Text style={styles.meta}>{session.observations.length} saved observations · Session revision {session.revision}</Text>
-        <Text selectable style={styles.meta}>Session ID: {session.id}</Text>
+        <Text style={styles.meta}>{session.observations.length} saved observations</Text>
         <IconCommandButton id={`layout-open-${session.id}`} label={session.archived ? "Open archived session" : "Open in Layout"} icon={<FolderOpen />} showLabel disabled={!visible || busy}
           onPress={() => run(async () => { const opened = await repository.openLayoutSession(session.id); if (mounted.current && visibleRef.current) onOpenSession(opened); })} testID={`layout-open-${session.id}`} />
       </View>)}

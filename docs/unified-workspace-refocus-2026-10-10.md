@@ -1,5 +1,25 @@
 # CPLayout unified Design–Survey–Layout refocus
 
+## Current resumption and master contract — 2026-10-11
+
+The current interface-improvement request resumes bounded work and delegates decisions to independent source-backed review without further questionnaires. The preceding pause is historical. The only current completion/status ledger is [workflow-registry.json](workflow-registry.json), with [generated status](development-status.md); [the delivery plan](production-workflow-improvement-plan.md) organizes its phases and module dependencies.
+
+The current user clarification requires Customer → Project → Field as the logical folder hierarchy. The customer is the top-level context, including customers with no projects. Under each field, present actual machine designs, map designs and field Surveys; place official precision Layout maps under their matching saved Survey. Use existing database identities and links rather than physical folder migration, copied entities or invented document-kind classification. Historical orphaned evidence remains readable/exportable with its missing parent stated; future deletion must retain ancestors referenced by saved Survey evidence.
+
+New projects start in manual Design, with known field information and interactive boundary drawing. Design is optional and needs no GPS. Operators may go directly to Survey. Live collection, official Layout creation and marking require fresh owned RTK Fixed admission, actual source provenance and matched coordinates; stored maps may be viewed/exported offline within authorization. Preserve the shared map/controller, customer/project/field/machine identity, unfinished work, receiver ownership and immutable targets. Manual/planned geometry never becomes RTK-measured by changing its label. Existing local profiles cannot be presented as real account sign-in; authentication/shared service is an explicit module.
+
+The published main baseline 2649d1a9 has source aggregate exit 0, 225 selected App browser passes and exact-head protected/postmerge CI success. Its 1118-file fingerprint and served bundle are retained in the registry. That checkpoint did not close the 960 deferred browser obligations or establish complete workflow reviews, native/device or physical/field qualification. The registry records their current disposition. Canonical installed dependency patches were unmitigated at baseline preflight despite passing fixtures; isolated installation/verification is a separate edition. File retirement requires its own recorded qualification.
+
+The later R7 264/264 selected browser pass and R8 bounded wording/visible PostgreSQL-backed App proof remain historical foundations for their exact editions, with R4 as their actual full source aggregate. Earlier 902/915 source censuses omitted verified inputs; their immutable captures remain incomplete rather than being expanded retrospectively. Corrected census-tool proof and customer-hierarchy checks are separate. The registry records ancestry-deletion and official-map preservation findings, their limited checks and current reviews. Publication requires the matching current qualification; dated/intermediate reviews do not satisfy that gate.
+
+Official maps use retained V3 creation and finalization locks, exact measured station membership and immutable planned targets. Current owned receiver/epoch/monotonic freshness remains decisive under final admission; wall-time chronology is an additional tamper check. Original stored maps remain available for authorized view/export. Without original service/workspace/account proof, V3 bulk/raw import refuses; the dedicated same-original-field import retains the exact map as non-official reference history and rejects cross-field placement. Shared writers cannot downgrade V3 to V2 or remove its creation/finalization/reference metadata. The acceptance protocol and registry define the actual checks without claiming physical RTK accuracy.
+
+Current work follows requirement IDs, exact source-bound evidence and delegated independent review. Historical schedules, publication claims and next-feature directions below do not govern resumption. Hook discovery/script fixtures do not prove genuine execution; Stop remains disabled. No automatic modeling resource transfer is implied.
+
+## Historical refocus records and dated requirements
+
+The following original records preserve prior reasoning, failures and module requirements. Their dated "current", "next" and pause statements describe their original edition. Use the registry for current status and ownership; do not replay historical patches or automatically restart old work.
+
 **Paused at the owner's request, 2026-10-11.** The current stopping point,
 publication boundary and unfinished work are recorded in
 [the checkpoint handoff](checkpoints/2026-10-11-unified-workspace-pause.md).

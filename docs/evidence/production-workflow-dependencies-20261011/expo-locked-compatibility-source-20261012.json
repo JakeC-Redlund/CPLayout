@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-12T15:07:25.518341+00:00",
+  "classification": "primary_documentation_and_installed_source_research",
+  "claimClass": "source",
+  "result": "verified_source_observation_policy_not_runtime_acceptance",
+  "primarySources": [
+    {
+      "url": "https://docs.expo.dev/more/expo-cli/#version-validation",
+      "accessedOn": "2026-10-12",
+      "finding": "CI install --check rejects incompatible versions; --fix changes packages."
+    },
+    {
+      "url": "https://docs.expo.dev/more/expo-cli/#environment-variables",
+      "accessedOn": "2026-10-12",
+      "finding": "EXPO_OFFLINE avoids applicable network requests; EXPO_NO_DEPENDENCY_VALIDATION disables checks and is excluded from the chosen policy."
+    }
+  ],
+  "installedObservation": {
+    "observedExpoVersion": "57.0.27",
+    "observedCliVersion": "57.0.28",
+    "path": "node_modules/expo/node_modules/@expo/cli/build/src/start/doctor/dependencies/bundledNativeModules.js",
+    "sha256": "f3abf6aa3af2203938caf4a76fc2788a56e822adaf02e2c02ed77ae8860c5bca",
+    "function": "getVersionedNativeModulesAsync",
+    "finding": "Remote lookup runs only when EXPO_OFFLINE is false; otherwise it reads installed expo/bundledNativeModules.json. Missing local map rejects rather than inventing compatibility.",
+    "boundary": "Source directly inspected before the proposed patch upgrade; installed-source proof after root update requires its own exact version/hash and checks."
+  },
+  "chosenPolicy": {
+    "requiredCompatibility": "CI=1 EXPO_OFFLINE=1 npx --no-install expo install --check from apps/mobile",
+    "requiredScope": "Installed lockfile-backed Expo cohort and its bundled compatibility map, retaining validation.",
+    "updateDiscovery": "Daily ONLINE audit/outdated/Expo recommendations and unchanged weekly proposals.",
+    "releaseProcess": "Review coherent stable patches, exact-lock install, installed security/ownership guards, current source/browser and protected CI."
+  },
+  "failureReference": "docs/evidence/production-workflow-review-20261011/ci-r16-online-expo-compatibility-failed.json",
+  "candidatePatchProposal": {
+    "source": "Coordinator verified published stable npm metadata; child did not install or independently claim runtime support.",
+    "packages": {
+      "expo": "57.0.28",
+      "expo-dev-client": "57.0.20",
+      "expo-sharing": "57.0.23",
+      "expo-splash-screen": "57.0.10"
+    },
+    "status": "Root owns install/pipeline changes and qualification."
+  },
+  "boundary": "Current primary docs/source observations support the policy. They do not prove upgraded package runtime/native support, hosted execution, a completed R17 aggregate or a passing browser/CI run."
+}

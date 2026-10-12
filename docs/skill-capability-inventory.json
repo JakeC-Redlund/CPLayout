@@ -1,0 +1,1234 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-10-12",
+  "sourceRoots": {
+    "r0": "Codex home skills; exact source root supplied by active host catalog",
+    "r2": "Versioned curated plugin cache; exact source root supplied by active host catalog",
+    "workspace": "Current CPLayout checkout"
+  },
+  "hostCatalogEntries": 67,
+  "workspaceEntries": 11,
+  "sources": [
+    {
+      "id": "imagegen",
+      "source": {
+        "root": "r0",
+        "path": ".system/imagegen/SKILL.md",
+        "sha256": "681ddb4ad6d06a2acc78a3535b583f8d0c1ea800ecda3d56370d3310fd2cd4ba",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Requested generated splash artwork; generate only in the justified polish lane.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "openai-docs",
+      "source": {
+        "root": "r0",
+        "path": ".system/openai-docs/SKILL.md",
+        "sha256": "aa6829e21df2223167c85d2e49b6337a7345c84c1033f1ec10182c7882b36d45",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "relevant",
+      "purpose": "Verify Codex/hook/config behavior against current installed source and official documentation.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "skill-creator",
+      "source": {
+        "root": "r0",
+        "path": ".system/skill-creator/SKILL.md",
+        "sha256": "6656e54755638e8efcf275a472b9672eaa8a9a1b9e59dc210e275b03b59e1e66",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "relevant",
+      "purpose": "Update narrowly owned skills from verified capability and user intent.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance.",
+      "guidanceUse": {
+        "status": "source_read_and_applied_by_coordinator",
+        "provenance": "Coordinator explicitly reported reading the current skill-creator source for this focused update.",
+        "boundary": "Applying source guidance is not measured host/runtime skill invocation."
+      }
+    },
+    {
+      "id": "skill-installer",
+      "source": {
+        "root": "r0",
+        "path": ".system/skill-installer/SKILL.md",
+        "sha256": "d68b77e5bbb34dedab89d134da52855f140fc4b4299b80104f534e3b9e98f8ee",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Install only a selected skill filling a verified capability gap.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "expert-agent-panels",
+      "source": {
+        "root": "r0",
+        "path": "expert-agent-panels/SKILL.md",
+        "sha256": "bc835bd246ba80f7cab414fb86cf6c143ea56b91a9617962b267c5ad1985ed22",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "relevant",
+      "purpose": "Coordinate independent evidence-backed decisions and bounded ownership.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "computer-vision",
+      "source": {
+        "root": "r0",
+        "path": "computer-vision/SKILL.md",
+        "sha256": "be0758d299c8d1daf9c7f10421b163841afe8ab2499569d61e729706d0a0783e",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "relevant",
+      "purpose": "Review actual screenshots/pixels with authoritative DOM/source identity.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "altura-browser-interface-automation",
+      "source": {
+        "root": "r0",
+        "path": "altura-browser-interface-automation/SKILL.md",
+        "sha256": "6a37020b2dec3e8566504a4ebcc0e5a043fefdafe4967f9736a3f32edd97d9ca",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "unrelated",
+      "purpose": "Altura/Prism source-system workflow; no CPLayout task.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "cv-evaluation-and-data-quality",
+      "source": {
+        "root": "r0",
+        "path": "cv-evaluation-and-data-quality/SKILL.md",
+        "sha256": "3a6b1b1658087dd5b73d51499aab9044d827f3bf37a80885f9e14d738f173707",
+        "present": true,
+        "externalOwner": "redlund-cv-analytics"
+      },
+      "applicability": "conditional",
+      "purpose": "Evaluate dataset/split/label evidence if real CV work is requested.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "cv-hardware-research",
+      "source": {
+        "root": "r0",
+        "path": "cv-hardware-research/SKILL.md",
+        "sha256": "241b890e93d8891e4b5dda7745a577ad0634c1ce7e54417691c6de8d4c106781",
+        "present": true,
+        "externalOwner": "redlund-cv-analytics"
+      },
+      "applicability": "conditional",
+      "purpose": "Research CV hardware only for a defined hardware need.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "cv-tooling-and-scripts",
+      "source": {
+        "root": "r0",
+        "path": "cv-tooling-and-scripts/SKILL.md",
+        "sha256": "bc16654ff0a18b005e847523bd6554da6a5fd159faf92f236eebba0b78d26061",
+        "present": true,
+        "externalOwner": "redlund-cv-analytics"
+      },
+      "applicability": "conditional",
+      "purpose": "Deterministic screenshot/media preprocessing and bounded OCR/CV QA.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "gpu-ml-integration",
+      "source": {
+        "root": "r0",
+        "path": "gpu-ml-integration/SKILL.md",
+        "sha256": "3759ac85d997f6ccc3f4d8ae50cc4b99ee414d5da300c53174f6e395df3b1fe4",
+        "present": true,
+        "externalOwner": "redlund-cv-analytics"
+      },
+      "applicability": "conditional",
+      "purpose": "Local GPU runtime metadata/readiness when model work is actually selected.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "media-asset-provenance",
+      "source": {
+        "root": "r0",
+        "path": "media-asset-provenance/SKILL.md",
+        "sha256": "b9fc72c8de3cfa5ba89eedf9d3000d184872a3c1fdb544020673fe8ed281f7bc",
+        "present": true,
+        "externalOwner": "redlund-cv-analytics"
+      },
+      "applicability": "conditional",
+      "purpose": "Track rights/hashes/lineage for generated splash or sourced media.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "redlund-cv-skill-coordinator",
+      "source": {
+        "root": "r0",
+        "path": "redlund-cv-skill-coordinator/SKILL.md",
+        "sha256": "781c0c486c13288605a011fcdd634dc66eec4516147db15edf5451865170bbdf",
+        "present": true,
+        "externalOwner": "redlund-cv-analytics"
+      },
+      "applicability": "conditional",
+      "purpose": "Route overlapping image/media/evaluation ownership to its actual canonical skills.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "parts-manager-agentic-demo",
+      "source": {
+        "root": "r0",
+        "path": "parts-manager-agentic-demo/SKILL.md",
+        "sha256": "7e5e33d826982e335d94c3931d0014e3001b9beb5fdbd55f531dc3e6a627d692",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "unrelated",
+      "purpose": "Parts management demo belongs to a different task.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "parts-manager-report-packet",
+      "source": {
+        "root": "r0",
+        "path": "parts-manager-report-packet/SKILL.md",
+        "sha256": "0729d2ea5476609a1d7089bdf83a9735373a8e43314187e76c3cd702be9813e4",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "unrelated",
+      "purpose": "Monthly Parts packet belongs to a different task.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "quantum-human-guided-visual-study",
+      "source": {
+        "root": "r0",
+        "path": "quantum-human-guided-visual-study/SKILL.md",
+        "sha256": "232f06e4827045dab440d49dfe4bce8f4f0428e8ca408b3781cfac282e654ad6",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "unrelated",
+      "purpose": "Human-guided Quantum source-system study belongs to a different task.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "quantum-live-playwright-capture",
+      "source": {
+        "root": "r0",
+        "path": "quantum-live-playwright-capture/SKILL.md",
+        "sha256": "da96147d5cc61e571c12a189cd104ca1e39033eebbeb276ee5e4fc4c30a5ecef",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "unrelated",
+      "purpose": "Guarded Quantum live capture belongs to a different task.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "quantum-report-approval-gates",
+      "source": {
+        "root": "r0",
+        "path": "quantum-report-approval-gates/SKILL.md",
+        "sha256": "6cac3637cd289443d26a2bccfba0ac854c7db090885241f37c874b726878e863",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "unrelated",
+      "purpose": "Quantum source-system approvals belong to a different task.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "davinci-resolve-automation",
+      "source": {
+        "root": "r0",
+        "path": "davinci-resolve-automation/SKILL.md",
+        "sha256": "c755c722fc145424a09bab9fd9e2809529ae2d9613275a80d91d6b34f9d4f1e8",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Requested animation polish with owned Resolve source/project/render proof; Resolve availability is not established by this skill source.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "davinci-resolve-editing",
+      "source": {
+        "root": "r0",
+        "path": "davinci-resolve-editing/SKILL.md",
+        "sha256": "d3aee85799be7660bfcb1727fa4e4609cf595b8efadcf390ef64c469697fe04e",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Requested animation polish with owned Resolve source/project/render proof; Resolve availability is not established by this skill source.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "davinci-resolve-audio-production",
+      "source": {
+        "root": "r0",
+        "path": "davinci-resolve-audio-production/SKILL.md",
+        "sha256": "b45723acb68f5ac03b8ec7ed1b37eb6510f0b94d5669e872857ea2747451b9e9",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Requested animation polish with owned Resolve source/project/render proof; Resolve availability is not established by this skill source.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "davinci-resolve-color-automation",
+      "source": {
+        "root": "r0",
+        "path": "davinci-resolve-color-automation/SKILL.md",
+        "sha256": "44587e139591f2006fced26c98a2a93eabdda0625887baa788d8520d4cd6e298",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Requested animation polish with owned Resolve source/project/render proof; Resolve availability is not established by this skill source.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "davinci-resolve-fusion-composition",
+      "source": {
+        "root": "r0",
+        "path": "davinci-resolve-fusion-composition/SKILL.md",
+        "sha256": "ded6f2d5336e48344ecaba22f609dba0fbbb11d98fd11c1728bc5857ec4a811b",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Requested animation polish with owned Resolve source/project/render proof; Resolve availability is not established by this skill source.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "davinci-resolve-project-factory",
+      "source": {
+        "root": "r0",
+        "path": "davinci-resolve-project-factory/SKILL.md",
+        "sha256": "44488348da21903178eb8c558ec9b6886fd60eaf5ba7b75fc3ad9aab4314cadd",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Requested animation polish with owned Resolve source/project/render proof; Resolve availability is not established by this skill source.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "davinci-resolve-production-review",
+      "source": {
+        "root": "r0",
+        "path": "davinci-resolve-production-review/SKILL.md",
+        "sha256": "4734b5133032132c3c97042d142cd6ed291b6828e9474ca7146dc1aec35ddfd0",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Requested animation polish with owned Resolve source/project/render proof; Resolve availability is not established by this skill source.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "davinci-resolve-world-regeneration",
+      "source": {
+        "root": "r0",
+        "path": "davinci-resolve-world-regeneration/SKILL.md",
+        "sha256": "c9d6ba8843e33612aceb94f4d181a650d847f0e4152c1ae2a053875b7fbec37f",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Requested animation polish with owned Resolve source/project/render proof; Resolve availability is not established by this skill source.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "build-web-data-visualization:data-visualization",
+      "source": {
+        "root": "r2",
+        "path": "build-web-data-visualization/0.1.21/skills/data-visualization/SKILL.md",
+        "sha256": "6e71d7fc7976d4949f77eb57cc6e2557bd8fc07cf513a793bc6a8d4b88f88b66",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "relevant",
+      "purpose": "Map/accessibility/interaction visual review; use selected supporting guidance only.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "data-analytics:analyze-data-quality",
+      "source": {
+        "root": "r2",
+        "path": "data-analytics/0.2.10-13ceeea1f599/skills/analyze-data-quality/SKILL.md",
+        "sha256": "9a3c994f87da0c7a8c5ce37bbf08a59fc6f5b4f368475d3d7438f622b753d5f0",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Defined metrics, source quality or analytical artifacts; not a substitute for application workflows.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "data-analytics:build-dashboard",
+      "source": {
+        "root": "r2",
+        "path": "data-analytics/0.2.10-13ceeea1f599/skills/build-dashboard/SKILL.md",
+        "sha256": "c453ef3e1187477f696aae9a68b116d0e7e0bd6f665ab03a9d1634d13482aaaa",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Defined metrics, source quality or analytical artifacts; not a substitute for application workflows.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "data-analytics:build-report",
+      "source": {
+        "root": "r2",
+        "path": "data-analytics/0.2.10-13ceeea1f599/skills/build-report/SKILL.md",
+        "sha256": "03db47974dc400b026d9268730de1ef317b5446a7a6bc9906ad471bfb117fd22",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Defined metrics, source quality or analytical artifacts; not a substitute for application workflows.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "data-analytics:create-data-context",
+      "source": {
+        "root": "r2",
+        "path": "data-analytics/0.2.10-13ceeea1f599/skills/create-data-context/SKILL.md",
+        "sha256": "b004f792fa63e639dbce197562c97230eb58250e639b6bbe926085e3a44b0c2b",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Defined metrics, source quality or analytical artifacts; not a substitute for application workflows.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "data-analytics:design-kpis",
+      "source": {
+        "root": "r2",
+        "path": "data-analytics/0.2.10-13ceeea1f599/skills/design-kpis/SKILL.md",
+        "sha256": "fcefdecacd1d64f847fbb7c45e93a6bd49c679dff66b8966ebc74c4dc39b8f21",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Defined metrics, source quality or analytical artifacts; not a substitute for application workflows.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "data-analytics:gather-business-context",
+      "source": {
+        "root": "r2",
+        "path": "data-analytics/0.2.10-13ceeea1f599/skills/gather-business-context/SKILL.md",
+        "sha256": "e8a1e917b8c4d03248987f33ca49fb7b1d6ed533328c39a02cafcc5b88b4577c",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Defined metrics, source quality or analytical artifacts; not a substitute for application workflows.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "data-analytics:index",
+      "source": {
+        "root": "r2",
+        "path": "data-analytics/0.2.10-13ceeea1f599/skills/index/SKILL.md",
+        "sha256": "2239188d6ac667a9e4b546ffb441f17ac3cfe90fe7683ac68506789ef8dabeb3",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Defined metrics, source quality or analytical artifacts; not a substitute for application workflows.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "data-analytics:jupyter-notebooks",
+      "source": {
+        "root": "r2",
+        "path": "data-analytics/0.2.10-13ceeea1f599/skills/jupyter-notebooks/SKILL.md",
+        "sha256": "8303d33041a5d5ccbfbb5addbb60bd8b0559027f01a586f98b7728e58c4127ed",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Defined metrics, source quality or analytical artifacts; not a substitute for application workflows.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "data-analytics:kpi-reporting",
+      "source": {
+        "root": "r2",
+        "path": "data-analytics/0.2.10-13ceeea1f599/skills/kpi-reporting/SKILL.md",
+        "sha256": "a4ee918f3c87af4db8bb007cf8fefec444cd47b96b76de711349f11d7232861a",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Defined metrics, source quality or analytical artifacts; not a substitute for application workflows.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "data-analytics:market-sizing",
+      "source": {
+        "root": "r2",
+        "path": "data-analytics/0.2.10-13ceeea1f599/skills/market-sizing/SKILL.md",
+        "sha256": "dd353ab8c7229d3bc831234725db7d02ceeb1a889ee781103f90997879ac1951",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Defined metrics, source quality or analytical artifacts; not a substitute for application workflows.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "data-analytics:metric-diagnostics",
+      "source": {
+        "root": "r2",
+        "path": "data-analytics/0.2.10-13ceeea1f599/skills/metric-diagnostics/SKILL.md",
+        "sha256": "c9293227b592328c06cb9f6a2f23c0114ddcd1ca456a42f1ceebfe5981007314",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Defined metrics, source quality or analytical artifacts; not a substitute for application workflows.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "data-analytics:product-business-analysis",
+      "source": {
+        "root": "r2",
+        "path": "data-analytics/0.2.10-13ceeea1f599/skills/product-business-analysis/SKILL.md",
+        "sha256": "3e6b684ace151bbf777afd88fe34758b337ac0d6ff2bf332958d7a495d624a4b",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Defined metrics, source quality or analytical artifacts; not a substitute for application workflows.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "data-analytics:publish-artifact-to-sites",
+      "source": {
+        "root": "r2",
+        "path": "data-analytics/0.2.10-13ceeea1f599/skills/publish-artifact-to-sites/SKILL.md",
+        "sha256": "26b3846191d1c5237262a26da61694aa67bef38c4ed03eb3167e39f39c6f07a3",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Defined metrics, source quality or analytical artifacts; not a substitute for application workflows.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "data-analytics:validate-data",
+      "source": {
+        "root": "r2",
+        "path": "data-analytics/0.2.10-13ceeea1f599/skills/validate-data/SKILL.md",
+        "sha256": "7aa5c77b22b9e5bf1b054e4ab6320a12dfd5342aa6cb18f8e497b46c713be20e",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Defined metrics, source quality or analytical artifacts; not a substitute for application workflows.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "data-analytics:visualize-data",
+      "source": {
+        "root": "r2",
+        "path": "data-analytics/0.2.10-13ceeea1f599/skills/visualize-data/SKILL.md",
+        "sha256": "ff2601669022a2ef43524e0225eb4833acc03260db90b996a2d6f74fbbce7b12",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Defined metrics, source quality or analytical artifacts; not a substitute for application workflows.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "hugging-face:hf-cli",
+      "source": {
+        "root": "r2",
+        "path": "hugging-face/1.0.0/skills/cli/SKILL.md",
+        "sha256": "ee85209886c4ec3d3d850489368be193d11a8a3fa589012b39a4a5bbf7c7da2e",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Justified model/data/runtime research only; no cloud job, source rights or hardware readiness is inferred.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "hugging-face:huggingface-community-evals",
+      "source": {
+        "root": "r2",
+        "path": "hugging-face/1.0.0/skills/community-evals/SKILL.md",
+        "sha256": "a97f1c703f55b72427453a76af858237e6392a447fcafa9eeb85f7ac67f0155d",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Justified model/data/runtime research only; no cloud job, source rights or hardware readiness is inferred.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "hugging-face:huggingface-datasets",
+      "source": {
+        "root": "r2",
+        "path": "hugging-face/1.0.0/skills/datasets/SKILL.md",
+        "sha256": "5af74f3e042313efadf02e85c316a2576bdc0b0ff92c43c3ba5dcb6e2dae1ded",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Justified model/data/runtime research only; no cloud job, source rights or hardware readiness is inferred.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "hugging-face:huggingface-gradio",
+      "source": {
+        "root": "r2",
+        "path": "hugging-face/1.0.0/skills/gradio/SKILL.md",
+        "sha256": "e2f4c232c38682bccfc73115ca7d0a5427f7d625e6fd56b32515fe4c0900f997",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Justified model/data/runtime research only; no cloud job, source rights or hardware readiness is inferred.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "hugging-face:huggingface-jobs",
+      "source": {
+        "root": "r2",
+        "path": "hugging-face/1.0.0/skills/jobs/SKILL.md",
+        "sha256": "b85252f49569e97adc3d85e75ea37ed505028249fe1d9991069a6c52d0a64f35",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Justified model/data/runtime research only; no cloud job, source rights or hardware readiness is inferred.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "hugging-face:huggingface-llm-trainer",
+      "source": {
+        "root": "r2",
+        "path": "hugging-face/1.0.0/skills/llm-trainer/SKILL.md",
+        "sha256": "6628c305a8ae8de81fea38d05c4712b54a97fed4e19e776b1edc18e392d98f48",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Justified model/data/runtime research only; no cloud job, source rights or hardware readiness is inferred.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "hugging-face:huggingface-paper-publisher",
+      "source": {
+        "root": "r2",
+        "path": "hugging-face/1.0.0/skills/paper-publisher/SKILL.md",
+        "sha256": "04b59406cf88054ab365f5bbbc57fe2e2fcb369e942dff2841c4f4297318c353",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Justified model/data/runtime research only; no cloud job, source rights or hardware readiness is inferred.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "hugging-face:huggingface-papers",
+      "source": {
+        "root": "r2",
+        "path": "hugging-face/1.0.0/skills/papers/SKILL.md",
+        "sha256": "985c2d5c7261aba2b157811cde0c2b30134663694a4ab701280de28f941eb3b2",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Justified model/data/runtime research only; no cloud job, source rights or hardware readiness is inferred.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "hugging-face:huggingface-trackio",
+      "source": {
+        "root": "r2",
+        "path": "hugging-face/1.0.0/skills/trackio/SKILL.md",
+        "sha256": "893ac9695f8677db4c4f0c15795e789346946f6142305c89d7ee57774e22ffb1",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Justified model/data/runtime research only; no cloud job, source rights or hardware readiness is inferred.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "hugging-face:huggingface-vision-trainer",
+      "source": {
+        "root": "r2",
+        "path": "hugging-face/1.0.0/skills/vision-trainer/SKILL.md",
+        "sha256": "c7aba4de75fa6595ffdaf5c50136786e8346aba0c9ff0261eaee656af4a3b0d9",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Justified model/data/runtime research only; no cloud job, source rights or hardware readiness is inferred.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "hugging-face:transformers-js",
+      "source": {
+        "root": "r2",
+        "path": "hugging-face/1.0.0/skills/transformers.js/SKILL.md",
+        "sha256": "89a70a8a0604fc90cf6ae1063cb0f7d2f625bdf4d337f4f24e3f19cea4f99511",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Justified model/data/runtime research only; no cloud job, source rights or hardware readiness is inferred.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "openai-developers:agents",
+      "source": {
+        "root": "r2",
+        "path": "openai-developers/1.3.6/skills/agents/SKILL.md",
+        "sha256": "1918f74c7509ef03916f0a5c6fd85a35c66faba65e26948e41cd2351cf61f334",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Actual OpenAI-backed product work only; ordinary auth/workflow needs no AI service.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "openai-developers:openai-api-troubleshooting",
+      "source": {
+        "root": "r2",
+        "path": "openai-developers/1.3.6/skills/openai-api-troubleshooting/SKILL.md",
+        "sha256": "63d0a10934b6f999aa85fee64ef6086907e2cfeff15e614b5ce5b07d421d6956",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Actual OpenAI-backed product work only; ordinary auth/workflow needs no AI service.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "openai-developers:openai-platform-api-key",
+      "source": {
+        "root": "r2",
+        "path": "openai-developers/1.3.6/skills/openai-platform-api-key/SKILL.md",
+        "sha256": "d2f9fddd383f1830fac5b938fe3145fbb7f0b5a93ed923c1a5e9f9f443c6c46c",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Actual OpenAI-backed product work only; ordinary auth/workflow needs no AI service.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "openai-developers:devday-guide",
+      "source": {
+        "root": "r2",
+        "path": "openai-developers/1.3.6/skills/devday-guide/SKILL.md",
+        "sha256": "ce990a4ea0a0bdba54c1a361aeedad17809048c862c6ac979333a6fba961d774",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "unrelated",
+      "purpose": "DevDay attendance is outside this workflow.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "pages:maintain-space",
+      "source": {
+        "root": "r2",
+        "path": "pages/0.1.21/skills/maintain-space/SKILL.md",
+        "sha256": "53570e6cb8663d370dce15ed0d67208876c3b13015832c352daa759213e7378e",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Explicit applicable Page/Space publication or upkeep only; repository docs remain canonical.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "pages:manage-schedules",
+      "source": {
+        "root": "r2",
+        "path": "pages/0.1.21/skills/manage-schedules/SKILL.md",
+        "sha256": "e0a464a83f15a6e896c5536cab775f667ebd0dd61eb64fe3c877a41935d64bd9",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Explicit applicable Page/Space publication or upkeep only; repository docs remain canonical.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "pages:organize-space",
+      "source": {
+        "root": "r2",
+        "path": "pages/0.1.21/skills/organize-space/SKILL.md",
+        "sha256": "dfa8bfae86785a98e43b1ca0af67a9c89b90c658eee7fc7ad4ccfe8cc84a267b",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Explicit applicable Page/Space publication or upkeep only; repository docs remain canonical.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "pages:write-page",
+      "source": {
+        "root": "r2",
+        "path": "pages/0.1.21/skills/write-page/SKILL.md",
+        "sha256": "4aef24b45f150aaa8ac5a9855a83b835f37b5dddeecb84baf51234036fb4b94e",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Explicit applicable Page/Space publication or upkeep only; repository docs remain canonical.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "work-pets:create-pet",
+      "source": {
+        "root": "r2",
+        "path": "work-pets/0.1.6/skills/create-pet/SKILL.md",
+        "sha256": "841354fb8116f8fdfd3b643b30828f5180196c594d3fed9b669b948b88892af1",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "unrelated",
+      "purpose": "ChatGPT pet lifecycle is outside this application.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "work-pets:pets",
+      "source": {
+        "root": "r2",
+        "path": "work-pets/0.1.6/skills/pets/SKILL.md",
+        "sha256": "1bf5d45fd6a6390aab777229293fb05cef7cf898aac882f8955e40c378e52fcd",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "unrelated",
+      "purpose": "ChatGPT pet lifecycle is outside this application.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "work-pets:update-pet",
+      "source": {
+        "root": "r2",
+        "path": "work-pets/0.1.6/skills/update-pet/SKILL.md",
+        "sha256": "c63c98d67b6ad781a72a8f9837ba1fb5e2d2a8054a2562e4025890a97d8a0e67",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "unrelated",
+      "purpose": "ChatGPT pet lifecycle is outside this application.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "nvidia:nvidia-skill-finder",
+      "source": {
+        "root": "r2",
+        "path": "nvidia/1.4.0/skills/nvidia-skill-finder/SKILL.md",
+        "sha256": "51fe4ff117f34919527ad4540513910e16eb225f7ad04686fbbe985035fdf9cf",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "A real NVIDIA task only; generic mapping does not require it.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "plugin-management:plugin-management",
+      "source": {
+        "root": "r2",
+        "path": "plugin-management/0.1.0/skills/plugin-management/SKILL.md",
+        "sha256": "653841cc21205269f08b0ce135891e1518dac616a766bcfb0b57d788d3f68b10",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Connector discovery if an actual missing external capability is needed.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "sites:sites",
+      "source": {
+        "root": "r2",
+        "path": "sites/1.0.1/skills/sites/SKILL.md",
+        "sha256": "88b4a1b923f34c77443290e4648a5f4b3e959d7628f02e169d984942d2430187",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Explicit Sites website publication; not the selected existing Expo app host.",
+      "validation": "not_run",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance."
+    },
+    {
+      "id": "cplayout-center-pivot-design-agent",
+      "source": {
+        "root": "workspace",
+        "path": ".agents/skills/cplayout-center-pivot-design-agent/SKILL.md",
+        "sha256": "326284bba432248b7ca4df40ddd17ead448b9b89664b0267bb8abe02c27fe4a6",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Task-selected CPLayout domain guidance; preserve actual source/runtime/field boundaries.",
+      "validation": "source_frontmatter_body_quick_validated",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance.",
+      "validationMethod": "skill-creator quick_validate.py; current local source only, not host invocation/hook execution."
+    },
+    {
+      "id": "cplayout-database-agent",
+      "source": {
+        "root": "workspace",
+        "path": ".agents/skills/cplayout-database-agent/SKILL.md",
+        "sha256": "189d1a09bb438fc356e367545c57149c7a1dc6de1c466d7c1e136d35627fedb1",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "relevant",
+      "purpose": "Account/policy admission, retained V3 history/ancestry/imports, monotonic service restore and complete SDK/SQLite peer inventory.",
+      "validation": "source_frontmatter_body_quick_validated",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance.",
+      "validationMethod": "skill-creator quick_validate.py exit0 after bounded CAS recovery lesson; source only, not loading/invocation.",
+      "sourceReview": {
+        "observedAtUtc": "2026-10-12T19:44:50.006106+00:00",
+        "scope": "Prior hierarchy/V3/account/source-retention/SDK peer guidance preserved. Added implemented service import monotonic CAS rule, exact rejected source preservation and actualV5bootstraprevision4 limitation; legacy insertion/read/upgrade remain distinct.",
+        "contractReference": "docs/workflow-maintenance-guide.md",
+        "hostInvocation": "not_measured"
+      }
+    },
+    {
+      "id": "cplayout-expert-agent-panels",
+      "source": {
+        "root": "workspace",
+        "path": ".agents/skills/cplayout-expert-agent-panels/SKILL.md",
+        "sha256": "150443e68710cc3e6cb2ca0eab4a6feddb939e74e495b530268522e654d58a04",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "relevant",
+      "purpose": "Task-selected CPLayout domain guidance; preserve actual source/runtime/field boundaries.",
+      "validation": "source_frontmatter_body_quick_validated",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance.",
+      "validationMethod": "skill-creator quick_validate.py; current local source only, not host invocation/hook execution."
+    },
+    {
+      "id": "cplayout-gis-geometry-guard-agent",
+      "source": {
+        "root": "workspace",
+        "path": ".agents/skills/cplayout-gis-geometry-guard-agent/SKILL.md",
+        "sha256": "245b6a6a48a740f423a340d06314f2dad9472b51316600a1133a97bf9dc14abe",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "relevant",
+      "purpose": "Task-selected CPLayout domain guidance; preserve actual source/runtime/field boundaries.",
+      "validation": "source_frontmatter_body_quick_validated",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance.",
+      "validationMethod": "skill-creator quick_validate.py; current local source only, not host invocation/hook execution."
+    },
+    {
+      "id": "cplayout-google-earth-imagery-analysis",
+      "source": {
+        "root": "workspace",
+        "path": ".agents/skills/cplayout-google-earth-imagery-analysis/SKILL.md",
+        "sha256": "79c70fb7e5c3be82077391de218ccb2a35401516c10a8a5e07998c7494c36edb",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Task-selected CPLayout domain guidance; preserve actual source/runtime/field boundaries.",
+      "validation": "source_frontmatter_body_quick_validated",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance.",
+      "validationMethod": "skill-creator quick_validate.py; current local source only, not host invocation/hook execution."
+    },
+    {
+      "id": "cplayout-imagery-mapping-agent",
+      "source": {
+        "root": "workspace",
+        "path": ".agents/skills/cplayout-imagery-mapping-agent/SKILL.md",
+        "sha256": "c8a592229dc73db1d572cee031fabc59b5925a25f0cd855108953c2aee7c7429",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "conditional",
+      "purpose": "Task-selected CPLayout domain guidance; preserve actual source/runtime/field boundaries.",
+      "validation": "source_frontmatter_body_quick_validated",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance.",
+      "validationMethod": "skill-creator quick_validate.py; current local source only, not host invocation/hook execution."
+    },
+    {
+      "id": "cplayout-interface-development-agent",
+      "source": {
+        "root": "workspace",
+        "path": ".agents/skills/cplayout-interface-development-agent/SKILL.md",
+        "sha256": "b76382b739d4fefc4368f3ec3660251476ad6acfcd66243ab7f6911ebc7b5be7",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "relevant",
+      "purpose": "Actualcustomer/field folders, exactReview/RTKstation maps, retainedsourceZIP and truthful host/visual qualification.",
+      "validation": "source_frontmatter_body_quick_validated",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance.",
+      "validationMethod": "Finaledited skill-creator quick_validate.py exit0; instruction source only, not loading/invocation.",
+      "sourceReview": {
+        "observedAtUtc": "2026-10-12T05:07:05.780874+00:00",
+        "scope": "Ownedfinalsource contract aligned to frozenmapping/backend receipts: latestpositive-tolerance officialstations, matchedrevisionCatalog/orphanZIP, genericWebguard/V1-onlySQLite and finalread/account/policy/actor admission. Currentproof remainsregistry-linked.",
+        "primarySource": "https://www.w3.org/WAI/WCAG22/Understanding/label-in-name.html",
+        "hostInvocation": "not_measured",
+        "contractReference": "docs/workflow-acceptance-protocol.md"
+      }
+    },
+    {
+      "id": "cplayout-planning-review",
+      "source": {
+        "root": "workspace",
+        "path": ".agents/skills/cplayout-planning-review/SKILL.md",
+        "sha256": "dc0ac390ce307f66cfaa3391a91059c072b50ab8c729144eb6b7bc86fc688945",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "relevant",
+      "purpose": "Finalhierarchy/officialmap/reader and sourceproof boundaries with registry-linked acceptance, completecensus and preservedfailedruns.",
+      "validation": "source_frontmatter_body_quick_validated",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance.",
+      "validationMethod": "Finaledited skill-creator quick_validate.py exit0; instruction source only, not loading/invocation.",
+      "sourceReview": {
+        "observedAtUtc": "2026-10-12T05:07:05.781061+00:00",
+        "scope": "Ownedfinalsource contract aligned to frozenmapping/backend receipts: latestpositive-tolerance officialstations, matchedrevisionCatalog/orphanZIP, genericWebguard/V1-onlySQLite and finalread/account/policy/actor admission. Currentproof remainsregistry-linked.",
+        "contractReference": "docs/workflow-acceptance-protocol.md",
+        "hostInvocation": "not_measured"
+      }
+    },
+    {
+      "id": "cplayout-qa-validation-agent",
+      "source": {
+        "root": "workspace",
+        "path": ".agents/skills/cplayout-qa-validation-agent/SKILL.md",
+        "sha256": "da9c4e2f9d096021d0e077fc3818cf5e6225d2bb3214586503e6248e935d3352",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "relevant",
+      "purpose": "Task-selected CPLayout domain guidance; preserve actual source/runtime/field boundaries.",
+      "validation": "source_frontmatter_body_quick_validated",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance.",
+      "validationMethod": "skill-creator quick_validate.py; current local source only, not host invocation/hook execution."
+    },
+    {
+      "id": "cplayout-runtime-proof-gate-agent",
+      "source": {
+        "root": "workspace",
+        "path": ".agents/skills/cplayout-runtime-proof-gate-agent/SKILL.md",
+        "sha256": "780259fde63f9cb907f7bbcf90ce2e50b5fe861c10007514d2f41a4d0125ac25",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "relevant",
+      "purpose": "Task-selected CPLayout domain guidance; preserve actual source/runtime/field boundaries.",
+      "validation": "source_frontmatter_body_quick_validated",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance.",
+      "validationMethod": "skill-creator quick_validate.py; current local source only, not host invocation/hook execution."
+    },
+    {
+      "id": "cplayout-workspace-preflight",
+      "source": {
+        "root": "workspace",
+        "path": ".agents/skills/cplayout-workspace-preflight/SKILL.md",
+        "sha256": "7a2695b4ab377305dd9719e25bdfc06d03f21f3679fbf5f32fa80321bb4b9365",
+        "present": true,
+        "externalOwner": null
+      },
+      "applicability": "relevant",
+      "purpose": "Task-selected CPLayout domain guidance; preserve actual source/runtime/field boundaries.",
+      "validation": "source_frontmatter_body_quick_validated",
+      "runtimeInvocation": "not_measured",
+      "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance.",
+      "validationMethod": "skill-creator quick_validate.py; current local source only, not host invocation/hook execution."
+    }
+  ],
+  "claims": "All67 exposed host and11 workspace entrypoint sources are present and freshly fingerprint-checked. Source validation, reported guidance use, actual host loading/invocation and runtime capability remain separate. The database guidance passed its bounded source validator; other local source-validation receipts remain for unchanged sources.",
+  "refresh": {
+    "method": "Hash all67 exposed host+11 workspace entrypoints without semantic portfolio re-review; update/quick-validate only owned database guidance.",
+    "presentSources": 78,
+    "localSourcesValidated": 11,
+    "currentValidationScope": "Only changed database source quick-validated now; other10 local entrypoints unchanged with prior validation records.",
+    "changedSourceIds": [
+      "cplayout-database-agent"
+    ],
+    "otherSourceFingerprintsUnchanged": 77,
+    "runtimeInvocation": "not_measured",
+    "genuineHookExecution": "unknown",
+    "hostLoadClaim": "not_established",
+    "boundary": "Source-only fingerprint/guidance refresh; no installation, host loading, genuine invocation or equipment/runtime capability measured.",
+    "observedAtUtc": "2026-10-12T19:44:50.006106+00:00"
+  }
+}

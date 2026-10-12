@@ -107,9 +107,51 @@ function inventory(root) {
   }
   return packages;
 }
+// Retirement is narrower than an optional dependency: only the reviewed SDK
+// graph may omit the old formatter, and lock, physical copies, declarations and
+// every installed/workspace resolver must independently establish its absence.
+function whollyAbsentFormatter(root, manifest, installed) {
+  if (manifest.name !== 'sprintf-js') return false;
+  const expoFile = path.join(root, 'node_modules/expo/package.json');
+  if (!fs.existsSync(expoFile)) return false;
+  const expo = json(root, 'node_modules/expo/package.json');
+  const supported = { '56.0.23': ['56.0.27', '56.0.6'], '57.0.27': ['57.0.21', '57.0.4'], '57.0.28': ['57.0.22', '57.0.4'] };
+  if (!Object.hasOwn(supported, expo.version) || expo.name !== 'expo') return false;
+  const [coreVersion, sqliteVersion] = supported[expo.version];
+  const core = json(root, 'node_modules/expo-modules-core/package.json'), sqlite = json(root, 'node_modules/expo-sqlite/package.json');
+  if (core.name !== 'expo-modules-core' || core.version !== coreVersion || sqlite.name !== 'expo-sqlite' || sqlite.version !== sqliteVersion) fail('removed formatter needs the complete reviewed SDK matrix');
+  const lock = json(root, 'package-lock.json');
+  if (lock.lockfileVersion !== 3 || !lock.packages || typeof lock.packages !== 'object' || Array.isArray(lock.packages) || !lock.packages['']) fail('removed formatter needs a valid complete package lock');
+  const rootPackage = json(root, 'package.json');
+  if (lock.name !== rootPackage.name || lock.version !== rootPackage.version) fail('removed formatter lock does not match the workspace');
+  for (const [name, version] of [['expo', expo.version], ['expo-modules-core', coreVersion], ['expo-sqlite', sqliteVersion]]) {
+    if (lock.packages['node_modules/' + name]?.version !== version) fail('removed formatter SDK package differs from the lock: ' + name);
+  }
+  for (const [relative, locked] of Object.entries(lock.packages)) {
+    if (/(?:^|\/)node_modules\/sprintf-js$/.test(relative) || locked?.name === manifest.name
+      || typeof locked?.resolved === 'string' && /\/sprintf-js\//.test(locked.resolved)) fail('formatter remains declared in the package lock');
+  }
+  if (fs.existsSync(path.join(root, manifest.packageRoot))) fail('formatter path still exists');
+  for (const [relative, entry] of installed) {
+    if (entry.pkg.name === manifest.name) fail('formatter has a physical nested or aliased copy: ' + relative);
+    const dependencies = { ...entry.pkg.dependencies, ...entry.pkg.optionalDependencies, ...entry.pkg.devDependencies, ...entry.pkg.peerDependencies };
+    if (Object.hasOwn(dependencies, manifest.name) || Object.values(dependencies).some(value => typeof value === 'string' && /^npm:sprintf-js@/.test(value))) fail('formatter remains declared by a consumer: ' + relative);
+    const resolver = createRequire(path.join(entry.real, 'package.json'));
+    for (const request of [manifest.name, manifest.name + '/package.json']) {
+      let resolved;
+      try { resolved = resolver.resolve(request); }
+      catch (error) { if (error.code === 'MODULE_NOT_FOUND') continue; fail('formatter absence resolution failed: ' + relative); }
+      if (resolved) fail('formatter remains resolvable by a consumer: ' + relative);
+    }
+  }
+  return true;
+}
 function verifyPackages(root, manifests) {
   const installed = inventory(root);
+  const active = [];
   for (const manifest of manifests) {
+    if (whollyAbsentFormatter(root, manifest, installed)) continue;
+    active.push(manifest);
     const { name, version, packageRoot } = manifest;
     inspectPath(root, packageRoot, { directory: true });
     const pkg = json(root, packageRoot + '/package.json');
@@ -139,6 +181,7 @@ function verifyPackages(root, manifests) {
     }
     if (required.size) fail('required consumer missing: ' + [...required].join(', '));
   }
+  return active;
 }
 function inspectEntries(root, manifests) {
   return manifests.flatMap(manifest => [...manifest.entries].map(([relative, hashes]) => {
@@ -239,19 +282,20 @@ function install(root, outputs, verifyBeforeCommit) {
 function patchDependencySecurity(root, { checkOnly = false } = {}) {
   root = fs.realpathSync(root);
   const manifests = loadManifests(root);
-  verifyPackages(root, manifests);
-  const entries = inspectEntries(root, manifests);
+  const active = verifyPackages(root, manifests);
+  const entries = inspectEntries(root, active);
   if (entries.every(entry => entry.actual === entry.patched)) return 'already-installed';
   if (!entries.every(entry => entry.actual === entry.original)) fail('baseline changed or partially patched; refusing to overwrite installed files');
   if (checkOnly) fail('patch is not installed; run npm run patch:dependency-security');
-  const outputs = manifests.flatMap(manifest => materialize(manifest, entries));
+  const outputs = active.flatMap(manifest => materialize(manifest, entries));
   install(root, outputs, () => {
     // Manifest, consumers, versions, source pins and patch bytes are checked again
     // after staging and before the first installed source is replaced.
     const current = loadManifests(root);
     if (JSON.stringify(current) !== JSON.stringify(manifests)) fail('manifest drift before commit');
-    verifyPackages(root, current);
-    if (!inspectEntries(root, current).every(entry => entry.actual === entry.original)) fail('baseline drift before commit');
+    const currentActive = verifyPackages(root, current);
+    if (currentActive.map(item => item.name).join() !== active.map(item => item.name).join()) fail('package retirement changed before commit');
+    if (!inspectEntries(root, currentActive).every(entry => entry.actual === entry.original)) fail('baseline drift before commit');
   });
   verifyDependencySecurity(root);
   return 'installed';

@@ -493,7 +493,7 @@ function ClientProfileFormBody({
         <View style={styles.iconBadge}><UserRound size={22} color="#eef7f1" /></View>
         <View style={styles.headerText}>
           <Text style={styles.title}>{mode === "create" ? "Add Customer" : "Edit Customer"}</Text>
-          <Text style={styles.helper}>Enter the primary contact. Company and contact details are optional and stay in this local customer catalog.</Text>
+          <Text style={styles.helper}>Enter the primary contact. Company and contact details are optional.</Text>
         </View>
       </View>
 
@@ -726,6 +726,7 @@ export function MoveProjectForm({
               accessibilityLabel={`Move to ${client.displayName}`}
               accessibilityRole="radio"
               accessibilityState={{ checked: selected }}
+              aria-checked={selected}
               key={client.id}
               onPress={() => setSelectedClientId(client.id)}
               style={[styles.choiceRow, selected && styles.choiceRowSelected]}

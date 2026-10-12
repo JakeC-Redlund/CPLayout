@@ -1,0 +1,439 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-12",
+  "classification": "synthetic_current_app_visual",
+  "claimClass": "browser",
+  "result": "pass",
+  "caseEvidence": false,
+  "counts": {
+    "supplementalCaseReruns": 3,
+    "passed": 3,
+    "failed": 0,
+    "flaky": 0,
+    "skipped": 0,
+    "didNotRun": 0
+  },
+  "sourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r15.json",
+  "sourceFingerprint": "39cf1a097447da8749b64c3ca1c143a916c4830d8b6ba0a5cd11155e70c60012",
+  "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+  "sourceDrift": [],
+  "custody": {
+    "privatePacket": "/home/cyber/cplayout-production-proof-20261011/layout-fit-r15-pass",
+    "path": "/home/cyber/cplayout-production-proof-20261011/layout-fit-r15-pass/custody.json",
+    "sha256": "6ef3d412840b8194ded8ddb28bc50a895d3b456926bb8f65470bbada3cf109fb",
+    "declaredArtifacts": 71,
+    "verifiedArtifacts": 71,
+    "hashAndByteVerification": "All declared artifact hashes and lengths verified directly; all three receipt source/byte/identity bindings and PNG IHDR dimensions checked."
+  },
+  "embeddedStats": {
+    "total": 3,
+    "expected": 3,
+    "unexpected": 0,
+    "flaky": 0,
+    "skipped": 0,
+    "ok": true
+  },
+  "observerReceipts": [
+    {
+      "privateReceiptPath": "/home/cyber/cplayout-production-proof-20261011/layout-fit-r15-pass/results/layout-fit-observer-Survey-2d182-out-invented-infrastructure-desktop/fit-observer-receipt.json",
+      "receiptSha256": "f6b9c94ef6a2cd7a42de24d4b70a05ab1cec20c8504a7b9b3553d6d9e066624f",
+      "receipt": {
+        "schemaVersion": "private-fit-visual-observer-v1",
+        "classification": "synthetic_current_app_visual",
+        "sourceManifestPath": "docs/evidence/production-workflow-review-20261011/candidate-source-r15.json",
+        "sourceFingerprint": "39cf1a097447da8749b64c3ca1c143a916c4830d8b6ba0a5cd11155e70c60012",
+        "sourceDrift": [],
+        "observerSha256": "7dc2178b8a8d1a3c2b325b4b5b9f20d04fbb4d4718b8e37ef396bca29fc823f6",
+        "configSha256": "2917e2bcd7fb43f4c3bc95949b9ac6aac17ea85094ccaf6f944d5e40b60fac57",
+        "originalSpecSha256": "7926cc66fb6c14e2b673a56807b04e0d224063b63527bdb1a778bca243ea6683",
+        "project": "desktop",
+        "browserVersion": "156.0.8078.4",
+        "servedBundles": [
+          {
+            "path": "/_expo/static/js/web/index-d18b513b3cd1495ea481581d722110d9.js",
+            "bytes": 6248978,
+            "sha256": "708d1a2154796c25580e5f6eabaf08fba9f2e805fa73269545be34160578a5b5",
+            "matchesExport": true
+          }
+        ],
+        "workspaceSha256Before": "ed91b81212c5b00259c22a9e8d29f25632622adea82c6259e6a2010a2d78e665",
+        "workspaceSha256After": "ed91b81212c5b00259c22a9e8d29f25632622adea82c6259e6a2010a2d78e665",
+        "workspaceBytesUnchanged": true,
+        "sessionId": "layout-20261012t08002-glvc4f",
+        "sessionVersion": "layout-session-v3",
+        "targetHash": "110ab7498003f3fe76f068e7e2c3b5fc4e6bfbcb23c5511e1eb57b55a34f0eb7",
+        "surveyReviewId": "survey-review-20261012t08002-ar8s2l",
+        "includedCollectionIds": [
+          "design-20261012t08001-ely8t2:survey:survey-20261012t08001-z1hrrw",
+          "design-20261012t08001-ely8t2:survey:survey-20261012t08001-mcgz4x",
+          "survey-20261012t08001-ce95mx"
+        ],
+        "fieldMapId": "field-map-20261012t08001-nezprn",
+        "designId": "design-20261012t08001-ely8t2",
+        "stations": [
+          {
+            "id": "layout-observation-20261012t08002-s748sn",
+            "targetPointId": "linear-20261012t08001-wy7mxw:lateral_start",
+            "machineId": "linear-20261012t08001-wy7mxw",
+            "role": "lateral_start",
+            "projected": {
+              "x": 499974.39238902,
+              "y": 4427846.010962594
+            },
+            "observedAt": "2026-10-12T08:00:24.537Z",
+            "recordedBy": "47a4debc-a343-4577-8f20-2adeaf2d2748",
+            "toleranceMeters": 0.03048000000012192,
+            "physicalQualification": "unverified",
+            "observationId": "web-serial-bda4b36a-a133-45da-8c3f-99036c837685:11"
+          },
+          {
+            "id": "layout-observation-20261012t08002-antf48",
+            "targetPointId": "linear-20261012t08001-wy7mxw:lateral_end",
+            "machineId": "linear-20261012t08001-wy7mxw",
+            "role": "lateral_end",
+            "projected": {
+              "x": 499940.2493435317,
+              "y": 4427901.50627357
+            },
+            "observedAt": "2026-10-12T08:00:25.537Z",
+            "recordedBy": "47a4debc-a343-4577-8f20-2adeaf2d2748",
+            "toleranceMeters": 0.03048000000012192,
+            "physicalQualification": "unverified",
+            "observationId": "web-serial-bda4b36a-a133-45da-8c3f-99036c837685:12"
+          }
+        ],
+        "beforeFit": {
+          "pngSha256": "aeb799e709001ba59fd31fa6f7ef1d9a00bd02b0cf019bb54abf00ea4b95abf9",
+          "domSha256": "d554c9805e61186290e4e5a9ae61f383b322e1d6d8afd032e7545acfa524f01a",
+          "viewport": {
+            "width": 1366,
+            "height": 900
+          },
+          "mapBox": {
+            "x": 0,
+            "y": 191,
+            "width": 1366,
+            "height": 709
+          },
+          "readout": "EPSG:32613\nCenter X 499914.642 \u00b7 Y 4427862.252\nMap span 542.44 coordinate units \u00b7 No selection\nPurple: drawing \u00b7 Orange: Survey \u00b7 Green: planned geometry \u00b7 Blue: observations \u00b7 Teal: official RTK stations \u00b7 Pink: receiver\nNominal ring: machine length only; coverage requires calculation.",
+          "renderer": "maplibre_gl_web",
+          "pngDimensions": {
+            "width": 1366,
+            "height": 900
+          }
+        },
+        "afterFit": {
+          "pngSha256": "aeb799e709001ba59fd31fa6f7ef1d9a00bd02b0cf019bb54abf00ea4b95abf9",
+          "domSha256": "d554c9805e61186290e4e5a9ae61f383b322e1d6d8afd032e7545acfa524f01a",
+          "viewport": {
+            "width": 1366,
+            "height": 900
+          },
+          "mapBox": {
+            "x": 0,
+            "y": 191,
+            "width": 1366,
+            "height": 709
+          },
+          "readout": "EPSG:32613\nCenter X 499914.642 \u00b7 Y 4427862.252\nMap span 542.44 coordinate units \u00b7 No selection\nPurple: drawing \u00b7 Orange: Survey \u00b7 Green: planned geometry \u00b7 Blue: observations \u00b7 Teal: official RTK stations \u00b7 Pink: receiver\nNominal ring: machine length only; coverage requires calculation.",
+          "renderer": "maplibre_gl_web",
+          "pngDimensions": {
+            "width": 1366,
+            "height": 900
+          }
+        },
+        "blockedMutations": [],
+        "qualification": {
+          "originalCaseCompletedFirst": true,
+          "fitUsesRealControl": true,
+          "domainOrBackendMutations": false,
+          "visualAssessment": "pending inspection of PNG and DOM",
+          "physicalReceiverAccuracy": "unverified",
+          "nativeDeviceProof": false,
+          "replacesFull267Proof": false
+        }
+      }
+    },
+    {
+      "privateReceiptPath": "/home/cyber/cplayout-production-proof-20261011/layout-fit-r15-pass/results/layout-fit-observer-Survey-2d182-out-invented-infrastructure-mobile-390/fit-observer-receipt.json",
+      "receiptSha256": "73c4df9f52ca69320bf977206544317a5defd662834d01c8aa244484fae75c81",
+      "receipt": {
+        "schemaVersion": "private-fit-visual-observer-v1",
+        "classification": "synthetic_current_app_visual",
+        "sourceManifestPath": "docs/evidence/production-workflow-review-20261011/candidate-source-r15.json",
+        "sourceFingerprint": "39cf1a097447da8749b64c3ca1c143a916c4830d8b6ba0a5cd11155e70c60012",
+        "sourceDrift": [],
+        "observerSha256": "7dc2178b8a8d1a3c2b325b4b5b9f20d04fbb4d4718b8e37ef396bca29fc823f6",
+        "configSha256": "2917e2bcd7fb43f4c3bc95949b9ac6aac17ea85094ccaf6f944d5e40b60fac57",
+        "originalSpecSha256": "7926cc66fb6c14e2b673a56807b04e0d224063b63527bdb1a778bca243ea6683",
+        "project": "mobile-390",
+        "browserVersion": "156.0.8078.4",
+        "servedBundles": [
+          {
+            "path": "/_expo/static/js/web/index-d18b513b3cd1495ea481581d722110d9.js",
+            "bytes": 6248978,
+            "sha256": "708d1a2154796c25580e5f6eabaf08fba9f2e805fa73269545be34160578a5b5",
+            "matchesExport": true
+          }
+        ],
+        "workspaceSha256Before": "79499ea64bedf5803825675d94b7321552817ce2a74bb522fc7dbf1845b19993",
+        "workspaceSha256After": "79499ea64bedf5803825675d94b7321552817ce2a74bb522fc7dbf1845b19993",
+        "workspaceBytesUnchanged": true,
+        "sessionId": "layout-20261012t08013-godo5v",
+        "sessionVersion": "layout-session-v3",
+        "targetHash": "044a0fe79bf95f67aa255456b42953ceaca2606edc6828d73bdc0fd0141e7b3d",
+        "surveyReviewId": "survey-review-20261012t08013-oxt06j",
+        "includedCollectionIds": [
+          "design-20261012t08012-p1dhfl:survey:survey-20261012t08012-zppx3i",
+          "design-20261012t08012-p1dhfl:survey:survey-20261012t08012-0y7z5x",
+          "survey-20261012t08012-a85j50"
+        ],
+        "fieldMapId": "field-map-20261012t08012-4n80dv",
+        "designId": "design-20261012t08012-p1dhfl",
+        "stations": [
+          {
+            "id": "layout-observation-20261012t08013-niketw",
+            "targetPointId": "linear-20261012t08013-bt6470:lateral_start",
+            "machineId": "linear-20261012t08013-bt6470",
+            "role": "lateral_start",
+            "projected": {
+              "x": 499974.39238902,
+              "y": 4427846.010962594
+            },
+            "observedAt": "2026-10-12T08:01:36.799Z",
+            "recordedBy": "d496ee9b-b0f6-43ab-9fa3-f7c6bbc428ae",
+            "toleranceMeters": 0.03048000000012192,
+            "physicalQualification": "unverified",
+            "observationId": "web-serial-c66f2d53-8bf1-4291-a054-791f57a18b02:11"
+          },
+          {
+            "id": "layout-observation-20261012t08013-8ghlie",
+            "targetPointId": "linear-20261012t08013-bt6470:lateral_end",
+            "machineId": "linear-20261012t08013-bt6470",
+            "role": "lateral_end",
+            "projected": {
+              "x": 499940.2493435317,
+              "y": 4427901.50627357
+            },
+            "observedAt": "2026-10-12T08:01:37.799Z",
+            "recordedBy": "d496ee9b-b0f6-43ab-9fa3-f7c6bbc428ae",
+            "toleranceMeters": 0.03048000000012192,
+            "physicalQualification": "unverified",
+            "observationId": "web-serial-c66f2d53-8bf1-4291-a054-791f57a18b02:12"
+          }
+        ],
+        "beforeFit": {
+          "pngSha256": "8d69186ff3e60202a34bbbe05815111693cb8fb685c7f740a0df399e7fb7fe42",
+          "domSha256": "a8091bb680c4bb77fb3b7ebbd84bf95e5b12db889be25edd2f6b055a09347dc3",
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "mapBox": {
+            "x": 0,
+            "y": 257,
+            "width": 390,
+            "height": 587
+          },
+          "readout": "EPSG:32613\nCenter X 499914.642 \u00b7 Y 4427860.590\nMap span 198.11 coordinate units \u00b7 No selection\nPurple: drawing \u00b7 Orange: Survey \u00b7 Green: planned geometry \u00b7 Blue: observations \u00b7 Teal: official RTK stations \u00b7 Pink: receiver\nNominal ring: machine length only; coverage requires calculation.",
+          "renderer": "maplibre_gl_web",
+          "pngDimensions": {
+            "width": 1073,
+            "height": 2321
+          }
+        },
+        "afterFit": {
+          "pngSha256": "8d69186ff3e60202a34bbbe05815111693cb8fb685c7f740a0df399e7fb7fe42",
+          "domSha256": "a8091bb680c4bb77fb3b7ebbd84bf95e5b12db889be25edd2f6b055a09347dc3",
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "mapBox": {
+            "x": 0,
+            "y": 257,
+            "width": 390,
+            "height": 587
+          },
+          "readout": "EPSG:32613\nCenter X 499914.642 \u00b7 Y 4427860.590\nMap span 198.11 coordinate units \u00b7 No selection\nPurple: drawing \u00b7 Orange: Survey \u00b7 Green: planned geometry \u00b7 Blue: observations \u00b7 Teal: official RTK stations \u00b7 Pink: receiver\nNominal ring: machine length only; coverage requires calculation.",
+          "renderer": "maplibre_gl_web",
+          "pngDimensions": {
+            "width": 1073,
+            "height": 2321
+          }
+        },
+        "blockedMutations": [],
+        "qualification": {
+          "originalCaseCompletedFirst": true,
+          "fitUsesRealControl": true,
+          "domainOrBackendMutations": false,
+          "visualAssessment": "pending inspection of PNG and DOM",
+          "physicalReceiverAccuracy": "unverified",
+          "nativeDeviceProof": false,
+          "replacesFull267Proof": false
+        }
+      }
+    },
+    {
+      "privateReceiptPath": "/home/cyber/cplayout-production-proof-20261011/layout-fit-r15-pass/results/layout-fit-observer-Survey-2d182-out-invented-infrastructure-tablet-768/fit-observer-receipt.json",
+      "receiptSha256": "95dff23b5a2e65157774d0e0220c6571026f31fb5b216ca25a0b1ed11c3c3803",
+      "receipt": {
+        "schemaVersion": "private-fit-visual-observer-v1",
+        "classification": "synthetic_current_app_visual",
+        "sourceManifestPath": "docs/evidence/production-workflow-review-20261011/candidate-source-r15.json",
+        "sourceFingerprint": "39cf1a097447da8749b64c3ca1c143a916c4830d8b6ba0a5cd11155e70c60012",
+        "sourceDrift": [],
+        "observerSha256": "7dc2178b8a8d1a3c2b325b4b5b9f20d04fbb4d4718b8e37ef396bca29fc823f6",
+        "configSha256": "2917e2bcd7fb43f4c3bc95949b9ac6aac17ea85094ccaf6f944d5e40b60fac57",
+        "originalSpecSha256": "7926cc66fb6c14e2b673a56807b04e0d224063b63527bdb1a778bca243ea6683",
+        "project": "tablet-768",
+        "browserVersion": "156.0.8078.4",
+        "servedBundles": [
+          {
+            "path": "/_expo/static/js/web/index-d18b513b3cd1495ea481581d722110d9.js",
+            "bytes": 6248978,
+            "sha256": "708d1a2154796c25580e5f6eabaf08fba9f2e805fa73269545be34160578a5b5",
+            "matchesExport": true
+          }
+        ],
+        "workspaceSha256Before": "f1ee47661b8e855da762eb4f2d347be1901c0782a183160eabf1f4ccc1c252f5",
+        "workspaceSha256After": "f1ee47661b8e855da762eb4f2d347be1901c0782a183160eabf1f4ccc1c252f5",
+        "workspaceBytesUnchanged": true,
+        "sessionId": "layout-20261012t08002-j2f1lu",
+        "sessionVersion": "layout-session-v3",
+        "targetHash": "b7470df59e543f514da450573f46c0d006359d303e91980c47394798ebcb88a2",
+        "surveyReviewId": "survey-review-20261012t08002-c1x97l",
+        "includedCollectionIds": [
+          "design-20261012t08001-xhjx28:survey:survey-20261012t08001-y98k3o",
+          "design-20261012t08001-xhjx28:survey:survey-20261012t08001-hk6985",
+          "survey-20261012t08001-ftvgaj"
+        ],
+        "fieldMapId": "field-map-20261012t08001-zxsj1o",
+        "designId": "design-20261012t08001-xhjx28",
+        "stations": [
+          {
+            "id": "layout-observation-20261012t08002-ajqc1y",
+            "targetPointId": "linear-20261012t08001-virqol:lateral_start",
+            "machineId": "linear-20261012t08001-virqol",
+            "role": "lateral_start",
+            "projected": {
+              "x": 499974.39238902,
+              "y": 4427846.010962594
+            },
+            "observedAt": "2026-10-12T08:00:24.050Z",
+            "recordedBy": "4d87059e-32f1-46fe-a9a5-e3a0a76225e6",
+            "toleranceMeters": 0.03048000000012192,
+            "physicalQualification": "unverified",
+            "observationId": "web-serial-7bd116d7-bf2a-4a1c-a111-e2785fb0e87d:11"
+          },
+          {
+            "id": "layout-observation-20261012t08002-rcldj4",
+            "targetPointId": "linear-20261012t08001-virqol:lateral_end",
+            "machineId": "linear-20261012t08001-virqol",
+            "role": "lateral_end",
+            "projected": {
+              "x": 499940.2493435317,
+              "y": 4427901.50627357
+            },
+            "observedAt": "2026-10-12T08:00:25.050Z",
+            "recordedBy": "4d87059e-32f1-46fe-a9a5-e3a0a76225e6",
+            "toleranceMeters": 0.03048000000012192,
+            "physicalQualification": "unverified",
+            "observationId": "web-serial-7bd116d7-bf2a-4a1c-a111-e2785fb0e87d:12"
+          }
+        ],
+        "beforeFit": {
+          "pngSha256": "c3b2915045502540132f0c16c0e2e386e9fb93abbb51847248438686c8879a18",
+          "domSha256": "6133df15b8c85d88541850e7e0dc72d31a7141bff0d52b4920f4f53867c49283",
+          "viewport": {
+            "width": 768,
+            "height": 900
+          },
+          "mapBox": {
+            "x": 0,
+            "y": 181,
+            "width": 768,
+            "height": 719
+          },
+          "readout": "EPSG:32613\nCenter X 499914.642 \u00b7 Y 4427862.357\nMap span 299.62 coordinate units \u00b7 No selection\nPurple: drawing \u00b7 Orange: Survey \u00b7 Green: planned geometry \u00b7 Blue: observations \u00b7 Teal: official RTK stations \u00b7 Pink: receiver\nNominal ring: machine length only; coverage requires calculation.",
+          "renderer": "maplibre_gl_web",
+          "pngDimensions": {
+            "width": 768,
+            "height": 900
+          }
+        },
+        "afterFit": {
+          "pngSha256": "c3b2915045502540132f0c16c0e2e386e9fb93abbb51847248438686c8879a18",
+          "domSha256": "6133df15b8c85d88541850e7e0dc72d31a7141bff0d52b4920f4f53867c49283",
+          "viewport": {
+            "width": 768,
+            "height": 900
+          },
+          "mapBox": {
+            "x": 0,
+            "y": 181,
+            "width": 768,
+            "height": 719
+          },
+          "readout": "EPSG:32613\nCenter X 499914.642 \u00b7 Y 4427862.357\nMap span 299.62 coordinate units \u00b7 No selection\nPurple: drawing \u00b7 Orange: Survey \u00b7 Green: planned geometry \u00b7 Blue: observations \u00b7 Teal: official RTK stations \u00b7 Pink: receiver\nNominal ring: machine length only; coverage requires calculation.",
+          "renderer": "maplibre_gl_web",
+          "pngDimensions": {
+            "width": 768,
+            "height": 900
+          }
+        },
+        "blockedMutations": [],
+        "qualification": {
+          "originalCaseCompletedFirst": true,
+          "fitUsesRealControl": true,
+          "domainOrBackendMutations": false,
+          "visualAssessment": "pending inspection of PNG and DOM",
+          "physicalReceiverAccuracy": "unverified",
+          "nativeDeviceProof": false,
+          "replacesFull267Proof": false
+        }
+      }
+    }
+  ],
+  "pixelInspection": {
+    "reviewer": "coordinator /root",
+    "source": "Root delivery and sealed custody.pixelInspection",
+    "result": "pass",
+    "observation": "Root inspected all three after-fit original PNGs: mapped planned boundary/linear line visible with two teal recorded stations and one separate blue observation. Controls and map visible across all three viewports. Before/after captures already at fitted centers; real Fit is idempotent, not evidence of a camera0 defect or changed geometry.",
+    "elements": "Planned green boundary and linear line, two teal recorded stations and a separate blue observation; source-target/Survey/collection/station identities independently bound in receipts."
+  },
+  "cameraBoundary": "All before/after readouts were already fitted and equal. Actual Fit was idempotent in this observer state. Earlier creation-trace camera0 frames were a different state; this does not establish a camera bug, renderer omission, or Fit-caused reframing.",
+  "attemptHistory": {
+    "firstReadinessAttempt": {
+      "result": "failed_before_tests",
+      "log": {
+        "path": "first-gateway-readiness-failed.log",
+        "bytes": 946,
+        "sha256": "a85aa7f6888b2f137a0f316f4441759befad63dbd36969f52de14f34f3eac783"
+      },
+      "correction": "Private runner readiness changed to the existing direct HTTP checkProofPort; production code, original case, guards and criteria unchanged."
+    },
+    "privateStrictTypecheck": {
+      "result": "did_not_pass",
+      "log": {
+        "path": "readiness-types-r2.log",
+        "bytes": 8165,
+        "sha256": "935e9d20c9b214cf6beb7bcdf9aa55c9717e8e32a788bada1e56e54b6612384d"
+      },
+      "boundary": "18 inherited spec/fixture diagnostic lines; owner reported no private-file errors. Discovery/runtime success does not constitute a strict TypeScript pass."
+    },
+    "completedRuntimeLog": {
+      "path": "raw.log",
+      "bytes": 1416,
+      "sha256": "3695d13e9d7969fb651bf21b625c5a29706282828fceb32669858ebed0365485"
+    }
+  },
+  "resourceDisposition": {
+    "source": "coordinator ownership-checked delivery",
+    "ownedStaticGatewayPid": 285530,
+    "gateway": "closed",
+    "webBuildLease": "free"
+  },
+  "qualification": "Unchanged existing cases completed before private observer. Camera/UI operations only; no geometry/backend writes; unchanged cache/shared document bytes. Native/device/physical accuracy/human acceptance unproved. First private readiness attempt failed before tests and is preserved.",
+  "boundary": "Supplemental visual proof after the unchanged original cases. Not three new browser inventory cases or a new 267-case run. No native runtime, physical receiver accuracy, human acceptance, full WCAG conformance, final review acceptance, hosted CI, deployment or publication claim."
+}

@@ -1,6 +1,8 @@
 import { parseLayoutSessionDocument } from "@cplayout/core";
+import { assertRetainedLayoutHistory, layoutTransitionRequiresLiveOwner } from "./workspaceDocument";
+import { assertLiveLayoutTransitionAdmission } from "./productionWorkflow";
 import { migrateLegacyWorkspace, type LegacyWorkspaceSources } from "./legacyWorkspaceMigration";
-import { assertRetainedOperationalEvidence, assertRetainedSurveyHistory, SURVEY_WORKSPACE_DOCUMENT_VERSION, parseWorkspaceDocument, serializeWorkspaceDocument, WorkspaceDocumentError, FIELD_WORKSPACE_DOCUMENT_VERSION, LAYOUT_WORKSPACE_DOCUMENT_VERSION, WORKSPACE_DOCUMENT_VERSION, type WorkspaceDocument } from "./workspaceDocument";
+import { assertRetainedOperationalEvidence, assertRetainedSurveyHistory, assertRetainedWorkflowHistory, SURVEY_WORKSPACE_DOCUMENT_VERSION, PRODUCTION_WORKSPACE_DOCUMENT_VERSION, upgradeWorkspaceDocumentToV5, parseWorkspaceDocument, serializeWorkspaceDocument, WorkspaceDocumentError, FIELD_WORKSPACE_DOCUMENT_VERSION, LAYOUT_WORKSPACE_DOCUMENT_VERSION, WORKSPACE_DOCUMENT_VERSION, type WorkspaceDocument } from "./workspaceDocument";
 
 export const WEB_WORKSPACE_KEY = "center-pivot-layout-workspace-v1";
 export const WEB_WORKSPACE_BACKUP_KEY = "center-pivot-layout-workspace-legacy-backup-v1";
@@ -156,7 +158,14 @@ export function createWebWorkspaceStore(dependencies: WebWorkspaceStoreDependenc
         if (latest.revision === Number.MAX_SAFE_INTEGER) throw new WorkspaceDocumentError("revision_exhausted", "Persisted revision limit reached.");
         const nextRevision = latest.revision + 1;
         if (isCurrent && !isCurrent()) throw new WorkspaceDocumentError("conflict", "The active editor or live observation changed under the storage lock.");
-        const candidate = transition(parseWorkspaceDocument(current));
+        let candidate = transition(parseWorkspaceDocument(current));
+        const productionUpgrade = latest.workspaceVersion !== PRODUCTION_WORKSPACE_DOCUMENT_VERSION && candidate.workspaceVersion === PRODUCTION_WORKSPACE_DOCUMENT_VERSION;
+        if (productionUpgrade) {
+          const expected = upgradeWorkspaceDocumentToV5(serializeWorkspaceDocument(latest));
+          if (JSON.stringify(candidate) !== JSON.stringify(expected)) throw new WorkspaceDocumentError("conflict", "A workflow upgrade must preserve every existing record and begin with empty review records.");
+          // Bind the first chain link to the actual storage bytes, including whitespace.
+          candidate = upgradeWorkspaceDocumentToV5(current);
+        }
         if (latest.workspaceVersion === WORKSPACE_DOCUMENT_VERSION && candidate.workspaceVersion === FIELD_WORKSPACE_DOCUMENT_VERSION) {
           // Publish v2 and its exact original v1 bytes together in the same atomic localStorage value.
           candidate.originalV1Document = current;
@@ -171,7 +180,7 @@ export function createWebWorkspaceStore(dependencies: WebWorkspaceStoreDependenc
           candidate.originalPreviousWorkspaceDocument = current;
         }
         if (latest.workspaceVersion === LAYOUT_WORKSPACE_DOCUMENT_VERSION
-          && ((candidate.workspaceVersion !== LAYOUT_WORKSPACE_DOCUMENT_VERSION && candidate.workspaceVersion !== SURVEY_WORKSPACE_DOCUMENT_VERSION) || candidate.originalPreviousWorkspaceDocument !== latest.originalPreviousWorkspaceDocument || candidate.originalV1Document !== latest.originalV1Document)) {
+          && ((candidate.workspaceVersion !== LAYOUT_WORKSPACE_DOCUMENT_VERSION && candidate.workspaceVersion !== SURVEY_WORKSPACE_DOCUMENT_VERSION && candidate.workspaceVersion !== PRODUCTION_WORKSPACE_DOCUMENT_VERSION) || candidate.originalPreviousWorkspaceDocument !== latest.originalPreviousWorkspaceDocument || candidate.originalV1Document !== latest.originalV1Document)) {
           throw new WorkspaceDocumentError("conflict", "A transaction cannot downgrade v3 or replace its retained previous workspace.");
         }
         if (latest.workspaceVersion === FIELD_WORKSPACE_DOCUMENT_VERSION
@@ -184,14 +193,22 @@ export function createWebWorkspaceStore(dependencies: WebWorkspaceStoreDependenc
           if (latest.workspaceVersion !== LAYOUT_WORKSPACE_DOCUMENT_VERSION || candidate.surveyCollections?.length !== 0 || candidate.surveyOwnerArchives?.length !== 0 || JSON.stringify(retained) !== JSON.stringify(latest)) throw new WorkspaceDocumentError("conflict", "Survey upgrade must preserve every prior record and begin empty.");
           candidate.originalSurveyUpgradeDocument = current;
         }
-        if (latest.workspaceVersion === SURVEY_WORKSPACE_DOCUMENT_VERSION && (candidate.workspaceVersion !== SURVEY_WORKSPACE_DOCUMENT_VERSION || candidate.originalSurveyUpgradeDocument !== latest.originalSurveyUpgradeDocument
+        if (latest.workspaceVersion === SURVEY_WORKSPACE_DOCUMENT_VERSION && ((candidate.workspaceVersion !== SURVEY_WORKSPACE_DOCUMENT_VERSION && candidate.workspaceVersion !== PRODUCTION_WORKSPACE_DOCUMENT_VERSION) || candidate.originalSurveyUpgradeDocument !== latest.originalSurveyUpgradeDocument
           || candidate.originalPreviousWorkspaceDocument !== latest.originalPreviousWorkspaceDocument || candidate.originalV1Document !== latest.originalV1Document)) throw new WorkspaceDocumentError("conflict", "Survey workspace cannot downgrade or rewrite exact upgrade sources.");
+        if (latest.workspaceVersion === PRODUCTION_WORKSPACE_DOCUMENT_VERSION && (candidate.workspaceVersion !== PRODUCTION_WORKSPACE_DOCUMENT_VERSION
+          || candidate.originalWorkflowUpgradeDocument !== latest.originalWorkflowUpgradeDocument || candidate.originalSurveyUpgradeDocument !== latest.originalSurveyUpgradeDocument
+          || candidate.originalPreviousWorkspaceDocument !== latest.originalPreviousWorkspaceDocument || candidate.originalV1Document !== latest.originalV1Document)) throw new WorkspaceDocumentError("conflict", "Workflow storage cannot downgrade or rewrite original sources.");
         const encoded = serializeWorkspaceDocument(candidate);
         const next = parseWorkspaceDocument(encoded);
-        if (next.revision !== nextRevision) throw new WorkspaceDocumentError("conflict", "A workspace transaction must advance exactly one revision.");
+        if (next.revision !== (productionUpgrade ? upgradeWorkspaceDocumentToV5(current).revision : nextRevision)) throw new WorkspaceDocumentError("conflict", "A workspace transaction must advance exactly one revision.");
         requireDeletionHistory(latest, next);
         assertRetainedOperationalEvidence(latest, next);
         assertRetainedSurveyHistory(latest, next);
+        assertRetainedWorkflowHistory(latest, next);
+        assertRetainedLayoutHistory(latest, next);
+        if (layoutTransitionRequiresLiveOwner(latest, next) && typeof isCurrent !== "function")
+          throw new WorkspaceDocumentError("conflict", "A new RTK Layout operation requires its current owned receiver predicate under the writer lock.");
+        assertLiveLayoutTransitionAdmission(latest, next);
         // Detect observable nonparticipating/reentrant writers; this is not a substitute for Web Locks.
         if (store.getItem(WEB_WORKSPACE_KEY) !== current) throw new WorkspaceDocumentError("conflict", "Workspace changed outside the active transaction.");
         requireUnchangedLegacy(store);

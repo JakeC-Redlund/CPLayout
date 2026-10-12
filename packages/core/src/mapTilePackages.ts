@@ -176,7 +176,7 @@ export function describeTilePackageReadiness(
       target,
       canRender: false,
       requiresAdapter: false,
-      reason: "The MVP SVG drawing surface stores package metadata only and does not render tile archives.",
+      reason: "This drawing view keeps the map package details. Background map tiles are unavailable in this view.",
     };
   }
 
@@ -186,7 +186,7 @@ export function describeTilePackageReadiness(
       target,
       canRender: false,
       requiresAdapter: false,
-      reason: "Logical app:// map package URLs must be rewritten to app-readable runtime URLs before MapLibre rendering.",
+      reason: "Map package files are unavailable on this device. Import the map archive to view its tiles.",
       sourceKind: "generated_tilejson_or_template",
     };
   }

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "checkedOn": "2026-10-11",
+  "claim": "The inspected unified-workspace SVG geometry fixture deliberately refuses WebGL contexts. Its screenshot error does not diagnose a broken GPU.",
+  "sourceHashes": {
+    "tests/web/unified-workspace.spec.ts": "086a6319ff335d21c1ddc23bc5931683154be9f89edac1f3451d1147b82f5342"
+  },
+  "sourceFingerprint": "c1018191dc74a654923e8ff23e62ffeef06079a68e91dafc5c662d50dc30b071",
+  "fixture": {
+    "path": "tests/web/unified-workspace.spec.ts",
+    "line": 148,
+    "operation": "HTMLCanvasElement.prototype.getContext returns null when contextId is webgl or webgl2.",
+    "purpose": "The surrounding source comment says this suite measures deterministic projected SVG geometry.",
+    "verification": "Direct source inspection"
+  },
+  "primarySource": {
+    "url": "https://chromium.googlesource.com/chromium/src/+/1330866/docs/gpu/swiftshader.md",
+    "title": "Using Chromium with SwiftShader",
+    "retrievedOn": "2026-10-11",
+    "scope": "Frozen Chromium documentation revision: describes CPU-rendered SwiftShader and its ANGLE integration. It does not prove the current host runtime or native GPU operation."
+  },
+  "separateCoordinatorProbe": {
+    "browser": "Chromium 156",
+    "page": "blank page",
+    "variants": [
+      "default settings",
+      "explicit software flags; exact argument list not supplied"
+    ],
+    "observed": "WebGL2 available, ANGLE SwiftShader renderer in both variants",
+    "provenance": "Coordinator-reported fresh probe; raw probe receipt not supplied to this record.",
+    "boundary": "Software rendering is not hardware GPU or native-device proof."
+  },
+  "decision": "No browser flag or host configuration change is justified by the fixture-enforced screenshot error.",
+  "notEstablished": [
+    "Hardware GPU rendering",
+    "Native GPU behavior",
+    "Map rendering acceptance across the application",
+    "Physical or field qualification"
+  ]
+}

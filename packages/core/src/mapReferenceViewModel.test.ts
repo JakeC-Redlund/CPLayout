@@ -29,7 +29,7 @@ assert.equal(previewOff.reference.canRender, false);
 const svg = buildMapReferenceViewModel({ ...input, surface: "svg", target: "android_maplibre_rn" });
 assert.equal(svg.aerial.sourceKind, "none");
 assert.equal(svg.reference.status, "unavailable");
-assert.equal(svg.runtimeLabel, "Native runtime unverified");
+assert.equal(svg.runtimeLabel, null);
 
 settings.onlineImagery.enabled = true;
 settings.onlineImagery.providerId = "custom_open_xyz";
@@ -62,7 +62,7 @@ const local = buildMapReferenceViewModel({ ...input, mapPackages, target: "andro
 assert.equal(local.aerial.sourceKind, "local_raster");
 assert.match(local.aerialSummary, /Local aerial/);
 assert.equal(local.aerial.localAerial.attribution, raster.attribution);
-assert.equal(local.runtimeLabel, "Native runtime unverified");
+assert.equal(local.runtimeLabel, null);
 assert.equal(local.evidenceLabel, "Reference only");
 assert.equal(JSON.stringify({ settings, mapPackages }), before);
 const preview = buildMapReferenceViewModel({ ...input, mapPackages, surface: "online_preview" });

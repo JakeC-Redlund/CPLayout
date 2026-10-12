@@ -1,333 +1,183 @@
 # Development Status
 
-## Pause and publication checkpoint — 2026-10-11
+Generated from [workflow-registry.json](workflow-registry.json) by `node tools/workflowStatus.cjs --write`. Edit the registry; do not hand-edit this projection.
 
-Feature work is stopped at the owner's explicit request. Start future work with
-[the pause/handoff record](checkpoints/2026-10-11-unified-workspace-pause.md), not
-the superseded next-feature instructions below. R4 passed33 actual management
-browser cases, focused initializer8/Catalog20/recovery11 and mobile TypeScript;
-its frozen1112-file source is020b1626373ed632db3cdd137ec119acbbab01951828594a866a25c7bc5f4f8f.
-The served Edge bundle isf7982d76c82c4e0eedf6a7fefec2fca8d9dee14ffe3eb439a9832872590d6fc9.
+Reviewed 2026-10-11. Deliver Sign in → Customer → Project → Field logical folders, optional Design, matched field Survey and RTK-qualified official Layout maps with preserved evidence and production language.
 
-Publication is a checkpoint qualification: existing PR2, required current-head
-CI, merge preserving ancestry, main-only named branches and clean canonical
-status. The final ignored coordination receipt records actual OIDs/CI/resource
-disposition after execution. No full-workflow, human, native, physical receiver
-or field-accuracy acceptance is inferred. Current-App and applicable independent
-browser contracts remain required; old navigation fixtures are preserved with
-explicit per-title migration debt. No modeling integration/build handoff is
-granted by publication or pause. Do not resume feature work until the owner asks.
+The current user request resumes bounded improvement work and delegates decisions to independent source-backed review. Preceding AGENTS instructions remain withdrawn. Delegated acceptance and human acceptance are separate; human acceptance has not been established.
 
-## Current verified stopping point — 2026-10-11
+## Verified baseline and current candidate
 
-The single Design/Survey/Layout workspace now captures and explicitly restores
-unfinished work through its existing controller/form/map owners. Recovery has a
-separate local checkpoint status; it does not acknowledge domain Save or revive
-a receiver. Exact saved Survey/Layout source strings and immutable targets remain.
-The [recovery plan](unified-workspace-edit-recovery-plan.md) records the source,
-component and real App corrections, including hidden form owners, drained rollback,
-post-retention commit acknowledgement and Field's inactive drawing placeholder.
+Baseline commit: `2649d1a9b1f1c55dff2eea4a6fe9faaa54be3824`. Publication: published checkpoint; exact-head postmerge CI completed successfully.
 
-Wave9-r4 freezes1104 files at
-`e1cf6d468b739262d5b23dade00aee9536cfe6a39834a719bc0e309184d523a2`.
-All27 new actual App recovery cases pass (nine journeys at desktop/tablet/narrow)
-and the full aggregate passes. Mobile TypeScript, skills/context, diff and exact
-legacy-reader integrity pass. Visible Windows Edge serves bundle SHA256
-`35cf5946b37a11b4771b910cb0b59b450d9634fc4b9cdd099cd37bd9c8f969d3`
-with no observed page errors. This proves the executed recovery journeys; actual
-postpublication rollback injection, full focus/keyboard/two-tab/short-height matrix
-and full prior browser regression are not inferred. Failed r2/r3 runs are retained.
+The preceding 1118-file edition has aggregate exit 0, 225/225 selected browser passes and six matching Edge figures. Source fingerprint ed96c68a374b62e069a28b6b094daa0bb6a660d2df9b290c38cefeeab295d223; served bundle cf00eb7aa9b6c3a0e20d16db93071ec8d38ca3d733555c0b4118a1193e5b9449. These qualify that checkpoint, not later changes or complete production readiness.
 
-Next is the [bounded management plan](unified-workspace-management-plan.md), chosen
-by two independent weighted reviews: qualified current-field New, recognizable
-Design/Field naming, existing title-input reuse, conditional same-transaction title
-sync, strict queued mutation receipts and metadata-only Field-container rename
-with an explicit recovery-form compatibility contract. Broader management/report
-and Field drawing reachability remain in the original objective.
+Current candidate: R18 CAScorrection/currentsource frozen; fullaggregate/protectedCI267/closingreviews/publication pending. Root rowlocked importedrev<=storedrev refusal implementedafterexistingV3gate; scopedservice/V3/actualPG/types checks pass and4sourcehashes verified. Newtestfixture adds1canonicalinput:962actualpaths,criteriaunchanged; guide/DBskill/inventory/context aligned andchecks0. No publicrev0restore or fabricatedrawrevision. Actual R17all5CI/source267browser success preservedwithP1veto; currentR18fullaggregate/hosted267/two matchingclosingreviews/requiredconversationresolution/merge/mainsync pending.
 
-The work remains unpublished in the isolated detached worktree. No accepted main
-checkpoint or modeling transfer is granted. Complete software/human acceptance,
-physical transports/native/field accuracy are not claimed. Hook discovery is
-bounded positive evidence; execution remains unproven. Final audit/CI, two complete
-reviews, full proof and main-only Git synchronization remain required.
+Dependency observation: Current R14 audit:verified exits0 with raw16high/0moderate and only three named verified local mitigations. Raw findings remain; not a zero-audit or upstream-fixed result. Current ExpoSDK compatibility check passes. Historical canonical preflight gap and prior failed SDK/security steps remain separate.
 
-## Preserved A2 and wave8 checkpoint — 2026-10-11
+Deferred browser obligations: 960; their semantic contracts remain required. Hook execution: unknown; Stop continuation: disabled.
 
-The shared Design/Survey/Layout App now automatically restores accepted saved
-design, Survey collection, frozen Layout target and independent Catalog browsing
-context. Operator intent cancels delayed startup before it can replace newer work;
-failed operations and raw input do not acquire permission to overwrite the hint.
-The preceding JSON/ZIP package import and exact-source/history contracts remain.
+## Master phases and modules
 
-Wave7-A2-r3 freezes1086 files at fingerprint
-`51f146bdc05ec4ddac0e03d8e9173a384d5229ecbbcbd8b28822f3651c869e16`.
-All141 actual desktop/tablet/mobile App cases pass:105 prior journeys with explicit
-navigation compatible with restoration, plus36 startup journeys.37 startup and61
-prior controller cases pass. Eight actual-canvas cases close the demonstrated
-world-camera/style/gesture defects. Eight fresh settled Windows Edge figures match
-served bundle SHA256
-`3fc63d26c39917c8dd9d05f782628045c4a3b12201445b5406ede5f074562ed0`;
-independent rendered review accepts the bounded camera/modal/context behavior.
-Full aggregate, skills/context,96 visual-review tools and diff pass with all1086
-source hashes unchanged. Raw audit21high/5moderate remains; verified exact local
-mitigations are admitted, not upstream fixes. Failed R1/R2 evidence is preserved.
-Strict browser-test TSC has17 independently verified pre-existing diagnostics;
-application/package TypeScript and executed browser tests are separate green gates.
-
-At wave8, source implemented the [edit-recovery foundation](unified-workspace-edit-recovery-plan.md):
-strict source/evidence admission, an independent-tab checkpoint ledger, staged raw
-input hydration and a browser workspace read lease. Wave8-r2 freezes1092 files at
-`72031986de5c27a91b25738d53e2ec2497be795e60350925817d9f69691cac9f`.
-Its aggregate,22 pure/20 ledger/34 retention/22 lease cases, skills/context and diff
-pass without drift; independent review closes the reproduced authority/camera/input
-defects. This is source/test evidence. Actual checkpoint capture and Restore UI
-were not implemented or browser-qualified then. Its last rendered proof was A2-r3.
-Subsequent integration needed the missing AppSettings snapshot and exact
-pending import byte custody. Catalog local forms have React mount keys rather than
-sequence-based retention addresses; preserve their actual owners.
-
-This is a scoped checkpoint, unpublished in the isolated detached worktree. Whole
-software/main acceptance, physical transports, native and field accuracy are not
-claimed. The complete objective stayed active. The hint does not contain unfinished
-inputs, editor/history or camera state. The next step was [full edit recovery](unified-workspace-edit-recovery-plan.md),
-then distinct customer/field/design/machine/file management. Private source-bound
-hook discovery succeeds; two guarded turns produce no hook execution events.
-Execution remains unproven, cause unknown; no global trust/config change occurred.
-Two complete final reviews, full browser/proof/CI and main-only synchronization
-remain required. The held modeling packet has no integration/build transfer.
-
-## Active refocus — 2026-10-10
-
-The owner prioritized one Design–Survey–Layout workspace: a single mode toggle,
-one actual map/controller and identical common context, file, camera, receiver and
-status controls. The prior AGENTS.md instruction set was withdrawn. Follow the
-[tracked refocus plan](unified-workspace-refocus-2026-10-10.md) and
-[selected architecture](unified-workspace-decision-2026-10-10.md) for active work.
-The preceding separate-screen R53 candidate is preserved as recovery; its
-standalone R54 resize pass and acceptance queue are superseded.
-
-The isolated third wave now makes `UnifiedWorkspaceEntry` the actual App entry:
-one controller, common map/frame, retained mode panels and one supporting catalog.
-Existing Project tools are extracted from App; no old whole working editors mount
-behind the new frame. Mobile TypeScript and the mobile suite pass. These are source
-checks, not full workflow acceptance. The preceding second-wave checkpoint passes 13 controller,
-29 save-queue, 18 retention and nine Field-input checks, mobile TypeScript and diff
-checking, with all 17 inspected files unchanged during those checks. Workers report
-143 focused storage checks and nine renderer/camera checks at their frozen packets.
-These are scoped source checks, not integrated UI or runtime acceptance.
-
-Historical wave3 r1/r2 defects are preserved and repaired: catalog Open self-blocking,
-File menu pointer stacking and trusted receiver optional-value production. Wave3 r3
-completed all six actual desktop scenarios on its frozen source and exact served
-Windows Edge bundle. That scoped pass does not qualify the changed fourth wave.
-
-Wave4 r4 was the bounded organization checkpoint:756-source fingerprint
-`e68c021ef1f652c849f44046fa218348fcb9dc179ba914e23682bfadd88102cb`.
-All21 actual default-App browser cases pass in41.8s across desktop/tablet/mobile.
-Fresh Windows Edge desktop/narrow/short Drawing/Inputs/Review and introductory
-mode captures match bundle `91ceac005a7709217903266f3c78f0b3b0dc8a77cbd5d7500a29a60426307f5e`.
-Actual clean forms disable Discard; unavailable drawing/completion actions are
-visibly disabled. Independent rendered review closes the earlier error-message,
-compact context and disabled-affordance findings. Focused source/compiler checks
-pass. Original failed candidates/traces are retained. These seven workflows at
-three widths do not prove the complete management/failure/reference/capture matrix.
-
-The next source-backed contract is [recorded-reference Survey support](unified-workspace-recorded-reference-plan.md):
-immutable historical origin and separate current attachment, explicit new document
-versions, audited mutation/copy/reader behavior and unchanged fixed-GGA admission.
-No new schema code or held modeling integration is implemented by that plan.
-Current aggregate, skills/context and96 visual-review tool tests pass. A test-only
-scene tamper probe repair bridges the unchanged production UI to fingerprint
-`f72487a0c81574b308bf83d1fcf6fa1781e75e487bf757a27e638a03d6bcaa3a`.
-Fresh audit still reports21high/5moderate; exact installed mitigations pass.
-Independent file/status review identified misleading Saved/unapplied input,
-precondition-as-storage errors, inconsistent copy/export admission and Layout
-Save targeting retained Design. [That workflow repair](unified-workspace-file-status-plan.md)
-is the selected next priority; reference schema work follows after interface freeze.
-See [the organization iteration record](unified-workspace-integration-wave-4.md).
-
-Atomic Draft completion, combined Survey history, actual classified Project drawing,
-shared Layout/catalog receipts and real source-keyed advisory producers are integrated
-in source. The earlier 805-file aggregate and 82-test governance pass remain
-first-wave evidence only. Actual hook loading remains unverified. A new native App Server discovery-only
-probe completed normally but listed canonical hook definitions rather than the
-changed linked-worktree source; no turn was started against the mismatched source. Next work is exact-build rendered/browser/
-Edge journeys and corrections, then remaining contracts/governance/publication.
-Neutral reference Apply needs an honest versioned metadata extension; two independent
-weighted reviews selected that direction without permitting false digitized evidence.
-Existing worktrees and staged candidate are preserved in the detached implementation
-checkout. Canonical remains clean at `83c257a`; no modeling handoff or publication
-acceptance is granted by these checks.
-
-The following dated state describes the preserved proposal. It is historical
-context, not the active refocus priority or new architecture acceptance.
-
-Updated 2026-10-08. Current resumption index; not release acceptance.
-Read after `AGENTS.md` and `agent-tree-protocol.md` when resuming broad work.
-Use one linked task contract, not the complete historical logs.
-
-## Current State
-
-- The latest workflow proposal `83c257a` is committed, pushed and synchronized
-  on the temporary publication branch. Protected main remains at the earlier
-  checkpoint; publication acceptance is recorded per exact revision in
-  [the workflow review](https://github.com/JakeC-Redlund/CPLayout/pull/2).
-  Current source validation and 27 focused cases passed in both Linux browsers
-  and visible Windows Edge. The complete 984-case run ended normally with 969
-  passes, ten exact declared exclusions and five failures; it did not pass
-  acceptance. Visible Edge passed 171 full, three supplemental and two saved-item
-  cases. One navigation fixture encountered a live USGS tile404; the remaining
-  four readiness/shader cases passed unchanged in isolation. Resource causation
-  is unproven. A narrow deterministic tile fixture preserves the navigation and
-  strict console assertions.
-  Additional current-state captures found a required usability defect at
-  390 by 430: the status scroller has only 47 client pixels for a 48-pixel
-  completion action, so ordinary focus and scrolling cannot reveal it fully.
-  The bounded repair moves unchanged Create/Open completion commands after
-  Calculate in the existing nonshrinking horizontal bar. Input/map allocations,
-  callbacks, pending-text, camera, selection and history remain unchanged.
-  Strengthened existing completion tests exercise full visibility, keyboard and
-  horizontal access, applied-data preservation, quota retry and saved-design
-  reopening at narrow/short sizes. The new frozen candidate requires matching
-  full proof, actual action/error figures, exact-head CI and two complete
-  unchanged-candidate reviews. Test helpers retain actual configured short
-  viewports, the exact stale-draft conflict and stable Projects presentation.
-  Source-only reviews and earlier passing runs
-  do not establish final software acceptance.
-- The current registry audit reports 21 high and five moderate dependency findings
-  rooted in three advisories without a published fixed release. Exact-version
-  defensive local patches and the separate installed-source verification gate
-  pass a fresh isolated install and 45 focused checks. Compatible published
-  source-map and shell-quote releases close further high/critical findings. Raw audit results
-  remain visible and archived; the gate must verify installed source and every
-  audit path, and reject unknown advisories, incomplete evidence or altered
-  dependencies. Historical zero-audit results below describe their dated runs.
-  See [the dependency mitigation record](dependency-security-mitigations.md).
-
-- The canonical publication candidate combines the [complete desktop workflow](complete-workflow-improvement.md),
-  preserved continuous-corner/search-v2/machine-pair improvements, and the
-  18-file VFlex research handoff. The original worktrees and private evidence are
-  retained. Workflow candidate10 also contains the resumed map-camera ownership
-  correction. Integrated validation and publication are being completed; prior
-  isolated checks do not establish acceptance of the combined source.
-- Model questionnaire revision 34 completed with M01–M03 requesting compact
-  inputs, a visual layout thumbnail and a simpler polygon-type dropdown. Retain
-  those answers as requested rework, not approval. The owner subsequently delegated
-  decisions to researched, weighted specialist review; no further questionnaire
-  is required for this pass. The [human workflow improvement loop](human-workflow-improvement-2026-09-29.md)
-  organizes Projects, Design, Survey and RTK Layout, customer/project/field entry,
-  independent-machine comparison and file/design management. It preserves mounted
-  editors, raw input, camera/selection/undo, saved-document identity and immutable
-  Layout targets. Resizing Projects into compact presentation reveals the dashboard;
-  deliberate compact drawer opening remains explicit and retained. Create and Import
-  precede Recent work and compact storage details; idle SVG Pan controls yield space
-  without changing active drawing/edit commands or canonical geometry.
-  Compact map context uses the visible breadcrumb and existing dialog to recover
-  drawing space in both renderers. Customer Open reveals details directly while
-  row selection preserves tree browsing; unfinished forms remain guarded.
-- Dated validation counts in the workflow record describe historical candidates.
-  Final acceptance requires all source/browser/preservation gates and two complete
-  unchanged-candidate reviews; use [the exact-revision publication review](https://github.com/JakeC-Redlund/CPLayout/pull/2)
-  for the final source and publication outcome. Automated specialist decisions are
-  delegated engineering review, not a new human usability approval.
-- The independent numerical/advisory modeling packet is frozen outside canonical
-  source. Its owner may reconcile overlapping files only against the accepted
-  workflow main checkpoint after the coordinator explicitly transfers integration
-  and build ownership. No timer grants that transfer; preserve historical manifests
-  and do not replay pending historical patches.
-- Source publication does not qualify physical receiver transports, native
-  storage/rendering, OEM controllers or measured field accuracy.
-
-### Preserved 2026-09-27 checkpoint
-
-The following facts describe the preceding checkpoint, not this isolated build.
-
-- Checkout: `main`, base `96ba2e90aed79efae0b44ab7190a53a2bd677700`.
-  Review preflight found 70 modified tracked entries and 110 untracked entries
-  (directories may represent multiple files). Preserve shared work; no publication.
-- GitHub confirms `JakeC-Redlund/CPLayout`, public, default `main`; hosted `main`
-  matches the committed local HEAD. The extra local/hosted governance branch
-  has no unique commits beyond `main` (local comparison 1/0). Dirty work remains
-  unpublished; no branches were deleted and one-branch cleanup is not complete.
-- Full and production dependency audits report zero vulnerabilities. Earlier
-  five-high/17-advisory descriptions are historical, not current audit results.
-- U01-U05 all completed with `a` at revision 9: primary input forms only.
-  Receipt: `.cplayout-local/publication-checkpoint-20260927/reports/us-irrigation-report-20260927/human-completed-r9/`.
-  Figures/answers verified; that review's completed tabs/server were closed.
-- The active [iterative layout task](iterative-layout-improvement.md) follows the
-  owner's order: correctness, drawing, saved independent machines, iterative
-  search, then physical models. Separation thresholds and conservative boundary
-  regressions now pass (23 template cases); retained planner comparisons pass.
-  Drawing/field storage, independent editing, immutable targets, iterative search
-  and explicit straight-lateral modeling are implemented. The final build passes
-  33 browser cases and 22 visible Edge desktop/narrow cases; four supplemental
-  drawing captures pass. `npm run validate` passes against all 577 unchanged
-  captured source/test/configuration files (r4, 678.799 seconds measured by the
-  monotonic clock). Skills, audit (zero vulnerabilities) and diff checks pass.
-  Field and drawing questionnaires completed at revisions 16 and 19. Their
-  complete figure/answer exports were verified and retained privately; both
-  owned hubs and servers are closed. Feedback requests simpler imperial
-  language and drawing classification changes; pause/resume was accepted.
-  Isolated owner tasks are handling those follow-ups outside this checkpoint.
-- The preceding `npm run validate` passed in 846.29 seconds; all 507 captured source/
-  config paths remained unchanged. Skills/context/diff checks pass. Historical
-  source passes, selected Edge checks and human acceptance have different scopes;
-  that aggregate predates the active implementation.
-- Publication checkpoint preserves private review artifacts under the existing local-only
-  storage boundary. A generated-center hang on tiny representable bounds is fixed,
-  with 24 focused tests and independent source QA passing. Full checkpoint
-  validation and public companion wheel provenance are still being finalized.
-
-## Next Queue
-
-Complete the integrated desktop workflow and autonomous human-workflow improvement
-acceptance first. The preceding drawing and field questionnaires below are historical input;
-their approvals do not apply to the changed workflow. Native, physical transport
-and field-accuracy gates remain independent.
-
-| Order | Deliverable and owner boundary | Exit evidence |
+| Phase | Status | Outcome |
 | --- | --- | --- |
-| 0 | Finish the integrated human-workflow software acceptance and main-only publication. Coordinator owns exact source/build identity, two complete reviews, preservation receipts and runtime cleanup. | Passing current-candidate source/browser gates, independent review and exact hosted/main identity; delegated review is separate from historical human acceptance. |
-| 1 | Serial handoff of the frozen advisory modeling packet, including overlapping UI and scenario persistence. | Explicit accepted-main checkpoint and owner transfer, freshly reconciled delta, separate source/browser/model qualification evidence. |
-| 2 | Continue customer, machine, file and design organization review as part of each subsequent interface iteration. | Clear task-specific controls, named design choices, exact raw-input and saved-record preservation, desktop/narrow/short visible Edge evidence. |
-| 3 | Retain Design-to-Layout and report/help regression coverage. | Explicit machine/revision handoff, immutable targets and qualified live evidence gates; existing [workflow review](mapping-workflow-review.md). |
-| 4 | Activate native storage and prove supported Android workflows, then later iOS. | Current installed-build identity; bridge/JNI, migration/recovery, SQLite/ZIP and renderer tests on identified device/emulator. Use [native contract](native-workspace-integration.md). |
-| 5 | Commission receiver/relay/radio transports and independently verify strict maximum 3D error <0.10 m. | Identified physical fixture, inspected electrical/netlist/level-shifting contract, receiver data, independent surveyed controls and complete error evidence. Use [hardware gates](receiver-hardware-qualification.md). |
+| P0 | in_progress | Verify baseline, preserve work and consolidate tracking |
+| P1 | in_progress | Authenticated customer-first Customer → Project → Field navigation |
+| P2 | in_progress | Field designs, matched Survey, retained ancestry and RTK-qualified official maps |
+| P3 | in_progress | Operator language, guides and responsive accessibility |
+| P4 | in_progress | Stable dependency maintenance and truthful skill/hook records |
+| P5 | in_progress | Complete clarified-source census, workflow proof, independent reviews and publication |
 
-Orders express dependency and current mapping priority, not permission to waive
-native/field work. Hardware proof can proceed separately when real prerequisites
-arrive. Do not repeatedly poll absent fixtures without new evidence of change.
-Retain imagery/CV, raw tile adapters, corner/linear model qualification and wider
-release work in their existing contracts; start them only when required by the
-active deliverable or a newer owner instruction. They are not canceled or complete.
+| Requirement | Status | Owner | Next action |
+| --- | --- | --- | --- |
+| GOV-01: One canonical tracker | source_implemented | governance | Preserve exact accepted source/evidence boundaries during normal reviewed maintenance; current operational publication and unknown runtime/field qualifications remain separate. |
+| ENTRY-01: Customer-first entry and project/field selection | source_implemented | interface | Preserve exact accepted source/evidence boundaries during normal reviewed maintenance; current operational publication and unknown runtime/field qualifications remain separate. |
+| AUTH-01: Truthful account sign-in and shared service | in_progress | coordinator/backend | Resolve confirmed importCASrewind P1 with exactsource preservation and fresh regressions/review; root then records newedition fullchecks/CI and protectedconversation/merge/main outcomes. PriorR17passingCI remains separate. |
+| HIERARCHY-01: Logical customer/project/field folders and actual field content | source_implemented | interface/backend/domain | Preserve exact accepted source/evidence boundaries during normal reviewed maintenance; current operational publication and unknown runtime/field qualifications remain separate. |
+| FLOW-01: Optional Design and required Survey | source_implemented | domain | Preserve exact accepted source/evidence boundaries during normal reviewed maintenance; current operational publication and unknown runtime/field qualifications remain separate. |
+| DRAW-01: Manual field and machine geometry | source_implemented | domain/interface | Preserve exact accepted source/evidence boundaries during normal reviewed maintenance; current operational publication and unknown runtime/field qualifications remain separate. |
+| SURVEY-01: Receiver collection and qualification | source_implemented | domain | Preserve exact accepted source/evidence boundaries during normal reviewed maintenance; current operational publication and unknown runtime/field qualifications remain separate. |
+| LAYOUT-01: Official Layout maps under matched Survey with RTK admission | source_implemented | domain | Preserve exact accepted source/evidence boundaries during normal reviewed maintenance; current operational publication and unknown runtime/field qualifications remain separate. |
+| ANCESTRY-01: Retain ancestors referenced by saved Survey evidence | source_implemented | domain/store/interface | Preserve exact accepted source/evidence boundaries during normal reviewed maintenance; current operational publication and unknown runtime/field qualifications remain separate. |
+| RECOVERY-01: Preserve current and unfinished work | in_progress | coordinator/QA | Resolve confirmed importCASrewind P1 with exactsource preservation and fresh regressions/review; root then records newedition fullchecks/CI and protectedconversation/merge/main outcomes. PriorR17passingCI remains separate. |
+| UI-01: Production operator wording | source_implemented | interface | Preserve exact accepted source/evidence boundaries during normal reviewed maintenance; current operational publication and unknown runtime/field qualifications remain separate. |
+| DOC-01: Guides, sources and delegated review | source_implemented | governance | Preserve exact accepted source/evidence boundaries during normal reviewed maintenance; current operational publication and unknown runtime/field qualifications remain separate. |
+| DEP-01: Installed mitigation and compatible updates | source_implemented | coordinator | Preserve exact accepted source/evidence boundaries during normal reviewed maintenance; current operational publication and unknown runtime/field qualifications remain separate. |
+| DEP-02: Recurring dependency reports and update PRs | source_implemented | governance | Observe actual hosted report scheduling and dependency PR execution after publication; configuration proof does not establish activation. |
+| SKILL-01: Truthful selected capability inventory | source_implemented | governance | Keep source/hash/invocation inventory current; record genuine host invocation only from actual runtime evidence. |
+| HOOK-01: Source-bound hook execution qualification | pending | coordinator | Select a changed evidence-backed probe before running; do not repeat unknown unchanged probes. |
+| CLEAN-01: Verified retirement without data loss | source_implemented | governance | Preserve zero qualified source/evidence deletions and retained history. Coordinator separately qualifies Git worktree cleanup after preservation and publication. |
+| QA-01: Complete workflow proof and review | in_progress | coordinator/independent QA | Resolve confirmed importCASrewind P1 with exactsource preservation and fresh regressions/review; root then records newedition fullchecks/CI and protectedconversation/merge/main outcomes. PriorR17passingCI remains separate. |
+| PUBLISH-01: Reviewable source publication | in_progress | coordinator | Resolve confirmed importCASrewind P1 with exactsource preservation and fresh regressions/review; root then records newedition fullchecks/CI and protectedconversation/merge/main outcomes. PriorR17passingCI remains separate. |
 
-Every active iterative visual-improvement review remains visible to the human
-in Windows Edge, with annotated figures and session progress. Headless proof is
-supplemental; archive and close completed owned resources, retain active human
-questionnaires, and preserve unrelated windows.
+## Independent review and unresolved defects
 
-## Execution Contract
+Accepted consecutive final reviews: 2/2. Initial review: vetoed. Both original completeR15whole reviews remainaccepted2/2. Twoactual independent supplementalR16 reviews accept the exactone-test correction/960unchangedpaths and priorworkflow/browser scope; freshR16aggregate is completepass. CurrentQA qualifies through explicitbridge, notnewR16browserexecution. ProtectednextheadCI/publication/maincleanup pending.
 
-One active product deliverable; one writer per file. Add discovered work to that
-deliverable only when it blocks acceptance or repairs safety/data loss; otherwise
-retain it in the backlog without silently expanding the active packet. Use a bounded independent
-reviewer where it adds evidence, not a fixed-size panel. Preserve the owner's
-subagent authorization; record a fallback if runtime/quota prevents delegation.
-Freeze implementation **and tests** before independent execution. One aggregate
-owner; no parallel full validators or browser exports. Attach results to exact
-source/build identity, not a moving checkout or a sum of partial passing runs.
+| Finding | Severity / status | Requirements | Required recheck |
+| --- | --- | --- | --- |
+| REV-20261011-01: Unapplied Layout tolerance is dropped when a Layout session is replaced. | P1 / closed_matching_current_scope_two_final_reviews | LAYOUT-01, RECOVERY-01 | Preserve the literal tolerance and its unit/source owner across accepted session replacement; prove recovery, refusal and explicit discard without silently changing the entered value. |
+| REV-20261011-02: A definitive denied-access path clears cached authorization before persisting its denial marker; marker quota failure can let an older grant revive. | P1 / closed_matching_current_scope_two_final_reviews | AUTH-01, RECOVERY-01 | Persist denial authority before cache authorization cleanup or retain a proven atomic/fail-closed disposition; test marker-write failure, retained cache and subsequent cold offline startup. |
+| REV-20261011-03: API/auth loading serializes a parsed legacy workspace upgrade instead of retaining its actual raw source: the reported synthetic example retains 1087 of the original 1185 bytes. | P1 / closed_matching_current_scope_two_final_reviews | AUTH-01, RECOVERY-01 | Retain exact legacy raw bytes on a pure read/prepare operation through API, cache, archive and source slots; apply the version upgrade only through its explicit accepted transaction and test exact byte/hash retention. |
+| RUNTIME-20261011-01: Initial desktop Survey-first journey remained in Design after asynchronous Open used a retired mode callback. | P1 / closed_matching_current_scope_two_final_reviews | ENTRY-01, FLOW-01 | Commit the requested initial mode as part of the accepted Open transaction; prove Survey-first remains Survey after catalog creation/open and subsequent render. |
+| REV2-20261011-01: Changing measurement units overwrites a dirty Project raw value, unfinished 12 followed by a foot mark, with the metric baseline 47.2 and incorrectly clears the dirty state. | P1 / closed_matching_current_scope_two_final_reviews | UI-01, RECOVERY-01 | Refuse a unit switch while an owned raw measurement is unapplied, or retain the literal value with its original unit/source owner. Prove dirty state, recovery, explicit discard and conversion do not lose or reinterpret the entered text. |
+| REV2-20261011-02: A delayed logout response clears a newer account B login cookie while the client still reports signed in; the next authenticated GET returns 401. | P1 / closed_matching_current_scope_two_final_reviews | AUTH-01, RECOVERY-01 | Serialize credential-changing client requests and prove held logout followed by newer login cannot retire the newer session cookie or publish a false signed-in state. |
+| REV2-20261011-03: An account A repository action delayed at its final writer lock resumes after account B signs in and commits a receipt attributed to B into A's cache. | P1 / closed_matching_current_scope_two_final_reviews | AUTH-01, RECOVERY-01 | Recheck account and mutation authority after the awaited final lock and before remote commit/local retention. Prove a held A action refuses after B login, retains A evidence and never stores a B receipt in A's partition. |
+| A11Y-20261011-01: Mobile map-readout scroll region fails Axe4.13 scrollable-region-focusable with serious impact. | P1 / closed_matching_current_scope_two_final_reviews | UI-01, QA-01 | Prove the actual map readout enters keyboard focus order and scroll content is operable, then pass matching desktop/tablet/mobile scans without suppressing the rule. |
+| R1-RECOVERY-20261011-01: Recovery adapter post-consumer old-owner assertion rejects an intentional prepared.publish owner transition. | P1 (governance triage; final independent severity review pending) / closed_matching_current_scope_two_final_reviews | AUTH-01, RECOVERY-01 | Admit only the explicitly prepared authorized owner transition while preserving stale/ABA and changed-source rejection; prove retained raw data and correct post-restore context. |
+| R1-ACCESS-20261011-02: Multiple access-failure callbacks start colliding independent preservation jobs. | P1 (governance triage; final independent severity review pending) / closed_matching_current_scope_two_final_reviews | AUTH-01, RECOVERY-01 | Serialize or coalesce access-loss preservation for the same owner; prove concurrent failures preserve one coherent recovery result and do not lose or switch unfinished work. |
+| R1-GRANT-20261011-03: Server offline-grant issuance reads now twice, permitting a24-hour-plus1ms lifetime that the strict client refuses. | P1 (governance triage; final independent severity review pending) / closed_matching_current_scope_two_final_reviews | AUTH-01 | Derive issuance and expiry from one authoritative clock sample and retain the exact24-hour client limit; prove incrementing-clock issuance/verification without relaxing the validator. |
+| R2-UNITS-20261011-01: Measurement-unit switching refuses in all three viewports because Survey known-information pending state remains true when inputs.hasDirty is false. | P1 (governance triage; independent final review pending) / closed_matching_current_scope_two_final_reviews | UI-01, RECOVERY-01 | Retire only the inactive/stale pending claim while preserving real raw-input ownership and dirty-unit refusal; recheck actual mode changes and unit choices in all viewports. |
+| R2-RENAME-20261011-02: Short Draft File Rename remains below the usable view: observed input bottom467 exceeds431 viewport bound in all three viewport scenarios. | P1 (governance triage; independent final review pending) / closed_matching_current_scope_two_final_reviews | UI-01, ENTRY-01 | Keep retained raw name/caret and one File form while making focused Rename fully reachable in the short working viewport; recheck actual measured bounds. |
+| R2-PACKAGE-20261011-03: Six v1/v2 package checks use a previous-source helper recognizing only a retained chain through v3, while actual state is already exact purev5. | P1 (governance triage; independent final review pending) / closed_matching_current_scope_two_final_reviews | QA-01, RECOVERY-01 | Teach the expectation helper the actual validated retained v5 chain without changing imported/raw domain bytes or weakening one-upgrade/one-import/source-preservation assertions. |
+| R3-CATALOG-20261011-01: Phone Recent/Open list is blocked by long maintenance/receipt content outside the Catalog scroller. | P1 (governance triage; final independent review pending) / closed_matching_current_scope_two_final_reviews | ENTRY-01, UI-01, QA-01 | Keep saved content/receipt/actions intact inside existing scrolling; pass actual unforced phone Recent/Open and v1/v2 package journeys on the new frozen edition. |
+| VISUAL-R5-20261011-01: Short-phone Home project Open text extends beyond its card/viewport even though document overflow assertion passes. | P1 (coordinator pixel finding) / closed_matching_current_scope_two_final_reviews | ENTRY-01, UI-01, QA-01 | Use concise visible Open text with exact accessible project/customer identity; prove inner text,button,card/viewport bounds and actual390x500 keyboard behavior, then inspect matching visible pixels. |
+| HIERARCHY-ANCESTRY-20261011-01: Independent checksummed synthetic Fixed-observation counterprobe: archive/delete Design → delete Project → delete Customer removes ancestor folders while archived Survey owner, collection and exact point survive in validv5. | P1 / closed_matching_current_scope_two_final_reviews | HIERARCHY-01, ANCESTRY-01, SURVEY-01, RECOVERY-01, QA-01 | Block future ancestor deletion whenever retained active/archived Survey references the field; prove transaction refusal and applicable UI/API behavior with exact raw history, while old orphans remain readable/exportable with parent unavailable and no schema rewrite/fabricated placement. |
+| OFFICIAL-ORIGIN-20261011-01: V3bulk/raw import into an empty destination lacked original service/workspace/account/source-origin proof and could present imported history as official. | P1 / closed_matching_current_scope_two_final_reviews | AUTH-01, LAYOUT-01, RECOVERY-01, QA-01 | Refuse anyV3bulk/raw import and retain exact input; originalofficialGET/view/export remains, dedicatedsame-original-fieldV3reference import preservesimmutabletarget2/review IDs without inheritedfinalization, cross-fieldrefuses. Qualify owner source/service tests and applicable currentApp paths separately. |
+| OFFICIAL-HISTORY-20261011-02: Shared web/SQLite writer admitted a V3→V2 replacement dropping creation/finalization/reference metadata. | P1 / closed_matching_current_scope_two_final_reviews | LAYOUT-01, RECOVERY-01, QA-01 | Prove authoritative sharedwriter refuses V3→V2 and removal/rewrite of creation/finalization/reference history while allowing validappend/archive behavior and preserving exact bytes; currentApp qualification remains separate. |
+| OFFICIAL-CHRONOLOGY-20261011-03: Intermediate review confirmed chronology timestamp tampering; currentV3 wall-time validator rejects three delivered counterexamples. | severity_not_supplied / closed_matching_current_scope_two_final_reviews | LAYOUT-01, QA-01 | Retain exactcreation/station/finalizationclock consistency and prove futurecapture/oldlock/order refusals. Separately qualify current monotonic receiver ownership/epoch/freshness under finalwriterlock; staticclock/source validation is not live or physicalGPS proof. |
+| ACTOR-NESTED-LOCK-20261011-04: Receipt actor attribution required an override after nested/awaited locks; API/auth repository source repair landed, owner tests pending. | severity_not_supplied / closed_matching_current_scope_two_final_reviews | AUTH-01, RECOVERY-01, LAYOUT-01, QA-01 | Qualify admittedaccount/policy receipt actor for create/finalize/mark after heldlocks and cross-tab/newprincipal/newpolicy changes, retaining exact work and using existing mismatchpreservation without publishing anotheraccountactor. |
+| AUTH-READ-OWNERSHIP-20261011-05: Four before-fix stale-read cache/admission rejection assertions failed in the same actualsharedworkspace at awaitedfinal lock/persistence boundaries; this was not a foreign-tenant leak. | severity_not_supplied / closed_matching_current_scope_two_final_reviews | AUTH-01, RECOVERY-01, QA-01 | Bind optionalprincipalheader/serveractor, afterJSONepoch/principal, actualreadpermission and finalcacheowner/persistencecallback admission; retain existingaccountchange preservation and network-onlyofflinefallback, with currentApp recheck separate. |
+| CAS-IMPORT-REVISION-20261012-01: Whole-workspace import checks destination expectedRevision but writes imported.revision directly. An already-used empty destination can move its operational CAS revision backwards/equal, admitting an unacknowledged old queued command whose expectedRevision now matches the restored value. | P1 / source_remediated_scoped_checks_pass_current_whole_CI_closing_reviews_pending | AUTH-01, RECOVERY-01, QA-01, PUBLISH-01 | Refuse backwards/equal operational import revisions after existing V3 refusal while preserving exact input and destination; prove an advanced then empty destination cannot revive a stale queued command. Prove forward exact raw import compatibility and existing V3 gates. Record actual fresh source/hosted proof/review closure before publication. |
 
-For each packet record: requested user outcome; owned paths/base; acceptance and
-non-goals; changed behavior; source/test identity; command handle/result/log;
-remaining blocker with trigger; next action and resource cleanup. Update this
-file's current state in place. Keep detailed failures in their existing artifact
-records rather than appending another competing "current resumption" narrative.
+Browser inventory accounting: 33 suites; 409 unique cases; 267 current-scope executions; 960 deferred; 1227 total. ActualR15browser267/89titles with267/960/1227 inventory unchanged; R16onlytrackerfixturetest changed. Explicitacceptedbridge+freshR16source andtwo supplements qualify unchangedbrowser scope without inventing R16 execution. Runtime acceptance: actual_R15_267_pass_R16_scope_continues_through_two_review_accepted_one_test_bridge.
 
-## Review And History
+## Source currency of recorded evidence
 
-- [Development/process review](development-review-20260927.md): verified findings,
-  source-backed methods, measurement plan and validation status.
-- [Full refactor history](full-refactor-execution.md) and [Will Rhea history](will-rhea-improvement-loop.md):
-  dated evidence; old open-server, pending-answer and next-task statements expire.
-- [Mapping requirements](mapping-workflow-review.md), [dependency decisions](dependency-upgrade-plan.md),
-  [imagery/CV roadmap](imagery-ml-capability-roadmap.md): retained scope, not proof.
+| Evidence | Recorded result | Edition / source currency | Drift or missing proof |
+| --- | --- | --- | --- |
+| E-BASELINE-SOURCE (source) | pass | historical | Aggregate and source freeze qualify the preceding checkpoint edition; later candidate edits require new checks. |
+| E-BASELINE-BROWSER (browser) | pass | historical | 225 selected current-App cases; 960 deferred contracts and two whole-workflow reviews remain. Native and physical accuracy are not established. |
+| E-BASELINE-PUBLICATION (publication) | pass | historical | Direct gh run view confirms completed/success and exact main head. This is checkpoint publication, not a production release. |
+| E-BASELINE-GOVERNANCE (source) | pass | historical | Local source/frontmatter/configuration/fixtures/freshness checks; no skill invocation or hook-loader execution claim. |
+| E-CANONICAL-SECURITY-GAP (source) | fail | historical | Canonical installed graph was unmitigated: braces five targets, node-forge one, sprintf-js one. Forty-five passing fixtures do not establish installed patch state. |
+| E-HOOK-EXECUTION (hook) | unknown | historical | Source/discovery passed, guarded execution emitted zero hook events; cause unknown. No external session restart or global trust change. |
+| E-CANDIDATE-DEPENDENCIES (source) | pass | historical | Exact owned package/guard scope and installed source checks only. Candidate full application/browser/native/publication require separate freezes and results. |
+| E-CANDIDATE-DEPENDENCY-GRAPH-BRIDGE (source) | pass | historical | Dependency graph and reviewed guard bytes only; script additions are not accepted application/runtime evidence. Prior tests remain dated and stale when their own source scope drifts. |
+| E-INDEPENDENT-REVIEW-INITIAL (source) | fail | historical | Coordinator-forwarded original agent delivery:16 anchors only, no complete source freeze; three P1 vetoes remain pending actual current-source recheck. |
+| E-BROWSER-INVENTORY-DRIFT (source) | fail | historical | Direct intermediate source-only registry check7pass/4fail due deliberate auth spec hash drift; no runtime case claim or final-source qualification. |
+| E-INDEPENDENT-REVIEW-SECOND (source) | fail | historical | Coordinator-forwarded second independent initial review: three reproduced P1 vetoes, 24 plus 64 focused passes before fixes; no reviewer PostgreSQL or browser execution. No accepted final review. |
+| E-BROWSER-INTERRUPTED (browser) | fail | historical | Retained synthetic interrupted edition: 21 pass, 9 fail, 1 interrupted, 221 did not run. Not full acceptance; the nonexistent later nine-pass report is withdrawn. |
+| E-WEBGL-FIXTURE-SOURCE (source) | pass | historical | Only inspected fixture source and primary documentation; coordinator blank-page probe is separately attributed. No hardware or native GPU proof. |
+| E-DESKTOP-REVIEW-31 (browser) | fail | historical | Intermediate25pass/6fail desktop selection; only log/failure text retained for this edition, not prior images/traces. |
+| E-ACCESSIBILITY-FIRST-CURRENT (browser) | fail | historical | Intermediate desktop/tablet pass and serious mobile scrollable-region-focusable failure under Axe4.13; corrective source is not a passing result. |
+| E-SERVICE-SMOKE-CURRENT (source) | pass | historical | One actual PostgreSQL HTTP gateway case passed with0 skips; no final source freeze/deployment/whole acceptance. |
+| E-OPTIONAL-DESIGN-DECISION (source) | partial | historical | Authorized direct Draft→Field optionB despite lower weighted preference because optionA violates optional Design and unknown-data intent; implementation/test qualification pending. |
+| E-CI-PRIMARY-CONFIGURATION (source) | pass | historical | Latest stable official action releases and exact image/action sources, with actual YAML/input equivalence checked. No hosted workflow/container/deployment execution. |
+| E-DIRECT-SURVEY-SOURCE (source) | pass | historical | Direct saved Draft→Field preparation and Survey known-information/linear source handlers; not complete browser, native or physical GPS acceptance. |
+| E-GOVERNANCE-SOURCE-FINAL (source) | pass | historical | Owned indexed governance/skill/context sources and generated output only; not the final entire product census or runtime acceptance. Hook samples and local instruction/agent/configuration validation do not prove genuine hook execution, host skill loading/invocation, native/device operation or human acceptance. |
+| E-FOCUSED-FINAL-CODE-FAILURE (browser) | fail | historical | Retained synthetic32-case packet26pass/6fail/0skip;77 artifact hashes verified. R1 source904/currentcanonical900 and code corrections prevent final acceptance promotion. |
+| E-BROWSER-R1-FAILED (browser) | fail | historical | Intermediate264selected:128pass53fail83notrun.13inventoryguard/40app-test failures;328artifact hashes verified. Aggregate exit1; no current frozen acceptance. |
+| E-CRITICAL-R2-FAILED (browser) | fail | historical | Frozen902-pathr2 critical33 selection21pass12fail0skip0unrun;89artifact hashes verified. Restore/connected-receiver-refusal/session-denial paths pass within this edition; failed whole selection remains fail. |
+| E-SOURCE-R2-INTERMEDIATE (source) | pass | historical | Completed npmvalidate exit0 on immutable902-pathr2 with actual PostgreSQL source tests; retained logSHA15485969...954d7d verified. R2 browser failed and later corrections require a new edition; no cross-claim promotion. |
+| E-CRITICAL-R3-FAILED (browser) | fail | historical | Frozen902r3 focused15:13pass2fail0skip0unrun;36artifact hashes verified. Phone Recent/Open remains blocked; no final acceptance. |
+| E-CRITICAL-R3-UNITS-RENAME (browser) | pass | historical | Only3unit and6Draft/Field Rename focused browser executions across three viewports qualify their matching r2 rechecks. Does not promote the failed15-case selection or whole workflow. |
+| E-CRITICAL-R4-PASS (browser) | pass | historical | Exact902-pathr4 focused15 passed across three viewports with0fail/skip/unrun;9artifact hashes verified. Only focused reachability closure; full source/browser still running and final reviews unproved. |
+| E-SOURCE-R4-PASS (source) | pass | historical | Completed exact902-pathr4 npmvalidate exit0 with actualPG; retained log verified, no nonzero fail/skip printed. Separate1case gateway pass. Browser running/known helper failures and other claim classes remain separate. |
+| E-BROWSER-R4-FAILED (browser) | fail | historical | Completed264currentr4:255pass9fail0skip0unrun;195artifact hashes verified. Nine span-helper expectations failed; automatedAxe3 passed within scope. Source pass remains separate; no final acceptance. |
+| E-R4-R5-SOURCE-EQUIVALENCE (source) | pass | historical | Reviewed bounded source bridge: exactly2proof files changed/900canonical files byte-identical. Context0,registry11pass andactualaffected9pass now completed; raw whole source result remainsr4 and full264r5/final reviews pending. |
+| E-CRITICAL-R5-PASS (browser) | pass | historical | Completed affected9 allmode/viewports passed0fail/skip/unrun;4artifact hashes verified. Full264r5 still running; no whole acceptance or raw aggregate relabel. |
+| E-BROWSER-R5-INTERRUPTED (browser) | partial | historical | Ownedr5 SIGINT:264selected180pass0fail2interrupted82unrun;117artifact hashes verified. Separate Edge8 scene assertions passed but actual pixels show clipping; no full or visual acceptance. |
+| E-VISIBLE-EDGE-R5-FAILED (browser) | fail | historical | ActualEdge155.0.4283.45 realHTTPPG8scene assertions pass but8PNG pixel review fails shortphoneHome clipping;18artifact hashes verified. No visual/human/native/physical acceptance. |
+| E-HOME-R7-FOCUSED (browser) | pass | historical | CurrentR7Home6focused actual bounds/keyboard/Open label/scoped navigation/Axe passes across three viewports;20artifact hashes verified. R6sixpass retained with Label in Name veto; no fresh Edge/fullbrowser/review promotion. |
+| E-R4-R7-BOUNDED-SOURCE (source) | partial | historical | Exact8classified paths changed/894unchanged plus currentTSC/auth7/context/skills/registry11/focused6 requalification. Actual aggregate remainsR4; full264R7/Edge/finalreviews pending; actual Home code change explicit. |
+| E-BROWSER-R7-FOUNDATION (browser) | pass | historical | Actual completed264/264selected synthetic browser executions on exactR7; prior902source census incomplete. Historical foundation only, not current hierarchy/official-map acceptance. |
+| E-EDGE-R8-FOUNDATION (browser) | pass | historical | Actual ownedHTTP/PostgreSQL Edge155 nine-scene assertions and two affected pixel views on exactR8; historical foundation only, not current hierarchy/native/physical/fullWCAG/deployment acceptance. |
+| E-R7-R8-LITERAL-FOUNDATION (source) | pass | historical | ExactR7→R8literal-only equivalent901otherprior-scopepaths and actual3affectedcases; whole aggregate remainsR4. Later publication/census changes and current intent are separate. |
+| E-OFFICIAL-INTERMEDIATE-REVIEW (source) | fail | historical | Exact delivered intermediate source review: bulkorigin/writerhistoryP1failures retained, chronology3rejections and2sourcehashes bounded. No independent probe artifact/globalmanifest/currentbrowser/physical/finalreview claim. |
+| E-OFFICIAL-CHRONOLOGY-SOURCE (source) | pass | historical | Exact delivered intermediate source review: bulkorigin/writerhistoryP1failures retained, chronology3rejections and2sourcehashes bounded. No independent probe artifact/globalmanifest/currentbrowser/physical/finalreview claim. |
+| E-FINAL-CATALOG-SOURCE (source) | pass | historical | Exactscoped source ownerreceipt cplayout-hierarchy-v3-catalog-final.log; SHAc2751a7003907f81cf5cc985db518d898ed5941a0576bf805cf47b4754a53090. Not frozenwholeedition/currentApp/native/physical/finalreview/publication. Latercompletecensus mustbind matching scope; no oldmanifest refresh. |
+| E-FINAL-V3-STORE-SOURCE (source) | pass | historical | Exactscoped source ownerreceipt cplayout-v3-import-ancestry-final-r2.log; SHAc65607d079003a9167f5b19d14d89b93344a871c7a6a6c8e558d3c98dc399eb5. Not frozenwholeedition/currentApp/native/physical/finalreview/publication. Latercompletecensus mustbind matching scope; no oldmanifest refresh. |
+| E-FINAL-AUTH-READ-SOURCE (source) | pass | historical | Exactscoped source ownerreceipt cplayout-auth-read-admission-final-scoped.log; SHA63912f948d0ad19237aa0da1623c9f8994bf1254e42b72c775ba1b6c5ee5080e. Not frozenwholeedition/currentApp/native/physical/finalreview/publication. Latercompletecensus mustbind matching scope; no oldmanifest refresh. |
+| E-FINAL-OPERATOR-COPY-SOURCE (source) | pass | historical | Exactscoped source ownerreceipt cplayout-auth-operator-copy-scoped.log; SHA7b3dff02930837578fbc19002342946230aed4bce772fa8e9aaa62dc5a6acf9d. Not frozenwholeedition/currentApp/native/physical/finalreview/publication. Latercompletecensus mustbind matching scope; no oldmanifest refresh. |
+| E-FINAL-FIELD-PROJECTION-SOURCE (source) | pass | historical | Exactscoped source ownerreceipt cplayout-field-contents-tests-r13.log; SHAee5a7b2735f90842ae9ac3fada53495bcd14a57d2eefd27494794431d1350b0f. Not frozenwholeedition/currentApp/native/physical/finalreview/publication. Latercompletecensus mustbind matching scope; no oldmanifest refresh. |
+| E-HTTP-PG-R12-SOURCE (source) | pass | historical | Exactscoped source ownerreceipt cplayout-production-service-smoke-r12.log; SHAf08657acdb1726d73a7c80ba36c8775f433456ec085f674eb6cd0ebf80a28656. Not frozenwholeedition/currentApp/native/physical/finalreview/publication. Latercompletecensus mustbind matching scope; no oldmanifest refresh. |
+| E-WIDER-269-FAILED (source) | fail | historical | Exactscoped source ownerreceipt cplayout-hierarchy-v3-final-affected.log; SHA0af9d87174ae003afd7d41d9fbf1b5ec3c369c92435ba701fe882223192d50aa. Not frozenwholeedition/currentApp/native/physical/finalreview/publication. Latercompletecensus mustbind matching scope; no oldmanifest refresh. |
+| E-AUTH-READ-BEFORE-FIX-FAILED (source) | fail | historical | Exactscoped source ownerreceipt cplayout-auth-read-admission-before-fix-locks.log; SHA42eb7c06cf4b37a964ba94ba47397758c780d88e0b50ed9a9df243c33f440e66. Not frozenwholeedition/currentApp/native/physical/finalreview/publication. Latercompletecensus mustbind matching scope; no oldmanifest refresh. |
+| E-HTTP-PG-R13-SOURCE (source) | pass | historical | NewretainedSurveyProjectDELETEbeforeANYLayout409refusal, DBTEXT/receiptcountunchanged, thenV3create/mark/finalize+parent/actor/exactSQLTEXT. SyntheticretainedGGAonly; oldr8HTMLused, not currentApp/device/physical qualification. SHA3bc9806272d17f6f775bc5987e492f7d70e254f754b063e20206eed167ff3c91 |
+| E-SOURCE-HIERARCHY-R10-PASS (source) | pass | historical | ActualcompleteR10npmvalidate0,304881byte logSHAverified. LaterR11helper/inventory change requires boundedrequalification; notfreshR11aggregate. |
+| E-CRITICAL-HIERARCHY-R10-FAILED (browser) | fail | historical | Actualfocused12selected9pass3helperinteractionfail0skip/unrun;58artifacthashesverified. Nowhole267/currentR11acceptance. |
+| E-HIERARCHY-R10-R11-BRIDGE (source) | partial | historical | Exact961R11manifest/currentbytesverified;2helper/inventorypaths changed/959identical/criteriaunchanged, sourcechecks11+context0. Freshfocused/fullbrowser and finalreviews pending; no newaggregate. |
+| E-CRITICAL-HIERARCHY-R11-FAILED (browser) | fail | historical | Actualfocused15selected12pass3invalidsyntheticclockfixturefail0skip/unrun. All56retainedartifacts verified; source275timing mismatchconfirmed; noproductguard/fullacceptanceclaim. |
+| E-HIERARCHY-R11-R12-BRIDGE (source) | partial | historical | ExactR12all961bytesverified;2fixture/inventorychanges959identical/criteriaunchanged, browserregistry11/context0/purefixturetimingguards accepted. Freshfocused/fullbrowser andbothfinalreviewspending; actualaggregate remainsR10. |
+| E-CRITICAL-HIERARCHY-R12-FAILED (browser) | fail | historical | Actualfocused15/12pass3Syncwaitfail0skip/unrun. All58artifactshashes/bytesverified; all21post-SyncPOSTs200perview andfinalrev28V3twoobservations/finalization. No wholeacceptance/productfix inferred. |
+| E-HIERARCHY-R12-R13-BRIDGE (source) | partial | historical | All961R13bytesverified,2proofspec/inventorychanges959identical/criteriaunchanged; bounded30secwait addsactualemptyqueue/exactDB-cacheTEXT/finalV3receipt checks. Registry11/context0 pass; freshfocused/aggregate/fullbrowser/finalreviews remainpending. |
+| E-CRITICAL-HIERARCHY-R13-FAILED (browser) | fail | historical | Actualfocused15/12pass3distinctfailure0skip/unrun; all56artifact hashes/bytesverified. Tablet/mobile exactSync/source/finalreceipt checks pass, notwholecases; creation/Catalog/offline failure domains remain underread-only profiling. |
+| E-R13-CORRECTION-FACTS (source) | partial | unknown | missing scoped source reference |
+| E-HIERARCHY-R14-SCOPED-SOURCE (source) | partial | historical | Currentall961R14bytesverified; final116source/mobileTS0/registry11/context0/helperVM scopedreceipts. Realdisplaycodechanges requirefreshaggregate/currentbrowser; freshfullvalidationrunning, noresult/closureinferred. |
+| E-SOURCE-HIERARCHY-R14-PASS (source) | pass | historical | CompleteactualR14npmvalidateexit0/ownedPG18.6/Node24.21.0, all961currentbytes/criteriaunchanged;305408byte logSHAverified. Sourceonly; matchingbrowser/reviews/publication separate. |
+| E-R14-ADDITIONAL-SOURCE-CHECKS (source) | pass | historical | CurrentR14skills/SDK/audit completed0, exactloghashesverified; raw16high/3namedlocalmitigations remain. Notruntimeinvocation/App/native/physical/finalreview proof. |
+| E-CRITICAL-HIERARCHY-R14-PASS (browser) | pass | historical | Exactfocused15allpass oncurrentR14;22artifacts verified;18Axe4.13scans0violations/16incomplete outcomes separate. Scopeactualfivecases×3views, notwhole267/finalQA/physicalqualification. |
+| E-SERVICE-SMOKE-HIERARCHY-R14-PASS (source) | pass | historical | FreshR14export actualPGHTTPgateway smoke1/1completed0 withhashverifiedlog; controlledsyntheticfixtures, ownresourceclosure. No physical/currentwholeApp/deployment inference. |
+| E-R13-R14-PRODUCT-DIFF (source) | pass | historical | Narrow mapper reconstruction receipt and independently matched before/after/current threefilehashes. No independent-file provenance invented; no fullmodule/runtime/clock/field acceptance from byte-scope proof. |
+| E-FULL-HIERARCHY-R14-FAILED (browser) | fail | historical | Actualcomplete267/207pass60fail20titles0flaky/skip/unrun; all392artifact hashesverified. Navigationdiagnosis/test-onlycorrectivework isseparate, no fullacceptancefrom focused15/Axe/source pass. |
+| E-HIERARCHY-R14-R15-TEST-BRIDGE (source) | partial | stale | .agents/skills/cplayout-database-agent/SKILL.md, .codex/hooks/cplayout_context_map.json, .github/workflows/cplayout-required.yml, apps/api/src/database.test.ts, apps/api/src/server.test.ts, apps/api/src/server.ts, apps/mobile/package.json, docs/agent-context-map.md, docs/dependency-maintenance.md, docs/skill-capability-inventory.json, docs/skill-capability-inventory.md, docs/workflow-maintenance-guide.md, package-lock.json, package.json, packages/backup-artifacts/package.json, patches/expo-sqlite+57.0.4.json, tools/metroDependency.test.ts, tools/patchDependencySecurity.cjs, tools/patchDependencySecurity.test.cjs, tools/workflowStatus.test.cjs |
+| E-PARENT-HIERARCHY-R15-PASS (browser) | pass | stale | .agents/skills/cplayout-database-agent/SKILL.md, .codex/hooks/cplayout_context_map.json, .github/workflows/cplayout-required.yml, apps/api/src/database.test.ts, apps/api/src/server.test.ts, apps/api/src/server.ts, apps/mobile/package.json, docs/agent-context-map.md, docs/dependency-maintenance.md, docs/skill-capability-inventory.json, docs/skill-capability-inventory.md, docs/workflow-maintenance-guide.md, package-lock.json, package.json, packages/backup-artifacts/package.json, patches/expo-sqlite+57.0.4.json, tools/metroDependency.test.ts, tools/patchDependencySecurity.cjs, tools/patchDependencySecurity.test.cjs, tools/workflowStatus.test.cjs |
+| E-VISIBLE-EDGE-HIERARCHY-R15-PASS (browser) | pass | stale | .agents/skills/cplayout-database-agent/SKILL.md, .codex/hooks/cplayout_context_map.json, .github/workflows/cplayout-required.yml, apps/api/src/database.test.ts, apps/api/src/server.test.ts, apps/api/src/server.ts, apps/mobile/package.json, docs/agent-context-map.md, docs/dependency-maintenance.md, docs/skill-capability-inventory.json, docs/skill-capability-inventory.md, docs/workflow-maintenance-guide.md, package-lock.json, package.json, packages/backup-artifacts/package.json, patches/expo-sqlite+57.0.4.json, tools/metroDependency.test.ts, tools/patchDependencySecurity.cjs, tools/patchDependencySecurity.test.cjs, tools/workflowStatus.test.cjs |
+| E-SERVICE-SMOKE-HIERARCHY-R15-PASS (source) | pass | stale | .agents/skills/cplayout-database-agent/SKILL.md, .codex/hooks/cplayout_context_map.json, .github/workflows/cplayout-required.yml, apps/api/src/database.test.ts, apps/api/src/server.test.ts, apps/api/src/server.ts, apps/mobile/package.json, docs/agent-context-map.md, docs/dependency-maintenance.md, docs/skill-capability-inventory.json, docs/skill-capability-inventory.md, docs/workflow-maintenance-guide.md, package-lock.json, package.json, packages/backup-artifacts/package.json, patches/expo-sqlite+57.0.4.json, tools/metroDependency.test.ts, tools/patchDependencySecurity.cjs, tools/patchDependencySecurity.test.cjs, tools/workflowStatus.test.cjs |
+| E-FULL-HIERARCHY-R15-PASS (browser) | pass | stale | .agents/skills/cplayout-database-agent/SKILL.md, .codex/hooks/cplayout_context_map.json, .github/workflows/cplayout-required.yml, apps/api/src/database.test.ts, apps/api/src/server.test.ts, apps/api/src/server.ts, apps/mobile/package.json, docs/agent-context-map.md, docs/dependency-maintenance.md, docs/skill-capability-inventory.json, docs/skill-capability-inventory.md, docs/workflow-maintenance-guide.md, package-lock.json, package.json, packages/backup-artifacts/package.json, patches/expo-sqlite+57.0.4.json, tools/metroDependency.test.ts, tools/patchDependencySecurity.cjs, tools/patchDependencySecurity.test.cjs, tools/workflowStatus.test.cjs |
+| E-LAYOUT-VISUAL-R15-RERUNS (browser) | pass | stale | .agents/skills/cplayout-database-agent/SKILL.md, .codex/hooks/cplayout_context_map.json, .github/workflows/cplayout-required.yml, apps/api/src/database.test.ts, apps/api/src/server.test.ts, apps/api/src/server.ts, apps/mobile/package.json, docs/agent-context-map.md, docs/dependency-maintenance.md, docs/skill-capability-inventory.json, docs/skill-capability-inventory.md, docs/workflow-maintenance-guide.md, package-lock.json, package.json, packages/backup-artifacts/package.json, patches/expo-sqlite+57.0.4.json, tools/metroDependency.test.ts, tools/patchDependencySecurity.cjs, tools/patchDependencySecurity.test.cjs, tools/workflowStatus.test.cjs |
+| E-LAYOUT-FIT-R15-OBSERVER-PASS (browser) | pass | stale | .agents/skills/cplayout-database-agent/SKILL.md, .codex/hooks/cplayout_context_map.json, .github/workflows/cplayout-required.yml, apps/api/src/database.test.ts, apps/api/src/server.test.ts, apps/api/src/server.ts, apps/mobile/package.json, docs/agent-context-map.md, docs/dependency-maintenance.md, docs/skill-capability-inventory.json, docs/skill-capability-inventory.md, docs/workflow-maintenance-guide.md, package-lock.json, package.json, packages/backup-artifacts/package.json, patches/expo-sqlite+57.0.4.json, tools/metroDependency.test.ts, tools/patchDependencySecurity.cjs, tools/patchDependencySecurity.test.cjs, tools/workflowStatus.test.cjs |
+| E-FINAL-INDEPENDENT-REVIEW-R15-ONE (source) | pass | stale | .agents/skills/cplayout-database-agent/SKILL.md, .codex/hooks/cplayout_context_map.json, .github/workflows/cplayout-required.yml, apps/api/src/database.test.ts, apps/api/src/server.test.ts, apps/api/src/server.ts, apps/mobile/package.json, docs/agent-context-map.md, docs/dependency-maintenance.md, docs/skill-capability-inventory.json, docs/skill-capability-inventory.md, docs/workflow-maintenance-guide.md, package-lock.json, package.json, packages/backup-artifacts/package.json, patches/expo-sqlite+57.0.4.json, tools/metroDependency.test.ts, tools/patchDependencySecurity.cjs, tools/patchDependencySecurity.test.cjs, tools/workflowStatus.test.cjs |
+| E-FINAL-INDEPENDENT-REVIEW-R15-TWO (source) | pass | stale | .agents/skills/cplayout-database-agent/SKILL.md, .codex/hooks/cplayout_context_map.json, .github/workflows/cplayout-required.yml, apps/api/src/database.test.ts, apps/api/src/server.test.ts, apps/api/src/server.ts, apps/mobile/package.json, docs/agent-context-map.md, docs/dependency-maintenance.md, docs/skill-capability-inventory.json, docs/skill-capability-inventory.md, docs/workflow-maintenance-guide.md, package-lock.json, package.json, packages/backup-artifacts/package.json, patches/expo-sqlite+57.0.4.json, tools/metroDependency.test.ts, tools/patchDependencySecurity.cjs, tools/patchDependencySecurity.test.cjs, tools/workflowStatus.test.cjs |
+| E-CI-SOURCE-R15-FIXTURE-FAILED (source) | fail | historical | Actual hosted source tracker14pass9fail and premature local22pass1real-sourcebindingfailure preserved. No CI success; root validator unchanged. |
+| E-R15-R16-TRACKER-FIXTURE-BRIDGE (source) | partial | stale | .agents/skills/cplayout-database-agent/SKILL.md, .codex/hooks/cplayout_context_map.json, .github/workflows/cplayout-required.yml, apps/api/src/database.test.ts, apps/api/src/server.test.ts, apps/api/src/server.ts, apps/mobile/package.json, docs/agent-context-map.md, docs/dependency-maintenance.md, docs/skill-capability-inventory.json, docs/skill-capability-inventory.md, docs/workflow-maintenance-guide.md, package-lock.json, package.json, packages/backup-artifacts/package.json, patches/expo-sqlite+57.0.4.json, tools/metroDependency.test.ts, tools/patchDependencySecurity.cjs, tools/patchDependencySecurity.test.cjs |
+| E-SOURCE-HIERARCHY-R16-PASS (source) | pass | stale | .agents/skills/cplayout-database-agent/SKILL.md, .codex/hooks/cplayout_context_map.json, .github/workflows/cplayout-required.yml, apps/api/src/database.test.ts, apps/api/src/server.test.ts, apps/api/src/server.ts, apps/mobile/package.json, docs/agent-context-map.md, docs/dependency-maintenance.md, docs/skill-capability-inventory.json, docs/skill-capability-inventory.md, docs/workflow-maintenance-guide.md, package-lock.json, package.json, packages/backup-artifacts/package.json, patches/expo-sqlite+57.0.4.json, tools/metroDependency.test.ts, tools/patchDependencySecurity.cjs, tools/patchDependencySecurity.test.cjs |
+| E-SUPPLEMENTAL-R16-REVIEW-ONE (source) | pass | stale | .agents/skills/cplayout-database-agent/SKILL.md, .codex/hooks/cplayout_context_map.json, .github/workflows/cplayout-required.yml, apps/api/src/database.test.ts, apps/api/src/server.test.ts, apps/api/src/server.ts, apps/mobile/package.json, docs/agent-context-map.md, docs/dependency-maintenance.md, docs/skill-capability-inventory.json, docs/skill-capability-inventory.md, docs/workflow-maintenance-guide.md, package-lock.json, package.json, packages/backup-artifacts/package.json, patches/expo-sqlite+57.0.4.json, tools/metroDependency.test.ts, tools/patchDependencySecurity.cjs, tools/patchDependencySecurity.test.cjs |
+| E-SUPPLEMENTAL-R16-REVIEW-TWO (source) | pass | stale | .agents/skills/cplayout-database-agent/SKILL.md, .codex/hooks/cplayout_context_map.json, .github/workflows/cplayout-required.yml, apps/api/src/database.test.ts, apps/api/src/server.test.ts, apps/api/src/server.ts, apps/mobile/package.json, docs/agent-context-map.md, docs/dependency-maintenance.md, docs/skill-capability-inventory.json, docs/skill-capability-inventory.md, docs/workflow-maintenance-guide.md, package-lock.json, package.json, packages/backup-artifacts/package.json, patches/expo-sqlite+57.0.4.json, tools/metroDependency.test.ts, tools/patchDependencySecurity.cjs, tools/patchDependencySecurity.test.cjs |
+| E-R15-R16-BROWSER-SCOPE-ACCEPTED (browser) | pass | stale | .agents/skills/cplayout-database-agent/SKILL.md, .codex/hooks/cplayout_context_map.json, .github/workflows/cplayout-required.yml, apps/api/src/database.test.ts, apps/api/src/server.test.ts, apps/api/src/server.ts, apps/mobile/package.json, docs/agent-context-map.md, docs/dependency-maintenance.md, docs/skill-capability-inventory.json, docs/skill-capability-inventory.md, docs/workflow-maintenance-guide.md, package-lock.json, package.json, packages/backup-artifacts/package.json, patches/expo-sqlite+57.0.4.json, tools/metroDependency.test.ts, tools/patchDependencySecurity.cjs, tools/patchDependencySecurity.test.cjs |
+| E-CI-R16-ONLINE-EXPO-COMPATIBILITY-FAILED (source) | fail | historical | Actual onlineExpo sourcegate/terminalgate exit1 before validate/browser; previousR16aggregate/explicitR15browserbridge unchanged historical proof. RootR17remediation/newCI pending. |
+| E-R17-SOURCE-FREEZE-SCOPED-CHECKS (source) | partial | stale | .agents/skills/cplayout-database-agent/SKILL.md, .codex/hooks/cplayout_context_map.json, apps/api/src/database.test.ts, apps/api/src/server.test.ts, apps/api/src/server.ts, docs/agent-context-map.md, docs/skill-capability-inventory.json, docs/skill-capability-inventory.md, docs/workflow-maintenance-guide.md |
+| E-CAS-IMPORT-REVISION-P1 (source) | fail | historical | Confirmed source/importoperationalCASrewind P1 and actualrequiredreviewconversation block; childreadcomment/sourceonly, rootreportedcounterexample. SuccessfulR17CI separate; no current fix/reviewclosure/merge claim. |
+| E-HOSTED-R17-SOURCE-BROWSER-PASS-P1-VETO (browser) | pass | historical | Actualhostedrun38270802731source/all5jobs/267browser pass at408215...; confirmedimportCASP1 blocksprotectedmerge/currentacceptance. No currentR18 qualification. |
+| E-R18-CAS-SCOPED-CORRECTION (source) | partial | current | ImplementedCASrefusal source andmatchingservice/V3/actualPG/type checks pass; fullR18aggregate/hostedbrowser/closingreviews pending. Fourdeclaredsourcehashesmatch. |
+| E-R18-SOURCE-FREEZE-SCOPED-CHECKS (source) | partial | current | Actualcomplete962sourcefreeze/scopedcontextskills checks only; unchangedcriteria, newtestfixture/guide/DBskill. No newaggregate/browser/merge/hardware claim. |
+
+## Evidence and history
+
+Requirement acceptance, dependencies, exact evidence classes and source identities live in the registry. A passing subset never completes the entire workflow. Publication is separate from source, browser, native/device, field and hook qualification.
+
+The complete preceding status file is retained byte-for-byte in [the historical archive](archive/development-status-before-production-workflow-2026-10-11.md); SHA-256 `8b04c79360bd29f6fc54d73b522f87e7677cd3e0af8a4612c461291f25287ad9`.
+
+Use the [master contract](unified-workspace-refocus-2026-10-10.md), [operator guide](operator-workflow-guide.md), [skill inventory](skill-capability-inventory.md) and [retirement manifest](workflow-retirement-manifest.json) for the selected task. Historical records are retrieved for a specific question, not loaded as current instructions.

@@ -17,8 +17,8 @@ export function FieldLateralReview({ field, revision, blocked }: { field: FieldD
       return <View key={machine.id} style={styles.machine}>
         <Text style={styles.label}>{machine.name}</Text>
         <Text style={styles.text}>Left: {formatDistance(machine.leftExtentMeters, "us_survey_feet")} | Right: {formatDistance(machine.rightExtentMeters, "us_survey_feet")} | Travel heading: {machine.travelHeadingDegrees}°</Text>
-        <Text style={styles.text}>Machine {machine.id} · Design revision {revision} · Travel endpoints saved</Text>
-        <Text style={styles.text}>Water source: {machine.waterSourceId ?? "Unassigned"} | Sprinkler reach: {machine.sprinklerReachMeters === undefined ? "Unknown" : formatDistance(machine.sprinklerReachMeters, "us_survey_feet")}</Text>
+        <Text style={styles.text}>Travel endpoints saved</Text>
+        <Text style={styles.text}>Water source: {field.infrastructure.some(item => item.id === machine.waterSourceId) ? "Assigned" : "Unassigned"} | Sprinkler reach: {machine.sprinklerReachMeters === undefined ? "Unknown" : formatDistance(machine.sprinklerReachMeters, "us_survey_feet")}</Text>
         <Pressable accessibilityRole="button" accessibilityState={{ disabled: blocked }} disabled={blocked} style={styles.button} testID={`field-lateral-calculate-${machine.id}`} onPress={() => {
           try { const value = evaluateStraightLateral(field, { machineId: machine.id, inputRevision: revision, expectedRevision: revision }); setResults(values => ({ ...values, [machine.id]: value })); setError(null); }
           catch (failure) { setError(failure instanceof Error ? failure.message : String(failure)); }

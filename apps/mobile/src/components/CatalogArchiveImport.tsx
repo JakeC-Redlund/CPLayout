@@ -120,7 +120,7 @@ function CatalogArchiveImportBody({ fieldMapId, onOpenDesign, onClose, visible =
       <Text style={styles.meta}>Choose a CPLayout JSON or ZIP, review it, then save a new copy in a field.</Text></View>
       <IconCommandButton id="import-back" label={savedCopy ? "Close import review" : "Back"} icon={<ArrowLeft />} showLabel disabled={busy} onPress={requestClose} testID="catalog-import-back" />
     </View>
-    {!desktop && <Text accessibilityRole="alert" style={styles.notice}>Open CPLayout in the desktop browser to import design copies. This operation is unavailable in this native runtime.</Text>}
+    {!desktop && <Text accessibilityRole="alert" style={styles.notice}>Open CPLayout in the desktop browser to import design copies.</Text>}
     <View style={styles.card}>
       <Text style={styles.heading}>1. Choose a design file</Text>
       <Text style={styles.meta}>Supported: complete designs, design drafts, and field designs exported by CPLayout as JSON or ZIP. Layout targets and sessions use Import in Layout.</Text>
@@ -146,7 +146,7 @@ function CatalogArchiveImportBody({ fieldMapId, onOpenDesign, onClose, visible =
         style: { width: "100%", minWidth: 0, minHeight: 44, padding: 10, fontSize: 15, borderRadius: 6, border: "1px solid #aabaaa", color: "#173428", background: "white" },
       }, React.createElement("option", { value: "" }, "Select a field…"), ...repository.catalog.fieldMaps.map(item =>
         React.createElement("option", { key: item.id, value: item.id }, `${fieldLabel(item.id)}${item.id === fieldMapId ? " (current field)" : ""}`)))
-        : repository.catalog.fieldMaps.map(item => <Pressable key={item.id} accessibilityRole="radio" accessibilityState={{ checked: association === item.id }} disabled={busy || Boolean(savedCopy)}
+        : repository.catalog.fieldMaps.map(item => <Pressable key={item.id} accessibilityRole="radio" accessibilityState={{ checked: association === item.id }} aria-checked={association === item.id} disabled={busy || Boolean(savedCopy)}
           onPress={() => chooseField(item.id)} style={styles.fieldChoice}><Text style={styles.label}>{fieldLabel(item.id)}</Text></Pressable>)}
       {!repository.catalog.fieldMaps.length && <Text style={styles.notice}>Create a customer, project, and field from Start, then return here to import the design.</Text>}
       {field && <Text style={styles.meta} testID="catalog-import-destination">{savedCopy ? "Copy saved in" : "New copy will be saved in"} {fieldLabel(savedCopy?.context.fieldMapId ?? field.id)}.</Text>}

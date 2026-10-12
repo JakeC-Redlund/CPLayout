@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "baseCommit": "2649d1a9b1f1c55dff2eea4a6fe9faaa54be3824",
+  "receiptSource": {
+    "kind": "coordinator_forwarded_agent_delivery",
+    "reviewer": "/root/production_workflow_second_review",
+    "boundary": "Curated from the delivered coordinator message. No independent artifact path, exact observation time or complete source fingerprint was supplied."
+  },
+  "result": "vetoed",
+  "acceptedFinalReview": false,
+  "p1Count": 3,
+  "p0Assessment": "not supplied in the forwarded record",
+  "findings": [
+    {
+      "id": "REV2-20261011-01",
+      "severity": "P1",
+      "requirements": [
+        "UI-01",
+        "RECOVERY-01"
+      ],
+      "description": "Changing measurement units overwrites a dirty Project raw value, unfinished 12 followed by a foot mark, with the metric baseline 47.2 and incorrectly clears the dirty state.",
+      "reproduction": {
+        "rawInput": "unfinished 12'",
+        "dirtyBefore": true,
+        "replacedWith": "47.2",
+        "dirtyAfter": false
+      },
+      "sourcePaths": [
+        "apps/mobile/src/workspace/ProjectDesignPanel.tsx",
+        "apps/mobile/src/workspace/UnifiedWorkspaceEntry.tsx"
+      ],
+      "status": "open",
+      "verificationRequired": "Refuse a unit switch while an owned raw measurement is unapplied, or retain the literal value with its original unit/source owner. Prove dirty state, recovery, explicit discard and conversion do not lose or reinterpret the entered text."
+    },
+    {
+      "id": "REV2-20261011-02",
+      "severity": "P1",
+      "requirements": [
+        "AUTH-01",
+        "RECOVERY-01"
+      ],
+      "description": "A delayed logout response clears a newer account B login cookie while the client still reports signed in; the next authenticated GET returns 401.",
+      "sourcePaths": [
+        "packages/auth-client/src/apiClient.ts"
+      ],
+      "status": "open",
+      "verificationRequired": "Serialize credential-changing client requests and prove held logout followed by newer login cannot retire the newer session cookie or publish a false signed-in state."
+    },
+    {
+      "id": "REV2-20261011-03",
+      "severity": "P1",
+      "requirements": [
+        "AUTH-01",
+        "RECOVERY-01"
+      ],
+      "description": "An account A repository action delayed at its final writer lock resumes after account B signs in and commits a receipt attributed to B into A's cache.",
+      "sourcePaths": [
+        "apps/mobile/src/auth/authenticatedRepository.ts"
+      ],
+      "status": "open",
+      "verificationRequired": "Recheck account and mutation authority after the awaited final lock and before remote commit/local retention. Prove a held A action refuses after B login, retains A evidence and never stores a B receipt in A's partition."
+    }
+  ],
+  "focusedChecks": {
+    "source": "coordinator-forwarded reviewer delivery",
+    "authDomainMapPassed": 24,
+    "catalogDrawingRecoveryPassed": 64,
+    "phase": "before corrective source changes",
+    "realPostgresExecuted": false,
+    "browserExecuted": false,
+    "boundary": "Focused checks do not override the three reproduced preservation/session vetoes or establish whole application acceptance."
+  },
+  "weightedDecisions": {
+    "scoreSource": "Exact option scores supplied in the coordinator-forwarded reviewer delivery. Individual criterion vectors were not supplied and are not reconstructed.",
+    "boundary": "These are one reviewer's judgments, not additional votes or measured operator acceptance.",
+    "comparisons": [
+      {
+        "selected": "Automatically synchronize pending work before online administration",
+        "selectedScore": 4.75,
+        "alternatives": [
+          {
+            "option": "Manual synchronization",
+            "score": 4.15
+          },
+          {
+            "option": "Direct online mutation with pending outbox",
+            "score": 2.15,
+            "veto": "preservation/CAS"
+          }
+        ]
+      },
+      {
+        "selected": "Guard measurement-unit changes with unapplied input",
+        "selectedScore": 4.85,
+        "alternatives": [
+          {
+            "option": "Per-form pinned unit ownership",
+            "score": 4.45
+          },
+          {
+            "option": "Silently reset raw input",
+            "score": 3.45,
+            "veto": "preservation"
+          }
+        ]
+      },
+      {
+        "selected": "Serialize credential operations within the client",
+        "selectedScore": 4.65,
+        "alternatives": [
+          {
+            "option": "Provider-only gate",
+            "score": 4.15
+          }
+        ]
+      }
+    ]
+  },
+  "correctionState": "Worker fixes are in progress. No final independent review has been accepted and no finding is closed by this record."
+}

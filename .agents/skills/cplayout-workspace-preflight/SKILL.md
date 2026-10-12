@@ -24,3 +24,7 @@ Use this skill before non-trivial CPLayout edits.
 - Name the files/modules you will edit.
 - For any browser UI check, state the exact server command and URL used, and whether cleanup through `npm run ui:test:stop` was run or intentionally skipped.
 - Name any blocker that prevents a production verification claim.
+
+## Current workflow record
+
+Use `docs/workflow-registry.json` for requirement IDs, dependencies, owners, source-bound evidence and next action; `docs/development-status.md` is its generated projection. The current owner delegates decisions without further questionnaires. Keep human receipts separate from delegated acceptance, retain failed/deferred evidence and do not reinstate withdrawn AGENTS rules. The relevant maintenance guide defines qualified retirement; source presence, frontmatter/configuration validation and actual runtime remain different capability claims.

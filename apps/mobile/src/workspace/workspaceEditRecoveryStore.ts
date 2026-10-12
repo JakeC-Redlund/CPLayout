@@ -99,7 +99,7 @@ export function createWorkspaceEditRecoveryStore(options: WorkspaceEditRecoveryS
         && typeof options.storage.getItem === "function" && typeof options.storage.setItem === "function")
         return { storage: options.storage, lock: options.withExclusiveLock };
     } catch { /* Access to an unavailable browser storage surface is unsupported. */ }
-    return fail("unsupported", "Edit recovery requires browser storage and an origin-scoped exclusive lock. Native activation and unlocked fallback are refused.");
+    return fail("unsupported", "Automatic recovery is unavailable on this device. Save or export your work before leaving this screen.");
   }
   function read(storage: StorageLike): string | null {
     let raw: unknown;

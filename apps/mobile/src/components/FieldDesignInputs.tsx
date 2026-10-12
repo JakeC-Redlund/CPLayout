@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Switch, Text, TextInput, View } from "react-nati
 import type { FieldDesign, FieldPivotMachine } from "../../../../packages/core/src/fieldDesignDocument";
 import type { FieldDesignEditorAction, FieldDesignEditorState } from "../../../../packages/core/src/fieldDesignEditor";
 import type { LayoutResult } from "../../../../packages/core/src/types";
+import { formatDistanceInputValue } from "@cplayout/core";
 import { projectDataKey } from "../../../../packages/core/src/projectDataComparison";
 import { useInputRetentionStore, useInputRetentionScopeGeneration, useRetainedInput } from "../inputRetention";
 import { assertSameFieldPlanContext, fieldCoordinatesInFeet, fieldMachineInputs, parseFieldMachineInputs, type FieldMachineInputs } from "./fieldMachineInputs";
@@ -10,6 +11,10 @@ import { MachinePlanComparison } from "./MachinePlanComparison";
 import { ConfirmActionDialog } from "./ProjectCatalogDialog";
 
 export type FieldDesignSurface = "machines" | "review";
+export function fieldInfrastructureLabel(field: FieldDesign, item: FieldDesign["infrastructure"][number], ordinal: number): string {
+  const kind = item.kind === "water_source" ? "Water source" : "Power source";
+  return `${kind} ${ordinal}${fieldCoordinatesInFeet(field) ? ` (X ${formatDistanceInputValue(item.point.x, "us_survey_feet")}, Y ${formatDistanceInputValue(item.point.y, "us_survey_feet")} ft)` : ""}`;
+}
 export interface FieldDesignInputsPresentation {
   readonly sourceGeneration: number;
   readonly activeSurface: FieldDesignSurface;
@@ -22,6 +27,7 @@ export interface FieldDesignInputsProps {
   readonly createMachineId: () => string;
   readonly retentionScope?: string;
   readonly disabled?: boolean;
+  readonly recordedPivotOnly?: boolean;
   readonly presentation?: FieldDesignInputsPresentation;
   readonly onPendingChange?: (pending: boolean) => void;
   readonly onRawInputChange?: () => void;
@@ -160,7 +166,7 @@ export const FieldDesignInputs = React.forwardRef<FieldDesignInputsHandle, Field
       </View>
       {field.machines.map(item => <View style={styles.row} key={item.id}>
         {action(item.configuration.name, `field-machine-${item.id}`, () => { onAction({ type: "select_machine", id: item.id }); }, machineBlocked, false, item.id === selected?.id && !ui.adding)}
-        <Text style={styles.meta}>{item.id}{item.id === selected?.id && !ui.adding ? " · Selected" : ""}</Text>
+        {item.id === selected?.id && !ui.adding && <Text style={styles.meta}>Selected machine</Text>}
         {action(`Remove ${item.configuration.name}`, `field-remove-${item.id}`, () => setUi(previous => ({ ...previous, removeId: item.id })), machineBlocked)}
       </View>)}
       <ConfirmActionDialog visible={ui.removeId !== null} title="Remove machine?" message="Only this machine will be removed. Undo can restore it." confirmLabel="Remove machine" testID="field-remove-confirm"
@@ -169,7 +175,12 @@ export const FieldDesignInputs = React.forwardRef<FieldDesignInputsHandle, Field
     </View>
     {(ui.adding || selected) && <View style={styles.card} testID="field-machine-form"><Text style={styles.heading}>{ui.adding ? "New machine" : `Edit ${selected!.configuration.name}`}</Text>
       {input("name", "Machine name")}
-      <View style={styles.row}>{input("x", "Center X (ft)", fieldCoordinatesInFeet(field))}{input("y", "Center Y (ft)", fieldCoordinatesInFeet(field))}</View>
+      <View style={styles.row}>{input("x", "Center X (ft)", fieldCoordinatesInFeet(field) && !props.recordedPivotOnly)}{input("y", "Center Y (ft)", fieldCoordinatesInFeet(field) && !props.recordedPivotOnly)}</View>
+      {props.recordedPivotOnly && <><Text style={styles.meta}>Choose a saved Survey pivot position. Its exact measured coordinate is retained.</Text>
+        {field.surveyPoints.filter(point => point.role === "pivot_center").map(point => action(`Use ${point.label || "recorded pivot position"}`, `field-use-recorded-pivot-${point.id}`, () => {
+          setForm(previous => ({ ...previous, values: { ...previous.values, recordedPivotId: point.id,
+            x: formatDistanceInputValue(point.projected.x, "us_survey_feet"), y: formatDistanceInputValue(point.projected.y, "us_survey_feet") } })); rawChange();
+        }, machineDisabled, true))}</>}
       {!fieldCoordinatesInFeet(field) && <Text style={styles.meta}>Location units need confirmation. Saved locations are kept exactly; location editing is unavailable.</Text>}
       {machine?.pivotObservationId && <Text style={styles.meta}>Center is linked to a survey observation; its recorded coordinate must remain exact.</Text>}
       <Text style={styles.label}>Span lengths (ft)</Text>
@@ -185,8 +196,8 @@ export const FieldDesignInputs = React.forwardRef<FieldDesignInputsHandle, Field
       <Choice label="Sweep" value={form.values.sweep} options={[{ value: "full_circle", label: "Full circle" }, { value: "partial_circle", label: "Partial circle" }]} disabled={machineDisabled} onChange={value => change("sweep", value as FieldMachineInputs["sweep"])} testID="field-sweep" />
       {form.values.sweep === "partial_circle" && <><View style={styles.row}>{input("start", "Start angle (degrees)")}{input("stop", "Stop angle (degrees)")}</View>
         <Choice label="Rotation" value={form.values.direction} options={[{ value: "clockwise", label: "Clockwise" }, { value: "counterclockwise", label: "Counterclockwise" }]} disabled={machineDisabled} onChange={value => change("direction", value as FieldMachineInputs["direction"])} testID="field-direction" /></>}
-      <Choice label="Water source" value={form.values.water} options={[{ value: "", label: "Unassigned" }, ...field.infrastructure.filter(item => item.kind === "water_source").map(item => ({ value: item.id, label: item.id }))]} disabled={machineDisabled} onChange={value => change("water", value)} testID="field-water" />
-      <Choice label="Power source" value={form.values.power} options={[{ value: "", label: "Unassigned" }, ...field.infrastructure.filter(item => item.kind === "power_source").map(item => ({ value: item.id, label: item.id }))]} disabled={machineDisabled} onChange={value => change("power", value)} testID="field-power" />
+      <Choice label="Water source" value={form.values.water} options={[{ value: "", label: "Unassigned" }, ...field.infrastructure.filter(item => item.kind === "water_source").map((item, index) => ({ value: item.id, label: fieldInfrastructureLabel(field, item, index + 1) }))]} disabled={machineDisabled} onChange={value => change("water", value)} testID="field-water" />
+      <Choice label="Power source" value={form.values.power} options={[{ value: "", label: "Unassigned" }, ...field.infrastructure.filter(item => item.kind === "power_source").map((item, index) => ({ value: item.id, label: fieldInfrastructureLabel(field, item, index + 1) }))]} disabled={machineDisabled} onChange={value => change("power", value)} testID="field-power" />
       <Choice label="Corner guidance path" value={form.values.guidance} options={[{ value: "", label: "Unassigned" }, ...(field.mapFeatures ?? []).filter(item => item.geometry.type === "LineString").map(item => ({ value: item.id, label: item.name }))]} disabled={machineDisabled} onChange={value => change("guidance", value)} testID="field-guidance" />
       <Text style={styles.meta}>Corner-arm settings, notes, drive units, catalog evidence and end-gun watering angles remain saved with this machine.</Text>
       <View style={styles.row}>{action(ui.adding ? "Add this machine" : "Apply machine inputs", "field-apply-machine", apply, machineDisabled || (!ui.adding && !pendingMachine && !form.error), true)}
@@ -195,7 +206,7 @@ export const FieldDesignInputs = React.forwardRef<FieldDesignInputsHandle, Field
   </>;
   const reviewContent = <>
     <View style={styles.row}>{action("Calculate preview", "field-calculate", () => props.onCalculate?.(), blocked || !selected || !props.onCalculate)}</View>
-    {preview && <View style={styles.card} testID="field-calculation-result"><Text style={styles.heading}>Selected machine calculation</Text><Text style={styles.meta}>{selected!.configuration.name} · {selected!.id} · Input revision {preview.revision}</Text>
+    {preview && <View style={styles.card} testID="field-calculation-result"><Text style={styles.heading}>Selected machine calculation</Text><Text style={styles.meta}>{selected!.configuration.name} · Current planning calculation</Text>
       <Text style={styles.meta}>Coverage {preview.result.metrics.coveragePercent.toFixed(1)}% · Field {preview.result.metrics.fieldAcres.toFixed(2)} acres</Text>
       <Text style={styles.meta}>Single-machine preview. Combined coverage, machine conflicts, hydraulics and field qualification require separate checks.</Text></View>}
     {props.advisoryPanels.layoutSearch}{props.advisoryPanels.lateralReview}{props.advisoryPanels.machineClearance}
@@ -223,7 +234,7 @@ export const FieldDesignInputs = React.forwardRef<FieldDesignInputsHandle, Field
 
 function Choice({ label, value, options, disabled, onChange, testID }: { label: string; value: string; options: { value: string; label: string }[]; disabled: boolean; onChange: (value: string) => void; testID: string }) {
   return <View style={styles.group}><Text style={styles.label}>{label}</Text><View style={styles.row} testID={testID}>{options.map((option, index) => <Pressable key={option.value}
-    accessibilityRole="radio" accessibilityLabel={`${label}: ${option.label}`} accessibilityState={{ checked: option.value === value, disabled }} disabled={disabled}
+    accessibilityRole="radio" accessibilityLabel={`${label}: ${option.label}`} accessibilityState={{ checked: option.value === value, disabled }} aria-checked={option.value === value} aria-disabled={disabled} disabled={disabled}
     onPress={() => { if (!disabled) onChange(option.value); }} style={[styles.button, option.value === value && styles.selected]} testID={`${testID}-${index}`}><Text style={styles.label}>{option.label}</Text></Pressable>)}</View></View>;
 }
 const styles = StyleSheet.create({ surfaces: { flex: 1, minHeight: 0 }, root: { gap: 12 }, card: { backgroundColor: "#fff", borderColor: "#cdd8d1", borderWidth: 1, borderRadius: 8, padding: 12, gap: 8 },

@@ -1,5 +1,7 @@
 # Unified workspace management improvement
 
+Current disposition: this module contract is retained; its preimplementation schedule below is historical. The published checkpoint implements bounded management/recovery flows; remaining management and current candidate evidence are tracked once in [workflow-registry.json](workflow-registry.json). The current user request resumes improvement and delegates decisions without new questionnaires.
+
 ## Current checkpoint and scope
 
 The2026-10-11 recovery candidate r4 has27 actual browser cases passing across

@@ -1,0 +1,1098 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-12T15:36:03.503980+00:00",
+  "classification": "independent_whole_source_dependency_CI_supplement",
+  "claimClass": "source",
+  "result": "accepted_source_dependency_supplement_runtime_and_protected_CI_pending",
+  "decision": "accept_scoped_source_dependency_change; withhold_current_R17_whole_workflow_browser_publication_acceptance",
+  "reviewer": "/root/final_workflow_review_one",
+  "countsAsCurrentFinalBrowserReview": false,
+  "independence": {
+    "authoring": "Reviewer made no implementation/test/package/criteria/Git/resource edits; only this authorized non-indexed metadata receipt.",
+    "actualChecks": "Read-only complete census/hash/criteria assertions, in-memory reverse diff and installed-source checks; independently executed affected fixture/guard/Metro/context/skills checks.",
+    "runtimeEvidence": "Coordinator-owned actual CLI logs/probe inspected, not re-executed or inferred. No aggregate, CLI install, browser, server, export or native device actions by reviewer."
+  },
+  "source": {
+    "manifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r17.json",
+    "manifestFileSha256": "05e696362b2cc884c470843af160cb31d2eebd97a79cb1c713a17046f6264a41",
+    "sourceFingerprint": "2ecce6cfdefe83a39d25d9028f1e19f3c0419a7f18dc78575b3dcfda1fe97b36",
+    "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+    "canonicalPathCount": 961,
+    "completeCensusMethod": "Direct tools/workflowStatus.cjs wholeImplementationPaths(registry, root) equality with both manifest sourceScope and every sourceHashes key; every actual source hash independently matched; sorted-map fingerprint recomputed.",
+    "missingPaths": [],
+    "extraPaths": [],
+    "sourceDrift": [],
+    "priorManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r16.json",
+    "priorSourceFingerprint": "04c54f0adc5bf306c39d009411f7c188fccad30f241c7c661f851d4fd3f34230",
+    "changedPaths": [
+      ".agents/skills/cplayout-database-agent/SKILL.md",
+      ".codex/hooks/cplayout_context_map.json",
+      ".github/workflows/cplayout-required.yml",
+      "apps/mobile/package.json",
+      "docs/agent-context-map.md",
+      "docs/dependency-maintenance.md",
+      "docs/skill-capability-inventory.json",
+      "docs/skill-capability-inventory.md",
+      "package-lock.json",
+      "package.json",
+      "packages/backup-artifacts/package.json",
+      "patches/expo-sqlite+57.0.4.json",
+      "tools/metroDependency.test.ts",
+      "tools/patchDependencySecurity.cjs",
+      "tools/patchDependencySecurity.test.cjs"
+    ],
+    "byteIdenticalOtherPaths": 946,
+    "criteriaUnchanged": true,
+    "sourceAdditions": [],
+    "sourceRemovals": []
+  },
+  "exactDelta": {
+    "privateEvidenceIdentifier": "publication-20261012/source-r16-to-r17-15-paths.patch",
+    "sha256": "ea2fef88551beb12e9822c9e2e5bec53047790c86ddd8ae5fc1a25b1a76e484d",
+    "bytes": 41659,
+    "method": "Applied every exact reverse hunk to current source in memory without Git/apply/source writes; all 15 reconstructed R16 hashes and R17 after hashes independently match manifests.",
+    "reverseVerifiedFiles": [
+      {
+        "path": ".agents/skills/cplayout-database-agent/SKILL.md",
+        "hunks": 1,
+        "beforeSha256": "a927f3af448717938e250975fcc60825b70c5686fbfaff04b647f65fc6c1499d",
+        "afterSha256": "ef8f3e131852cc98ed6daacb0c96a67f21aeacb8a9cd6b2392a800555a57e264",
+        "reverseMatchesR16": true
+      },
+      {
+        "path": ".codex/hooks/cplayout_context_map.json",
+        "hunks": 2,
+        "beforeSha256": "bd7a0afbe232581f05f382b0af88133cd27de6d9ea22433119e5d5ba44c70791",
+        "afterSha256": "cf7c5aeda50e3560476b7eecae2d31a26790f1bee31d675a896c603c626d1a0d",
+        "reverseMatchesR16": true
+      },
+      {
+        "path": ".github/workflows/cplayout-required.yml",
+        "hunks": 1,
+        "beforeSha256": "30e2084d67a16d4be9a4e14272d9ede064eb85fde320cd37e2651af8ba1c8647",
+        "afterSha256": "943eb8fc323220074ab9562f75229dfdd7eb1cf27fa161ff2efd76f389ff5724",
+        "reverseMatchesR16": true
+      },
+      {
+        "path": "apps/mobile/package.json",
+        "hunks": 1,
+        "beforeSha256": "ba8c1074dda7270a6e6ca061ea5267b162f9543c6854fdb75cd97f0d7cbb61e3",
+        "afterSha256": "0371f956696c71314b652477b6acf96bdc804750b0d663167cf71483fc3d4c32",
+        "reverseMatchesR16": true
+      },
+      {
+        "path": "docs/agent-context-map.md",
+        "hunks": 2,
+        "beforeSha256": "832e48fd18a4c6a909af10ebb48695c387b4606f17614a3485e518fe3f0e886f",
+        "afterSha256": "c804f8578aac631fc1f557bdddf7a93de4b5ad39918eb4ae66280eb641ebad37",
+        "reverseMatchesR16": true
+      },
+      {
+        "path": "docs/dependency-maintenance.md",
+        "hunks": 1,
+        "beforeSha256": "74d740420a17fbc30c9c63eb6b12204ff3337d309ab471164accd14591b88db5",
+        "afterSha256": "25b7f56b92fa672e7df59b0143d3e6ff5f37894919a928eb73d2f830269420ce",
+        "reverseMatchesR16": true
+      },
+      {
+        "path": "docs/skill-capability-inventory.json",
+        "hunks": 3,
+        "beforeSha256": "700fc82de19c51872fef106c7d0c8c2b46815986e33beccd24fb3f94f43eacc3",
+        "afterSha256": "2413d9eb642813bfaa596d3eafe5e08f57dbdd0033f5b445308a1a9b1ff41837",
+        "reverseMatchesR16": true
+      },
+      {
+        "path": "docs/skill-capability-inventory.md",
+        "hunks": 2,
+        "beforeSha256": "2effcfd04127d49b446115a5a9c2bd2220d9ae627348bfaf0a81ae62bd753ab3",
+        "afterSha256": "c60b439e3cdc74cb3090ee3ec3da5a7cc764fa3f50c4a369feb63243e2c6fa44",
+        "reverseMatchesR16": true
+      },
+      {
+        "path": "package-lock.json",
+        "hunks": 22,
+        "beforeSha256": "b21c311edcdd8a762b5bd74a654afce4f6eb3cdf7a99b12cbb7bc6cd035883f4",
+        "afterSha256": "8b5d5a4886b13a19679c0d34cbab28c4c802ec145192a2444da8308ec986c0d1",
+        "reverseMatchesR16": true
+      },
+      {
+        "path": "package.json",
+        "hunks": 1,
+        "beforeSha256": "23086a3544cab425da56e7fe60a46e2580966a6d82b6fec678c7a467ef7f3235",
+        "afterSha256": "e03d3a7ad14b8c92249805410a06e85a9bdc491343c5c7e1f36b0b43f8ff7862",
+        "reverseMatchesR16": true
+      },
+      {
+        "path": "packages/backup-artifacts/package.json",
+        "hunks": 1,
+        "beforeSha256": "c2e2054c755959251992450fe5ea2ee145d7ebc58bc47aeb0a8b50892cdb034a",
+        "afterSha256": "cb1261fe59d2a4e71319e9c35b4d99152539496a4c5be27c854c8a20f2cec5ae",
+        "reverseMatchesR16": true
+      },
+      {
+        "path": "patches/expo-sqlite+57.0.4.json",
+        "hunks": 2,
+        "beforeSha256": "9b5bd98700e992a6d76ddb283740779a975a1f596adf2a84ed849cf96a016ded",
+        "afterSha256": "f20dd12671dd688aa7f0ecb603af4a9dd424d1ba57cae6e74a0c44fb6e2c8685",
+        "reverseMatchesR16": true
+      },
+      {
+        "path": "tools/metroDependency.test.ts",
+        "hunks": 1,
+        "beforeSha256": "65b5001b8f79cc2a1224245886aecf7935c7496858d29f2262ed5f0bc0568de7",
+        "afterSha256": "55b43a2e4bded69e0aea84632ca21de766fba0ee8618b5272f53c3a0b6383eec",
+        "reverseMatchesR16": true
+      },
+      {
+        "path": "tools/patchDependencySecurity.cjs",
+        "hunks": 1,
+        "beforeSha256": "85ec33b127e1e4f2167e91a715d8f8dd061e855235a5e73927627a4a82bceeab",
+        "afterSha256": "f4b5f0384627d88eef50bbafe9e97a297103091bbe9fffb35dd9e0ea5eeb8f66",
+        "reverseMatchesR16": true
+      },
+      {
+        "path": "tools/patchDependencySecurity.test.cjs",
+        "hunks": 2,
+        "beforeSha256": "f4d8a678757fe6d5851bdda311e0baa7bc545576acca6e00b0b59c4a3ca59c42",
+        "afterSha256": "3ff2666b751d8455a0484fffd506fbb6d8d2ed256c8556a79aff6e518599b04d",
+        "reverseMatchesR16": true
+      }
+    ],
+    "lockEntryDeltas": [
+      {
+        "path": "",
+        "beforeVersion": "0.1.0",
+        "afterVersion": "0.1.0",
+        "changedFields": [
+          "devDependencies"
+        ]
+      },
+      {
+        "path": "apps/mobile",
+        "beforeVersion": "0.1.0",
+        "afterVersion": "0.1.0",
+        "changedFields": [
+          "dependencies"
+        ]
+      },
+      {
+        "path": "node_modules/@expo/fingerprint",
+        "beforeVersion": "0.20.13",
+        "afterVersion": "0.20.14",
+        "changedFields": [
+          "integrity",
+          "resolved",
+          "version"
+        ]
+      },
+      {
+        "path": "node_modules/@expo/inline-modules",
+        "beforeVersion": "0.1.7",
+        "afterVersion": "0.1.8",
+        "changedFields": [
+          "dependencies",
+          "integrity",
+          "resolved",
+          "version"
+        ]
+      },
+      {
+        "path": "node_modules/@expo/local-build-cache-provider",
+        "beforeVersion": "57.0.8",
+        "afterVersion": "57.0.9",
+        "changedFields": [
+          "dependencies",
+          "integrity",
+          "resolved",
+          "version"
+        ]
+      },
+      {
+        "path": "node_modules/@expo/prebuild-config",
+        "beforeVersion": "57.0.17",
+        "afterVersion": "57.0.18",
+        "changedFields": [
+          "dependencies",
+          "integrity",
+          "resolved",
+          "version"
+        ]
+      },
+      {
+        "path": "node_modules/babel-preset-expo",
+        "beforeVersion": "57.0.14",
+        "afterVersion": "57.0.15",
+        "changedFields": [
+          "integrity",
+          "peerDependencies",
+          "resolved",
+          "version"
+        ]
+      },
+      {
+        "path": "node_modules/expo",
+        "beforeVersion": "57.0.27",
+        "afterVersion": "57.0.28",
+        "changedFields": [
+          "dependencies",
+          "integrity",
+          "resolved",
+          "version"
+        ]
+      },
+      {
+        "path": "node_modules/expo-dev-client",
+        "beforeVersion": "57.0.19",
+        "afterVersion": "57.0.20",
+        "changedFields": [
+          "dependencies",
+          "integrity",
+          "resolved",
+          "version"
+        ]
+      },
+      {
+        "path": "node_modules/expo-dev-launcher",
+        "beforeVersion": "57.0.20",
+        "afterVersion": "57.0.21",
+        "changedFields": [
+          "dependencies",
+          "integrity",
+          "resolved",
+          "version"
+        ]
+      },
+      {
+        "path": "node_modules/expo-dev-menu",
+        "beforeVersion": "57.0.19",
+        "afterVersion": "57.0.20",
+        "changedFields": [
+          "integrity",
+          "resolved",
+          "version"
+        ]
+      },
+      {
+        "path": "node_modules/expo-modules-autolinking",
+        "beforeVersion": "57.0.14",
+        "afterVersion": "57.0.15",
+        "changedFields": [
+          "integrity",
+          "resolved",
+          "version"
+        ]
+      },
+      {
+        "path": "node_modules/expo-modules-core",
+        "beforeVersion": "57.0.21",
+        "afterVersion": "57.0.22",
+        "changedFields": [
+          "dependencies",
+          "integrity",
+          "resolved",
+          "version"
+        ]
+      },
+      {
+        "path": "node_modules/expo-modules-jsi",
+        "beforeVersion": "57.1.1",
+        "afterVersion": "57.1.2",
+        "changedFields": [
+          "integrity",
+          "resolved",
+          "version"
+        ]
+      },
+      {
+        "path": "node_modules/expo-sharing",
+        "beforeVersion": "57.0.22",
+        "afterVersion": "57.0.23",
+        "changedFields": [
+          "dependencies",
+          "integrity",
+          "resolved",
+          "version"
+        ]
+      },
+      {
+        "path": "node_modules/expo-splash-screen",
+        "beforeVersion": "57.0.9",
+        "afterVersion": "57.0.10",
+        "changedFields": [
+          "dependencies",
+          "integrity",
+          "resolved",
+          "version"
+        ]
+      },
+      {
+        "path": "node_modules/expo/node_modules/@expo/cli",
+        "beforeVersion": "57.0.28",
+        "afterVersion": "57.0.29",
+        "changedFields": [
+          "dependencies",
+          "integrity",
+          "resolved",
+          "version"
+        ]
+      },
+      {
+        "path": "packages/backup-artifacts",
+        "beforeVersion": "0.1.0",
+        "afterVersion": "0.1.0",
+        "changedFields": [
+          "peerDependencies"
+        ]
+      }
+    ],
+    "lockPackageAdditionRemoval": [],
+    "sqliteManifestImmutableFieldsVerifiedEqual": [
+      "pins",
+      "files",
+      "patchSha256",
+      "reviewedSource"
+    ],
+    "sqlitePatchSha256": "ddc9a6ee0155cd258d1b62c0026bd79ff077b277221f63b99bf7ba972f0c6595",
+    "sqlitePatchBytesUnchanged": true,
+    "summary": "Four SDK patches plus coherent core/JSI/transitive Expo cohort and backup exact peers; scoped required offline gate; one supported exact absence row with meaningful regressions; unchanged ownership hunks/pins; source-only database skill/context/inventory/documentation lesson."
+  },
+  "installedObservation": {
+    "publicReceipt": "docs/evidence/production-workflow-dependencies-20261011/expo-current-patch-install-and-compatibility-20261012.json",
+    "matchingInstalledAndLockedVersions": {
+      "expo": "57.0.28",
+      "expo-dev-client": "57.0.20",
+      "expo-sharing": "57.0.23",
+      "expo-splash-screen": "57.0.10",
+      "expo-modules-core": "57.0.22",
+      "expo-modules-jsi": "57.1.2",
+      "expo-sqlite": "57.0.4",
+      "react": "19.2.3",
+      "react-native": "0.86.3",
+      "@expo/cli": "57.0.29"
+    },
+    "installedCliSourceHashesVerified": {
+      "node_modules/expo/node_modules/@expo/cli/build/src/start/doctor/dependencies/bundledNativeModules.js": "f3abf6aa3af2203938caf4a76fc2788a56e822adaf02e2c02ed77ae8860c5bca",
+      "node_modules/expo/node_modules/@expo/cli/build/src/install/checkPackages.js": "545560c2e2fa6dda86840a1dba1002baa94e7b0621bb05ea8a641839a2f68206",
+      "node_modules/expo/bundledNativeModules.json": "3282270040e05a621b0f8ee6ae3655f58ea441b185c29f8b9be9000f77aa613b"
+    },
+    "installedConsumedCoreApiHashesMatchedOfficialTarball": 15,
+    "cliSourceFinding": "Current upgraded CLI 57.0.29 uses remote recommendations only while EXPO_OFFLINE is false; otherwise reads installed Expo bundled map. Explicit --check dispatches to dependency validation and mismatches exit1, independent of ordinary install compatibility opt-out branch. No project dependency exclusions found.",
+    "positive": {
+      "privateEvidenceIdentifier": "cplayout-expo-clean-offline-check-positive-20261012.log",
+      "bytes": 80,
+      "sha256": "28adcc05dfc4b32af564b8765a9b02b663448cfb9640eefa9b9a48494f703f91",
+      "coordinatorObservedCommand": "CI=1 EXPO_OFFLINE=1 npx --no-install expo install --check, cwd apps/mobile",
+      "coordinatorObservedExitCode": 0,
+      "reviewerVerified": "Exact raw log hash/text; public recorded installed version/source hashes match current installation."
+    },
+    "negative": {
+      "privateEvidenceIdentifier": "offline-sdk-mismatch-probe-20261012/actual-cli-refusal-after-clean.log",
+      "bytes": 318,
+      "sha256": "5a580a92b4af5563fd0640fed2406016a3ccabb94708bf7332d328a3239dd155",
+      "coordinatorObservedCommand": "CI=1 EXPO_OFFLINE=1 node current-installed-expo/bin/cli install --check, cwd isolated synthetic probe",
+      "coordinatorObservedExitCode": 1,
+      "reviewerVerified": "Exact raw log/hash; declared and actual synthetic RN0.0.0; Expo symlink resolves to own installed 57.0.28; refusal expects bundled RN0.86.3. Production package bytes were not changed by reviewer."
+    },
+    "retainedWarning": "Both actual CLI logs retain: Dependency validation is unreliable in offline-mode. Accepted scope is the installed bundled cohort, while available/current recommendations remain the online daily obligation.",
+    "sourceCompatibilityReceipt": "docs/evidence/production-workflow-dependencies-20261011/expo-core-sqlite-matrix-review-20261012.json"
+  },
+  "independentCommands": [
+    {
+      "command": "'/home/cyber/cplayout-toolchains/node-v24.21.0-linux-x64/bin/node' --test tools/patchDependencySecurity.test.cjs tools/dependencyAudit.test.cjs tools/workflowStatus.test.cjs",
+      "exitCode": 0,
+      "tests": 71,
+      "pass": 71,
+      "fail": 0,
+      "skip": 0,
+      "cancelled": 0,
+      "breakdown": {
+        "security": 28,
+        "audit": 20,
+        "tracker": 23
+      }
+    },
+    {
+      "command": "'/home/cyber/cplayout-toolchains/node-v24.21.0-linux-x64/bin/node' tools/patchDependencySecurity.cjs --check",
+      "exitCode": 0,
+      "result": "already-installed"
+    },
+    {
+      "command": "'/home/cyber/cplayout-toolchains/node-v24.21.0-linux-x64/bin/node' tools/patchExpoSqliteOwnership.cjs --check",
+      "exitCode": 0,
+      "result": "already-installed"
+    },
+    {
+      "command": "'/home/cyber/cplayout-toolchains/node-v24.21.0-linux-x64/bin/node' node_modules/tsx/dist/cli.mjs tools/metroDependency.test.ts",
+      "exitCode": 0
+    },
+    {
+      "command": "python3 tools/build_cplayout_context_map.py --check",
+      "exitCode": 0
+    },
+    {
+      "command": "python3 tools/validate_cplayout_skills.py",
+      "exitCode": 0
+    },
+    {
+      "command": "Independent in-memory complete census/current hash/fingerprint/criteria and validateRegistry assertions through workflowStatus exports",
+      "exitCode": 0,
+      "canonicalPaths": 961
+    },
+    {
+      "command": "Independent current installed/locked package versions, three CLI/map hashes, fifteen consumed API hashes, outside-source actual positive/refusal proof inspection",
+      "exitCode": 0
+    },
+    {
+      "command": "All 67 host and 11 workspace skill fingerprints checked with actual active catalog roots",
+      "exitCode": 0,
+      "entries": 78,
+      "drift": 0
+    }
+  ],
+  "reviewerProbeCorrection": {
+    "firstLookup": "An initial inventory check mistakenly treated explanatory sourceRoots labels as filesystem directories, yielding unavailable paths; it is an invalid harness lookup, not source drift.",
+    "correctedLookup": "Resolved the actual active host catalog roots and checkout; all 78 source fingerprints match. Neither check invokes skills or hooks."
+  },
+  "requirementReviews": [
+    {
+      "id": "GOV-01",
+      "title": "One canonical tracker",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        "docs/unified-workspace-refocus-2026-10-10.md",
+        "tools/workflowStatus.cjs",
+        "tools/workflowStatus.test.cjs",
+        "docs/workflow-acceptance-protocol.md",
+        "docs/production-workflow-improvement-plan.md",
+        "docs/workflow-maintenance-guide.md"
+      ],
+      "priorIndependentAssessment": "qualified_source",
+      "rationale": "Complete 961-path source census, deterministic tracker and separated authority/evidence claims independently checked; R17 remains pending runtime/publication qualification.",
+      "runtimeBoundary": "No retained R15/R16 execution is relabeled as fresh R17 proof."
+    },
+    {
+      "id": "ENTRY-01",
+      "title": "Customer-first entry and project/field selection",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        "apps/mobile/src/workspace/WorkspaceCatalog.tsx",
+        "apps/mobile/src/workspace/UnifiedWorkspaceEntry.tsx",
+        "apps/mobile/src/auth/AuthenticatedWorkspace.tsx",
+        "packages/auth-client/src/apiClient.ts",
+        "apps/api/src/server.ts"
+      ],
+      "priorIndependentAssessment": "qualified_source_and_current_browser",
+      "rationale": "Customer-first Home/Open and zero-project customer application source and criteria are byte-identical to the independently reviewed R15 implementation via the R16 bridge. New dependency runtime requires fresh current execution.",
+      "runtimeBoundary": "No retained R15/R16 execution is relabeled as fresh R17 proof."
+    },
+    {
+      "id": "AUTH-01",
+      "title": "Truthful account sign-in and shared service",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        "apps/api/src/server.ts",
+        "packages/auth-client/src/apiClient.ts",
+        "apps/mobile/src/auth/AuthenticatedWorkspace.tsx",
+        "apps/mobile/src/auth/accessOwnership.ts"
+      ],
+      "priorIndependentAssessment": "qualified_source_and_current_browser_and_gateway",
+      "rationale": "Server/client catalog snapshot, principal/policy/epoch/read fences, nested-lock actor attribution and durable raw cache source remain unchanged; installed dependency change does not create current live authentication proof.",
+      "runtimeBoundary": "No retained R15/R16 execution is relabeled as fresh R17 proof."
+    },
+    {
+      "id": "HIERARCHY-01",
+      "title": "Logical customer/project/field folders and actual field content",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        "apps/mobile/src/auth/AuthenticatedWorkspace.tsx",
+        "apps/mobile/src/workspace/WorkspaceCatalog.tsx",
+        "packages/auth-client/src/apiClient.ts",
+        "apps/api/src/server.ts",
+        "packages/project-store/src/workspaceDocument.ts",
+        "packages/project-store/src/projectRepositoryTypes.ts",
+        "packages/project-store/src/workspaceFieldContents.ts",
+        "packages/project-store/src/workspaceFieldContents.test.ts"
+      ],
+      "priorIndependentAssessment": "qualified_source_and_current_browser",
+      "rationale": "Actual customer/project/field links and logical field-content/Survey/official-map projection source remain unchanged; no folder/entity/schema movement occurs in the exact delta.",
+      "runtimeBoundary": "No retained R15/R16 execution is relabeled as fresh R17 proof."
+    },
+    {
+      "id": "FLOW-01",
+      "title": "Optional Design and required Survey",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        "apps/mobile/src/workspace/useWorkspaceController.ts",
+        "apps/mobile/src/workspace/workspaceControllerState.ts",
+        "packages/core/src/surveyCollection.ts",
+        "packages/core/src/surveyDraftField.ts"
+      ],
+      "priorIndependentAssessment": "qualified_source_and_current_browser",
+      "rationale": "Optional manual Design, direct Survey entry and matching saved Survey Layout prerequisites remain unchanged in application source and criteria.",
+      "runtimeBoundary": "No retained R15/R16 execution is relabeled as fresh R17 proof."
+    },
+    {
+      "id": "DRAW-01",
+      "title": "Manual field and machine geometry",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        "apps/mobile/src/workspace/WorkspaceDrawingPanel.tsx",
+        "packages/core/src/draftDrawingWorkflow.ts"
+      ],
+      "priorIndependentAssessment": "qualified_source_and_current_browser",
+      "rationale": "Manual geometry, drawing-purpose and undo/persistence code and criteria remain unchanged; no receiver requirement is added by the dependency change.",
+      "runtimeBoundary": "No retained R15/R16 execution is relabeled as fresh R17 proof."
+    },
+    {
+      "id": "SURVEY-01",
+      "title": "Receiver collection and qualification",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        "packages/core/src/surveyCollection.ts",
+        "apps/mobile/src/workspace/WorkspaceModePanels.tsx",
+        "packages/core/src/surveyReview.ts",
+        "packages/project-store/src/productionWorkflow.ts",
+        "packages/project-store/src/workspaceCommands.ts"
+      ],
+      "priorIndependentAssessment": "qualified_source_and_current_browser",
+      "rationale": "Fresh owned Fixed admission and actual saved-review/collection/revision/CRS provenance source remain unchanged. New runtime/browser collection execution remains pending.",
+      "runtimeBoundary": "No retained R15/R16 execution is relabeled as fresh R17 proof."
+    },
+    {
+      "id": "LAYOUT-01",
+      "title": "Official Layout maps under matched Survey with RTK admission",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        "apps/mobile/src/workspace/WorkspaceModePanels.tsx",
+        "apps/mobile/src/workspace/useWorkspaceController.ts",
+        "packages/core/src/fieldLayoutTarget.ts",
+        "packages/core/src/layoutSession.ts",
+        "packages/project-store/src/productionWorkflow.ts",
+        "packages/project-store/src/workspaceCommands.ts",
+        "packages/core/src/officialLayout.ts",
+        "packages/project-store/src/sqliteWorkspaceStore.ts",
+        "packages/project-store/src/projectRepository.ts",
+        "apps/api/src/server.ts",
+        "apps/mobile/src/auth/authenticatedRepository.ts",
+        "packages/project-store/src/webWorkspaceStore.ts"
+      ],
+      "priorIndependentAssessment": "qualified_source_and_current_browser",
+      "rationale": "V3 creation/mark/finalization, immutable targets, observed station qualification, chronology, ownership, reference import and shared retention source remain unchanged. Core consumed APIs are primary-source and installed-byte identical; no native/device/physical acceptance follows.",
+      "runtimeBoundary": "No retained R15/R16 execution is relabeled as fresh R17 proof."
+    },
+    {
+      "id": "ANCESTRY-01",
+      "title": "Retain ancestors referenced by saved Survey evidence",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        "packages/project-store/src/workspaceDocument.ts",
+        "packages/project-store/src/workspaceCommands.ts",
+        "packages/core/src/surveyCollection.ts",
+        "packages/core/src/surveyReview.ts",
+        "apps/mobile/src/workspace/WorkspaceCatalog.tsx",
+        "packages/project-store/src/workspaceFieldContents.ts",
+        "packages/project-store/src/workspaceFieldContents.test.ts"
+      ],
+      "priorIndependentAssessment": "qualified_source_and_current_browser",
+      "rationale": "Retained active/archived Survey ancestor-deletion refusal and historical orphan-readable/exportable source remain unchanged; no data or schema migration in the exact delta.",
+      "runtimeBoundary": "No retained R15/R16 execution is relabeled as fresh R17 proof."
+    },
+    {
+      "id": "RECOVERY-01",
+      "title": "Preserve current and unfinished work",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        "apps/mobile/src/workspace/workspaceEditRecovery.ts",
+        "apps/mobile/src/workspace/workspaceEditRecoveryStore.ts",
+        "packages/project-store/src/workspaceDocument.ts",
+        "packages/project-store/src/projectRepository.ts",
+        "packages/project-store/src/sqliteWorkspaceStore.ts",
+        "apps/mobile/src/auth/authenticatedRepository.ts",
+        "packages/project-store/src/webWorkspaceStore.ts"
+      ],
+      "priorIndependentAssessment": "qualified_source_and_current_browser",
+      "rationale": "Recovery raw inputs/camera/history/owner identity and V3 source/receipt retention code remain unchanged. Exact backup module peers advance coherently; its implementation and archive contracts do not change.",
+      "runtimeBoundary": "No retained R15/R16 execution is relabeled as fresh R17 proof."
+    },
+    {
+      "id": "UI-01",
+      "title": "Production operator wording",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        "apps/mobile/src/workspace/UnifiedWorkspace.tsx",
+        "docs/operator-workflow-guide.md"
+      ],
+      "priorIndependentAssessment": "qualified_source_and_current_browser_and_scoped_pixels",
+      "rationale": "Operator wording, accessibility/short-home and drawing/layout controls remain unchanged; dependency changes require fresh served-App proof before current runtime qualification.",
+      "runtimeBoundary": "No retained R15/R16 execution is relabeled as fresh R17 proof."
+    },
+    {
+      "id": "DOC-01",
+      "title": "Guides, sources and delegated review",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        "docs/operator-workflow-guide.md",
+        "docs/agent-tree-protocol.md",
+        "docs/agent-source-ledger.md",
+        "docs/production-workflow-improvement-plan.md",
+        "docs/unified-workspace-refocus-2026-10-10.md",
+        "docs/workflow-maintenance-guide.md",
+        "docs/workflow-acceptance-protocol.md"
+      ],
+      "priorIndependentAssessment": "qualified_source",
+      "rationale": "Master plan/operator/acceptance source remains unchanged; new dependency guidance truthfully distinguishes installed compatibility, online update discovery and rebuilt native/runtime qualification.",
+      "runtimeBoundary": "No retained R15/R16 execution is relabeled as fresh R17 proof."
+    },
+    {
+      "id": "DEP-01",
+      "title": "Installed mitigation and compatible updates",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [
+        "tools/patchDependencySecurity.cjs"
+      ],
+      "reviewedDeclaredSources": [
+        "tools/patchDependencySecurity.cjs",
+        "tools/dependencyAudit.cjs",
+        "docs/dependency-upgrade-plan.md"
+      ],
+      "priorIndependentAssessment": "qualified_installed_source_boundary",
+      "rationale": "Exact coherent SDK/core/JSI pins, matching installed/lock versions, strict new supported matrix, meaningful positive/refusal regressions, installed security/SQLite/Metro checks and installed consumed API hashes support source/dependency acceptance. Raw audit remains 16 high, separately admitted exact local guards, not zero/upstream-fixed.",
+      "runtimeBoundary": "No retained R15/R16 execution is relabeled as fresh R17 proof."
+    },
+    {
+      "id": "DEP-02",
+      "title": "Recurring dependency reports and update PRs",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [
+        "docs/dependency-maintenance.md"
+      ],
+      "reviewedDeclaredSources": [
+        ".github/dependabot.yml",
+        ".github/workflows/dependency-maintenance.yml",
+        "docs/dependency-maintenance.md"
+      ],
+      "priorIndependentAssessment": "qualified_configuration_only",
+      "rationale": "Required Expo check alone uses EXPO_OFFLINE and no-install; daily dependency workflow and weekly Dependabot configuration remain byte-identical and online. Hosted scheduler/bot/security activation remains unobserved.",
+      "runtimeBoundary": "No retained R15/R16 execution is relabeled as fresh R17 proof."
+    },
+    {
+      "id": "SKILL-01",
+      "title": "Truthful selected capability inventory",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [
+        ".agents/skills/cplayout-database-agent/SKILL.md",
+        "docs/skill-capability-inventory.json",
+        "docs/skill-capability-inventory.md"
+      ],
+      "reviewedDeclaredSources": [
+        "docs/skill-capability-inventory.json",
+        "docs/skill-capability-inventory.md",
+        ".agents/skills/cplayout-interface-development-agent/SKILL.md",
+        ".agents/skills/cplayout-planning-review/SKILL.md",
+        ".agents/skills/cplayout-database-agent/SKILL.md"
+      ],
+      "priorIndependentAssessment": "qualified_inventory_and_source_only",
+      "rationale": "Only database skill adds complete workspace peer/patch preflight and post-clean guard lessons; generated context/inventory correctly reflect it. All 78 exposed/local source hashes independently match. Validation is source-only, not host discovery/invocation.",
+      "runtimeBoundary": "No retained R15/R16 execution is relabeled as fresh R17 proof."
+    },
+    {
+      "id": "HOOK-01",
+      "title": "Source-bound hook execution qualification",
+      "assessment": "runtime_or_operational_gate_pending",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        ".codex/hooks.json",
+        "docs/governance-refocus-2026-10-10.md"
+      ],
+      "priorIndependentAssessment": "configuration_reviewed_execution_not_established",
+      "rationale": "Hook configuration remains byte-identical, Stop continuation absent/disabled and genuine host event execution unknown. Validator samples do not establish host invocation.",
+      "runtimeBoundary": "No retained R15/R16 execution is relabeled as fresh R17 proof."
+    },
+    {
+      "id": "CLEAN-01",
+      "title": "Verified retirement without data loss",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        "docs/workflow-retirement-manifest.json",
+        "docs/workflow-maintenance-guide.md"
+      ],
+      "priorIndependentAssessment": "qualified_preservation_boundary",
+      "rationale": "Exact complete source census has no additions/removals; SQLite/security patch bytes, failed/deferred evidence and retirement protocol remain preserved. No deletion or cleanup operation is qualified by this review.",
+      "runtimeBoundary": "No retained R15/R16 execution is relabeled as fresh R17 proof."
+    },
+    {
+      "id": "QA-01",
+      "title": "Complete workflow proof and review",
+      "assessment": "runtime_or_operational_gate_pending",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        "tools/browserProofRegistry.ts",
+        "tools/browserProofRegistry.test.ts",
+        "playwright.config.ts",
+        "tests/web/browser-proof-inventory.json",
+        "tools/workflowStatus.cjs",
+        "docs/workflow-acceptance-protocol.md",
+        "apps/mobile/App.tsx",
+        "apps/api/src/server.ts",
+        "apps/mobile/src/auth/authenticatedRepository.ts",
+        "docs/evidence/production-workflow-review-20261011/final-packet-arrangement.md"
+      ],
+      "priorIndependentAssessment": "matching_packet_accepted_first_final_review_only",
+      "rationale": "Complete R17 source edition and unchanged 19 criteria inspected, with affected source/dependency checks passing. Prior actual 267 browser executions remain R15; fresh R17 aggregate/current browser/protected CI and matching final closing review are outside this partial receipt.",
+      "runtimeBoundary": "No retained R15/R16 execution is relabeled as fresh R17 proof."
+    },
+    {
+      "id": "PUBLISH-01",
+      "title": "Reviewable source publication",
+      "assessment": "runtime_or_operational_gate_pending",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [
+        ".github/workflows/cplayout-required.yml"
+      ],
+      "reviewedDeclaredSources": [
+        ".github/workflows/cplayout-required.yml",
+        "docs/workflow-acceptance-protocol.md"
+      ],
+      "priorIndependentAssessment": "not_established_pending_root_publication",
+      "rationale": "Pipeline still requires source plus every browser shard and final protected job. Scoped locked compatibility gate is enabled and has actual acceptance/refusal evidence; exact current hosted head/CI/merge/main publication remains a separate pending gate.",
+      "runtimeBoundary": "No retained R15/R16 execution is relabeled as fresh R17 proof."
+    }
+  ],
+  "findingReviews": [
+    {
+      "id": "REV-20261011-01",
+      "severityAsRecorded": "P1",
+      "sourcePaths": [
+        "apps/mobile/src/workspace/WorkspaceModePanels.tsx"
+      ],
+      "sourceRemediationUnchanged": true,
+      "disposition": "prior_closure_retained_for_exact_unchanged_source_current_R17_runtime_pending",
+      "priorIndependentRationale": "Layout pending-input replacement guard includes literal tolerance; recovery retains its units/source owner and explicit discard.",
+      "boundary": "Historical failure and closure remain bound to their actual editions. This source supplement does not supply a new browser execution or reopen an unchanged source defect without contrary evidence."
+    },
+    {
+      "id": "REV-20261011-02",
+      "severityAsRecorded": "P1",
+      "sourcePaths": [
+        "apps/mobile/src/auth/deniedAccess.ts"
+      ],
+      "sourceRemediationUnchanged": true,
+      "disposition": "prior_closure_retained_for_exact_unchanged_source_current_R17_runtime_pending",
+      "priorIndependentRationale": "Durable denial marker precedes cache cleanup, independent fallback cleanup survives marker failure; current cold-denial browser journey retains exact work and refuses grant revival.",
+      "boundary": "Historical failure and closure remain bound to their actual editions. This source supplement does not supply a new browser execution or reopen an unchanged source defect without contrary evidence."
+    },
+    {
+      "id": "REV-20261011-03",
+      "severityAsRecorded": "P1",
+      "sourcePaths": [
+        "apps/api/src/server.ts",
+        "apps/mobile/src/auth/authenticatedRepository.ts"
+      ],
+      "sourceRemediationUnchanged": true,
+      "disposition": "prior_closure_retained_for_exact_unchanged_source_current_R17_runtime_pending",
+      "priorIndependentRationale": "Ready/read retains remote raw TEXT; explicit command upgrade uses original source text, with CRLF/source-chain checks and current package journeys.",
+      "boundary": "Historical failure and closure remain bound to their actual editions. This source supplement does not supply a new browser execution or reopen an unchanged source defect without contrary evidence."
+    },
+    {
+      "id": "RUNTIME-20261011-01",
+      "severityAsRecorded": "P1",
+      "sourcePaths": [
+        "apps/mobile/src/workspace/UnifiedWorkspaceEntry.tsx",
+        "apps/mobile/src/workspace/useWorkspaceController.ts"
+      ],
+      "sourceRemediationUnchanged": true,
+      "disposition": "prior_closure_retained_for_exact_unchanged_source_current_R17_runtime_pending",
+      "priorIndependentRationale": "Initial mode is installed in the accepted Open transaction; actual Survey-first journeys pass all viewports.",
+      "boundary": "Historical failure and closure remain bound to their actual editions. This source supplement does not supply a new browser execution or reopen an unchanged source defect without contrary evidence."
+    },
+    {
+      "id": "REV2-20261011-01",
+      "severityAsRecorded": "P1",
+      "sourcePaths": [
+        "apps/mobile/src/workspace/ProjectDesignPanel.tsx",
+        "apps/mobile/src/workspace/UnifiedWorkspaceEntry.tsx"
+      ],
+      "sourceRemediationUnchanged": true,
+      "disposition": "prior_closure_retained_for_exact_unchanged_source_current_R17_runtime_pending",
+      "priorIndependentRationale": "Measurement change refuses while raw input or interaction input is pending; actual dirty input/focus/mode/unit case passes.",
+      "boundary": "Historical failure and closure remain bound to their actual editions. This source supplement does not supply a new browser execution or reopen an unchanged source defect without contrary evidence."
+    },
+    {
+      "id": "REV2-20261011-02",
+      "severityAsRecorded": "P1",
+      "sourcePaths": [
+        "packages/auth-client/src/apiClient.ts"
+      ],
+      "sourceRemediationUnchanged": true,
+      "disposition": "prior_closure_retained_for_exact_unchanged_source_current_R17_runtime_pending",
+      "priorIndependentRationale": "Service credential queue and browser Web Locks serialize cookie effects; actual two-page signout/new-login case passes.",
+      "boundary": "Historical failure and closure remain bound to their actual editions. This source supplement does not supply a new browser execution or reopen an unchanged source defect without contrary evidence."
+    },
+    {
+      "id": "REV2-20261011-03",
+      "severityAsRecorded": "P1",
+      "sourcePaths": [
+        "apps/mobile/src/auth/authenticatedRepository.ts"
+      ],
+      "sourceRemediationUnchanged": true,
+      "disposition": "prior_closure_retained_for_exact_unchanged_source_current_R17_runtime_pending",
+      "priorIndependentRationale": "Final writer admission rechecks actual account/permissions and captures source-current predicate; held account/permission source tests and current account journeys pass.",
+      "boundary": "Historical failure and closure remain bound to their actual editions. This source supplement does not supply a new browser execution or reopen an unchanged source defect without contrary evidence."
+    },
+    {
+      "id": "A11Y-20261011-01",
+      "severityAsRecorded": "P1",
+      "sourcePaths": [
+        "packages/map-adapters/src/WorkspaceMapFrame.tsx",
+        "tests/web/production-accessibility.spec.ts"
+      ],
+      "sourceRemediationUnchanged": true,
+      "disposition": "prior_closure_retained_for_exact_unchanged_source_current_R17_runtime_pending",
+      "priorIndependentRationale": "Map readout has web tabIndex0 and actual keyboard focus assertion; current18Axe scans report0violations, with separate manual incompletes retained.",
+      "boundary": "Historical failure and closure remain bound to their actual editions. This source supplement does not supply a new browser execution or reopen an unchanged source defect without contrary evidence."
+    },
+    {
+      "id": "R1-RECOVERY-20261011-01",
+      "severityAsRecorded": "P1 (governance triage; final independent severity review pending)",
+      "sourcePaths": [],
+      "sourceRemediationUnchanged": true,
+      "disposition": "prior_closure_retained_for_exact_unchanged_source_current_R17_runtime_pending",
+      "priorIndependentRationale": "Read lease asserts literal source before intentional prepared publication and expires its assertion afterward; actual File Review/Restore journeys pass.",
+      "boundary": "Historical failure and closure remain bound to their actual editions. This source supplement does not supply a new browser execution or reopen an unchanged source defect without contrary evidence."
+    },
+    {
+      "id": "R1-ACCESS-20261011-02",
+      "severityAsRecorded": "P1 (governance triage; final independent severity review pending)",
+      "sourcePaths": [],
+      "sourceRemediationUnchanged": true,
+      "disposition": "prior_closure_retained_for_exact_unchanged_source_current_R17_runtime_pending",
+      "priorIndependentRationale": "AccountDenialQueue serializes/coalesces same-owner disposition; service denial preserves unfinished modal and raw recovery before renewed sign-in.",
+      "boundary": "Historical failure and closure remain bound to their actual editions. This source supplement does not supply a new browser execution or reopen an unchanged source defect without contrary evidence."
+    },
+    {
+      "id": "R1-GRANT-20261011-03",
+      "severityAsRecorded": "P1 (governance triage; final independent severity review pending)",
+      "sourcePaths": [],
+      "sourceRemediationUnchanged": true,
+      "disposition": "prior_closure_retained_for_exact_unchanged_source_current_R17_runtime_pending",
+      "priorIndependentRationale": "One authoritative issuedAt determines exact24-hour expiry; strict clock/signature validator retained and advancing-clock source check passes.",
+      "boundary": "Historical failure and closure remain bound to their actual editions. This source supplement does not supply a new browser execution or reopen an unchanged source defect without contrary evidence."
+    },
+    {
+      "id": "R2-UNITS-20261011-01",
+      "severityAsRecorded": "P1 (governance triage; independent final review pending)",
+      "sourcePaths": [],
+      "sourceRemediationUnchanged": true,
+      "disposition": "prior_closure_retained_for_exact_unchanged_source_current_R17_runtime_pending",
+      "priorIndependentRationale": "Inactive known-information pending state is retired without clearing real raw inputs; current mode/unit journey passes all viewports.",
+      "boundary": "Historical failure and closure remain bound to their actual editions. This source supplement does not supply a new browser execution or reopen an unchanged source defect without contrary evidence."
+    },
+    {
+      "id": "R2-RENAME-20261011-02",
+      "severityAsRecorded": "P1 (governance triage; independent final review pending)",
+      "sourcePaths": [],
+      "sourceRemediationUnchanged": true,
+      "disposition": "prior_closure_retained_for_exact_unchanged_source_current_R17_runtime_pending",
+      "priorIndependentRationale": "Focused Rename is reachable in short viewport with one retained File owner; actual Draft/Field Rename journeys pass.",
+      "boundary": "Historical failure and closure remain bound to their actual editions. This source supplement does not supply a new browser execution or reopen an unchanged source defect without contrary evidence."
+    },
+    {
+      "id": "R2-PACKAGE-20261011-03",
+      "severityAsRecorded": "P1 (governance triage; independent final review pending)",
+      "sourcePaths": [],
+      "sourceRemediationUnchanged": true,
+      "disposition": "prior_closure_retained_for_exact_unchanged_source_current_R17_runtime_pending",
+      "priorIndependentRationale": "Legacy retained upgrade chain is correctly recognized without source weakening; current v1/v2 JSON/ZIP package journeys pass all viewports.",
+      "boundary": "Historical failure and closure remain bound to their actual editions. This source supplement does not supply a new browser execution or reopen an unchanged source defect without contrary evidence."
+    },
+    {
+      "id": "R3-CATALOG-20261011-01",
+      "severityAsRecorded": "P1 (governance triage; final independent review pending)",
+      "sourcePaths": [
+        "apps/mobile/src/workspace/WorkspaceCatalog.tsx"
+      ],
+      "sourceRemediationUnchanged": true,
+      "disposition": "prior_closure_retained_for_exact_unchanged_source_current_R17_runtime_pending",
+      "priorIndependentRationale": "Catalog content/maintenance/receipt scrolling and actual parent navigation permit normal-pointer Recent/Open; complete current package and management journeys pass.",
+      "boundary": "Historical failure and closure remain bound to their actual editions. This source supplement does not supply a new browser execution or reopen an unchanged source defect without contrary evidence."
+    },
+    {
+      "id": "VISUAL-R5-20261011-01",
+      "severityAsRecorded": "P1 (coordinator pixel finding)",
+      "sourcePaths": [
+        "apps/mobile/src/auth/AuthenticatedWorkspace.tsx",
+        "tests/web/production-auth-workflow.spec.ts"
+      ],
+      "sourceRemediationUnchanged": true,
+      "disposition": "prior_closure_retained_for_exact_unchanged_source_current_R17_runtime_pending",
+      "priorIndependentRationale": "Concise visible Open with exact accessible customer/project name and wrapping/minWidth control; current bounds/keyboard and actual short Home pixels pass.",
+      "boundary": "Historical failure and closure remain bound to their actual editions. This source supplement does not supply a new browser execution or reopen an unchanged source defect without contrary evidence."
+    },
+    {
+      "id": "HIERARCHY-ANCESTRY-20261011-01",
+      "severityAsRecorded": "P1",
+      "sourcePaths": [
+        "packages/project-store/src/workspaceCommands.ts",
+        "packages/project-store/src/workspaceDocument.ts"
+      ],
+      "sourceRemediationUnchanged": true,
+      "disposition": "prior_closure_retained_for_exact_unchanged_source_current_R17_runtime_pending",
+      "priorIndependentRationale": "Domain/shared history guard blocks parent removal; independent current14-case suite includes original counterexample and exact historical orphan export compatibility. Current App orphan ZIP journey passes.",
+      "boundary": "Historical failure and closure remain bound to their actual editions. This source supplement does not supply a new browser execution or reopen an unchanged source defect without contrary evidence."
+    },
+    {
+      "id": "OFFICIAL-ORIGIN-20261011-01",
+      "severityAsRecorded": "P1",
+      "sourcePaths": [
+        "apps/api/src/server.ts",
+        "apps/mobile/src/auth/authenticatedRepository.ts",
+        "packages/project-store/src/workspaceCommands.ts"
+      ],
+      "sourceRemediationUnchanged": true,
+      "disposition": "prior_closure_retained_for_exact_unchanged_source_current_R17_runtime_pending",
+      "priorIndependentRationale": "Any v3 bulk import refuses without original service context; source file/destination unchanged, existing official reads/exports retained, same-field reference source exact/non-official, cross-field refuses.",
+      "boundary": "Historical failure and closure remain bound to their actual editions. This source supplement does not supply a new browser execution or reopen an unchanged source defect without contrary evidence."
+    },
+    {
+      "id": "OFFICIAL-HISTORY-20261011-02",
+      "severityAsRecorded": "P1",
+      "sourcePaths": [
+        "packages/project-store/src/workspaceDocument.ts",
+        "packages/project-store/src/projectRepository.ts",
+        "packages/project-store/src/sqliteWorkspaceStore.ts"
+      ],
+      "sourceRemediationUnchanged": true,
+      "disposition": "prior_closure_retained_for_exact_unchanged_source_current_R17_runtime_pending",
+      "priorIndependentRationale": "assertRetainedLayoutHistory runs through commands/Web transactions; version, creation/reference/finalization and ordered observation history are retained. Generic new operational transitions need current Survey/source and final live owner; current independent writer regressions pass.",
+      "boundary": "Historical failure and closure remain bound to their actual editions. This source supplement does not supply a new browser execution or reopen an unchanged source defect without contrary evidence."
+    },
+    {
+      "id": "OFFICIAL-CHRONOLOGY-20261011-03",
+      "severityAsRecorded": "severity_not_supplied",
+      "sourcePaths": [
+        "packages/core/src/officialLayout.ts",
+        "packages/core/src/layoutSession.ts"
+      ],
+      "sourceRemediationUnchanged": true,
+      "disposition": "prior_closure_retained_for_exact_unchanged_source_current_R17_runtime_pending",
+      "priorIndependentRationale": "V3 lifecycle validator refuses future creation/stale final lock/station ordering contradictions; real controller predicate remains monotonic/fresh-owner admission. Independent current workflow regressions pass.",
+      "boundary": "Historical failure and closure remain bound to their actual editions. This source supplement does not supply a new browser execution or reopen an unchanged source defect without contrary evidence."
+    },
+    {
+      "id": "ACTOR-NESTED-LOCK-20261011-04",
+      "severityAsRecorded": "severity_not_supplied",
+      "sourcePaths": [
+        "apps/api/src/server.ts",
+        "apps/mobile/src/auth/authenticatedRepository.ts"
+      ],
+      "sourceRemediationUnchanged": true,
+      "disposition": "prior_closure_retained_for_exact_unchanged_source_current_R17_runtime_pending",
+      "priorIndependentRationale": "Creation/finalization/mark actors canonicalized in client and server; held-account/final-persistence tests retained in exactR14 aggregate, current browser official records bind principal.",
+      "boundary": "Historical failure and closure remain bound to their actual editions. This source supplement does not supply a new browser execution or reopen an unchanged source defect without contrary evidence."
+    },
+    {
+      "id": "AUTH-READ-OWNERSHIP-20261011-05",
+      "severityAsRecorded": "severity_not_supplied",
+      "sourcePaths": [
+        "packages/auth-client/src/apiClient.ts",
+        "apps/api/src/server.ts",
+        "apps/mobile/src/auth/authenticatedRepository.ts",
+        "apps/mobile/src/auth/accessOwnership.ts"
+      ],
+      "sourceRemediationUnchanged": true,
+      "disposition": "prior_closure_retained_for_exact_unchanged_source_current_R17_runtime_pending",
+      "priorIndependentRationale": "Optional expected-principal header/server check, after-JSON epoch/principal fence and captured read-owner checks after every awaited cache/lock/write-current boundary; network-only offline fallback and preserving mismatch path retained.",
+      "boundary": "Historical failure and closure remain bound to their actual editions. This source supplement does not supply a new browser execution or reopen an unchanged source defect without contrary evidence."
+    }
+  ],
+  "newMaterialFindings": [],
+  "unresolvedP0P1P2WithinReviewedSourceScope": [],
+  "weightedDecision": {
+    "reference": "docs/evidence/production-workflow-dependencies-20261011/expo-core-sqlite-matrix-review-20261012.json",
+    "weights": {
+      "compatibility": 0.3,
+      "preservation": 0.25,
+      "context": 0.2,
+      "proof": 0.15,
+      "maintenance": 0.1
+    },
+    "selectedWeightedScore": 4.8,
+    "rationale": "Exact coherent published matrix, preserved byte guards/old failures, installed positive and real refusal, scoped reproducible check plus unchanged online discovery, and truthful native/runtime boundaries support the selected source-only change. Comparative numbers are reviewer judgment, not test or field precision."
+  },
+  "supportingReceipts": [
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/final-independent-review-r15-one.json",
+      "sha256": "94d11f76276402898766800550694f1fc2ec028b8f5a5a23535acc109092f3b5",
+      "bytes": 86014
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/final-independent-review-r15-two.json",
+      "sha256": "5672cfcdfe2d36f4a4b66ab8929d8bee9714ea8dedf55b395aaafe7f2098b70d",
+      "bytes": 89033
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/final-independent-review-r16-supplement-one.json",
+      "sha256": "7dcd2819b46fe1e82bde9f547ce503c19f74b7df02758bcfdbdc9ad2d1bdcf30",
+      "bytes": 7039
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/r17-source-freeze-and-scoped-checks.json",
+      "sha256": "ee1349b228773fcf74e0474f3f921730cb6def2c7a4879280afc8f779478e8f7",
+      "bytes": 3076
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/ci-r16-online-expo-compatibility-failed.json",
+      "sha256": "3ef4477023816cc42ec885d487d065fe446133ceb691c8fa5868994b3d828723",
+      "bytes": 2531
+    },
+    {
+      "path": "docs/evidence/production-workflow-dependencies-20261011/expo-core-sqlite-matrix-review-20261012.json",
+      "sha256": "74a8d5874523abed3eadeb5b68671f4ceda81e125790cbf36256c60fdfbec7bc",
+      "bytes": 17069
+    },
+    {
+      "path": "docs/evidence/production-workflow-dependencies-20261011/expo-current-patch-install-and-compatibility-20261012.json",
+      "sha256": "581bbab64f48b10bfd851c512b748abb35b50894475ff9287477eaae99dc3700",
+      "bytes": 3687
+    }
+  ],
+  "remainingGates": [
+    "Fresh complete R17 aggregate: not executed by reviewer; running at latest coordinator report, retain its eventual actual source-bound result separately.",
+    "Fresh actual R17 267 browser executions and matching served source/bundle/API identities; prior complete browser execution remains R15.",
+    "Exact publication-head protected source/all web shards/final CI job and reviewed merge/main synchronization.",
+    "Independent closing/current browser review after matching successful packet; this partial source supplement does not increment accepted whole-workflow browser final count.",
+    "Hosted scheduled dependency/security/bot activation, genuine skill/hook events, native atomic/V3/device/runtime, physical RTK accuracy, full accessibility/human/deployment acceptance remain separate unproved capabilities."
+  ],
+  "boundary": "Accept complete current source/dependency scope for the exact R17 manifest and unchanged criteria. Retain all prior failure/deferred/historical packets without hash refresh or retroactive relabeling. New dependencies invalidate any inference of fresh runtime qualification from R15/R16; QA and publication remain pending actual matching execution and closing review."
+}

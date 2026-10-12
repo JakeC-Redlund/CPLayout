@@ -1,4 +1,6 @@
+import { workspaceHasLayoutStorage, workspaceCommandArchiveStatus } from "../workspace/workspaceProductionCapabilities";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useWorkspaceRepositoryAccess } from "../workspace/WorkspaceRepositoryContext";
 import { parseFieldDesignDocument, parseLayoutSessionDocument, parseDesignDraftDocument, parseProjectDocument, type LayoutSession, type LayoutObservation, type DesignDraft, type LayoutResult, type PivotProject, type FieldDesign } from "@cplayout/core";
 import {
   createCatalogId, exportFileAsync, projectRepository, workspaceBackendInfo, workspaceDesignCatalog, validateWorkspaceDocument,
@@ -7,7 +9,7 @@ import {
   type ClientRecord, type ClientProfileInput, type ClientProfileUpdateInput, type DesignRecord,
   type FieldMapRecord, type ProjectCatalog, type ProjectRepositoryBackendInfo, type ProjectSummary,
   type CopyProjectCommand, type VersionedWorkspaceRepository, type WorkspaceCommand, type WorkspaceDesignCatalog,
-  type WorkspaceDocument, type WorkspaceCommandValue,
+  workspaceCommandPermission, type WorkspaceDocument, type WorkspaceCommandValue,
 } from "@cplayout/project-store";
 
 export type PersistenceRevision = number | null | undefined;
@@ -110,6 +112,10 @@ export async function readVersionedDesign(repository: VersionedWorkspaceReposito
 }
 
 export function useProjectRepository(): ProjectWorkspaceStatus {
+  const access = useWorkspaceRepositoryAccess();
+  const accessRef = useRef(access); accessRef.current = access;
+  const { repository: projectRepository } = access;
+  const fieldWritable = access.fieldMutationsAvailable !== false && access.authorityBlocked !== true && (access.roles === undefined || access.roles.some(role => role === "operator" || role === "admin")) && (access.permissions === undefined || access.permissions.includes("field:write"));
   const [catalog, setCatalog] = useState<ProjectCatalog>({ clients: [], projects: [], fieldMaps: [], designs: [] });
   const [workspaceVersion, setWorkspaceVersion] = useState<WorkspaceDocument["workspaceVersion"] | null>(null);
   const [layoutSessions, setLayoutSessions] = useState<LayoutSession[]>([]);
@@ -124,6 +130,7 @@ export function useProjectRepository(): ProjectWorkspaceStatus {
   const [backendInfo, setBackendInfo] = useState<ProjectRepositoryBackendInfo | null>(null);
   const [catalogRevision, setCatalogRevision] = useState<number | null>(null);
   const latestCatalogRevision = useRef<number | null>(null);
+  const latestWorkspaceSnapshot = useRef<WorkspaceDocument | null>(null);
   const refreshSequence = useRef(0);
   const versioned = projectRepository.versionedWorkspace;
 
@@ -139,6 +146,7 @@ export function useProjectRepository(): ProjectWorkspaceStatus {
 
   const publishSnapshot = useCallback((workspace: WorkspaceDocument) => {
     if (latestCatalogRevision.current !== null && workspace.revision < latestCatalogRevision.current) return;
+    latestWorkspaceSnapshot.current = workspace;
     const completeCatalog = workspaceDesignCatalog(workspace);
     setWorkspaceVersion(workspace.workspaceVersion);
     setLayoutSessions((workspace.layoutSessions ?? []).map(entry => parseLayoutSessionDocument(entry.document)));
@@ -178,8 +186,19 @@ export function useProjectRepository(): ProjectWorkspaceStatus {
 
   async function execute(command: WorkspaceCommand, revision: number | null | undefined, owner?: SaveFeedbackOwner) {
     if (!versioned || revision === null || revision === undefined) throw new Error("Refresh the catalog or reopen the project before saving; no loaded workspace revision is available.");
+    const permission = workspaceCommandPermission(command.type);
+    const source = latestWorkspaceSnapshot.current ?? await versioned.readAsync();
+    const authorized = () => accessRef.current.authorityBlocked !== true && (accessRef.current.roles === undefined || accessRef.current.roles.some(role => role === "operator" || role === "admin"))
+      && (accessRef.current.permissions === undefined || accessRef.current.permissions.includes(permission))
+      && (permission !== "catalog:archive" || accessRef.current.roles === undefined || accessRef.current.roles.includes("admin"))
+      && workspaceCommandArchiveStatus(source, accessRef.current.archives, command) === "active"
+      && (permission !== "field:write" || accessRef.current.fieldMutationsAvailable !== false)
+      && (!["append_survey_capture", "append_layout_mark", "append_layout_observation", "create_rtk_layout_session", "finalize_rtk_layout_session"].includes(command.type) || accessRef.current.liveCaptureAvailable !== false);
+    if (permission === "field:write" && accessRef.current.fieldMutationsAvailable === false) throw new Error(accessRef.current.fieldMutationsUnavailableReason ?? "Connect to save field changes on this device.");
+    if (["append_survey_capture", "append_layout_mark", "append_layout_observation", "create_rtk_layout_session", "finalize_rtk_layout_session"].includes(command.type) && accessRef.current.liveCaptureAvailable === false) throw new Error("Live GPS collection is unavailable on this device. Use a device that can retain fresh observations.");
+    if (!authorized()) throw new Error("Your account cannot change this saved work.");
     if (owner && !owner.isCurrent()) throw new Error("The active editor or receiver changed; retry from the current screen.");
-    const receipt = await versioned.executeAsync(revision, command, owner ? () => owner.isCurrent() : undefined);
+    const receipt = await versioned.executeAsync(revision, command, owner ? () => owner.isCurrent() && authorized() : undefined);
     refreshSequence.current++;
     publishSnapshot(receipt.workspace);
     return receipt;
@@ -239,7 +258,7 @@ export function useProjectRepository(): ProjectWorkspaceStatus {
   }
 
   async function requireWebWorkflow(): Promise<void> {
-    if (!versioned || (await projectRepository.getBackendInfoAsync()).runtime !== "web") throw new Error("This workflow requires the browser workspace. Native activation is pending verification.");
+    if (!versioned || (await projectRepository.getBackendInfoAsync()).runtime !== "web" && accessRef.current.fieldMutationsAvailable !== true) throw new Error("Use the browser workspace for this action.");
   }
   async function layoutMutation(command: WorkspaceCommand, revision: number, owner?: SaveFeedbackOwner): Promise<OpenedLayoutSession> {
     await requireWebWorkflow();
@@ -252,12 +271,12 @@ export function useProjectRepository(): ProjectWorkspaceStatus {
   const id = createCatalogId;
   return {
     async readWorkspace() {
-      if (!versioned) throw new Error("The unified durable workspace requires the browser snapshot repository. Native activation is pending verification.");
+      if (!versioned) throw new Error("Saved field work is unavailable in this interface. Open the browser workspace to continue.");
       return versioned.readAsync();
     },
     async readWorkspaceLease(expectedRevision, action, isCurrent) {
       if (!versioned?.readLeaseAsync || backendInfo?.runtime !== "web")
-        throw new Error("Edit recovery requires the verified browser workspace read lease. Native activation is pending verification.");
+        throw new Error("Restore unfinished work in the browser workspace.");
       return versioned.readLeaseAsync(expectedRevision, action, isCurrent);
     },
     acceptWorkspaceReadReceipt(workspace, isCurrent) {
@@ -271,11 +290,11 @@ export function useProjectRepository(): ProjectWorkspaceStatus {
     executeWorkspaceCommand: execute,
     backendLabel: projectRepository.backendLabel, backendInfo, catalog, designCatalog, catalogRevision, projects, statusMessage, storageError,
     canExportWorkspaceRecovery: Boolean(versioned), reportError, clearProjectError, clearCatalogError, refreshProjects,
-    canCopyProject: Boolean(versioned),
-    canSaveDraft: Boolean(versioned),
-    canSaveField: Boolean(versioned) && backendInfo?.runtime === "web",
-    workspaceVersion, layoutSessions, canSaveLayout: Boolean(versioned) && backendInfo?.runtime === "web",
-    canCreateCompleteDesign: Boolean(versioned) && backendInfo?.runtime === "web",
+    canCopyProject: Boolean(versioned) && fieldWritable,
+    canSaveDraft: Boolean(versioned) && fieldWritable,
+    canSaveField: Boolean(versioned) && fieldWritable && (backendInfo?.runtime === "web" || access.fieldMutationsAvailable === true),
+    workspaceVersion, layoutSessions, canSaveLayout: Boolean(versioned) && fieldWritable && (backendInfo?.runtime === "web" || access.fieldMutationsAvailable === true),
+    canCreateCompleteDesign: Boolean(versioned) && fieldWritable && (backendInfo?.runtime === "web" || access.fieldMutationsAvailable === true),
     async importDesignDocument(input, revision, owner) {
       await requireWebWorkflow();
       const designId = id("design");
@@ -306,8 +325,11 @@ export function useProjectRepository(): ProjectWorkspaceStatus {
     },
     async upgradeLayoutWorkspace(revision) {
       await requireWebWorkflow();
-      const receipt = await execute({ type: "upgrade_workspace_to_v3", now: now() }, revision);
-      setStatusMessage("Workspace upgraded for Layout; the exact previous workspace is retained in recovery data.");
+      const current = await versioned!.readAsync();
+      if (current.revision !== revision) throw new Error("Saved work changed. Read its current source before preparing Layout.");
+      if (workspaceHasLayoutStorage(current.workspaceVersion)) return current.revision;
+      const receipt = await execute({ type: "upgrade_workspace_to_v5", now: now() }, revision);
+      setStatusMessage("Saved field work is prepared for Survey review and Layout.");
       return receipt.workspace.revision;
     },
     createLayoutSession: (input, revision) => layoutMutation({ type: "create_layout_session", ...input, sessionId: id("layout"), now: now() }, revision),
@@ -326,7 +348,7 @@ export function useProjectRepository(): ProjectWorkspaceStatus {
     copyLayoutSession: (sourceSessionId, name, revision, sessionRevision) => layoutMutation({ type: "copy_layout_session", sourceSessionId, sessionId: id("layout"), name, expectedSessionRevision: sessionRevision, now: now() }, revision),
     importLayoutSession: (document, fieldMapId, revision) => layoutMutation({ type: "import_layout_session", document, fieldMapId, now: now() }, revision),
     async createFieldFromSavedProject(designId, revision) {
-      if (!versioned || (await projectRepository.getBackendInfoAsync()).runtime !== "web") throw new Error("Independent field storage requires the web workspace; native activation is pending verification.");
+      if (!versioned || (await projectRepository.getBackendInfoAsync()).runtime !== "web" && accessRef.current.fieldMutationsAvailable !== true) throw new Error("Create this field design in the browser workspace.");
       const source = await versioned.readDesignAsync(designId);
       if (source.kind !== "project" || source.workspaceRevision !== revision) throw new Error("Reopen and save the source design before creating an independent field.");
       let nextRevision = revision;

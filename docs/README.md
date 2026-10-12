@@ -4,10 +4,16 @@ CPLayout is an offline-first, no-cost center-pivot planning app. Canonical proje
 
 ## Required First Reads
 
-- `AGENTS.md`: durable repository rules, preflight, reasoning policy, subagent policy, and validation gates.
+- `AGENTS.md`: current instruction disposition; preceding rules remain withdrawn. Current user task and explicit coordinator scope govern.
 - `docs/agent-tree-protocol.md`: coordinator/leaf handoff, first-read selection, decision and proof boundaries.
 
-Broad development resumes: [current status and next queue](development-status.md).
+Broad resumes: [generated current status](development-status.md) and [canonical workflow registry](workflow-registry.json).
+Read the [master refocus](unified-workspace-refocus-2026-10-10.md), [delivery plan](production-workflow-improvement-plan.md) and one selected module contract.
+Operator guidance: [customer/project, Design, Survey and Layout](operator-workflow-guide.md).
+Service operation: [protected configuration, migration, bootstrap, export and gateway startup](service-operation-guide.md).
+Source scope and final review gates: [current acceptance protocol](workflow-acceptance-protocol.md).
+Record updates, delegated review and qualified retirement: [maintenance guide](workflow-maintenance-guide.md).
+Dependency scheduling: [maintenance policy](dependency-maintenance.md). Skill source/applicability inventory: [all exposed and local skills](skill-capability-inventory.md).
 The [2026-09-27 process review](development-review-20260927.md) reconciles older
 plans and defines measurement; historical logs are not default first reads.
 
@@ -33,7 +39,7 @@ Use `docs/agent-context-map.md` as a task-specific index, not an unconditional t
 - Live browser answers, agent updates, durable receipts and review-tab replacement: [interactive-browser-review.md](interactive-browser-review.md).
 - Agricultural mapping/RTK quality review, comparison criteria, and improvement packets: [mapping-rtk-quality-program.md](mapping-rtk-quality-program.md).
 - Current Design-to-Layout safety packet, verification and remaining implementation sequence: [mapping-workflow-review.md](mapping-workflow-review.md).
-- Active full-refactor execution queue, worker ownership, checkpoints and resumption gates: [full-refactor-execution.md](full-refactor-execution.md).
+- Historical full-refactor evidence; current queue is the workflow registry: [full-refactor-execution.md](full-refactor-execution.md).
 - Next incomplete-design and atomic catalog packet, with migration/rollback and fault-injection gates: [draft-catalog-implementation.md](draft-catalog-implementation.md).
 - GitHub parent migration, authorization, recovery, and publication state: [github-migration-plan.md](github-migration-plan.md).
 - Imagery, KML/KMZ, Google Earth, ML/CV: `docs/kml-kmz-google-earth-source-ledger.md`, `packages/core/src/imageryEvidence.ts`, `docs/imagery-ml-capability-roadmap.md`.
@@ -49,6 +55,10 @@ Use `docs/agent-context-map.md` as a task-specific index, not an unconditional t
 - `docs/evidence/`: curated proof summaries and hashes. Raw reports under ignored `reports/` are not durable records by default.
 
 ## Validation Commands
+
+- `node tools/workflowStatus.cjs --write`: regenerate current status from the canonical registry.
+- `node tools/workflowStatus.cjs --check`: verify registry/evidence/dependencies and exact historical preservation.
+- `node --test tools/workflowStatus.test.cjs`: exercise registry promotion, drift and preservation failures.
 
 - `npm run context-map:build`: regenerate context-map JSON and generated docs after route/governance changes.
 - `npm run context-map:check`: fail when generated context-map outputs are stale.

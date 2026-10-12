@@ -1,0 +1,226 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-12",
+  "claimClass": "source",
+  "result": "partial_scoped_source_checks_pass_fresh_whole_validation_pending",
+  "sourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r14.json",
+  "sourceFingerprint": "d6af4cec8c4b78888bf0a8e2df11a7e4a5e1ac9f69f3978cd5c1dcbc40f373d5",
+  "sourcePathsCount": 961,
+  "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+  "currentSourceBytesVerified": true,
+  "currentDrift": [],
+  "changedFromR13": [
+    {
+      "path": "apps/mobile/src/workspace/WorkspaceCatalog.test.ts",
+      "beforeSha256": "bc6e08a91916a2f4f17691287400e14ff2d3a53eb604f4262b825a33d891bbe0",
+      "afterSha256": "d8a00457d73a72cb72726fd438c5668d07afc85d3fbae593cb72e0c90bbeb741"
+    },
+    {
+      "path": "apps/mobile/src/workspace/WorkspaceCatalog.tsx",
+      "beforeSha256": "0aeed4b158aa4de1d3323cd4e3e0b765e37fbb2cc334ebcb8e7a029372f6b5ed",
+      "afterSha256": "04f7190198adc45c26196e5cfe39860ff1943c4508de052c424550fffe92f7d8"
+    },
+    {
+      "path": "apps/mobile/src/workspace/WorkspaceModePanels.tsx",
+      "beforeSha256": "7e70ba4f16a1d8e6e530386045c5dac1c82aff9ba314ebe5f30014a3c57b0807",
+      "afterSha256": "8c00b626ba0916f86fa7c2cc11803fa38da29e53daf3f0322b4d5dfd7ea686dd"
+    },
+    {
+      "path": "apps/mobile/src/workspace/WorkspaceModePanelsRecovery.test.ts",
+      "beforeSha256": "7ad813c0ef6fc46fc30ac2271d110d185c3e2764595f655480492af2c49b20d3",
+      "afterSha256": "bfa29478988ff180a7c56e71728bbabbd8d4cc34ba40359b1a87619aa621e47f"
+    },
+    {
+      "path": "apps/mobile/src/workspace/useWorkspaceController.ts",
+      "beforeSha256": "df2c517ef516a244dc90742adf0cad3e604243d9a7587b81544143a3aec47dd0",
+      "afterSha256": "949e01314902d9f2c3c0c8ccf794530d58d3a12c97b8697c84b3fcbfb97d14f2"
+    },
+    {
+      "path": "apps/mobile/src/workspace/workspaceFileCommands.test.ts",
+      "beforeSha256": "673fbc7ac3b707bca11154bb2f8335cefef561a3a0a5600d38d5a689ae261ed6",
+      "afterSha256": "32a88b792ebd1de7e5d0c4642a4f1fce815cdddd38125afc4204fad6b31335f2"
+    },
+    {
+      "path": "tests/web/browser-proof-inventory.json",
+      "beforeSha256": "ad217a51786e4f6b3d266848cbfe09e7b774ec94fc50e736bcc9ef6dcc884577",
+      "afterSha256": "b8f13a13a13ede8bc9c97ecaf69f852012f369bf28f43985d8c496711099a73f"
+    },
+    {
+      "path": "tests/web/production-auth-workflow.spec.ts",
+      "beforeSha256": "9da52bb40c763be7ed31da4abc1d75ae92232db8114e2d8f7a9e0c5b7acdab6d",
+      "afterSha256": "7926cc66fb6c14e2b673a56807b04e0d224063b63527bdb1a778bca243ea6683"
+    }
+  ],
+  "byteIdenticalToR13": 953,
+  "changeClassification": "Three actual production display modules, three existing regression test files, paired-clock browser fixture and regenerated inventory. Real implementation changes require a fresh aggregate; this is not a proof-only equivalence bridge.",
+  "scopedChecks": {
+    "finalRegressionPair": {
+      "passed": 116,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "logSha256": "30286559973f7c8b558365c6960e0e78503cac260759411afaf450f889bd0299",
+      "bytes": 13810
+    },
+    "mobileTypecheck": {
+      "exitCode": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "provenance": "Owner completedexit0 receipt; emptyloghashverified but zeroexitnotinferredfromemptyfile."
+    },
+    "browserRegistry": {
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "logSha256": "7227262b4e346326b06f46d21334115cc4153fe16d56e8bb1df284cfae99e19d"
+    },
+    "contextCheck": {
+      "exitCode": 0,
+      "logSha256": "cf0524310319d026dded2161af9395c1def74041048b20861fdcee87b1502123",
+      "provenance": "Coordinator completedexitreceipt andup-to-datelog."
+    },
+    "pairedFixtureClock": {
+      "pairedWallAndZeroArgConstructor": true,
+      "suppliedConstructorsAndStaticParsingPreserved": true,
+      "restorationOnSuccessAndFailure": true,
+      "timersAndAnimationUntouched": true
+    },
+    "pairedClockLogSha256": "57bf36b8d94ed9dfa6c2ee6623b353ec14595ddf59d4e7e55ff5a80718dab705"
+  },
+  "priorAttempts": {
+    "earlierFiveFiles": {
+      "passed": 167,
+      "failed": 0,
+      "qualification": "Earlier167sourcepass, notfinal116pair orwholeaggregate."
+    },
+    "expandedAttempt": {
+      "passed": 168,
+      "failed": 1,
+      "classification": "169-sourcecase attempt withfixtureButtonlabel mismatch, retainedasfailed."
+    },
+    "typeAttempts": "R2andR3token-typing diagnostics eachretained; finalR4source mobileTS0 separate.",
+    "directLogHashes": {
+      "cplayout-static-memo-focused-r1.log": {
+        "sha256": "0da75d502d3e6f4ad691ec330e0681065ce512318d6f9fc0ee789a6910b5c4ab",
+        "bytes": 19229,
+        "counts": {
+          "tests": [
+            "167"
+          ],
+          "pass": [
+            "167"
+          ],
+          "fail": [
+            "0"
+          ],
+          "skipped": [
+            "0"
+          ]
+        },
+        "typeDiagnosticLines": 0
+      },
+      "cplayout-static-memo-focused-r2.log": {
+        "sha256": "d497e8eca6a8a44b42e5de3845d9e2ab54c4d863f421927e14a8944cbf7581b8",
+        "bytes": 21104,
+        "counts": {
+          "tests": [
+            "169"
+          ],
+          "pass": [
+            "168"
+          ],
+          "fail": [
+            "1"
+          ],
+          "skipped": [
+            "0"
+          ]
+        },
+        "typeDiagnosticLines": 0
+      },
+      "cplayout-static-memo-types-r2.log": {
+        "sha256": "e35ad0cfd91261efa8f5de6d50940e3d7cd25916808628dd9ce5f02fd03ae6ea",
+        "bytes": 155,
+        "counts": {
+          "tests": [],
+          "pass": [],
+          "fail": [],
+          "skipped": []
+        },
+        "typeDiagnosticLines": 1
+      },
+      "cplayout-static-memo-types-r3.log": {
+        "sha256": "a211f943a769632e1eeb33763734295dc4ccb6a2299aa5b5098ca3062def276d",
+        "bytes": 269,
+        "counts": {
+          "tests": [],
+          "pass": [],
+          "fail": [],
+          "skipped": []
+        },
+        "typeDiagnosticLines": 1
+      }
+    }
+  },
+  "profiles": {
+    "retainedR12StaticPerRender": {
+      "responseBytes": 300476,
+      "contentMs": [
+        325,
+        379
+      ],
+      "historyMs": [
+        177,
+        183
+      ],
+      "otherTargetReadinessOfficialMs": [
+        20,
+        55
+      ],
+      "provenance": "Owner/coordinator measuredNode retaineddata profiling; privatecontent notcopied."
+    },
+    "sixSyntheticHookRenders": {
+      "catalogMs": 11.13,
+      "controllerLayoutMs": 169.22,
+      "repeatedStaticDerivations": 0,
+      "provenance": "Finalmappingowner measuredsynthetichookreuse, deliveredexplicitly; noprofilerartifactpath supplied."
+    },
+    "boundary": "Different fixtures/profilecontexts; do notcalculate a measured browserpaint/speedup orfieldprecision from these numbers."
+  },
+  "clockObservation": {
+    "browserWallAdvanceMs": 3975,
+    "hostMonotonicIntervalMs": 634.557,
+    "offsetDifferenceMs": 3340.443,
+    "provenance": "Coordinator delivery of two independent reviewers directR13trace comparison. No separate measurementartifact path supplied; none invented.",
+    "limitation": "Exact rejected creation-lock/capture timestamps are unavailable. The cause of the host/browser wall-clock discontinuity is unknown; these values do not establish field accuracy or the full causal path to refusal."
+  },
+  "productionBoundary": "Derived displays keyedactualsnapshot/session;200msliveagetick retainedonlyconnected+observation+visible+notauthorityblocked. Owner sayscommand/schema/writer/receipt/hash/freshness checksunchanged; no guardrelaxation orbrowserclosure.",
+  "inventory": {
+    "files": 33,
+    "uniqueCases": 409,
+    "currentExecutions": 267,
+    "deferredExecutions": 960,
+    "allExecutions": 1227
+  },
+  "freshAggregate": {
+    "command": "npm run validate",
+    "runtime": "Actual ownedPostgreSQL18.6 percoordinator",
+    "status": "running",
+    "logName": "cplayout-hierarchy-full-source-r14.log",
+    "logHash": "not_captured_while_running",
+    "boundary": "No result inferred. OlderR10aggregate remainsactualR10, cannotberelabeledR14."
+  },
+  "pending": [
+    "FreshfullR14aggregate completion",
+    "Matching focused/full267 andvisiblepacket",
+    "Rootcause/remainingR13browserconditions requalification",
+    "Twoacceptedcompletefinalreviews",
+    "Publication/native/device/physical accuracy"
+  ],
+  "boundary": "FrozenR14edition andactualscopedsourcechecks only. Allpriorfailure packets/logs andunknownwallclockcause/exactrejectedtimestamps retained; nocurrentwholebrowser/field/native/review acceptance.",
+  "decisionReference": {
+    "registry": "docs/workflow-registry.json",
+    "id": "DEC-R14-STATIC-DISPLAY-20261012",
+    "boundary": "Coordinator numericjudgments4.90vs3.65/veto; independentrecommendations real butnumeric scores notattributed to them. Testprotocol/sourceprofiles do not establishcurrentbrowser orfreshaggregate."
+  }
+}

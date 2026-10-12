@@ -21,11 +21,17 @@ import { useWorkspaceRecoveryParticipant } from "./workspaceRecoveryParticipants
 import { workspaceRecoveryStableJson } from "./workspaceEditRecovery";
 import { resolveUnifiedWorkspaceResume } from "../navigation/unifiedWorkspaceResume";
 import { WorkspaceRecoveryPanel } from "./WorkspaceRecoveryPanel";
+import { useWorkspaceRepositoryAccess } from "./WorkspaceRepositoryContext";
 
 /** Actual App composition: one controller, one common map, retained controlled
  * tools and a supporting catalog. There are no legacy whole-editor mounts. */
 export function UnifiedWorkspaceEntry(): React.JSX.Element {
+  const access = useWorkspaceRepositoryAccess();
+  const accessRef = useRef(access); accessRef.current = access;
+  const consumedLaunch = useRef<typeof access.launchIntent>(null);
   const controller = useWorkspaceController();
+  const navigationBoundary = useRef(controller.prepareNavigationBoundary); navigationBoundary.current = controller.prepareNavigationBoundary;
+  useEffect(() => access.registerBoundaryGuard?.(() => navigationBoundary.current()), [access.registerBoundaryGuard]);
   const { state } = controller, editable = state.editable;
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [currentFieldCreationRequest, setCurrentFieldCreationRequest] = useState<{
@@ -76,7 +82,7 @@ export function UnifiedWorkspaceEntry(): React.JSX.Element {
     state.presentation.mode === "layout" ? state.layout?.session.id : editable?.identity.payloadId, sourceGeneration]);
   const interactionKey = controller.interactionKey;
   function currentInteraction(): boolean {
-    if (!controller.recoveryParticipants.canEdit()) return false;
+    if (accessRef.current.visible === false || !controller.isActive() || !controller.recoveryParticipants.canEdit()) return false;
     const presentation = controller.stateRef.current.presentation;
     return interactionKey === JSON.stringify([presentation.documentGeneration, presentation.interactionGeneration]);
   }
@@ -87,7 +93,7 @@ export function UnifiedWorkspaceEntry(): React.JSX.Element {
     setManualRequest(null); setManualCapture(null); setSavedCopyId(null);
     setCurrentFieldCreationRequest(null); setNameFocusRequest(null);
     catalogVisibleRef.current = false; setCatalogOpen(false);
-    const task = current?.kind === "field" ? "machines" : current?.kind === "project" ? "inputs" : "drawing";
+    const task = "drawing";
     taskRef.current = task; setDesignTask(task);
     dialogOwner.current = { ...dialogOwner.current, generation: dialogOwner.current.generation + 1, sourceGeneration,
       kind: null, text: "", baseline: "" };
@@ -95,6 +101,13 @@ export function UnifiedWorkspaceEntry(): React.JSX.Element {
     manualBoundary.current = [];
     setAdvisoryInputs({ costInput: undefined, requestedFieldPivots: 1 });
   }, [sourceGeneration]);
+  useEffect(() => {
+    const request = controller.designViewRequest, actual = controller.stateRef.current;
+    if (!request || !controller.isActive() || actual.presentation.mode !== "design" || actual.presentation.documentGeneration !== request.documentGeneration
+      || actual.editable?.identity.designId !== request.designId) return;
+    const task: UnifiedDesignTask = request.category === "map" ? "drawing" : actual.editable.kind === "field" ? "machines" : "inputs";
+    taskRef.current = task; setDesignTask(task);
+  }, [controller.designViewRequest?.sequence, sourceGeneration]);
   useEffect(() => {
     if (controller.repository.backendInfo) void controller.restoreStartupContext();
   }, [controller.repository.backendInfo?.runtime, controller.repository.catalogRevision]);
@@ -117,9 +130,7 @@ export function UnifiedWorkspaceEntry(): React.JSX.Element {
   useWorkspaceRecoveryParticipant(controller.recoveryParticipants, "entry", {
     capture() {
       const actual = entryLatest.current;
-      // Field has no manual drawing reducer/tool. Its empty presentation
-      // placeholder cannot become a recoverable pending drawing owner.
-      const drawing = actual.controller.stateRef.current.editable?.kind === "field" ? null : drawingRef.current;
+      const drawing = drawingRef.current;
       return { entry: { designTask: taskRef.current, drawing: drawing ? {
         geometryType: drawing.geometryType, vertices: drawing.vertices, vertexRecordedAt: drawing.vertexRecordedAt,
         stage: drawing.stage, selectionId: drawing.selectionId, name: drawing.name, notes: drawing.notes,
@@ -132,7 +143,7 @@ export function UnifiedWorkspaceEntry(): React.JSX.Element {
       const epoch = recoveryEntryEpoch.current, oldGeneration = controller.stateRef.current.presentation.documentGeneration;
       const inputOwner = controller.recoveryParticipants.getInputOwner();
       const admitted = target.admission.editable;
-      if (admitted && (admitted.kind === "field" ? !["machines", "review"].includes(value.entry.designTask) : value.entry.designTask === "machines"))
+      if (admitted && (admitted.kind === "field" ? !["drawing", "machines", "review"].includes(value.entry.designTask) : value.entry.designTask === "machines"))
         throw new Error("The recovered Design page is not available for this document kind.");
       if (value.entry.drawing && !admitted) throw new Error("A recovered drawing needs its actual editable document.");
       const raw = workspaceRecoveryStableJson(value), detached = JSON.parse(raw) as typeof value;
@@ -155,7 +166,7 @@ export function UnifiedWorkspaceEntry(): React.JSX.Element {
             subjectKey: nextSubject, kind: detached.file.dialog, text: detached.file.text, baseline: detached.file.baseline };
           setDialog(detached.file.dialog); setDialogText(detached.file.text); setSavedCopyId(detached.file.savedCopyId);
           actual.setPendingInteractionInput("file-dialog", detached.file.dialog !== null && detached.file.dialog !== "preferences" && detached.file.text !== detached.file.baseline);
-          actual.setPendingInteractionInput("manual-drawing", !!interaction && (admitted?.kind === "project" && interaction.vertices.length > 0 || !!interaction.name || !!interaction.notes));
+          actual.setPendingInteractionInput("manual-drawing", !!interaction && (admitted?.kind !== "draft" && interaction.vertices.length > 0 || !!interaction.name || !!interaction.notes));
         } };
     },
   });
@@ -182,7 +193,7 @@ export function UnifiedWorkspaceEntry(): React.JSX.Element {
   function changeDrawing(next: WorkspaceDrawingInteraction) {
     if (!currentInteraction() || !editable || next.ownerKey !== workspaceDrawingOwnerKey(editable)) return;
     recoveryEntryEpoch.current++; controller.recoveryParticipants.notifyChanged(); drawingRef.current = next; setDrawing(next);
-    controller.setPendingInteractionInput("manual-drawing", editable.kind === "project" && next.vertices.length > 0 || !!next.name || !!next.notes, true);
+    controller.setPendingInteractionInput("manual-drawing", editable.kind !== "draft" && next.vertices.length > 0 || !!next.name || !!next.notes, true);
   }
   function retireMapInteraction() {
     const epoch = ++mapEpochRef.current;
@@ -192,7 +203,7 @@ export function UnifiedWorkspaceEntry(): React.JSX.Element {
   function requestDesignTask(task: UnifiedDesignTask): boolean {
     if (!controller.recoveryParticipants.canEdit()) return false;
     controller.noteUserIntent();
-    if (!currentInteraction() || !editable || (editable.kind === "field" ? task !== "machines" && task !== "review" : task === "machines")) return false;
+    if (!currentInteraction() || !editable || (editable.kind === "field" ? task !== "drawing" && task !== "machines" && task !== "review" : task === "machines")) return false;
     if (taskRef.current === task) return true;
     // Presentation suspends capture; it never changes pending vertices, document
     // revision/history, accepted Save ownership or the receiver connection.
@@ -230,10 +241,18 @@ export function UnifiedWorkspaceEntry(): React.JSX.Element {
   }
   const displayScene = useMemo(() => {
     const scene = controller.scene;
-    if (!scene || !editable || editable.kind !== "project" || !effectiveDrawing || scene.identity.documentKind !== "project") return scene;
+    if (!scene || !editable || editable.kind === "draft" || !effectiveDrawing || scene.identity.documentKind !== editable.kind) return scene;
     try { return withWorkspaceManualDrawing(scene, workspaceDrawingPreview(editable, effectiveDrawing)); }
     catch { return scene; }
   }, [controller.scene, editable, effectiveDrawing]);
+  useEffect(() => {
+    if (access.visible === false || !access.launchIntent || consumedLaunch.current === access.launchIntent) return;
+    if (access.launchIntent.kind === "continue") { consumedLaunch.current = access.launchIntent; return; }
+    if (!currentInteraction()) return;
+    consumedLaunch.current = access.launchIntent;
+    const intent = controller.noteUserIntent(); retireMapInteraction();
+    catalogVisibleRef.current = true; setCatalogOpen(true); publishContext(intent);
+  }, [access.visible, access.launchIntent, interactionKey]);
   const project = editable?.kind === "project" ? editable.editor.project : null;
   const currentCalculation = project && controller.calculation?.kind === "project" && controller.calculation.documentId === project.id
     && controller.calculation.inputRevision === editable?.editor.revision;
@@ -291,7 +310,9 @@ export function UnifiedWorkspaceEntry(): React.JSX.Element {
   function showCatalog() { const intent = controller.noteUserIntent(); if (currentInteraction()) { retireMapInteraction(); catalogVisibleRef.current = true; setCatalogOpen(true); publishContext(intent); } }
   function hideCatalog() { const intent = controller.noteUserIntent(); if (currentInteraction()) { retireMapInteraction(); catalogVisibleRef.current = false; setCatalogOpen(false); publishContext(intent); } }
   function finishCatalog(intent?: LocalIntentReceipt) {
-    if (!currentInteraction() || intent && controller.getLocalIntentReceipt() !== intent) return;
+    const actual = entryLatest.current.controller;
+    if (!actual.isActive() || !actual.recoveryParticipants.canEdit() || accessRef.current.visible === false
+      || (intent ? actual.getLocalIntentReceipt() !== intent : !currentInteraction())) return;
     retireMapInteraction(); catalogVisibleRef.current = false; setCatalogOpen(false);
     if (intent) publishContext(intent);
   }
@@ -399,25 +420,25 @@ export function UnifiedWorkspaceEntry(): React.JSX.Element {
     controller.reportError(new Error("This File dialog belongs to the retained design. Return to Design or Survey to finish or close it."));
   }, [subjectKey]);
   function showLayoutDetails(section: "name" | "copy") {
-    if (!currentInteraction() || state.presentation.mode !== "layout" || !state.layout) return;
+    if (!currentInteraction() || !controller.canEditField() || state.presentation.mode !== "layout" || !state.layout) return;
     setToolsRevealRequest(value => value + 1); layoutPanelRef.current?.showDetails(section);
   }
   const subjectFileActions: CommandMenuItemConfig[] = state.presentation.mode === "layout" ? [
-    { id: "rename-layout", label: "Rename current Layout session", disabled: !state.layout || controller.busy, onPress: () => showLayoutDetails("name") },
-    { id: "copy-layout", label: "Copy target into an empty session", disabled: !state.layout || controller.busy, onPress: () => showLayoutDetails("copy") },
+    { id: "rename-layout", label: "Rename current Layout session", disabled: !state.layout || controller.busy || !controller.canEditField(), onPress: () => showLayoutDetails("name") },
+    { id: "copy-layout", label: "Copy target into an empty session", disabled: !state.layout || controller.busy || !controller.canEditField(), onPress: () => showLayoutDetails("copy") },
     { id: "export-layout-zip", label: "Export Layout session & saved observations (ZIP)", disabled: !state.layout || controller.busy, onPress: () => run(() => controller.exportLayoutSession("zip")) },
     { id: "export-layout-json", label: "Export Layout session & saved observations (JSON)", disabled: !state.layout || controller.busy, onPress: () => run(() => controller.exportLayoutSession("json")) },
     { id: "close-layout", label: "Close current Layout session", disabled: !state.layout || controller.busy, onPress: () => { controller.closeLayout(); } },
   ] : [
-    { id: "rename-design", label: "Rename current design", disabled: !editable || controller.busy, onPress: () => openDialog("rename") },
-    { id: "copy-design", label: "Copy complete design workspace", disabled: !editable?.identity.designId || controller.busy, onPress: () => openDialog("copy") },
+    { id: "rename-design", label: "Rename current design", disabled: !editable || controller.busy || !controller.canEditField(), onPress: () => openDialog("rename") },
+    { id: "copy-design", label: "Copy complete design workspace", disabled: !editable?.identity.designId || controller.busy || !controller.canEditField(), onPress: () => openDialog("copy") },
     { id: "reopen-design", label: "Reload saved design", disabled: !editable?.identity.designId || controller.busy, onPress: () => { if (editable?.identity.designId) run(() => controller.openDesign(editable.identity.designId!, true)); } },
     { id: "export-design-zip", label: "Export complete design workspace (ZIP)", disabled: !editable?.identity.designId || controller.busy, onPress: () => run(() => controller.exportDesignWorkspace("zip")) },
     { id: "export-design-json", label: "Export complete design workspace (JSON)", disabled: !editable?.identity.designId || controller.busy, onPress: () => run(() => controller.exportDesignWorkspace("json")) },
     { id: "close-design", label: "Close current design", disabled: !editable || controller.busy, onPress: () => { controller.closeDesign(); } },
   ];
   const fileActions: CommandMenuItemConfig[] = [
-    { id: "new-design-current-field", label: "New design in current field…", disabled: controller.busy
+    { id: "new-design-current-field", label: "New design in current field…", disabled: controller.busy || !controller.canEditField()
       || !(state.presentation.mode === "layout" ? state.layout?.session.fieldMapId : editable?.identity.fieldMapId), onPress: createInCurrentField },
     ...subjectFileActions,
     { id: "unfinished-work", label: "Recover unfinished work", disabled: controller.busy, onPress: () => {
@@ -425,8 +446,8 @@ export function UnifiedWorkspaceEntry(): React.JSX.Element {
     { id: "workspace-recovery", label: "Export workspace recovery", disabled: !controller.repository.canExportWorkspaceRecovery, onPress: controller.repository.exportWorkspaceRecovery },
     { id: "preferences", label: "Units, map & layer preferences", onPress: () => openDialog("preferences") },
   ];
-  const activeDesignTask = editable?.kind === "field" ? designTask === "review" ? "review" : "machines" : designTask === "machines" ? "drawing" : designTask;
-  const canDigitize = !catalogOpen && dialog === null && (!!manualRequest || activeDesignTask === "drawing" && !!effectiveDrawing?.geometryType && !effectiveDrawing.paused && effectiveDrawing.stage === "drawing" && editable?.kind !== "field");
+  const activeDesignTask = editable?.kind === "field" ? designTask === "inputs" ? "drawing" : designTask : designTask === "machines" ? "drawing" : designTask;
+  const canDigitize = access.visible !== false && controller.canEditField() && !catalogOpen && dialog === null && (!!manualRequest || activeDesignTask === "drawing" && !!effectiveDrawing?.geometryType && !effectiveDrawing.paused && effectiveDrawing.stage === "drawing");
   const catalogPending = useCallback((pending: { dirty: boolean; busy: boolean }) => controller.setPendingInteractionInput("catalog", pending.dirty || pending.busy), [controller.setPendingInteractionInput]);
   return <UnifiedWorkspace controller={controller} displayScene={displayScene} layerVisibility={layerVisibility} canDigitize={canDigitize} onDesignPoint={onPoint}
     fileInputIntent={dialog === "copy" || dialog === "rename" ? dialog : null} toolsRevealRequest={toolsRevealRequest} onSaveCurrentSubject={() => {
@@ -440,10 +461,12 @@ export function UnifiedWorkspaceEntry(): React.JSX.Element {
     onOpenCatalog={showCatalog} fileActions={fileActions}
     panels={{
       design: <View style={[styles.panel, { flex: 1, minHeight: 0 }]}>
+        {controller.fieldArchiveStatus() !== "active" && <Text style={styles.label}>{controller.fieldArchiveStatus() === "archived" ? "This customer or project is archived. Review or export its saved work, or restore it to make changes." : "Customer and project status is unavailable. Connect or refresh before changing this field."}</Text>}
         <UnifiedDesignPanel ref={designPanelRef} editable={editable} settings={controller.settings} dispatch={controller.dispatch} dispatchBatch={controller.dispatchBatch}
           activeTask={activeDesignTask} onRequestTaskChange={requestDesignTask}
+          informationOwnedBySurvey={state.presentation.mode === "survey"}
           sourceGeneration={sourceGeneration}
-          disabled={controller.busy || state.presentation.mode !== "design" || catalogOpen || dialog !== null} drawingInteraction={effectiveDrawing} onDrawingInteractionChange={changeDrawing}
+          disabled={controller.busy || !controller.canEditField() || state.presentation.mode !== "design" || catalogOpen || dialog !== null} drawingInteraction={effectiveDrawing} onDrawingInteractionChange={changeDrawing}
           createEntityId={() => createCatalogId("entity")} onCalculate={() => run(controller.calculate)} calculation={controller.calculation}
           onCompleteDesign={() => run(controller.completeDesign)} savedCompleteDesignId={controller.savedCompleteDesignId}
           onOpenCompleteDesign={id => run(() => controller.openDesign(id))} onCreateFieldFromProject={() => run(controller.createFieldFromProject)}
@@ -465,21 +488,25 @@ export function UnifiedWorkspaceEntry(): React.JSX.Element {
       layout: <WorkspaceLayoutPanel ref={layoutPanelRef} controller={controller} />,
     }} management={<>
       <WorkspaceCatalog repository={controller.repository} activeContext={editable?.identity ?? null} activeLayoutFieldMapId={state.layout?.session.fieldMapId}
-        currentFieldCreationRequest={currentFieldCreationRequest}
+        archives={access.archives} maintenance={access.maintenance} sourceGeneration={state.presentation.documentGeneration}
+        prepareMaintenanceBoundary={controller.prepareNavigationBoundary} refreshMetadataReceipts={controller.refreshMetadataReceipts}
+        currentFieldCreationRequest={currentFieldCreationRequest} launchRequest={access.launchIntent}
         recoveryParticipants={controller.recoveryParticipants}
-        visible={(!editable && !state.layout) || catalogOpen} presentation={editable || state.layout ? "dialog" : "embedded"} busy={controller.busy || controller.saving}
+        visible={access.visible !== false && ((!editable && !state.layout) || catalogOpen)} presentation={editable || state.layout ? "dialog" : "embedded"} busy={controller.busy || controller.saving || !controller.active}
         onUserIntent={controller.noteUserIntent} getLocalIntentReceipt={controller.getLocalIntentReceipt}
         onSelectionChange={(context, intent) => { catalogContextRef.current = { ...context }; if (intent) publishContext(intent); }}
         resumeSelection={controller.resumeDelivery ? { generation: controller.resumeDelivery.generation,
           context: controller.resumeDelivery.catalogSelection, isCurrent: () => controller.isResumeDeliveryCurrent(controller.resumeDelivery!) } : null}
-        onPendingStateChange={catalogPending} executeCatalog={controller.executeCatalog} openDesign={controller.openDesign}
+        onPendingStateChange={catalogPending} canMaintainCatalog={controller.canMaintainCatalog} canEditField={controller.canEditField} canArchiveCatalog={controller.canArchiveCatalog} executeCatalog={controller.executeCatalog} openDesign={controller.openDesign} openLayoutSession={controller.openLayoutSession}
+        onStartSurvey={() => { if (controller.stateRef.current.presentation.mode !== "survey") controller.selectMode("survey"); }} onStartWork={mode => { if (controller.stateRef.current.presentation.mode !== mode) controller.selectMode(mode); }}
         closeDesign={() => controller.closeDesign({ ignorePendingInputKeys: ["catalog"] })} closeLayout={() => controller.closeLayout({ ignorePendingInputKeys: ["catalog"] })}
         importDesignWorkspace={controller.importDesignWorkspace} preparePackageStorageStep={controller.preparePackageStorageStep}
         onOpenLayoutCatalog={() => { hideCatalog(); controller.selectMode("layout"); }} onClose={finishCatalog} />
-      <Modal visible={dialog !== null} transparent onRequestClose={closeDialog}>
+      <Modal visible={access.visible !== false && dialog !== null} transparent onRequestClose={closeDialog}>
         <View style={styles.backdrop}><View style={styles.dialog}><ScrollView contentContainerStyle={styles.panel}>
           <Text style={styles.heading}>{dialog === "preferences" ? "Workspace preferences" : dialog === "rename" ? "Rename design" : "Copy design workspace"}</Text>
           {dialog === "preferences" ? <>
+            {controller.state.notice && <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.label} testID="workspace-preferences-notice">{controller.state.notice}</Text>}
             <WorkspaceSelect label="Measurements" value={controller.settings.unitSystem} choices={[{ id: "us_survey_feet", label: "Feet & acres" }, { id: "metric", label: "Metres & hectares" }]}
               onChange={unitSystem => controller.setSettings(parseAppSettings({ ...controller.settings, unitSystem }))} />
             <WorkspaceSelect label="Map style" value={controller.settings.mapStyle} choices={[{ id: "field_light", label: "Field map" }, { id: "high_contrast", label: "High contrast" }, { id: "topographic", label: "Topographic" }, { id: "imagery_package", label: "Imagery" }]}
@@ -496,7 +523,7 @@ export function UnifiedWorkspaceEntry(): React.JSX.Element {
           <WorkspaceButton label="Close" onPress={closeDialog} />
         </ScrollView></View></View>
       </Modal>
-      <WorkspaceRecoveryPanel controller={controller} visible={recoveryOpen} onClose={() => {
+      <WorkspaceRecoveryPanel controller={controller} visible={access.visible !== false && recoveryOpen} onClose={() => {
         if (controller.recoveryParticipants.canEdit()) setRecoveryOpen(false);
       }} />
     </>} />;
