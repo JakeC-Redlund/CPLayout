@@ -1,0 +1,3288 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-12T20:35:46.461068+00:00",
+  "classification": "final_independent_matching_whole_workflow_closing_review",
+  "claimClass": "browser",
+  "result": "pass",
+  "decision": "ACCEPT_exact_current_R18_software_source_browser_scope",
+  "reviewer": "/root/final_workflow_review_one",
+  "reviewOrdinal": 1,
+  "requiredConsecutiveMatchingFinalReviews": 2,
+  "consecutiveAcceptedCurrentR18AfterThisDeliveredReceipt": 1,
+  "countsAsCurrentFinalBrowserReview": true,
+  "previousIntermediateOrSourceOnlyReviewsCounted": false,
+  "independence": {
+    "reviewScope": "Complete current962-source census and all19requirements/23findings, requirement-critical code/contracts and exact bounded delta, actual completed aggregate/source/HTTP/hosted raw logs/current execution tuples. Earlier authored/intermediate/source-only receipts are foundations, not final closing votes.",
+    "actions": "No source/test/criteria/Git/npm/browser/server/native/PostgreSQL edits or launches during final review; only this authorized metadata receipt. Actual completed commands belong to coordinator/hosted CI. Earlier independent9service/RTK/legacy+23tracker/context/skills checks remain exact-source-bound and are identified in the source supplement."
+  },
+  "source": {
+    "manifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r18.json",
+    "sourceFingerprint": "3c146000b31bd17d3779e9a3c6853297e831a837e5ad21feb298a5a8ae1095d8",
+    "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+    "canonicalPathCount": 962,
+    "completeCensusMethod": "Direct wholeImplementationPaths equality with manifest scope/hash keys; all962 actualSHA checked; sorted hash-map fingerprint recomputed; actual declared-order criterion array digest recomputed; all19 criterion fields equal current registry; validateRegistry pass.",
+    "missingPaths": [],
+    "extraPaths": [],
+    "drift": [],
+    "qualifiedCandidateHead": "98857ded5f3962b8f2cd620f0be6d967361f3d36",
+    "actualTestedPullRequestMergeCommit": "f0c82e0c1b174453b2c537c26a81ea689ca5b310",
+    "baseCommit": "2649d1a9b1f1c55dff2eea4a6fe9faaa54be3824",
+    "scopeQualification": "Complete source edition, not sixteen anchors or an affected-module subset."
+  },
+  "sourceScope": [
+    ".agents/skills/cplayout-center-pivot-design-agent/SKILL.md",
+    ".agents/skills/cplayout-center-pivot-design-agent/agents/openai.yaml",
+    ".agents/skills/cplayout-database-agent/SKILL.md",
+    ".agents/skills/cplayout-database-agent/agents/openai.yaml",
+    ".agents/skills/cplayout-expert-agent-panels/SKILL.md",
+    ".agents/skills/cplayout-expert-agent-panels/agents/openai.yaml",
+    ".agents/skills/cplayout-expert-agent-panels/references/agent-prompts.md",
+    ".agents/skills/cplayout-expert-agent-panels/references/evidence-and-records.md",
+    ".agents/skills/cplayout-expert-agent-panels/references/panel-lifecycle.md",
+    ".agents/skills/cplayout-expert-agent-panels/references/prompt-triage.md",
+    ".agents/skills/cplayout-expert-agent-panels/references/reasoning-routing.md",
+    ".agents/skills/cplayout-gis-geometry-guard-agent/SKILL.md",
+    ".agents/skills/cplayout-google-earth-imagery-analysis/SKILL.md",
+    ".agents/skills/cplayout-google-earth-imagery-analysis/agents/openai.yaml",
+    ".agents/skills/cplayout-google-earth-imagery-analysis/references/imagery-analysis-workflow.md",
+    ".agents/skills/cplayout-google-earth-imagery-analysis/references/kml-kmz-evidence.md",
+    ".agents/skills/cplayout-google-earth-imagery-analysis/references/source-ledger-template.md",
+    ".agents/skills/cplayout-google-earth-imagery-analysis/scripts/inventory_ge_artifacts.py",
+    ".agents/skills/cplayout-imagery-mapping-agent/SKILL.md",
+    ".agents/skills/cplayout-imagery-mapping-agent/agents/openai.yaml",
+    ".agents/skills/cplayout-interface-development-agent/SKILL.md",
+    ".agents/skills/cplayout-interface-development-agent/agents/openai.yaml",
+    ".agents/skills/cplayout-planning-review/SKILL.md",
+    ".agents/skills/cplayout-qa-validation-agent/SKILL.md",
+    ".agents/skills/cplayout-runtime-proof-gate-agent/SKILL.md",
+    ".agents/skills/cplayout-workspace-preflight/SKILL.md",
+    ".codex/agents/cplayout_center_pivot_designer.toml",
+    ".codex/agents/cplayout_database_specialist.toml",
+    ".codex/agents/cplayout_gis_geometry_guardian.toml",
+    ".codex/agents/cplayout_imagery_mapper.toml",
+    ".codex/agents/cplayout_interface_developer.toml",
+    ".codex/agents/cplayout_kb_curator.toml",
+    ".codex/agents/cplayout_qa_validation_reviewer.toml",
+    ".codex/agents/cplayout_runtime_proof_gatekeeper.toml",
+    ".codex/config.toml",
+    ".codex/hooks.json",
+    ".codex/hooks/cplayout_context_map.json",
+    ".codex/hooks/cplayout_pre_tool_use.py",
+    ".codex/hooks/cplayout_prompt_triage.py",
+    ".codex/hooks/cplayout_route_data.json",
+    ".codex/hooks/cplayout_stop_multi_agent.py",
+    ".codex/hooks/cplayout_subagent_start.py",
+    ".gitattributes",
+    ".github/dependabot.yml",
+    ".github/workflows/cplayout-required.yml",
+    ".github/workflows/dependency-maintenance.yml",
+    ".gitignore",
+    ".nvmrc",
+    "AGENTS.md",
+    "apps/api/README.md",
+    "apps/api/migrations/001_auth_workspaces.sql",
+    "apps/api/package.json",
+    "apps/api/src/bootstrap.ts",
+    "apps/api/src/bootstrapService.ts",
+    "apps/api/src/config.ts",
+    "apps/api/src/database.test.ts",
+    "apps/api/src/database.ts",
+    "apps/api/src/legacyUpgrade.test.ts",
+    "apps/api/src/migrate.ts",
+    "apps/api/src/migrations.ts",
+    "apps/api/src/offlineGrant.test.ts",
+    "apps/api/src/passwords.ts",
+    "apps/api/src/permissions.ts",
+    "apps/api/src/projects.test.ts",
+    "apps/api/src/recoveryImportCasTestFixtures.ts",
+    "apps/api/src/rtkLayout.test.ts",
+    "apps/api/src/rtkTestFixtures.ts",
+    "apps/api/src/server.test.ts",
+    "apps/api/src/server.ts",
+    "apps/api/src/sessionOrdering.test.ts",
+    "apps/api/src/start.ts",
+    "apps/api/src/testDatabase.ts",
+    "apps/api/src/testHarness.ts",
+    "apps/api/tsconfig.json",
+    "apps/mobile/App.tsx",
+    "apps/mobile/android/.gitignore",
+    "apps/mobile/android/app/build.gradle",
+    "apps/mobile/android/app/proguard-rules.pro",
+    "apps/mobile/android/app/src/debug/AndroidManifest.xml",
+    "apps/mobile/android/app/src/debugOptimized/AndroidManifest.xml",
+    "apps/mobile/android/app/src/main/AndroidManifest.xml",
+    "apps/mobile/android/app/src/main/java/local/centerpivot/layout/MainActivity.kt",
+    "apps/mobile/android/app/src/main/java/local/centerpivot/layout/MainApplication.kt",
+    "apps/mobile/android/app/src/main/res/drawable-hdpi/splashscreen_logo.png",
+    "apps/mobile/android/app/src/main/res/drawable-mdpi/splashscreen_logo.png",
+    "apps/mobile/android/app/src/main/res/drawable-xhdpi/splashscreen_logo.png",
+    "apps/mobile/android/app/src/main/res/drawable-xxhdpi/splashscreen_logo.png",
+    "apps/mobile/android/app/src/main/res/drawable-xxxhdpi/splashscreen_logo.png",
+    "apps/mobile/android/app/src/main/res/drawable/ic_launcher_background.xml",
+    "apps/mobile/android/app/src/main/res/drawable/rn_edit_text_material.xml",
+    "apps/mobile/android/app/src/main/res/mipmap-hdpi/ic_launcher.webp",
+    "apps/mobile/android/app/src/main/res/mipmap-hdpi/ic_launcher_round.webp",
+    "apps/mobile/android/app/src/main/res/mipmap-mdpi/ic_launcher.webp",
+    "apps/mobile/android/app/src/main/res/mipmap-mdpi/ic_launcher_round.webp",
+    "apps/mobile/android/app/src/main/res/mipmap-xhdpi/ic_launcher.webp",
+    "apps/mobile/android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.webp",
+    "apps/mobile/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.webp",
+    "apps/mobile/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.webp",
+    "apps/mobile/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp",
+    "apps/mobile/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp",
+    "apps/mobile/android/app/src/main/res/values-night/colors.xml",
+    "apps/mobile/android/app/src/main/res/values/colors.xml",
+    "apps/mobile/android/app/src/main/res/values/strings.xml",
+    "apps/mobile/android/app/src/main/res/values/styles.xml",
+    "apps/mobile/android/build.gradle",
+    "apps/mobile/android/gradle.properties",
+    "apps/mobile/android/gradle/wrapper/gradle-wrapper.jar",
+    "apps/mobile/android/gradle/wrapper/gradle-wrapper.properties",
+    "apps/mobile/android/gradlew",
+    "apps/mobile/android/gradlew.bat",
+    "apps/mobile/android/settings.gradle",
+    "apps/mobile/app.json",
+    "apps/mobile/babel.config.js",
+    "apps/mobile/index.ts",
+    "apps/mobile/metro.config.js",
+    "apps/mobile/package.json",
+    "apps/mobile/public/advisory-overlay-notices.txt",
+    "apps/mobile/src/advisory/advisoryDemand.ts",
+    "apps/mobile/src/advisory/advisoryJob.test.ts",
+    "apps/mobile/src/advisory/advisoryJob.ts",
+    "apps/mobile/src/advisory/cornerArmInputs.test.ts",
+    "apps/mobile/src/advisory/cornerArmInputs.ts",
+    "apps/mobile/src/advisory/costInputs.test.ts",
+    "apps/mobile/src/advisory/costInputs.ts",
+    "apps/mobile/src/advisory/useAdvisoryJob.ts",
+    "apps/mobile/src/assets/google-earth-wizard/google-earth-pro-add-menu.png",
+    "apps/mobile/src/assets/google-earth-wizard/google-earth-pro-main-window.png",
+    "apps/mobile/src/assets/google-earth-wizard/manifest.json",
+    "apps/mobile/src/auth/AuthProvider.tsx",
+    "apps/mobile/src/auth/AuthenticatedWorkspace.tsx",
+    "apps/mobile/src/auth/accessOwnership.test.ts",
+    "apps/mobile/src/auth/accessOwnership.ts",
+    "apps/mobile/src/auth/authStorage.ts",
+    "apps/mobile/src/auth/authTransition.test.ts",
+    "apps/mobile/src/auth/authTransition.ts",
+    "apps/mobile/src/auth/authenticatedRepository.test.ts",
+    "apps/mobile/src/auth/authenticatedRepository.ts",
+    "apps/mobile/src/auth/deniedAccess.test.ts",
+    "apps/mobile/src/auth/deniedAccess.ts",
+    "apps/mobile/src/auth/index.ts",
+    "apps/mobile/src/auth/navigationBoundary.test.ts",
+    "apps/mobile/src/auth/navigationBoundary.ts",
+    "apps/mobile/src/catalogFormRecovery.test.ts",
+    "apps/mobile/src/catalogFormRecovery.ts",
+    "apps/mobile/src/components/AndroidNativeProofRunner.tsx",
+    "apps/mobile/src/components/BrowserRtkReceiverPanel.tsx",
+    "apps/mobile/src/components/CalculationReport.tsx",
+    "apps/mobile/src/components/CatalogArchiveImport.tsx",
+    "apps/mobile/src/components/CommandSurface.tsx",
+    "apps/mobile/src/components/CoordinateFormatPanel.tsx",
+    "apps/mobile/src/components/CornerArmCalculationInputs.tsx",
+    "apps/mobile/src/components/DesignDraftInputs.tsx",
+    "apps/mobile/src/components/DesignDraftWorkspace.tsx",
+    "apps/mobile/src/components/DrawingClassificationDialog.tsx",
+    "apps/mobile/src/components/DrawingToolPalette.tsx",
+    "apps/mobile/src/components/FieldDesignInputs.test.ts",
+    "apps/mobile/src/components/FieldDesignInputs.tsx",
+    "apps/mobile/src/components/FieldDesignWorkspace.tsx",
+    "apps/mobile/src/components/FieldLateralReview.tsx",
+    "apps/mobile/src/components/FieldLayoutSearchPanel.tsx",
+    "apps/mobile/src/components/FieldMachinePairReview.tsx",
+    "apps/mobile/src/components/FieldPivotPreviewControls.tsx",
+    "apps/mobile/src/components/GnssReferenceForm.tsx",
+    "apps/mobile/src/components/GoogleEarthImportWizard.tsx",
+    "apps/mobile/src/components/LayoutSessionCatalog.tsx",
+    "apps/mobile/src/components/LayoutSessionWorkspace.tsx",
+    "apps/mobile/src/components/MachinePlanComparison.tsx",
+    "apps/mobile/src/components/MetricTile.tsx",
+    "apps/mobile/src/components/PrimaryTaskNavigation.tsx",
+    "apps/mobile/src/components/ProjectCatalogDialog.tsx",
+    "apps/mobile/src/components/ProjectCopyButton.tsx",
+    "apps/mobile/src/components/ProjectCrsRecoveryPanel.tsx",
+    "apps/mobile/src/components/ProjectFilesPanel.tsx",
+    "apps/mobile/src/components/ProjectStartPanel.tsx",
+    "apps/mobile/src/components/ReceiverConnectionPanel.tsx",
+    "apps/mobile/src/components/SavedDesignPreview.tsx",
+    "apps/mobile/src/components/SettingsPanel.tsx",
+    "apps/mobile/src/components/WorkspaceStorageNotice.tsx",
+    "apps/mobile/src/components/catalogArchiveImport.test.ts",
+    "apps/mobile/src/components/catalogArchivePayload.ts",
+    "apps/mobile/src/components/catalogFormInitialization.test.ts",
+    "apps/mobile/src/components/designDraftInputValues.test.ts",
+    "apps/mobile/src/components/designDraftInputValues.ts",
+    "apps/mobile/src/components/draftReceiptReconciliation.test.ts",
+    "apps/mobile/src/components/draftReceiptReconciliation.ts",
+    "apps/mobile/src/components/drawingClassificationSelection.test.ts",
+    "apps/mobile/src/components/drawingClassificationSelection.ts",
+    "apps/mobile/src/components/editorOutputIdentity.test.ts",
+    "apps/mobile/src/components/editorOutputIdentity.ts",
+    "apps/mobile/src/components/fieldMachineInputs.test.ts",
+    "apps/mobile/src/components/fieldMachineInputs.ts",
+    "apps/mobile/src/components/fieldReceiptReconciliation.test.ts",
+    "apps/mobile/src/components/fieldReceiptReconciliation.ts",
+    "apps/mobile/src/components/layoutSessionViewModel.test.ts",
+    "apps/mobile/src/components/layoutSessionViewModel.ts",
+    "apps/mobile/src/components/machinePlanComparison.test.ts",
+    "apps/mobile/src/components/machinePlanComparison.ts",
+    "apps/mobile/src/components/savedDesignPreviewGeometry.test.ts",
+    "apps/mobile/src/components/savedDesignPreviewGeometry.ts",
+    "apps/mobile/src/editorSaveCoordinator.test.ts",
+    "apps/mobile/src/editorSaveCoordinator.ts",
+    "apps/mobile/src/gnss/captureDraft.test.ts",
+    "apps/mobile/src/gnss/captureDraft.ts",
+    "apps/mobile/src/gnss/networkReceiverTransport.test.ts",
+    "apps/mobile/src/gnss/networkReceiverTransport.ts",
+    "apps/mobile/src/gnss/receiverSessionOwner.test.ts",
+    "apps/mobile/src/gnss/receiverSessionOwner.ts",
+    "apps/mobile/src/gnss/webSerialSessionOwner.test.ts",
+    "apps/mobile/src/gnss/webSerialSessionOwner.ts",
+    "apps/mobile/src/gnss/webSerialTransport.test.ts",
+    "apps/mobile/src/gnss/webSerialTransport.ts",
+    "apps/mobile/src/gnss/webSerialTransportSafety.test.ts",
+    "apps/mobile/src/hooks/useEditorSaveCoordinator.ts",
+    "apps/mobile/src/hooks/useProjectRepository.test.ts",
+    "apps/mobile/src/hooks/useProjectRepository.ts",
+    "apps/mobile/src/inputRetention.test.ts",
+    "apps/mobile/src/inputRetention.tsx",
+    "apps/mobile/src/navigation/leftNavMenu.ts",
+    "apps/mobile/src/navigation/navigationViewModels.test.ts",
+    "apps/mobile/src/navigation/navigationViewModels.ts",
+    "apps/mobile/src/navigation/projectTreeViewModel.test.ts",
+    "apps/mobile/src/navigation/projectTreeViewModel.ts",
+    "apps/mobile/src/navigation/unifiedWorkspaceResume.test.ts",
+    "apps/mobile/src/navigation/unifiedWorkspaceResume.ts",
+    "apps/mobile/src/navigation/workspaceResume.test.ts",
+    "apps/mobile/src/navigation/workspaceResume.ts",
+    "apps/mobile/src/newDesignDraft.test.ts",
+    "apps/mobile/src/newDesignDraft.ts",
+    "apps/mobile/src/pendingMapDraft.test.ts",
+    "apps/mobile/src/pendingMapDraft.ts",
+    "apps/mobile/src/projectEditorDispatch.test.ts",
+    "apps/mobile/src/projectEditorDispatch.ts",
+    "apps/mobile/src/projectOpenRequest.test.ts",
+    "apps/mobile/src/projectOpenRequest.ts",
+    "apps/mobile/src/projectReceiptReconciliation.ts",
+    "apps/mobile/src/workspace/AuthenticatedWorkspaceBridge.tsx",
+    "apps/mobile/src/workspace/CustomerMaintenancePanel.test.ts",
+    "apps/mobile/src/workspace/CustomerMaintenancePanel.tsx",
+    "apps/mobile/src/workspace/ProjectDesignPanel.test.ts",
+    "apps/mobile/src/workspace/ProjectDesignPanel.tsx",
+    "apps/mobile/src/workspace/ProjectWorkspaceTools.tsx",
+    "apps/mobile/src/workspace/SurveyKnownInformationPanel.tsx",
+    "apps/mobile/src/workspace/UnifiedDesignPanel.test.ts",
+    "apps/mobile/src/workspace/UnifiedDesignPanel.tsx",
+    "apps/mobile/src/workspace/UnifiedWorkspace.tsx",
+    "apps/mobile/src/workspace/UnifiedWorkspaceEntry.tsx",
+    "apps/mobile/src/workspace/WorkspaceCatalog.test.ts",
+    "apps/mobile/src/workspace/WorkspaceCatalog.tsx",
+    "apps/mobile/src/workspace/WorkspaceCatalogManagement.test.ts",
+    "apps/mobile/src/workspace/WorkspaceCatalogRecovery.test.ts",
+    "apps/mobile/src/workspace/WorkspaceDrawingPanel.test.ts",
+    "apps/mobile/src/workspace/WorkspaceDrawingPanel.tsx",
+    "apps/mobile/src/workspace/WorkspaceLateralInputs.test.ts",
+    "apps/mobile/src/workspace/WorkspaceLateralInputs.tsx",
+    "apps/mobile/src/workspace/WorkspaceModePanels.tsx",
+    "apps/mobile/src/workspace/WorkspaceModePanelsRecovery.test.ts",
+    "apps/mobile/src/workspace/WorkspaceRecoveryPanel.tsx",
+    "apps/mobile/src/workspace/WorkspaceRepositoryContext.tsx",
+    "apps/mobile/src/workspace/WorkspaceSurveyPanel.test.ts",
+    "apps/mobile/src/workspace/useWorkspaceController.ts",
+    "apps/mobile/src/workspace/useWorkspaceEditRecovery.ts",
+    "apps/mobile/src/workspace/useWorkspaceRecoveryCamera.ts",
+    "apps/mobile/src/workspace/workspaceControllerState.test.ts",
+    "apps/mobile/src/workspace/workspaceControllerState.ts",
+    "apps/mobile/src/workspace/workspaceDocumentAdapters.ts",
+    "apps/mobile/src/workspace/workspaceEditRecovery.test.ts",
+    "apps/mobile/src/workspace/workspaceEditRecovery.ts",
+    "apps/mobile/src/workspace/workspaceEditRecoveryOwner.test.ts",
+    "apps/mobile/src/workspace/workspaceEditRecoveryOwner.ts",
+    "apps/mobile/src/workspace/workspaceEditRecoveryStore.test.ts",
+    "apps/mobile/src/workspace/workspaceEditRecoveryStore.ts",
+    "apps/mobile/src/workspace/workspaceEditRecoveryV2Reader.json",
+    "apps/mobile/src/workspace/workspaceEditRecoveryV2Reader.ts",
+    "apps/mobile/src/workspace/workspaceEditRecoveryV3.test.ts",
+    "apps/mobile/src/workspace/workspaceFileCommands.test.ts",
+    "apps/mobile/src/workspace/workspaceIntegration.test.ts",
+    "apps/mobile/src/workspace/workspaceIntegration.ts",
+    "apps/mobile/src/workspace/workspaceMapContext.ts",
+    "apps/mobile/src/workspace/workspacePresentation.test.ts",
+    "apps/mobile/src/workspace/workspacePresentation.ts",
+    "apps/mobile/src/workspace/workspaceProductionCapabilities.ts",
+    "apps/mobile/src/workspace/workspaceRecoveryControllerState.test.ts",
+    "apps/mobile/src/workspace/workspaceRecoveryControllerState.ts",
+    "apps/mobile/src/workspace/workspaceRecoveryManagement.test.ts",
+    "apps/mobile/src/workspace/workspaceRecoveryParticipants.test.ts",
+    "apps/mobile/src/workspace/workspaceRecoveryParticipants.ts",
+    "apps/mobile/src/workspace/workspaceStartupResume.test.ts",
+    "apps/mobile/tsconfig.json",
+    "docs/README.md",
+    "docs/agent-context-map.md",
+    "docs/agent-governance-summary.md",
+    "docs/agent-known-gaps.md",
+    "docs/agent-prompt-registry.md",
+    "docs/agent-source-ledger.md",
+    "docs/agent-tree-protocol.md",
+    "docs/agent-tree-rollout.md",
+    "docs/android-native-verification.md",
+    "docs/codex-managed-hook-deployment.md",
+    "docs/dependency-maintenance.md",
+    "docs/dependency-upgrade-plan.md",
+    "docs/evidence/production-workflow-review-20261011/final-packet-arrangement.md",
+    "docs/examples/cplayout-managed-requirements.toml",
+    "docs/governance-refocus-2026-10-10.md",
+    "docs/kml-kmz-google-earth-source-ledger.md",
+    "docs/operator-workflow-guide.md",
+    "docs/production-workflow-improvement-plan.md",
+    "docs/rtk-gnss-integration-plan.md",
+    "docs/skill-capability-inventory.json",
+    "docs/skill-capability-inventory.md",
+    "docs/unified-workspace-refocus-2026-10-10.md",
+    "docs/workflow-acceptance-protocol.md",
+    "docs/workflow-maintenance-guide.md",
+    "docs/workflow-retirement-manifest.json",
+    "fixtures/corner-arm-research/articulation-limit.json",
+    "fixtures/corner-arm-research/between-sample-collision.json",
+    "fixtures/corner-arm-research/budget-unresolved.json",
+    "fixtures/corner-arm-research/clipped-endpoint-negative.json",
+    "fixtures/corner-arm-research/close-positive-gap.json",
+    "fixtures/corner-arm-research/concave-clear.json",
+    "fixtures/corner-arm-research/concave-interior-exit.json",
+    "fixtures/corner-arm-research/derivative-cycle-open.json",
+    "fixtures/corner-arm-research/hole-interior-collision.json",
+    "fixtures/corner-arm-research/invalid-bowtie.json",
+    "fixtures/corner-arm-research/invalid-knot-order.json",
+    "fixtures/corner-arm-research/invalid-missing-sweep-end.json",
+    "fixtures/corner-arm-research/joint-cycle-open.json",
+    "fixtures/corner-arm-research/large-translated-coordinates.json",
+    "fixtures/corner-arm-research/manifest.json",
+    "fixtures/corner-arm-research/obstacle-main-interior.json",
+    "fixtures/corner-arm-research/obstacle-overhang.json",
+    "fixtures/corner-arm-research/offset-only-collision.json",
+    "fixtures/corner-arm-research/partial-no-closure-required.json",
+    "fixtures/corner-arm-research/rectangle-open.json",
+    "fixtures/corner-arm-research/reverse-full-circle.json",
+    "fixtures/corner-arm-research/reverse-open-offsets.json",
+    "fixtures/corner-arm-research/roomy-circle.json",
+    "fixtures/corner-arm-research/slope-limit.json",
+    "fixtures/corner-arm-research/square-layout.json",
+    "fixtures/corner-arm-research/straight-sdu-knot-guide.json",
+    "fixtures/corner-arm-research/tangent-buffer.json",
+    "fixtures/real-pivot/manifest.json",
+    "package-lock.json",
+    "package.json",
+    "packages/auth-client/package.json",
+    "packages/auth-client/src/apiClient.ts",
+    "packages/auth-client/src/auth.test.ts",
+    "packages/auth-client/src/cache.ts",
+    "packages/auth-client/src/contracts.ts",
+    "packages/auth-client/src/index.ts",
+    "packages/auth-client/src/offline.ts",
+    "packages/auth-client/src/publicConfig.ts",
+    "packages/auth-client/tsconfig.json",
+    "packages/backup-artifacts/.gitignore",
+    "packages/backup-artifacts/README.md",
+    "packages/backup-artifacts/android/build.gradle",
+    "packages/backup-artifacts/android/src/main/AndroidManifest.xml",
+    "packages/backup-artifacts/android/src/main/java/local/cplayout/storage/AndroidArtifactBackend.java",
+    "packages/backup-artifacts/android/src/main/java/local/cplayout/storage/ArtifactSessionRegistry.java",
+    "packages/backup-artifacts/android/src/main/java/local/cplayout/storage/CPLayoutBackupArtifactsModule.kt",
+    "packages/backup-artifacts/android/src/main/java/local/cplayout/storage/NativeArtifactService.java",
+    "packages/backup-artifacts/android/src/main/java/local/cplayout/storage/ReceiptHexTransport.java",
+    "packages/backup-artifacts/expo-module.config.json",
+    "packages/backup-artifacts/index.native.ts",
+    "packages/backup-artifacts/index.ts",
+    "packages/backup-artifacts/package.json",
+    "packages/backup-artifacts/tests/java/ArtifactSessionRegistryTest.java",
+    "packages/backup-artifacts/tests/java/NativeArtifactServiceTest.java",
+    "packages/backup-artifacts/tests/java/ReceiptHexTransportTest.java",
+    "packages/backup-artifacts/tsconfig.json",
+    "packages/core/package.json",
+    "packages/core/src/classifiedFieldDrawing.test.ts",
+    "packages/core/src/classifiedFieldDrawing.ts",
+    "packages/core/src/classifiedProjectDrawing.test.ts",
+    "packages/core/src/classifiedProjectDrawing.ts",
+    "packages/core/src/coordinates.test.ts",
+    "packages/core/src/coordinates.ts",
+    "packages/core/src/coordinatesSafety.test.ts",
+    "packages/core/src/cornerArmCatalog.test.ts",
+    "packages/core/src/cornerArmCatalog.ts",
+    "packages/core/src/cornerGpsMapExport.test.ts",
+    "packages/core/src/cornerGpsMapExport.ts",
+    "packages/core/src/cornerGpsMapImport.test.ts",
+    "packages/core/src/cornerGpsMapImport.ts",
+    "packages/core/src/cornerGpsMapLegacyEvidence.test.ts",
+    "packages/core/src/cornerGpsMapLegacyEvidence.ts",
+    "packages/core/src/crsMutationSafety.test.ts",
+    "packages/core/src/crsQualification.test.ts",
+    "packages/core/src/crsQualification.ts",
+    "packages/core/src/designDraft.test.ts",
+    "packages/core/src/designDraft.ts",
+    "packages/core/src/designDraftEditor.test.ts",
+    "packages/core/src/designDraftEditor.ts",
+    "packages/core/src/draftDrawingWorkflow.test.ts",
+    "packages/core/src/draftDrawingWorkflow.ts",
+    "packages/core/src/drawingClassification.test.ts",
+    "packages/core/src/drawingClassification.ts",
+    "packages/core/src/drawingMetadata.test.ts",
+    "packages/core/src/drawingMetadata.ts",
+    "packages/core/src/drawingProjectEdits.test.ts",
+    "packages/core/src/drawingProjectMutation.ts",
+    "packages/core/src/fieldCalculationInput.test.ts",
+    "packages/core/src/fieldCalculationInput.ts",
+    "packages/core/src/fieldDesignDocument.test.ts",
+    "packages/core/src/fieldDesignDocument.ts",
+    "packages/core/src/fieldDesignEditor.test.ts",
+    "packages/core/src/fieldDesignEditor.ts",
+    "packages/core/src/fieldLayoutTarget.test.ts",
+    "packages/core/src/fieldLayoutTarget.ts",
+    "packages/core/src/fixtures/proj-wgs84-utm.json",
+    "packages/core/src/fltLayoutReview.test.ts",
+    "packages/core/src/fltLayoutReview.ts",
+    "packages/core/src/gnssEvidence.test.ts",
+    "packages/core/src/gnssEvidence.ts",
+    "packages/core/src/imageryEvidence.test.ts",
+    "packages/core/src/imageryEvidence.ts",
+    "packages/core/src/index.ts",
+    "packages/core/src/jsonDataSnapshot.ts",
+    "packages/core/src/jsonFieldRetention.ts",
+    "packages/core/src/layoutSession.ts",
+    "packages/core/src/machineCatalog.ts",
+    "packages/core/src/manualDesign.test.ts",
+    "packages/core/src/manualDesign.ts",
+    "packages/core/src/mapReferenceViewModel.test.ts",
+    "packages/core/src/mapReferenceViewModel.ts",
+    "packages/core/src/mapTilePackages.test.ts",
+    "packages/core/src/mapTilePackages.ts",
+    "packages/core/src/navigationMenuXml.test.ts",
+    "packages/core/src/navigationMenuXml.ts",
+    "packages/core/src/officialLayout.test.ts",
+    "packages/core/src/officialLayout.ts",
+    "packages/core/src/operationalGnssEvidence.ts",
+    "packages/core/src/operationalLayout.test.ts",
+    "packages/core/src/productionWorkflowTestFixtures.ts",
+    "packages/core/src/projectCalculationSafety.test.ts",
+    "packages/core/src/projectCalculationSafety.ts",
+    "packages/core/src/projectDataComparison.ts",
+    "packages/core/src/projectDocument.test.ts",
+    "packages/core/src/projectDocument.ts",
+    "packages/core/src/projectImports.ts",
+    "packages/core/src/projectKml.test.ts",
+    "packages/core/src/projectKml.ts",
+    "packages/core/src/projectReducer.test.ts",
+    "packages/core/src/projectReducer.ts",
+    "packages/core/src/projectXml.test.ts",
+    "packages/core/src/projectXml.ts",
+    "packages/core/src/provenanceSafety.test.ts",
+    "packages/core/src/recordedReference.test.ts",
+    "packages/core/src/referenceOverlays.test.ts",
+    "packages/core/src/referenceOverlays.ts",
+    "packages/core/src/sampleProject.ts",
+    "packages/core/src/settings.test.ts",
+    "packages/core/src/settings.ts",
+    "packages/core/src/sha256.ts",
+    "packages/core/src/straightLateral.test.ts",
+    "packages/core/src/straightLateral.ts",
+    "packages/core/src/straightLateralCalculationInput.ts",
+    "packages/core/src/strictJson.ts",
+    "packages/core/src/surveyCollection.test.ts",
+    "packages/core/src/surveyCollection.ts",
+    "packages/core/src/surveyCollectionApplication.test.ts",
+    "packages/core/src/surveyCollectionApplication.ts",
+    "packages/core/src/surveyCollectionSchemas.ts",
+    "packages/core/src/surveyDraftField.test.ts",
+    "packages/core/src/surveyDraftField.ts",
+    "packages/core/src/surveyPointSchema.ts",
+    "packages/core/src/surveyReview.test.ts",
+    "packages/core/src/surveyReview.ts",
+    "packages/core/src/types.ts",
+    "packages/core/src/units.test.ts",
+    "packages/core/src/units.ts",
+    "packages/core/tsconfig.json",
+    "packages/geometry/package.json",
+    "packages/geometry/src/advisoryCostBasis.test.ts",
+    "packages/geometry/src/advisoryDesignReport.test.ts",
+    "packages/geometry/src/advisoryDesignReport.ts",
+    "packages/geometry/src/advisoryFieldPlanReuse.test.ts",
+    "packages/geometry/src/advisoryMachineRenderModel.test.ts",
+    "packages/geometry/src/advisoryMachineRenderModel.ts",
+    "packages/geometry/src/advisoryPivotPlacement.test.ts",
+    "packages/geometry/src/advisoryPivotPlacement.ts",
+    "packages/geometry/src/advisoryScheduling.test.ts",
+    "packages/geometry/src/advisoryTemplatePlanner.test.ts",
+    "packages/geometry/src/calculation.ts",
+    "packages/geometry/src/cornerArmKinematics.test.ts",
+    "packages/geometry/src/cornerArmKinematics.ts",
+    "packages/geometry/src/cornerContinuousModel.ts",
+    "packages/geometry/src/cornerGpsMapAdvisoryReview.test.ts",
+    "packages/geometry/src/cornerGpsMapAdvisoryReview.ts",
+    "packages/geometry/src/cornerMemberClearance.ts",
+    "packages/geometry/src/cornerPathAccounting.test.ts",
+    "packages/geometry/src/cornerPathAccounting.ts",
+    "packages/geometry/src/cornerPathClosure.test.ts",
+    "packages/geometry/src/crsCalculationSafety.test.ts",
+    "packages/geometry/src/designScenarios.test.ts",
+    "packages/geometry/src/designScenarios.ts",
+    "packages/geometry/src/geometry.test.ts",
+    "packages/geometry/src/geometry.ts",
+    "packages/geometry/src/index.ts",
+    "packages/geometry/src/layoutProof.test.ts",
+    "packages/geometry/src/layoutProof.ts",
+    "packages/geometry/src/layoutScoring.test.ts",
+    "packages/geometry/src/layoutScoring.ts",
+    "packages/geometry/src/layoutSearch.benchmark.ts",
+    "packages/geometry/src/layoutSearch.test.ts",
+    "packages/geometry/src/layoutSearch.ts",
+    "packages/geometry/src/layoutSearchCandidates.ts",
+    "packages/geometry/src/layoutSearchCombinations.ts",
+    "packages/geometry/src/layoutSearchCoverage.ts",
+    "packages/geometry/src/layoutSearchDiagnostics.ts",
+    "packages/geometry/src/layoutSearchFeasibility.ts",
+    "packages/geometry/src/layoutSearchTypes.ts",
+    "packages/geometry/src/layoutSearchV2.ts",
+    "packages/geometry/src/layoutSearchV2Candidates.ts",
+    "packages/geometry/src/layoutSearchV2Combinations.ts",
+    "packages/geometry/src/machinePairAssessment.test.ts",
+    "packages/geometry/src/machinePairAssessment.ts",
+    "packages/geometry/src/machineSeparation.ts",
+    "packages/geometry/src/mapInteraction.test.ts",
+    "packages/geometry/src/mapInteraction.ts",
+    "packages/geometry/src/numericalCalculationSafety.test.ts",
+    "packages/geometry/src/onlineImagery.ts",
+    "packages/geometry/src/pathBoundaryDistanceQuality.test.ts",
+    "packages/geometry/src/pivotCenterOptimizer.test.ts",
+    "packages/geometry/src/pivotCenterOptimizer.ts",
+    "packages/geometry/src/sampleProjects.test.ts",
+    "packages/geometry/src/straightLateralGeometry.test.ts",
+    "packages/geometry/src/straightLateralGeometry.ts",
+    "packages/geometry/src/types/polygon-clipping.d.ts",
+    "packages/geometry/src/visualLayoutReview.test.ts",
+    "packages/geometry/src/visualLayoutReview.ts",
+    "packages/geometry/src/workflowSafety.test.ts",
+    "packages/geometry/tsconfig.json",
+    "packages/gnss/package.json",
+    "packages/gnss/src/captureQualification.test.ts",
+    "packages/gnss/src/captureQualification.ts",
+    "packages/gnss/src/index.ts",
+    "packages/gnss/src/navsparkRaw.test.ts",
+    "packages/gnss/src/navsparkRaw.ts",
+    "packages/gnss/src/nmea.test.ts",
+    "packages/gnss/src/nmea.ts",
+    "packages/gnss/src/nmeaSafety.test.ts",
+    "packages/gnss/src/operationalReceiver.test.ts",
+    "packages/gnss/src/operationalReceiver.ts",
+    "packages/gnss/src/px1122r.test.ts",
+    "packages/gnss/src/px1122r.ts",
+    "packages/gnss/src/receiverStream.test.ts",
+    "packages/gnss/src/receiverStream.ts",
+    "packages/gnss/src/transport.ts",
+    "packages/gnss/src/transportSwitchController.test.ts",
+    "packages/gnss/src/transportSwitchController.ts",
+    "packages/gnss/tsconfig.json",
+    "packages/map-adapters/package.json",
+    "packages/map-adapters/src/BrowserMapSurface.web.tsx",
+    "packages/map-adapters/src/DesignDraftMapSurface.tsx",
+    "packages/map-adapters/src/MapLibreImageryPreview.tsx",
+    "packages/map-adapters/src/MapLibreImageryPreview.web.tsx",
+    "packages/map-adapters/src/MapSurface.native.tsx",
+    "packages/map-adapters/src/MapSurface.tsx",
+    "packages/map-adapters/src/MapSurface.web.tsx",
+    "packages/map-adapters/src/NativeAerialMapLibreReferenceSurface.native.tsx",
+    "packages/map-adapters/src/NativeMapLibreTileProofSurface.native.tsx",
+    "packages/map-adapters/src/NativeMapWorkbenchSurface.native.tsx",
+    "packages/map-adapters/src/SvgMapSurface.tsx",
+    "packages/map-adapters/src/WorkspaceMapFrame.tsx",
+    "packages/map-adapters/src/WorkspaceMapSurface.native.tsx",
+    "packages/map-adapters/src/WorkspaceMapSurface.tsx",
+    "packages/map-adapters/src/WorkspaceMapSurface.web.test.ts",
+    "packages/map-adapters/src/WorkspaceMapSurface.web.tsx",
+    "packages/map-adapters/src/WorkspaceSvgCanvas.tsx",
+    "packages/map-adapters/src/browserMapInteraction.test.ts",
+    "packages/map-adapters/src/browserMapInteraction.ts",
+    "packages/map-adapters/src/designDraftMap.test.ts",
+    "packages/map-adapters/src/designDraftMap.ts",
+    "packages/map-adapters/src/index.ts",
+    "packages/map-adapters/src/initialMapCamera.test.ts",
+    "packages/map-adapters/src/initialMapCamera.ts",
+    "packages/map-adapters/src/mapAttribution.test.ts",
+    "packages/map-adapters/src/mapAttribution.ts",
+    "packages/map-adapters/src/mapCameraSession.test.ts",
+    "packages/map-adapters/src/mapCameraSession.ts",
+    "packages/map-adapters/src/mapClickIntent.ts",
+    "packages/map-adapters/src/mapFit.test.ts",
+    "packages/map-adapters/src/mapFit.ts",
+    "packages/map-adapters/src/mapInteractionController.test.ts",
+    "packages/map-adapters/src/mapInteractionController.ts",
+    "packages/map-adapters/src/mapOverlayGeoJson.test.ts",
+    "packages/map-adapters/src/mapOverlayGeoJson.ts",
+    "packages/map-adapters/src/mapPointerGuard.test.ts",
+    "packages/map-adapters/src/mapPointerGuard.ts",
+    "packages/map-adapters/src/mapTools.test.ts",
+    "packages/map-adapters/src/mapTools.ts",
+    "packages/map-adapters/src/mapViewport.test.ts",
+    "packages/map-adapters/src/mapViewport.ts",
+    "packages/map-adapters/src/mapWorkbenchStyle.ts",
+    "packages/map-adapters/src/maplibre-css.d.ts",
+    "packages/map-adapters/src/maplibreRuntime.web.ts",
+    "packages/map-adapters/src/pmtilesProtocol.web.ts",
+    "packages/map-adapters/src/projectVertexEditing.test.ts",
+    "packages/map-adapters/src/projectVertexEditing.ts",
+    "packages/map-adapters/src/referenceOverlayStyle.test.ts",
+    "packages/map-adapters/src/referenceOverlayStyle.ts",
+    "packages/map-adapters/src/svgMapLabels.test.ts",
+    "packages/map-adapters/src/svgMapLabels.ts",
+    "packages/map-adapters/src/types.ts",
+    "packages/map-adapters/src/useMapInteractionController.ts",
+    "packages/map-adapters/src/useWorkspaceMapCamera.test.ts",
+    "packages/map-adapters/src/useWorkspaceMapCamera.ts",
+    "packages/map-adapters/src/vertexDragSession.test.ts",
+    "packages/map-adapters/src/vertexDragSession.ts",
+    "packages/map-adapters/src/workspaceMapScene.test.ts",
+    "packages/map-adapters/src/workspaceMapScene.ts",
+    "packages/map-adapters/src/workspaceMapSurfaceTypes.ts",
+    "packages/map-adapters/src/workspaceSceneRendering.test.ts",
+    "packages/map-adapters/src/workspaceSceneRendering.ts",
+    "packages/map-adapters/src/workspaceStakeoutScene.test.ts",
+    "packages/map-adapters/tsconfig.json",
+    "packages/project-store/package.json",
+    "packages/project-store/src/androidNativeProofRuntime.native.ts",
+    "packages/project-store/src/androidNativeProofRuntime.ts",
+    "packages/project-store/src/completeWorkflowStorage.test.ts",
+    "packages/project-store/src/designDraftArchive.test.ts",
+    "packages/project-store/src/designDraftArchive.ts",
+    "packages/project-store/src/designWorkspaceBundle.ts",
+    "packages/project-store/src/expoBackupPorts.ts",
+    "packages/project-store/src/expoSqliteTypes.ts",
+    "packages/project-store/src/fieldDesignArchive.test.ts",
+    "packages/project-store/src/fieldDesignArchive.ts",
+    "packages/project-store/src/fieldWorkspace.test.ts",
+    "packages/project-store/src/index.ts",
+    "packages/project-store/src/layoutSessionArchive.ts",
+    "packages/project-store/src/legacyAccess.ts",
+    "packages/project-store/src/legacyBusinessRefusal.ts",
+    "packages/project-store/src/legacyDatabaseOwner.ts",
+    "packages/project-store/src/legacySqliteAdmission.ts",
+    "packages/project-store/src/legacySqliteProof.ts",
+    "packages/project-store/src/legacySqliteRepository.ts",
+    "packages/project-store/src/legacyWorkspaceMigration.ts",
+    "packages/project-store/src/legacyWriteFence.ts",
+    "packages/project-store/src/losslessSqliteComparison.ts",
+    "packages/project-store/src/managedLegacyRepository.ts",
+    "packages/project-store/src/mapPackageArchive.test.ts",
+    "packages/project-store/src/mapPackageArchive.ts",
+    "packages/project-store/src/mapPackageArchiveInstall.native.ts",
+    "packages/project-store/src/mapPackageArchiveInstall.ts",
+    "packages/project-store/src/nativeArtifactSession.ts",
+    "packages/project-store/src/nativeBackupHost.ts",
+    "packages/project-store/src/nativeProjectRepository.ts",
+    "packages/project-store/src/nativeReadyRepository.ts",
+    "packages/project-store/src/nativeRetainedVerifier.ts",
+    "packages/project-store/src/nativeSourceLease.ts",
+    "packages/project-store/src/nativeVerification.test.ts",
+    "packages/project-store/src/nativeVerification.ts",
+    "packages/project-store/src/nativeWorkspaceAccess.ts",
+    "packages/project-store/src/nativeWorkspaceBinding.ts",
+    "packages/project-store/src/nativeWorkspaceHandoff.ts",
+    "packages/project-store/src/nativeWorkspaceInspection.ts",
+    "packages/project-store/src/nativeWorkspaceReadiness.ts",
+    "packages/project-store/src/nativeWorkspaceSchema.ts",
+    "packages/project-store/src/nativeWorkspaceStartup.ts",
+    "packages/project-store/src/nativeWorkspaceUpgrade.ts",
+    "packages/project-store/src/persistenceSchema.test.ts",
+    "packages/project-store/src/persistenceSchema.ts",
+    "packages/project-store/src/preparedUpgrade.ts",
+    "packages/project-store/src/productionWorkflow.test.ts",
+    "packages/project-store/src/productionWorkflow.ts",
+    "packages/project-store/src/productionWorkflowSchemas.ts",
+    "packages/project-store/src/projectArchive.test.ts",
+    "packages/project-store/src/projectArchive.ts",
+    "packages/project-store/src/projectArchiveIO.native.ts",
+    "packages/project-store/src/projectArchiveIO.ts",
+    "packages/project-store/src/projectCatalog.ts",
+    "packages/project-store/src/projectDocumentEditing.ts",
+    "packages/project-store/src/projectKmlArchive.test.ts",
+    "packages/project-store/src/projectKmlArchive.ts",
+    "packages/project-store/src/projectPersistence.test.ts",
+    "packages/project-store/src/projectPersistence.ts",
+    "packages/project-store/src/projectRepository.local.ts",
+    "packages/project-store/src/projectRepository.native.ts",
+    "packages/project-store/src/projectRepository.test.ts",
+    "packages/project-store/src/projectRepository.ts",
+    "packages/project-store/src/projectRepository.web.ts",
+    "packages/project-store/src/projectRepositorySql.ts",
+    "packages/project-store/src/projectRepositoryTypes.ts",
+    "packages/project-store/src/projectStoreMigrations.test.ts",
+    "packages/project-store/src/projectStoreMigrations.ts",
+    "packages/project-store/src/recordedReferenceAttachments.ts",
+    "packages/project-store/src/recordedReferenceWorkspace.test.ts",
+    "packages/project-store/src/schemaManifest.ts",
+    "packages/project-store/src/sqliteProjectRepository.ts",
+    "packages/project-store/src/sqliteProjectStore.ts",
+    "packages/project-store/src/sqliteWorkspaceStore.ts",
+    "packages/project-store/src/strictJson.ts",
+    "packages/project-store/src/surveyWorkspace.test.ts",
+    "packages/project-store/src/upgradeCoordinator.ts",
+    "packages/project-store/src/utf8.test.ts",
+    "packages/project-store/src/utf8.ts",
+    "packages/project-store/src/versionedProjectRepository.test.ts",
+    "packages/project-store/src/versionedProjectRepository.ts",
+    "packages/project-store/src/webSqliteGate.test.ts",
+    "packages/project-store/src/webSqliteGate.ts",
+    "packages/project-store/src/webWorkspaceStore.test.ts",
+    "packages/project-store/src/webWorkspaceStore.ts",
+    "packages/project-store/src/workspaceCommandPermission.ts",
+    "packages/project-store/src/workspaceCommands.test.ts",
+    "packages/project-store/src/workspaceCommands.ts",
+    "packages/project-store/src/workspaceDocument.test.ts",
+    "packages/project-store/src/workspaceDocument.ts",
+    "packages/project-store/src/workspaceFieldContents.test.ts",
+    "packages/project-store/src/workspaceFieldContents.ts",
+    "packages/project-store/src/workspaceManagementCommands.test.ts",
+    "packages/project-store/src/workspaceRecoveryReadLease.test.ts",
+    "packages/project-store/src/zipArchive.ts",
+    "packages/project-store/src/zipTextArchive.ts",
+    "packages/project-store/tests/native-workspace/legacy-quiescence/all.test.ts",
+    "packages/project-store/tests/native-workspace/legacy-quiescence/legacyAccess.test.ts",
+    "packages/project-store/tests/native-workspace/legacy-quiescence/legacyDatabaseOwner.test.ts",
+    "packages/project-store/tests/native-workspace/legacy-quiescence/testFixture.ts",
+    "packages/project-store/tests/native-workspace/native-bootstrap/nativeWorkspaceHandoff.test.ts",
+    "packages/project-store/tests/native-workspace/native-integration/nodeFixture.ts",
+    "packages/project-store/tests/native-workspace/native-readiness/generateSchemaManifest.ts",
+    "packages/project-store/tests/native-workspace/native-readiness/nativeRetainedVerifier.test.ts",
+    "packages/project-store/tests/native-workspace/native-readiness/nativeWorkspaceReadiness.test.ts",
+    "packages/project-store/tests/native-workspace/native-readiness/nativeWorkspaceSchema.test.ts",
+    "packages/project-store/tests/native-workspace/native-readiness/readinessFixture.ts",
+    "packages/project-store/tests/native-workspace/native-repository/nativeProjectRepository.test.ts",
+    "packages/project-store/tests/native-workspace/native-repository/nodeBackupArtifact.ts",
+    "packages/project-store/tests/native-workspace/native-repository/nodeSqliteTestSupport.ts",
+    "packages/project-store/tests/native-workspace/native-repository/workspaceCrashHost.ts",
+    "packages/project-store/tests/native-workspace/native-startup/inspection.test.ts",
+    "packages/project-store/tests/native-workspace/native-startup/startup.test.ts",
+    "packages/project-store/tests/native-workspace/ready-lease/nativeReadyRepository.test.ts",
+    "packages/project-store/tests/native-workspace/ready-lease/regression.test.ts",
+    "packages/project-store/tests/native-workspace/ready-lease/sqliteWorkspaceStore.test.ts",
+    "packages/project-store/tests/native-workspace/regression.test.ts",
+    "packages/project-store/tests/native-workspace/test-overlays/handoffFixture.ts",
+    "packages/project-store/tests/native-workspace/test-overlays/managedLegacyRepository.test.ts",
+    "packages/project-store/tests/native-workspace/test-overlays/readyFixture.ts",
+    "packages/project-store/tests/native-workspace/workspace-lifecycle/lifecycle.test.ts",
+    "packages/project-store/tests/native-workspace/workspace-lifecycle/regression.test.ts",
+    "packages/project-store/tsconfig.json",
+    "patches/braces+3.0.3.json",
+    "patches/braces+3.0.3.patch",
+    "patches/expo-sqlite+55.0.20.json",
+    "patches/expo-sqlite+55.0.20.patch",
+    "patches/expo-sqlite+56.0.6.json",
+    "patches/expo-sqlite+56.0.6.patch",
+    "patches/expo-sqlite+57.0.4.json",
+    "patches/expo-sqlite+57.0.4.patch",
+    "patches/legacy-sprintf-js-1.0.3-fixture.json",
+    "patches/node-forge+1.4.0.json",
+    "patches/node-forge+1.4.0.patch",
+    "patches/sprintf-js+1.0.3.json",
+    "patches/sprintf-js+1.0.3.patch",
+    "playwright.config.ts",
+    "tests/fixtures/recorded-reference-legacy-reader.cjs",
+    "tests/fixtures/recorded-reference-legacy-reader.json",
+    "tests/fixtures/workspace-edit-recovery-v1-reader.cjs",
+    "tests/fixtures/workspace-edit-recovery-v1-reader.json",
+    "tests/web/advisory-performance.spec.ts",
+    "tests/web/authenticated-test.ts",
+    "tests/web/browser-proof-inventory.json",
+    "tests/web/browser-workflow.spec.ts",
+    "tests/web/catalog-form-readiness.ts",
+    "tests/web/complete-workflow.spec.ts",
+    "tests/web/crs-recovery.spec.ts",
+    "tests/web/design-draft-editor.spec.ts",
+    "tests/web/draft-unit-and-saved-items.spec.ts",
+    "tests/web/editor-save-lifecycle-fixture.tsx",
+    "tests/web/editor-save-lifecycle.spec.ts",
+    "tests/web/field-design-editor.spec.ts",
+    "tests/web/gnss-reference-fixture.ts",
+    "tests/web/human-catalog-forms.spec.ts",
+    "tests/web/human-design-inputs.spec.ts",
+    "tests/web/human-field-operations.spec.ts",
+    "tests/web/human-primary-tasks.spec.ts",
+    "tests/web/map-camera.spec.ts",
+    "tests/web/map-fit.spec.ts",
+    "tests/web/map-hit-point.ts",
+    "tests/web/map-toolbar.ts",
+    "tests/web/maplibre-recovery.spec.ts",
+    "tests/web/maplibre-runtime.spec.ts",
+    "tests/web/mapping-quality.spec.ts",
+    "tests/web/network-receiver.spec.ts",
+    "tests/web/operational-receiver-fixture.ts",
+    "tests/web/production-accessibility.spec.ts",
+    "tests/web/production-auth-workflow.spec.ts",
+    "tests/web/project-copy.spec.ts",
+    "tests/web/project-import-lifecycle.spec.ts",
+    "tests/web/rtk-lifecycle.spec.ts",
+    "tests/web/unified-workspace.spec.ts",
+    "tests/web/will-rhea-preview.spec.ts",
+    "tests/web/workflow-safety.spec.ts",
+    "tests/web/workspace-activation.spec.ts",
+    "tests/web/workspace-diagnostics.ts",
+    "tests/web/workspace-drafts.spec.ts",
+    "tests/web/workspace-edit-recovery.spec.ts",
+    "tests/web/workspace-fixtures.ts",
+    "tests/web/workspace-management.spec.ts",
+    "tests/web/workspace-package-fixtures.ts",
+    "tests/web/workspace-package-import.spec.ts",
+    "tests/web/workspace-startup-resume.spec.ts",
+    "tests/web/workspace-storage.spec.ts",
+    "tools/androidAppReview.test.ts",
+    "tools/androidAppReview.ts",
+    "tools/androidFileUiEvidence.test.ts",
+    "tools/androidFileUiEvidence.ts",
+    "tools/androidLayoutProof.ts",
+    "tools/androidMapLibreLogEvidence.ts",
+    "tools/androidNativeProof.ts",
+    "tools/androidResources.test.ts",
+    "tools/browserProofRegistry.test.ts",
+    "tools/browserProofRegistry.ts",
+    "tools/buildBrowserProofInventory.ts",
+    "tools/buildRecordedReferenceLegacyReader.cjs",
+    "tools/buildVisualReviewReceipt.cjs",
+    "tools/buildVisualReviewReceipt.test.cjs",
+    "tools/build_cplayout_context_map.py",
+    "tools/build_reference_overlays.ts",
+    "tools/capture_google_earth_import_wizard_screenshots.ps1",
+    "tools/capture_google_earth_visual_fidelity.ps1",
+    "tools/check_android_tools.ts",
+    "tools/cleanup_google_earth.ps1",
+    "tools/corner-arm-research/README.md",
+    "tools/corner-arm-research/cli.ts",
+    "tools/corner-arm-research/core.ts",
+    "tools/corner-arm-research/fixtures.ts",
+    "tools/corner-arm-research/harness.test.ts",
+    "tools/corner-arm-research/python/.gitignore",
+    "tools/corner-arm-research/python/companion.py",
+    "tools/corner-arm-research/python/pyproject.toml",
+    "tools/corner-arm-research/python/run_comparison.py",
+    "tools/corner-arm-research/python/test_companion.py",
+    "tools/corner-arm-research/python/uv.lock",
+    "tools/corner-arm-research/tsconfig.json",
+    "tools/cornerGpsFltInventory.test.ts",
+    "tools/cornerGpsFltInventory.ts",
+    "tools/dependencyAudit.cjs",
+    "tools/dependencyAudit.test.cjs",
+    "tools/devServerManager.test.ts",
+    "tools/devServerManager.ts",
+    "tools/execute_whole_codebase_loop_remaining.ts",
+    "tools/extract_corner_service_manuals.py",
+    "tools/extract_design_guides.py",
+    "tools/generateClientKmzAdvisoryReport.test.ts",
+    "tools/generateClientKmzAdvisoryReport.ts",
+    "tools/generateRealPivotFixtureManifest.test.ts",
+    "tools/generateRealPivotFixtureManifest.ts",
+    "tools/generate_center_pivot_react_native_handoff.py",
+    "tools/inspectFltLayoutReview.test.ts",
+    "tools/inspectFltLayoutReview.ts",
+    "tools/inspectReceiverLog.test.ts",
+    "tools/inspectReceiverLog.ts",
+    "tools/interactiveReviewBrowser.test.cjs",
+    "tools/interactiveReviewDurability.test.cjs",
+    "tools/interactiveReviewPage.cjs",
+    "tools/interactiveReviewPage.test.cjs",
+    "tools/interactiveReviewServer.cjs",
+    "tools/interactiveReviewServer.test.cjs",
+    "tools/interactiveReviewStore.cjs",
+    "tools/interactiveReviewStore.test.cjs",
+    "tools/local-ml-companion/.dvc/config",
+    "tools/local-ml-companion/.dvcignore",
+    "tools/local-ml-companion/.streamlit/config.toml",
+    "tools/local-ml-companion/README.md",
+    "tools/local-ml-companion/pyproject.toml",
+    "tools/local-ml-companion/src/cplayout_ml/__init__.py",
+    "tools/local-ml-companion/src/cplayout_ml/api.py",
+    "tools/local-ml-companion/src/cplayout_ml/cli.py",
+    "tools/local-ml-companion/src/cplayout_ml/command_line.py",
+    "tools/local-ml-companion/src/cplayout_ml/companion_common.py",
+    "tools/local-ml-companion/src/cplayout_ml/dashboard.py",
+    "tools/local-ml-companion/src/cplayout_ml/dashboard_app.py",
+    "tools/local-ml-companion/src/cplayout_ml/evidence_packet.py",
+    "tools/local-ml-companion/src/cplayout_ml/ml_loop.py",
+    "tools/local-ml-companion/src/cplayout_ml/optional_imports.py",
+    "tools/local-ml-companion/src/cplayout_ml/raster_fixtures.py",
+    "tools/local-ml-companion/src/cplayout_ml/runtime_status.py",
+    "tools/local-ml-companion/src/cplayout_ml/toolkit_bridge.py",
+    "tools/local-ml-companion/src/cplayout_ml/vector_labels.py",
+    "tools/local-ml-companion/src/cplayout_ml/vision_policy.py",
+    "tools/local-ml-companion/tests/test_boundary_detector.py",
+    "tools/local-ml-companion/tests/test_companion_tooling.py",
+    "tools/local-ml-companion/tests/test_ml_loop.py",
+    "tools/local-ml-companion/tests/test_toolkit_bridge.py",
+    "tools/local-ml-companion/tests/test_vendor_provenance.py",
+    "tools/local-ml-companion/uv.lock",
+    "tools/local-ml-companion/vendor/NOTICE.txt",
+    "tools/local-ml-companion/vendor/portable_cv_toolkit-0.3.1-py3-none-any.whl",
+    "tools/local-ml-companion/vendor/provenance.json",
+    "tools/metroDependency.test.ts",
+    "tools/nativeMapLibreProof.ts",
+    "tools/patchDependencySecurity.cjs",
+    "tools/patchDependencySecurity.test.cjs",
+    "tools/patchExpoSqliteOwnership.cjs",
+    "tools/patchExpoSqliteOwnership.test.cjs",
+    "tools/patch_xcode_uuid_dependency.cjs",
+    "tools/pngMetrics.test.ts",
+    "tools/pngMetrics.ts",
+    "tools/prepareMapLibreAssets.test.ts",
+    "tools/prepareMapLibreAssets.ts",
+    "tools/productionServiceSmoke.test.ts",
+    "tools/receiverCompanion.test.ts",
+    "tools/receiverCompanion.ts",
+    "tools/referenceOverlayBuilder.test.ts",
+    "tools/referenceOverlayBuilder.ts",
+    "tools/review-host-schemas/ServerRequestResolvedNotification.json",
+    "tools/review-host-schemas/ToolRequestUserInputParams.json",
+    "tools/review-host-schemas/ToolRequestUserInputResponse.json",
+    "tools/review-host-schemas/source.json",
+    "tools/reviewEdgeTabs.ps1",
+    "tools/reviewEvidenceIdentity.cjs",
+    "tools/reviewHostAdapter.cjs",
+    "tools/reviewHostAdapter.test.cjs",
+    "tools/reviewResourceLease.cjs",
+    "tools/reviewResourceLease.test.cjs",
+    "tools/roadmapCompletion.test.ts",
+    "tools/roadmapCompletion.ts",
+    "tools/roadmapEvidenceQuality.test.ts",
+    "tools/runNativeWorkspaceTests.cjs",
+    "tools/run_google_earth_design_loop.ps1",
+    "tools/serveProductionApp.test.ts",
+    "tools/serveProductionApp.ts",
+    "tools/serveStaticWeb.test.ts",
+    "tools/serveStaticWeb.ts",
+    "tools/syntheticProofIdentity.test.ts",
+    "tools/syntheticProofIdentity.ts",
+    "tools/tests/test_cplayout_advisory_failures.py",
+    "tools/tests/test_cplayout_context_map.py",
+    "tools/tests/test_cplayout_guardrails.py",
+    "tools/tests/test_cplayout_pre_tool_use.py",
+    "tools/tests/test_cplayout_prompt_triage.py",
+    "tools/validateCplayoutSkillFrontmatter.cjs",
+    "tools/validateCplayoutSkillFrontmatter.test.cjs",
+    "tools/validate_corner_service_manuals.py",
+    "tools/validate_cplayout_skills.py",
+    "tools/validate_design_guides.py",
+    "tools/verifyImageryEvidencePacket.test.ts",
+    "tools/verifyImageryEvidencePacket.ts",
+    "tools/verifyInteractiveReviewEdge.cjs",
+    "tools/verify_android_native.ts",
+    "tools/verify_continuous_improvement_ledger.ts",
+    "tools/verify_research_improvement_loop.ts",
+    "tools/verify_whole_codebase_improvement_loop.ts",
+    "tools/visualReviewAnswers.cjs",
+    "tools/visualReviewAnswers.test.cjs",
+    "tools/visualReviewQuestionnaire.cjs",
+    "tools/visualReviewQuestionnaire.test.cjs",
+    "tools/webBuildLease.test.ts",
+    "tools/webBuildLease.ts",
+    "tools/willRheaVisualReview.ts",
+    "tools/windows/CPLayoutPaths.ps1",
+    "tools/windows/GoogleEarthIdentity.ps1",
+    "tools/windows/Install-CPLayoutDesktopShortcut.ps1",
+    "tools/windows/Launch-CPLayoutWeb.ps1",
+    "tools/windows/Stop-CPLayoutWeb.ps1",
+    "tools/windows/Test-CPLayoutPaths.ps1",
+    "tools/windowsLauncherScripts.test.ts",
+    "tools/workflowStatus.cjs",
+    "tools/workflowStatus.test.cjs",
+    "tsconfig.base.json",
+    "tsconfig.json",
+    "tsconfig.tools.json"
+  ],
+  "packets": {
+    "completedLocalAggregate": {
+      "command": "npm run validate",
+      "runtime": "Node24.21.0/actual ownedPostgreSQL18.6",
+      "exitCode": 0,
+      "privateEvidenceIdentifier": "cplayout-source-aggregate-r18-20261012.log",
+      "bytes": 305772,
+      "sha256": "10a7d2617807a7180b7c044d54a50cbfa5aee62969a0cb4faf495e9600c1553c",
+      "rawLogIndependentlyVerified": true,
+      "reportedNonzeroFailSkipCancel": 0
+    },
+    "hosted": {
+      "runId": 38300188486,
+      "runUrl": "https://github.com/JakeC-Redlund/CPLayout/actions/runs/38300188486",
+      "headCommit": "98857ded5f3962b8f2cd620f0be6d967361f3d36",
+      "testedMergeCommit": "f0c82e0c1b174453b2c537c26a81ea689ca5b310",
+      "allFiveJobs": [
+        {
+          "databaseId": 114980950459,
+          "name": "source",
+          "conclusion": "success",
+          "startedAt": "2026-10-12T19:49:33Z",
+          "completedAt": "2026-10-12T20:07:24Z",
+          "url": "https://github.com/JakeC-Redlund/CPLayout/actions/runs/38300188486/job/114980950459"
+        },
+        {
+          "databaseId": 114987379037,
+          "name": "web (2/3)",
+          "conclusion": "success",
+          "startedAt": "2026-10-12T20:07:26Z",
+          "completedAt": "2026-10-12T20:16:38Z",
+          "url": "https://github.com/JakeC-Redlund/CPLayout/actions/runs/38300188486/job/114987379037"
+        },
+        {
+          "databaseId": 114987379071,
+          "name": "web (1/3)",
+          "conclusion": "success",
+          "startedAt": "2026-10-12T20:07:26Z",
+          "completedAt": "2026-10-12T20:20:59Z",
+          "url": "https://github.com/JakeC-Redlund/CPLayout/actions/runs/38300188486/job/114987379071"
+        },
+        {
+          "databaseId": 114987379116,
+          "name": "web (3/3)",
+          "conclusion": "success",
+          "startedAt": "2026-10-12T20:07:26Z",
+          "completedAt": "2026-10-12T20:18:04Z",
+          "url": "https://github.com/JakeC-Redlund/CPLayout/actions/runs/38300188486/job/114987379116"
+        },
+        {
+          "databaseId": 114992272229,
+          "name": "cplayout-required",
+          "conclusion": "success",
+          "startedAt": "2026-10-12T20:21:02Z",
+          "completedAt": "2026-10-12T20:21:05Z",
+          "url": "https://github.com/JakeC-Redlund/CPLayout/actions/runs/38300188486/job/114992272229"
+        }
+      ],
+      "privateCompletedRunJson": {
+        "identifier": "ci-r18-completed-run.json",
+        "bytes": 10887,
+        "sha256": "9f7e2e6d629bae3f83f9cb8944e6906f286c140ffd50aae36b086ffe8fa56fdb"
+      },
+      "sourceJob": {
+        "identifier": "ci-r18-source-job.log",
+        "bytes": 475049,
+        "sha256": "e8fc4f503da92e2bb82be54da260c3805bf2192f8cf84202fd15ae7c73711d40",
+        "reportedNonzeroFailuresSkippedCancelled": 0,
+        "rawLogIndependentlyVerified": true
+      },
+      "shards": [
+        {
+          "shard": 1,
+          "privateEvidenceIdentifier": "ci-r18-web-shard-1.log",
+          "bytes": 66373,
+          "sha256": "e1e52a52466771bf3aa972b78829f8a00f8726a4e0c383a5bc16196e35d4787c",
+          "actualPassesParsed": 89,
+          "projects": {
+            "desktop": 89
+          },
+          "checkoutMergeCommit": "f0c82e0c1b174453b2c537c26a81ea689ca5b310",
+          "exportJavaScriptFilenames": [
+            "_expo/static/js/web/index-c0df037a81f1930d72f9076092d2bf3d.js"
+          ],
+          "rawPassedArtifactsAvailable": false
+        },
+        {
+          "shard": 2,
+          "privateEvidenceIdentifier": "ci-r18-web-shard-2.log",
+          "bytes": 66555,
+          "sha256": "9a3a6a5d30293e349d9f00160ee5e1d59908a45ca8d7d4fd517b686072a7f0bc",
+          "actualPassesParsed": 89,
+          "projects": {
+            "tablet-768": 89
+          },
+          "checkoutMergeCommit": "f0c82e0c1b174453b2c537c26a81ea689ca5b310",
+          "exportJavaScriptFilenames": [
+            "_expo/static/js/web/index-874dd379ee202d743214effe95de8115.js"
+          ],
+          "rawPassedArtifactsAvailable": false
+        },
+        {
+          "shard": 3,
+          "privateEvidenceIdentifier": "ci-r18-web-shard-3.log",
+          "bytes": 66560,
+          "sha256": "78e599ec8d901f515545ad5bcc8962e93b57460650a1814dc7dde7413b2fb778",
+          "actualPassesParsed": 89,
+          "projects": {
+            "mobile-390": 89
+          },
+          "checkoutMergeCommit": "f0c82e0c1b174453b2c537c26a81ea689ca5b310",
+          "exportJavaScriptFilenames": [
+            "_expo/static/js/web/index-4371f371b094403f9e1a88874be544a8.js"
+          ],
+          "rawPassedArtifactsAvailable": false
+        }
+      ],
+      "browserAccounting": {
+        "actualPassed": 267,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0,
+        "unrun": 0,
+        "uniqueTitles": 89,
+        "projects": {
+          "desktop": 89,
+          "tablet-768": 89,
+          "mobile-390": 89
+        },
+        "currentInventoryTupleMatch": true,
+        "duplicateTuples": 0,
+        "missingTuples": [],
+        "extraTuples": [],
+        "discoveryFingerprint": "24128a2593a83e3b64330068b92a4c5c8961a71b61e3ca9a15e1ee323fcc01af",
+        "deferredExecutions": 960,
+        "deferredBoundary": "Inventoried, not executed/retired/verified by the267 current pass."
+      },
+      "stepSkipBoundary": "Only failure-only browser-artifact upload steps skipped in successful jobs; no selected test skipped."
+    },
+    "currentExportAndActualPostgresHttp": {
+      "logs": [
+        {
+          "privateEvidenceIdentifier": "export-r18.log",
+          "exitCode": 0,
+          "sha256": "e231c363479caeda55b279dff4b3898f569fcb1b638dfceff9d67f6d37b7fea1",
+          "bytes": 988,
+          "actualRawLogVerified": true
+        },
+        {
+          "privateEvidenceIdentifier": "postgresHttpSmoke-r18.log",
+          "exitCode": 0,
+          "sha256": "85f7733c3c816a95e2584a03014c2c4ba571d25846aeca220e22847112e0eb9e",
+          "bytes": 336,
+          "actualRawLogVerified": true
+        }
+      ],
+      "actualCases": {
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      "localExportJavaScriptFullHashIndependentlyVerified": [
+        {
+          "path": "_expo/static/js/web/index-b67c4c2f67ae97e62412dc25709b5d36.js",
+          "bytes": 6248918,
+          "sha256": "9beab85945fe3c497de838c2d8245930f9e1460ec7907a62e927408bef5257c8"
+        }
+      ],
+      "boundary": "This actual fullSHA belongs to the local current R18 export/HTTP proof. It is not assigned to unavailable hosted web-job bundle bytes."
+    },
+    "CASRemediation": {
+      "reference": "docs/evidence/production-workflow-review-20261011/cas-import-revision-correction-scoped-20261012.json",
+      "sourceSupplement": "docs/evidence/production-workflow-review-20261011/final-independent-review-r18-source-supplement-one.json",
+      "finding": "CAS-IMPORT-REVISION-20261012-01",
+      "matchedRawPGAndInProcessProof": true,
+      "protectedThread": {
+        "id": "PRRT_kwDOSiaib86reOkv",
+        "isResolved": true,
+        "privateResponseIdentifier": "resolved-import-cas-review-thread-response.json",
+        "bytes": 92,
+        "sha256": "d76739798a6cc07caf3b1ab7586dfa1fb72802a57f1598818f292e19981c0ec6"
+      },
+      "compatibility": "Strictly greater source revision required under lock after V3 refusal. Original rejected file/rawrevision unchanged; normal v5 bootstraprevision4 is not a public revision0 restore workaround; initial legacy insertion/read/upgrade remains distinct."
+    }
+  },
+  "servedBundleAssessment": {
+    "actualIdentity": "Every raw web job log binds checked-out mergeOID, successful npmci, fresh own export filename and267 exact execution accounting through the repository-owned wrapper. Current wrapper/config were read; each job serves its own export. Distinct web-job filenames are retained individually.",
+    "hostedBundleSHA256": "Unavailable successful hosted artifact bytes; no invented fullSHA or equivalence to local export.",
+    "freshVisiblePixels": "Successful hosted PNG/trace/Axe detail artifacts not uploaded by failure-only policy and not independently viewed in this review. Historical R15 Edge/Fit pixels remain for their original edition only.",
+    "accessibility": "Current selected keyboard/Axe assertions passed across3projects; raw incompletes/current manual color/aria review are unavailable. No complete WCAG/manual/human certification."
+  },
+  "requirementReviews": [
+    {
+      "id": "GOV-01",
+      "title": "One canonical tracker",
+      "assessment": "qualified_source",
+      "reviewedDeclaredSources": [
+        "docs/unified-workspace-refocus-2026-10-10.md",
+        "tools/workflowStatus.cjs",
+        "tools/workflowStatus.test.cjs",
+        "docs/workflow-acceptance-protocol.md",
+        "docs/production-workflow-improvement-plan.md",
+        "docs/workflow-maintenance-guide.md"
+      ],
+      "rationale": "The direct complete census is all962 paths, with no missing/extra/drift; actual source fingerprint and declared-order criterion digest match. All19 criterion fields match the current registry. Tracker/authority/history boundaries were independently checked; registry statuses remain pending until real closing/merge curation, not a source-drift substitute.",
+      "matchingCurrentBrowserTuples": [],
+      "scopeBoundary": "Current declared synthetic software/source/browser scope only; all unproved host/device/physical/manual/human/deployment capabilities remain separate."
+    },
+    {
+      "id": "ENTRY-01",
+      "title": "Customer-first entry and project/field selection",
+      "assessment": "qualified_source_and_current_browser",
+      "reviewedDeclaredSources": [
+        "apps/mobile/src/workspace/WorkspaceCatalog.tsx",
+        "apps/mobile/src/workspace/UnifiedWorkspaceEntry.tsx",
+        "apps/mobile/src/auth/AuthenticatedWorkspace.tsx",
+        "packages/auth-client/src/apiClient.ts",
+        "apps/api/src/server.ts"
+      ],
+      "rationale": "Current hosted real username/password, new customer/project, empty default App, Browse/Open, account-denial and customer maintenance cases pass in every declared viewport. Source preserves zero-project customers from actual authorized metadata, explicit Open and unfinished editor context.",
+      "matchingCurrentBrowserTuples": [
+        {
+          "project": "desktop",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 67,
+          "column": 5,
+          "title": "real username/password sign-in rejects anonymous API access and retains the workspace when visiting Home"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 125,
+          "column": 5,
+          "title": "new customer and project open Design without GPS or fabricated coordinate and machine data"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 178,
+          "column": 5,
+          "title": "empty default App creates explicit customer/project/first field/CRS and opens an actual empty Draft"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 329,
+          "column": 5,
+          "title": "early customer entry keeps an emptied required name, validates it and preserves all saved design work"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 170,
+          "column": 5,
+          "title": "Browse remains separate from Open and startup restores catalog selection and visibility after source reset"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 67,
+          "column": 5,
+          "title": "real username/password sign-in rejects anonymous API access and retains the workspace when visiting Home"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 125,
+          "column": 5,
+          "title": "new customer and project open Design without GPS or fabricated coordinate and machine data"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 178,
+          "column": 5,
+          "title": "empty default App creates explicit customer/project/first field/CRS and opens an actual empty Draft"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 329,
+          "column": 5,
+          "title": "early customer entry keeps an emptied required name, validates it and preserves all saved design work"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 170,
+          "column": 5,
+          "title": "Browse remains separate from Open and startup restores catalog selection and visibility after source reset"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 67,
+          "column": 5,
+          "title": "real username/password sign-in rejects anonymous API access and retains the workspace when visiting Home"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 125,
+          "column": 5,
+          "title": "new customer and project open Design without GPS or fabricated coordinate and machine data"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 178,
+          "column": 5,
+          "title": "empty default App creates explicit customer/project/first field/CRS and opens an actual empty Draft"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 329,
+          "column": 5,
+          "title": "early customer entry keeps an emptied required name, validates it and preserves all saved design work"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 170,
+          "column": 5,
+          "title": "Browse remains separate from Open and startup restores catalog selection and visibility after source reset"
+        }
+      ],
+      "scopeBoundary": "Current declared synthetic software/source/browser scope only; all unproved host/device/physical/manual/human/deployment capabilities remain separate."
+    },
+    {
+      "id": "AUTH-01",
+      "title": "Truthful account sign-in and shared service",
+      "assessment": "qualified_source_and_current_browser",
+      "reviewedDeclaredSources": [
+        "apps/api/src/server.ts",
+        "packages/auth-client/src/apiClient.ts",
+        "apps/mobile/src/auth/AuthenticatedWorkspace.tsx",
+        "apps/mobile/src/auth/accessOwnership.ts"
+      ],
+      "rationale": "Current full aggregate/source job and source-bound PG HTTP smoke pass authentication/role/customer/archive/CAS contracts; current browser account/cookie/denial/read-only/offline-grant journeys pass across all3 viewports. The locked metadata snapshot, expected-principal/epoch/policy/read fences and nested actor contracts remain source-qualified. Recovery import now strictly advances CAS and its meaningful memory/PG regression passes.",
+      "matchingCurrentBrowserTuples": [
+        {
+          "project": "desktop",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 376,
+          "column": 5,
+          "title": "Support cannot read field data through the server even with a supplied workspace membership"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 385,
+          "column": 5,
+          "title": "prepared offline reload verifies the signed grant and rejects tampering while retaining exact field data"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 403,
+          "column": 5,
+          "title": "service denial preserves unfinished customer modal before hiding it for renewed sign-in"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 419,
+          "column": 5,
+          "title": "cold service session denial prevents subsequent offline grant revival while retaining exact work"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 431,
+          "column": 5,
+          "title": "post-login device quota reconciles service identity and then isolates a read-only operator account"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 457,
+          "column": 5,
+          "title": "actual Catalog customer archive and restore retain field history through an acknowledged status-read failure"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 491,
+          "column": 5,
+          "title": "two actual App pages serialize sign-out response cookies before a newer username/password sign-in"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 376,
+          "column": 5,
+          "title": "Support cannot read field data through the server even with a supplied workspace membership"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 385,
+          "column": 5,
+          "title": "prepared offline reload verifies the signed grant and rejects tampering while retaining exact field data"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 403,
+          "column": 5,
+          "title": "service denial preserves unfinished customer modal before hiding it for renewed sign-in"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 419,
+          "column": 5,
+          "title": "cold service session denial prevents subsequent offline grant revival while retaining exact work"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 431,
+          "column": 5,
+          "title": "post-login device quota reconciles service identity and then isolates a read-only operator account"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 457,
+          "column": 5,
+          "title": "actual Catalog customer archive and restore retain field history through an acknowledged status-read failure"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 491,
+          "column": 5,
+          "title": "two actual App pages serialize sign-out response cookies before a newer username/password sign-in"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 376,
+          "column": 5,
+          "title": "Support cannot read field data through the server even with a supplied workspace membership"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 385,
+          "column": 5,
+          "title": "prepared offline reload verifies the signed grant and rejects tampering while retaining exact field data"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 403,
+          "column": 5,
+          "title": "service denial preserves unfinished customer modal before hiding it for renewed sign-in"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 419,
+          "column": 5,
+          "title": "cold service session denial prevents subsequent offline grant revival while retaining exact work"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 431,
+          "column": 5,
+          "title": "post-login device quota reconciles service identity and then isolates a read-only operator account"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 457,
+          "column": 5,
+          "title": "actual Catalog customer archive and restore retain field history through an acknowledged status-read failure"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 491,
+          "column": 5,
+          "title": "two actual App pages serialize sign-out response cookies before a newer username/password sign-in"
+        }
+      ],
+      "scopeBoundary": "Current declared synthetic software/source/browser scope only; all unproved host/device/physical/manual/human/deployment capabilities remain separate."
+    },
+    {
+      "id": "HIERARCHY-01",
+      "title": "Logical customer/project/field folders and actual field content",
+      "assessment": "qualified_source_and_current_browser",
+      "reviewedDeclaredSources": [
+        "apps/mobile/src/auth/AuthenticatedWorkspace.tsx",
+        "apps/mobile/src/workspace/WorkspaceCatalog.tsx",
+        "packages/auth-client/src/apiClient.ts",
+        "apps/api/src/server.ts",
+        "packages/project-store/src/workspaceDocument.ts",
+        "packages/project-store/src/projectRepositoryTypes.ts",
+        "packages/project-store/src/workspaceFieldContents.ts",
+        "packages/project-store/src/workspaceFieldContents.test.ts"
+      ],
+      "rationale": "Actual customer/project/field parent IDs and saved document/machine content projection were independently source-reviewed; current default-App, Browse/Open, field management, saved child and orphan-history/export cases pass across all3 viewports. Official maps remain anchored to actual matched review/source/CRS without copied folder entities or fabricated parents.",
+      "matchingCurrentBrowserTuples": [
+        {
+          "project": "desktop",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 178,
+          "column": 5,
+          "title": "empty default App creates explicit customer/project/first field/CRS and opens an actual empty Draft"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 274,
+          "column": 5,
+          "title": "calculation is preview only and explicit completion creates a separate saved child before explicit Open"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 337,
+          "column": 5,
+          "title": "unequal Field machines freeze an exact selected Layout target and observations survive save, later design edit and reopen"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 44,
+          "column": 5,
+          "title": "retained Survey with unavailable original folders remains readable and exports its exact source without inventing parents"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 278,
+          "column": 5,
+          "title": "current-field New in design keeps Browse B and dirty Source A until an explicit guarded Open"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 278,
+          "column": 5,
+          "title": "current-field New in survey keeps Browse B and dirty Source A until an explicit guarded Open"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 278,
+          "column": 5,
+          "title": "current-field New in layout keeps Browse B and dirty Source A until an explicit guarded Open"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 178,
+          "column": 5,
+          "title": "empty default App creates explicit customer/project/first field/CRS and opens an actual empty Draft"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 274,
+          "column": 5,
+          "title": "calculation is preview only and explicit completion creates a separate saved child before explicit Open"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 337,
+          "column": 5,
+          "title": "unequal Field machines freeze an exact selected Layout target and observations survive save, later design edit and reopen"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 44,
+          "column": 5,
+          "title": "retained Survey with unavailable original folders remains readable and exports its exact source without inventing parents"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 278,
+          "column": 5,
+          "title": "current-field New in design keeps Browse B and dirty Source A until an explicit guarded Open"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 278,
+          "column": 5,
+          "title": "current-field New in survey keeps Browse B and dirty Source A until an explicit guarded Open"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 278,
+          "column": 5,
+          "title": "current-field New in layout keeps Browse B and dirty Source A until an explicit guarded Open"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 178,
+          "column": 5,
+          "title": "empty default App creates explicit customer/project/first field/CRS and opens an actual empty Draft"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 274,
+          "column": 5,
+          "title": "calculation is preview only and explicit completion creates a separate saved child before explicit Open"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 337,
+          "column": 5,
+          "title": "unequal Field machines freeze an exact selected Layout target and observations survive save, later design edit and reopen"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 44,
+          "column": 5,
+          "title": "retained Survey with unavailable original folders remains readable and exports its exact source without inventing parents"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 278,
+          "column": 5,
+          "title": "current-field New in design keeps Browse B and dirty Source A until an explicit guarded Open"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 278,
+          "column": 5,
+          "title": "current-field New in survey keeps Browse B and dirty Source A until an explicit guarded Open"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 278,
+          "column": 5,
+          "title": "current-field New in layout keeps Browse B and dirty Source A until an explicit guarded Open"
+        }
+      ],
+      "scopeBoundary": "Current declared synthetic software/source/browser scope only; all unproved host/device/physical/manual/human/deployment capabilities remain separate."
+    },
+    {
+      "id": "FLOW-01",
+      "title": "Optional Design and required Survey",
+      "assessment": "qualified_source_and_current_browser",
+      "reviewedDeclaredSources": [
+        "apps/mobile/src/workspace/useWorkspaceController.ts",
+        "apps/mobile/src/workspace/workspaceControllerState.ts",
+        "packages/core/src/surveyCollection.ts",
+        "packages/core/src/surveyDraftField.ts"
+      ],
+      "rationale": "Current new-project/manual no-GPS, Survey-first optional Design, missing-Survey Layout refusal and full recorded-boundary/pivot Survey-to-marked immutable Layout journeys pass across all3 viewports. Shared source policy requires actual saved matching Survey; manual/planned geometry remains separate.",
+      "matchingCurrentBrowserTuples": [
+        {
+          "project": "desktop",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 125,
+          "column": 5,
+          "title": "new customer and project open Design without GPS or fabricated coordinate and machine data"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 173,
+          "column": 5,
+          "title": "Survey-first project skips manual Design and still requires actual survey evidence before Layout"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 180,
+          "column": 5,
+          "title": "Survey-first recorded boundary and pivot progress through fresh field review to an immutable marked Layout without invented infrastructure"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 227,
+          "column": 5,
+          "title": "Design/Survey retain one map and unfinished input while missing Survey review blocks Layout without changing source"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 125,
+          "column": 5,
+          "title": "new customer and project open Design without GPS or fabricated coordinate and machine data"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 173,
+          "column": 5,
+          "title": "Survey-first project skips manual Design and still requires actual survey evidence before Layout"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 180,
+          "column": 5,
+          "title": "Survey-first recorded boundary and pivot progress through fresh field review to an immutable marked Layout without invented infrastructure"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 227,
+          "column": 5,
+          "title": "Design/Survey retain one map and unfinished input while missing Survey review blocks Layout without changing source"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 125,
+          "column": 5,
+          "title": "new customer and project open Design without GPS or fabricated coordinate and machine data"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 173,
+          "column": 5,
+          "title": "Survey-first project skips manual Design and still requires actual survey evidence before Layout"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 180,
+          "column": 5,
+          "title": "Survey-first recorded boundary and pivot progress through fresh field review to an immutable marked Layout without invented infrastructure"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 227,
+          "column": 5,
+          "title": "Design/Survey retain one map and unfinished input while missing Survey review blocks Layout without changing source"
+        }
+      ],
+      "scopeBoundary": "Current declared synthetic software/source/browser scope only; all unproved host/device/physical/manual/human/deployment capabilities remain separate."
+    },
+    {
+      "id": "DRAW-01",
+      "title": "Manual field and machine geometry",
+      "assessment": "qualified_source_and_current_browser",
+      "reviewedDeclaredSources": [
+        "apps/mobile/src/workspace/WorkspaceDrawingPanel.tsx",
+        "packages/core/src/draftDrawingWorkflow.ts"
+      ],
+      "rationale": "Current draft map-click/classification/ordered geometry/save/reopen and calculation-preview/explicit child completion cases pass across all3 viewports. Source geometry and input/purpose/undo contracts remain unchanged from prior reviewed implementation and pass the actual current aggregate.",
+      "matchingCurrentBrowserTuples": [
+        {
+          "project": "desktop",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 206,
+          "column": 5,
+          "title": "Draft map clicks classify inline and save/reopen exact ordered geometry, labels and digitized times"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 274,
+          "column": 5,
+          "title": "calculation is preview only and explicit completion creates a separate saved child before explicit Open"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 206,
+          "column": 5,
+          "title": "Draft map clicks classify inline and save/reopen exact ordered geometry, labels and digitized times"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 274,
+          "column": 5,
+          "title": "calculation is preview only and explicit completion creates a separate saved child before explicit Open"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 206,
+          "column": 5,
+          "title": "Draft map clicks classify inline and save/reopen exact ordered geometry, labels and digitized times"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 274,
+          "column": 5,
+          "title": "calculation is preview only and explicit completion creates a separate saved child before explicit Open"
+        }
+      ],
+      "scopeBoundary": "Current declared synthetic software/source/browser scope only; all unproved host/device/physical/manual/human/deployment capabilities remain separate."
+    },
+    {
+      "id": "SURVEY-01",
+      "title": "Receiver collection and qualification",
+      "assessment": "qualified_source_and_current_browser",
+      "reviewedDeclaredSources": [
+        "packages/core/src/surveyCollection.ts",
+        "apps/mobile/src/workspace/WorkspaceModePanels.tsx",
+        "packages/core/src/surveyReview.ts",
+        "packages/project-store/src/productionWorkflow.ts",
+        "packages/project-store/src/workspaceCommands.ts"
+      ],
+      "rationale": "Current immutable Survey/clear/Undo/disconnected Apply, recorded-reference provenance and direct Survey-to-Layout journeys pass. Source/final-admission tests retain current owned quality4/epoch/monotonic age/CRS/source requirements; manual/reference points cannot be relabeled physical measurements. Receiver/field accuracy is not qualified.",
+      "matchingCurrentBrowserTuples": [
+        {
+          "project": "desktop",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 180,
+          "column": 5,
+          "title": "Survey-first recorded boundary and pivot progress through fresh field review to an immutable marked Layout without invented infrastructure"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 395,
+          "column": 5,
+          "title": "Survey retains immutable evidence through mode changes and clear/Undo, then applies a real line while disconnected"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded Point reference applies in actual draft while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded LineString reference applies in actual draft while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded Polygon reference applies in actual draft while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded Point reference applies in actual project while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded LineString reference applies in actual project while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded Polygon reference applies in actual project while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded Point reference applies in actual field while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded LineString reference applies in actual field while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded Polygon reference applies in actual field while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 180,
+          "column": 5,
+          "title": "Survey-first recorded boundary and pivot progress through fresh field review to an immutable marked Layout without invented infrastructure"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 395,
+          "column": 5,
+          "title": "Survey retains immutable evidence through mode changes and clear/Undo, then applies a real line while disconnected"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded Point reference applies in actual draft while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded LineString reference applies in actual draft while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded Polygon reference applies in actual draft while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded Point reference applies in actual project while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded LineString reference applies in actual project while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded Polygon reference applies in actual project while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded Point reference applies in actual field while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded LineString reference applies in actual field while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded Polygon reference applies in actual field while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 180,
+          "column": 5,
+          "title": "Survey-first recorded boundary and pivot progress through fresh field review to an immutable marked Layout without invented infrastructure"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 395,
+          "column": 5,
+          "title": "Survey retains immutable evidence through mode changes and clear/Undo, then applies a real line while disconnected"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded Point reference applies in actual draft while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded LineString reference applies in actual draft while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded Polygon reference applies in actual draft while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded Point reference applies in actual project while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded LineString reference applies in actual project while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded Polygon reference applies in actual project while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded Point reference applies in actual field while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded LineString reference applies in actual field while disconnected and reopens honest provenance"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 536,
+          "column": 17,
+          "title": "recorded Polygon reference applies in actual field while disconnected and reopens honest provenance"
+        }
+      ],
+      "scopeBoundary": "Current declared synthetic software/source/browser scope only; all unproved host/device/physical/manual/human/deployment capabilities remain separate."
+    },
+    {
+      "id": "LAYOUT-01",
+      "title": "Official Layout maps under matched Survey with RTK admission",
+      "assessment": "qualified_source_and_current_browser",
+      "reviewedDeclaredSources": [
+        "apps/mobile/src/workspace/WorkspaceModePanels.tsx",
+        "apps/mobile/src/workspace/useWorkspaceController.ts",
+        "packages/core/src/fieldLayoutTarget.ts",
+        "packages/core/src/layoutSession.ts",
+        "packages/project-store/src/productionWorkflow.ts",
+        "packages/project-store/src/workspaceCommands.ts",
+        "packages/core/src/officialLayout.ts",
+        "packages/project-store/src/sqliteWorkspaceStore.ts",
+        "packages/project-store/src/projectRepository.ts",
+        "apps/api/src/server.ts",
+        "apps/mobile/src/auth/authenticatedRepository.ts",
+        "packages/project-store/src/webWorkspaceStore.ts"
+      ],
+      "rationale": "Current immutable selected target/observations/save/design-edit/reopen, unreviewed refusal, Layout-only startup and direct marked Layout cases pass. Actual source tests/aggregate preserve V3 origin/reference/downgrade/chronology/actor/history and positive-tolerance finalization guards. The current import-CAS correction is after existing V3 refusal; original GET/export remains. Physical/device qualification is separate.",
+      "matchingCurrentBrowserTuples": [
+        {
+          "project": "desktop",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 180,
+          "column": 5,
+          "title": "Survey-first recorded boundary and pivot progress through fresh field review to an immutable marked Layout without invented infrastructure"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 337,
+          "column": 5,
+          "title": "unequal Field machines freeze an exact selected Layout target and observations survive save, later design edit and reopen"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 470,
+          "column": 5,
+          "title": "Layout common Save names its session while hidden Design input and newer names remain separate"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 519,
+          "column": 5,
+          "title": "unreviewed Design refuses new Layout while explicit Catalog Open preserves a historical saved target"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 187,
+          "column": 5,
+          "title": "Layout-only startup opens without an editable design and preserves frozen geometry"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 187,
+          "column": 5,
+          "title": "Layout-only startup keeps archived collection disabled and preserves frozen geometry"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 180,
+          "column": 5,
+          "title": "Survey-first recorded boundary and pivot progress through fresh field review to an immutable marked Layout without invented infrastructure"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 337,
+          "column": 5,
+          "title": "unequal Field machines freeze an exact selected Layout target and observations survive save, later design edit and reopen"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 470,
+          "column": 5,
+          "title": "Layout common Save names its session while hidden Design input and newer names remain separate"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 519,
+          "column": 5,
+          "title": "unreviewed Design refuses new Layout while explicit Catalog Open preserves a historical saved target"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 187,
+          "column": 5,
+          "title": "Layout-only startup opens without an editable design and preserves frozen geometry"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 187,
+          "column": 5,
+          "title": "Layout-only startup keeps archived collection disabled and preserves frozen geometry"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 180,
+          "column": 5,
+          "title": "Survey-first recorded boundary and pivot progress through fresh field review to an immutable marked Layout without invented infrastructure"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 337,
+          "column": 5,
+          "title": "unequal Field machines freeze an exact selected Layout target and observations survive save, later design edit and reopen"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 470,
+          "column": 5,
+          "title": "Layout common Save names its session while hidden Design input and newer names remain separate"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 519,
+          "column": 5,
+          "title": "unreviewed Design refuses new Layout while explicit Catalog Open preserves a historical saved target"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 187,
+          "column": 5,
+          "title": "Layout-only startup opens without an editable design and preserves frozen geometry"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 187,
+          "column": 5,
+          "title": "Layout-only startup keeps archived collection disabled and preserves frozen geometry"
+        }
+      ],
+      "scopeBoundary": "Current declared synthetic software/source/browser scope only; all unproved host/device/physical/manual/human/deployment capabilities remain separate."
+    },
+    {
+      "id": "ANCESTRY-01",
+      "title": "Retain ancestors referenced by saved Survey evidence",
+      "assessment": "qualified_source_and_current_browser",
+      "reviewedDeclaredSources": [
+        "packages/project-store/src/workspaceDocument.ts",
+        "packages/project-store/src/workspaceCommands.ts",
+        "packages/core/src/surveyCollection.ts",
+        "packages/core/src/surveyReview.ts",
+        "apps/mobile/src/workspace/WorkspaceCatalog.tsx",
+        "packages/project-store/src/workspaceFieldContents.ts",
+        "packages/project-store/src/workspaceFieldContents.test.ts"
+      ],
+      "rationale": "Current all3-viewport orphan-history source view/exact export case passes, and source/PG/domain tests retain the future active/archived Survey ancestor-deletion veto. Original parent-unavailable history stays readable, without guessed placement or cascade deletion.",
+      "matchingCurrentBrowserTuples": [
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 44,
+          "column": 5,
+          "title": "retained Survey with unavailable original folders remains readable and exports its exact source without inventing parents"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 44,
+          "column": 5,
+          "title": "retained Survey with unavailable original folders remains readable and exports its exact source without inventing parents"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 44,
+          "column": 5,
+          "title": "retained Survey with unavailable original folders remains readable and exports its exact source without inventing parents"
+        }
+      ],
+      "scopeBoundary": "Current declared synthetic software/source/browser scope only; all unproved host/device/physical/manual/human/deployment capabilities remain separate."
+    },
+    {
+      "id": "RECOVERY-01",
+      "title": "Preserve current and unfinished work",
+      "assessment": "qualified_source_and_current_browser",
+      "reviewedDeclaredSources": [
+        "apps/mobile/src/workspace/workspaceEditRecovery.ts",
+        "apps/mobile/src/workspace/workspaceEditRecoveryStore.ts",
+        "packages/project-store/src/workspaceDocument.ts",
+        "packages/project-store/src/projectRepository.ts",
+        "packages/project-store/src/sqliteWorkspaceStore.ts",
+        "apps/mobile/src/auth/authenticatedRepository.ts",
+        "packages/project-store/src/webWorkspaceStore.ts"
+      ],
+      "rationale": "Current all3-viewport raw-input/camera/history/checkpoint/Review/Restore/Export/corruption/receiver/changed-source and startup/save cases pass. New import regression preserves exact higher CRLF source, refuses lower/equal and stale unique queued commands, permits historical receipt replay without DB mutation and proves a concurrent import/command admits one effect. Legacy initial insertion/read/upgrade is distinct from public bootstrap revision4; no public revision0 restore claim.",
+      "matchingCurrentBrowserTuples": [
+        {
+          "project": "desktop",
+          "file": "tests/web/editor-save-lifecycle.spec.ts",
+          "line": 43,
+          "column": 5,
+          "title": "StrictMode same-ID replacement isolates a delayed save receipt and feedback"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/editor-save-lifecycle.spec.ts",
+          "line": 57,
+          "column": 5,
+          "title": "an accepted save may finish after unmount without reviving feedback or rebasing a remount"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 419,
+          "column": 5,
+          "title": "common Save shows unapplied inputs, refuses without storage error, and File copy exports exact applied source"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 134,
+          "column": 5,
+          "title": "draft actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 134,
+          "column": 5,
+          "title": "project actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 134,
+          "column": 5,
+          "title": "field actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 162,
+          "column": 5,
+          "title": "actual hidden-Catalog raw edit checkpoints automatically and reload Restore returns its exact unfinished input"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 179,
+          "column": 5,
+          "title": "actual Catalog-only unfinished customer form checkpoints and reload Restore preserves invalid fields and errors without records"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 199,
+          "column": 5,
+          "title": "actual checkpoint Export and conditional Discard preserve exact candidate bytes and every durable source"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 209,
+          "column": 5,
+          "title": "actual corrupt-checkpoint refusal keeps exact opaque ledger Export available without normalization or source writes"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 220,
+          "column": 5,
+          "title": "actual Review refuses a changed saved source while retaining the checkpoint and newer design exact"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 232,
+          "column": 5,
+          "title": "actual Restore refuses a connected synthetic receiver and never reconnects it implicitly"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 351,
+          "column": 5,
+          "title": "field container Rename is metadata-only, reachable on a short viewport and checkpointed as recovery v2"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 374,
+          "column": 5,
+          "title": "invalid field rename reloads through File Review/Restore as its original rename form and requires Recheck"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 132,
+          "column": 5,
+          "title": "dual-subject startup retains the exact Layout target and acknowledges Layout and Design saves separately"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 170,
+          "column": 5,
+          "title": "Browse remains separate from Open and startup restores catalog selection and visibility after source reset"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 187,
+          "column": 5,
+          "title": "Layout-only startup opens without an editable design and preserves frozen geometry"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 187,
+          "column": 5,
+          "title": "Layout-only startup keeps archived collection disabled and preserves frozen geometry"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 211,
+          "column": 5,
+          "title": "absent/malformed startup hints fall back without preference or workspace-byte writes"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 211,
+          "column": 5,
+          "title": "deleted/foreign startup hints fall back without preference or workspace-byte writes"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/editor-save-lifecycle.spec.ts",
+          "line": 43,
+          "column": 5,
+          "title": "StrictMode same-ID replacement isolates a delayed save receipt and feedback"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/editor-save-lifecycle.spec.ts",
+          "line": 57,
+          "column": 5,
+          "title": "an accepted save may finish after unmount without reviving feedback or rebasing a remount"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 419,
+          "column": 5,
+          "title": "common Save shows unapplied inputs, refuses without storage error, and File copy exports exact applied source"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 134,
+          "column": 5,
+          "title": "draft actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 134,
+          "column": 5,
+          "title": "project actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 134,
+          "column": 5,
+          "title": "field actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 162,
+          "column": 5,
+          "title": "actual hidden-Catalog raw edit checkpoints automatically and reload Restore returns its exact unfinished input"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 179,
+          "column": 5,
+          "title": "actual Catalog-only unfinished customer form checkpoints and reload Restore preserves invalid fields and errors without records"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 199,
+          "column": 5,
+          "title": "actual checkpoint Export and conditional Discard preserve exact candidate bytes and every durable source"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 209,
+          "column": 5,
+          "title": "actual corrupt-checkpoint refusal keeps exact opaque ledger Export available without normalization or source writes"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 220,
+          "column": 5,
+          "title": "actual Review refuses a changed saved source while retaining the checkpoint and newer design exact"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 232,
+          "column": 5,
+          "title": "actual Restore refuses a connected synthetic receiver and never reconnects it implicitly"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 351,
+          "column": 5,
+          "title": "field container Rename is metadata-only, reachable on a short viewport and checkpointed as recovery v2"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 374,
+          "column": 5,
+          "title": "invalid field rename reloads through File Review/Restore as its original rename form and requires Recheck"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 132,
+          "column": 5,
+          "title": "dual-subject startup retains the exact Layout target and acknowledges Layout and Design saves separately"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 170,
+          "column": 5,
+          "title": "Browse remains separate from Open and startup restores catalog selection and visibility after source reset"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 187,
+          "column": 5,
+          "title": "Layout-only startup opens without an editable design and preserves frozen geometry"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 187,
+          "column": 5,
+          "title": "Layout-only startup keeps archived collection disabled and preserves frozen geometry"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 211,
+          "column": 5,
+          "title": "absent/malformed startup hints fall back without preference or workspace-byte writes"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 211,
+          "column": 5,
+          "title": "deleted/foreign startup hints fall back without preference or workspace-byte writes"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/editor-save-lifecycle.spec.ts",
+          "line": 43,
+          "column": 5,
+          "title": "StrictMode same-ID replacement isolates a delayed save receipt and feedback"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/editor-save-lifecycle.spec.ts",
+          "line": 57,
+          "column": 5,
+          "title": "an accepted save may finish after unmount without reviving feedback or rebasing a remount"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/unified-workspace.spec.ts",
+          "line": 419,
+          "column": 5,
+          "title": "common Save shows unapplied inputs, refuses without storage error, and File copy exports exact applied source"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 134,
+          "column": 5,
+          "title": "draft actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 134,
+          "column": 5,
+          "title": "project actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 134,
+          "column": 5,
+          "title": "field actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 162,
+          "column": 5,
+          "title": "actual hidden-Catalog raw edit checkpoints automatically and reload Restore returns its exact unfinished input"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 179,
+          "column": 5,
+          "title": "actual Catalog-only unfinished customer form checkpoints and reload Restore preserves invalid fields and errors without records"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 199,
+          "column": 5,
+          "title": "actual checkpoint Export and conditional Discard preserve exact candidate bytes and every durable source"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 209,
+          "column": 5,
+          "title": "actual corrupt-checkpoint refusal keeps exact opaque ledger Export available without normalization or source writes"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 220,
+          "column": 5,
+          "title": "actual Review refuses a changed saved source while retaining the checkpoint and newer design exact"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-edit-recovery.spec.ts",
+          "line": 232,
+          "column": 5,
+          "title": "actual Restore refuses a connected synthetic receiver and never reconnects it implicitly"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 351,
+          "column": 5,
+          "title": "field container Rename is metadata-only, reachable on a short viewport and checkpointed as recovery v2"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 374,
+          "column": 5,
+          "title": "invalid field rename reloads through File Review/Restore as its original rename form and requires Recheck"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 132,
+          "column": 5,
+          "title": "dual-subject startup retains the exact Layout target and acknowledges Layout and Design saves separately"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 170,
+          "column": 5,
+          "title": "Browse remains separate from Open and startup restores catalog selection and visibility after source reset"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 187,
+          "column": 5,
+          "title": "Layout-only startup opens without an editable design and preserves frozen geometry"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 187,
+          "column": 5,
+          "title": "Layout-only startup keeps archived collection disabled and preserves frozen geometry"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 211,
+          "column": 5,
+          "title": "absent/malformed startup hints fall back without preference or workspace-byte writes"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-startup-resume.spec.ts",
+          "line": 211,
+          "column": 5,
+          "title": "deleted/foreign startup hints fall back without preference or workspace-byte writes"
+        }
+      ],
+      "scopeBoundary": "Current declared synthetic software/source/browser scope only; all unproved host/device/physical/manual/human/deployment capabilities remain separate."
+    },
+    {
+      "id": "UI-01",
+      "title": "Production operator wording",
+      "assessment": "qualified_source_and_current_browser",
+      "reviewedDeclaredSources": [
+        "apps/mobile/src/workspace/UnifiedWorkspace.tsx",
+        "docs/operator-workflow-guide.md"
+      ],
+      "rationale": "Current short/narrow login/customer/field rename, focused controls, text-clipping, keyboard/catalog/design/survey and ordinary operator workflows pass across all3 viewports. Current automated accessibility assertions pass. Missing successful hosted PNG/Axe details prevent fresh pixel/manual-completeness claims; historical R15 visual proof remains explicitly historical.",
+      "matchingCurrentBrowserTuples": [
+        {
+          "project": "desktop",
+          "file": "tests/web/browser-workflow.spec.ts",
+          "line": 1650,
+          "column": 5,
+          "title": "text clipping probe distinguishes visible overflow from trailing wrap whitespace"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/production-accessibility.spec.ts",
+          "line": 51,
+          "column": 5,
+          "title": "operator sign-in, Home, Design and Survey stay keyboard reachable and pass automated accessibility checks"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 394,
+          "column": 5,
+          "title": "short narrow sign-in keeps focused credentials, submit and help reachable without horizontal overflow"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 250,
+          "column": 5,
+          "title": "draft File Rename focuses its retained raw name from collapsed tools without a duplicate File form"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 250,
+          "column": 5,
+          "title": "field File Rename focuses its retained raw name from collapsed tools without a duplicate File form"
+        },
+        {
+          "project": "desktop",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 351,
+          "column": 5,
+          "title": "field container Rename is metadata-only, reachable on a short viewport and checkpointed as recovery v2"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/browser-workflow.spec.ts",
+          "line": 1650,
+          "column": 5,
+          "title": "text clipping probe distinguishes visible overflow from trailing wrap whitespace"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/production-accessibility.spec.ts",
+          "line": 51,
+          "column": 5,
+          "title": "operator sign-in, Home, Design and Survey stay keyboard reachable and pass automated accessibility checks"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 394,
+          "column": 5,
+          "title": "short narrow sign-in keeps focused credentials, submit and help reachable without horizontal overflow"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 250,
+          "column": 5,
+          "title": "draft File Rename focuses its retained raw name from collapsed tools without a duplicate File form"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 250,
+          "column": 5,
+          "title": "field File Rename focuses its retained raw name from collapsed tools without a duplicate File form"
+        },
+        {
+          "project": "tablet-768",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 351,
+          "column": 5,
+          "title": "field container Rename is metadata-only, reachable on a short viewport and checkpointed as recovery v2"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/browser-workflow.spec.ts",
+          "line": 1650,
+          "column": 5,
+          "title": "text clipping probe distinguishes visible overflow from trailing wrap whitespace"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/production-accessibility.spec.ts",
+          "line": 51,
+          "column": 5,
+          "title": "operator sign-in, Home, Design and Survey stay keyboard reachable and pass automated accessibility checks"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/production-auth-workflow.spec.ts",
+          "line": 394,
+          "column": 5,
+          "title": "short narrow sign-in keeps focused credentials, submit and help reachable without horizontal overflow"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 250,
+          "column": 5,
+          "title": "draft File Rename focuses its retained raw name from collapsed tools without a duplicate File form"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 250,
+          "column": 5,
+          "title": "field File Rename focuses its retained raw name from collapsed tools without a duplicate File form"
+        },
+        {
+          "project": "mobile-390",
+          "file": "tests/web/workspace-management.spec.ts",
+          "line": 351,
+          "column": 5,
+          "title": "field container Rename is metadata-only, reachable on a short viewport and checkpointed as recovery v2"
+        }
+      ],
+      "scopeBoundary": "Current declared synthetic software/source/browser scope only; all unproved host/device/physical/manual/human/deployment capabilities remain separate."
+    },
+    {
+      "id": "DOC-01",
+      "title": "Guides, sources and delegated review",
+      "assessment": "qualified_source",
+      "reviewedDeclaredSources": [
+        "docs/operator-workflow-guide.md",
+        "docs/agent-tree-protocol.md",
+        "docs/agent-source-ledger.md",
+        "docs/production-workflow-improvement-plan.md",
+        "docs/unified-workspace-refocus-2026-10-10.md",
+        "docs/workflow-maintenance-guide.md",
+        "docs/workflow-acceptance-protocol.md"
+      ],
+      "rationale": "The unchanged operator/master/acceptance contract and current maintenance/database guidance accurately separate hierarchy, optional Design/required Survey, source-specific Fixed official maps, raw provenance, strict-forward recovery CAS and native/physical/publication boundaries. No new questionnaire or human acceptance is asserted.",
+      "matchingCurrentBrowserTuples": [],
+      "scopeBoundary": "Current declared synthetic software/source/browser scope only; all unproved host/device/physical/manual/human/deployment capabilities remain separate."
+    },
+    {
+      "id": "DEP-01",
+      "title": "Installed mitigation and compatible updates",
+      "assessment": "qualified_source",
+      "reviewedDeclaredSources": [
+        "tools/patchDependencySecurity.cjs",
+        "tools/dependencyAudit.cjs",
+        "docs/dependency-upgrade-plan.md"
+      ],
+      "rationale": "Exact reviewed SDK57/core22/JSI2/SQLite4 source compatibility and installed lock/guard/API hashes were independently reviewed in prior unchanged-source supplements. Current npmci/postinstall, Metro, compatibility check, audit admission and whole aggregate/source jobs pass. Raw16high remains, admitted only through exact named local mitigation/absence guards; no zero-audit/upstream-fixed/native claim.",
+      "matchingCurrentBrowserTuples": [],
+      "scopeBoundary": "Current declared synthetic software/source/browser scope only; all unproved host/device/physical/manual/human/deployment capabilities remain separate."
+    },
+    {
+      "id": "DEP-02",
+      "title": "Recurring dependency reports and update PRs",
+      "assessment": "qualified_source",
+      "reviewedDeclaredSources": [
+        ".github/dependabot.yml",
+        ".github/workflows/dependency-maintenance.yml",
+        "docs/dependency-maintenance.md"
+      ],
+      "rationale": "Current required compatibility gate is scoped offline to installed bundled matrix and no-install; daily discovery and weekly grouped proposals remain online/configured unchanged. Hosted protected pipeline now actually ran successfully. Daily scheduler/bot/security-update activation remains unproved and is not inferred from required CI.",
+      "matchingCurrentBrowserTuples": [],
+      "scopeBoundary": "Current declared synthetic software/source/browser scope only; all unproved host/device/physical/manual/human/deployment capabilities remain separate."
+    },
+    {
+      "id": "SKILL-01",
+      "title": "Truthful selected capability inventory",
+      "assessment": "qualified_source",
+      "reviewedDeclaredSources": [
+        "docs/skill-capability-inventory.json",
+        "docs/skill-capability-inventory.md",
+        ".agents/skills/cplayout-interface-development-agent/SKILL.md",
+        ".agents/skills/cplayout-planning-review/SKILL.md",
+        ".agents/skills/cplayout-database-agent/SKILL.md"
+      ],
+      "rationale": "All67host+11local source fingerprints and current source validator/context passed; only owned database guidance was changed for coherent peer/patch and monotonic-recovery lessons. Genuine host loading/invocation remains unproved.",
+      "matchingCurrentBrowserTuples": [],
+      "scopeBoundary": "Current declared synthetic software/source/browser scope only; all unproved host/device/physical/manual/human/deployment capabilities remain separate."
+    },
+    {
+      "id": "HOOK-01",
+      "title": "Source-bound hook execution qualification",
+      "assessment": "source_reviewed_actual_hook_execution_pending",
+      "reviewedDeclaredSources": [
+        ".codex/hooks.json",
+        "docs/governance-refocus-2026-10-10.md"
+      ],
+      "rationale": "Configuration/source tests remain reviewed with Stop disabled; actual host event execution/denial/managed deployment remain unknown. Successful fixture samples and browser/CI results do not establish hook invocation.",
+      "matchingCurrentBrowserTuples": [],
+      "scopeBoundary": "Current declared synthetic software/source/browser scope only; all unproved host/device/physical/manual/human/deployment capabilities remain separate."
+    },
+    {
+      "id": "CLEAN-01",
+      "title": "Verified retirement without data loss",
+      "assessment": "qualified_source",
+      "reviewedDeclaredSources": [
+        "docs/workflow-retirement-manifest.json",
+        "docs/workflow-maintenance-guide.md"
+      ],
+      "rationale": "Exact census and bounded deltas preserve all prior failed/deferred/source evidence and existing data contracts; new fixture is additive, with no qualified source deletion. Owner preference SHA independently matches. Root-owned PG closure is recorded with data retained; unrelated systems/worktree disposal remain separate operations.",
+      "matchingCurrentBrowserTuples": [],
+      "scopeBoundary": "Current declared synthetic software/source/browser scope only; all unproved host/device/physical/manual/human/deployment capabilities remain separate."
+    },
+    {
+      "id": "QA-01",
+      "title": "Complete workflow proof and review",
+      "assessment": "accepted_first_current_whole_closing_review_second_required",
+      "reviewedDeclaredSources": [
+        "tools/browserProofRegistry.ts",
+        "tools/browserProofRegistry.test.ts",
+        "playwright.config.ts",
+        "tests/web/browser-proof-inventory.json",
+        "tools/workflowStatus.cjs",
+        "docs/workflow-acceptance-protocol.md",
+        "apps/mobile/App.tsx",
+        "apps/api/src/server.ts",
+        "apps/mobile/src/auth/authenticatedRepository.ts",
+        "docs/evidence/production-workflow-review-20261011/final-packet-arrangement.md"
+      ],
+      "rationale": "This is the first actual matching whole R18 closing review after successful current aggregate, HTTP source proof, all5 protected jobs and exact267 current tuples. All962 sources/19 criteria/23 findings assessed, with no unresolved material software/source-browser defect. This acceptance establishes1/2 current final reviews; second matching independent acceptance remains required before normal merge.",
+      "matchingCurrentBrowserTuples": [],
+      "scopeBoundary": "Current declared synthetic software/source/browser scope only; all unproved host/device/physical/manual/human/deployment capabilities remain separate."
+    },
+    {
+      "id": "PUBLISH-01",
+      "title": "Reviewable source publication",
+      "assessment": "protected_candidate_CI_qualified_real_merge_pending",
+      "reviewedDeclaredSources": [
+        ".github/workflows/cplayout-required.yml",
+        "docs/workflow-acceptance-protocol.md"
+      ],
+      "rationale": "Actual candidate head98857ded5f3962b8f2cd620f0be6d967361f3d36 is bound to successful run38300188486 and tested PR mergef0c82e0c1b174453b2c537c26a81ea689ca5b310 against base2649d1a. The raw GraphQL response resolves the CAS thread. Coordinator reports CLEAN/MERGEABLE with main unchanged; real normal merge/main sync/publication remains pending and is not a deployment or human acceptance claim.",
+      "matchingCurrentBrowserTuples": [],
+      "scopeBoundary": "Current declared synthetic software/source/browser scope only; all unproved host/device/physical/manual/human/deployment capabilities remain separate."
+    }
+  ],
+  "findingReviews": [
+    {
+      "id": "REV-20261011-01",
+      "severityAsRecorded": "P1",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "disposition": "matching_current_R18_source_browser_final_closure_supported",
+      "rationale": "Layout pending-input replacement guard includes literal tolerance; recovery retains its units/source owner and explicit discard.",
+      "currentQualification": "Full current R18 aggregate/hosted source/current267 passing tuple packet plus independent exact-delta/scoped source review. For CAS, actualPG memory/forward/refusal/concurrency and resolved thread explicitly support remediation.",
+      "boundary": "Support canonical closure after the second matching final acceptance; preserve all original failed/vetoed/historical receipts and unproved capabilities."
+    },
+    {
+      "id": "REV-20261011-02",
+      "severityAsRecorded": "P1",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "disposition": "matching_current_R18_source_browser_final_closure_supported",
+      "rationale": "Durable denial marker precedes cache cleanup, independent fallback cleanup survives marker failure; current cold-denial browser journey retains exact work and refuses grant revival.",
+      "currentQualification": "Full current R18 aggregate/hosted source/current267 passing tuple packet plus independent exact-delta/scoped source review. For CAS, actualPG memory/forward/refusal/concurrency and resolved thread explicitly support remediation.",
+      "boundary": "Support canonical closure after the second matching final acceptance; preserve all original failed/vetoed/historical receipts and unproved capabilities."
+    },
+    {
+      "id": "REV-20261011-03",
+      "severityAsRecorded": "P1",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "disposition": "matching_current_R18_source_browser_final_closure_supported",
+      "rationale": "Ready/read retains remote raw TEXT; explicit command upgrade uses original source text, with CRLF/source-chain checks and current package journeys.",
+      "currentQualification": "Full current R18 aggregate/hosted source/current267 passing tuple packet plus independent exact-delta/scoped source review. For CAS, actualPG memory/forward/refusal/concurrency and resolved thread explicitly support remediation.",
+      "boundary": "Support canonical closure after the second matching final acceptance; preserve all original failed/vetoed/historical receipts and unproved capabilities."
+    },
+    {
+      "id": "RUNTIME-20261011-01",
+      "severityAsRecorded": "P1",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "disposition": "matching_current_R18_source_browser_final_closure_supported",
+      "rationale": "Initial mode is installed in the accepted Open transaction; actual Survey-first journeys pass all viewports.",
+      "currentQualification": "Full current R18 aggregate/hosted source/current267 passing tuple packet plus independent exact-delta/scoped source review. For CAS, actualPG memory/forward/refusal/concurrency and resolved thread explicitly support remediation.",
+      "boundary": "Support canonical closure after the second matching final acceptance; preserve all original failed/vetoed/historical receipts and unproved capabilities."
+    },
+    {
+      "id": "REV2-20261011-01",
+      "severityAsRecorded": "P1",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "disposition": "matching_current_R18_source_browser_final_closure_supported",
+      "rationale": "Measurement change refuses while raw input or interaction input is pending; actual dirty input/focus/mode/unit case passes.",
+      "currentQualification": "Full current R18 aggregate/hosted source/current267 passing tuple packet plus independent exact-delta/scoped source review. For CAS, actualPG memory/forward/refusal/concurrency and resolved thread explicitly support remediation.",
+      "boundary": "Support canonical closure after the second matching final acceptance; preserve all original failed/vetoed/historical receipts and unproved capabilities."
+    },
+    {
+      "id": "REV2-20261011-02",
+      "severityAsRecorded": "P1",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "disposition": "matching_current_R18_source_browser_final_closure_supported",
+      "rationale": "Service credential queue and browser Web Locks serialize cookie effects; actual two-page signout/new-login case passes.",
+      "currentQualification": "Full current R18 aggregate/hosted source/current267 passing tuple packet plus independent exact-delta/scoped source review. For CAS, actualPG memory/forward/refusal/concurrency and resolved thread explicitly support remediation.",
+      "boundary": "Support canonical closure after the second matching final acceptance; preserve all original failed/vetoed/historical receipts and unproved capabilities."
+    },
+    {
+      "id": "REV2-20261011-03",
+      "severityAsRecorded": "P1",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "disposition": "matching_current_R18_source_browser_final_closure_supported",
+      "rationale": "Final writer admission rechecks actual account/permissions and captures source-current predicate; held account/permission source tests and current account journeys pass.",
+      "currentQualification": "Full current R18 aggregate/hosted source/current267 passing tuple packet plus independent exact-delta/scoped source review. For CAS, actualPG memory/forward/refusal/concurrency and resolved thread explicitly support remediation.",
+      "boundary": "Support canonical closure after the second matching final acceptance; preserve all original failed/vetoed/historical receipts and unproved capabilities."
+    },
+    {
+      "id": "A11Y-20261011-01",
+      "severityAsRecorded": "P1",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "disposition": "matching_current_R18_source_browser_final_closure_supported",
+      "rationale": "Map readout has web tabIndex0 and actual keyboard focus assertion; current18Axe scans report0violations, with separate manual incompletes retained.",
+      "currentQualification": "Full current R18 aggregate/hosted source/current267 passing tuple packet plus independent exact-delta/scoped source review. For CAS, actualPG memory/forward/refusal/concurrency and resolved thread explicitly support remediation.",
+      "boundary": "Support canonical closure after the second matching final acceptance; preserve all original failed/vetoed/historical receipts and unproved capabilities."
+    },
+    {
+      "id": "R1-RECOVERY-20261011-01",
+      "severityAsRecorded": "P1 (governance triage; final independent severity review pending)",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "disposition": "matching_current_R18_source_browser_final_closure_supported",
+      "rationale": "Read lease asserts literal source before intentional prepared publication and expires its assertion afterward; actual File Review/Restore journeys pass.",
+      "currentQualification": "Full current R18 aggregate/hosted source/current267 passing tuple packet plus independent exact-delta/scoped source review. For CAS, actualPG memory/forward/refusal/concurrency and resolved thread explicitly support remediation.",
+      "boundary": "Support canonical closure after the second matching final acceptance; preserve all original failed/vetoed/historical receipts and unproved capabilities."
+    },
+    {
+      "id": "R1-ACCESS-20261011-02",
+      "severityAsRecorded": "P1 (governance triage; final independent severity review pending)",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "disposition": "matching_current_R18_source_browser_final_closure_supported",
+      "rationale": "AccountDenialQueue serializes/coalesces same-owner disposition; service denial preserves unfinished modal and raw recovery before renewed sign-in.",
+      "currentQualification": "Full current R18 aggregate/hosted source/current267 passing tuple packet plus independent exact-delta/scoped source review. For CAS, actualPG memory/forward/refusal/concurrency and resolved thread explicitly support remediation.",
+      "boundary": "Support canonical closure after the second matching final acceptance; preserve all original failed/vetoed/historical receipts and unproved capabilities."
+    },
+    {
+      "id": "R1-GRANT-20261011-03",
+      "severityAsRecorded": "P1 (governance triage; final independent severity review pending)",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "disposition": "matching_current_R18_source_browser_final_closure_supported",
+      "rationale": "One authoritative issuedAt determines exact24-hour expiry; strict clock/signature validator retained and advancing-clock source check passes.",
+      "currentQualification": "Full current R18 aggregate/hosted source/current267 passing tuple packet plus independent exact-delta/scoped source review. For CAS, actualPG memory/forward/refusal/concurrency and resolved thread explicitly support remediation.",
+      "boundary": "Support canonical closure after the second matching final acceptance; preserve all original failed/vetoed/historical receipts and unproved capabilities."
+    },
+    {
+      "id": "R2-UNITS-20261011-01",
+      "severityAsRecorded": "P1 (governance triage; independent final review pending)",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "disposition": "matching_current_R18_source_browser_final_closure_supported",
+      "rationale": "Inactive known-information pending state is retired without clearing real raw inputs; current mode/unit journey passes all viewports.",
+      "currentQualification": "Full current R18 aggregate/hosted source/current267 passing tuple packet plus independent exact-delta/scoped source review. For CAS, actualPG memory/forward/refusal/concurrency and resolved thread explicitly support remediation.",
+      "boundary": "Support canonical closure after the second matching final acceptance; preserve all original failed/vetoed/historical receipts and unproved capabilities."
+    },
+    {
+      "id": "R2-RENAME-20261011-02",
+      "severityAsRecorded": "P1 (governance triage; independent final review pending)",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "disposition": "matching_current_R18_source_browser_final_closure_supported",
+      "rationale": "Focused Rename is reachable in short viewport with one retained File owner; actual Draft/Field Rename journeys pass.",
+      "currentQualification": "Full current R18 aggregate/hosted source/current267 passing tuple packet plus independent exact-delta/scoped source review. For CAS, actualPG memory/forward/refusal/concurrency and resolved thread explicitly support remediation.",
+      "boundary": "Support canonical closure after the second matching final acceptance; preserve all original failed/vetoed/historical receipts and unproved capabilities."
+    },
+    {
+      "id": "R2-PACKAGE-20261011-03",
+      "severityAsRecorded": "P1 (governance triage; independent final review pending)",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "disposition": "matching_current_R18_source_browser_final_closure_supported",
+      "rationale": "Legacy retained upgrade chain is correctly recognized without source weakening; current v1/v2 JSON/ZIP package journeys pass all viewports.",
+      "currentQualification": "Full current R18 aggregate/hosted source/current267 passing tuple packet plus independent exact-delta/scoped source review. For CAS, actualPG memory/forward/refusal/concurrency and resolved thread explicitly support remediation.",
+      "boundary": "Support canonical closure after the second matching final acceptance; preserve all original failed/vetoed/historical receipts and unproved capabilities."
+    },
+    {
+      "id": "R3-CATALOG-20261011-01",
+      "severityAsRecorded": "P1 (governance triage; final independent review pending)",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "disposition": "matching_current_R18_source_browser_final_closure_supported",
+      "rationale": "Catalog content/maintenance/receipt scrolling and actual parent navigation permit normal-pointer Recent/Open; complete current package and management journeys pass.",
+      "currentQualification": "Full current R18 aggregate/hosted source/current267 passing tuple packet plus independent exact-delta/scoped source review. For CAS, actualPG memory/forward/refusal/concurrency and resolved thread explicitly support remediation.",
+      "boundary": "Support canonical closure after the second matching final acceptance; preserve all original failed/vetoed/historical receipts and unproved capabilities."
+    },
+    {
+      "id": "VISUAL-R5-20261011-01",
+      "severityAsRecorded": "P1 (coordinator pixel finding)",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "disposition": "matching_current_R18_source_browser_final_closure_supported",
+      "rationale": "Concise visible Open with exact accessible customer/project name and wrapping/minWidth control; current bounds/keyboard and actual short Home pixels pass.",
+      "currentQualification": "Full current R18 aggregate/hosted source/current267 passing tuple packet plus independent exact-delta/scoped source review. For CAS, actualPG memory/forward/refusal/concurrency and resolved thread explicitly support remediation.",
+      "boundary": "Support canonical closure after the second matching final acceptance; preserve all original failed/vetoed/historical receipts and unproved capabilities."
+    },
+    {
+      "id": "HIERARCHY-ANCESTRY-20261011-01",
+      "severityAsRecorded": "P1",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "disposition": "matching_current_R18_source_browser_final_closure_supported",
+      "rationale": "Domain/shared history guard blocks parent removal; independent current14-case suite includes original counterexample and exact historical orphan export compatibility. Current App orphan ZIP journey passes.",
+      "currentQualification": "Full current R18 aggregate/hosted source/current267 passing tuple packet plus independent exact-delta/scoped source review. For CAS, actualPG memory/forward/refusal/concurrency and resolved thread explicitly support remediation.",
+      "boundary": "Support canonical closure after the second matching final acceptance; preserve all original failed/vetoed/historical receipts and unproved capabilities."
+    },
+    {
+      "id": "OFFICIAL-ORIGIN-20261011-01",
+      "severityAsRecorded": "P1",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "disposition": "matching_current_R18_source_browser_final_closure_supported",
+      "rationale": "Any v3 bulk import refuses without original service context; source file/destination unchanged, existing official reads/exports retained, same-field reference source exact/non-official, cross-field refuses.",
+      "currentQualification": "Full current R18 aggregate/hosted source/current267 passing tuple packet plus independent exact-delta/scoped source review. For CAS, actualPG memory/forward/refusal/concurrency and resolved thread explicitly support remediation.",
+      "boundary": "Support canonical closure after the second matching final acceptance; preserve all original failed/vetoed/historical receipts and unproved capabilities."
+    },
+    {
+      "id": "OFFICIAL-HISTORY-20261011-02",
+      "severityAsRecorded": "P1",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "disposition": "matching_current_R18_source_browser_final_closure_supported",
+      "rationale": "assertRetainedLayoutHistory runs through commands/Web transactions; version, creation/reference/finalization and ordered observation history are retained. Generic new operational transitions need current Survey/source and final live owner; current independent writer regressions pass.",
+      "currentQualification": "Full current R18 aggregate/hosted source/current267 passing tuple packet plus independent exact-delta/scoped source review. For CAS, actualPG memory/forward/refusal/concurrency and resolved thread explicitly support remediation.",
+      "boundary": "Support canonical closure after the second matching final acceptance; preserve all original failed/vetoed/historical receipts and unproved capabilities."
+    },
+    {
+      "id": "OFFICIAL-CHRONOLOGY-20261011-03",
+      "severityAsRecorded": "severity_not_supplied",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "disposition": "matching_current_R18_source_browser_final_closure_supported",
+      "rationale": "V3 lifecycle validator refuses future creation/stale final lock/station ordering contradictions; real controller predicate remains monotonic/fresh-owner admission. Independent current workflow regressions pass.",
+      "currentQualification": "Full current R18 aggregate/hosted source/current267 passing tuple packet plus independent exact-delta/scoped source review. For CAS, actualPG memory/forward/refusal/concurrency and resolved thread explicitly support remediation.",
+      "boundary": "Support canonical closure after the second matching final acceptance; preserve all original failed/vetoed/historical receipts and unproved capabilities."
+    },
+    {
+      "id": "ACTOR-NESTED-LOCK-20261011-04",
+      "severityAsRecorded": "severity_not_supplied",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "disposition": "matching_current_R18_source_browser_final_closure_supported",
+      "rationale": "Creation/finalization/mark actors canonicalized in client and server; held-account/final-persistence tests retained in exactR14 aggregate, current browser official records bind principal.",
+      "currentQualification": "Full current R18 aggregate/hosted source/current267 passing tuple packet plus independent exact-delta/scoped source review. For CAS, actualPG memory/forward/refusal/concurrency and resolved thread explicitly support remediation.",
+      "boundary": "Support canonical closure after the second matching final acceptance; preserve all original failed/vetoed/historical receipts and unproved capabilities."
+    },
+    {
+      "id": "AUTH-READ-OWNERSHIP-20261011-05",
+      "severityAsRecorded": "severity_not_supplied",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "disposition": "matching_current_R18_source_browser_final_closure_supported",
+      "rationale": "Optional expected-principal header/server check, after-JSON epoch/principal fence and captured read-owner checks after every awaited cache/lock/write-current boundary; network-only offline fallback and preserving mismatch path retained.",
+      "currentQualification": "Full current R18 aggregate/hosted source/current267 passing tuple packet plus independent exact-delta/scoped source review. For CAS, actualPG memory/forward/refusal/concurrency and resolved thread explicitly support remediation.",
+      "boundary": "Support canonical closure after the second matching final acceptance; preserve all original failed/vetoed/historical receipts and unproved capabilities."
+    },
+    {
+      "id": "CAS-IMPORT-REVISION-20261012-01",
+      "severityAsRecorded": "P1",
+      "registryStatusAtReview": "source_remediated_scoped_checks_pass_current_whole_CI_closing_reviews_pending",
+      "disposition": "matching_current_R18_source_browser_final_closure_supported",
+      "rationale": "Strictly increasing imported revision under the existing row lock removes numeric CAS reuse; exact bytes/hash and original recovery revision are preserved. Meaningful real-command lifecycle and in-process/actual-PG regressions support the correction. No remote/current browser or protected-thread closure is inferred.",
+      "currentQualification": "Full current R18 aggregate/hosted source/current267 passing tuple packet plus independent exact-delta/scoped source review. For CAS, actualPG memory/forward/refusal/concurrency and resolved thread explicitly support remediation.",
+      "boundary": "Support canonical closure after the second matching final acceptance; preserve all original failed/vetoed/historical receipts and unproved capabilities."
+    }
+  ],
+  "newMaterialFindings": [],
+  "unresolvedP0P1P2WithinQualifiedSoftwareSourceBrowserScope": [],
+  "weightedDecision": {
+    "scale": "Comparative reviewer judgment1..5, not measured test/physical precision.",
+    "weights": {
+      "compatibility": 0.3,
+      "preservation": 0.25,
+      "context": 0.2,
+      "proof": 0.15,
+      "maintenance": 0.1
+    },
+    "alternatives": [
+      {
+        "choice": "Accept matching R18 software/source/current-browser scope with second closing review and normal publication gates",
+        "scores": {
+          "compatibility": 5,
+          "preservation": 5,
+          "context": 5,
+          "proof": 4,
+          "maintenance": 4
+        },
+        "weightedScore": 4.75,
+        "selected": true,
+        "rationale": "Current complete matching proof, independently reviewed preservation/CAS/identity contracts and strict source limits support the declared workflow. Proof score retains missing successful hosted artifacts and separately unproved capabilities.",
+        "veto": false
+      },
+      {
+        "choice": "Defer all software acceptance until native/physical/human/deployment qualification",
+        "scores": {
+          "compatibility": 3,
+          "preservation": 5,
+          "context": 2,
+          "proof": 3,
+          "maintenance": 2
+        },
+        "weightedScore": 3.2,
+        "selected": false,
+        "rationale": "Preserves caution but extends this source/browser publication task into separately recorded unqualified capabilities.",
+        "veto": false
+      },
+      {
+        "choice": "Treat all-green R17 CI as sufficient without correcting current CAS P1",
+        "scores": {
+          "compatibility": 3,
+          "preservation": 2,
+          "context": 2,
+          "proof": 1,
+          "maintenance": 4
+        },
+        "weightedScore": 2.35,
+        "selected": false,
+        "veto": true,
+        "vetoReason": "Known stale-command preservation defect and noncurrent source edition."
+      },
+      {
+        "choice": "Promote current software passes to all-platform/physical/human/deployment acceptance",
+        "scores": {
+          "compatibility": 4,
+          "preservation": 3,
+          "context": 2,
+          "proof": 1,
+          "maintenance": 2
+        },
+        "weightedScore": 2.7,
+        "selected": false,
+        "veto": true,
+        "vetoReason": "Unsupported capability and acceptance claims."
+      }
+    ],
+    "selectedWeightedScore": 4.75,
+    "CASBoundedAlternativeDecision": "The prior scoped4.25 minimal strict-forward import decision remains source-bound and supported by matching current complete proof; wider generation migration and exact-source-rewriting vetoes remain in the scoped receipt."
+  },
+  "reviewerProbeCorrection": {
+    "probe": "Current criterion digest",
+    "initialAttemptExitCode": 1,
+    "incorrectConvention": "Recursively sorting criterion object keys produced0031f5caced687f7396f0743ed69ba55620fd00d65a19ada8286552b5f0ad7fd; that was an unapproved serializer convention.",
+    "correctedAttemptExitCode": 0,
+    "correctConvention": "JSON.stringify the actual declared criterion array/object order; independently produces fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d; all semantic fields equal current registry.",
+    "boundary": "Reviewer harness correction, no source/criterion change or implementation failure."
+  },
+  "supportingReceipts": [
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/candidate-source-r18.json",
+      "bytes": 185344,
+      "sha256": "54b24557d7380de463fd0e46d3460de98c3adb296f3fdc1010c3b27b83d1bdbd"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/final-independent-review-r18-source-supplement-one.json",
+      "bytes": 59080,
+      "sha256": "1397a78c06c6e83a881a3fd334b6fd3409269d3f4cfc5e8523b9a58ddbd6e00a"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/hosted-source-and-browser-r18-pass.json",
+      "bytes": 144763,
+      "sha256": "374c756898befaa69f71e5ff071c9d2dcd8c552b96b46a3140695e9d8b0c71d5"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/source-hierarchy-r18-pass.json",
+      "bytes": 52953,
+      "sha256": "97842047b67a2458cb8fe3257829289622a43f2279d5a405377ab82e1b021550"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/service-smoke-hierarchy-r18-pass.json",
+      "bytes": 1459,
+      "sha256": "445318b5f99035aa20f40f04480f8d759a20254914d6e5b8997156028780c9b1"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/owned-runtime-r18-closure-20261012.json",
+      "bytes": 425,
+      "sha256": "4e6cd026a16675b5458d34db12b1bcc6c071358e7658809be891fd66a4025c60"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/cas-import-revision-correction-scoped-20261012.json",
+      "bytes": 3374,
+      "sha256": "4baf54e2f985d04480cd2b9eca74e08f2d9e85bde1d36704d19653ada5fffec2"
+    },
+    {
+      "path": "docs/evidence/production-workflow-dependencies-20261011/expo-core-sqlite-matrix-review-20261012.json",
+      "bytes": 17069,
+      "sha256": "74a8d5874523abed3eadeb5b68671f4ceda81e125790cbf36256c60fdfbec7bc"
+    }
+  ],
+  "ownerPreference": {
+    "sha256": "ab477ad4569179c868d71a1dd9aa8421127f4139148341507f3572452dab45dc",
+    "originalBytesIndependentlyMatch": true
+  },
+  "metadataCurrentnessFollowups": [
+    "Curator records actual R18 source/aggregate/HTTP/hosted evidence and this delivered first closing review; old immutable R15/R16/R17 receipts retain original scope.",
+    "Canonical QA must distinguish matching current packet and1/2 reviews from completed two-review gate. PUBLISH remains in_progress until actual ordinary merge/main synchronization/publication.",
+    "Update source-reference/status metadata through the canonical registry/projection; authority-only metadata curation is not source drift and must not refresh implementation hashes."
+  ],
+  "remainingOperationalGates": [
+    "Second consecutive independent current whole R18 closing acceptance.",
+    "Actual ordinary reviewed merge/main sync/publication and later qualified owner/recovery worktree cleanup; coordinator reports main unchanged and candidate CLEAN/MERGEABLE."
+  ],
+  "operationalAndAcceptanceLimits": [
+    "No native atomic/V3 device activation, rebuilt Android/iOS behavior, hardware/physical RTK precision or all-platform qualification.",
+    "No genuine host skill/hook invocation; Stop continuation remains disabled.",
+    "No hosted daily scheduler/bot/security-update activation or automatic merges inferred from required CI.",
+    "Raw16high audit persists with exact locally admitted mitigations/absence guards; no zero-audit or upstream-fixed claim.",
+    "No unavailable hosted bundleSHA/pixels/manualAxe-completeness/fullWCAG/human acceptance/deployment qualification.",
+    "All960 deferred legacy browser obligations and original failed/interrupted/vetoed records remain preserved."
+  ],
+  "boundary": "First matching accepted whole R18 final closing review for the exact962 source and19criterion/23finding software/source/current-browser scope. Current complete267 executions are actualR18, with their real testedmerge/head/jobs/bundle filenames; prior passes are not relabeled. Acceptance is1/2 current final reviews and does not itself merge main, deploy, qualify physical/native operation or claim human acceptance."
+}

@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-12T21:22:49.801195+00:00",
+  "classification": "publication_authority_metadata_correction",
+  "finding": "PUBLICATION-METADATA-20261012-01",
+  "reviewSource": "https://github.com/JakeC-Redlund/CPLayout/pull/10#discussion_r4252268594",
+  "priorMetadataHead": "69dccf83d6f4d778d5e0e9ddefefb23964a69ebe",
+  "priorRegistrySha256": "9b95af69a1606d31d719dae2f98b5810d3980bbbe3038c4d7af64abf6a000716",
+  "correctedRegistrySha256": "f55006d6dbd78641e291b5fa34ce7dc120a8fc57e61dad62fec31e533fd3d0f0",
+  "reviewerDecisions": [
+    {
+      "reviewer": "/root/governance_skills_review",
+      "decision": "Valid P2; minimal authority-only historical/current split accepted"
+    },
+    {
+      "reviewer": "/root/final_workflow_review_one",
+      "decision": "Valid P2; historical intent/R13/owner-input carryovers classified; no source issue"
+    }
+  ],
+  "corrections": [
+    "Preserved exact earlier publication prerequisites and boundary inside historicalPrepublicationRecord; active fields describe actual R18PR3source checkpoint.",
+    "Preserved earlier owner-input961/R15 wording as history; current962 source remains unchanged by owner formatting preservation.",
+    "Preserved R13field qualification and scoped source receipts as history; current field qualification references the matching R18 packet.",
+    "Preserved earlier intent implementation status as history and recorded current R18 source/browser implementation.",
+    "Scoped successor/cleanup pending wording to the actual PR3observation cutoff rather than an enduring unfinished source publication."
+  ],
+  "originalCurrentPendingTextPreserved": {
+    "reviewBoundary": "CurrentwholeR18finalclosing ACCEPTs2/2 after actual962source/fbecriteria/localaggregate/currenthosted267/protectedCI andCAScorrection. Oldsource-only/intermediate/pendingcounts remain exact history. Sourcecheckpoint merged/synced; metadata successor and ownbranch/worktreecleanup pending.",
+    "cleanupBoundary": "Observedcanonicalmainstatusempty/OIDparity verified; ownmetadata-successor/taskbranch/worktreecleanup pending. Preserveprotectedhistoricaldetachedrecoverytrees underselecteddecision. Historicalqualifiedsource/evidence deletion0unchanged.",
+    "qaNextAction": "Maintain the exact qualifiedR18scope and preserve earlierfailure/deferred/operational boundaries. Metadata successor and finaltaskbranch/worktreecleanup remain root-owned remaining publication work."
+  },
+  "sourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r18.json",
+  "sourceInputs": 962,
+  "sourceFingerprint": "3c146000b31bd17d3779e9a3c6853297e831a837e5ad21feb298a5a8ae1095d8",
+  "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+  "sourceDrift": [],
+  "originalSoftwareFindings": 23,
+  "originalMatchingSoftwareBrowserClosingReviews": 2,
+  "nativePhysicalHumanOrDeploymentQualificationExtended": false,
+  "exactHeadSuccessorCi": "required_after_this_metadata_correction; not claimed in this receipt",
+  "boundary": "Metadata P2 correction and independent review are distinct from the unchanged R18 source/browser qualification. No later commit, CI, thread-resolution or final cleanup success is predicted."
+}

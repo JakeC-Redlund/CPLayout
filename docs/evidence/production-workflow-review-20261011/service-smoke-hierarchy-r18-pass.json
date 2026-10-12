@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "classification": "synthetic",
+  "result": "pass",
+  "sourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r18.json",
+  "sourceFingerprint": "3c146000b31bd17d3779e9a3c6853297e831a837e5ad21feb298a5a8ae1095d8",
+  "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+  "sourceDrift": [],
+  "commands": [
+    "npm run export:web",
+    "npm run test:service-smoke"
+  ],
+  "logs": {
+    "export": {
+      "exitCode": 0,
+      "sha256": "e231c363479caeda55b279dff4b3898f569fcb1b638dfceff9d67f6d37b7fea1",
+      "bytes": 988
+    },
+    "postgresHttpSmoke": {
+      "exitCode": 0,
+      "sha256": "85f7733c3c816a95e2584a03014c2c4ba571d25846aeca220e22847112e0eb9e",
+      "bytes": 336
+    }
+  },
+  "serviceCases": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "cancelled": 0
+  },
+  "actualOwnedPostgres": "18.6",
+  "servedExportJavaScript": [
+    {
+      "path": "_expo/static/js/web/index-b67c4c2f67ae97e62412dc25709b5d36.js",
+      "bytes": 6248918,
+      "sha256": "9beab85945fe3c497de838c2d8245930f9e1460ec7907a62e927408bef5257c8"
+    }
+  ],
+  "testedGitBaseCommit": "98857ded5f3962b8f2cd620f0be6d967361f3d36",
+  "boundary": "Actual current R18 export and PostgreSQL HTTP gateway smoke. The CAS correction also has a separately executed real PostgreSQL transaction regression; no browser/native/physical qualification inferred from HTTP smoke."
+}

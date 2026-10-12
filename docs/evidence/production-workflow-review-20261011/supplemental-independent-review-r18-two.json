@@ -1,0 +1,655 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-12T19:54:09.466507+00:00",
+  "classification": "independent_source_CAS_remediation_review",
+  "claimClass": "source",
+  "result": "pass_scoped_source_remediation_whole_runtime_pending",
+  "decision": "accept_second_R18_source_supplement_conditional_on_fresh_whole_qualification",
+  "reviewer": "/root/production_workflow_second_review",
+  "supplementalReviewOrdinal": 2,
+  "independence": {
+    "sourceTestCriteriaEdits": false,
+    "gitNpmInstallExportBrowserServerResources": false,
+    "onlyWrite": "This new metadata-only public receipt",
+    "injectedServiceTests": "Synthetic in-memory TestDatabase with actual createApi, no listener or real PostgreSQL used by reviewer."
+  },
+  "source": {
+    "manifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r18.json",
+    "manifestFileSha256": "54b24557d7380de463fd0e46d3460de98c3adb296f3fdc1010c3b27b83d1bdbd",
+    "sourceFingerprint": "3c146000b31bd17d3779e9a3c6853297e831a837e5ad21feb298a5a8ae1095d8",
+    "baseCommit": "40821521fe8a556bb1c320d66164a5a21ce95763",
+    "canonicalPathCount": 962,
+    "completeCensusVerified": true,
+    "missingPaths": [],
+    "extraPaths": [],
+    "sourceDrift": [],
+    "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+    "all19CriteriaUnchanged": true,
+    "changedPaths": [
+      ".agents/skills/cplayout-database-agent/SKILL.md",
+      ".codex/hooks/cplayout_context_map.json",
+      "apps/api/src/database.test.ts",
+      "apps/api/src/recoveryImportCasTestFixtures.ts",
+      "apps/api/src/server.test.ts",
+      "apps/api/src/server.ts",
+      "docs/agent-context-map.md",
+      "docs/skill-capability-inventory.json",
+      "docs/skill-capability-inventory.md",
+      "docs/workflow-maintenance-guide.md"
+    ],
+    "addedPaths": [
+      "apps/api/src/recoveryImportCasTestFixtures.ts"
+    ],
+    "removedPaths": [],
+    "byteIdenticalOtherPaths": 952
+  },
+  "exactDiffVerification": {
+    "completePrivateAuditPatchSha256": "acefea0fb7e14fdc7b8aa57bd64821fbe0a433ecb8fab240039cc35fa0c27b34",
+    "bytes": 28932,
+    "changedPaths": 10,
+    "existingBeforeFiles": 9,
+    "newTestHelperFiles": 1,
+    "method": "Reverse-applied every complete supplied hunk in memory to current files. All nine reconstructed existing before files equal exact R17 hashes; new helper reconstructs the absent/empty predecessor; all ten after files equal R18 hashes. No Git or source write by reviewer.",
+    "allHashesMatch": true,
+    "serverIsOnlyNewGuardAndCommentChange": true,
+    "olderIncompleteUnstagedDiff": "Not used to qualify full scope; preserved separately by coordinator."
+  },
+  "confirmedP1": {
+    "id": "CAS-IMPORT-REVISION-20261012-01",
+    "severity": "P1",
+    "primaryReview": "https://github.com/JakeC-Redlund/CPLayout/pull/3#discussion_r4248395731",
+    "independentBeforeFixCounterexample": {
+      "createCustomerStatus": 200,
+      "deleteCustomerStatus": 200,
+      "validEmptyDestinationRevision": 2,
+      "lowerSourceImportStatus": 200,
+      "importedRevision": 0,
+      "distinctStaleUnexecutedCommandExpectedRevision": 0,
+      "staleCommandStatus": 200,
+      "staleCustomerBecameStored": true,
+      "qualification": "Actual previous injected service counterexample, same workspace; not a tenant/account leak."
+    },
+    "independentAfterFixCounterexample": {
+      "validEmptyDestinationRevision": 2,
+      "lowerSourceImportStatus": 409,
+      "failureCode": "import_revision_conflict",
+      "distinctStaleUnexecutedCommandStatus": 409,
+      "storedTextRevisionReceiptAuditCountsUnchanged": true,
+      "staleCustomerAbsent": true,
+      "normalBootstrapWasSeparateV5Revision4": true
+    }
+  },
+  "remediationAssessment": {
+    "comparison": "imported.revision <= stored.revision refuses409 after the preexisting V3-refusal gate and under the existing destination row lock, before write/audit.",
+    "sourceBytes": "No JSON revision normalization, capability upgrade or merge. Accepted strictly higher input retains its exact original TEXT/hash/revision; lower/equal input and destination remain unchanged.",
+    "compatibility": "Includes equal0/equal2/lower0 refusal. Normal administrator bootstrap is V5 revision4; tests establish legacy0 only through explicit database fixture insertion. No public revision-zero restore workaround is claimed. Keep rejected original source; do not edit its counter to force admission.",
+    "clientContracts": "Existing remote-document revision equality and expectedRevision CAS contracts remain; no generation column, SDK/host/schema migration or receipt rewriting. Normal outbox synchronization is FIFO and stops on first definitive rejection, retaining rejected and later exact commands.",
+    "replayBoundary": "Previously committed commandId may still return its historical acknowledgment before CAS. That is not a new mutation; tests verify imported TEXT/revision/audit/receipt counts remain exact. Distinct unexecuted old IDs reject.",
+    "concurrency": "Shared injected/PostgreSQL fixture tests concurrent import and command at revision6: one200/one409, final7, one audit, receipt count reflects only a winning command, and imported raw TEXT remains exact if import wins.",
+    "preservedV3Gate": "Pending and finalized V3 bulk/raw imports remain refused before the revision gate; dedicated same-original-field reference behavior and actors remain intact."
+  },
+  "independentChecks": [
+    {
+      "command": "Node24.21.0 --import tsx --test apps/api/src/server.test.ts",
+      "exitCode": 0,
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "coverage": "Actual service authentication, CAS/replay, roles/grants and shared recovery-import lifecycle."
+    },
+    {
+      "command": "Node24.21.0 --import tsx --test apps/api/src/rtkLayout.test.ts",
+      "exitCode": 0,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "coverage": "Actual RTK actor binding and pending/finalized V3 whole-import refusal."
+    },
+    {
+      "command": "Independent original create/delete/import/stale-new-command counterexample against corrected actual injected API",
+      "result": "expected_refusal_and_exact_state_retention",
+      "liveListenerOrPG": false
+    },
+    {
+      "command": "Node24.21.0 tools/workflowStatus.cjs --check",
+      "exitCode": 0,
+      "requirements": 19,
+      "sourceBoundEvidenceRecords": 86
+    },
+    {
+      "command": "Read-only complete962 census/fingerprint/current19criteria/full10patch reconstruction plus current local-skill/context source hashes",
+      "result": "pass",
+      "sourceDrift": 0,
+      "localSkillHashDrift": 0,
+      "contextInputHashDrift": 0
+    }
+  ],
+  "otherOwnerEvidence": {
+    "reference": "docs/evidence/production-workflow-review-20261011/cas-import-revision-correction-scoped-20261012.json",
+    "beforeFix": {
+      "exitCode": 1,
+      "passed": 5,
+      "failed": 1,
+      "logBytes": 2241,
+      "logSha256": "d7e4daa632fa6938217bd061568b0cbf600031e61118304bd411689962ebf903"
+    },
+    "correctedServiceAndRtk": {
+      "exitCode": 0,
+      "passed": 8,
+      "failed": 0,
+      "logBytes": 1005,
+      "logSha256": "8fd0ba97c0eb45534a91c26d9893747b7b157f3b20e847d14514e93c4ae618f9"
+    },
+    "actualPostgresRegression": {
+      "owner": "/root",
+      "exitCode": 0,
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "logBytes": 227,
+      "logSha256": "c9f32525634a7bb6382e8bcd05aa60eeca2a5a9e56e903d5e1852698f4cd7b8d",
+      "boundary": "Retained actual root-owned PG18.6 regression, log directly inspected/hashed by reviewer; reviewer did not execute PostgreSQL."
+    },
+    "apiTypecheck": {
+      "owner": "/root",
+      "exitCode": 0,
+      "logBytes": 57,
+      "logSha256": "a1bccaf51b4db0a04b6ee307c0bea140c6a15cc2613b05a787fa8ec8ddf72f62"
+    },
+    "allFourRetainedLogsHashLengthVerified": true
+  },
+  "guidanceAndGeneratedSource": {
+    "maintenanceGuideAndDatabaseSkill": "Explicitly state strict advancing source revision, kept rejected raw files, no fabricated revision counter and actual V5/bootstrap4 versus legacy database/read/upgrade paths. They do not invent public restore capability.",
+    "inventory": "67 host/11 local source entries retained; owned database guidance refreshed; genuine invocation not inferred. All local hashes match.",
+    "context": "Regenerated outputs and indexed input hashes match current source; generated context remains advisory rather than runtime proof."
+  },
+  "requirementSourceReviews": [
+    {
+      "id": "GOV-01",
+      "declaredSourcesReviewedViaCurrentCensus": [
+        "docs/unified-workspace-refocus-2026-10-10.md",
+        "tools/workflowStatus.cjs",
+        "tools/workflowStatus.test.cjs",
+        "docs/workflow-acceptance-protocol.md",
+        "docs/production-workflow-improvement-plan.md",
+        "docs/workflow-maintenance-guide.md"
+      ],
+      "directChangedPaths": [
+        "docs/workflow-maintenance-guide.md"
+      ],
+      "assessment": "Prior structurally reviewed contract remains; current whole runtime/CI acceptance is not inherited from R17.",
+      "boundary": "All nineteen criteria retain identical fingerprint; no stage, hosted/native/physical/human capability promotion from source-only receipt."
+    },
+    {
+      "id": "ENTRY-01",
+      "declaredSourcesReviewedViaCurrentCensus": [
+        "apps/mobile/src/workspace/WorkspaceCatalog.tsx",
+        "apps/mobile/src/workspace/UnifiedWorkspaceEntry.tsx",
+        "apps/mobile/src/auth/AuthenticatedWorkspace.tsx",
+        "packages/auth-client/src/apiClient.ts",
+        "apps/api/src/server.ts"
+      ],
+      "directChangedPaths": [
+        "apps/api/src/server.ts"
+      ],
+      "assessment": "Prior structurally reviewed contract remains; current whole runtime/CI acceptance is not inherited from R17.",
+      "boundary": "All nineteen criteria retain identical fingerprint; no stage, hosted/native/physical/human capability promotion from source-only receipt."
+    },
+    {
+      "id": "AUTH-01",
+      "declaredSourcesReviewedViaCurrentCensus": [
+        "apps/api/src/server.ts",
+        "packages/auth-client/src/apiClient.ts",
+        "apps/mobile/src/auth/AuthenticatedWorkspace.tsx",
+        "apps/mobile/src/auth/accessOwnership.ts"
+      ],
+      "directChangedPaths": [
+        "apps/api/src/server.ts"
+      ],
+      "assessment": "Current auth/recovery/CAS scope repaired and independently checked; whole current qualification remains pending.",
+      "boundary": "All nineteen criteria retain identical fingerprint; no stage, hosted/native/physical/human capability promotion from source-only receipt."
+    },
+    {
+      "id": "HIERARCHY-01",
+      "declaredSourcesReviewedViaCurrentCensus": [
+        "apps/mobile/src/auth/AuthenticatedWorkspace.tsx",
+        "apps/mobile/src/workspace/WorkspaceCatalog.tsx",
+        "packages/auth-client/src/apiClient.ts",
+        "apps/api/src/server.ts",
+        "packages/project-store/src/workspaceDocument.ts",
+        "packages/project-store/src/projectRepositoryTypes.ts",
+        "packages/project-store/src/workspaceFieldContents.ts",
+        "packages/project-store/src/workspaceFieldContents.test.ts"
+      ],
+      "directChangedPaths": [
+        "apps/api/src/server.ts"
+      ],
+      "assessment": "Prior structurally reviewed contract remains; current whole runtime/CI acceptance is not inherited from R17.",
+      "boundary": "All nineteen criteria retain identical fingerprint; no stage, hosted/native/physical/human capability promotion from source-only receipt."
+    },
+    {
+      "id": "FLOW-01",
+      "declaredSourcesReviewedViaCurrentCensus": [
+        "apps/mobile/src/workspace/useWorkspaceController.ts",
+        "apps/mobile/src/workspace/workspaceControllerState.ts",
+        "packages/core/src/surveyCollection.ts",
+        "packages/core/src/surveyDraftField.ts"
+      ],
+      "directChangedPaths": [],
+      "assessment": "Prior structurally reviewed contract remains; current whole runtime/CI acceptance is not inherited from R17.",
+      "boundary": "All nineteen criteria retain identical fingerprint; no stage, hosted/native/physical/human capability promotion from source-only receipt."
+    },
+    {
+      "id": "DRAW-01",
+      "declaredSourcesReviewedViaCurrentCensus": [
+        "apps/mobile/src/workspace/WorkspaceDrawingPanel.tsx",
+        "packages/core/src/draftDrawingWorkflow.ts"
+      ],
+      "directChangedPaths": [],
+      "assessment": "Prior structurally reviewed contract remains; current whole runtime/CI acceptance is not inherited from R17.",
+      "boundary": "All nineteen criteria retain identical fingerprint; no stage, hosted/native/physical/human capability promotion from source-only receipt."
+    },
+    {
+      "id": "SURVEY-01",
+      "declaredSourcesReviewedViaCurrentCensus": [
+        "packages/core/src/surveyCollection.ts",
+        "apps/mobile/src/workspace/WorkspaceModePanels.tsx",
+        "packages/core/src/surveyReview.ts",
+        "packages/project-store/src/productionWorkflow.ts",
+        "packages/project-store/src/workspaceCommands.ts"
+      ],
+      "directChangedPaths": [],
+      "assessment": "Prior structurally reviewed contract remains; current whole runtime/CI acceptance is not inherited from R17.",
+      "boundary": "All nineteen criteria retain identical fingerprint; no stage, hosted/native/physical/human capability promotion from source-only receipt."
+    },
+    {
+      "id": "LAYOUT-01",
+      "declaredSourcesReviewedViaCurrentCensus": [
+        "apps/mobile/src/workspace/WorkspaceModePanels.tsx",
+        "apps/mobile/src/workspace/useWorkspaceController.ts",
+        "packages/core/src/fieldLayoutTarget.ts",
+        "packages/core/src/layoutSession.ts",
+        "packages/project-store/src/productionWorkflow.ts",
+        "packages/project-store/src/workspaceCommands.ts",
+        "packages/core/src/officialLayout.ts",
+        "packages/project-store/src/sqliteWorkspaceStore.ts",
+        "packages/project-store/src/projectRepository.ts",
+        "apps/api/src/server.ts",
+        "apps/mobile/src/auth/authenticatedRepository.ts",
+        "packages/project-store/src/webWorkspaceStore.ts"
+      ],
+      "directChangedPaths": [
+        "apps/api/src/server.ts"
+      ],
+      "assessment": "Prior structurally reviewed contract remains; current whole runtime/CI acceptance is not inherited from R17.",
+      "boundary": "All nineteen criteria retain identical fingerprint; no stage, hosted/native/physical/human capability promotion from source-only receipt."
+    },
+    {
+      "id": "ANCESTRY-01",
+      "declaredSourcesReviewedViaCurrentCensus": [
+        "packages/project-store/src/workspaceDocument.ts",
+        "packages/project-store/src/workspaceCommands.ts",
+        "packages/core/src/surveyCollection.ts",
+        "packages/core/src/surveyReview.ts",
+        "apps/mobile/src/workspace/WorkspaceCatalog.tsx",
+        "packages/project-store/src/workspaceFieldContents.ts",
+        "packages/project-store/src/workspaceFieldContents.test.ts"
+      ],
+      "directChangedPaths": [],
+      "assessment": "Prior structurally reviewed contract remains; current whole runtime/CI acceptance is not inherited from R17.",
+      "boundary": "All nineteen criteria retain identical fingerprint; no stage, hosted/native/physical/human capability promotion from source-only receipt."
+    },
+    {
+      "id": "RECOVERY-01",
+      "declaredSourcesReviewedViaCurrentCensus": [
+        "apps/mobile/src/workspace/workspaceEditRecovery.ts",
+        "apps/mobile/src/workspace/workspaceEditRecoveryStore.ts",
+        "packages/project-store/src/workspaceDocument.ts",
+        "packages/project-store/src/projectRepository.ts",
+        "packages/project-store/src/sqliteWorkspaceStore.ts",
+        "apps/mobile/src/auth/authenticatedRepository.ts",
+        "packages/project-store/src/webWorkspaceStore.ts"
+      ],
+      "directChangedPaths": [],
+      "assessment": "Current auth/recovery/CAS scope repaired and independently checked; whole current qualification remains pending.",
+      "boundary": "All nineteen criteria retain identical fingerprint; no stage, hosted/native/physical/human capability promotion from source-only receipt."
+    },
+    {
+      "id": "UI-01",
+      "declaredSourcesReviewedViaCurrentCensus": [
+        "apps/mobile/src/workspace/UnifiedWorkspace.tsx",
+        "docs/operator-workflow-guide.md"
+      ],
+      "directChangedPaths": [],
+      "assessment": "Prior structurally reviewed contract remains; current whole runtime/CI acceptance is not inherited from R17.",
+      "boundary": "All nineteen criteria retain identical fingerprint; no stage, hosted/native/physical/human capability promotion from source-only receipt."
+    },
+    {
+      "id": "DOC-01",
+      "declaredSourcesReviewedViaCurrentCensus": [
+        "docs/operator-workflow-guide.md",
+        "docs/agent-tree-protocol.md",
+        "docs/agent-source-ledger.md",
+        "docs/production-workflow-improvement-plan.md",
+        "docs/unified-workspace-refocus-2026-10-10.md",
+        "docs/workflow-maintenance-guide.md",
+        "docs/workflow-acceptance-protocol.md"
+      ],
+      "directChangedPaths": [
+        "docs/workflow-maintenance-guide.md"
+      ],
+      "assessment": "Prior structurally reviewed contract remains; current whole runtime/CI acceptance is not inherited from R17.",
+      "boundary": "All nineteen criteria retain identical fingerprint; no stage, hosted/native/physical/human capability promotion from source-only receipt."
+    },
+    {
+      "id": "DEP-01",
+      "declaredSourcesReviewedViaCurrentCensus": [
+        "tools/patchDependencySecurity.cjs",
+        "tools/dependencyAudit.cjs",
+        "docs/dependency-upgrade-plan.md"
+      ],
+      "directChangedPaths": [],
+      "assessment": "Prior structurally reviewed contract remains; current whole runtime/CI acceptance is not inherited from R17.",
+      "boundary": "All nineteen criteria retain identical fingerprint; no stage, hosted/native/physical/human capability promotion from source-only receipt."
+    },
+    {
+      "id": "DEP-02",
+      "declaredSourcesReviewedViaCurrentCensus": [
+        ".github/dependabot.yml",
+        ".github/workflows/dependency-maintenance.yml",
+        "docs/dependency-maintenance.md"
+      ],
+      "directChangedPaths": [],
+      "assessment": "Prior structurally reviewed contract remains; current whole runtime/CI acceptance is not inherited from R17.",
+      "boundary": "All nineteen criteria retain identical fingerprint; no stage, hosted/native/physical/human capability promotion from source-only receipt."
+    },
+    {
+      "id": "SKILL-01",
+      "declaredSourcesReviewedViaCurrentCensus": [
+        "docs/skill-capability-inventory.json",
+        "docs/skill-capability-inventory.md",
+        ".agents/skills/cplayout-interface-development-agent/SKILL.md",
+        ".agents/skills/cplayout-planning-review/SKILL.md",
+        ".agents/skills/cplayout-database-agent/SKILL.md"
+      ],
+      "directChangedPaths": [
+        "docs/skill-capability-inventory.json",
+        "docs/skill-capability-inventory.md",
+        ".agents/skills/cplayout-database-agent/SKILL.md"
+      ],
+      "assessment": "Prior structurally reviewed contract remains; current whole runtime/CI acceptance is not inherited from R17.",
+      "boundary": "All nineteen criteria retain identical fingerprint; no stage, hosted/native/physical/human capability promotion from source-only receipt."
+    },
+    {
+      "id": "HOOK-01",
+      "declaredSourcesReviewedViaCurrentCensus": [
+        ".codex/hooks.json",
+        "docs/governance-refocus-2026-10-10.md"
+      ],
+      "directChangedPaths": [],
+      "assessment": "Prior structurally reviewed contract remains; current whole runtime/CI acceptance is not inherited from R17.",
+      "boundary": "All nineteen criteria retain identical fingerprint; no stage, hosted/native/physical/human capability promotion from source-only receipt."
+    },
+    {
+      "id": "CLEAN-01",
+      "declaredSourcesReviewedViaCurrentCensus": [
+        "docs/workflow-retirement-manifest.json",
+        "docs/workflow-maintenance-guide.md"
+      ],
+      "directChangedPaths": [
+        "docs/workflow-maintenance-guide.md"
+      ],
+      "assessment": "Prior structurally reviewed contract remains; current whole runtime/CI acceptance is not inherited from R17.",
+      "boundary": "All nineteen criteria retain identical fingerprint; no stage, hosted/native/physical/human capability promotion from source-only receipt."
+    },
+    {
+      "id": "QA-01",
+      "declaredSourcesReviewedViaCurrentCensus": [
+        "tools/browserProofRegistry.ts",
+        "tools/browserProofRegistry.test.ts",
+        "playwright.config.ts",
+        "tests/web/browser-proof-inventory.json",
+        "tools/workflowStatus.cjs",
+        "docs/workflow-acceptance-protocol.md",
+        "apps/mobile/App.tsx",
+        "apps/api/src/server.ts",
+        "apps/mobile/src/auth/authenticatedRepository.ts",
+        "docs/evidence/production-workflow-review-20261011/final-packet-arrangement.md"
+      ],
+      "directChangedPaths": [
+        "apps/api/src/server.ts"
+      ],
+      "assessment": "Current auth/recovery/CAS scope repaired and independently checked; whole current qualification remains pending.",
+      "boundary": "All nineteen criteria retain identical fingerprint; no stage, hosted/native/physical/human capability promotion from source-only receipt."
+    },
+    {
+      "id": "PUBLISH-01",
+      "declaredSourcesReviewedViaCurrentCensus": [
+        ".github/workflows/cplayout-required.yml",
+        "docs/workflow-acceptance-protocol.md"
+      ],
+      "directChangedPaths": [],
+      "assessment": "Current auth/recovery/CAS scope repaired and independently checked; whole current qualification remains pending.",
+      "boundary": "All nineteen criteria retain identical fingerprint; no stage, hosted/native/physical/human capability promotion from source-only receipt."
+    }
+  ],
+  "findingSourceReviews": [
+    {
+      "id": "REV-20261011-01",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "assessment": "Earlier qualified source disposition remains structurally unchanged; current whole R18 evidence and closing reviews remain necessary.",
+      "boundary": "No old failure/pass or review is relabeled current whole acceptance."
+    },
+    {
+      "id": "REV-20261011-02",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "assessment": "Earlier qualified source disposition remains structurally unchanged; current whole R18 evidence and closing reviews remain necessary.",
+      "boundary": "No old failure/pass or review is relabeled current whole acceptance."
+    },
+    {
+      "id": "REV-20261011-03",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "assessment": "Earlier qualified source disposition remains structurally unchanged; current whole R18 evidence and closing reviews remain necessary.",
+      "boundary": "No old failure/pass or review is relabeled current whole acceptance."
+    },
+    {
+      "id": "RUNTIME-20261011-01",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "assessment": "Earlier qualified source disposition remains structurally unchanged; current whole R18 evidence and closing reviews remain necessary.",
+      "boundary": "No old failure/pass or review is relabeled current whole acceptance."
+    },
+    {
+      "id": "REV2-20261011-01",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "assessment": "Earlier qualified source disposition remains structurally unchanged; current whole R18 evidence and closing reviews remain necessary.",
+      "boundary": "No old failure/pass or review is relabeled current whole acceptance."
+    },
+    {
+      "id": "REV2-20261011-02",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "assessment": "Earlier qualified source disposition remains structurally unchanged; current whole R18 evidence and closing reviews remain necessary.",
+      "boundary": "No old failure/pass or review is relabeled current whole acceptance."
+    },
+    {
+      "id": "REV2-20261011-03",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "assessment": "Earlier qualified source disposition remains structurally unchanged; current whole R18 evidence and closing reviews remain necessary.",
+      "boundary": "No old failure/pass or review is relabeled current whole acceptance."
+    },
+    {
+      "id": "A11Y-20261011-01",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "assessment": "Earlier qualified source disposition remains structurally unchanged; current whole R18 evidence and closing reviews remain necessary.",
+      "boundary": "No old failure/pass or review is relabeled current whole acceptance."
+    },
+    {
+      "id": "R1-RECOVERY-20261011-01",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "assessment": "Earlier qualified source disposition remains structurally unchanged; current whole R18 evidence and closing reviews remain necessary.",
+      "boundary": "No old failure/pass or review is relabeled current whole acceptance."
+    },
+    {
+      "id": "R1-ACCESS-20261011-02",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "assessment": "Earlier qualified source disposition remains structurally unchanged; current whole R18 evidence and closing reviews remain necessary.",
+      "boundary": "No old failure/pass or review is relabeled current whole acceptance."
+    },
+    {
+      "id": "R1-GRANT-20261011-03",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "assessment": "Earlier qualified source disposition remains structurally unchanged; current whole R18 evidence and closing reviews remain necessary.",
+      "boundary": "No old failure/pass or review is relabeled current whole acceptance."
+    },
+    {
+      "id": "R2-UNITS-20261011-01",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "assessment": "Earlier qualified source disposition remains structurally unchanged; current whole R18 evidence and closing reviews remain necessary.",
+      "boundary": "No old failure/pass or review is relabeled current whole acceptance."
+    },
+    {
+      "id": "R2-RENAME-20261011-02",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "assessment": "Earlier qualified source disposition remains structurally unchanged; current whole R18 evidence and closing reviews remain necessary.",
+      "boundary": "No old failure/pass or review is relabeled current whole acceptance."
+    },
+    {
+      "id": "R2-PACKAGE-20261011-03",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "assessment": "Earlier qualified source disposition remains structurally unchanged; current whole R18 evidence and closing reviews remain necessary.",
+      "boundary": "No old failure/pass or review is relabeled current whole acceptance."
+    },
+    {
+      "id": "R3-CATALOG-20261011-01",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "assessment": "Earlier qualified source disposition remains structurally unchanged; current whole R18 evidence and closing reviews remain necessary.",
+      "boundary": "No old failure/pass or review is relabeled current whole acceptance."
+    },
+    {
+      "id": "VISUAL-R5-20261011-01",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "assessment": "Earlier qualified source disposition remains structurally unchanged; current whole R18 evidence and closing reviews remain necessary.",
+      "boundary": "No old failure/pass or review is relabeled current whole acceptance."
+    },
+    {
+      "id": "HIERARCHY-ANCESTRY-20261011-01",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "assessment": "Earlier qualified source disposition remains structurally unchanged; current whole R18 evidence and closing reviews remain necessary.",
+      "boundary": "No old failure/pass or review is relabeled current whole acceptance."
+    },
+    {
+      "id": "OFFICIAL-ORIGIN-20261011-01",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "assessment": "Earlier qualified source disposition remains structurally unchanged; current whole R18 evidence and closing reviews remain necessary.",
+      "boundary": "No old failure/pass or review is relabeled current whole acceptance."
+    },
+    {
+      "id": "OFFICIAL-HISTORY-20261011-02",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "assessment": "Earlier qualified source disposition remains structurally unchanged; current whole R18 evidence and closing reviews remain necessary.",
+      "boundary": "No old failure/pass or review is relabeled current whole acceptance."
+    },
+    {
+      "id": "OFFICIAL-CHRONOLOGY-20261011-03",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "assessment": "Earlier qualified source disposition remains structurally unchanged; current whole R18 evidence and closing reviews remain necessary.",
+      "boundary": "No old failure/pass or review is relabeled current whole acceptance."
+    },
+    {
+      "id": "ACTOR-NESTED-LOCK-20261011-04",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "assessment": "Earlier qualified source disposition remains structurally unchanged; current whole R18 evidence and closing reviews remain necessary.",
+      "boundary": "No old failure/pass or review is relabeled current whole acceptance."
+    },
+    {
+      "id": "AUTH-READ-OWNERSHIP-20261011-05",
+      "registryStatusAtReview": "closed_matching_current_scope_two_final_reviews",
+      "assessment": "Earlier qualified source disposition remains structurally unchanged; current whole R18 evidence and closing reviews remain necessary.",
+      "boundary": "No old failure/pass or review is relabeled current whole acceptance."
+    },
+    {
+      "id": "CAS-IMPORT-REVISION-20261012-01",
+      "registryStatusAtReview": "source_remediated_scoped_checks_pass_current_whole_CI_closing_reviews_pending",
+      "assessment": "CAS source remediation supported by matched after-fix counterexample, exact state/forward/replay/concurrency and preservedV3 checks; fresh wholeCI/closing/publication still required.",
+      "boundary": "No old failure/pass or review is relabeled current whole acceptance."
+    }
+  ],
+  "newMaterialFindings": [],
+  "unresolvedMaterialDefectsInScopedCASSourceRemediation": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 0
+  },
+  "weightedJudgment": {
+    "weights": {
+      "compatibility": 0.3,
+      "preservation": 0.25,
+      "contextEfficiency": 0.2,
+      "reproducibleProof": 0.15,
+      "maintainability": 0.1
+    },
+    "scoresAreThisReviewersSourceJudgmentsOnly": true,
+    "alternatives": [
+      {
+        "choice": "Strictly refuse lower/equal raw imports after V3 gate",
+        "scores": [
+          4,
+          5,
+          5,
+          5,
+          5
+        ],
+        "weightedScore": 4.7,
+        "selected": true,
+        "rationale": "Closes generation reuse without rewriting raw source, changing client revision contracts or removing receipt idempotency. Import eligibility becomes deliberately narrower, with truthful preserving refusal."
+      },
+      {
+        "choice": "Separate operational generation/schema and client contract migration",
+        "scores": [
+          5,
+          5,
+          2,
+          3,
+          2
+        ],
+        "weightedScore": 3.8,
+        "selected": false,
+        "rationale": "Could support independent source/counter identities but requires broader schema/SDK/storage/compatibility migration and new complete proof; unnecessary for the bounded preserving refusal repair."
+      }
+    ],
+    "preservationOrFalseCapabilityVetoTriggered": false
+  },
+  "pendingQualification": [
+    "Root-owned complete R18 aggregate session32515 was running at assignment; completion is not inferred from growing logs.",
+    "Fresh exact R18-head protected source/267 browser/mandatory barrier CI must actually complete successfully, then two independent matched current19/23 closing reviews must be delivered before final whole acceptance/publication.",
+    "Root reports commit98857ded5f3962b8f2cd620f0be6d967361f3d36/newrun38300188486 pending; reviewer did not perform or independently verify Git/hosted operations.",
+    "Successful R17 source/267 browser CI at40821521fe8a556bb1c320d66164a5a21ce95763 remains original-edition history with this P1 publication veto; it did not detect or close the finding.",
+    "960 deferred browser contracts, full manual accessibility/WCAG, native/device/atomic receiver, physical accuracy, genuine hooks/skill invocation, hosted maintenance activation, deployment and human acceptance remain separate unqualified gates.",
+    "Only root owns protected conversation resolution, Git/staging/merge/mainOIDs, resource cleanup and clean-workspace synchronization."
+  ],
+  "references": [
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/candidate-source-r18.json",
+      "sha256": "54b24557d7380de463fd0e46d3460de98c3adb296f3fdc1010c3b27b83d1bdbd"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/r18-source-freeze-and-scoped-checks.json",
+      "sha256": "7d7496bb44df5e030a422f90b03fa35151c5845a9016b601557468817effbb40"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/cas-import-revision-p1-20261012.json",
+      "sha256": "dcbd482ef665c93ec9e1d33558d2e6ecd73dc6cd54fa65a1d7607bbfbd244f13"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/cas-import-revision-correction-scoped-20261012.json",
+      "sha256": "4baf54e2f985d04480cd2b9eca74e08f2d9e85bde1d36704d19653ada5fffec2"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/hosted-source-and-browser-r17-pass.json",
+      "sha256": "017392fab80c6b389b66893a271081d39bb191c2702b10eefea5d3ff9c549baf"
+    }
+  ],
+  "boundary": "Independent source-only conditional approval of the frozen CAS repair and current962/19/23 source/guidance accounting. No new aggregate/browser/protectedCI/conversation/publication/native/physical/deployment/human result is invented. Only this public metadata receipt was written."
+}

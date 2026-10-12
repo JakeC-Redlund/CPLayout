@@ -1,0 +1,954 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-12T19:54:40.902806+00:00",
+  "classification": "independent_whole_source_CAS_remediation_supplement",
+  "claimClass": "source",
+  "result": "accepted_source_remediation_supplement_current_whole_QA_CI_closing_reviews_pending",
+  "decision": "Accept the exact R18 source/remediation scope; withhold current whole-workflow browser/publication final acceptance.",
+  "reviewer": "/root/final_workflow_review_one",
+  "countsAsCurrentFinalBrowserReview": false,
+  "independence": {
+    "writes": "Only this explicitly authorized non-indexed metadata receipt; no source/test/criteria/Git/npm/resource edits.",
+    "actualExecution": "Reviewer independently ran in-process service/RTK/legacy injection tests and tracker/skills/context validation. No listening server/browser/export/native or PostgreSQL allocation/connection/mutation by reviewer.",
+    "coordinatorPG": "Actual PostgreSQL1/1/no-skip raw log and source fixture inspected/hash-verified; execution belongs to coordinator.",
+    "freeze": "Coordinator confirmed Gov final R18 source/test/criteria freeze before this receipt."
+  },
+  "source": {
+    "manifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r18.json",
+    "sourceFingerprint": "3c146000b31bd17d3779e9a3c6853297e831a837e5ad21feb298a5a8ae1095d8",
+    "manifestFileSha256": "54b24557d7380de463fd0e46d3460de98c3adb296f3fdc1010c3b27b83d1bdbd",
+    "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+    "canonicalPathCount": 962,
+    "completeCensusMethod": "Direct wholeImplementationPaths(registry,root) equality with both manifest sourceScope and every sourceHashes key; every current source SHA matched; sorted-map fingerprint recomputed; validateRegistry passed.",
+    "missingPaths": [],
+    "extraPaths": [],
+    "sourceDrift": [],
+    "priorManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r17.json",
+    "priorSourceFingerprint": "2ecce6cfdefe83a39d25d9028f1e19f3c0419a7f18dc78575b3dcfda1fe97b36",
+    "changedPaths": [
+      ".agents/skills/cplayout-database-agent/SKILL.md",
+      ".codex/hooks/cplayout_context_map.json",
+      "apps/api/src/database.test.ts",
+      "apps/api/src/recoveryImportCasTestFixtures.ts",
+      "apps/api/src/server.test.ts",
+      "apps/api/src/server.ts",
+      "docs/agent-context-map.md",
+      "docs/skill-capability-inventory.json",
+      "docs/skill-capability-inventory.md",
+      "docs/workflow-maintenance-guide.md"
+    ],
+    "existingPathsModified": 9,
+    "sourceAdditions": [
+      "apps/api/src/recoveryImportCasTestFixtures.ts"
+    ],
+    "sourceRemovals": [],
+    "byteIdenticalOtherPaths": 952,
+    "criteriaUnchanged": true,
+    "sourceSelectionAndDependenciesUnchanged": [
+      "package.json",
+      "package-lock.json",
+      "apps/mobile/package.json",
+      "packages/backup-artifacts/package.json",
+      ".github/workflows/cplayout-required.yml",
+      ".github/workflows/dependency-maintenance.yml",
+      ".github/dependabot.yml",
+      "tools/patchDependencySecurity.cjs",
+      "tools/patchDependencySecurity.test.cjs",
+      "tools/patchExpoSqliteOwnership.cjs",
+      "patches/expo-sqlite+57.0.4.patch",
+      "patches/expo-sqlite+57.0.4.json",
+      "tools/browserProofRegistry.ts",
+      "playwright.config.ts",
+      "tests/web/browser-proof-inventory.json",
+      "packages/core/src/layoutSession.ts",
+      "packages/core/src/officialLayout.ts",
+      "packages/project-store/src/workspaceDocument.ts",
+      "packages/project-store/src/workspaceCommands.ts",
+      "packages/auth-client/src/apiClient.ts",
+      "apps/mobile/src/auth/authenticatedRepository.ts",
+      ".codex/hooks.json"
+    ]
+  },
+  "exactDelta": {
+    "privateEvidenceIdentifier": "publication-20261012/source-r17-to-r18-audited-complete.patch",
+    "bytes": 28932,
+    "sha256": "acefea0fb7e14fdc7b8aa57bd64821fbe0a433ecb8fab240039cc35fa0c27b34",
+    "method": "All exact reverse hunks independently reconstructed in memory without Git or source writes. Nine reconstructed before files match R17 SHA; all ten current after files match R18; new helper explicitly /dev/null with empty predecessor.",
+    "reverseVerifiedFiles": [
+      {
+        "path": ".agents/skills/cplayout-database-agent/SKILL.md",
+        "beforeSha256": "ef8f3e131852cc98ed6daacb0c96a67f21aeacb8a9cd6b2392a800555a57e264",
+        "afterSha256": "189d1a09bb438fc356e367545c57149c7a1dc6de1c466d7c1e136d35627fedb1",
+        "hunks": 1,
+        "exactPriorReconstructionVerified": true
+      },
+      {
+        "path": ".codex/hooks/cplayout_context_map.json",
+        "beforeSha256": "cf7c5aeda50e3560476b7eecae2d31a26790f1bee31d675a896c603c626d1a0d",
+        "afterSha256": "125d3ad9c750546d87f19bbb604ad130ec37fde1d65addd3840ad29e6f0e5745",
+        "hunks": 2,
+        "exactPriorReconstructionVerified": true
+      },
+      {
+        "path": "apps/api/src/database.test.ts",
+        "beforeSha256": "027b4d9cb9f006b09955b4707149f6eabd5fefed7e37e0bcbbec5ee5dc660248",
+        "afterSha256": "a040d1d44e8e1868cb81a33b3728802b82eac0328e8a177b20f53eb742442b4f",
+        "hunks": 2,
+        "exactPriorReconstructionVerified": true
+      },
+      {
+        "path": "apps/api/src/recoveryImportCasTestFixtures.ts",
+        "beforeSha256": null,
+        "afterSha256": "0b0c0a8c5293a51e4c9e84f521470f7bd27df329f920b6ec0c70103246b286b0",
+        "hunks": 1,
+        "exactPriorReconstructionVerified": true
+      },
+      {
+        "path": "apps/api/src/server.test.ts",
+        "beforeSha256": "ab9290aa4d641b30e92d58e501beb1867c3193b3352860126b00145f67bee0a1",
+        "afterSha256": "98abb65f5a4a5934a0c005406dc0a9c311833682b75412c832a7d75690647b30",
+        "hunks": 2,
+        "exactPriorReconstructionVerified": true
+      },
+      {
+        "path": "apps/api/src/server.ts",
+        "beforeSha256": "3fc7b52d00c926affc4dcd413cd6743d037634860555e4868df171f8c301ce0b",
+        "afterSha256": "b10ebbc64f013dac5d2dbc1f83a8299d3cda5c56c48a162b9fb8130e1c28c8df",
+        "hunks": 1,
+        "exactPriorReconstructionVerified": true
+      },
+      {
+        "path": "docs/agent-context-map.md",
+        "beforeSha256": "c804f8578aac631fc1f557bdddf7a93de4b5ad39918eb4ae66280eb641ebad37",
+        "afterSha256": "6bc2481434bff2f02fa734256c5ba57bb2c671cbe9e7bdae6a3c927fd63b2a23",
+        "hunks": 2,
+        "exactPriorReconstructionVerified": true
+      },
+      {
+        "path": "docs/skill-capability-inventory.json",
+        "beforeSha256": "2413d9eb642813bfaa596d3eafe5e08f57dbdd0033f5b445308a1a9b1ff41837",
+        "afterSha256": "a210403b0efb289820131ae401fe7ff96ccf4f8966ef431efa11809c75f18121",
+        "hunks": 3,
+        "exactPriorReconstructionVerified": true
+      },
+      {
+        "path": "docs/skill-capability-inventory.md",
+        "beforeSha256": "c60b439e3cdc74cb3090ee3ec3da5a7cc764fa3f50c4a369feb63243e2c6fa44",
+        "afterSha256": "c6c77e8ed36ffe0c325589f005f42360e27c6beb528cb9eb19138274e431c911",
+        "hunks": 2,
+        "exactPriorReconstructionVerified": true
+      },
+      {
+        "path": "docs/workflow-maintenance-guide.md",
+        "beforeSha256": "0c248f655a57efbd0b1c455529de63bb2e8f004811a233d9a542395a53e15e35",
+        "afterSha256": "5edf32a18ff7731be51c6f4e707982cdad1135a89dfedfdabe3edb7e3afeb435",
+        "hunks": 1,
+        "exactPriorReconstructionVerified": true
+      }
+    ],
+    "earlierIncompleteDiffBoundary": "Coordinator reports an earlier unstaged diff omitted the then-untracked helper. This receipt uses only the complete ten-path committed delta.",
+    "productionBehaviorChange": "The only production code delta is imported.revision<=stored.revision ->409import_revision_conflict after V3 refusal, before write/audit, under the existing destination row lock. Other server code reconstructs exactly to R17.",
+    "guidanceChange": "Maintenance/database skill explicitly preserve rejected source, forbid manufactured revision/fresh-bootstrap workaround, state actual v5 bootstrap revision4 and separate internal legacy insertion/read/upgrade paths."
+  },
+  "CASReview": {
+    "finding": "CAS-IMPORT-REVISION-20261012-01",
+    "sourceRemediation": "supported",
+    "automaticReviewReference": "https://github.com/JakeC-Redlund/CPLayout/pull/3#discussion_r4248395731",
+    "compatibilityLimit": "Lower/equal raw recovery imports now refuse, including revision0 against any nonnegative existing destination. Normal public bootstrap starts revision4. Existing internal initial legacy database insertion/read/upgrade is preserved; no new public revision0 restore capability is claimed.",
+    "monotonicity": "A successful import strictly exceeds the locked current revision, so it cannot reuse a formerly observed lower/current CAS number. Destination expectedRevision and source hash/validity/permissions/emptiness/V3 checks remain required.",
+    "preservation": "No input JSON/revision/hash rewriting, tables, migrations, client generation changes, stored-history rewrite, receipt deletion or capability upgrade. Refusal precedes all write/audit calls.",
+    "regressionQuality": "Shared test helper starts with explicitly inserted legacy0, uses real authenticated create/delete commands to reach empty2, sends unique old queued commandIds, verifies exact CRLF higher3 source/hash, historical receipt replay without database mutation, fresh expected3 write, then real concurrent import/command6->7 with exactly one committed effect/count. Production imports do not select this helper; only the two test consumers reference it.",
+    "regressionLimits": "Before-fix retained failure was first equal0 assertion and stopped later cases. Corrected full lifecycle ran in memory and actual PostgreSQL; concurrency is a bounded actual regression plus locked-source reasoning, not exhaustive scheduling or native qualification."
+  },
+  "coordinatorScopedRawLogsVerified": [
+    {
+      "privateEvidenceIdentifier": "beforeFix-import-cas.log",
+      "classification": "beforeFix",
+      "exitCode": 1,
+      "bytes": 2241,
+      "sha256": "d7e4daa632fa6938217bd061568b0cbf600031e61118304bd411689962ebf903",
+      "reviewerVerifiedExactRawLog": true
+    },
+    {
+      "privateEvidenceIdentifier": "correctedServiceAndRtk-import-cas.log",
+      "classification": "correctedServiceAndRtk",
+      "exitCode": 0,
+      "bytes": 1005,
+      "sha256": "8fd0ba97c0eb45534a91c26d9893747b7b157f3b20e847d14514e93c4ae618f9",
+      "reviewerVerifiedExactRawLog": true
+    },
+    {
+      "privateEvidenceIdentifier": "actualPostgresRegression-import-cas.log",
+      "classification": "actualPostgresRegression",
+      "exitCode": 0,
+      "bytes": 227,
+      "sha256": "c9f32525634a7bb6382e8bcd05aa60eeca2a5a9e56e903d5e1852698f4cd7b8d",
+      "reviewerVerifiedExactRawLog": true
+    },
+    {
+      "privateEvidenceIdentifier": "apiTypecheck-import-cas.log",
+      "classification": "apiTypecheck",
+      "exitCode": 0,
+      "bytes": 57,
+      "sha256": "a1bccaf51b4db0a04b6ee307c0bea140c6a15cc2613b05a787fa8ec8ddf72f62",
+      "reviewerVerifiedExactRawLog": true
+    }
+  ],
+  "independentCommands": [
+    {
+      "command": "'/home/cyber/cplayout-toolchains/node-v24.21.0-linux-x64/bin/node' node_modules/tsx/dist/cli.mjs --test apps/api/src/server.test.ts apps/api/src/rtkLayout.test.ts apps/api/src/legacyUpgrade.test.ts",
+      "exitCode": 0,
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "skip": 0,
+      "cancelled": 0
+    },
+    {
+      "command": "'/home/cyber/cplayout-toolchains/node-v24.21.0-linux-x64/bin/node' --test tools/workflowStatus.test.cjs",
+      "exitCode": 0,
+      "tests": 23,
+      "pass": 23,
+      "fail": 0,
+      "skip": 0,
+      "cancelled": 0
+    },
+    {
+      "command": "python3 tools/build_cplayout_context_map.py --check",
+      "exitCode": 0
+    },
+    {
+      "command": "python3 tools/validate_cplayout_skills.py",
+      "exitCode": 0
+    },
+    {
+      "command": "In-memory complete962census/hash/fingerprint/criteria/validateRegistry assertions",
+      "exitCode": 0
+    },
+    {
+      "command": "Independent complete ten-path reverse reconstruction; all prior/current hashes and new-helper absence verified",
+      "exitCode": 0
+    },
+    {
+      "command": "Hash all67 host+11 workspace exposed skill sources with actual host catalog roots",
+      "exitCode": 0,
+      "entries": 78,
+      "drift": 0
+    }
+  ],
+  "requirementReviews": [
+    {
+      "id": "GOV-01",
+      "title": "One canonical tracker",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [
+        "docs/workflow-maintenance-guide.md"
+      ],
+      "reviewedDeclaredSources": [
+        "docs/unified-workspace-refocus-2026-10-10.md",
+        "tools/workflowStatus.cjs",
+        "tools/workflowStatus.test.cjs",
+        "docs/workflow-acceptance-protocol.md",
+        "docs/production-workflow-improvement-plan.md",
+        "docs/workflow-maintenance-guide.md"
+      ],
+      "rationale": "Complete 962-path source census independently equals the manifest, including the new test-only helper; all hashes/fingerprint/criteria match. Tracker23 and current context/skills validation pass. The maintenance guide documents the confirmed import defect and bounded correction without retiring history.",
+      "qualificationBoundary": "Scoped source/remediation acceptance only; current R18 whole browser/CI/final qualification remains pending."
+    },
+    {
+      "id": "ENTRY-01",
+      "title": "Customer-first entry and project/field selection",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [
+        "apps/api/src/server.ts"
+      ],
+      "reviewedDeclaredSources": [
+        "apps/mobile/src/workspace/WorkspaceCatalog.tsx",
+        "apps/mobile/src/workspace/UnifiedWorkspaceEntry.tsx",
+        "apps/mobile/src/auth/AuthenticatedWorkspace.tsx",
+        "packages/auth-client/src/apiClient.ts",
+        "apps/api/src/server.ts"
+      ],
+      "rationale": "The exact server delta is confined to raw recovery-import admission/comments. Customer-first catalog loading, explicit Open, zero-project customers, editor preservation and actual customer/project endpoints remain unchanged.",
+      "qualificationBoundary": "Scoped source/remediation acceptance only; current R18 whole browser/CI/final qualification remains pending."
+    },
+    {
+      "id": "AUTH-01",
+      "title": "Truthful account sign-in and shared service",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [
+        "apps/api/src/server.ts"
+      ],
+      "reviewedDeclaredSources": [
+        "apps/api/src/server.ts",
+        "packages/auth-client/src/apiClient.ts",
+        "apps/mobile/src/auth/AuthenticatedWorkspace.tsx",
+        "apps/mobile/src/auth/accessOwnership.ts"
+      ],
+      "rationale": "The raw recovery import now requires imported revision strictly above the locked destination revision after expected-revision/empty/V3 checks. Authentication, permission, principal/epoch/policy, catalog snapshot, command actor and receipt semantics outside this endpoint are byte-identical; independently executed service/RTK regressions pass.",
+      "qualificationBoundary": "Scoped source/remediation acceptance only; current R18 whole browser/CI/final qualification remains pending."
+    },
+    {
+      "id": "HIERARCHY-01",
+      "title": "Logical customer/project/field folders and actual field content",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [
+        "apps/api/src/server.ts"
+      ],
+      "reviewedDeclaredSources": [
+        "apps/mobile/src/auth/AuthenticatedWorkspace.tsx",
+        "apps/mobile/src/workspace/WorkspaceCatalog.tsx",
+        "packages/auth-client/src/apiClient.ts",
+        "apps/api/src/server.ts",
+        "packages/project-store/src/workspaceDocument.ts",
+        "packages/project-store/src/projectRepositoryTypes.ts",
+        "packages/project-store/src/workspaceFieldContents.ts",
+        "packages/project-store/src/workspaceFieldContents.test.ts"
+      ],
+      "rationale": "Server revision monotonicity protects queued commands across raw recovery replacement. The hierarchy metadata endpoints, actual links, logical categories, saved Survey associations and orphan history projection are unchanged.",
+      "qualificationBoundary": "Scoped source/remediation acceptance only; current R18 whole browser/CI/final qualification remains pending."
+    },
+    {
+      "id": "FLOW-01",
+      "title": "Optional Design and required Survey",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        "apps/mobile/src/workspace/useWorkspaceController.ts",
+        "apps/mobile/src/workspace/workspaceControllerState.ts",
+        "packages/core/src/surveyCollection.ts",
+        "packages/core/src/surveyDraftField.ts"
+      ],
+      "rationale": "Source and acceptance are unchanged from the independently reviewed R17 source supplement. Optional manual Design, direct Survey entry and matching saved Survey Layout prerequisites remain unchanged in application source and criteria.",
+      "qualificationBoundary": "Scoped source/remediation acceptance only; current R18 whole browser/CI/final qualification remains pending."
+    },
+    {
+      "id": "DRAW-01",
+      "title": "Manual field and machine geometry",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        "apps/mobile/src/workspace/WorkspaceDrawingPanel.tsx",
+        "packages/core/src/draftDrawingWorkflow.ts"
+      ],
+      "rationale": "Source and acceptance are unchanged from the independently reviewed R17 source supplement. Manual geometry, drawing-purpose and undo/persistence code and criteria remain unchanged; no receiver requirement is added by the dependency change.",
+      "qualificationBoundary": "Scoped source/remediation acceptance only; current R18 whole browser/CI/final qualification remains pending."
+    },
+    {
+      "id": "SURVEY-01",
+      "title": "Receiver collection and qualification",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        "packages/core/src/surveyCollection.ts",
+        "apps/mobile/src/workspace/WorkspaceModePanels.tsx",
+        "packages/core/src/surveyReview.ts",
+        "packages/project-store/src/productionWorkflow.ts",
+        "packages/project-store/src/workspaceCommands.ts"
+      ],
+      "rationale": "Source and acceptance are unchanged from the independently reviewed R17 source supplement. Fresh owned Fixed admission and actual saved-review/collection/revision/CRS provenance source remain unchanged. New runtime/browser collection execution remains pending.",
+      "qualificationBoundary": "Scoped source/remediation acceptance only; current R18 whole browser/CI/final qualification remains pending."
+    },
+    {
+      "id": "LAYOUT-01",
+      "title": "Official Layout maps under matched Survey with RTK admission",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [
+        "apps/api/src/server.ts"
+      ],
+      "reviewedDeclaredSources": [
+        "apps/mobile/src/workspace/WorkspaceModePanels.tsx",
+        "apps/mobile/src/workspace/useWorkspaceController.ts",
+        "packages/core/src/fieldLayoutTarget.ts",
+        "packages/core/src/layoutSession.ts",
+        "packages/project-store/src/productionWorkflow.ts",
+        "packages/project-store/src/workspaceCommands.ts",
+        "packages/core/src/officialLayout.ts",
+        "packages/project-store/src/sqliteWorkspaceStore.ts",
+        "packages/project-store/src/projectRepository.ts",
+        "apps/api/src/server.ts",
+        "apps/mobile/src/auth/authenticatedRepository.ts",
+        "packages/project-store/src/webWorkspaceStore.ts"
+      ],
+      "rationale": "V3 bulk/raw import refusal remains before the new CAS refusal. Independent pending/finalized V3 refusal, exact same-field dedicated reference import and actor regressions pass. Creation/finalization/marking/parser/retention application source and immutable target/Survey links are unchanged.",
+      "qualificationBoundary": "Scoped source/remediation acceptance only; current R18 whole browser/CI/final qualification remains pending."
+    },
+    {
+      "id": "ANCESTRY-01",
+      "title": "Retain ancestors referenced by saved Survey evidence",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        "packages/project-store/src/workspaceDocument.ts",
+        "packages/project-store/src/workspaceCommands.ts",
+        "packages/core/src/surveyCollection.ts",
+        "packages/core/src/surveyReview.ts",
+        "apps/mobile/src/workspace/WorkspaceCatalog.tsx",
+        "packages/project-store/src/workspaceFieldContents.ts",
+        "packages/project-store/src/workspaceFieldContents.test.ts"
+      ],
+      "rationale": "Source and acceptance are unchanged from the independently reviewed R17 source supplement. Retained active/archived Survey ancestor-deletion refusal and historical orphan-readable/exportable source remain unchanged; no data or schema migration in the exact delta.",
+      "qualificationBoundary": "Scoped source/remediation acceptance only; current R18 whole browser/CI/final qualification remains pending."
+    },
+    {
+      "id": "RECOVERY-01",
+      "title": "Preserve current and unfinished work",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        "apps/mobile/src/workspace/workspaceEditRecovery.ts",
+        "apps/mobile/src/workspace/workspaceEditRecoveryStore.ts",
+        "packages/project-store/src/workspaceDocument.ts",
+        "packages/project-store/src/projectRepository.ts",
+        "packages/project-store/src/sqliteWorkspaceStore.ts",
+        "apps/mobile/src/auth/authenticatedRepository.ts",
+        "packages/project-store/src/webWorkspaceStore.ts"
+      ],
+      "rationale": "Confirmed numeric-CAS ABA is source-remediated without rewriting imported TEXT or separating transport/domain revisions. Lower/equal refusal leaves destination/input/counts unchanged; higher CRLF source is exact, stale unique queued requests refuse, historical receipts remain replayable without database mutation. Initial legacy insertion/upgrade and public bootstrap revision4 are explicitly different capabilities.",
+      "qualificationBoundary": "Scoped source/remediation acceptance only; current R18 whole browser/CI/final qualification remains pending."
+    },
+    {
+      "id": "UI-01",
+      "title": "Production operator wording",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        "apps/mobile/src/workspace/UnifiedWorkspace.tsx",
+        "docs/operator-workflow-guide.md"
+      ],
+      "rationale": "Source and acceptance are unchanged from the independently reviewed R17 source supplement. Operator wording, accessibility/short-home and drawing/layout controls remain unchanged; dependency changes require fresh served-App proof before current runtime qualification.",
+      "qualificationBoundary": "Scoped source/remediation acceptance only; current R18 whole browser/CI/final qualification remains pending."
+    },
+    {
+      "id": "DOC-01",
+      "title": "Guides, sources and delegated review",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [
+        "docs/workflow-maintenance-guide.md"
+      ],
+      "reviewedDeclaredSources": [
+        "docs/operator-workflow-guide.md",
+        "docs/agent-tree-protocol.md",
+        "docs/agent-source-ledger.md",
+        "docs/production-workflow-improvement-plan.md",
+        "docs/unified-workspace-refocus-2026-10-10.md",
+        "docs/workflow-maintenance-guide.md",
+        "docs/workflow-acceptance-protocol.md"
+      ],
+      "rationale": "Only maintenance/database capability guidance adds the implemented strict-forward import rule and actual bootstrap limitation. It does not suggest editing the source revision or a public revision-zero restore workaround. Master plan/operator/acceptance criteria remain unchanged.",
+      "qualificationBoundary": "Scoped source/remediation acceptance only; current R18 whole browser/CI/final qualification remains pending."
+    },
+    {
+      "id": "DEP-01",
+      "title": "Installed mitigation and compatible updates",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        "tools/patchDependencySecurity.cjs",
+        "tools/dependencyAudit.cjs",
+        "docs/dependency-upgrade-plan.md"
+      ],
+      "rationale": "Source and acceptance are unchanged from the independently reviewed R17 source supplement. Exact coherent SDK/core/JSI pins, matching installed/lock versions, strict new supported matrix, meaningful positive/refusal regressions, installed security/SQLite/Metro checks and installed consumed API hashes support source/dependency acceptance. Raw audit remains 16 high, separately admitted exact local guards, not zero/upstream-fixed.",
+      "qualificationBoundary": "Scoped source/remediation acceptance only; current R18 whole browser/CI/final qualification remains pending."
+    },
+    {
+      "id": "DEP-02",
+      "title": "Recurring dependency reports and update PRs",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        ".github/dependabot.yml",
+        ".github/workflows/dependency-maintenance.yml",
+        "docs/dependency-maintenance.md"
+      ],
+      "rationale": "Source and acceptance are unchanged from the independently reviewed R17 source supplement. Required Expo check alone uses EXPO_OFFLINE and no-install; daily dependency workflow and weekly Dependabot configuration remain byte-identical and online. Hosted scheduler/bot/security activation remains unobserved.",
+      "qualificationBoundary": "Scoped source/remediation acceptance only; current R18 whole browser/CI/final qualification remains pending."
+    },
+    {
+      "id": "SKILL-01",
+      "title": "Truthful selected capability inventory",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [
+        ".agents/skills/cplayout-database-agent/SKILL.md",
+        "docs/skill-capability-inventory.json",
+        "docs/skill-capability-inventory.md"
+      ],
+      "reviewedDeclaredSources": [
+        "docs/skill-capability-inventory.json",
+        "docs/skill-capability-inventory.md",
+        ".agents/skills/cplayout-interface-development-agent/SKILL.md",
+        ".agents/skills/cplayout-planning-review/SKILL.md",
+        ".agents/skills/cplayout-database-agent/SKILL.md"
+      ],
+      "rationale": "Database skill adds the source-proven monotonic recovery/import lesson; its generated context/inventory changes match. All78 source fingerprints and current skills/context validation pass. Genuine host invocation remains unmeasured.",
+      "qualificationBoundary": "Scoped source/remediation acceptance only; current R18 whole browser/CI/final qualification remains pending."
+    },
+    {
+      "id": "HOOK-01",
+      "title": "Source-bound hook execution qualification",
+      "assessment": "runtime_or_operational_gate_pending",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        ".codex/hooks.json",
+        "docs/governance-refocus-2026-10-10.md"
+      ],
+      "rationale": "Source and acceptance are unchanged from the independently reviewed R17 source supplement. Hook configuration remains byte-identical, Stop continuation absent/disabled and genuine host event execution unknown. Validator samples do not establish host invocation.",
+      "qualificationBoundary": "Scoped source/remediation acceptance only; current R18 whole browser/CI/final qualification remains pending."
+    },
+    {
+      "id": "CLEAN-01",
+      "title": "Verified retirement without data loss",
+      "assessment": "source_scope_accept",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [
+        "docs/workflow-maintenance-guide.md"
+      ],
+      "reviewedDeclaredSources": [
+        "docs/workflow-retirement-manifest.json",
+        "docs/workflow-maintenance-guide.md"
+      ],
+      "rationale": "Source and acceptance are unchanged from the independently reviewed R17 source supplement. Exact complete source census has no additions/removals; SQLite/security patch bytes, failed/deferred evidence and retirement protocol remain preserved. No deletion or cleanup operation is qualified by this review.",
+      "qualificationBoundary": "Scoped source/remediation acceptance only; current R18 whole browser/CI/final qualification remains pending."
+    },
+    {
+      "id": "QA-01",
+      "title": "Complete workflow proof and review",
+      "assessment": "runtime_or_operational_gate_pending",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [
+        "apps/api/src/server.ts"
+      ],
+      "reviewedDeclaredSources": [
+        "tools/browserProofRegistry.ts",
+        "tools/browserProofRegistry.test.ts",
+        "playwright.config.ts",
+        "tests/web/browser-proof-inventory.json",
+        "tools/workflowStatus.cjs",
+        "docs/workflow-acceptance-protocol.md",
+        "apps/mobile/App.tsx",
+        "apps/api/src/server.ts",
+        "apps/mobile/src/auth/authenticatedRepository.ts",
+        "docs/evidence/production-workflow-review-20261011/final-packet-arrangement.md"
+      ],
+      "rationale": "Complete current 962-path source and all19 unchanged criteria inspected, plus meaningful CAS/service/RTK/legacy/tracker source checks. R17 actual267/source success did not detect the P1 and remains publication-vetoed history; current R18 aggregate/protected267/closing review is not supplied by this source-only supplement.",
+      "qualificationBoundary": "Scoped source/remediation acceptance only; current R18 whole browser/CI/final qualification remains pending."
+    },
+    {
+      "id": "PUBLISH-01",
+      "title": "Reviewable source publication",
+      "assessment": "runtime_or_operational_gate_pending",
+      "criteriaUnchanged": true,
+      "changedDeclaredVerificationPaths": [],
+      "reviewedDeclaredSources": [
+        ".github/workflows/cplayout-required.yml",
+        "docs/workflow-acceptance-protocol.md"
+      ],
+      "rationale": "The current source fix is reviewable and the protected workflow/selection remain unchanged. Coordinator reports commit98857ded5f3962b8f2cd620f0be6d967361f3d36 and pending run38300188486; reviewer did not execute Git or claim a hosted result. Protected P1 conversation resolution and actual matching R18 whole QA/closing reviews remain required.",
+      "qualificationBoundary": "Scoped source/remediation acceptance only; current R18 whole browser/CI/final qualification remains pending."
+    }
+  ],
+  "findingReviews": [
+    {
+      "id": "REV-20261011-01",
+      "severityAsRecorded": "P1",
+      "disposition": "prior_source_closure_retained_via_exact_bounded_delta_current_whole_runtime_pending",
+      "sourcePaths": [
+        "apps/mobile/src/workspace/WorkspaceModePanels.tsx"
+      ],
+      "changedRemediationSourcePaths": [],
+      "rationale": "Layout pending-input replacement guard includes literal tolerance; recovery retains its units/source owner and explicit discard.",
+      "boundedDeltaReview": "Only raw import <= refusal/comment differs in server; exact reverse reconstructs R17. Other referenced remediation source remains byte-identical. Independent RTK/service/legacy tests keep relevant unchanged endpoint and source-preservation behaviors; no new current browser execution inferred."
+    },
+    {
+      "id": "REV-20261011-02",
+      "severityAsRecorded": "P1",
+      "disposition": "prior_source_closure_retained_via_exact_bounded_delta_current_whole_runtime_pending",
+      "sourcePaths": [
+        "apps/mobile/src/auth/deniedAccess.ts"
+      ],
+      "changedRemediationSourcePaths": [],
+      "rationale": "Durable denial marker precedes cache cleanup, independent fallback cleanup survives marker failure; current cold-denial browser journey retains exact work and refuses grant revival.",
+      "boundedDeltaReview": "Only raw import <= refusal/comment differs in server; exact reverse reconstructs R17. Other referenced remediation source remains byte-identical. Independent RTK/service/legacy tests keep relevant unchanged endpoint and source-preservation behaviors; no new current browser execution inferred."
+    },
+    {
+      "id": "REV-20261011-03",
+      "severityAsRecorded": "P1",
+      "disposition": "prior_source_closure_retained_via_exact_bounded_delta_current_whole_runtime_pending",
+      "sourcePaths": [
+        "apps/api/src/server.ts",
+        "apps/mobile/src/auth/authenticatedRepository.ts"
+      ],
+      "changedRemediationSourcePaths": [
+        "apps/api/src/server.ts"
+      ],
+      "rationale": "Ready/read retains remote raw TEXT; explicit command upgrade uses original source text, with CRLF/source-chain checks and current package journeys.",
+      "boundedDeltaReview": "Only raw import <= refusal/comment differs in server; exact reverse reconstructs R17. Other referenced remediation source remains byte-identical. Independent RTK/service/legacy tests keep relevant unchanged endpoint and source-preservation behaviors; no new current browser execution inferred."
+    },
+    {
+      "id": "RUNTIME-20261011-01",
+      "severityAsRecorded": "P1",
+      "disposition": "prior_source_closure_retained_via_exact_bounded_delta_current_whole_runtime_pending",
+      "sourcePaths": [
+        "apps/mobile/src/workspace/UnifiedWorkspaceEntry.tsx",
+        "apps/mobile/src/workspace/useWorkspaceController.ts"
+      ],
+      "changedRemediationSourcePaths": [],
+      "rationale": "Initial mode is installed in the accepted Open transaction; actual Survey-first journeys pass all viewports.",
+      "boundedDeltaReview": "Only raw import <= refusal/comment differs in server; exact reverse reconstructs R17. Other referenced remediation source remains byte-identical. Independent RTK/service/legacy tests keep relevant unchanged endpoint and source-preservation behaviors; no new current browser execution inferred."
+    },
+    {
+      "id": "REV2-20261011-01",
+      "severityAsRecorded": "P1",
+      "disposition": "prior_source_closure_retained_via_exact_bounded_delta_current_whole_runtime_pending",
+      "sourcePaths": [
+        "apps/mobile/src/workspace/ProjectDesignPanel.tsx",
+        "apps/mobile/src/workspace/UnifiedWorkspaceEntry.tsx"
+      ],
+      "changedRemediationSourcePaths": [],
+      "rationale": "Measurement change refuses while raw input or interaction input is pending; actual dirty input/focus/mode/unit case passes.",
+      "boundedDeltaReview": "Only raw import <= refusal/comment differs in server; exact reverse reconstructs R17. Other referenced remediation source remains byte-identical. Independent RTK/service/legacy tests keep relevant unchanged endpoint and source-preservation behaviors; no new current browser execution inferred."
+    },
+    {
+      "id": "REV2-20261011-02",
+      "severityAsRecorded": "P1",
+      "disposition": "prior_source_closure_retained_via_exact_bounded_delta_current_whole_runtime_pending",
+      "sourcePaths": [
+        "packages/auth-client/src/apiClient.ts"
+      ],
+      "changedRemediationSourcePaths": [],
+      "rationale": "Service credential queue and browser Web Locks serialize cookie effects; actual two-page signout/new-login case passes.",
+      "boundedDeltaReview": "Only raw import <= refusal/comment differs in server; exact reverse reconstructs R17. Other referenced remediation source remains byte-identical. Independent RTK/service/legacy tests keep relevant unchanged endpoint and source-preservation behaviors; no new current browser execution inferred."
+    },
+    {
+      "id": "REV2-20261011-03",
+      "severityAsRecorded": "P1",
+      "disposition": "prior_source_closure_retained_via_exact_bounded_delta_current_whole_runtime_pending",
+      "sourcePaths": [
+        "apps/mobile/src/auth/authenticatedRepository.ts"
+      ],
+      "changedRemediationSourcePaths": [],
+      "rationale": "Final writer admission rechecks actual account/permissions and captures source-current predicate; held account/permission source tests and current account journeys pass.",
+      "boundedDeltaReview": "Only raw import <= refusal/comment differs in server; exact reverse reconstructs R17. Other referenced remediation source remains byte-identical. Independent RTK/service/legacy tests keep relevant unchanged endpoint and source-preservation behaviors; no new current browser execution inferred."
+    },
+    {
+      "id": "A11Y-20261011-01",
+      "severityAsRecorded": "P1",
+      "disposition": "prior_source_closure_retained_via_exact_bounded_delta_current_whole_runtime_pending",
+      "sourcePaths": [
+        "packages/map-adapters/src/WorkspaceMapFrame.tsx",
+        "tests/web/production-accessibility.spec.ts"
+      ],
+      "changedRemediationSourcePaths": [],
+      "rationale": "Map readout has web tabIndex0 and actual keyboard focus assertion; current18Axe scans report0violations, with separate manual incompletes retained.",
+      "boundedDeltaReview": "Only raw import <= refusal/comment differs in server; exact reverse reconstructs R17. Other referenced remediation source remains byte-identical. Independent RTK/service/legacy tests keep relevant unchanged endpoint and source-preservation behaviors; no new current browser execution inferred."
+    },
+    {
+      "id": "R1-RECOVERY-20261011-01",
+      "severityAsRecorded": "P1 (governance triage; final independent severity review pending)",
+      "disposition": "prior_source_closure_retained_via_exact_bounded_delta_current_whole_runtime_pending",
+      "sourcePaths": [],
+      "changedRemediationSourcePaths": [],
+      "rationale": "Read lease asserts literal source before intentional prepared publication and expires its assertion afterward; actual File Review/Restore journeys pass.",
+      "boundedDeltaReview": "Only raw import <= refusal/comment differs in server; exact reverse reconstructs R17. Other referenced remediation source remains byte-identical. Independent RTK/service/legacy tests keep relevant unchanged endpoint and source-preservation behaviors; no new current browser execution inferred."
+    },
+    {
+      "id": "R1-ACCESS-20261011-02",
+      "severityAsRecorded": "P1 (governance triage; final independent severity review pending)",
+      "disposition": "prior_source_closure_retained_via_exact_bounded_delta_current_whole_runtime_pending",
+      "sourcePaths": [],
+      "changedRemediationSourcePaths": [],
+      "rationale": "AccountDenialQueue serializes/coalesces same-owner disposition; service denial preserves unfinished modal and raw recovery before renewed sign-in.",
+      "boundedDeltaReview": "Only raw import <= refusal/comment differs in server; exact reverse reconstructs R17. Other referenced remediation source remains byte-identical. Independent RTK/service/legacy tests keep relevant unchanged endpoint and source-preservation behaviors; no new current browser execution inferred."
+    },
+    {
+      "id": "R1-GRANT-20261011-03",
+      "severityAsRecorded": "P1 (governance triage; final independent severity review pending)",
+      "disposition": "prior_source_closure_retained_via_exact_bounded_delta_current_whole_runtime_pending",
+      "sourcePaths": [],
+      "changedRemediationSourcePaths": [],
+      "rationale": "One authoritative issuedAt determines exact24-hour expiry; strict clock/signature validator retained and advancing-clock source check passes.",
+      "boundedDeltaReview": "Only raw import <= refusal/comment differs in server; exact reverse reconstructs R17. Other referenced remediation source remains byte-identical. Independent RTK/service/legacy tests keep relevant unchanged endpoint and source-preservation behaviors; no new current browser execution inferred."
+    },
+    {
+      "id": "R2-UNITS-20261011-01",
+      "severityAsRecorded": "P1 (governance triage; independent final review pending)",
+      "disposition": "prior_source_closure_retained_via_exact_bounded_delta_current_whole_runtime_pending",
+      "sourcePaths": [],
+      "changedRemediationSourcePaths": [],
+      "rationale": "Inactive known-information pending state is retired without clearing real raw inputs; current mode/unit journey passes all viewports.",
+      "boundedDeltaReview": "Only raw import <= refusal/comment differs in server; exact reverse reconstructs R17. Other referenced remediation source remains byte-identical. Independent RTK/service/legacy tests keep relevant unchanged endpoint and source-preservation behaviors; no new current browser execution inferred."
+    },
+    {
+      "id": "R2-RENAME-20261011-02",
+      "severityAsRecorded": "P1 (governance triage; independent final review pending)",
+      "disposition": "prior_source_closure_retained_via_exact_bounded_delta_current_whole_runtime_pending",
+      "sourcePaths": [],
+      "changedRemediationSourcePaths": [],
+      "rationale": "Focused Rename is reachable in short viewport with one retained File owner; actual Draft/Field Rename journeys pass.",
+      "boundedDeltaReview": "Only raw import <= refusal/comment differs in server; exact reverse reconstructs R17. Other referenced remediation source remains byte-identical. Independent RTK/service/legacy tests keep relevant unchanged endpoint and source-preservation behaviors; no new current browser execution inferred."
+    },
+    {
+      "id": "R2-PACKAGE-20261011-03",
+      "severityAsRecorded": "P1 (governance triage; independent final review pending)",
+      "disposition": "prior_source_closure_retained_via_exact_bounded_delta_current_whole_runtime_pending",
+      "sourcePaths": [],
+      "changedRemediationSourcePaths": [],
+      "rationale": "Legacy retained upgrade chain is correctly recognized without source weakening; current v1/v2 JSON/ZIP package journeys pass all viewports.",
+      "boundedDeltaReview": "Only raw import <= refusal/comment differs in server; exact reverse reconstructs R17. Other referenced remediation source remains byte-identical. Independent RTK/service/legacy tests keep relevant unchanged endpoint and source-preservation behaviors; no new current browser execution inferred."
+    },
+    {
+      "id": "R3-CATALOG-20261011-01",
+      "severityAsRecorded": "P1 (governance triage; final independent review pending)",
+      "disposition": "prior_source_closure_retained_via_exact_bounded_delta_current_whole_runtime_pending",
+      "sourcePaths": [
+        "apps/mobile/src/workspace/WorkspaceCatalog.tsx"
+      ],
+      "changedRemediationSourcePaths": [],
+      "rationale": "Catalog content/maintenance/receipt scrolling and actual parent navigation permit normal-pointer Recent/Open; complete current package and management journeys pass.",
+      "boundedDeltaReview": "Only raw import <= refusal/comment differs in server; exact reverse reconstructs R17. Other referenced remediation source remains byte-identical. Independent RTK/service/legacy tests keep relevant unchanged endpoint and source-preservation behaviors; no new current browser execution inferred."
+    },
+    {
+      "id": "VISUAL-R5-20261011-01",
+      "severityAsRecorded": "P1 (coordinator pixel finding)",
+      "disposition": "prior_source_closure_retained_via_exact_bounded_delta_current_whole_runtime_pending",
+      "sourcePaths": [
+        "apps/mobile/src/auth/AuthenticatedWorkspace.tsx",
+        "tests/web/production-auth-workflow.spec.ts"
+      ],
+      "changedRemediationSourcePaths": [],
+      "rationale": "Concise visible Open with exact accessible customer/project name and wrapping/minWidth control; current bounds/keyboard and actual short Home pixels pass.",
+      "boundedDeltaReview": "Only raw import <= refusal/comment differs in server; exact reverse reconstructs R17. Other referenced remediation source remains byte-identical. Independent RTK/service/legacy tests keep relevant unchanged endpoint and source-preservation behaviors; no new current browser execution inferred."
+    },
+    {
+      "id": "HIERARCHY-ANCESTRY-20261011-01",
+      "severityAsRecorded": "P1",
+      "disposition": "prior_source_closure_retained_via_exact_bounded_delta_current_whole_runtime_pending",
+      "sourcePaths": [
+        "packages/project-store/src/workspaceCommands.ts",
+        "packages/project-store/src/workspaceDocument.ts"
+      ],
+      "changedRemediationSourcePaths": [],
+      "rationale": "Domain/shared history guard blocks parent removal; independent current14-case suite includes original counterexample and exact historical orphan export compatibility. Current App orphan ZIP journey passes.",
+      "boundedDeltaReview": "Only raw import <= refusal/comment differs in server; exact reverse reconstructs R17. Other referenced remediation source remains byte-identical. Independent RTK/service/legacy tests keep relevant unchanged endpoint and source-preservation behaviors; no new current browser execution inferred."
+    },
+    {
+      "id": "OFFICIAL-ORIGIN-20261011-01",
+      "severityAsRecorded": "P1",
+      "disposition": "prior_source_closure_retained_via_exact_bounded_delta_current_whole_runtime_pending",
+      "sourcePaths": [
+        "apps/api/src/server.ts",
+        "apps/mobile/src/auth/authenticatedRepository.ts",
+        "packages/project-store/src/workspaceCommands.ts"
+      ],
+      "changedRemediationSourcePaths": [
+        "apps/api/src/server.ts"
+      ],
+      "rationale": "Any v3 bulk import refuses without original service context; source file/destination unchanged, existing official reads/exports retained, same-field reference source exact/non-official, cross-field refuses.",
+      "boundedDeltaReview": "Only raw import <= refusal/comment differs in server; exact reverse reconstructs R17. Other referenced remediation source remains byte-identical. Independent RTK/service/legacy tests keep relevant unchanged endpoint and source-preservation behaviors; no new current browser execution inferred."
+    },
+    {
+      "id": "OFFICIAL-HISTORY-20261011-02",
+      "severityAsRecorded": "P1",
+      "disposition": "prior_source_closure_retained_via_exact_bounded_delta_current_whole_runtime_pending",
+      "sourcePaths": [
+        "packages/project-store/src/workspaceDocument.ts",
+        "packages/project-store/src/projectRepository.ts",
+        "packages/project-store/src/sqliteWorkspaceStore.ts"
+      ],
+      "changedRemediationSourcePaths": [],
+      "rationale": "assertRetainedLayoutHistory runs through commands/Web transactions; version, creation/reference/finalization and ordered observation history are retained. Generic new operational transitions need current Survey/source and final live owner; current independent writer regressions pass.",
+      "boundedDeltaReview": "Only raw import <= refusal/comment differs in server; exact reverse reconstructs R17. Other referenced remediation source remains byte-identical. Independent RTK/service/legacy tests keep relevant unchanged endpoint and source-preservation behaviors; no new current browser execution inferred."
+    },
+    {
+      "id": "OFFICIAL-CHRONOLOGY-20261011-03",
+      "severityAsRecorded": "severity_not_supplied",
+      "disposition": "prior_source_closure_retained_via_exact_bounded_delta_current_whole_runtime_pending",
+      "sourcePaths": [
+        "packages/core/src/officialLayout.ts",
+        "packages/core/src/layoutSession.ts"
+      ],
+      "changedRemediationSourcePaths": [],
+      "rationale": "V3 lifecycle validator refuses future creation/stale final lock/station ordering contradictions; real controller predicate remains monotonic/fresh-owner admission. Independent current workflow regressions pass.",
+      "boundedDeltaReview": "Only raw import <= refusal/comment differs in server; exact reverse reconstructs R17. Other referenced remediation source remains byte-identical. Independent RTK/service/legacy tests keep relevant unchanged endpoint and source-preservation behaviors; no new current browser execution inferred."
+    },
+    {
+      "id": "ACTOR-NESTED-LOCK-20261011-04",
+      "severityAsRecorded": "severity_not_supplied",
+      "disposition": "prior_source_closure_retained_via_exact_bounded_delta_current_whole_runtime_pending",
+      "sourcePaths": [
+        "apps/api/src/server.ts",
+        "apps/mobile/src/auth/authenticatedRepository.ts"
+      ],
+      "changedRemediationSourcePaths": [
+        "apps/api/src/server.ts"
+      ],
+      "rationale": "Creation/finalization/mark actors canonicalized in client and server; held-account/final-persistence tests retained in exactR14 aggregate, current browser official records bind principal.",
+      "boundedDeltaReview": "Only raw import <= refusal/comment differs in server; exact reverse reconstructs R17. Other referenced remediation source remains byte-identical. Independent RTK/service/legacy tests keep relevant unchanged endpoint and source-preservation behaviors; no new current browser execution inferred."
+    },
+    {
+      "id": "AUTH-READ-OWNERSHIP-20261011-05",
+      "severityAsRecorded": "severity_not_supplied",
+      "disposition": "prior_source_closure_retained_via_exact_bounded_delta_current_whole_runtime_pending",
+      "sourcePaths": [
+        "packages/auth-client/src/apiClient.ts",
+        "apps/api/src/server.ts",
+        "apps/mobile/src/auth/authenticatedRepository.ts",
+        "apps/mobile/src/auth/accessOwnership.ts"
+      ],
+      "changedRemediationSourcePaths": [
+        "apps/api/src/server.ts"
+      ],
+      "rationale": "Optional expected-principal header/server check, after-JSON epoch/principal fence and captured read-owner checks after every awaited cache/lock/write-current boundary; network-only offline fallback and preserving mismatch path retained.",
+      "boundedDeltaReview": "Only raw import <= refusal/comment differs in server; exact reverse reconstructs R17. Other referenced remediation source remains byte-identical. Independent RTK/service/legacy tests keep relevant unchanged endpoint and source-preservation behaviors; no new current browser execution inferred."
+    },
+    {
+      "id": "CAS-IMPORT-REVISION-20261012-01",
+      "severity": "P1",
+      "disposition": "source_remediation_and_matching_scoped_regressions_supported_global_closure_pending",
+      "rationale": "Strictly increasing imported revision under the existing row lock removes numeric CAS reuse; exact bytes/hash and original recovery revision are preserved. Meaningful real-command lifecycle and in-process/actual-PG regressions support the correction. No remote/current browser or protected-thread closure is inferred.",
+      "originalRootCause": "R17 import copied imported.revision into stored operational revision after only destination expected-revision and logical-emptiness checks, while new commands admit on numeric revision equality. A used then empty workspace could rewind/reuse an earlier revision.",
+      "beforeFailureActuallyObserved": "The new regression against pre-fix service stopped at equal0: actual200 instead of409, five existing tests pass/one regression fails. It did not execute the later lower0 lifecycle before that first failure. Lower/equal causal scope is also directly evident in the original source assignment; the complete corrected lifecycle ran afterward.",
+      "correctedCases": [
+        "equal0 import refusal with unchanged stored TEXT/revision/receipt/audit counts",
+        "actual customer create/delete advances a valid empty destination0\u21922",
+        "lower0 and equal2 imports refuse without side effects/input-hash changes",
+        "distinct unexecuted queued expected0 rejects before higher import",
+        "higher3 CRLF/trailing-whitespace import retains exact TEXT/hash/returned revision",
+        "distinct queued expected0/2 reject after higher import",
+        "historical committed command receipt replays without mutating imported source/revision/receipt/audit counts",
+        "fresh expected3 command accepted",
+        "row-locked concurrent import and command admit exactly one writer, revision6\u21927, one audit and expected receipt count",
+        "existing pending/finalized V3 import refusal and dedicated same-original-field reference path still pass",
+        "legacy v1-v4 initial insertion and exact original-source upgrade retention still pass against PostgreSQL"
+      ],
+      "boundary": "Source remediated; actual current whole R18 source/browser/CI, two matching closing reviews and protected conversation/publication gates remain pending."
+    }
+  ],
+  "newMaterialFindings": [],
+  "unresolvedP0P1P2WithinReviewedSourceScope": [],
+  "globalUnresolvedOperationalBlockers": [
+    "Confirmed CAS P1 requires actual matching current whole QA/closing-review support and protected conversation resolution; source remediation is not automatic publication approval."
+  ],
+  "weightedDecision": {
+    "scale": "Comparative reviewer judgment 1..5, not measured tests/runtime/physical accuracy.",
+    "weights": {
+      "compatibility": 0.3,
+      "preservation": 0.25,
+      "context": 0.2,
+      "proof": 0.15,
+      "maintenance": 0.1
+    },
+    "alternatives": [
+      {
+        "choice": "Strict-forward exact-source import refusal under the existing lock",
+        "scores": {
+          "compatibility": 3,
+          "preservation": 5,
+          "context": 5,
+          "proof": 4,
+          "maintenance": 5
+        },
+        "weightedScore": 4.25,
+        "selected": true,
+        "rationale": "Closes numeric CAS reuse with a small source-preserving rule and meaningful actual regressions. Compatibility score explicitly includes lower/equal and public revision-zero restore refusal.",
+        "veto": false
+      },
+      {
+        "choice": "Separate transport CAS generation migration while retaining source revisions",
+        "scores": {
+          "compatibility": 5,
+          "preservation": 5,
+          "context": 3,
+          "proof": 2,
+          "maintenance": 2
+        },
+        "weightedScore": 3.85,
+        "selected": false,
+        "rationale": "Can support wider restore semantics, but requires database/client/server/receipt generation contracts and substantially broader unproved migration.",
+        "veto": false
+      },
+      {
+        "choice": "Bump only stored transport revision but retain lower document revision",
+        "selected": false,
+        "veto": true,
+        "vetoReason": "Client requires parsed document revision == remote revision; reducers derive successor revision from the document. Divergence breaks current source/admission contracts."
+      },
+      {
+        "choice": "Rewrite imported JSON revision to force a forward import",
+        "selected": false,
+        "veto": true,
+        "vetoReason": "Violates exact reviewed raw-source/hash/recovery preservation."
+      }
+    ],
+    "selectedWeightedScore": 4.25
+  },
+  "supportingReceipts": [
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/candidate-source-r17.json",
+      "bytes": 185184,
+      "sha256": "05e696362b2cc884c470843af160cb31d2eebd97a79cb1c713a17046f6264a41"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/candidate-source-r18.json",
+      "bytes": 185344,
+      "sha256": "54b24557d7380de463fd0e46d3460de98c3adb296f3fdc1010c3b27b83d1bdbd"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/final-independent-review-r17-source-supplement-one.json",
+      "bytes": 56759,
+      "sha256": "223b2f9f05ef855f0672883cec9a93d0745590a80986777d12beb0e9e52cf800"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/cas-import-revision-p1-20261012.json",
+      "bytes": 3454,
+      "sha256": "dcbd482ef665c93ec9e1d33558d2e6ecd73dc6cd54fa65a1d7607bbfbd244f13"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/cas-import-revision-correction-scoped-20261012.json",
+      "bytes": 3374,
+      "sha256": "4baf54e2f985d04480cd2b9eca74e08f2d9e85bde1d36704d19653ada5fffec2"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/r18-source-freeze-and-scoped-checks.json",
+      "bytes": 3244,
+      "sha256": "7d7496bb44df5e030a422f90b03fa35151c5845a9016b601557468817effbb40"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/hosted-source-and-browser-r17-pass.json",
+      "bytes": 144715,
+      "sha256": "017392fab80c6b389b66893a271081d39bb191c2702b10eefea5d3ff9c549baf"
+    }
+  ],
+  "pendingCurrentProof": {
+    "coordinatorReportedSourceCommit": "98857ded5f3962b8f2cd620f0be6d967361f3d36",
+    "coordinatorReportedHostedRun": 38300188486,
+    "coordinatorReportedHostedRunStatus": "pending",
+    "coordinatorReportedAggregate": "Running actual ownedPG R18 aggregate; this reviewer does not claim completed result.",
+    "priorActualHostedBrowserEdition": "R17, source head40821521fe8a556bb1c320d66164a5a21ce95763, run38270802731, actual267 pass; publication-vetoed for newly confirmed CAS P1. No R18 inference.",
+    "reviewerGitOrHostedActions": "none"
+  },
+  "remainingGates": [
+    "Actual full R18 aggregate and exact installed/export/PostgreSQL HTTP source-bound packet.",
+    "Actual protected current R18 source and all267 browser executions/every web shard, with matching source/head/bundle identities.",
+    "Two independent matching current whole-workflow closing reviews covering all19requirements/23findings; this source supplement does not increment the final browser gate.",
+    "Protected review conversation resolution, reviewed normal merge/main sync/publication proof.",
+    "Native atomic/V3/device operation, physical RTK accuracy, genuine skill/hook execution, scheduled dependency/bot activation, complete accessibility/human/deployment acceptance remain separately unproved."
+  ],
+  "boundary": "Accepted exact R18 source/remediation supplement only. Preserve all old failed/deferred/pass packets, including all-green R17 CI that missed this P1. Do not refresh old hashes, convert source fixtures to browser/device proof, claim a new public revision-zero restore, or treat pending current CI/conversation/reviews as completed publication."
+}
