@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-12",
+  "classification": "synthetic",
+  "claimClass": "browser",
+  "result": "pass_three_same_case_reruns_visual_scope_pending",
+  "counts": {
+    "selected": 3,
+    "passed": 3,
+    "failed": 0,
+    "flaky": 0,
+    "skipped": 0,
+    "didNotRun": 0
+  },
+  "sourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r15.json",
+  "sourceFingerprint": "39cf1a097447da8749b64c3ca1c143a916c4830d8b6ba0a5cd11155e70c60012",
+  "custody": {
+    "sha256": "e9ff61fbf407e7905d00b7f8c771c84abfaff693d6b4355e724ec5a627046a22",
+    "artifacts": [
+      {
+        "path": "playwright-html/data/3bd12b8c1fd57afb9d802bc28c12a9b56b6a0536.zip",
+        "bytes": 19818713,
+        "sha256": "1ca86fb920c0ceb4cbb0c28094cecc6171ca068f21d13d4208bdf002e152fcd5"
+      },
+      {
+        "path": "playwright-html/data/bd25875e242fa70f54fd8d2ac41670ae6f332d84.zip",
+        "bytes": 24182426,
+        "sha256": "3688e98a838786b4644cfcf7072756d30d3b4cf6fbb0e6d47330aad7cf67f9e4"
+      },
+      {
+        "path": "playwright-html/data/ffcdcbef7ef2829d6b637d8172c15b5cc80251e3.zip",
+        "bytes": 18957915,
+        "sha256": "3151f2f73d3431e9ef0e3872347d25b8cb1b5ae78ca9c0885dc0e0ae5bf2eec0"
+      },
+      {
+        "path": "playwright-html/index.html",
+        "bytes": 589904,
+        "sha256": "c6f802ebc880114ee6fa6b8d08583faf8b3028a0549e142df53103f9ba34958a"
+      },
+      {
+        "path": "playwright-html/trace/assets/codeMirrorModule-BEB2e8M3.js",
+        "bytes": 307393,
+        "sha256": "0da75d228abc1d8b940aa04ec086570dace7b2e7b2ccc5f4bc16f05e79bdb7d7"
+      },
+      {
+        "path": "playwright-html/trace/assets/defaultSettingsView-D-g2vrvf.js",
+        "bytes": 667649,
+        "sha256": "554bdef910d18e763118f1221667b809edafba46e29e3f8de4b9dcf21c6b7d79"
+      },
+      {
+        "path": "playwright-html/trace/assets/urlMatch-L3liM589.js",
+        "bytes": 2510,
+        "sha256": "1bc6321e32d11c31a452bc75896f0b344e6153321854d9f1658818be7f845c16"
+      },
+      {
+        "path": "playwright-html/trace/codeMirrorModule.-QdMvsKi.css",
+        "bytes": 6251,
+        "sha256": "20be824a82832b62cc04642d31da3c609fd280b23f1cdcb1e622c4f40aac5ab8"
+      },
+      {
+        "path": "playwright-html/trace/codicon.DCmgc-ay.ttf",
+        "bytes": 80340,
+        "sha256": "0f1d5219934e96e83b8db162d60b4d8c09b5de1e7d38031cbafe4a3c0f2889c9"
+      },
+      {
+        "path": "playwright-html/trace/defaultSettingsView.C8BeHuxd.css",
+        "bytes": 107270,
+        "sha256": "278101b68ab48ee6323a6afbf4e0e629324e10e96902a62a0875643a1bba3d94"
+      },
+      {
+        "path": "playwright-html/trace/index.7-c5LSTW.js",
+        "bytes": 6628,
+        "sha256": "ce1eb956b15739b52a45c9fc2b9a0c529448242426b2b124d5c3167915910ff1"
+      },
+      {
+        "path": "playwright-html/trace/index.B_TqY17P.css",
+        "bytes": 2055,
+        "sha256": "08a212fcacae1866f44f065654afcc4c7d03409c68c74b3315c5bda17a0ca003"
+      },
+      {
+        "path": "playwright-html/trace/index.html",
+        "bytes": 2363,
+        "sha256": "b80661d46bc580d1e7be45c2c2b0e891c466f3f67e52c33e4f111f000f3532c6"
+      },
+      {
+        "path": "playwright-html/trace/manifest.webmanifest",
+        "bytes": 429,
+        "sha256": "d8540500603a32a39fe7e5a0375dc0f9ebafd11118e06a846db7efc608223ab9"
+      },
+      {
+        "path": "playwright-html/trace/playwright-logo.svg",
+        "bytes": 5033,
+        "sha256": "6b0a4367bdeab10995bc239278f04c68c10e48adbec15e799e01909a0d66dcb9"
+      },
+      {
+        "path": "playwright-html/trace/snapshot.B_Jk1wbt.js",
+        "bytes": 650,
+        "sha256": "d4d09e05451d107d8e1a6bbd041405fe518b9fd2833890e4ebaaad83b7f554f5"
+      },
+      {
+        "path": "playwright-html/trace/snapshot.html",
+        "bytes": 389,
+        "sha256": "c608c8899c95c5a74d3f556e20146c3d852b9df85ae2854c659a7cc773c9b727"
+      },
+      {
+        "path": "playwright-html/trace/sw.bundle.js",
+        "bytes": 96737,
+        "sha256": "d1d6fec6687eb3fd93a8990bd9daa3951422695afffae2382f97f10811cf1c30"
+      },
+      {
+        "path": "playwright-html/trace/uiMode.CYwC_gH1.js",
+        "bytes": 38121,
+        "sha256": "c920eaa161f65b6c0dd431a642c4bdf2e6262ae51335c02d155b187f48c0296c"
+      },
+      {
+        "path": "playwright-html/trace/uiMode.CyMfwkXJ.css",
+        "bytes": 54590,
+        "sha256": "fb403cf0b07007bc1d771e29737f7408924da300e2fab8b289a3ef2e8fc08d7b"
+      },
+      {
+        "path": "playwright-html/trace/uiMode.html",
+        "bytes": 727,
+        "sha256": "6de2f5db7f7532c30e8b1381752a1daf23facbdef6bea130cef0cfa5a003eb22"
+      },
+      {
+        "path": "playwright-html/trace/xtermModule.kHJ-D0s7.css",
+        "bytes": 2853,
+        "sha256": "0dd60056134e6a2994a86b59a1e9789b9f04e92924da109aef8c923acaf08ce5"
+      },
+      {
+        "path": "playwright-results/.last-run.json",
+        "bytes": 45,
+        "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+      },
+      {
+        "path": "playwright-results/production-auth-workflow-S-0a00f-out-invented-infrastructure-desktop/trace.zip",
+        "bytes": 19818713,
+        "sha256": "1ca86fb920c0ceb4cbb0c28094cecc6171ca068f21d13d4208bdf002e152fcd5"
+      },
+      {
+        "path": "playwright-results/production-auth-workflow-S-0a00f-out-invented-infrastructure-mobile-390/trace.zip",
+        "bytes": 18957915,
+        "sha256": "3151f2f73d3431e9ef0e3872347d25b8cb1b5ae78ca9c0885dc0e0ae5bf2eec0"
+      },
+      {
+        "path": "playwright-results/production-auth-workflow-S-0a00f-out-invented-infrastructure-tablet-768/trace.zip",
+        "bytes": 24182426,
+        "sha256": "3688e98a838786b4644cfcf7072756d30d3b4cf6fbb0e6d47330aad7cf67f9e4"
+      },
+      {
+        "path": "raw.log",
+        "bytes": 3135,
+        "sha256": "c6d5f57b7e33b50023a3cf34f5879fe590266763402edb1f6496d054a7011437"
+      }
+    ],
+    "declaredArtifacts": 27,
+    "hashesBytesVerified": true
+  },
+  "embeddedStats": {
+    "total": 3,
+    "expected": 3,
+    "unexpected": 0,
+    "flaky": 0,
+    "skipped": 0,
+    "ok": true
+  },
+  "derivedFrameProvenance": {
+    "derivationSha256": "3c09ac55764b17398654abe282b86385237e5888e8cdd24b29d5a55a313d2d36",
+    "derivedRows": 3,
+    "boundary": "JPEGframes/DOMsnapshots derivedoutside originalsealedpacket, atofficialstatus assertion. Originalpacket unchanged."
+  },
+  "visualObservation": {
+    "provenance": "Coordinator actualframe/DOM inspection delivered",
+    "cameraCenter": 0,
+    "geometry": "Actualgeometry offscreen under currentcamera; Fit isavailable. Thisdoesnotprove missingrenderer geometry orcamera defect."
+  },
+  "nextAction": "Private observerwrapper/config rerunsunchangedoriginalcase thenrealUIFit+PNG/DOM, assertingworkspacebytes unchanged/actualstations+target+Surveyidentity andvisiblemap. No sourceedits/ownlaunch bygovernance.",
+  "boundary": "Threeextra same-title reruns are notnewunique/267casecounts. Actualtest pass doesnotresolve mapvisibilitypixels, fieldprecision orfinalQA."
+}

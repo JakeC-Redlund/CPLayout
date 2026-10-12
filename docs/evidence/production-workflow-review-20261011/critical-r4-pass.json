@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "classification": "synthetic",
+  "result": "pass",
+  "exitCode": 0,
+  "scope": "Completed focused15-case actual desktop/tablet/mobile recheck only; full902-source/full264-browser acceptance still running.",
+  "counts": {
+    "selected": 15,
+    "passed": 15,
+    "failed": 0,
+    "skipped": 0,
+    "didNotRun": 0
+  },
+  "source": {
+    "path": "docs/evidence/production-workflow-review-20261011/candidate-source-r4.json",
+    "sourceCount": 902,
+    "fingerprint": "5e8face8256e4c22282aef22e3989e88b82b521e603f8b29f0c3ba78aa0f7d02",
+    "manifestSha256": "66d874c64a2b255a7081ff77a675f8136b6654a47e0f6b7d0b418f8d3dd50ad8",
+    "boundary": "Exact r4 edition; later source changes require new current matching evidence."
+  },
+  "custody": {
+    "packetName": "critical-r4-pass",
+    "manifestSha256": "bd5d62152ac24441c787088c3fafeb33d1e30f2f09fd725296abc5f4bc1d5932",
+    "declaredArtifacts": 9,
+    "hashesVerified": true,
+    "artifactHashes": {
+      "playwright-html/index.html": "76044c3eb13d2edfdefe3c2ed1f536765b2003573d27c42b58b02bd070289940",
+      "playwright-results/.last-run.json": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-desktop/actual-downloaded-design-workspace.json": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b",
+      "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-mobile-390/actual-downloaded-design-workspace.json": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b",
+      "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-tablet-768/actual-downloaded-design-workspace.json": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b",
+      "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-desktop/actual-downloaded-design-workspace.json": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b",
+      "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-mobile-390/actual-downloaded-design-workspace.json": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b",
+      "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-tablet-768/actual-downloaded-design-workspace.json": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b",
+      "run.log": "733567d24e412dde583c2a969cda8829f34c6867faf8fc18f0d3b99ae8584e9e"
+    },
+    "boundary": "Every declared artifact hash verified directly; raw data remains coordinator-owned externally."
+  },
+  "qualifiedPath": "Existing normal pointer Recent/Open and v1/v2 upgrade/import succeed on phone as well as desktop/tablet; no force clicks or skipped actions.",
+  "scopedSourceChecks": {
+    "catalogTests": {
+      "passed": 26,
+      "failed": 0,
+      "skipped": 0,
+      "logSha256": "aaec3b8de5221aea0dec03a8942f4a0e199903c087534f2ce607bfa10bba0042"
+    },
+    "mobileTypecheck": {
+      "exitCode": 0,
+      "provenance": "Coordinator-delivered completed receipt; retained log verified by hash",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "limitedDecision": {
+    "provenance": "Coordinator forwarded workflow-agent independent concrete fix review, followed by coordinator selection.",
+    "weights": {
+      "compatibility": 0.3,
+      "preservation": 0.25,
+      "contextEfficiency": 0.2,
+      "reproducibleProof": 0.15,
+      "maintainability": 0.1
+    },
+    "scoreOrder": [
+      "compatibility",
+      "preservation",
+      "contextEfficiency",
+      "reproducibleProof",
+      "maintainability"
+    ],
+    "choices": [
+      {
+        "option": "Shared existing Catalog scroller for unchanged receipt/maintenance and recent work",
+        "scores": [
+          5,
+          5,
+          4,
+          4,
+          5
+        ],
+        "weightedScore": 4.65,
+        "selected": true
+      },
+      {
+        "option": "Collapse maintenance into separate state",
+        "scores": [
+          4,
+          4,
+          3,
+          2,
+          3
+        ],
+        "weightedScore": 3.4
+      },
+      {
+        "option": "Retain observed broken phone reachability",
+        "scores": [
+          2,
+          5,
+          1,
+          2,
+          3
+        ],
+        "weightedScore": 2.65,
+        "veto": "observed broken Recent/Open access"
+      }
+    ],
+    "coordinatorSelection": "Shared scroller; same weighted judgment4.65 without introducing new state.",
+    "boundary": "These supplied individual judgments and the focused fix are separate from two final complete independent workflow reviews; no measured human acceptance or invented additional vote."
+  },
+  "findingClosure": {
+    "id": "R3-CATALOG-20261011-01",
+    "scope": "Only matching focused browser reachability and legacy package phone recheck closed.",
+    "boundary": "Whole requirements, current aggregate/browser/reviews/native/field/hook/deployment are not promoted."
+  },
+  "remainingRuns": {
+    "sourceAggregateR4": "running; completed receipt not supplied",
+    "browserFullR4": "running; completed receipt not supplied"
+  },
+  "notEstablished": [
+    "Final full current-source/current-browser acceptance",
+    "Two accepted final independent whole-workflow reviews",
+    "Native/device/physical GNSS, genuine hooks, deployment or release"
+  ]
+}

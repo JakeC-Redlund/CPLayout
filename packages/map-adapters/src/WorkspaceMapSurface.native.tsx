@@ -5,5 +5,5 @@ import type { WorkspaceMapSurfaceProps } from "./workspaceMapSurfaceTypes";
 
 /** Native projected SVG lane. MapLibre/device behavior requires separate runtime proof. */
 export function WorkspaceMapSurface(props: WorkspaceMapSurfaceProps): React.JSX.Element {
-  return <WorkspaceMapFrame {...props} renderCanvas={canvas => <WorkspaceSvgCanvas {...canvas} reason="Projected XY view. Native imagery runtime is not verified." />} />;
+  return <WorkspaceMapFrame {...props} renderCanvas={canvas => <WorkspaceSvgCanvas {...canvas} reason="Projected field map. Background imagery is unavailable in this view." />} />;
 }

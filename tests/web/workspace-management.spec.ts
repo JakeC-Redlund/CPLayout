@@ -1,5 +1,5 @@
 import { activeCatalogFormInput, fillActiveCatalogFormInput } from "./catalog-form-readiness";
-import { expect, test, type BrowserContext, type Locator, type Page } from "@playwright/test";
+import { expect, test, type BrowserContext, type Locator, type Page } from "./authenticated-test";
 import { parseUnifiedWorkspaceResume, UNIFIED_WORKSPACE_RESUME_KEY, type UnifiedWorkspaceResume } from "../../apps/mobile/src/navigation/unifiedWorkspaceResume";
 import { parseWorkspaceEditRecovery, WORKSPACE_EDIT_RECOVERY_VERSION, type WorkspaceEditRecoveryCandidate } from "../../apps/mobile/src/workspace/workspaceEditRecovery";
 import { WORKSPACE_EDIT_RECOVERY_KEY } from "../../apps/mobile/src/workspace/workspaceEditRecoveryStore";
@@ -10,7 +10,13 @@ import { parseSurveyCollectionDocument } from "../../packages/core/src/surveyCol
 import { sha256Text } from "../../packages/core/src/sha256";
 import type { WorkspaceDocument } from "../../packages/project-store/src/workspaceDocument";
 import { packageFixture, packageIds, seedPackageWorkspace, sourcePayload, type PackageOwnerKind } from "./workspace-package-fixtures";
-import { readWorkspace, workspaceStorageBytes } from "./workspace-fixtures";
+import { readWorkspace, workspaceStorageBytes, accountPreferenceKey, browseDesignParents } from "./workspace-fixtures";
+import { readFile } from "node:fs/promises";
+import { emptyWorkspaceDocument, serializeWorkspaceDocument } from "../../packages/project-store/src/workspaceDocument";
+import { applyWorkspaceCommand, type WorkspaceCommand } from "../../packages/project-store/src/workspaceCommands";
+import { createSurveyCollection } from "../../packages/core/src/surveyCollection";
+import { workflowTestField, workflowTestPoint, workflowTestTime } from "../../packages/core/src/productionWorkflowTestFixtures";
+import { importDesignWorkspaceBundleZip } from "../../packages/project-store/src/designWorkspaceBundle";
 
 // Actual default App and origin storage. Fixtures retain real command-created
 // records, unequal machines, immutable Survey history and frozen Layout bytes.
@@ -34,6 +40,44 @@ test.beforeEach(async ({ context, page, baseURL }) => {
   await context.route("**/*", route => new URL(route.request().url()).origin === new URL(baseURL!).origin ? route.continue() : route.abort("blockedbyclient"));
 });
 test.afterEach(async ({ page }) => { expect(pageErrors.get(page) ?? []).toEqual([]); });
+
+test("retained Survey with unavailable original folders remains readable and exports its exact source without inventing parents", async ({ page, authenticatedService }, info) => {
+  const time = workflowTestTime, field = workflowTestField(); let workspace = emptyWorkspaceDocument();
+  const execute = (command: object) => { workspace = applyWorkspaceCommand(workspace, { ...command, now: time } as WorkspaceCommand).workspace; };
+  execute({ type: "create_client", id: "history-customer", input: { primaryContactFirstName: "Synthetic", primaryContactLastName: "History" } });
+  execute({ type: "create_project_record", input: { id: "history-project", clientId: "history-customer", name: "Original project", projectCrs: field.projectCrs, unitSystem: "metric" } });
+  execute({ type: "create_field_map_record", input: { id: "history-field", projectId: "history-project", name: "Original field" } });
+  execute({ type: "upgrade_workspace_to_v5" });
+  execute({ type: "create_field_design", designId: "history-design", fieldMapId: "history-field", name: "Retained original field survey", field });
+  const collection = createSurveyCollection({ id: "history-collection", owner: { designId: "history-design", documentKind: "field", payloadId: field.id, fieldMapId: "history-field", projectCrs: field.projectCrs }, purpose: { kind: "point", role: "control" }, now: time });
+  execute({ type: "create_survey_collection", collection, expectedDesignRevision: 0 });
+  execute({ type: "append_survey_capture", collectionId: collection.id, expectedCollectionRevision: 0, expectedDesignRevision: 0, point: workflowTestPoint() });
+  const exact = `\r\n${workspace.fieldDocuments![0].document.replaceAll("\n", "\r\n")}\r\n `;
+  workspace.fieldDocuments![0].document = exact;
+  execute({ type: "archive_and_delete_design", designId: "history-design", expectedDesignRevision: 1, collectionIds: [{ id: collection.id, expectedRevision: 1 }] });
+  // Explicit valid historical fixture. Current writer guards refuse producing this missing-parent state.
+  workspace.catalog = { clients: [], projects: [], fieldMaps: [], designs: [] };
+  const source = serializeWorkspaceDocument(workspace);
+  await authenticatedService.database.transaction(async transaction => {
+    const stored = await transaction.workspace(authenticatedService.workspaceId); if (!stored) throw new Error("Synthetic history workspace is unavailable.");
+    await transaction.writeWorkspace({ ...stored, revision: workspace.revision, document: source });
+  });
+  await page.goto("/"); await expect(page.getByTestId("workspace-catalog")).toBeVisible();
+  await expect(page.getByTestId(/^catalog-client-/)).toHaveCount(0); await expect(page.getByTestId(/^catalog-field-/)).toHaveCount(0);
+  const row = page.getByTestId("catalog-retained-survey-history-design");
+  await expect(row).toContainText("Original folder unavailable");
+  await page.getByTestId("catalog-history-view-history-design").click();
+  await expect(page.getByTestId("catalog-history-read-history-design")).toContainText("1 retained receiver observations");
+  await expect(page.getByTestId("catalog-history-read-history-design")).toContainText(workflowTestPoint().projected.x.toString());
+  const downloadEvent = page.waitForEvent("download"); await page.getByTestId("catalog-history-export-history-design").click();
+  const download = await downloadEvent, path = await download.path(); if (!path) throw new Error("The actual retained-source download is unavailable.");
+  const bytes = await readFile(path), bundle = importDesignWorkspaceBundleZip(bytes);
+  expect(bundle.designDocument).toBe(exact); expect(bundle.fieldMapId).toBe("history-field");
+  expect(bundle.surveyDocuments).toEqual(workspace.surveyCollections!.map(entry => entry.document));
+  expect(await readWorkspace(page)).toEqual(workspace);
+  const current = await authenticatedService.database.transaction(transaction => transaction.workspace(authenticatedService.workspaceId)); expect(current?.document).toBe(source);
+  await info.attach("actual-retained-survey.zip", { body: bytes, contentType: "application/zip" });
+});
 
 function resume(fixture: Fixture, mode: Mode = "design", selection = sourceContext(fixture.designId)): UnifiedWorkspaceResume {
   const { source, data } = sourcePayload(fixture.workspace, fixture.designId);
@@ -74,7 +118,7 @@ async function applyTitle(page: Page, kind: PackageOwnerKind, name: string) {
     await dialog.getByRole("button", { name: "Apply name", exact: true }).click();
     await expect(dialog.getByRole("textbox", { name: "Design name", exact: true })).toBeHidden();
   } else {
-    await tools(page); if (kind === "draft") await page.getByTestId("design-task-inputs").click();
+    await tools(page); await page.getByTestId(kind === "draft" ? "design-task-inputs" : "design-task-machines").click();
     await nameInput(page, kind).fill(name);
     if (kind === "field") await page.getByTestId("field-rename").click();
     else await page.getByTestId("unified-design-panel").getByRole("button", { name: "Apply name", exact: true }).click();
@@ -97,7 +141,7 @@ function sameSource(fixture: Fixture, after: WorkspaceDocument) {
   expect(after.surveyCollections).toEqual(fixture.workspace.surveyCollections); expect(after.layoutSessions).toEqual(fixture.workspace.layoutSessions);
 }
 async function candidates(page: Page) {
-  const raws = await page.evaluate(key => { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw).slots.map((slot: { raw: string }) => slot.raw) as string[] : []; }, WORKSPACE_EDIT_RECOVERY_KEY);
+  const raws = await page.evaluate(key => { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw).slots.map((slot: { raw: string }) => slot.raw) as string[] : []; }, accountPreferenceKey(page, WORKSPACE_EDIT_RECOVERY_KEY));
   return raws.map(raw => ({ raw, candidate: parseWorkspaceEditRecovery(raw) }));
 }
 async function findFieldRenameCheckpoint(page: Page, rawName: string, invalid = false) {
@@ -145,7 +189,9 @@ async function assertBoundaryAtCamera(page: Page, vertices: readonly { x: number
     expect(points[index][1]).toBeCloseTo(height / 2 - (point.y - logical.center.y) * scale, 7);
   });
   await expect(page.getByTestId("workspace-map-readout")).toContainText(`Center X ${logical.center.x.toFixed(3)} · Y ${logical.center.y.toFixed(3)}`);
-  await expect(page.getByTestId("workspace-map-readout")).toContainText(`View width ${(width / scale).toFixed(2)} XY units`);
+  // Aspect changes expand the visible extent without changing the retained
+  // logical camera. Use the independently checked pixel scale for this readout.
+  await expect(page.getByTestId("workspace-map-readout")).toContainText(`Map span ${(width / scale).toFixed(2)} coordinate units`);
 }
 function assertDerivedDisplayCache(actual: unknown, expected: unknown, path = "wgs84Companion") {
   // Reuse the qualified package-import contract only for this derived cache.
@@ -194,7 +240,7 @@ test(`${kind} applied title synchronizes its saved list name only on ordinary Sa
   for (const id of fixture.workspace.catalog.designs.filter(item => item.id !== fixture.designId).map(item => item.id)) {
     expect(sourcePayload(after, id).source.document).toBe(sourcePayload(fixture.workspace, id).source.document);
   }
-  await catalog(page); await expect(page.getByTestId(`catalog-recent-${fixture.designId}`)).toHaveAttribute("aria-label", title);
+  await catalog(page); await browseDesignParents(page, fixture.designId); await expect(page.getByTestId(`catalog-recent-${fixture.designId}`)).toHaveAttribute("aria-label", title);
   await expect(page.getByTestId(`catalog-field-${packageIds.field}`)).toHaveAttribute("aria-label", "Source field"); await closeCatalog(page);
   await page.reload(); await ready(page); await expect(page.getByTestId("workspace-context")).toHaveAttribute("aria-label", new RegExp(title));
   expect(sourcePayload(await readWorkspace(page), fixture.designId).data).toEqual(changed.data);
@@ -203,7 +249,7 @@ test(`${kind} applied title synchronizes its saved list name only on ordinary Sa
 for (const kind of ["draft", "field"] as const)
 test(`${kind} File Rename focuses its retained raw name from collapsed tools without a duplicate File form`, async ({ context, page }) => {
   const fixture = await packageFixture(kind); await seed(context, fixture); await page.goto("/"); await ready(page); await tools(page);
-  if (kind === "draft") await page.getByTestId("design-task-inputs").click();
+  await page.getByTestId(kind === "draft" ? "design-task-inputs" : "design-task-machines").click();
   const raw = `  Unapplied ${kind} name  `, input = nameInput(page, kind); await input.fill(raw);
   const bytes = await workspaceStorageBytes(page);
   if (kind === "draft") await page.getByTestId("workspace-mode-survey").click();
@@ -230,18 +276,21 @@ test(`${kind} File Rename focuses its retained raw name from collapsed tools wit
 
 for (const mode of ["design", "survey", "layout"] as const)
 test(`current-field New in ${mode} keeps Browse B and dirty Source A until an explicit guarded Open`, async ({ context, page }) => {
-  const fixture = await packageFixture("field"); await seed(context, fixture, resume(fixture, "design", browseB)); await page.goto("/"); await ready(page);
+  const fixture = await packageFixture("field"), initialMode = mode === "layout" ? "layout" : "design";
+  await seed(context, fixture, resume(fixture, initialMode, browseB)); await page.goto("/"); await ready(page, initialMode);
+  if (initialMode === "layout") await page.getByTestId("workspace-mode-design").click();
   const sourceBoundary = sourcePayload(fixture.workspace, fixture.designId).data.fieldBoundary;
   const expectedVertices = sourceBoundary.length;
   await tools(page, false); await page.getByTestId("workspace-map-zoom-in").click(); await tools(page);
+  await page.getByTestId("design-task-machines").click();
   await page.getByTestId("field-machine-package-unequal-machine").click();
   const raw = "  unfinished machine span  "; await page.getByTestId("field-input-span-0").fill(raw);
   if (mode !== "design") await page.getByTestId(`workspace-mode-${mode}`).click(); await tools(page, false);
   const camera = await page.getByTestId("workspace-map-readout").innerText(), boundary = await visibleBoundary(page, expectedVertices), bytes = await workspaceStorageBytes(page);
   const capturedCamera = await capturedFieldCamera(page, fixture.designId, mode, raw, fixture.workspace.revision);
   await assertBoundaryAtCamera(page, sourceBoundary, capturedCamera.camera);
-  if (mode === "layout") await expect(page.getByTestId("workspace-selected-machine")).toHaveAttribute("aria-label", "Frozen target: Unequal second pivot (package-unequal-machine)");
-  else await expect(page.getByTestId("workspace-selected-machine")).toHaveAttribute("aria-label", "Selected machine: Unequal second pivot (package-unequal-machine)");
+  if (mode === "layout") await expect(page.getByTestId("workspace-selected-machine")).toHaveAttribute("aria-label", "Frozen target: Unequal second pivot");
+  else await expect(page.getByTestId("workspace-selected-machine")).toHaveAttribute("aria-label", "Selected machine: Unequal second pivot");
   await file(page, "New design in current field…"); const form = page.getByTestId("catalog-dialog");
   await expect(form.getByTestId("catalog-form-recheck")).toHaveCount(0);
   await expect(page.getByTestId("catalog-dialog-context")).toHaveText("Source customer → Source project → Source field");
@@ -260,7 +309,9 @@ test(`current-field New in ${mode} keeps Browse B and dirty Source A until an ex
   expect(draft.pivotCenter).toBeNull(); expect(draft.waterSource).toBeNull(); expect(draft.powerSource).toBeNull(); preserved(fixture.workspace, after); sameSource(fixture, after);
   await expect(page.getByTestId(`catalog-field-${packageIds.destination}`)).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByTestId(`workspace-mode-${mode}`)).toHaveAttribute("aria-pressed", "true");
-  await page.getByTestId(`catalog-recent-open-${created.id}`).click();
+  // New preserved Browse B above. The operator now deliberately browses the
+  // new design's actual Source A folders before requesting its guarded Open.
+  await browseDesignParents(page, created.id); await page.getByTestId(`catalog-design-open-${created.id}`).click();
   await expect(page.getByRole("alert").filter({ hasText: "Save or preserve the current design and finish its entered inputs before opening another design." })).toBeVisible();
   await expect(page.getByTestId("workspace-catalog")).toBeVisible(); sameSource(fixture, await readWorkspace(page));
   await closeCatalog(page);
@@ -269,8 +320,8 @@ test(`current-field New in ${mode} keeps Browse B and dirty Source A until an ex
   await assertBoundaryAtCamera(page, sourceBoundary, capturedCamera.camera);
   await page.getByTestId("workspace-mode-design").click(); await tools(page);
   await expect(page.getByTestId("field-input-span-0")).toHaveValue(raw);
-  await expect(page.getByTestId("workspace-selected-machine")).toHaveAttribute("aria-label", "Selected machine: Unequal second pivot (package-unequal-machine)");
-  await page.getByTestId("field-discard-inputs").click(); await catalog(page); await page.getByTestId(`catalog-recent-open-${created.id}`).click();
+  await expect(page.getByTestId("workspace-selected-machine")).toHaveAttribute("aria-label", "Selected machine: Unequal second pivot");
+  await page.getByTestId("field-discard-inputs").click(); await catalog(page); await browseDesignParents(page, created.id); await page.getByTestId(`catalog-design-open-${created.id}`).click();
   await expect(page.getByTestId("workspace-catalog")).toBeHidden(); await expect(page.getByTestId("workspace-context")).toHaveAttribute("aria-label", new RegExp(name));
   await expect(page.getByTestId("design-task-drawing")).toBeVisible(); sameSource(fixture, await readWorkspace(page));
 });

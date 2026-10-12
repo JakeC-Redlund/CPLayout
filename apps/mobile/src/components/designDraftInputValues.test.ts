@@ -1,5 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import React from "react";
+import Module, { createRequire } from "node:module";
+import { resolve } from "node:path";
+import { InputRetentionProvider, InputRetentionStore } from "../inputRetention";
 import {
   feetToMeters, createDesignDraftEditorState, defaultProjectSettings, reduceDesignDraftEditorState, type DesignDraftMachine,
 } from "@cplayout/core";
@@ -121,4 +125,47 @@ test("draft remove-last allows empty span lists without adding complete-machine 
   const applied = reduceDesignDraftEditorState(editor, { type: "set_machine", machine });
   assert.equal(applied.lastError, null);
   assert.deepEqual(applied.draft.machine, { spanLengthsMeters: [] });
+});
+
+test("actual Draft choice handlers expose checked radio DOM states and retain supplied choices until Apply", () => {
+  const requireCurrent = createRequire(resolve(process.cwd(), "package.json"));
+  const loader = Module as unknown as { _load(request: string, parent: unknown, isMain: boolean): unknown }, original = loader._load;
+  const { renderToStaticMarkup } = requireCurrent("react-dom/server") as { renderToStaticMarkup(node: React.ReactNode): string };
+  // Use the installed web adapter's actual mapping so an unsupported legacy
+  // accessibilityState object cannot make this regression pass.
+  const createDOMProps = requireCurrent("react-native-web/dist/modules/createDOMProps").default as (tag: string, props: Record<string, unknown>) => Record<string, unknown>;
+  const controls = new Map<string, Record<string, unknown>>();
+  const host = (tag: string) => (props: Record<string, unknown>) => {
+    if (typeof props.accessibilityLabel === "string") controls.set(props.accessibilityLabel, props);
+    return React.createElement(tag, null, tag === "input" ? undefined : props.children as React.ReactNode);
+  };
+  let panel: typeof import("./DesignDraftInputs");
+  try { loader._load = function(request, parent, isMain) {
+    if (request === "react-native") return { Text: host("span"), View: host("div"), TextInput: host("input"), Pressable: host("button"), Platform: { OS: "web" }, StyleSheet: { create: (styles: unknown) => styles } };
+    if (request === "lucide-react-native") return new Proxy({}, { get: () => () => null });
+    return original.call(this, request, parent, isMain);
+  }; panel = requireCurrent(resolve(__dirname, "DesignDraftInputs.tsx")); } finally { loader._load = original; }
+  const settings = defaultProjectSettings(), store = new InputRetentionStore();
+  let editor = createDesignDraftEditorState({ id: "radio-source", name: "Actual Survey", projectCrs: null, settings, unitSystem: settings.unitSystem,
+    fieldBoundary: [], pivotCenter: null, powerSource: null, waterSource: null, machine: {}, obstacles: [], surveyPoints: [] }), actions = 0;
+  function render(disabled = false) {
+    controls.clear();
+    renderToStaticMarkup(React.createElement(InputRetentionProvider, { store, children: React.createElement(panel.DesignDraftInputs, { editor, surveyInformationOnly: true, disabled,
+      onAction(action) { actions++; editor = reduceDesignDraftEditorState(editor, action); } }) }));
+  }
+  function press(label: string) { const props = controls.get(label)!; assert(props, label); (props.onPress as () => void)(); }
+  function radio(label: string, checked: boolean, disabled = false) {
+    const props = controls.get(label)!; assert(props, label); assert.equal(props["aria-checked"], checked);
+    assert.deepEqual(props.accessibilityState, { checked, disabled });
+    const dom = createDOMProps("div", props); assert.equal(dom.role, "radio"); assert.equal(dom["aria-checked"], checked); assert.equal(dom["aria-disabled"], disabled ? true : undefined);
+  }
+  render(); radio("Sweep: Not supplied", true); radio("Sweep: Full circle", false); radio("Sweep: Sector", false);
+  press("Sweep: Full circle"); render(); radio("Sweep: Full circle", true); radio("Sweep: Not supplied", false);
+  assert.equal(actions, 0); assert.deepEqual(editor.draft.machine, {}); assert(store.hasDirty());
+  press("Sweep: Sector"); render(); radio("Sweep: Sector", true); radio("Sweep direction: Not supplied", true);
+  press("Sweep direction: Counterclockwise"); render(); radio("Sweep direction: Counterclockwise", true); radio("Sweep direction: Clockwise", false);
+  render(true); radio("Sweep: Sector", true, true); radio("Sweep direction: Counterclockwise", true, true); press("Sweep: Full circle");
+  render(); radio("Sweep: Sector", true); assert.equal(actions, 0);
+  press("Apply machine"); assert.equal(actions, 1); assert.equal(editor.lastError, null);
+  assert.deepEqual(editor.draft.machine, { sweep: { mode: "partial_circle", direction: "counterclockwise" } });
 });

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "result": "fail",
+  "scope": "Intermediate desktop selection; not final current-source or whole-browser acceptance.",
+  "log": {
+    "retainedBy": "coordinator",
+    "sha256": "026c14f2a4310774fccb353c09afa3911b0de63697d85ff4d6736918a5a3c5aa",
+    "reportedCommand": "npm run test:web:e2e -- tests/web/production-auth-workflow.spec.ts tests/web/production-accessibility.spec.ts tests/web/unified-workspace.spec.ts --project=desktop --workers=1",
+    "exit": 1
+  },
+  "counts": {
+    "planned": 31,
+    "passed": 25,
+    "failed": 6
+  },
+  "failureTitles": [
+    "[desktop] \u203a tests/web/production-accessibility.spec.ts:46:5 \u203a operator sign-in, Home, Design and Survey stay keyboard reachable and pass automated accessibility checks",
+    "[desktop] \u203a tests/web/production-auth-workflow.spec.ts:116:5 \u203a short narrow sign-in keeps focused credentials, submit and help reachable without horizontal overflow",
+    "[desktop] \u203a tests/web/production-auth-workflow.spec.ts:213:5 \u203a two actual App pages serialize sign-out response cookies before a newer username/password sign-in",
+    "[desktop] \u203a tests/web/unified-workspace.spec.ts:212:5 \u203a Design/Survey retain one map and unfinished input while missing Survey review blocks Layout without changing source",
+    "[desktop] \u203a tests/web/unified-workspace.spec.ts:256:5 \u203a calculation is preview only and explicit completion creates a separate saved child before explicit Open",
+    "[desktop] \u203a tests/web/unified-workspace.spec.ts:310:5 \u203a unequal Field machines freeze an exact selected Layout target and observations survive save, later design edit and reopen"
+  ],
+  "custody": "The log and complete failure text are retained. Previous report image/trace pointers were overwritten by the next run before copying; no retained PNG/trace packet is claimed for this31-case edition.",
+  "accessibilityNavigationFailure": {
+    "observed": "The test expected the working context immediately after Home project activation; the actual context remained the customer/project/field choice.",
+    "coordinatorDiagnosis": "Home project activation intentionally opens Catalog. The test must choose the actual field and activate its Open action by keyboard before expecting a working Design context.",
+    "currentSourceObservation": "The current source seeds actual project/field/design IDs and performs Home\u2192Catalog\u2192field\u2192Open. It also records served bundle byte hashes, PNG dimensions and DOM/spec hashes.",
+    "correctionQualification": "Source changed; matching final rerun remains required."
+  },
+  "boundary": "No full acceptance, conformance or later passing rerun is inferred."
+}

@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-12",
+  "claimClass": "source",
+  "result": "pass_bounded_source_checks",
+  "sourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r14.json",
+  "sourceFingerprint": "d6af4cec8c4b78888bf0a8e2df11a7e4a5e1ac9f69f3978cd5c1dcbc40f373d5",
+  "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+  "currentSourceDrift": [],
+  "actualChecks": {
+    "skills": {
+      "sha256": "e5cd453c1e5a4a5131af3752fd4d3dc981f980a0ecaecfb78b7af31b0583b31d",
+      "bytes": 2993,
+      "exitCode": 0,
+      "provenance": "Coordinator explicitlydelivered completedexit0; actualcontent/hash inspected."
+    },
+    "ExpoSDK": {
+      "sha256": "8152e1dfe2839254529bd71a5c9d6f299c93bc1132025c5930dcc5dc042489db",
+      "bytes": 28,
+      "exitCode": 0,
+      "provenance": "Coordinator explicitlydelivered completedexit0; actualcontent/hash inspected."
+    },
+    "auditVerified": {
+      "sha256": "19d06ebf54db19058a87b3745ddbd90078ed679e4ed1056930c836334a2e7045",
+      "bytes": 517,
+      "exitCode": 0,
+      "provenance": "Coordinator explicitlydelivered completedexit0; actualcontent/hash inspected."
+    }
+  },
+  "auditBoundary": {
+    "rawHigh": 16,
+    "rawModerate": 0,
+    "namedVerifiedLocalMitigations": 3,
+    "decision": "admitted-local-mitigations",
+    "zeroAudit": false,
+    "upstreamFixed": false
+  },
+  "boundary": "Freshcurrent source/configuration/dependency checks only. Sourcevalidation andskill configuration do not establish runtimehook/hostskill invocation, currentApp/performance/clock closure, native/device/physical/deployment orfinalreview acceptance."
+}

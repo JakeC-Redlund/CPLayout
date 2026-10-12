@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import { basename, dirname, join, resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { withSyntheticProofIdentity } from "./syntheticProofIdentity";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const LEASE_DIR = join(REPO_ROOT, ".cplayout-local", "web-build-lease");
@@ -285,14 +286,14 @@ async function main(): Promise<void> {
       await runWebBuildCommand("npx", ["expo", "export", "--platform", "web", "--clear", "--max-workers", "2"], token, mobile);
     });
   } else if (mode === "proof") {
-    await withWebBuildLease("proof:web", async (token) => {
+    await withSyntheticProofIdentity(join(REPO_ROOT, ".cplayout-local", "synthetic-proof-identity"), () => withWebBuildLease("proof:web", async (token) => {
       const port = Number(process.env.CPLAYOUT_WEB_PROOF_PORT ?? 19006);
       const portState = await checkProofPort(port);
       console.log(`Web proof port ${port}: ${portState}`);
       await runWebBuildCommand("npm", ["run", "export:web"], token);
       await checkProofPort(port);
       await runWebBuildCommand("npm", ["run", "test:web:e2e", "--", ...process.argv.slice(3)], token);
-    }, "");
+    }, ""));
   } else if (mode === "recover") {
     if (process.argv[3] !== "--confirm-idle") throw new Error("Run recover --confirm-idle only after auditing active web build processes.");
     recoverWebBuildLease(LEASE_DIR, true);

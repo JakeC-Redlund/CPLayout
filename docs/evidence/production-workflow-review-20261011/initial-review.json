@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "baseCommit": "2649d1a9b1f1c55dff2eea4a6fe9faaa54be3824",
+  "receiptSource": {
+    "kind": "coordinator_forwarded_agent_delivery",
+    "reviewer": "/root/production_workflow_independent_review",
+    "observedAt": "2026-10-11T21:47:00Z",
+    "boundary": "The original receipt is the agent delivery forwarded by /root. The reviewer reported no written artifact path. This file curates the delivered contents; it is not a previously existing independent-review artifact."
+  },
+  "reviewedSource": {
+    "anchorCount": 16,
+    "anchorFingerprint": "643fc54607c96936c28ac53bcc6b6915d40214bda02baa6d73ff233c59d1a1f3",
+    "fullSourceFreeze": false,
+    "anchorHashManifestProvided": false
+  },
+  "result": "vetoed",
+  "p0Count": 0,
+  "p1Count": 3,
+  "findings": [
+    {
+      "id": "REV-20261011-01",
+      "severity": "P1",
+      "requirements": [
+        "LAYOUT-01",
+        "RECOVERY-01"
+      ],
+      "description": "Unapplied Layout tolerance is dropped when a Layout session is replaced.",
+      "sourcePaths": [
+        "apps/mobile/src/workspace/WorkspaceModePanels.tsx"
+      ],
+      "status": "open",
+      "verificationRequired": "Preserve the literal tolerance and its unit/source owner across accepted session replacement; prove recovery, refusal and explicit discard without silently changing the entered value."
+    },
+    {
+      "id": "REV-20261011-02",
+      "severity": "P1",
+      "requirements": [
+        "AUTH-01",
+        "RECOVERY-01"
+      ],
+      "description": "A definitive denied-access path clears cached authorization before persisting its denial marker; marker quota failure can let an older grant revive.",
+      "sourcePaths": [
+        "apps/mobile/src/auth/deniedAccess.ts"
+      ],
+      "status": "open",
+      "verificationRequired": "Persist denial authority before cache authorization cleanup or retain a proven atomic/fail-closed disposition; test marker-write failure, retained cache and subsequent cold offline startup."
+    },
+    {
+      "id": "REV-20261011-03",
+      "severity": "P1",
+      "requirements": [
+        "AUTH-01",
+        "RECOVERY-01"
+      ],
+      "description": "API/auth loading serializes a parsed legacy workspace upgrade instead of retaining its actual raw source: the reported synthetic example retains 1087 of the original 1185 bytes.",
+      "sourcePaths": [
+        "apps/api/src/server.ts",
+        "apps/mobile/src/auth/authenticatedRepository.ts"
+      ],
+      "status": "open",
+      "verificationRequired": "Retain exact legacy raw bytes on a pure read/prepare operation through API, cache, archive and source slots; apply the version upgrade only through its explicit accepted transaction and test exact byte/hash retention."
+    }
+  ],
+  "focusedChecks": {
+    "source": "coordinator-forwarded reviewer final delivery",
+    "passed": 250,
+    "postgresSkipped": 1,
+    "diffCheck": "reported pass against baseline 2649d1a",
+    "boundary": "Focused results at a 16-anchor edition do not establish whole-source, PostgreSQL execution or served-App acceptance."
+  },
+  "governanceChecks": {
+    "source": "coordinator-forwarded reviewer final delivery",
+    "frontmatterPassed": 11,
+    "failures": 2,
+    "total": 82,
+    "failureSummary": "AGENTS was 1679 bytes and generated context/status were stale.",
+    "subsequentObservation": {
+      "agentsBytes": 1598,
+      "source": "direct file byte count by governance agent",
+      "fullGovernanceRecheck": "pending indexed-source freeze"
+    }
+  },
+  "weightedDecisions": {
+    "weights": {
+      "compatibility": 0.3,
+      "preservation": 0.25,
+      "contextEfficiency": 0.2,
+      "reproducibleProof": 0.15,
+      "maintainability": 0.1
+    },
+    "scale": "1-5",
+    "individualCriterionScoresProvided": false,
+    "boundary": "Totals are the reviewer's individual judgments, not measured operator acceptance. Missing criterion scores and additional votes are not reconstructed.",
+    "comparisons": [
+      {
+        "selected": "Domain commands behind actual PostgreSQL/session/RBAC",
+        "selectedScore": 4.55,
+        "alternative": "Parallel API reducers",
+        "alternativeScore": 2.9
+      },
+      {
+        "selected": "Owned local outbox with separate synchronization",
+        "selectedScore": 4.45,
+        "alternative": "Server-only editing",
+        "alternativeScore": 3.2
+      },
+      {
+        "selected": "Explicit new versions and frozen readers",
+        "selectedScore": 4.6,
+        "alternative": "Redefine existing versions",
+        "alternativeScore": 2.1,
+        "alternativeVeto": "preservation"
+      },
+      {
+        "selected": "Refuse unqualified native live capture",
+        "selectedScore": 4.4,
+        "alternative": "File-backed captures",
+        "alternativeScore": 2.55,
+        "alternativeVeto": "capability"
+      }
+    ]
+  },
+  "separateCoordinatorReports": {
+    "realPostgresHttpSmoke": "1 passed, no skip; separate from the reviewer's skipped PostgreSQL case.",
+    "priorApiChecks": "6 passed at their recorded edition.",
+    "initialDesktopAuthenticatedBrowser": {
+      "passed": 8,
+      "failed": 1,
+      "failure": "Survey-first remained in Design because Entry invoked a retired mode callback after asynchronous Open.",
+      "resolution": "Initial mode is being moved into the accepted Open transaction; current proof pending."
+    },
+    "boundary": "These are explicitly attributed coordinator-delivered observations; matching complete source/bundle/artifact manifests were not supplied to this record."
+  },
+  "remainingGates": [
+    "Final frozen-source aggregate",
+    "Current served-App responsive/Axe/failure proof",
+    "Two consecutive final independent whole-workflow reviews without unresolved defects",
+    "Exact-head protected CI and normal publication"
+  ],
+  "notEstablished": [
+    "native/device runtime",
+    "physical GPS accuracy",
+    "deployed service",
+    "hosted automation activation",
+    "genuine hook execution",
+    "human acceptance"
+  ]
+}

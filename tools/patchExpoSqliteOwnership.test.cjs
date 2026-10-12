@@ -7,7 +7,7 @@ const { createHash } = require("node:crypto");
 const { patchExpoSqliteOwnership } = require("./patchExpoSqliteOwnership.cjs");
 const hash = text => createHash("sha256").update(text).digest("hex");
 
-function fixture(t) {
+function fixture(t, version = "55.0.20") {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "cplayout-patch-test-"));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   const write = (name, text) => {
@@ -20,15 +20,15 @@ function fixture(t) {
   const unchanged = "node_modules/expo-sqlite/vendor/version.txt";
   const patch = `diff --git a/${source} b/${source}\n--- a/${source}\n+++ b/${source}\n@@ -1 +1 @@\n-old\n+patched\ndiff --git a/${added} b/${added}\nnew file mode 100644\n--- /dev/null\n+++ b/${added}\n@@ -0,0 +1 @@\n+new\n`;
   const manifest = {
-    versions: { "expo-sqlite": "55.0.20" }, patchSha256: hash(patch),
+    versions: { "expo-sqlite": version }, patchSha256: hash(patch),
     pins: { "android/example.txt": hash("old\n"), "vendor/version.txt": hash("unchanged\n") },
     files: [ { target: source, added: false, expected: hash("patched\n") },
       { target: added, added: true, expected: hash("new\n") } ],
   };
-  write("node_modules/expo-sqlite/package.json", JSON.stringify({ name: "expo-sqlite", version: "55.0.20" }));
+  write("node_modules/expo-sqlite/package.json", JSON.stringify({ name: "expo-sqlite", version }));
   write(source, "old\n"); write(unchanged, "unchanged\n");
-  write("patches/expo-sqlite+55.0.20.patch", patch);
-  write("patches/expo-sqlite+55.0.20.json", JSON.stringify(manifest));
+  write(`patches/expo-sqlite+${version}.patch`, patch);
+  write(`patches/expo-sqlite+${version}.json`, JSON.stringify(manifest));
   const read = name => fs.readFileSync(path.join(root, name), "utf8");
   return { root, source, added, unchanged, write, read };
 }
@@ -96,4 +96,15 @@ test("nested consumer dependency cannot bypass the ownership patch", t => {
   f.write("apps/mobile/node_modules/expo-sqlite/package.json", JSON.stringify({ name: "expo-sqlite", version: "55.0.20" }));
   assert.throws(() => patchExpoSqliteOwnership(f.root), /resolves an unpatched dependency/);
   assert.equal(f.read(f.source), "old\n");
+});
+
+test("reviewed SDK56 and SDK57 ports select their exact installed version and still refuse unrelated source bytes", t => {
+  for (const version of ["56.0.6", "57.0.4"]) {
+    const f = fixture(t, version);
+    assert.equal(patchExpoSqliteOwnership(f.root), "installed");
+    assert.equal(patchExpoSqliteOwnership(f.root, { checkOnly: true }), "already-installed");
+    f.write(f.source, "foreign source\n");
+    assert.throws(() => patchExpoSqliteOwnership(f.root), /refusing to overwrite/);
+    assert.equal(f.read(f.source), "foreign source\n");
+  }
 });

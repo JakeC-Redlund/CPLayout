@@ -272,7 +272,7 @@ export function convertPivotProjectToFieldDesign(originalProjectDocument: string
   return { field, originalProjectDocument };
 }
 
-function projectTargetToField(target: DrawingMetadataTarget, machineId: string,
+export function projectTargetToField(target: DrawingMetadataTarget, machineId: string,
   ids: { waterSourceId: string; powerSourceId: string }): FieldDrawingMetadataTarget {
   if (target.kind === "pivot_center") return { kind: target.kind, machineId };
   if (target.kind === "water_source") return { kind: target.kind, infrastructureId: ids.waterSourceId };

@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "checkedOn": "2026-10-11",
+  "baseCommit": "2649d1a9b1f1c55dff2eea4a6fe9faaa54be3824",
+  "scope": "Exact Metro dependency cohort and Expo resolver configuration; not full application, browser, native or aggregate acceptance.",
+  "sourceHashes": {
+    ".nvmrc": "73fb1b615e2043a933be1c0895cde4358036acc28d785692509b822aa53c761f",
+    "apps/mobile/metro.config.js": "c3b1a922c9d93dc46cce800bea2be7812f2e110445c6f6d2d21e21c6b197d11d",
+    "apps/mobile/package.json": "ba8c1074dda7270a6e6ca061ea5267b162f9543c6854fdb75cd97f0d7cbb61e3",
+    "package-lock.json": "b21c311edcdd8a762b5bd74a654afce4f6eb3cdf7a99b12cbb7bc6cd035883f4",
+    "package.json": "23086a3544cab425da56e7fe60a46e2580966a6d82b6fec678c7a467ef7f3235",
+    "tools/metroDependency.test.ts": "65b5001b8f79cc2a1224245886aecf7935c7496858d29f2262ed5f0bc0568de7"
+  },
+  "sourceFingerprint": "99f97d818ab0de48a26ae52d7de6529b4acc0a40334ce37ca42c127385a4d3b8",
+  "publishedManifestRecord": {
+    "path": "docs/evidence/production-workflow-dependencies-20261011/metro-published-manifests.json",
+    "sha256": "8913a3e8229edbf9bdce8953b998b7cc1206c8a4b944980a080ddb3c42aae6ed",
+    "boundary": "Seven exact official npm responses fetched directly; installed dependency declarations and npm lock integrity matched for all seven."
+  },
+  "selected": {
+    "expo": "57.0.27",
+    "reactNative": "0.86.3",
+    "expoMetro": "56.0.2",
+    "expoMetroConfig": "57.0.13",
+    "communityCliPlugin": "0.86.3",
+    "metroAndOb1": "0.84.5"
+  },
+  "cohort": [
+    {
+      "name": "metro",
+      "lockPath": "node_modules/metro",
+      "version": "0.84.5",
+      "integrity": "sha512-r1liLkyFZMVSEMNjU1CJU5pRzs3NdkxHqXS60O25c0rCIqAR+cGk7rPydw/g0WAIKVXojIBIF45yYBPagJGcgw==",
+      "installedManifestSha256": "a6c777e580690cfad7175bab86cc62f409cd8942b096642645b84a6c48eb6304"
+    },
+    {
+      "name": "metro-babel-transformer",
+      "lockPath": "node_modules/metro-babel-transformer",
+      "version": "0.84.5",
+      "integrity": "sha512-2WbHILKMiJUzfdjmGOQOqU1bWi9//gqiclc/tkk/AIsrrVw3efhZ1uhkOwMTxUEPOzqoo091H0olLmVZH5FHGQ==",
+      "installedManifestSha256": "355c380c101338826e20120aff00757309a9757d00f2c8fdb1edfe0c5c50df44"
+    },
+    {
+      "name": "metro-cache",
+      "lockPath": "node_modules/metro-cache",
+      "version": "0.84.5",
+      "integrity": "sha512-WHS0n2OxQqtwEjSeQFPePNrMvEFhmQcUQM9cRJMHByWoi/GMWFBEWOf7hVkAM/0KRutAXNbDlSu/cZB6CyxgQQ==",
+      "installedManifestSha256": "14dbf270468c906e3518017dc2bc5c28425088721e5d27328bfecef6105fb41b"
+    },
+    {
+      "name": "metro-cache-key",
+      "lockPath": "node_modules/metro-cache-key",
+      "version": "0.84.5",
+      "integrity": "sha512-3dPB2TnvGjjf0/9O7AXVQURKXuQNauTZE7WpTGTlR017Gh/B5y0m/2wcqxfveUguHSpu89KhVxCAlr2k/H7uhQ==",
+      "installedManifestSha256": "27126e77dc8ad918e96f0bfae9bbaa27385683abe1614595b01d4fd9b91a7ca4"
+    },
+    {
+      "name": "metro-config",
+      "lockPath": "node_modules/metro-config",
+      "version": "0.84.5",
+      "integrity": "sha512-zie+uN6oohscowi2S7ByU+wUw6CrT4ZxW9uAbONOObSxx86RGmnIAmjXHLkfmcdYoY7jzOPEbqcI6oeVmqyBQA==",
+      "installedManifestSha256": "52af0b6f6a9c5aeaf2f5097492e00975428c303f0330d3625b6ee5eb6a5f09ea"
+    },
+    {
+      "name": "metro-core",
+      "lockPath": "node_modules/metro-core",
+      "version": "0.84.5",
+      "integrity": "sha512-xwm605hCi5Y6eJTTb8ZWo6pkUcoBEIyiQOfkZh5GwtDwUrP9SNhTQZhzJHrBCwwxlf3Ptl/pxWJgQ1rsNYMnrA==",
+      "installedManifestSha256": "16d61ab440e5ff5e03585fb70ea9831a4a08a148311322bc2a9e58c4c026bae6"
+    },
+    {
+      "name": "metro-file-map",
+      "lockPath": "node_modules/metro-file-map",
+      "version": "0.84.5",
+      "integrity": "sha512-mlm/JL8toSbSc2akpKIGmzvrVRSCgZ5vkbycI34oMLoOnLGuLyC8WTyVJ6P0hZG/usDaGwZSl/s9BCRriqjGJA==",
+      "installedManifestSha256": "6596e02aa02ffa7c8cbc06f1d26014d41df49a22a3f28267978ddf69a36261a5"
+    },
+    {
+      "name": "metro-minify-terser",
+      "lockPath": "node_modules/metro-minify-terser",
+      "version": "0.84.5",
+      "integrity": "sha512-BJoFwCEDsYnagPqarayInv2+diCDNDdLlaof/p6s9w4gh+gc9HXYM+pDvsKGKKUumpZswNF3Z/ftTMqKl/5IBg==",
+      "installedManifestSha256": "0b9ae08a23f61078a6f124b17976a668a0cc67a6c1f44ba5a302bce912d9ccd7"
+    },
+    {
+      "name": "metro-resolver",
+      "lockPath": "node_modules/metro-resolver",
+      "version": "0.84.5",
+      "integrity": "sha512-VSSnepg1k6LyCwtb6eirWdAWlpKwBG8Rdtsr1mU38rMelFyWgh3/QuMSiZIZAIjwg/fsa8GhW5/FO54CAUPCEA==",
+      "installedManifestSha256": "2547e0c696af191328cc6c863413d7408a1a31f1988662adc5f2f33610f73add"
+    },
+    {
+      "name": "metro-runtime",
+      "lockPath": "node_modules/metro-runtime",
+      "version": "0.84.5",
+      "integrity": "sha512-U1m2+d1Pr+JO2/iVXBB2OfXXityz7tqwIorxfrT15IEgaHvpJBq/OHiqnOWPKJbUl3JcxjcdviZZOKk85oK4Qg==",
+      "installedManifestSha256": "967111708b52f5fd5ca4bb5b19acde96169e3d7f96baa29c837e39333e58426b"
+    },
+    {
+      "name": "metro-source-map",
+      "lockPath": "node_modules/metro-source-map",
+      "version": "0.84.5",
+      "integrity": "sha512-2BtV5L9uPc49F13Gn5wiP6bX/EncqzqTIk2VL/0F/96Vo0YEOjluT/qktQjFODfqGFsucwnh5mPEAl/2jVEfeg==",
+      "installedManifestSha256": "b29018dc8465aa18574282b3938168b6ce4ee9d2085237ba7ed6801d98107562"
+    },
+    {
+      "name": "metro-symbolicate",
+      "lockPath": "node_modules/metro-symbolicate",
+      "version": "0.84.5",
+      "integrity": "sha512-rQ40zYDAkaWBN9yvjUuAD0ZpzBMZSoKyGYXnb5JrfbKjun7fTvfoLHL3KXFYenBTYZkQtlp4cKSCv/1utxFyOw==",
+      "installedManifestSha256": "5cca07baf0608caa3de0536d3d3c674033dafc6793ec4a51bd9c576827b9caca"
+    },
+    {
+      "name": "metro-transform-plugins",
+      "lockPath": "node_modules/metro-transform-plugins",
+      "version": "0.84.5",
+      "integrity": "sha512-+InaSVGaOyt0DyRo4Y/zIdPI6CZwnbNho5LAL23tgmuGwv7fyfkF7kKfPjZcfxXBcoYdTLLFnCfCH/dHSiCqNg==",
+      "installedManifestSha256": "ea6b389a53c6df25d5ebbe83fe1ee879d51e9f8183da20a72e6ef7384555ac71"
+    },
+    {
+      "name": "metro-transform-worker",
+      "lockPath": "node_modules/metro-transform-worker",
+      "version": "0.84.5",
+      "integrity": "sha512-ui1Z8x4s5RL36gMmKLaMMO7O9NNDHNdthEZSCDQHAau3JcAsTaFOK6I+2q4I/kW5u8hSEjJk9L45TXSVJw6g1A==",
+      "installedManifestSha256": "ac690126fcc34b85c3c630cf9d1cdda71e8ecbb254219bef88a1c793d20a1fe8"
+    },
+    {
+      "name": "ob1",
+      "lockPath": "node_modules/ob1",
+      "version": "0.84.5",
+      "integrity": "sha512-aH9RkoZc7w/90HBamFxTw8ZLFr05wXS+iOnvmrgo53Ep8Pyrm5FieQSaPIVROkfFVQISeD/zo92fes26TOwe+A==",
+      "installedManifestSha256": "d05780c318d04679fb875f79528366d470fe6f4a40c5f65b5d06deeddbeb9cde"
+    }
+  ],
+  "cohortCount": 15,
+  "wrapperCount": 1,
+  "result": "pass",
+  "command": "PATH=<selected Node24.21 toolchain> node node_modules/tsx/dist/cli.mjs tools/metroDependency.test.ts",
+  "commandExit": 0,
+  "observedOutput": "Expo/React Native Metro dependency cohort and config compatibility checks passed.",
+  "invariants": [
+    "Exact supported consumer versions and admitted incoming semver ranges",
+    "Root and Expo/RN consumer resolution use the same Metro and wrapper instances",
+    "Exactly fourteen named Metro packages plus ob1, all at0.84.5; one56.0.2 wrapper",
+    "No image-size in the lock or root resolution",
+    "Actual Expo Metro config retains wasm assets and a configured Babel transformer"
+  ],
+  "precedingAggregateObservation": {
+    "source": "coordinator-delivered actual aggregate result",
+    "result": "failed_before_this_correction",
+    "cause": "Test retained SDK55 wrapper55.1.2/Metro0.83.8 literals despite the installed supported SDK57 cohort.",
+    "boundary": "The aggregate had advanced to this tool but did not complete. This focused correction does not relabel that aggregate as passing."
+  },
+  "mutations": "Only the narrow cohort test and these curated source records changed; no package installation, dependency declarations, lock or browser configuration changed by this agent.",
+  "nonClaims": [
+    "No full aggregate pass",
+    "No current served-App or native/device acceptance",
+    "No physical or field qualification",
+    "No blind refresh of preceding dependency graph/equivalence records"
+  ]
+}

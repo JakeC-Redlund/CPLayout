@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "scope": "Read-only log observations; source remains mutable.",
+  "observations": [
+    {
+      "name": "cplayout-production-source-validate-current.log",
+      "sha256": "223644b02c74e4a7ca46efe17aa05526ec416ec7bf8d092a7e9ab0bb53e1c028",
+      "bytes": 16639,
+      "modifiedAtUtc": "2026-10-11T23:00:26.873737+00:00",
+      "lastLoggedSubtestCounts": {
+        "tests": 11,
+        "pass": 7,
+        "fail": 4,
+        "skipped": 0
+      },
+      "wholeAggregateExitReceiptProvided": false,
+      "qualification": "File name, routine passing tail and prior TypeScript output do not prove completed current-source aggregate acceptance."
+    },
+    {
+      "name": "cplayout-production-source-validate-complete.log",
+      "sha256": "cc9731bf68553a17d3bab93673bc8c3b2ebd0edab74ae146964736ebfd4c399f",
+      "bytes": 362896,
+      "modifiedAtUtc": "2026-10-11T23:28:40.826018+00:00",
+      "lastLoggedSubtestCounts": {
+        "tests": 10,
+        "pass": 10,
+        "fail": 0,
+        "skipped": 0
+      },
+      "wholeAggregateExitReceiptProvided": false,
+      "qualification": "File name, routine passing tail and prior TypeScript output do not prove completed current-source aggregate acceptance."
+    },
+    {
+      "name": "cplayout-production-source-validate-final.log",
+      "sha256": "a03ff23cdc07a71217b3bc80370f390d82d691b22088244bc901b232cf8c6194",
+      "bytes": 1367,
+      "modifiedAtUtc": "2026-10-11T21:52:09.677131+00:00",
+      "lastLoggedSubtestCounts": {},
+      "wholeAggregateExitReceiptProvided": false,
+      "qualification": "File name, routine passing tail and prior TypeScript output do not prove completed current-source aggregate acceptance."
+    },
+    {
+      "name": "cplayout-production-source-validate-ready.log",
+      "sha256": "400e98626a39d7058dc730e8d631998caad7ab2d678dd74aa67e688c5bce72ad",
+      "bytes": 16803,
+      "modifiedAtUtc": "2026-10-11T22:50:30.870013+00:00",
+      "lastLoggedSubtestCounts": {
+        "tests": 8,
+        "pass": 8,
+        "fail": 0,
+        "skipped": 0
+      },
+      "wholeAggregateExitReceiptProvided": false,
+      "qualification": "File name, routine passing tail and prior TypeScript output do not prove completed current-source aggregate acceptance."
+    }
+  ],
+  "boundary": "No complete aggregate pass inferred."
+}

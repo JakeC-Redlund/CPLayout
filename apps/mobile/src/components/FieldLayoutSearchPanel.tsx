@@ -99,7 +99,7 @@ export function FieldLayoutSearchPanel({ field, revision, blocked, onAdopt }: {
         <Text style={styles.text}>Overlap: {squareMetersToAcres(best.overlapSquareMeters).toFixed(2)} acres | Extra room beyond required machine separation: {best.minimumPairClearanceMeters === null ? "One machine only" : formatDistance(best.minimumPairClearanceMeters, "us_survey_feet")}</Text>
         <Text style={styles.text}>Equipment cost: {best.cost.amount === null ? "Not available. Compare watered acres and machine count; equipment costs are unknown." : `${best.cost.currencyCode} ${best.cost.amount.toFixed(2)}`}</Text>
         <MachinePlanComparison field={field} proposed={best.machines.map(item => item.machine)} revision={result?.value.requestKey.fieldRevision ?? revision}
-          sourceName={result ? "Layout search review" : "Best layout found so far"} sourceDetail={result?.value.requestKey.modelVersion ?? LAYOUT_SEARCH_MODEL_VERSION_V2} testID="field-search-comparison" />
+          sourceName={result ? "Layout search review" : "Best layout found so far"} testID="field-search-comparison" />
         <Text style={styles.text}>Watered acres are a layout estimate. Terrain, operating clearance and water delivery still need field checks.</Text>
         <Action label="Use this reviewed layout" disabled={!current || blocked || running} id="field-search-adopt" onPress={() => {
           if (current && result && onAdopt(best.machines.map(item => item.machine), result.value.requestKey.fieldRevision, result.unlocked)) setResult(null);

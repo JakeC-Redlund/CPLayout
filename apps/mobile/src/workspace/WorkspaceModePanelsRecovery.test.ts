@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import test from "node:test";
 import React from "react";
-import { parseLayoutSessionDocument, parseSurveyCollectionDocument } from "@cplayout/core";
+import { defaultAppSettings, parseLayoutSessionDocument, parseSurveyCollectionDocument, createSurveyCollection, proposeSurveyCaptureAppend,
+  serializeSurveyCollectionDocument, serializeFieldDesignDocument, createSurveyReview, createReviewedFieldLayoutTarget, serializeFieldLayoutTarget, createLayoutSessionDocument, createRtkLayoutSessionDocument, layoutLockFromReceiverCapture } from "@cplayout/core";
+import { workflowTestField, workflowTestPoint, workflowTestTime } from "../../../../packages/core/src/productionWorkflowTestFixtures";
+import { workspaceMapSceneFromSession } from "../../../../packages/map-adapters/src/workspaceMapScene";
 import { readWorkspaceDesign } from "@cplayout/project-store";
 import { packageFixture, packageIds } from "../../../../tests/web/workspace-package-fixtures";
 import { editableFromSavedDesign } from "./workspaceDocumentAdapters";
@@ -53,6 +56,11 @@ const hooks = { ...React,
     }] as const;
   },
   useRef<T>(initial: T) { assert(active); return active.slot("ref", () => ({ current: initial })).value as { current: T }; },
+  useMemo<T>(factory: () => T, dependencies: readonly unknown[]) {
+    assert(active); const slot = active.slot("memo", () => undefined);
+    if (!same(slot.dependencies, dependencies)) { slot.value = factory(); slot.dependencies = dependencies; }
+    return slot.value as T;
+  },
   useEffect: (callback: () => void | (() => void), dependencies?: readonly unknown[]) => effect("effect", callback, dependencies),
   useLayoutEffect: (callback: () => void | (() => void), dependencies?: readonly unknown[]) => effect("layout", callback, dependencies),
   useImperativeHandle(ref: { current: unknown } | null, factory: () => unknown) { effect("layout", () => { if (ref) ref.current = factory(); }); },
@@ -61,6 +69,9 @@ const require = createRequire(import.meta.url), loader = require("node:module") 
 loader._load = function (name, parent, isMain) {
   if (name === "react") return hooks;
   if (name === "react-native") return { View: "div", Text: "span", TextInput: "input", Pressable: "button", Platform: { OS: "web" }, StyleSheet: { create: (value: unknown) => value } };
+  if (name === "react-native-svg") return new Proxy({ default: "svg" }, { get: (target, key) => key === "__esModule" ? true : key === "default" ? target.default : "svg" });
+  if (name === "lucide-react-native") return new Proxy({}, { get: () => () => null });
+  if (name === "react-native-safe-area-context") return { SafeAreaView: "div" };
   return original(name, parent, isMain);
 };
 let SurveyPanel: typeof import("./WorkspaceModePanels")["WorkspaceSurveyPanel"], LayoutPanel: typeof import("./WorkspaceModePanels")["WorkspaceLayoutPanel"];
@@ -90,6 +101,7 @@ async function fixture(kind: "draft" | "project" | "field" = "draft") {
   const currentState = { current: state };
   const setPending = (receiver: string) => (key: string, dirty: boolean, changed?: boolean) => { pending.set(key, dirty); pendingCalls.push({ key, dirty, changed, receiver }); };
   let controller = { state, stateRef: currentState, interactionKey: JSON.stringify([state.presentation.documentGeneration, state.presentation.interactionGeneration]),
+    settings: defaultAppSettings(), active: true, isActive: () => controller.active !== false, layoutAdmission: { ready: true, reasons: [] },
     busy: false, recoveryParticipants: registry, selectedCollectionId: selectedId, selectedCollection: collections.find(item => item.id === selectedId),
     repository: { workspaceVersion: workspace.workspaceVersion, layoutSessions: [session] }, referenceApplicationSupported: true,
     receiver: { collectionGate: () => ({ accepted: false, reason: "Receiver disconnected" }), getSnapshot: () => ({ observation: null }) },
@@ -137,6 +149,19 @@ async function fixture(kind: "draft" | "project" | "field" = "draft") {
     selectedId = target.admission.staged.context.workspace.collectionId; sync();
   }
   return { workspace, registry, pending, calls, pendingCalls, render, target, publish, survey, layout, handle,
+    controller: () => controller,
+    visible(value: boolean) { if (controller.active !== value) state = { ...state, presentation: { ...state.presentation, interactionGeneration: state.presentation.interactionGeneration + 1 } }; controller.active = value; sync(); },
+    reviewedTarget() {
+      const field = workflowTestField(), point = workflowTestPoint(); field.surveyPoints.push(point);
+      const owner = { designId: "synthetic-owner", documentKind: "field" as const, payloadId: field.id, fieldMapId: session.fieldMapId, projectCrs: field.projectCrs };
+      const collected = proposeSurveyCaptureAppend(createSurveyCollection({ id: "synthetic-control", owner, purpose: { kind: "point", role: "control" }, now: workflowTestTime }), { expectedRevision: 0, point, now: workflowTestTime }).collection;
+      const review = createSurveyReview({ id: "synthetic-review", owner, completedBy: "operator", completedAt: workflowTestTime, sourceRevision: 1, sourceDocument: serializeFieldDesignDocument(field),
+        collections: [{ id: collected.id, document: serializeSurveyCollectionDocument(collected) }], includedCollectionIds: [collected.id], excludedCollectionIds: [] });
+      const target = createReviewedFieldLayoutTarget(field, { designId: owner.designId, fieldMapId: owner.fieldMapId, review, inputRevision: 1, expectedRevision: 1, selectedMachineIds: [field.machines[0].id] });
+      const updated = createRtkLayoutSessionDocument({ id: session.id, name: session.name, fieldMapId: session.fieldMapId, targetDocument: serializeFieldLayoutTarget(target), now: workflowTestTime,
+        creationLock: layoutLockFromReceiverCapture(workflowTestPoint(10), "operator") });
+      state = { ...state, layout: { session: updated, persistenceRevision: workspace.revision } }; sync(); return target;
+    },
     setBusy(value: boolean) { controller.busy = value; },
     holdRename() {
       let release!: () => void;
@@ -255,4 +280,69 @@ test(`${mode} active raw and disclosure handlers are blocked dynamically even be
     named(trees.layout, "Hide session details").props.onPress(); element(trees.layout, "layout-observation-label").props.onChangeText("blocked label");
   }
   f.render(); assert.deepEqual(f.registry.capture(), before); assert.equal(f.registry.getInputOwner(), owner); assert.deepEqual(f.calls, []);
+});
+for (const mode of ["survey", "layout"] as const) test(`${mode} held input refuses Home hiding and a show round trip while current raw input stays unchanged`, async () => {
+  const f = await fixture(); f.mode(mode); const trees = f.render();
+  const input = element(mode === "survey" ? trees.survey : trees.layout, mode === "survey" ? "survey-point-label" : "layout-observation-label");
+  input.props.onChangeText("Actual current text"); f.render(); const before = f.registry.capture();
+  f.visible(false); input.props.onChangeText("Hidden overwrite"); assert.deepEqual(f.registry.capture(), before);
+  f.render(); f.visible(true); f.render(); input.props.onChangeText("Retired overwrite after return");
+  assert.deepEqual(f.registry.capture(), before); assert.deepEqual(f.calls, []);
+});
+for (const mode of ["survey", "layout"] as const) test(`${mode} permission changes disable raw and capture controls and retire held mutable handlers`, async () => {
+  const f = await fixture(); let writable = true; f.controller().canEditField = () => writable; f.mode(mode);
+  let trees = f.render(); const id = mode === "survey" ? "survey-point-label" : "layout-observation-label", collect = mode === "survey" ? "survey-collect" : "layout-collect";
+  const heldInput = element(mode === "survey" ? trees.survey : trees.layout, id).props.onChangeText;
+  heldInput("Retained authorized text"); trees = f.render(); const before = f.registry.capture();
+  writable = false; trees = f.render(); const tree = mode === "survey" ? trees.survey : trees.layout;
+  assert.equal(element(tree, id).props.editable, false); assert.equal(element(tree, collect).props.disabled, true);
+  heldInput("Unauthorized overwrite"); element(tree, collect).props.onPress(); await Promise.resolve(); f.render();
+  assert.deepEqual(f.registry.capture(), before); assert.deepEqual(f.calls, []);
+});
+for (const mode of ["survey", "layout"] as const) test(`${mode} live-port absence disables capture-only raw inputs while online manual metadata remains usable`, async () => {
+  const f = await fixture("field"); if (mode === "layout") f.reviewedTarget(); f.controller().canEditField = () => true; f.controller().canCaptureLive = () => false; f.mode(mode);
+  let trees = f.render(); const tree = mode === "survey" ? trees.survey : trees.layout, id = mode === "survey" ? "survey-point-label" : "layout-observation-label", collect = mode === "survey" ? "survey-collect" : "layout-collect";
+  assert.equal(element(tree, id).props.editable, false); assert.equal(element(tree, collect).props.disabled, true);
+  const before = f.registry.capture(); element(tree, id).props.onChangeText("Unsafe capture raw"); element(tree, collect).props.onPress(); await Promise.resolve(); f.render(); assert.deepEqual(f.registry.capture(), before); assert.deepEqual(f.calls, []);
+  if (mode === "layout") {
+    named(f.render().layout, "Session details & actions").props.onPress(); trees = f.render(); assert.equal(named(trees.layout, "Layout session name").props.editable, true);
+    named(trees.layout, "Layout session name").props.onChangeText("Online metadata name"); f.render(); assert.equal(f.registry.capture().ui.layout.name, "Online metadata name");
+  }
+});
+test("v3 pane restoration accepts actual optional review selection and refuses foreign collection/target IDs", async () => {
+  const f = await fixture(), target = f.target({ survey: { reviewIncludedIds: ["source-current"] }, layout: { targetPointId: null, toleranceText: " invalid literal ", toleranceUnitSystem: "us_survey_feet" } });
+  const plan = await f.registry.stage(target); f.registry.setBlocked(true); f.publish(target); f.render(); await plan.consume(f.delivery(target)); f.render();
+  assert.deepEqual(f.registry.capture().ui.survey.reviewIncludedIds, ["source-current"]);
+  assert.equal(f.registry.capture().ui.layout.toleranceText, " invalid literal "); assert.equal(f.registry.capture().ui.layout.toleranceUnitSystem, "us_survey_feet");
+  const before = f.registry.capture(); f.registry.setBlocked(false);
+  const foreign = f.target({ survey: { reviewIncludedIds: ["foreign-field"] } });
+  await assert.rejects(f.registry.stage(foreign), /another field/); assert.deepEqual(f.registry.capture(), before);
+  const foreignPoint = f.target({ layout: { targetPointId: "foreign-target" } });
+  await assert.rejects(f.registry.stage(foreignPoint), /another target/); assert.deepEqual(f.registry.capture(), before);
+});
+test("entered tolerance keeps its actual units when display settings change; clearing permits an explicit new unit", async () => {
+  const f = await fixture("field"), target = f.reviewedTarget(); f.mode("layout");
+  const calls: Array<{ point: string | undefined; tolerance: number | undefined }> = [], controller = f.controller();
+  controller.receiver.collectionGate = () => ({ accepted: true, reason: "Synthetic fixed fixture", ageMs: 1, projected: { ...target.targetPoints![0].projected }, projectionId: "synthetic-projection" });
+  controller.collectLayout = async (_label, point, tolerance) => { calls.push({ point, tolerance }); return false; };
+  let tree = f.render().layout;
+  named(tree, "Select a Layout point").props.onChange(target.targetPoints![0].id);
+  element(tree, "layout-tolerance").props.onChangeText("0.2"); f.render();
+  controller.settings = { ...controller.settings, unitSystem: "metric" }; tree = f.render().layout;
+  assert.equal(f.registry.capture().ui.layout.toleranceUnitSystem, "us_survey_feet");
+  element(tree, "layout-collect").props.onPress(); await Promise.resolve(); await Promise.resolve();
+  assert.equal(calls.length, 1); assert.equal(calls[0].point, target.targetPoints![0].id); assert(Math.abs(calls[0].tolerance! - 0.06096) < 1e-9);
+  element(tree, "layout-tolerance").props.onChangeText(""); f.render(); tree = f.render().layout;
+  element(tree, "layout-tolerance").props.onChangeText("0.2"); tree = f.render().layout;
+  element(tree, "layout-collect").props.onPress(); await Promise.resolve(); await Promise.resolve();
+  assert.equal(calls.length, 2); assert.equal(calls[1].tolerance, 0.2); assert.equal(f.registry.capture().ui.layout.toleranceUnitSystem, "metric");
+});
+test("choosing a Layout point highlights its exact immutable scene station and clearing returns to record-only", async () => {
+  const f = await fixture("field"), target = f.reviewedTarget(); f.mode("layout"); const controller = f.controller(), session = controller.state.layout!.session;
+  controller.scene = workspaceMapSceneFromSession(session, { id: session.id, generation: controller.state.presentation.documentGeneration, inputRevision: session.revision });
+  const selected: unknown[] = []; controller.selectAddress = address => { selected.push(address); };
+  const expected = controller.scene.entities.find(entity => entity.sourceId === target.targetPoints![0].id && entity.sourcePath.startsWith("targetPoints[")); assert(expected);
+  let tree = f.render().layout; named(tree, "Select a Layout point").props.onChange(target.targetPoints![0].id); tree = f.render().layout;
+  assert.deepEqual(selected, [expected.address]); assert.equal(f.registry.capture().ui.layout.targetPointId, target.targetPoints![0].id);
+  named(tree, "Select a Layout point").props.onChange(""); f.render(); assert.deepEqual(selected, [expected.address, null]); assert.equal(f.registry.capture().ui.layout.targetPointId, null);
 });

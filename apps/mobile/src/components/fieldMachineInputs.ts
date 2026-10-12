@@ -1,7 +1,7 @@
 import { formatDistanceInputValue, parseDistanceInput, qualifyProjectCrs,
-  type CrsQualificationOptions, type FieldDesign, type FieldPivotMachine } from "@cplayout/core";
+  type CrsQualificationOptions, type FieldDesign, type FieldPivotMachine, type SurveyPoint } from "@cplayout/core";
 
-export interface FieldCoordinateContext { projectCrs: string; crsOptions?: CrsQualificationOptions }
+export interface FieldCoordinateContext { projectCrs: string; crsOptions?: CrsQualificationOptions; surveyPoints?: readonly SurveyPoint[] }
 /** A label such as LOCAL never establishes coordinate units. */
 export function fieldCoordinatesInFeet(context?: FieldCoordinateContext): boolean {
   return !!context && qualifyProjectCrs(context.projectCrs, context.crsOptions).unit === "metre";
@@ -14,6 +14,7 @@ export interface FieldMachineInputs {
   sweep: "full_circle" | "partial_circle"; start: string; stop: string;
   direction: "clockwise" | "counterclockwise";
   water: string; power: string; guidance: string;
+  recordedPivotId?: string;
 }
 export function fieldMachineInputs(machine?: FieldPivotMachine, context?: FieldCoordinateContext): FieldMachineInputs {
   const config = machine?.configuration;
@@ -25,7 +26,7 @@ export function fieldMachineInputs(machine?: FieldPivotMachine, context?: FieldC
     start: sweep?.mode === "partial_circle" ? String(sweep.startAngleDegrees) : "",
     stop: sweep?.mode === "partial_circle" ? String(sweep.stopAngleDegrees) : "",
     direction: sweep?.mode === "partial_circle" ? sweep.direction : "clockwise",
-    water: machine?.waterSourceId ?? "", power: machine?.powerSourceId ?? "", guidance: machine?.cornerGuidanceFeatureId ?? "" };
+    water: machine?.waterSourceId ?? "", power: machine?.powerSourceId ?? "", guidance: machine?.cornerGuidanceFeatureId ?? "", ...(machine?.pivotObservationId && context?.surveyPoints?.some(point => point.id === machine.pivotObservationId && point.role === "pivot_center") ? { recordedPivotId: machine.pivotObservationId } : {}) };
 }
 export function parseFieldMachineInputs(values: FieldMachineInputs, id: string, existing?: FieldPivotMachine, context?: FieldCoordinateContext): FieldPivotMachine {
   const number = (text: string, label: string): number => {
@@ -33,9 +34,12 @@ export function parseFieldMachineInputs(values: FieldMachineInputs, id: string, 
     return Number(text);
   };
   const initial = fieldMachineInputs(existing, context);
+  const recorded = values.recordedPivotId ? context?.surveyPoints?.find(point => point.id === values.recordedPivotId && point.role === "pivot_center") : undefined;
+  if (values.recordedPivotId && !recorded) throw new Error("Choose a recorded pivot position from this field.");
   const distance = (value: string, original: number | undefined, label: string) =>
     original !== undefined && value === feet(original) ? original : parseDistanceInput(value, "us_survey_feet", label);
   const coordinate = (key: "x" | "y") => {
+    if (recorded) return recorded.projected[key];
     if (existing && values[key] === initial[key]) return existing.pivotCenter[key];
     if (!fieldCoordinatesInFeet(context)) throw new Error("Confirm the location units before entering a new machine location.");
     return parseDistanceInput(values[key], "us_survey_feet", `Center ${key.toUpperCase()}`);
@@ -51,6 +55,7 @@ export function parseFieldMachineInputs(values: FieldMachineInputs, id: string, 
       sweep: values.sweep === "full_circle" ? { mode: "full_circle" } : { mode: "partial_circle", startAngleDegrees: number(values.start, "Start angle"),
         stopAngleDegrees: number(values.stop, "Stop angle"), direction: values.direction } },
   };
+  if (recorded) machine.pivotObservationId = recorded.id;
   for (const [key, value] of [["waterSourceId", values.water], ["powerSourceId", values.power], ["cornerGuidanceFeatureId", values.guidance]] as const) {
     if (value) machine[key] = value;
     else delete machine[key];

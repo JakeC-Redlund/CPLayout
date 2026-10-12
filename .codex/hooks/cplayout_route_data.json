@@ -26,47 +26,164 @@
       ],
       "priority": 10,
       "positiveKeywords": [
-        { "term": "google earth", "weight": 12 },
-        { "term": "earth pro", "weight": 12 },
-        { "term": "visual fidelity", "weight": 12 },
-        { "term": "non-black", "weight": 10 },
-        { "term": "render proof", "weight": 10 },
-        { "term": "google earth inspired", "weight": 12 },
-        { "term": "google earth companion", "weight": 10 },
-        { "term": "companion evidence", "weight": 9 },
-        { "term": "map imagery organization", "weight": 9 },
-        { "term": "kml", "weight": 8 },
-        { "term": "kmz", "weight": 8 },
-        { "term": "bpf", "weight": 8 },
-        { "term": "boundary point file", "weight": 10 },
-        { "term": "cornergpsmap", "weight": 10 },
-        { "term": "gpsmap", "weight": 8 },
-        { "term": "imagery", "weight": 8 },
-        { "term": "import wizard", "weight": 7 },
-        { "term": "import bpf", "weight": 10 },
-        { "term": "bpf import", "weight": 10 },
-        { "term": "places layers", "weight": 6 },
-        { "term": "field boundary", "weight": 8 },
-        { "term": "operator boundary", "weight": 8 },
-        { "term": "will rhea", "weight": 10 },
-        { "term": "jason harmelink", "weight": 10 },
-        { "term": "pivot center detection", "weight": 12 },
-        { "term": "automatic pivot locating", "weight": 12 },
-        { "term": "true_pivot_center", "weight": 12 },
-        { "term": "hough circle", "weight": 9 },
-        { "term": "radial alignment", "weight": 8 },
-        { "term": "machine learning", "weight": 7 },
-        { "term": "computer vision", "weight": 7 },
-        { "term": "cv", "weight": 5 },
-        { "term": "ml", "weight": 4 },
-        { "term": "image", "weight": 4 }
+        {
+          "term": "google earth",
+          "weight": 12
+        },
+        {
+          "term": "earth pro",
+          "weight": 12
+        },
+        {
+          "term": "visual fidelity",
+          "weight": 12
+        },
+        {
+          "term": "non-black",
+          "weight": 10
+        },
+        {
+          "term": "render proof",
+          "weight": 10
+        },
+        {
+          "term": "google earth inspired",
+          "weight": 12
+        },
+        {
+          "term": "google earth companion",
+          "weight": 10
+        },
+        {
+          "term": "companion evidence",
+          "weight": 9
+        },
+        {
+          "term": "map imagery organization",
+          "weight": 9
+        },
+        {
+          "term": "kml",
+          "weight": 8
+        },
+        {
+          "term": "kmz",
+          "weight": 8
+        },
+        {
+          "term": "bpf",
+          "weight": 8
+        },
+        {
+          "term": "boundary point file",
+          "weight": 10
+        },
+        {
+          "term": "cornergpsmap",
+          "weight": 10
+        },
+        {
+          "term": "gpsmap",
+          "weight": 8
+        },
+        {
+          "term": "imagery",
+          "weight": 8
+        },
+        {
+          "term": "import wizard",
+          "weight": 7
+        },
+        {
+          "term": "import bpf",
+          "weight": 10
+        },
+        {
+          "term": "bpf import",
+          "weight": 10
+        },
+        {
+          "term": "places layers",
+          "weight": 6
+        },
+        {
+          "term": "field boundary",
+          "weight": 8
+        },
+        {
+          "term": "operator boundary",
+          "weight": 8
+        },
+        {
+          "term": "will rhea",
+          "weight": 10
+        },
+        {
+          "term": "jason harmelink",
+          "weight": 10
+        },
+        {
+          "term": "pivot center detection",
+          "weight": 12
+        },
+        {
+          "term": "automatic pivot locating",
+          "weight": 12
+        },
+        {
+          "term": "true_pivot_center",
+          "weight": 12
+        },
+        {
+          "term": "hough circle",
+          "weight": 9
+        },
+        {
+          "term": "radial alignment",
+          "weight": 8
+        },
+        {
+          "term": "machine learning",
+          "weight": 7
+        },
+        {
+          "term": "computer vision",
+          "weight": 7
+        },
+        {
+          "term": "cv",
+          "weight": 5
+        },
+        {
+          "term": "ml",
+          "weight": 4
+        },
+        {
+          "term": "image",
+          "weight": 4
+        }
       ],
       "negativeKeywords": [
-        { "term": "not imagery", "weight": 8 },
-        { "term": "no imagery", "weight": 8 },
-        { "term": "database only", "weight": 6 },
-        { "term": "ui only", "weight": 6 },
-        { "term": "web only", "weight": 4 }
+        {
+          "term": "not imagery",
+          "weight": 8
+        },
+        {
+          "term": "no imagery",
+          "weight": 8
+        },
+        {
+          "term": "database only",
+          "weight": 6
+        },
+        {
+          "term": "ui only",
+          "weight": 6
+        },
+        {
+          "term": "web only",
+          "weight": 4
+        }
       ]
     },
     {
@@ -85,68 +202,272 @@
       ],
       "priority": 20,
       "positiveKeywords": [
-        { "term": "react native", "weight": 12 },
-        { "term": "expo", "weight": 10 },
-        { "term": "rtk receiver", "weight": 12 },
-        { "term": "gnss hardware", "weight": 12 },
-        { "term": "web serial", "weight": 11 },
-        { "term": "android usb gnss", "weight": 14 },
-        { "term": "nmea epoch", "weight": 11 },
-        { "term": "svg map", "weight": 9 },
-        { "term": "map visual elements", "weight": 10 },
-        { "term": "map visual element", "weight": 10 },
-        { "term": "wheel track overlay", "weight": 10 },
-        { "term": "wheel track overlays", "weight": 10 },
-        { "term": "end-of-machine indicator", "weight": 10 },
-        { "term": "end-of-machine indicators", "weight": 10 },
-        { "term": "machine overlay", "weight": 9 },
-        { "term": "machine overlays", "weight": 9 },
-        { "term": "map workspace", "weight": 10 },
-        { "term": "bottom hud", "weight": 10 },
-        { "term": "right-sidebar", "weight": 12 },
-        { "term": "right-drawer", "weight": 12 },
-        { "term": "toolbar", "weight": 10 },
-        { "term": "top toolbar", "weight": 11 },
-        { "term": "workspace toolbar", "weight": 12 },
-        { "term": "ui-proof", "weight": 12 },
-        { "term": "hud", "weight": 8 },
-        { "term": "interface", "weight": 8 },
-        { "term": "component", "weight": 7 },
-        { "term": "screen", "weight": 7 },
-        { "term": "playwright", "weight": 7 },
-        { "term": "ui:test:start", "weight": 12 },
-        { "term": "ui:test:status", "weight": 10 },
-        { "term": "ui:test:stop", "weight": 10 },
-        { "term": "dev:web:smart", "weight": 10 },
-        { "term": "local web launcher", "weight": 12 },
-        { "term": "ui test server", "weight": 12 },
-        { "term": "launching server", "weight": 9 },
-        { "term": "desktop shortcut", "weight": 8 },
-        { "term": "help route", "weight": 10 },
-        { "term": "training panel", "weight": 9 },
-        { "term": "onboarding help prompts", "weight": 10 },
-        { "term": "workspace help", "weight": 8 },
-        { "term": "help training", "weight": 8 },
-        { "term": "mobile", "weight": 6 },
-        { "term": "ui", "weight": 6 },
-        { "term": "ux", "weight": 5 },
-        { "term": "web", "weight": 3 },
-        { "term": "layout", "weight": 2 },
-        { "term": "unified workspace", "weight": 12 },
-        { "term": "design survey layout", "weight": 12 },
-        { "term": "design survey and layout", "weight": 12 },
-        { "term": "mode switch", "weight": 12 },
-        { "term": "mode toggle", "weight": 12 },
-        { "term": "shared map", "weight": 12 },
-        { "term": "dirty input", "weight": 12 },
-        { "term": "camera retention", "weight": 12 },
-        { "term": "receiver ownership", "weight": 12 }
+        {
+          "term": "react native",
+          "weight": 12
+        },
+        {
+          "term": "expo",
+          "weight": 10
+        },
+        {
+          "term": "rtk receiver",
+          "weight": 12
+        },
+        {
+          "term": "gnss hardware",
+          "weight": 12
+        },
+        {
+          "term": "web serial",
+          "weight": 11
+        },
+        {
+          "term": "android usb gnss",
+          "weight": 14
+        },
+        {
+          "term": "nmea epoch",
+          "weight": 11
+        },
+        {
+          "term": "svg map",
+          "weight": 9
+        },
+        {
+          "term": "map visual elements",
+          "weight": 10
+        },
+        {
+          "term": "map visual element",
+          "weight": 10
+        },
+        {
+          "term": "wheel track overlay",
+          "weight": 10
+        },
+        {
+          "term": "wheel track overlays",
+          "weight": 10
+        },
+        {
+          "term": "end-of-machine indicator",
+          "weight": 10
+        },
+        {
+          "term": "end-of-machine indicators",
+          "weight": 10
+        },
+        {
+          "term": "machine overlay",
+          "weight": 9
+        },
+        {
+          "term": "machine overlays",
+          "weight": 9
+        },
+        {
+          "term": "map workspace",
+          "weight": 10
+        },
+        {
+          "term": "bottom hud",
+          "weight": 10
+        },
+        {
+          "term": "right-sidebar",
+          "weight": 12
+        },
+        {
+          "term": "right-drawer",
+          "weight": 12
+        },
+        {
+          "term": "toolbar",
+          "weight": 10
+        },
+        {
+          "term": "top toolbar",
+          "weight": 11
+        },
+        {
+          "term": "workspace toolbar",
+          "weight": 12
+        },
+        {
+          "term": "ui-proof",
+          "weight": 12
+        },
+        {
+          "term": "hud",
+          "weight": 8
+        },
+        {
+          "term": "interface",
+          "weight": 8
+        },
+        {
+          "term": "component",
+          "weight": 7
+        },
+        {
+          "term": "screen",
+          "weight": 7
+        },
+        {
+          "term": "playwright",
+          "weight": 7
+        },
+        {
+          "term": "ui:test:start",
+          "weight": 12
+        },
+        {
+          "term": "ui:test:status",
+          "weight": 10
+        },
+        {
+          "term": "ui:test:stop",
+          "weight": 10
+        },
+        {
+          "term": "dev:web:smart",
+          "weight": 10
+        },
+        {
+          "term": "local web launcher",
+          "weight": 12
+        },
+        {
+          "term": "ui test server",
+          "weight": 12
+        },
+        {
+          "term": "launching server",
+          "weight": 9
+        },
+        {
+          "term": "desktop shortcut",
+          "weight": 8
+        },
+        {
+          "term": "help route",
+          "weight": 10
+        },
+        {
+          "term": "training panel",
+          "weight": 9
+        },
+        {
+          "term": "onboarding help prompts",
+          "weight": 10
+        },
+        {
+          "term": "workspace help",
+          "weight": 8
+        },
+        {
+          "term": "help training",
+          "weight": 8
+        },
+        {
+          "term": "mobile",
+          "weight": 6
+        },
+        {
+          "term": "ui",
+          "weight": 6
+        },
+        {
+          "term": "ux",
+          "weight": 5
+        },
+        {
+          "term": "web",
+          "weight": 3
+        },
+        {
+          "term": "layout",
+          "weight": 2
+        },
+        {
+          "term": "unified workspace",
+          "weight": 12
+        },
+        {
+          "term": "design survey layout",
+          "weight": 12
+        },
+        {
+          "term": "design survey and layout",
+          "weight": 12
+        },
+        {
+          "term": "mode switch",
+          "weight": 12
+        },
+        {
+          "term": "mode toggle",
+          "weight": 12
+        },
+        {
+          "term": "shared map",
+          "weight": 12
+        },
+        {
+          "term": "dirty input",
+          "weight": 12
+        },
+        {
+          "term": "camera retention",
+          "weight": 12
+        },
+        {
+          "term": "receiver ownership",
+          "weight": 12
+        },
+        {
+          "term": "customer project workflow",
+          "weight": 12
+        },
+        {
+          "term": "optional design required survey",
+          "weight": 12
+        },
+        {
+          "term": "production interface wording",
+          "weight": 12
+        },
+        {
+          "term": "CPLayout sign in",
+          "weight": 12
+        },
+        {
+          "term": "SurveyKnownInformation",
+          "weight": 12
+        },
+        {
+          "term": "survey preparation",
+          "weight": 10
+        }
       ],
       "negativeKeywords": [
-        { "term": "database only", "weight": 7 },
-        { "term": "storage only", "weight": 7 },
-        { "term": "no ui", "weight": 8 },
-        { "term": "not ui", "weight": 8 }
+        {
+          "term": "database only",
+          "weight": 7
+        },
+        {
+          "term": "storage only",
+          "weight": 7
+        },
+        {
+          "term": "no ui",
+          "weight": 8
+        },
+        {
+          "term": "not ui",
+          "weight": 8
+        }
       ]
     },
     {
@@ -165,51 +486,180 @@
       ],
       "priority": 30,
       "positiveKeywords": [
-        { "term": "center pivot", "weight": 12 },
-        { "term": "corner arm", "weight": 12 },
-        { "term": "cornergpsmap", "weight": 12 },
-        { "term": "gpsmap", "weight": 10 },
-        { "term": "bpf", "weight": 8 },
-        { "term": "ggs", "weight": 8 },
-        { "term": "vri", "weight": 7 },
-        { "term": "lateral move", "weight": 10 },
-        { "term": "linear move", "weight": 10 },
-        { "term": "irrigation", "weight": 8 },
-        { "term": "sprinkler", "weight": 7 },
-        { "term": "sprinkler package", "weight": 8 },
-        { "term": "sprinkler packages", "weight": 8 },
-        { "term": "sprinkler coverage", "weight": 8 },
-        { "term": "wheel track", "weight": 9 },
-        { "term": "wheel tracks", "weight": 9 },
-        { "term": "tower track", "weight": 9 },
-        { "term": "tower tracks", "weight": 9 },
-        { "term": "end-of-machine", "weight": 9 },
-        { "term": "lrdu", "weight": 9 },
-        { "term": "sdu", "weight": 8 },
-        { "term": "lrdu sdu", "weight": 12 },
-        { "term": "safety zone", "weight": 9 },
-        { "term": "drive unit tire", "weight": 9 },
-        { "term": "tire option", "weight": 8 },
-        { "term": "motor rpm", "weight": 9 },
-        { "term": "corner angle", "weight": 8 },
-        { "term": "steer angle", "weight": 8 },
-        { "term": "corner arm extension", "weight": 9 },
-        { "term": "corner arm retraction", "weight": 9 },
-        { "term": "tower", "weight": 7 },
-        { "term": "pivot center detection", "weight": 12 },
-        { "term": "automatic pivot locating", "weight": 12 },
-        { "term": "true_pivot_center", "weight": 10 },
-        { "term": "radial alignment", "weight": 8 },
-        { "term": "span", "weight": 6 },
-        { "term": "acre", "weight": 5 },
-        { "term": "pivot", "weight": 5 },
-        { "term": "layout", "weight": 2 }
+        {
+          "term": "center pivot",
+          "weight": 12
+        },
+        {
+          "term": "corner arm",
+          "weight": 12
+        },
+        {
+          "term": "cornergpsmap",
+          "weight": 12
+        },
+        {
+          "term": "gpsmap",
+          "weight": 10
+        },
+        {
+          "term": "bpf",
+          "weight": 8
+        },
+        {
+          "term": "ggs",
+          "weight": 8
+        },
+        {
+          "term": "vri",
+          "weight": 7
+        },
+        {
+          "term": "lateral move",
+          "weight": 10
+        },
+        {
+          "term": "linear move",
+          "weight": 10
+        },
+        {
+          "term": "irrigation",
+          "weight": 8
+        },
+        {
+          "term": "sprinkler",
+          "weight": 7
+        },
+        {
+          "term": "sprinkler package",
+          "weight": 8
+        },
+        {
+          "term": "sprinkler packages",
+          "weight": 8
+        },
+        {
+          "term": "sprinkler coverage",
+          "weight": 8
+        },
+        {
+          "term": "wheel track",
+          "weight": 9
+        },
+        {
+          "term": "wheel tracks",
+          "weight": 9
+        },
+        {
+          "term": "tower track",
+          "weight": 9
+        },
+        {
+          "term": "tower tracks",
+          "weight": 9
+        },
+        {
+          "term": "end-of-machine",
+          "weight": 9
+        },
+        {
+          "term": "lrdu",
+          "weight": 9
+        },
+        {
+          "term": "sdu",
+          "weight": 8
+        },
+        {
+          "term": "lrdu sdu",
+          "weight": 12
+        },
+        {
+          "term": "safety zone",
+          "weight": 9
+        },
+        {
+          "term": "drive unit tire",
+          "weight": 9
+        },
+        {
+          "term": "tire option",
+          "weight": 8
+        },
+        {
+          "term": "motor rpm",
+          "weight": 9
+        },
+        {
+          "term": "corner angle",
+          "weight": 8
+        },
+        {
+          "term": "steer angle",
+          "weight": 8
+        },
+        {
+          "term": "corner arm extension",
+          "weight": 9
+        },
+        {
+          "term": "corner arm retraction",
+          "weight": 9
+        },
+        {
+          "term": "tower",
+          "weight": 7
+        },
+        {
+          "term": "pivot center detection",
+          "weight": 12
+        },
+        {
+          "term": "automatic pivot locating",
+          "weight": 12
+        },
+        {
+          "term": "true_pivot_center",
+          "weight": 10
+        },
+        {
+          "term": "radial alignment",
+          "weight": 8
+        },
+        {
+          "term": "span",
+          "weight": 6
+        },
+        {
+          "term": "acre",
+          "weight": 5
+        },
+        {
+          "term": "pivot",
+          "weight": 5
+        },
+        {
+          "term": "layout",
+          "weight": 2
+        }
       ],
       "negativeKeywords": [
-        { "term": "not pivot", "weight": 8 },
-        { "term": "no pivot", "weight": 8 },
-        { "term": "ui only", "weight": 6 },
-        { "term": "database only", "weight": 6 }
+        {
+          "term": "not pivot",
+          "weight": 8
+        },
+        {
+          "term": "no pivot",
+          "weight": 8
+        },
+        {
+          "term": "ui only",
+          "weight": 6
+        },
+        {
+          "term": "database only",
+          "weight": 6
+        }
       ]
     },
     {
@@ -228,28 +678,112 @@
       ],
       "priority": 40,
       "positiveKeywords": [
-        { "term": "expo sqlite", "weight": 12 },
-        { "term": "project-store", "weight": 10 },
-        { "term": "project archive", "weight": 10 },
-        { "term": "database", "weight": 10 },
-        { "term": "sqlite", "weight": 13 },
-        { "term": "migration", "weight": 8 },
-        { "term": "persistence", "weight": 8 },
-        { "term": "storage", "weight": 7 },
-        { "term": "schema", "weight": 7 },
-        { "term": "archive", "weight": 7 },
-        { "term": "crud", "weight": 6 },
-        { "term": "zip", "weight": 6 },
-        { "term": "survey collection", "weight": 12 },
-        { "term": "complete workspace bundle", "weight": 12 },
-        { "term": "pending survey export", "weight": 12 },
-        { "term": "immutable observation ledger", "weight": 12 }
+        {
+          "term": "expo sqlite",
+          "weight": 12
+        },
+        {
+          "term": "project-store",
+          "weight": 10
+        },
+        {
+          "term": "project archive",
+          "weight": 10
+        },
+        {
+          "term": "database",
+          "weight": 10
+        },
+        {
+          "term": "sqlite",
+          "weight": 13
+        },
+        {
+          "term": "migration",
+          "weight": 8
+        },
+        {
+          "term": "persistence",
+          "weight": 8
+        },
+        {
+          "term": "storage",
+          "weight": 7
+        },
+        {
+          "term": "schema",
+          "weight": 7
+        },
+        {
+          "term": "archive",
+          "weight": 7
+        },
+        {
+          "term": "crud",
+          "weight": 6
+        },
+        {
+          "term": "zip",
+          "weight": 6
+        },
+        {
+          "term": "survey collection",
+          "weight": 12
+        },
+        {
+          "term": "complete workspace bundle",
+          "weight": 12
+        },
+        {
+          "term": "pending survey export",
+          "weight": 12
+        },
+        {
+          "term": "immutable observation ledger",
+          "weight": 12
+        },
+        {
+          "term": "authenticated workspace",
+          "weight": 12
+        },
+        {
+          "term": "customer maintenance",
+          "weight": 12
+        },
+        {
+          "term": "survey qualification",
+          "weight": 12
+        },
+        {
+          "term": "authenticatedRepository",
+          "weight": 12
+        },
+        {
+          "term": "auth-client",
+          "weight": 11
+        },
+        {
+          "term": "customer project workflow",
+          "weight": 11
+        }
       ],
       "negativeKeywords": [
-        { "term": "ui only", "weight": 7 },
-        { "term": "imagery only", "weight": 7 },
-        { "term": "not database", "weight": 8 },
-        { "term": "no database", "weight": 8 }
+        {
+          "term": "ui only",
+          "weight": 7
+        },
+        {
+          "term": "imagery only",
+          "weight": 7
+        },
+        {
+          "term": "not database",
+          "weight": 8
+        },
+        {
+          "term": "no database",
+          "weight": 8
+        }
       ]
     },
     {
@@ -268,39 +802,132 @@
       ],
       "priority": 45,
       "positiveKeywords": [
-        { "term": "gnss field report", "weight": 16 },
-        { "term": "rtk field proof", "weight": 16 },
-        { "term": "rtk receiver proof", "weight": 15 },
-        { "term": "android usb gnss", "weight": 14 },
-        { "term": "ntrip corrections", "weight": 13 },
-        { "term": "rtcm corrections", "weight": 13 },
-        { "term": "runtime proof gatekeeper", "weight": 16 },
-        { "term": "runtime proof gate", "weight": 15 },
-        { "term": "native proof gate", "weight": 15 },
-        { "term": "native proof", "weight": 12 },
-        { "term": "release gate", "weight": 12 },
-        { "term": "production-ready claim", "weight": 14 },
-        { "term": "Android verification", "weight": 12 },
-        { "term": "iOS verification", "weight": 12 },
-        { "term": "Android native proof", "weight": 14 },
-        { "term": "current schema-v11 Android native verification", "weight": 16 },
-        { "term": "completed Android native verification report", "weight": 16 },
-        { "term": "OS share-sheet DocumentsUI evidence", "weight": 14 },
-        { "term": "MapLibre proof", "weight": 12 },
-        { "term": "MapLibre runtime proof", "weight": 14 },
-        { "term": "raw PMTiles MBTiles proof", "weight": 14 },
-        { "term": "SQLite ZIP proof", "weight": 14 },
-        { "term": "verify:android-native", "weight": 14 },
-        { "term": "verify:native-maplibre", "weight": 14 },
-        { "term": "Google Earth render proof", "weight": 14 },
-        { "term": "non-black map-canvas proof", "weight": 14 },
-        { "term": "runtime proof caveat", "weight": 12 }
+        {
+          "term": "gnss field report",
+          "weight": 16
+        },
+        {
+          "term": "rtk field proof",
+          "weight": 16
+        },
+        {
+          "term": "rtk receiver proof",
+          "weight": 15
+        },
+        {
+          "term": "android usb gnss",
+          "weight": 14
+        },
+        {
+          "term": "ntrip corrections",
+          "weight": 13
+        },
+        {
+          "term": "rtcm corrections",
+          "weight": 13
+        },
+        {
+          "term": "runtime proof gatekeeper",
+          "weight": 16
+        },
+        {
+          "term": "runtime proof gate",
+          "weight": 15
+        },
+        {
+          "term": "native proof gate",
+          "weight": 15
+        },
+        {
+          "term": "native proof",
+          "weight": 12
+        },
+        {
+          "term": "release gate",
+          "weight": 12
+        },
+        {
+          "term": "production-ready claim",
+          "weight": 14
+        },
+        {
+          "term": "Android verification",
+          "weight": 12
+        },
+        {
+          "term": "iOS verification",
+          "weight": 12
+        },
+        {
+          "term": "Android native proof",
+          "weight": 14
+        },
+        {
+          "term": "current schema-v11 Android native verification",
+          "weight": 16
+        },
+        {
+          "term": "completed Android native verification report",
+          "weight": 16
+        },
+        {
+          "term": "OS share-sheet DocumentsUI evidence",
+          "weight": 14
+        },
+        {
+          "term": "MapLibre proof",
+          "weight": 12
+        },
+        {
+          "term": "MapLibre runtime proof",
+          "weight": 14
+        },
+        {
+          "term": "raw PMTiles MBTiles proof",
+          "weight": 14
+        },
+        {
+          "term": "SQLite ZIP proof",
+          "weight": 14
+        },
+        {
+          "term": "verify:android-native",
+          "weight": 14
+        },
+        {
+          "term": "verify:native-maplibre",
+          "weight": 14
+        },
+        {
+          "term": "Google Earth render proof",
+          "weight": 14
+        },
+        {
+          "term": "non-black map-canvas proof",
+          "weight": 14
+        },
+        {
+          "term": "runtime proof caveat",
+          "weight": 12
+        }
       ],
       "negativeKeywords": [
-        { "term": "docs only", "weight": 7 },
-        { "term": "no runtime proof", "weight": 8 },
-        { "term": "browser only", "weight": 6 },
-        { "term": "unit tests only", "weight": 6 }
+        {
+          "term": "docs only",
+          "weight": 7
+        },
+        {
+          "term": "no runtime proof",
+          "weight": 8
+        },
+        {
+          "term": "browser only",
+          "weight": 6
+        },
+        {
+          "term": "unit tests only",
+          "weight": 6
+        }
       ]
     },
     {
@@ -319,40 +946,136 @@
       ],
       "priority": 46,
       "positiveKeywords": [
-        { "term": "projected XY", "weight": 13 },
-        { "term": "projected local XY", "weight": 14 },
-        { "term": "canonical geometry", "weight": 13 },
-        { "term": "canonical geometry guardian", "weight": 15 },
-        { "term": "projected XY guardian", "weight": 15 },
-        { "term": "CRS boundary", "weight": 12 },
-        { "term": "project CRS", "weight": 12 },
-        { "term": "rtk receiver", "weight": 11 },
-        { "term": "nmea epoch", "weight": 12 },
-        { "term": "antenna reference point", "weight": 12 },
-        { "term": "coordinate epoch", "weight": 12 },
-        { "term": "source crs confirmation", "weight": 13 },
-        { "term": "WGS84 display", "weight": 12 },
-        { "term": "WGS84 input/display", "weight": 14 },
-        { "term": "coordinate transform", "weight": 12 },
-        { "term": "geometry mutation", "weight": 12 },
-        { "term": "no automatic geometry mutation", "weight": 14 },
-        { "term": "operator accepted projected-XY workflow", "weight": 15 },
-        { "term": "map package attribution", "weight": 12 },
-        { "term": "TileJSON", "weight": 11 },
-        { "term": "TileJSON template proof", "weight": 13 },
-        { "term": "PMTiles", "weight": 11 },
-        { "term": "MBTiles", "weight": 11 },
-        { "term": "GIS evidence boundary", "weight": 12 },
-        { "term": "KML/KMZ visual metadata boundary", "weight": 13 },
-        { "term": "styleUrl visual-only", "weight": 13 },
-        { "term": "immutable layout target", "weight": 12 },
-        { "term": "frozen layout target", "weight": 12 }
+        {
+          "term": "projected XY",
+          "weight": 13
+        },
+        {
+          "term": "projected local XY",
+          "weight": 14
+        },
+        {
+          "term": "canonical geometry",
+          "weight": 13
+        },
+        {
+          "term": "canonical geometry guardian",
+          "weight": 15
+        },
+        {
+          "term": "projected XY guardian",
+          "weight": 15
+        },
+        {
+          "term": "CRS boundary",
+          "weight": 12
+        },
+        {
+          "term": "project CRS",
+          "weight": 12
+        },
+        {
+          "term": "rtk receiver",
+          "weight": 11
+        },
+        {
+          "term": "nmea epoch",
+          "weight": 12
+        },
+        {
+          "term": "antenna reference point",
+          "weight": 12
+        },
+        {
+          "term": "coordinate epoch",
+          "weight": 12
+        },
+        {
+          "term": "source crs confirmation",
+          "weight": 13
+        },
+        {
+          "term": "WGS84 display",
+          "weight": 12
+        },
+        {
+          "term": "WGS84 input/display",
+          "weight": 14
+        },
+        {
+          "term": "coordinate transform",
+          "weight": 12
+        },
+        {
+          "term": "geometry mutation",
+          "weight": 12
+        },
+        {
+          "term": "no automatic geometry mutation",
+          "weight": 14
+        },
+        {
+          "term": "operator accepted projected-XY workflow",
+          "weight": 15
+        },
+        {
+          "term": "map package attribution",
+          "weight": 12
+        },
+        {
+          "term": "TileJSON",
+          "weight": 11
+        },
+        {
+          "term": "TileJSON template proof",
+          "weight": 13
+        },
+        {
+          "term": "PMTiles",
+          "weight": 11
+        },
+        {
+          "term": "MBTiles",
+          "weight": 11
+        },
+        {
+          "term": "GIS evidence boundary",
+          "weight": 12
+        },
+        {
+          "term": "KML/KMZ visual metadata boundary",
+          "weight": 13
+        },
+        {
+          "term": "styleUrl visual-only",
+          "weight": 13
+        },
+        {
+          "term": "immutable layout target",
+          "weight": 12
+        },
+        {
+          "term": "frozen layout target",
+          "weight": 12
+        }
       ],
       "negativeKeywords": [
-        { "term": "imagery only", "weight": 7 },
-        { "term": "ui only", "weight": 7 },
-        { "term": "database only", "weight": 7 },
-        { "term": "no geometry", "weight": 8 }
+        {
+          "term": "imagery only",
+          "weight": 7
+        },
+        {
+          "term": "ui only",
+          "weight": 7
+        },
+        {
+          "term": "database only",
+          "weight": 7
+        },
+        {
+          "term": "no geometry",
+          "weight": 8
+        }
       ]
     },
     {
@@ -371,29 +1094,108 @@
       ],
       "priority": 55,
       "positiveKeywords": [
-        { "term": "validation triage", "weight": 14 },
-        { "term": "validation evidence", "weight": 13 },
-        { "term": "acceptance gate", "weight": 13 },
-        { "term": "acceptance criteria", "weight": 12 },
-        { "term": "test gap", "weight": 12 },
-        { "term": "test gaps", "weight": 12 },
-        { "term": "proof gate", "weight": 12 },
-        { "term": "audit finding", "weight": 12 },
-        { "term": "audit findings", "weight": 12 },
-        { "term": "regression evidence", "weight": 12 },
-        { "term": "release evidence", "weight": 12 },
-        { "term": "Playwright screenshot", "weight": 12 },
-        { "term": "proof:web", "weight": 12 },
-        { "term": "ui:test:start", "weight": 10 },
-        { "term": "ui:test:status", "weight": 10 },
-        { "term": "ui:test:stop", "weight": 10 },
-        { "term": "npm run validate", "weight": 12 },
-        { "term": "validation reviewer", "weight": 10 }
+        {
+          "term": "validation triage",
+          "weight": 14
+        },
+        {
+          "term": "validation evidence",
+          "weight": 13
+        },
+        {
+          "term": "acceptance gate",
+          "weight": 13
+        },
+        {
+          "term": "acceptance criteria",
+          "weight": 12
+        },
+        {
+          "term": "test gap",
+          "weight": 12
+        },
+        {
+          "term": "test gaps",
+          "weight": 12
+        },
+        {
+          "term": "proof gate",
+          "weight": 12
+        },
+        {
+          "term": "audit finding",
+          "weight": 12
+        },
+        {
+          "term": "audit findings",
+          "weight": 12
+        },
+        {
+          "term": "regression evidence",
+          "weight": 12
+        },
+        {
+          "term": "release evidence",
+          "weight": 12
+        },
+        {
+          "term": "Playwright screenshot",
+          "weight": 12
+        },
+        {
+          "term": "proof:web",
+          "weight": 12
+        },
+        {
+          "term": "ui:test:start",
+          "weight": 10
+        },
+        {
+          "term": "ui:test:status",
+          "weight": 10
+        },
+        {
+          "term": "ui:test:stop",
+          "weight": 10
+        },
+        {
+          "term": "npm run validate",
+          "weight": 12
+        },
+        {
+          "term": "validation reviewer",
+          "weight": 10
+        },
+        {
+          "term": "production workflow acceptance",
+          "weight": 14
+        },
+        {
+          "term": "authenticated workspace",
+          "weight": 11
+        },
+        {
+          "term": "SurveyKnownInformation",
+          "weight": 11
+        },
+        {
+          "term": "customer project workflow",
+          "weight": 10
+        }
       ],
       "negativeKeywords": [
-        { "term": "docs only", "weight": 6 },
-        { "term": "no validation", "weight": 8 },
-        { "term": "skip tests", "weight": 8 }
+        {
+          "term": "docs only",
+          "weight": 6
+        },
+        {
+          "term": "no validation",
+          "weight": 8
+        },
+        {
+          "term": "skip tests",
+          "weight": 8
+        }
       ]
     },
     {
@@ -412,64 +1214,244 @@
       ],
       "priority": 50,
       "positiveKeywords": [
-        { "term": "requirements.toml", "weight": 14 },
-        { "term": "managed hook", "weight": 14 },
-        { "term": "managed hooks", "weight": 14 },
-        { "term": "managed policy", "weight": 12 },
-        { "term": "hook enforcement", "weight": 12 },
-        { "term": "process enforcement", "weight": 12 },
-        { "term": "prompt triage", "weight": 12 },
-        { "term": "context-map", "weight": 12 },
-        { "term": "route data", "weight": 10 },
-        { "term": "governance keyword", "weight": 10 },
-        { "term": "governance keywords", "weight": 10 },
-        { "term": "keyword updates", "weight": 10 },
-        { "term": "routing keyword", "weight": 10 },
-        { "term": "routing keywords", "weight": 10 },
-        { "term": "route keyword", "weight": 10 },
-        { "term": "route keywords", "weight": 10 },
-        { "term": "validate_cplayout_skills", "weight": 10 },
-        { "term": "right-sidebar", "weight": 8 },
-        { "term": "right-drawer", "weight": 8 },
-        { "term": "ui-proof", "weight": 8 },
-        { "term": "route classification", "weight": 12 },
-        { "term": "coordinator contract", "weight": 12 },
-        { "term": "coordinator route band", "weight": 12 },
-        { "term": "xhigh coordinator", "weight": 12 },
-        { "term": "subagent reasoning", "weight": 12 },
-        { "term": "token efficient", "weight": 10 },
-        { "term": "advisory hooks", "weight": 10 },
-        { "term": "reasoning band", "weight": 10 },
-        { "term": "source ledger", "weight": 10 },
-        { "term": "known gap", "weight": 10 },
-        { "term": "prompt registry", "weight": 10 },
-        { "term": "cornergpsmap", "weight": 10 },
-        { "term": "gpsmap", "weight": 9 },
-        { "term": "bpf", "weight": 8 },
-        { "term": "kmltobpf", "weight": 8 },
-        { "term": "ggs", "weight": 7 },
-        { "term": "vri", "weight": 7 },
-        { "term": "google earth inspired", "weight": 8 },
-        { "term": "companion evidence", "weight": 8 },
-        { "term": "map imagery organization", "weight": 8 },
-        { "term": "onboarding help prompts", "weight": 10 },
-        { "term": "process records", "weight": 8 },
-        { "term": "100 iteration", "weight": 10 },
-        { "term": "weighted vote", "weight": 10 },
-        { "term": "research improvement loop", "weight": 10 },
-        { "term": "multi-agent", "weight": 8 },
-        { "term": "subagent", "weight": 7 },
-        { "term": "knowledge", "weight": 7 },
-        { "term": "registry", "weight": 6 },
-        { "term": "skill", "weight": 4 },
-        { "term": "prompt", "weight": 4 },
-        { "term": "agent", "weight": 3 },
-        { "term": "hook", "weight": 3 }
+        {
+          "term": "requirements.toml",
+          "weight": 14
+        },
+        {
+          "term": "managed hook",
+          "weight": 14
+        },
+        {
+          "term": "managed hooks",
+          "weight": 14
+        },
+        {
+          "term": "managed policy",
+          "weight": 12
+        },
+        {
+          "term": "hook enforcement",
+          "weight": 12
+        },
+        {
+          "term": "process enforcement",
+          "weight": 12
+        },
+        {
+          "term": "prompt triage",
+          "weight": 12
+        },
+        {
+          "term": "context-map",
+          "weight": 12
+        },
+        {
+          "term": "route data",
+          "weight": 10
+        },
+        {
+          "term": "governance keyword",
+          "weight": 10
+        },
+        {
+          "term": "governance keywords",
+          "weight": 10
+        },
+        {
+          "term": "keyword updates",
+          "weight": 10
+        },
+        {
+          "term": "routing keyword",
+          "weight": 10
+        },
+        {
+          "term": "routing keywords",
+          "weight": 10
+        },
+        {
+          "term": "route keyword",
+          "weight": 10
+        },
+        {
+          "term": "route keywords",
+          "weight": 10
+        },
+        {
+          "term": "validate_cplayout_skills",
+          "weight": 10
+        },
+        {
+          "term": "right-sidebar",
+          "weight": 8
+        },
+        {
+          "term": "right-drawer",
+          "weight": 8
+        },
+        {
+          "term": "ui-proof",
+          "weight": 8
+        },
+        {
+          "term": "route classification",
+          "weight": 12
+        },
+        {
+          "term": "coordinator contract",
+          "weight": 12
+        },
+        {
+          "term": "coordinator route band",
+          "weight": 12
+        },
+        {
+          "term": "xhigh coordinator",
+          "weight": 12
+        },
+        {
+          "term": "subagent reasoning",
+          "weight": 12
+        },
+        {
+          "term": "token efficient",
+          "weight": 10
+        },
+        {
+          "term": "advisory hooks",
+          "weight": 10
+        },
+        {
+          "term": "reasoning band",
+          "weight": 10
+        },
+        {
+          "term": "source ledger",
+          "weight": 10
+        },
+        {
+          "term": "known gap",
+          "weight": 10
+        },
+        {
+          "term": "prompt registry",
+          "weight": 10
+        },
+        {
+          "term": "cornergpsmap",
+          "weight": 10
+        },
+        {
+          "term": "gpsmap",
+          "weight": 9
+        },
+        {
+          "term": "bpf",
+          "weight": 8
+        },
+        {
+          "term": "kmltobpf",
+          "weight": 8
+        },
+        {
+          "term": "ggs",
+          "weight": 7
+        },
+        {
+          "term": "vri",
+          "weight": 7
+        },
+        {
+          "term": "google earth inspired",
+          "weight": 8
+        },
+        {
+          "term": "companion evidence",
+          "weight": 8
+        },
+        {
+          "term": "map imagery organization",
+          "weight": 8
+        },
+        {
+          "term": "onboarding help prompts",
+          "weight": 10
+        },
+        {
+          "term": "process records",
+          "weight": 8
+        },
+        {
+          "term": "100 iteration",
+          "weight": 10
+        },
+        {
+          "term": "weighted vote",
+          "weight": 10
+        },
+        {
+          "term": "research improvement loop",
+          "weight": 10
+        },
+        {
+          "term": "multi-agent",
+          "weight": 8
+        },
+        {
+          "term": "subagent",
+          "weight": 7
+        },
+        {
+          "term": "knowledge",
+          "weight": 7
+        },
+        {
+          "term": "registry",
+          "weight": 6
+        },
+        {
+          "term": "skill",
+          "weight": 4
+        },
+        {
+          "term": "prompt",
+          "weight": 4
+        },
+        {
+          "term": "agent",
+          "weight": 3
+        },
+        {
+          "term": "hook",
+          "weight": 3
+        },
+        {
+          "term": "workflow registry",
+          "weight": 12
+        },
+        {
+          "term": "dependency maintenance",
+          "weight": 12
+        },
+        {
+          "term": "skill capability inventory",
+          "weight": 12
+        }
       ],
       "negativeKeywords": [
-        { "term": "ui only", "weight": 6 },
-        { "term": "database only", "weight": 6 },
-        { "term": "imagery only", "weight": 6 }
+        {
+          "term": "ui only",
+          "weight": 6
+        },
+        {
+          "term": "database only",
+          "weight": 6
+        },
+        {
+          "term": "imagery only",
+          "weight": 6
+        }
       ]
     }
   ]

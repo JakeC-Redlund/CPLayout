@@ -6,18 +6,18 @@
   "types": "src/index.ts",
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
-    "test": "tsx src/mapOverlayGeoJson.test.ts && tsx src/referenceOverlayStyle.test.ts && tsx src/mapAttribution.test.ts && tsx src/browserMapInteraction.test.ts && tsx src/projectVertexEditing.test.ts && tsx src/mapTools.test.ts && tsx src/mapInteractionController.test.ts && tsx src/mapViewport.test.ts && tsx src/mapCameraSession.test.ts && tsx src/initialMapCamera.test.ts && tsx src/mapFit.test.ts && tsx src/mapPointerGuard.test.ts && tsx src/vertexDragSession.test.ts && tsx src/svgMapLabels.test.ts && tsx src/designDraftMap.test.ts && tsx src/workspaceMapScene.test.ts && tsx src/workspaceSceneRendering.test.ts && tsx src/useWorkspaceMapCamera.test.ts && tsx src/WorkspaceMapSurface.web.test.ts",
+    "test": "tsx src/mapOverlayGeoJson.test.ts && tsx src/referenceOverlayStyle.test.ts && tsx src/mapAttribution.test.ts && tsx src/browserMapInteraction.test.ts && tsx src/projectVertexEditing.test.ts && tsx src/mapTools.test.ts && tsx src/mapInteractionController.test.ts && tsx src/mapViewport.test.ts && tsx src/mapCameraSession.test.ts && tsx src/initialMapCamera.test.ts && tsx src/mapFit.test.ts && tsx src/mapPointerGuard.test.ts && tsx src/vertexDragSession.test.ts && tsx src/svgMapLabels.test.ts && tsx src/designDraftMap.test.ts && tsx src/workspaceMapScene.test.ts && tsx src/workspaceSceneRendering.test.ts && tsx src/useWorkspaceMapCamera.test.ts && tsx src/WorkspaceMapSurface.web.test.ts && tsx src/workspaceStakeoutScene.test.ts",
     "validate": "npm run typecheck"
   },
   "dependencies": {
     "@cplayout/core": "*",
     "@cplayout/geometry": "*",
-    "@maplibre/maplibre-react-native": "^11.2.1",
+    "@maplibre/maplibre-react-native": "11.5.0",
     "lucide-react-native": "1.16.0",
-    "maplibre-gl": "6.9.0",
+    "maplibre-gl": "6.14.0",
     "pmtiles": "^4.4.1",
-    "react": "19.2.0",
-    "react-native": "0.83.10",
-    "react-native-svg": "15.15.3"
+    "react": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-svg": "15.15.4"
   }
 }

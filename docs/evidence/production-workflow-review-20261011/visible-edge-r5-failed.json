@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "classification": "synthetic",
+  "result": "visual_fail",
+  "sourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r5.json",
+  "sourceFingerprint": "00135b89fccb53e027c031079e4aff4e3f6122b7da78f01bf391417d988c51e7",
+  "engine": {
+    "actualVersion": "155.0.4283.45",
+    "verification": "Actual launched browser version in the retained assertion receipt. Earlier154 preflight was not this runtime.",
+    "visibleWindowHandle": 528248,
+    "edgePid": 1208
+  },
+  "assertions": {
+    "scenes": 8,
+    "exitCode": 0,
+    "scope": "Owned headed Windows Edge with real HTTP/PostgreSQL gateway; source/app/bundle/scene bindings retained in the actual packet."
+  },
+  "pixelReview": {
+    "classification": "synthetic",
+    "reviewedScenes": 8,
+    "result": "fail",
+    "finding": {
+      "id": "R5-HOME-PROJECT-ACTION-CLIP",
+      "severity": "P1",
+      "scene": "short-mobile-home",
+      "observation": "Actual Open project visible text extends beyond its card/viewport while document scrollWidth gate passes. Full accessible label remains correct.",
+      "requiredRecheck": "Short390x500 actualbutton/card/viewport andkeyboardbounds; newsource freshbrowser/Edgepacket."
+    },
+    "boundary": "8automatedsceneassertions passed but rootpixelreviewfoundanunresolvedvisualdefect; nohuman/native/physicalGPSacceptance"
+  },
+  "custody": {
+    "packetName": "visible-edge-r5",
+    "manifestSha256": "30bb451330fd18ef126bda2ec256263347557f40c80a070d98d673b0b55a5243",
+    "declaredArtifacts": 18,
+    "hashesVerified": true,
+    "artifactHashes": {
+      "desktop-design.html": "3eabdc62780ef02e98795bd9c729293d91db2e453d89bc4c14274a3614818342",
+      "desktop-design.png": "56325d912e145803c2a6317464104324324c7c74f387f210e9e18b11c93b1551",
+      "desktop-home.html": "a01fbaa46dfca92d9f0bc3ddc63c3747e105ffca0a7365409f12b7a75d274820",
+      "desktop-home.png": "4729b273a8f350445f8e0795735d2a0ab45e16b4efb503721d83df128eb28fea",
+      "desktop-sign-in.html": "b3f81b464ca9ddf0656fb11c9e5d160beb7043aea2ab373eed2f6b5138623191",
+      "desktop-sign-in.png": "5d60cad4abcf4cb123d1854f85d6870d7fd04b1626d74b092bb10c3dce91c909",
+      "desktop-survey.html": "86c47ff9645ffa1810a561e4d78b1d8f991db1c6146f72826ea53edb85fab733",
+      "desktop-survey.png": "1f4a4b61014220657008ecca9f913616f4b3464878d86c0ad5709a57c3edd9fb",
+      "mobile-survey.html": "775349f3027a2299ce3bfc5ee7c9eae203f884a501b7e45d9081590e72542c8f",
+      "mobile-survey.png": "12a46c72f75d36daabd9ccfdab278d3c0ab50d3be3b9c1a7e27a1f8163e99aa3",
+      "receipt.json": "ee12804533a05186ec6d945e576d29354097e68048ff2216a5ce61502f1d85de",
+      "short-mobile-home.html": "3561e3846a739ca7f8e7bee855d164b63d6e5edaca9b9575734b77c3bf420e7f",
+      "short-mobile-home.png": "278ba9295a1d85188489ad4b4680d56f1ac7048960b60514a72d37dfa7a6ff39",
+      "short-mobile-survey.html": "4c4c7e5ea37ef8edd126b40b373ca2c9822a3e0ae0f3a50076d80187081feb07",
+      "short-mobile-survey.png": "ada1fe9cd5a50cfa696dc5a0890d895ce5eef72221128b7ad7bb0f05199d09ec",
+      "tablet-survey.html": "3466dcbfd65fe13f6f51a41667ffe4fa211dcee4fed507768ba791148dafa95a",
+      "tablet-survey.png": "a61cbffb6ff141dbb1b50ce8f885b200a9d153295a7085bdf6d9509d599fe886",
+      "visual-review.json": "a80e9e8e06e5208490867a7d81f4a0aab0e2d3209c3663ec1db7e0f080c85426"
+    },
+    "pairedScenes": 8,
+    "boundary": "8PNG/DOM pairs plus assertion/visual receipts are retained externally; no raw DOM/session/image content copied."
+  },
+  "humanAcceptance": "not_established",
+  "nativeDeviceProof": false,
+  "physicalGpsProof": false,
+  "sourceCorrection": "Actual Home copy/layout is a new source edition; do not hide it in the earlier proof-onlyr4\u2192r5 equivalence.",
+  "subsequentR6ScopedSource": {
+    "fullWorkspaceTypecheckExit": 0,
+    "completionProvenance": "Coordinator-delivered actual completion receipt; log hash verified",
+    "typecheckLogSha256": "74c892cb9c8a697ae90c6578d2cbfce2ba84e8b59265bf69b7f70851fc57baa8",
+    "authAccessNavigationDenial": {
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "logSha256": "4c692917f51f7fcf77780eb9f582cce484a9e02d9b63411988623c32976dae07"
+    },
+    "boundary": "R6 manifest/new export/whole browser and visible packet remain pending; these checks do not qualify new actual pixels or relabel historicalr4 aggregate."
+  },
+  "remaining": "Newr6 complete source/context/inventory and matching runtime/visible/independent review qualification."
+}

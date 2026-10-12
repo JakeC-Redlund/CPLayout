@@ -172,7 +172,7 @@ export function DesignDraftWorkspace({ initial, onClose, onOpenComplete, getTask
       && !completingRef.current && !openingCompleteRef.current && saveOwnerMountedRef.current && saveCoordinator.isCurrent(session);
     try {
       const versioned = projectRepository.versionedWorkspace;
-      if (!versioned) throw new Error("This runtime cannot verify the saved draft. Export this work before reopening it.");
+      if (!versioned) throw new Error("Saved field work cannot be checked on this device. Export this work before reopening it.");
       const read = await versioned.readDesignAsync(target.designId);
       if (!isCurrent()) return;
       const draftTarget = { ...target, kind: "draft" as const };
@@ -345,7 +345,7 @@ export function DesignDraftWorkspace({ initial, onClose, onOpenComplete, getTask
         inputRevision: captured.revision, scope: "draft", machineIds: captured.draft.machine.id ? [captured.draft.machine.id] : [] });
       const bytes = exportDesignDraftArchiveZip(bundle);
       const outcome = await exportZipFileAsync(`${output.stem}.design-draft.cplayout.zip`, bytes);
-      if (saveOwnerMountedRef.current) setMessage({ text: `${outcome.message}${outcome.ok ? ` Draft input revision ${captured.revision}; snapshot ${output.hash.slice(0, 12)}.` : ""}`, error: !outcome.ok });
+      if (saveOwnerMountedRef.current) setMessage({ text: `${outcome.message}${outcome.ok ? ` Draft file includes the current applied entries.` : ""}`, error: !outcome.ok });
     } catch (error) { if (saveOwnerMountedRef.current) setMessage({ text: String(error), error: true }); }
   }
 
@@ -462,7 +462,7 @@ export function DesignDraftWorkspace({ initial, onClose, onOpenComplete, getTask
         <Pressable accessibilityRole="button" accessibilityLabel="Draft export details" accessibilityState={{ expanded: exportDetailsOpen }} aria-expanded={exportDetailsOpen} onPress={() => setExportDetailsOpen(value => !value)} style={styles.outputDisclosure} testID="draft-export-details-toggle"><Text style={styles.linkText}>{exportDetailsOpen ? "▾" : "▸"} Export details</Text></Pressable></View>
       {exportDetailsOpen && <View style={styles.outputDetails} testID="draft-export-details">
         <Text selectable style={styles.meta}>Design ID: {initial.context.designId} · Draft ID: {editor.draft.id}</Text>
-        <Text selectable style={styles.meta}>Machine: {editor.draft.machine.name ?? "Machine not named"} ({editor.draft.machine.id ?? "machine ID not assigned"}) · Input revision {editor.revision}</Text>
+        <Text selectable style={styles.meta}>Machine: {editor.draft.machine.name ?? "Machine not named"}</Text>
         <Text selectable style={styles.meta}>Snapshot SHA-256: {draftSnapshotHash}</Text>
         <Text style={styles.meta}>The archive includes applied draft inputs and retained drawing progress. Form entries waiting for Apply are excluded.</Text>
       </View>}

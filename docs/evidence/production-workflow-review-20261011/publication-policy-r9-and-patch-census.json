@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "result": "bounded_publication_policy_delta_verified_new_census_pending",
+  "priorSource": {
+    "path": "docs/evidence/production-workflow-review-20261011/candidate-source-r8.json",
+    "fingerprint": "8d7fa61e2106be72c747e10297c5f2658f6d81ac335792cdfd3bd79a7acd89a6",
+    "sourceCount": 902
+  },
+  "publicationPolicySource": {
+    "path": "docs/evidence/production-workflow-review-20261011/candidate-source-r9.json",
+    "fingerprint": "df062dc593fb8fc9e4f2a13db67d73d2ddd48572948621893976a475d203f8be",
+    "manifestSha256": "e815ba9ef9ec76b1529d45c9c1e4963f406d6b98c7f6518a965815b91042d5a2",
+    "sourceCount": 902
+  },
+  "changedPath": ".gitattributes",
+  "verifiedRows": [
+    "patches/expo-sqlite+56.0.6.patch -text -whitespace",
+    "patches/expo-sqlite+57.0.4.patch -text -whitespace"
+  ],
+  "scope": "Exactly two SQLite56/57 patch-specific text/whitespace attribute exceptions preserve unified-diff blank context markers; no general patch or code exemption.",
+  "coordinatorReceipt": {
+    "temporaryIndexAuditedChangedNewPaths": 262,
+    "cachedDiffCheckExit": 0,
+    "gitCheckAttr": "text and whitespace unset for these two exact patch paths",
+    "patchBytesChanged": false,
+    "provenance": "Coordinator delivered actual temporary-index/attribute check; this agent did not operate Git or alter policy."
+  },
+  "newCoverageGap": {
+    "previousCensus": 902,
+    "omittedCanonicalInputs": 13,
+    "directory": "patches",
+    "truth": "Prior902 manifests preserve their actual audited source set but are incomplete for mandatory postinstall patch/metadata/formatter source coverage. Do not retroactively call them complete.",
+    "sourceRepair": "Only workflowStatus SourceRoots/symlink guard and existing meaningful tests changed; canonical scope now915 from direct inventory."
+  },
+  "scopedRepairChecks": {
+    "registryContractTestsPassed": 20,
+    "failed": 0,
+    "skipped": 0,
+    "actualRegularPatchInputsIncluded": 13,
+    "credentialPatchStoresExcluded": true,
+    "externalPatchSymlinksFailClosedWithoutHydration": true,
+    "diffCheckExit": 0
+  },
+  "remaining": "Root computes immutable full915R10 manifest and final reviewers vet source/requalification scope; no final QA/publication/native/hook acceptance in this record."
+}

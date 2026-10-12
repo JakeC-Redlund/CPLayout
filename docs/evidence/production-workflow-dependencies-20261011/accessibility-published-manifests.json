@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "checkedOn": "2026-10-11",
+  "sources": "Exact official npm registry versions fetched directly; installed declarations and lock integrity compared.",
+  "packages": [
+    {
+      "name": "@axe-core/playwright",
+      "version": "4.13.0",
+      "url": "https://registry.npmjs.org/%40axe-core%2Fplaywright/4.13.0",
+      "responseSha256": "2d41cb31dfd3867c563d77d3592ee4ce66074da5600873623798e5abf9dd040e",
+      "distIntegrity": "sha512-6YLx+kxXu5GJceG4ozFg+33a2EMTdjYwWGloJ3sb9Kta5pp+ZNS53uxGVog5JetIY8s++P5UrtX+cri+u0VAVg==",
+      "installedManifestSha256": "b7325a3f67fbefba9f3da2e3eaec796958b919a306c4beaa8a3de73a7ed3991f",
+      "dependencies": {
+        "axe-core": "~4.13.0"
+      },
+      "lockIntegrityAndInstalledDeclarationsMatch": true,
+      "repository": {
+        "url": "git+https://github.com/dequelabs/axe-core-npm.git",
+        "type": "git"
+      },
+      "gitHead": "70dca949a4e55e2fb83e4e6896fbbf788c56b6fd"
+    },
+    {
+      "name": "axe-core",
+      "version": "4.13.0",
+      "url": "https://registry.npmjs.org/axe-core/4.13.0",
+      "responseSha256": "3fd7b4d40a620eba144f75f50d3f41ba6e4c95dddeaf2628c38b4a814dfa7ec0",
+      "distIntegrity": "sha512-UzGt8zg7Ny8djbYMhxl2zuEevVa7r2gJjYY5Lwr1xM7+XU2nd6CkIWFTVcCIbAP63vSz71NaVyyuSk9lHKcy0A==",
+      "installedManifestSha256": "d208b100bbee8f00e469bf8093fad40b5e3bdb0565fb4c1d89b6c9a289a06847",
+      "dependencies": {},
+      "lockIntegrityAndInstalledDeclarationsMatch": true,
+      "repository": {
+        "url": "https://github.com/dequelabs/axe-core.git",
+        "type": "git"
+      },
+      "gitHead": null
+    },
+    {
+      "name": "@playwright/test",
+      "version": "1.64.0",
+      "url": "https://registry.npmjs.org/%40playwright%2Ftest/1.64.0",
+      "responseSha256": "3b0b58492384cbc40363d7fee3c0918a412db5f6868dac06221c90f5058a57e2",
+      "distIntegrity": "sha512-oTN9FNYuN6bqQMwiho6jJKLCG2/QOYCixGXuCjRmzOq23eODeukuY2XiAVoVpAECbuezMt1MHQjAiQxK8F+Y+g==",
+      "installedManifestSha256": "fdf7f73664765c38b043241c72e3b0ce6db74fc80fe90f5b17c3768bc39fb1e3",
+      "dependencies": {
+        "playwright": "1.64.0"
+      },
+      "lockIntegrityAndInstalledDeclarationsMatch": true,
+      "repository": {
+        "url": "git+https://github.com/microsoft/playwright.git",
+        "type": "git"
+      },
+      "gitHead": "606ecd8b34bac100db32561b6278ffd76e5eb3cd"
+    }
+  ],
+  "boundary": "Package/metadata provenance only; no accessibility conformance or passed browser result.",
+  "publishedReadme": {
+    "package": "@axe-core/playwright",
+    "version": "4.13.0",
+    "tarballUrl": "https://registry.npmjs.org/@axe-core/playwright/-/playwright-4.13.0.tgz",
+    "sha256": "d237b2a27072fa9262bbcb028ec4d521366727bb138a3ccd64d5c998997cce84",
+    "installedReadmeMatches": true,
+    "tarballIntegrityVerified": true,
+    "upstreamExactCommitUrl": "https://github.com/dequelabs/axe-core-npm/tree/70dca949a4e55e2fb83e4e6896fbbf788c56b6fd/packages/playwright",
+    "observedApi": [
+      "AxeBuilder",
+      "analyze",
+      "withTags",
+      "include",
+      "exclude",
+      "disableRules"
+    ],
+    "boundary": "The published README documents the browser API, not application accessibility acceptance."
+  }
+}

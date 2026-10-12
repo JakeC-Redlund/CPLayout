@@ -972,7 +972,7 @@ export function PivotGpsCoordinateForm({ onApply, project }: { onApply: (point: 
           value={gpsText}
         />
         <Text style={styles.mapFeatureMeta}>
-          Decimal degrees in WGS84, formatted as latitude, longitude. The reducer receives projected XY after CRS conversion.
+          Enter latitude, longitude in decimal degrees. Coordinates are converted to the project reference.
         </Text>
         {!gpsDefault.ok ? <Text style={styles.formError}>GPS unavailable until CRS/calibration is set: {gpsDefault.error}</Text> : null}
       </View>
@@ -1142,7 +1142,7 @@ export function CornerArmSheet({
     setSequencingType("unknown");
     setOrientation("unknown");
     setConfidence("user_estimated");
-    setXmlStatus(`${model.label} selected as scaffold-only advisory metadata.`);
+    setXmlStatus(`${model.label.replace(/ scaffold/gi, "")} selected for planning. Verify dimensions against the equipment specifications.`);
   }
 
   function parseXmlPresets(): void {
@@ -1212,7 +1212,7 @@ export function CornerArmSheet({
         confidence,
         sourceRefs: selectedPresetConfig?.sourceRefs ?? selectedScaffoldModel?.sourceRefs ?? (machine.cornerArm?.sourceRefs?.length ? machine.cornerArm.sourceRefs : DEFAULT_CORNER_ARM_SOURCE_REFS),
         ...(selectedPresetConfig?.notes ? { notes: selectedPresetConfig.notes } : {}),
-        ...(selectedScaffoldModel ? { notes: `${selectedScaffoldModel.label} scaffold-only model selection. ${selectedScaffoldModel.notes.join(" ")}` } : {}),
+        ...(selectedScaffoldModel ? { notes: `${selectedScaffoldModel.label.replace(/ scaffold/gi, "")} selected for planning. Verify equipment dimensions and compatibility.` } : {}),
       };
       setError(null);
       onRequestSave(config);
@@ -1233,11 +1233,11 @@ export function CornerArmSheet({
         Corner-arm support is advisory only. Store vendor/operator supplied footprint, track, and coverage evidence as map features; CPLayout does not model manufacturer-specific corner-arm kinematics without source-backed geometry data.
       </Text>
       <Text style={styles.mapFeatureMeta}>
-        Catalog compatibility: {machine.catalogSelection ? `${machine.catalogSelection.manufacturer} ${machine.catalogSelection.model} is selected as an advisory snapshot.` : "No catalog preset selected; verify compatibility from operator/vendor sources."}
+        Catalog compatibility: {machine.catalogSelection ? `${machine.catalogSelection.manufacturer} ${machine.catalogSelection.model} is selected as a planning reference.` : "No catalog preset selected; verify compatibility from operator/vendor sources."}
       </Text>
       <View style={styles.machineCatalogPanel} testID="corner-arm-scaffold-models">
-        <Text style={styles.formLabel}>Scaffold model records</Text>
-        <Text style={styles.mapFeatureMeta}>These local artifact rows are source-hashed, scaffold-only, and production_ready=No. They populate advisory fields only.</Text>
+        <Text style={styles.formLabel}>Equipment model references</Text>
+        <Text style={styles.mapFeatureMeta}>These model references provide planning inputs. Confirm dimensions and equipment compatibility before use.</Text>
         <View style={styles.controlRow}>
           {VALLEY_CORNER_ARM_SCAFFOLD_CATALOG.map((model) => (
             <ActionButton
@@ -1587,7 +1587,7 @@ function GeneratedMultiPivotScenarioTable({
   if (review.rows.length === 0) {
     return (
       <Text style={styles.mapFeatureMeta} testID="advisory-generated-multi-pivot-scenario-review">
-        Generated multi-pivot scenario review needs at least one separated advisory center; no saved pivots, runtime collision prevention, or storage records are created.
+        This planning review needs at least one separated proposed center. Save an accepted plan to keep its machines and field positions.
       </Text>
     );
   }
@@ -1625,7 +1625,7 @@ function GeneratedMultiPivotScenarioTable({
         </Text>
       ) : null}
       <Text style={styles.mapFeatureMeta}>
-        This scenario review is advisory only; it does not create saved pivots, runtime collision controls, vendor quotes, or canonical projected XY changes.
+        This is a planning review. Machine control, collision avoidance and vendor quotations are separate from its proposed field positions.
       </Text>
     </View>
   );
@@ -2047,7 +2047,7 @@ export function LayersSheet({
         <LayerGroupCard
           title="Map Packages"
           detail={mapPackages.length > 0 ? `${mapPackages.length} imported package${mapPackages.length === 1 ? "" : "s"}` : "No imported local package"}
-          meta="Logical package metadata can be saved; runtime file paths stay local to this install."
+          meta="Map package details can be saved. Keep the map files available on this device."
         />
         <LayerGroupCard
           title="Live Preview Imagery"
@@ -2716,7 +2716,7 @@ function DesignAwarenessPanel({
         Generated field-pivot plan: {fieldPivotPlan.selectedMachineCount}/{fieldPivotPlan.requestedMachineCount} advisory centers · {fieldPivotPlan.fieldCoveragePercent.toFixed(1)}% field coverage · no saved pivots created.
       </Text>
       <Text style={styles.mapFeatureMeta} testID="design-awareness-generated-multi-pivot-scenario-review">
-        Generated multi-pivot scenario review: {generatedMultiPivotScenarioReview.selectedCenterCount}/{generatedMultiPivotScenarioReview.requestedMachineCount} selected · {formatAreaFromAcres(generatedMultiPivotScenarioReview.modeledIrrigatedUnionAcres, settings.unitSystem)} modeled union · {formatAreaFromAcres(generatedMultiPivotScenarioReview.duplicateModeledCoverageAcres, settings.unitSystem)} overlap · runtime collision prevention not claimed.
+        Proposed multi-pivot review: {generatedMultiPivotScenarioReview.selectedCenterCount}/{generatedMultiPivotScenarioReview.requestedMachineCount} selected · {formatAreaFromAcres(generatedMultiPivotScenarioReview.modeledIrrigatedUnionAcres, settings.unitSystem)} modeled union · {formatAreaFromAcres(generatedMultiPivotScenarioReview.duplicateModeledCoverageAcres, settings.unitSystem)} overlap · machine movement is not controlled by this review.
       </Text>
       {firstConflict ? (
         <Text style={styles.formError}>
@@ -3026,10 +3026,10 @@ function MachineBoundaryClearancePanel({
           ))}
         </View>
       ) : (
-        <Text style={styles.mapFeatureMeta}>Rows are hidden by project setting. Clearance gates still use projected/local XY advisory settings when Calculate runs.</Text>
+        <Text style={styles.mapFeatureMeta}>Clearance details are hidden by your project setting. Calculate still checks the equipment clearance you specified.</Text>
       )}
       <Text style={styles.mapFeatureMeta}>
-        Rows are sampled advisory path-to-boundary distances in the project CRS. They do not mutate pivot center, machine settings, field boundary, storage, archives, KML/KMZ, or native runtime state.
+        Clearance checks estimate separation from field boundaries in project coordinates. Confirm equipment clearance on site.
       </Text>
     </View>
   );
@@ -3050,7 +3050,7 @@ function CornerArmKinematicStatusPanel({
         <Text style={styles.rowTitle}>Corner-Arm Kinematics</Text>
         <Text style={result.status === "ready" ? styles.scenarioScore : styles.scenarioScoreWarn}>{result.status === "unresolved" ? "Unresolved" : result.status === "ready" ? "Ready" : `${blockerCount} blockers`}</Text>
       </View>
-      <ReportNotice tone="warn">Advisory | {result.scaffoldSourceStatus.replaceAll("_", " ")} | No controller proof</ReportNotice>
+      <ReportNotice tone="warn">Planning estimate · Verify controller settings before use</ReportNotice>
       <View>
         <ReportValue label="LRDU path samples" value={`${result.lrduPath.length}`} tone={result.lrduPath.length > 0 ? "neutral" : "warn"} />
         <ReportValue label="SDU path samples" value={`${result.sduPath.length}`} tone={result.sduPath.length > 0 ? "neutral" : "warn"} />
@@ -3866,6 +3866,7 @@ function WorkflowWalkthrough({
               accessibilityLabel={`${complete ? "Clear" : "Complete"} ${module.title} walkthrough checkpoint`}
               accessibilityRole="checkbox"
               accessibilityState={{ checked: complete }}
+              aria-checked={complete}
               key={module.id}
               onPress={toggleModule}
               style={[styles.walkthroughModule, complete && styles.walkthroughModuleComplete]}
@@ -3913,9 +3914,9 @@ function WillRheaGuidedDemoPanel({
   const hasSelectedOrientation = project.machine.cornerArm?.orientation === "leading" || project.machine.cornerArm?.orientation === "trailing";
   const missingInputs = [
     hasMeasuredLrduSpeed ? null : "Measured LRDU speed at 100% timer",
-    hasSourceLabeledCornerArmModel ? null : "Source-labeled corner-arm model/config",
-    hasSelectedOrientation ? null : "Operator-selected leading/trailing orientation and rotation context",
-    "Explicit SDU guidance-line and rotation selection in Calculate",
+    hasSourceLabeledCornerArmModel ? null : "Corner-arm equipment specifications",
+    hasSelectedOrientation ? null : "Leading/trailing orientation and rotation direction",
+    "Steerable tower guidance line and rotation direction in Calculate",
   ].filter((value): value is string => Boolean(value));
 
   return (
@@ -3925,9 +3926,9 @@ function WillRheaGuidedDemoPanel({
         <Text style={styles.dashboardPanelTitle}>Will Rhea Guided Demo</Text>
       </View>
       <Text style={styles.dashboardMuted}>
-        This sample opens as an explicit demo map. It is not silently created as a saved catalog client/project record, and walkthrough progress stays local-only.
+        This training sample is separate from your customer projects. Walkthrough progress stays on this device.
       </Text>
-      <AdvisoryBadgeRow badges={["EPSG:32614", "projected XY", "advisory evidence", "no Google Earth proof"]} />
+      <AdvisoryBadgeRow badges={["EPSG:32614", "Planning example", "Imported references", "Equipment checks required"]} />
       <View style={styles.metricGrid}>
         <MetricTile label="Boundary evidence" value={boundaryEvidence ? "Recorded" : "Missing"} tone="warn" />
         <MetricTile label="Pivot evidence" value={pivotEvidence ? "Imported point" : "Missing"} tone={pivotEvidence ? "good" : "warn"} />
@@ -3937,13 +3938,13 @@ function WillRheaGuidedDemoPanel({
         <MetricTile label="Guidance path" value="Selection required" tone="warn" />
       </View>
       <View style={styles.warningList} testID="will-rhea-evidence-status">
-        <EvidenceStatusRow label="Field boundary" value={boundaryEvidence ? "Imported planning_boundary evidence. Current boundary match unverified." : "Missing imported boundary evidence."} />
-        <EvidenceStatusRow label="Pivot point" value={pivotEvidence ? "Imported pivot_center survey evidence; it does not move the active pivot without an explicit operator action." : "Missing imported pivot evidence."} />
-        <EvidenceStatusRow label="LRDU line" value={lrduEvidence ? "LRDU Distance measurement_line with derived radius evidence; not overhang/end-boom proof." : "Missing LRDU measurement_line evidence."} />
-        <EvidenceStatusRow label="Sources" value={`${sourcePaths.length} local path${sourcePaths.length === 1 ? "" : "s"} and ${sourceHashes.length} SHA-256 hash${sourceHashes.length === 1 ? "" : "es"} recorded on evidence features.`} />
+        <EvidenceStatusRow label="Field boundary" value={boundaryEvidence ? "Imported reference. Confirm that it matches the current field." : "Field boundary reference missing."} />
+        <EvidenceStatusRow label="Pivot point" value={pivotEvidence ? "Imported survey reference. Apply the point to change the current pivot location." : "Pivot survey reference missing."} />
+        <EvidenceStatusRow label="LRDU line" value={lrduEvidence ? "Imported drive-tower radius reference. Supply the overhang and end-boom dimensions separately." : "Drive-tower reference missing."} />
+        <EvidenceStatusRow label="Sources" value={`${sourcePaths.length} source file${sourcePaths.length === 1 ? "" : "s"} · ${sourceHashes.length} recorded file checksum${sourceHashes.length === 1 ? "" : "s"}`} />
       </View>
       <View testID="will-rhea-corner-arm-input-blockers">
-        <Text style={styles.formLabel}>Corner-arm calculation blockers</Text>
+        <Text style={styles.formLabel}>Corner-arm information needed</Text>
         {missingInputs.map((input) => (
           <Text key={input} style={styles.formError}>{input}</Text>
         ))}
@@ -3951,7 +3952,7 @@ function WillRheaGuidedDemoPanel({
           <Text style={styles.mapFeatureMeta}>Required inputs are present; use Calculate Preview to review advisory LRDU, SDU, overhang, and end-gun rows.</Text>
         ) : (
           <Text style={styles.mapFeatureMeta}>
-            Do not prefill Will Rhea with synthetic speed, model, orientation, or guidance data. Supply verified inputs before treating the kinematic panel as ready.
+            Enter the measured speed, equipment specifications, orientation and guidance line before calculating corner-arm paths.
           </Text>
         )}
       </View>
@@ -4050,9 +4051,9 @@ export function HelpTrainingPanel({
       title: "RTK Qualification",
     },
     {
-      boundary: "Android SQLite and ZIP behavior require device proof for each runtime claim; browser local storage remains the web MVP backend.",
+      boundary: "Save and export availability depends on this device and its connection. Keep a recovery copy of unfinished field work.",
       checkpoints: ["export"],
-      detail: "Save before export, keep machine paths local-only, and treat native proof reports separately from browser checks.",
+      detail: "Save field work before exporting. Keep transferred files available on this device.",
       icon: <Database size={18} color="#254234" />,
       route: "settings",
       routeLabel: "Go to Settings",
@@ -4077,7 +4078,7 @@ export function HelpTrainingPanel({
       <View style={styles.helpHeader} testID="help-training-panel">
         <View style={styles.helpHeaderCopy}>
           <Text style={styles.dashboardCardValue}>{completedCount}/{WALKTHROUGH_MODULES.length} workflow checkpoints</Text>
-          <Text style={styles.dashboardMuted}>Training progress uses the same local walkthrough store as the dashboard and stays out of project schemas and archives.</Text>
+          <Text style={styles.dashboardMuted}>Training progress is kept on this device separately from saved field work and exported files.</Text>
         </View>
         <View style={styles.helpQuickActions}>
           <HelpActionButton label="Go to Map" onPress={() => onNavigate("map")} testID="help-action-map" />
@@ -4104,6 +4105,7 @@ export function HelpTrainingPanel({
                       accessibilityLabel={`${progress[checkpoint] ? "Clear" : "Complete"} ${walkthroughTitle(checkpoint)} walkthrough checkpoint`}
                       accessibilityRole="checkbox"
                       accessibilityState={{ checked: progress[checkpoint] }}
+                      aria-checked={Boolean(progress[checkpoint])}
                       key={checkpoint}
                       onPress={() => onToggleWalkthrough(checkpoint, !progress[checkpoint])}
                       style={[styles.helpCheckpoint, progress[checkpoint] && styles.helpCheckpointComplete]}
@@ -5176,7 +5178,7 @@ export function MachineSettingsForm({ machine, onChange, unitSystem }: { machine
         </View>
         <Text style={styles.mapFeatureMeta}>
           {machine.catalogSelection
-            ? `${machine.catalogSelection.manufacturer} ${machine.catalogSelection.model} selected · advisory snapshot only`
+            ? `${machine.catalogSelection.manufacturer} ${machine.catalogSelection.model} selected for planning`
             : "Use a preset or custom/as-built distances; catalog selections are advisory until vendor/operator verified."}
         </Text>
       </View>

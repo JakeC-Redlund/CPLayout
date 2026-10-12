@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "result": "literal_only_r8_edition_qualified_current_publication_policy_drift_pending",
+  "priorSource": {
+    "path": "docs/evidence/production-workflow-review-20261011/candidate-source-r7.json",
+    "fingerprint": "1e54a0f96066d7c61e6ff2abff7798989e6752eebb44bd323782c90c906c89b7",
+    "manifestSha256": "f25a13693a7f1216b623d8d87b9db7c9e2b1812444a52fd46660db64b27709ff",
+    "sourceCount": 902
+  },
+  "reviewedSource": {
+    "path": "docs/evidence/production-workflow-review-20261011/candidate-source-r8.json",
+    "fingerprint": "8d7fa61e2106be72c747e10297c5f2658f6d81ac335792cdfd3bd79a7acd89a6",
+    "manifestSha256": "236f85648b6ec62a0d8a09e2e6c54bbbf9de8bb9afb4047ee7633d471dd4ecf1",
+    "sourceCount": 902
+  },
+  "changedPath": {
+    "path": "apps/mobile/src/components/ProjectCatalogDialog.tsx",
+    "beforeSha256": "92d91c2fe47afda8ecb1d76798bc7ab1e2708b77fa79cc9185a46a58efcbf8cb",
+    "afterSha256": "0ef4328ae2104e8275b32239c044725857777a42c7e4a7521a723165b7e8583b",
+    "removedLiteralSuffix": " and stay in this local customer catalog",
+    "verification": "Reinserting only this literal reproduces entire r7 file SHA; complete manifests differ only here."
+  },
+  "unchangedBetweenR7AndR8": 901,
+  "didRecheck": {
+    "mobileTypecheckExit": 0,
+    "contextFullSkillsExit": 0,
+    "completionProvenance": "Coordinator completed receipts plus fiveartifact customer packet",
+    "customerBrowser": {
+      "selected": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "didNotRun": 0,
+      "exitCode": 0
+    },
+    "custodySha256": "fb6ec66e46089d7e0b59326f5c4cf55673d5978ad9f9f9db95f80e8af7277f99",
+    "verifiedArtifactCount": 5,
+    "artifactHashes": {
+      "context-skill.log": "3d71e1baa730b446f153912b7e0d40b612922274ae659995e2988351f45b25bd",
+      "playwright-html/index.html": "e5ba47fc89397785c9372438fc6bbd582e167bf8c68d8c2d1ee71fd65d134f28",
+      "playwright-results/.last-run.json": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "run.log": "deb24dc66bab0facb4e51009a7ea42c94d8ab9f34a46c838dad163d9015693f2",
+      "typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "edgeReference": "docs/evidence/production-workflow-review-20261011/visible-edge-r8-pass.json"
+  },
+  "retainedWholeSource": "docs/evidence/production-workflow-review-20261011/source-r4-pass.json",
+  "boundedR4ToR7": "docs/evidence/production-workflow-review-20261011/r4-to-r7-bounded-source-requalification.json",
+  "retainedFullBrowserR7": "docs/evidence/production-workflow-review-20261011/browser-r7-pass.json",
+  "didNotReexecute": [
+    "Fresh fullr8 npmvalidate",
+    "Fresh full264r8 browser matrix",
+    "Two final accepted whole-workflow reviews"
+  ],
+  "currentCheckoutDrift": [
+    {
+      "path": ".gitattributes",
+      "manifestSHA": "350e8ece6daf7e2194035c7151bea6c76e0c62cd14ecc8cbb13d227b1e736b73",
+      "actualSHA": "dee2a4dd047ff568d6aac1c20b4741c040db5a3549bf9bdfe46560030dc90d0a"
+    }
+  ],
+  "boundary": "Qualifies exact r8 historical/review edition only. Current .gitattributes bytes changed after r8; owner must classify/bind that publication-policy delta before exact current-source acceptance. No old manifest or whole result refreshed."
+}

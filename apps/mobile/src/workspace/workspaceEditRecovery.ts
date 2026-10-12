@@ -22,8 +22,9 @@ import { viewportForScreen } from "../../../../packages/map-adapters/src/mapFit"
 
 /** Separate from both context hints, durable workspace documents and recovery exports. */
 export const WORKSPACE_EDIT_RECOVERY_V1_VERSION = "cplayout-unified-edit-recovery-v1" as const;
-export const WORKSPACE_EDIT_RECOVERY_VERSION = "cplayout-unified-edit-recovery-v2" as const;
-export type WorkspaceEditRecoveryVersion = typeof WORKSPACE_EDIT_RECOVERY_V1_VERSION | typeof WORKSPACE_EDIT_RECOVERY_VERSION;
+export const WORKSPACE_EDIT_RECOVERY_V2_VERSION = "cplayout-unified-edit-recovery-v2" as const;
+export const WORKSPACE_EDIT_RECOVERY_VERSION = "cplayout-unified-edit-recovery-v3" as const;
+export type WorkspaceEditRecoveryVersion = typeof WORKSPACE_EDIT_RECOVERY_V1_VERSION | typeof WORKSPACE_EDIT_RECOVERY_V2_VERSION | typeof WORKSPACE_EDIT_RECOVERY_VERSION;
 const V1_CATALOG_FORM_KINDS = ["client", "project", "fieldMap", "design", "edit_client", "rename_project"] as const;
 export type WorkspaceRecoveryCatalogFormKindV1 = typeof V1_CATALOG_FORM_KINDS[number];
 export type WorkspaceRecoveryCatalogFormKind = WorkspaceRecoveryCatalogFormKindV1 | "rename_field_map";
@@ -88,10 +89,10 @@ export interface WorkspaceEditRecoveryUi<FormKind extends WorkspaceRecoveryCatal
     readonly sourceAddress: string; readonly settingsOpen: boolean };
   readonly survey: { readonly purposeId: string; readonly label: string; readonly referenceName: string;
     readonly referenceNotes: string; readonly referenceBaselineName: string; readonly referenceBaselineNotes: string;
-    readonly referenceDetails: boolean };
+    readonly referenceDetails: boolean; readonly reviewIncludedIds?: readonly string[] | null };
   readonly layout: { readonly name: string; readonly nameBaseline: string; readonly label: string;
-    readonly copyName: string; readonly details: boolean };
-  readonly catalog: { readonly projectCrs: string; readonly units: string;
+    readonly copyName: string; readonly details: boolean; readonly targetPointId?: string | null; readonly toleranceText?: string; readonly toleranceUnitSystem?: "metric" | "us_survey_feet" };
+  readonly catalog: { readonly projectCrs: string; readonly units: string; readonly startMode?: "design" | "survey";
     readonly form: null | { readonly kind: FormKind;
       readonly context: UnifiedWorkspaceResume["catalogSelection"]; readonly baselineFingerprint: string;
       readonly defaultName: string; readonly name: string; readonly fieldName: string;
@@ -124,9 +125,12 @@ export type WorkspaceEditRecoveryCandidateV1 = WorkspaceEditRecoveryCandidateVal
   readonly recoveryVersion: typeof WORKSPACE_EDIT_RECOVERY_V1_VERSION; readonly ui: WorkspaceEditRecoveryUiV1;
 };
 export type WorkspaceEditRecoveryCandidateV2 = WorkspaceEditRecoveryCandidateValues & {
+  readonly recoveryVersion: typeof WORKSPACE_EDIT_RECOVERY_V2_VERSION; readonly ui: WorkspaceEditRecoveryUi;
+};
+export type WorkspaceEditRecoveryCandidateV3 = WorkspaceEditRecoveryCandidateValues & {
   readonly recoveryVersion: typeof WORKSPACE_EDIT_RECOVERY_VERSION; readonly ui: WorkspaceEditRecoveryUi;
 };
-export type WorkspaceEditRecoveryCandidate = WorkspaceEditRecoveryCandidateV1 | WorkspaceEditRecoveryCandidateV2;
+export type WorkspaceEditRecoveryCandidate = WorkspaceEditRecoveryCandidateV1 | WorkspaceEditRecoveryCandidateV2 | WorkspaceEditRecoveryCandidateV3;
 export interface WorkspaceEditRecoveryAdmission {
   /** Original candidate remains byte-preserving. Staged advances only the workspace receipt. */
   readonly candidate: WorkspaceEditRecoveryCandidate; readonly staged: WorkspaceEditRecoveryCandidate;
@@ -148,6 +152,14 @@ export function emptyWorkspaceEditRecoveryUi(): WorkspaceEditRecoveryUi {
     layout: { name: "Layout session", nameBaseline: "Layout session", label: "", copyName: "", details: false },
     catalog: { projectCrs: "", units: "us_survey_feet", form: null, moveOpen: false, moveCustomerId: "", import: null, savedImportId: null,
       importFieldId: "", importName: "", message: null, failed: false }, file: { dialog: null, text: "", baseline: "", savedCopyId: null } };
+}
+
+/** Explicitly create current UI defaults while composing a NEW v3 capture.
+ * Parsing/serializing a v1/v2 envelope never calls this helper or promotes it. */
+export function workspaceRecoveryUiForV3(ui: WorkspaceEditRecoveryUi): WorkspaceEditRecoveryUi {
+  return { ...ui, catalog: { ...ui.catalog, startMode: ui.catalog.startMode ?? "design" },
+    survey: { ...ui.survey, reviewIncludedIds: ui.survey.reviewIncludedIds ?? null },
+    layout: { ...ui.layout, targetPointId: ui.layout.targetPointId ?? null, toleranceText: ui.layout.toleranceText ?? "" } };
 }
 
 /** Pure data helper for a capture. No storage or actor/owner authority is acquired. */
@@ -318,9 +330,9 @@ function parseUi(value: unknown, version: WorkspaceEditRecoveryVersion): Workspa
   // reject any lossy/implicit conversion instead of silently accepting it.
   if (workspaceRecoveryStableJson(settings) !== workspaceRecoveryStableJson(d.settings)) fail("Recovery settings contain unknown, missing or noncanonical fields.");
   const e = object(d.entry, ["designTask", "drawing", "toolsOpen", "receiverOpen", "diagnosticOpen", "layerVisibility"]);
-  const s = object(d.survey, ["purposeId", "label", "referenceName", "referenceNotes", "referenceBaselineName", "referenceBaselineNotes", "referenceDetails"]);
-  const l = object(d.layout, ["name", "nameBaseline", "label", "copyName", "details"]);
-  const c = object(d.catalog, ["projectCrs", "units", "form", "moveOpen", "moveCustomerId", "import", "savedImportId", "importFieldId", "importName", "message", "failed"]);
+  const s = object(d.survey, ["purposeId", "label", "referenceName", "referenceNotes", "referenceBaselineName", "referenceBaselineNotes", "referenceDetails"], version === WORKSPACE_EDIT_RECOVERY_VERSION ? ["reviewIncludedIds"] : []);
+  const l = object(d.layout, ["name", "nameBaseline", "label", "copyName", "details"], version === WORKSPACE_EDIT_RECOVERY_VERSION ? ["targetPointId", "toleranceText", "toleranceUnitSystem"] : []);
+  const c = object(d.catalog, ["projectCrs", "units", "form", "moveOpen", "moveCustomerId", "import", "savedImportId", "importFieldId", "importName", "message", "failed"], version === WORKSPACE_EDIT_RECOVERY_VERSION ? ["startMode"] : []);
   const f = object(d.file, ["dialog", "text", "baseline", "savedCopyId"]);
   const r = object(d.receiver, ["method", "baudRate", "protocol", "address", "port", "sourceAddress", "settingsOpen"]);
   let form: WorkspaceEditRecoveryUi["catalog"]["form"] = null;
@@ -343,9 +355,13 @@ function parseUi(value: unknown, version: WorkspaceEditRecoveryVersion): Workspa
     receiver: { method: choice(r.method, ["usb", "bluetooth_spp", "network"] as const), baudRate: rawText(r.baudRate), protocol: choice(r.protocol, ["tcp", "udp"] as const),
       address: rawText(r.address), port: rawText(r.port), sourceAddress: rawText(r.sourceAddress), settingsOpen: bool(r.settingsOpen) },
     survey: { purposeId: rawText(s.purposeId), label: rawText(s.label), referenceName: rawText(s.referenceName), referenceNotes: rawText(s.referenceNotes),
-      referenceBaselineName: rawText(s.referenceBaselineName), referenceBaselineNotes: rawText(s.referenceBaselineNotes), referenceDetails: bool(s.referenceDetails) },
-    layout: { name: rawText(l.name), nameBaseline: rawText(l.nameBaseline), label: rawText(l.label), copyName: rawText(l.copyName), details: bool(l.details) },
-    catalog: { projectCrs: rawText(c.projectCrs), units: rawText(c.units), form, moveOpen: bool(c.moveOpen), moveCustomerId: rawText(c.moveCustomerId),
+      referenceBaselineName: rawText(s.referenceBaselineName), referenceBaselineNotes: rawText(s.referenceBaselineNotes), referenceDetails: bool(s.referenceDetails),
+      ...(Object.hasOwn(s, "reviewIncludedIds") ? { reviewIncludedIds: s.reviewIncludedIds === null ? null : unique(array(s.reviewIncludedIds, WORKSPACE_EDIT_RECOVERY_LIMITS.vertices, id), item => item) } : {}) },
+    layout: { name: rawText(l.name), nameBaseline: rawText(l.nameBaseline), label: rawText(l.label), copyName: rawText(l.copyName), details: bool(l.details),
+      ...(Object.hasOwn(l, "targetPointId") ? { targetPointId: nullableId(l.targetPointId) } : {}),
+      ...(Object.hasOwn(l, "toleranceText") ? { toleranceText: rawText(l.toleranceText) } : {}),
+      ...(Object.hasOwn(l, "toleranceUnitSystem") ? { toleranceUnitSystem: choice(l.toleranceUnitSystem, ["metric", "us_survey_feet"] as const) } : {}) },
+    catalog: { projectCrs: rawText(c.projectCrs), units: rawText(c.units), ...(Object.hasOwn(c, "startMode") ? { startMode: choice(c.startMode, ["design", "survey"] as const) } : {}), form, moveOpen: bool(c.moveOpen), moveCustomerId: rawText(c.moveCustomerId),
       import: c.import === null ? null : parseWorkspaceRecoveryImport(c.import), savedImportId, importFieldId: rawText(c.importFieldId), importName: rawText(c.importName), message: nullableText(c.message), failed: bool(c.failed) },
     file: { dialog: f.dialog === null ? null : choice(f.dialog, ["copy", "rename", "preferences"] as const), text: rawText(f.text), baseline: rawText(f.baseline), savedCopyId: nullableId(f.savedCopyId) } };
 }
@@ -367,7 +383,7 @@ function parseCamera(value: unknown): WorkspaceRecoveryCamera {
  * establish saved-source authority. Resolve against a fresh durable workspace next. */
 export function parseWorkspaceEditRecovery(raw: string | unknown): WorkspaceEditRecoveryCandidate {
   const d = object(detach(typeof raw === "string" ? parseJsonBounded(raw) : raw), ["recoveryVersion", "writerId", "sequence", "capturedAt", "context", "workspaceRevision", "editable", "collections", "layout", "controller", "inputs", "ui", "cameras"]);
-  if (d.recoveryVersion !== WORKSPACE_EDIT_RECOVERY_VERSION && d.recoveryVersion !== WORKSPACE_EDIT_RECOVERY_V1_VERSION) fail("Unsupported edit recovery version.");
+  if (d.recoveryVersion !== WORKSPACE_EDIT_RECOVERY_VERSION && d.recoveryVersion !== WORKSPACE_EDIT_RECOVERY_V2_VERSION && d.recoveryVersion !== WORKSPACE_EDIT_RECOVERY_V1_VERSION) fail("Unsupported edit recovery version.");
   const recoveryVersion = d.recoveryVersion;
   const context = parseUnifiedWorkspaceResume(d.context), workspaceRevision = nullableInteger(d.workspaceRevision);
   let editable: WorkspaceRecoveryEditable | null = null;
@@ -386,7 +402,8 @@ export function parseWorkspaceEditRecovery(raw: string | unknown): WorkspaceEdit
     checkDocumentFrame(readSurveyDesignDocument(identity.kind, editable.workingDocument), editable);
     for (const document of [...editable.editor.past, ...editable.editor.future]) checkDocumentFrame(readSurveyDesignDocument(identity.kind, document), editable, true);
     const current = readSurveyDesignDocument(identity.kind, editable.workingDocument);
-    if (identity.kind === "field" && editable.editor.selectedMachineId !== null && !(current as FieldDesign).machines.some(machine => machine.id === editable!.editor.selectedMachineId)) fail("Recovery selected machine does not belong to the current field.");
+    if (identity.kind === "field" && editable.editor.selectedMachineId !== null && ![...(current as FieldDesign).machines, ...((current as FieldDesign).lateralMachines ?? [])].some(machine => machine.id === editable!.editor.selectedMachineId)
+      && !(recoveryVersion === WORKSPACE_EDIT_RECOVERY_VERSION && (current as FieldDesign).lateralMachines?.some(machine => machine.id === editable!.editor.selectedMachineId))) fail("Recovery selected machine does not belong to the current field.");
     if (context.workspace.design && (context.workspace.design.designId !== identity.designId || context.workspace.design.documentKind !== identity.kind
       || context.workspace.design.payloadId !== identity.payloadId || context.workspace.design.fieldMapId !== identity.fieldMapId || context.workspace.design.projectCrs !== identity.projectCrs)) fail("Recovery context and editor ownership disagree.");
     if (identity.designId !== null && context.workspace.design === null) fail("Recovery managed editor requires its validated saved context.");
@@ -416,7 +433,8 @@ export function parseWorkspaceEditRecovery(raw: string | unknown): WorkspaceEdit
   // parsing nor serialization promotes a legacy envelope to the current version.
   const result: WorkspaceEditRecoveryCandidate = recoveryVersion === WORKSPACE_EDIT_RECOVERY_V1_VERSION
     ? { ...values, recoveryVersion, ui: ui as WorkspaceEditRecoveryUiV1 } : { ...values, recoveryVersion, ui };
-  if (result.ui.entry.drawing && (!editable || editable.identity.kind === "field" || editable.identity.kind === "draft" && result.ui.entry.drawing.vertices.length)) fail("Recovery pending drawing belongs to another editor owner.");
+  if (result.ui.entry.drawing && (!editable || editable.identity.kind === "field" && recoveryVersion !== WORKSPACE_EDIT_RECOVERY_VERSION || editable.identity.kind === "draft" && result.ui.entry.drawing.vertices.length)) fail("Recovery pending drawing belongs to another editor owner.");
+  if (editable?.identity.kind === "field" && result.ui.entry.drawing?.geometryType === "Circle") fail("Field recovery only supports Point, Line or Polygon drawing.");
   if (result.ui.entry.drawing?.vertices.length && editable?.identity.projectCrs === null) fail("Recovery projected drawing requires its declared coordinate frame.");
   utf8Bytes(JSON.stringify(result)); return freeze(result);
 }
@@ -461,7 +479,7 @@ export function resolveWorkspaceEditRecovery(input: WorkspaceEditRecoveryCandida
       design: { ...candidate.context.workspace.design, projectCrs: sourceCrs } } } : candidate.context;
     const resume = resolveUnifiedWorkspaceResume(savedContext, workspace);
     if (resume.reasons.some(reason => reason !== "catalog_selection_changed")) fail("Saved recovery ownership or context changed.");
-    if (candidate.recoveryVersion === WORKSPACE_EDIT_RECOVERY_VERSION && candidate.ui.catalog.form?.kind === "rename_field_map") {
+    if (candidate.recoveryVersion !== WORKSPACE_EDIT_RECOVERY_V1_VERSION && candidate.ui.catalog.form?.kind === "rename_field_map") {
       const form = candidate.ui.catalog.form, context = form.context;
       const client = workspace.catalog.clients.find(item => item.id === context.clientId);
       const project = workspace.catalog.projects.find(item => item.id === context.projectId && item.clientId === client?.id);

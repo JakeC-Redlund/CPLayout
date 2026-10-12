@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "result": "pass",
+  "claimClass": "source",
+  "command": "npm run validate",
+  "exitCode": 0,
+  "completionProvenance": "Coordinator delivered actual tool completion against its owned PostgreSQL instance. Exact retained aggregate log verified directly.",
+  "source": {
+    "path": "docs/evidence/production-workflow-review-20261011/candidate-source-r4.json",
+    "sourceCount": 902,
+    "fingerprint": "5e8face8256e4c22282aef22e3989e88b82b521e603f8b29f0c3ba78aa0f7d02",
+    "manifestSha256": "66d874c64a2b255a7081ff77a675f8136b6654a47e0f6b7d0b418f8d3dd50ad8",
+    "baseCommit": "2649d1a9b1f1c55dff2eea4a6fe9faaa54be3824",
+    "boundary": "Hashes bind the registered source/typecheck/workspace tests to exactr4; they do not prove runtime for every file or every platform."
+  },
+  "aggregateLog": {
+    "retainedName": "source-r4.log",
+    "sha256": "bff983854e3ffb29d2fd94baae8a7ade918196af666bac0ea77e3b70636a2ca9",
+    "bytes": 300085,
+    "reportedFailures": "No printed nonzero Node test fail counts.",
+    "reportedSkips": "No printed nonzero Node test skip counts."
+  },
+  "separateGateway": {
+    "command": "npm run test:service-smoke",
+    "exitCode": 0,
+    "completionProvenance": "Coordinator completed receipt plus directly inspected retained log",
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "logName": "cplayout-production-service-smoke-r4.log",
+    "logSha256": "f426196a66b2c4caf2996db3f1319f1070d1bbc584173cdd31bd8994d70be037",
+    "boundary": "Actual PostgreSQL HTTP gateway smoke only; not deployment or complete browser qualification."
+  },
+  "browserStatus": {
+    "status": "running",
+    "coordinatorProgressApproximate": "About229 of264 when status delivered; not a completed result.",
+    "knownFailures": "Six desktop/tablet camera-helper span expectations. Independent workflow review reports actual715\u2192709 map height changes span; logical camera width/scale, center,7decimal vertices and source bytes must remain preserved.",
+    "correction": "No author change until browser completion. Any later spec/inventory-only equivalence must be independently reviewed and affected cases rechecked; no blind hash refresh."
+  },
+  "notEstablished": [
+    "Completed full current browser",
+    "Final independent reviews",
+    "Native/device/physical field accuracy",
+    "Genuine hook/skill invocation",
+    "Release, deployment or hosted activation"
+  ]
+}

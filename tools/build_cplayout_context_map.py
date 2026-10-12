@@ -126,6 +126,13 @@ GLOBAL_CONTEXT = [
         "summary": "Current process and proof gaps; prevents advisory context from becoming runtime claims.",
         "tags": ["gaps", "proof", "records"],
     },
+    {
+        "id": "workflow_registry_pointer",
+        "path": "docs/workflow-registry.json",
+        "kind": "live-authority-pointer",
+        "summary": "Read the live requirement/evidence ledger through the master plan; this pointer is not a source hash or embedded status receipt.",
+        "tags": ["production-workflow", "authority", "progress"],
+    },
 ]
 
 PACK_DEFINITIONS = [
@@ -172,14 +179,14 @@ PACK_DEFINITIONS = [
     },
     {
         "id": "unified_mode_preservation",
-        "purpose": "One Design/Survey/Layout workspace: preserve document, input, camera, receiver and immutable-target ownership through mode changes.",
-        "routeIds": ["cplayout_interface_developer", "cplayout_database_specialist", "cplayout_gis_geometry_guardian"],
-        "agentIds": ["cplayout_interface_developer", "cplayout_database_specialist", "cplayout_gis_geometry_guardian"],
-        "triggerTerms": ["unified workspace", "Design Survey Layout", "Design Survey and Layout", "mode switch", "mode toggle", "shared map", "dirty input", "camera retention", "receiver ownership", "immutable layout target", "survey collection", "complete workspace bundle"],
-        "readFirstPaths": ["docs/unified-workspace-decision-2026-10-10.md"],
-        "secondaryPaths": ["apps/mobile/App.tsx", "packages/core/src/projectDocument.ts", "packages/gnss/src/index.ts", "packages/project-store/src/projectArchive.ts", "docs/android-native-verification.md"],
+        "purpose": "Production customer/session workflow: real Sign in and Home, optional Design, required Survey and immutable Layout; preserve account/document/input/camera/receiver ownership.",
+        "routeIds": ["cplayout_interface_developer", "cplayout_database_specialist", "cplayout_gis_geometry_guardian", "cplayout_qa_validation_reviewer"],
+        "agentIds": ["cplayout_interface_developer", "cplayout_database_specialist", "cplayout_gis_geometry_guardian", "cplayout_qa_validation_reviewer"],
+        "triggerTerms": ["production customer workflow", "CPLayout sign in", "authenticated workspace", "customer project workflow", "SurveyKnownInformation", "optional Design", "survey preparation", "unified workspace", "Design Survey Layout", "Design Survey and Layout", "mode switch", "mode toggle", "shared map", "dirty input", "camera retention", "receiver ownership", "immutable layout target", "survey collection", "complete workspace bundle"],
+        "readFirstPaths": ["docs/production-workflow-improvement-plan.md", "docs/operator-workflow-guide.md"],
+        "secondaryPaths": ["apps/mobile/App.tsx", "apps/mobile/src/auth/AuthProvider.tsx", "apps/api/src/server.ts", "packages/project-store/src/workspaceCommands.ts", "packages/core/src/surveyDraftField.ts"],
         "validationCommandIds": ["validate_product", "proof_web", "validate_skills", "diff_check"],
-        "expectedOutput": "Mode-capability ownership, exact preservation risks, current contract paths and source/browser/runtime evidence kept separate.",
+        "expectedOutput": "Current customer/account/workflow scope, live registry pointer, source-bound defects and preservation checks; source, synthetic/browser, native/device, invocation and hook execution remain separate.",
         "tokenBudget": 900,
         "hardVetoIds": ["preserve_projected_xy", "no_runtime_proof_without_evidence"],
     },
@@ -215,8 +222,8 @@ PACK_DEFINITIONS = [
             "apps/mobile/App.tsx",
         ],
         "secondaryPaths": [
-            "apps/mobile/src/components/CommandSurface.tsx",
-            "apps/mobile/src/components/DrawingToolPalette.tsx",
+            "apps/mobile/src/auth/AuthenticatedWorkspace.tsx",
+            "apps/mobile/src/workspace/SurveyKnownInformationPanel.tsx",
             "packages/map-adapters/src/SvgMapSurface.tsx",
             "packages/map-adapters/src/MapSurface.tsx",
             "docs/rtk-gnss-integration-plan.md",
@@ -344,7 +351,7 @@ PACK_DEFINITIONS = [
             "packages/project-store/src/projectRepository.native.ts",
             "packages/core/src/projectDocument.ts",
             "docs/android-native-verification.md",
-            "docs/agent-known-gaps.md",
+            "apps/mobile/src/auth/authenticatedRepository.ts",
         ],
         "validationCommandIds": ["validate_product", "validate_skills", "diff_check", "audit"],
         "expectedOutput": "Storage contract risks, archive round-trip implications, native proof caveats, and migration tests.",
@@ -525,6 +532,15 @@ SOURCE_HASH_PATHS = [
     "docs/agent-known-gaps.md",
     "docs/agent-source-ledger.md",
     "docs/codex-managed-hook-deployment.md",
+    "apps/mobile/App.tsx",
+    "apps/mobile/src/auth/AuthProvider.tsx",
+    "apps/mobile/src/auth/authenticatedRepository.ts",
+    "apps/mobile/src/auth/AuthenticatedWorkspace.tsx",
+    "apps/mobile/src/workspace/SurveyKnownInformationPanel.tsx",
+    "packages/auth-client/src/apiClient.ts",
+    "apps/api/src/server.ts",
+    "packages/project-store/src/workspaceCommands.ts",
+    "packages/core/src/surveyDraftField.ts",
 ]
 
 
@@ -559,6 +575,8 @@ def _source_hashes() -> dict[str, str]:
     paths.extend(_load_agents().values())
     paths.extend(_skill_paths().values())
     paths.extend(path.relative_to(ROOT).as_posix() for path in (ROOT / ".agents" / "skills").glob("*/references/*") if path.is_file())
+    if any(path in {"docs/workflow-registry.json", "docs/development-status.md"} for path in paths):
+        raise ValueError("Live workflow authority/status must remain pointers, not context source hash inputs")
     hashes: dict[str, str] = {}
     for relpath in sorted(set(paths)):
         _require_relpath(relpath)
@@ -764,6 +782,7 @@ def _markdown_text(data: dict[str, Any]) -> str:
         "Generated by `tools/build_cplayout_context_map.py`. Edit the generator, then run `npm run context-map:build`.",
         "",
         "This record provides compact route-to-context references for hooks, coordinators, and subagents. It is advisory only and does not prove hook enforcement, subagent execution, product runtime behavior, or visual/native proof.",
+        "Live workflow authority: `docs/workflow-registry.json` is a pointer only; registry/status receipts are not context source hash inputs. Follow the current production workflow plan and operator guide for the selected module.",
         "",
         "## Limits",
         "",

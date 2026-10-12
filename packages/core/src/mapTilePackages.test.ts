@@ -83,7 +83,7 @@ const logicalAppPackage = validateMapPackageManifest({
 const logicalAppReadiness = describeTilePackageReadiness(logicalAppPackage, "android_maplibre_rn");
 assert.equal(logicalAppReadiness.canRender, false);
 assert.equal(logicalAppReadiness.requiresAdapter, false);
-assert.match(logicalAppReadiness.reason, /rewritten to app-readable runtime URLs/);
+assert.match(logicalAppReadiness.reason, /Map package files are unavailable.*Import the map archive/);
 
 const aerialAuto = resolveAerialImagerySource({
   preferences: { mode: "auto" },

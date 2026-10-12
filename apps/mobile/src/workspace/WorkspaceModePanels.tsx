@@ -1,7 +1,9 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { workspaceHasSurveyStorage, surveyReviewCandidateIds } from "./workspaceProductionCapabilities";
+import { SurveyKnownInformationPanel } from "./SurveyKnownInformationPanel";
+import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { PivotProjectSchema, parseFieldLayoutTarget, qualifyProjectCrs, metersToFeet, isRecordedReferenceMetadataRecord,
-  surveyPurposeGeometryType, type SurveyCollectionPurpose, type XY } from "@cplayout/core";
+import { PivotProjectSchema, parseFieldLayoutTarget, layoutPointResidual, formatDistance, parseDistanceInput, qualifyProjectCrs, metersToFeet, isRecordedReferenceMetadataRecord,
+  surveyPurposeGeometryType, RTK_LAYOUT_SESSION_DOCUMENT_VERSION, isOfficialLayoutSession, layoutFinalizationRecords, type SurveyCollectionPurpose, type XY } from "@cplayout/core";
 import type { useWorkspaceController } from "./useWorkspaceController";
 import { serializeWorkspaceEditable } from "./workspaceDocumentAdapters";
 import { workspaceRecoveryStableJson } from "./workspaceEditRecovery";
@@ -68,18 +70,21 @@ function referenceBaseline(editable: Controller["state"]["editable"], selected: 
   return record && isRecordedReferenceMetadataRecord(record) ? { name: record.meaning.name, notes: record.meaning.notes ?? "" }
     : { name: isReference && selected?.purpose.kind === "map_feature" ? selected.purpose.featureKind.replaceAll("_", " ").replace(/^./, value => value.toUpperCase()) : "", notes: "" };
 }
-function recoveryPart<T>(value: T, text: readonly string[], flags: readonly string[]): T {
+function recoveryPart<T>(value: T, text: readonly string[], flags: readonly string[], optional: Readonly<Record<string, (value: unknown) => boolean>> = {}): T {
   const detached: unknown = JSON.parse(workspaceRecoveryStableJson(value));
   if (!detached || typeof detached !== "object" || Array.isArray(detached)
-    || Object.keys(detached).length !== text.length + flags.length
+    || Object.keys(detached).some(key => !text.includes(key) && !flags.includes(key) && !Object.hasOwn(optional, key))
     || text.some(key => typeof (detached as Record<string, unknown>)[key] !== "string")
-    || flags.some(key => typeof (detached as Record<string, unknown>)[key] !== "boolean")) throw new Error("Recovery controls have unsupported or missing values.");
+    || flags.some(key => typeof (detached as Record<string, unknown>)[key] !== "boolean")
+    || Object.entries(optional).some(([key, validate]) => Object.hasOwn(detached, key) && !validate((detached as Record<string, unknown>)[key]))) throw new Error("Recovery controls have unsupported or missing values.");
   return detached as T;
 }
 function editableRecoveryKey(editable: Controller["state"]["editable"]): string {
   return editable ? workspaceRecoveryStableJson([editable.identity, editable.sourceDocument, editable.designRevision, serializeWorkspaceEditable(editable)]) : "null";
 }
 export function WorkspaceSurveyPanel({ controller }: { controller: Controller }) {
+  const [reviewIncluded, setReviewIncluded] = useState<readonly string[] | null>(null);
+  const reviewIncludedRef = useRef(reviewIncluded); reviewIncludedRef.current = reviewIncluded;
   const [purposeId, setPurposeId] = useState(JSON.stringify({ kind: "point", role: "control" }));
   const purposeRef = useRef(purposeId); purposeRef.current = purposeId;
   const latestController = useRef(controller); latestController.current = controller;
@@ -91,9 +96,11 @@ export function WorkspaceSurveyPanel({ controller }: { controller: Controller })
   const [label, setLabel] = useState(""); const labelRef = useRef(label); labelRef.current = label;
   const labelEpoch = useRef(0);
   const documentGeneration = controller.state.presentation.documentGeneration;
+  const reviewScopeOwner = useRef(documentGeneration);
+  useEffect(() => { if (reviewScopeOwner.current !== documentGeneration) { reviewScopeOwner.current = documentGeneration; reviewIncludedRef.current = null; setReviewIncluded(null); } }, [documentGeneration]);
   const interactionKey = controller.interactionKey;
   function setLabelInput(value: string) {
-    if (!ownsSurveyInput()) return;
+    if (!ownsSurveyInput() || latestController.current.canEditField?.() === false || latestController.current.canCaptureLive?.() === false) return;
     labelEpoch.current++; labelRef.current = value; setLabel(value);
     controller.setPendingInteractionInput("survey-label", value.length > 0, true);
     changed();
@@ -119,7 +126,7 @@ export function WorkspaceSurveyPanel({ controller }: { controller: Controller })
   const renderedReferenceCollection = selected?.id;
   function ownsSurveyInput() {
     const current = controller.stateRef.current;
-    return mounted.current && canEdit() && recoveryGeneration.current === renderedRecoveryGeneration
+    return mounted.current && controller.active !== false && latestController.current.isActive?.() !== false && canEdit() && recoveryGeneration.current === renderedRecoveryGeneration
       && current.presentation.documentGeneration === documentGeneration && current.presentation.mode === "survey"
       && JSON.stringify([current.presentation.documentGeneration, current.presentation.interactionGeneration]) === interactionKey;
   }
@@ -136,14 +143,14 @@ export function WorkspaceSurveyPanel({ controller }: { controller: Controller })
     return value.name !== baseline.name || value.notes !== baseline.notes;
   }
   function changeReference(key: "name" | "notes", value: string) {
-    if (!ownsReferenceInput()) return;
+    if (!ownsReferenceInput() || latestController.current.canEditField?.() === false) return;
     const next = { ...referenceRef.current, [key]: value };
     referenceOwner.current.epoch++; referenceRef.current = next; setReference(next);
     controller.setPendingInteractionInput("survey-reference", referencePending(next), true);
     changed();
   }
   function discardReference() {
-    if (!ownsReferenceInput()) return;
+    if (!ownsReferenceInput() || latestController.current.canEditField?.() === false) return;
     referenceOwner.current.epoch++; const next = { ...referenceOwner.current.baseline };
     referenceRef.current = next; setReference(next); controller.setPendingInteractionInput("survey-reference", false, true);
     changed();
@@ -170,28 +177,28 @@ export function WorkspaceSurveyPanel({ controller }: { controller: Controller })
   }, [documentGeneration, selected?.id, baselineReference.name, baselineReference.notes]);
   useEffect(() => { controller.setPendingInteractionInput("survey-reference", isReference && referencePending(reference)); }, [reference, isReference, controller.setPendingInteractionInput]);
   async function apply() {
-    if (!ownsReferenceInput() || !selected) return;
+    if (!ownsReferenceInput() || latestController.current.canEditField?.() === false || !selected) return;
     const submitted = { ...referenceRef.current }, epoch = referenceOwner.current.epoch;
     const submission = { documentGeneration, collectionId: selected.id, epoch, value: submitted };
     referenceSubmission.current = submission;
     changed();
     const accepted = await controller.applySurvey(isReference ? { name: submitted.name, ...(submitted.notes === "" ? {} : { notes: submitted.notes }) } : undefined);
     if (!accepted) { if (referenceSubmission.current === submission) referenceSubmission.current = null; return; }
-    if (!ownsReferenceInput()) return;
+    if (!ownsReferenceInput() || latestController.current.canEditField?.() === false) return;
     referenceOwner.current.baseline = submitted;
     if (referenceOwner.current.epoch === epoch) { referenceRef.current = submitted; setReference(submitted); }
     controller.setPendingInteractionInput("survey-reference", referencePending(referenceRef.current));
   }
   const crs = identity?.projectCrs;
   const gate = crs ? controller.receiver.collectionGate(crs) : null;
-  const versionReady = controller.repository.workspaceVersion === "cplayout-workspace-v4";
+  const versionReady = workspaceHasSurveyStorage(controller.repository.workspaceVersion);
   const alreadyCollected = !!selected && !!controller.receiver.getSnapshot().observation
     && selected.observations.some(point => point.captureEvidence?.observationId === controller.receiver.getSnapshot().observation?.id);
   // Refusal remains until the checked Core/store contract is integrated.
   const referenceSupported = controller.referenceApplicationSupported;
   useEffect(() => { controller.setPendingInteractionInput("survey-label", label.length > 0); }, [label, controller.setPendingInteractionInput]);
   async function collect() {
-    if (!ownsSurveyInput()) return;
+    if (!ownsSurveyInput() || latestController.current.canEditField?.() === false || latestController.current.canCaptureLive?.() === false) return;
     const entered = labelRef.current;
     const epoch = labelEpoch.current;
     changed();
@@ -201,12 +208,15 @@ export function WorkspaceSurveyPanel({ controller }: { controller: Controller })
     }
   }
   useWorkspaceRecoveryParticipant(controller.recoveryParticipants, "survey", {
-    capture: () => ({ purposeId: purposeRef.current, label: labelRef.current, referenceName: referenceRef.current.name,
+    capture: () => ({ reviewIncludedIds: reviewIncludedRef.current, purposeId: purposeRef.current, label: labelRef.current, referenceName: referenceRef.current.name,
       referenceNotes: referenceRef.current.notes, referenceBaselineName: referenceOwner.current.baseline.name,
       referenceBaselineNotes: referenceOwner.current.baseline.notes, referenceDetails: detailsRef.current }),
     stage(value, target) {
       const next = recoveryPart<WorkspaceRecoveryParts["survey"]>(value,
-        ["purposeId", "label", "referenceName", "referenceNotes", "referenceBaselineName", "referenceBaselineNotes"], ["referenceDetails"]);
+        ["purposeId", "label", "referenceName", "referenceNotes", "referenceBaselineName", "referenceBaselineNotes"], ["referenceDetails"], {
+          reviewIncludedIds: value => value === null || Array.isArray(value) && value.every(item => typeof item === "string" && item.length > 0) && new Set(value).size === value.length,
+        });
+      if (next.reviewIncludedIds?.some(id => !target.admission.collections.some(collection => collection.id === id))) throw new Error("Recovered Survey review selection belongs to another field.");
       if (!purposes.some(purpose => JSON.stringify(purpose) === next.purposeId)) throw new Error("Recovered Survey purpose is unavailable.");
       const selectedId = target.admission.staged.context.workspace.collectionId;
       const selected = target.admission.collections.find(item => item.id === selectedId) ?? null;
@@ -230,6 +240,7 @@ export function WorkspaceSurveyPanel({ controller }: { controller: Controller })
             || editableRecoveryKey(state.editable) !== editableRecoveryKey(target.admission.editable)
             || workspaceRecoveryStableJson(state.collections) !== workspaceRecoveryStableJson(target.admission.collections)) throw new Error("Recovered Survey controls belong to an earlier source.");
           consumed = true; recoveryGeneration.current++; eventOwner.current = {}; labelEpoch.current++;
+          reviewScopeOwner.current = state.presentation.documentGeneration; reviewIncludedRef.current = next.reviewIncludedIds ?? null; setReviewIncluded(reviewIncludedRef.current);
           purposeRef.current = next.purposeId; labelRef.current = next.label;
           referenceRef.current = { name: next.referenceName, notes: next.referenceNotes }; detailsRef.current = next.referenceDetails;
           referenceOwner.current = { documentGeneration: state.presentation.documentGeneration, collectionId: selectedId ?? undefined,
@@ -242,22 +253,48 @@ export function WorkspaceSurveyPanel({ controller }: { controller: Controller })
         } };
     },
   });
-  function surveyAction(action: () => void) { if (!ownsSurveyInput()) return; action(); changed(); }
-  const blocked = controller.busy || !canEdit();
+  function surveyAction(action: () => void) { if (!ownsSurveyInput() || latestController.current.canEditField?.() === false) return; action(); changed(); }
+  const blocked = controller.busy || controller.active === false || latestController.current.isActive?.() === false || !canEdit();
+  const mutationBlocked = blocked || controller.canEditField?.() === false;
+  const captureBlocked = mutationBlocked || controller.canCaptureLive?.() === false;
   return <View style={styles.panel} testID="unified-survey-panel">
+    {controller.fieldArchiveStatus?.() !== undefined && controller.fieldArchiveStatus() !== "active" && <Text style={styles.help}>{controller.fieldArchiveStatus() === "archived" ? "This customer or project is archived. Restore it before collecting or changing Survey work." : "Customer and project status is unavailable. Connect or refresh before collecting Survey work."}</Text>}
+    <View style={styles.card} testID="survey-workflow-review">
+      <Text style={styles.heading}>Survey review</Text>
+      <Text accessibilityLiveRegion="polite" style={styles.help}>{controller.surveyReadiness?.status === "ready" ? "Survey reviewed — ready for Layout" : "Complete a Survey review before starting Layout."}</Text>
+      {controller.surveyReadiness?.reasons.map((reason, i) => <Text key={i} style={styles.help}>{reason}</Text>)}
+      <Text style={styles.help}>Choose the collections included in this review. Other observations remain saved.</Text>
+      {controller.state.collections.map((collection, collectionIndex) => {
+        const ids = reviewIncluded ?? surveyReviewCandidateIds(controller.state.collections);
+        const included = ids.includes(collection.id);
+        return <Pressable key={collection.id} accessibilityRole="checkbox" accessibilityState={{ checked: included, disabled: blocked }} aria-checked={included} aria-disabled={blocked} disabled={blocked}
+          testID={`survey-review-include-${collection.id}`} onPress={() => { if (!ownsSurveyInput()) return; const next = included ? ids.filter(id => id !== collection.id) : [...ids, collection.id]; reviewIncludedRef.current = next; setReviewIncluded(next); changed(); }}>
+          <Text style={styles.label}>{included ? "☑" : "☐"} {surveyPurposeLabel(collection.purpose)} · {collection.observations.length} recorded</Text>
+        </Pressable>;
+      })}
+      <WorkspaceButton label="Complete Survey review" testID="survey-complete-review" disabled={mutationBlocked || !controller.actorId || !crs || !surveyReviewCandidateIds(controller.state.collections).length}
+        onPress={() => { if (ownsSurveyInput() && latestController.current.canEditField?.() !== false) void controller.completeSurvey(reviewIncludedRef.current ?? surveyReviewCandidateIds(controller.state.collections)); }} />
+      <WorkspaceButton label="Continue to Layout" testID="survey-continue-layout" disabled={blocked || controller.surveyReadiness?.status !== "ready"} onPress={() => controller.selectMode("layout")} />
+    </View>
+    {controller.state.presentation.mode === "survey" && (controller.state.editable?.kind === "draft" || controller.state.editable?.kind === "field") && <>
+      <SurveyKnownInformationPanel controller={controller} />
+      {controller.state.editable.kind === "draft" && <><Text style={styles.help}>Prepare the field from its saved Survey boundary and supplied machine values. Unknown water and power locations remain unknown. The original work and observations are retained.</Text>
+        <WorkspaceButton label="Prepare field for Layout" testID="survey-prepare-field" disabled={mutationBlocked || controller.surveyReadiness?.status !== "ready" || controller.inputs?.hasDirty() || controller.pendingInput?.("survey-known-information")}
+          onPress={() => { if (ownsSurveyInput() && latestController.current.canEditField?.() !== false) void controller.prepareSurveyedField(); }} /></>}
+    </>}
     <Text style={styles.heading}>Record your field</Text>
     <Text style={styles.help}>Collect receiver positions into a saved point, line or area. Apply a recorded shape when it is ready.</Text>
     {!identity?.designId ? <Text style={styles.help}>Open a saved design associated with a field to collect Survey work.</Text> : <>
       {!versionReady ? <><Text style={styles.help}>Enable saved Survey collections for this workspace. Existing designs and recovery sources are retained.</Text>
-        <WorkspaceButton label="Enable saved Survey collections" disabled={blocked} testID="survey-enable" onPress={() => surveyAction(() => { void controller.enableSurvey(); })} /></>
+        <WorkspaceButton label="Enable saved Survey collections" disabled={mutationBlocked} testID="survey-enable" onPress={() => surveyAction(() => { void controller.enableSurvey(); })} /></>
         : <>
-          <WorkspaceSelect label="New collection purpose" value={purposeId} testID="survey-purpose" disabled={blocked} canEdit={ownsSurveyInput} onDisclosureChange={changed}
+          <WorkspaceSelect label="New collection purpose" value={purposeId} testID="survey-purpose" disabled={mutationBlocked} canEdit={ownsSurveyInput} onDisclosureChange={changed}
             choices={purposes.map(purpose => ({ id: JSON.stringify(purpose), label: surveyPurposeLabel(purpose) }))} onChange={value => {
-              if (!ownsSurveyInput() || !purposes.some(purpose => JSON.stringify(purpose) === value)) return;
+              if (!ownsSurveyInput() || latestController.current.canEditField?.() === false || !purposes.some(purpose => JSON.stringify(purpose) === value)) return;
               purposeRef.current = value; setPurposeId(value); changed();
             }} />
-          <WorkspaceButton label="Start new collection" disabled={blocked || !crs} testID="survey-start" onPress={() => {
-            if (!ownsSurveyInput()) return;
+          <WorkspaceButton label="Start new collection" disabled={mutationBlocked || !crs} testID="survey-start" onPress={() => {
+            if (!ownsSurveyInput() || latestController.current.canEditField?.() === false) return;
             const chosen = purposes.find(purpose => JSON.stringify(purpose) === purposeRef.current);
             if (chosen) { void controller.startSurvey(chosen); changed(); }
           }} />
@@ -271,13 +308,13 @@ export function WorkspaceSurveyPanel({ controller }: { controller: Controller })
             <Text style={styles.help} testID="survey-readiness">{controller.busy ? "Saving recorded work…" : alreadyCollected ? "This receiver position is already recorded. Wait for the next position."
               : gate?.accepted ? "Ready to collect — RTK Fixed, receiver reported" : gate?.reason ?? "Declare the field coordinate system before collecting."}</Text>
             <View style={styles.group}><Text style={styles.label}>Point label (optional)</Text><TextInput accessibilityLabel="Survey point label" value={label}
-              testID="survey-point-label" style={styles.input} editable={!blocked} onChangeText={setLabelInput} /></View>
+              testID="survey-point-label" style={styles.input} editable={!captureBlocked} onChangeText={setLabelInput} /></View>
             <Text style={styles.help}>Leave the label blank to use Observation {selected.observations.length + 1} automatically.</Text>
-            <WorkspaceButton label="Collect position" testID="survey-collect" disabled={blocked || !gate?.accepted || alreadyCollected || selected.state !== "pending"
+            <WorkspaceButton label="Collect position" testID="survey-collect" disabled={captureBlocked || !gate?.accepted || alreadyCollected || selected.state !== "pending"
               || (surveyPurposeGeometryType(selected.purpose) === "Point" && selected.activePointIds.length > 0)} onPress={() => { void collect(); }} />
             <View style={styles.row}>
-              <WorkspaceButton label="Remove last vertex" disabled={blocked || !selected.activePointIds.length} onPress={() => surveyAction(() => { void controller.changeMembership("remove_last"); })} />
-              <WorkspaceButton label="Clear active shape" disabled={blocked || !selected.activePointIds.length} onPress={() => surveyAction(() => { void controller.changeMembership("clear"); })} />
+              <WorkspaceButton label="Remove last vertex" disabled={mutationBlocked || !selected.activePointIds.length} onPress={() => surveyAction(() => { void controller.changeMembership("remove_last"); })} />
+              <WorkspaceButton label="Clear active shape" disabled={mutationBlocked || !selected.activePointIds.length} onPress={() => surveyAction(() => { void controller.changeMembership("clear"); })} />
             </View>
             {isReference && <View style={styles.group}>
               {referenceRecord && isRecordedReferenceMetadataRecord(referenceRecord) && <Text style={styles.help} testID="survey-reference-provenance">{referenceRecord.binding === "recorded"
@@ -288,17 +325,19 @@ export function WorkspaceSurveyPanel({ controller }: { controller: Controller })
               }} />
               {referenceDetails && <>
                 <Text style={styles.label}>Reference name</Text><TextInput accessibilityLabel="Reference name" testID="survey-reference-name" style={styles.input} value={reference.name}
-                  editable={!blocked} onChangeText={value => changeReference("name", value)} />
+                  editable={!mutationBlocked} onChangeText={value => changeReference("name", value)} />
                 <Text style={styles.label}>Notes (optional)</Text><TextInput accessibilityLabel="Reference notes" testID="survey-reference-notes" style={styles.input} value={reference.notes} multiline
-                  editable={!blocked} onChangeText={value => changeReference("notes", value)} />
-                <WorkspaceButton label="Discard reference details" testID="survey-reference-discard" disabled={blocked || !referencePending(reference)} onPress={discardReference} />
+                  editable={!mutationBlocked} onChangeText={value => changeReference("notes", value)} />
+                <WorkspaceButton label="Discard reference details" testID="survey-reference-discard" disabled={mutationBlocked || !referencePending(reference)} onPress={discardReference} />
               </>}
             </View>}
             {selected.purpose.kind !== "point" && <WorkspaceButton label="Apply recorded shape" testID="survey-apply"
-              disabled={blocked || isReference && (!referenceSupported || !reference.name.trim()) || selected.state !== "pending" || !selected.activePointIds.length} onPress={() => { void apply(); }} />}
-            {isReference && !referenceSupported && <Text style={styles.help}>Reference observations are saved. Applying a reference feature requires the recorded-reference document support currently being added; your recorded evidence is retained.</Text>}
+              disabled={mutationBlocked || isReference && (!referenceSupported || !reference.name.trim()) || selected.state !== "pending" || !selected.activePointIds.length} onPress={() => { void apply(); }} />}
+            {isReference && !referenceSupported && <Text style={styles.help}>Your reference observations are saved. Open a compatible field file before applying this reference.</Text>}
             {selected.observations.map(point => <View key={point.id} style={styles.record}>
               <Text style={styles.label}>{point.label || point.role.replaceAll("_", " ")}</Text><Text style={styles.help}>{coordinate(point.projected, selected.owner.projectCrs)}</Text>
+              {controller.state.editable?.kind === "draft" && selected.purpose.kind === "point" && selected.purpose.role === "pivot_center" && selected.activePointIds.includes(point.id) && <WorkspaceButton label="Use recorded pivot position" testID={`survey-use-pivot-${point.id}`} disabled={mutationBlocked}
+                onPress={() => { if (ownsSurveyInput()) void controller.useRecordedPivot(point.id); }} />}
               <Text style={styles.help}>{point.observedAt} · {point.captureEvidence?.schemaVersion === "gnss-operational-fixed-v1" ? point.captureEvidence.gga.sentenceIdentifier : "Historical observation"}</Text>
             </View>)}
           </View>}
@@ -319,6 +358,13 @@ export const WorkspaceLayoutPanel = forwardRef<WorkspaceLayoutPanelHandle, { con
   function canEdit() { return latestController.current.recoveryParticipants?.canEdit() !== false; }
   function changed() { eventOwner.current = {}; latestController.current.recoveryParticipants?.notifyChanged(); }
   const session = controller.state.layout?.session;
+  const [targetPointId, setTargetPointId] = useState<string | null>(null), [toleranceText, setToleranceText] = useState("");
+  const [toleranceUnitSystem, setToleranceUnitSystem] = useState(controller.settings.unitSystem);
+  const toleranceUnitsRef = useRef(toleranceUnitSystem); toleranceUnitsRef.current = toleranceUnitSystem;
+  const targetPointRef = useRef(targetPointId), toleranceRef = useRef(toleranceText);
+  targetPointRef.current = targetPointId; toleranceRef.current = toleranceText;
+  const targetOwner = useRef(session?.id);
+  useEffect(() => { if (targetOwner.current !== session?.id) { targetOwner.current = session?.id; targetPointRef.current = null; toleranceRef.current = ""; toleranceUnitsRef.current = controller.settings.unitSystem; setTargetPointId(null); setToleranceText(""); setToleranceUnitSystem(toleranceUnitsRef.current); } }, [session?.id]);
   const [name, setName] = useState(session?.name ?? "Layout session");
   const [label, setLabel] = useState(""); const labelRef = useRef(label); labelRef.current = label;
   const [copyName, setCopyName] = useState("");
@@ -334,10 +380,10 @@ export const WorkspaceLayoutPanel = forwardRef<WorkspaceLayoutPanelHandle, { con
   const focusRequest = useRef<{ section: "name" | "copy"; isCurrent: () => boolean } | null>(null);
   const [, requestFocusRender] = useState(0);
   const nameBaseline = useRef({ documentGeneration, sessionId: session?.id, name: session?.name ?? "Layout session" });
-  const nameSubmission = useRef<{ documentGeneration: number; sessionId: string | undefined; epoch: number; text: string } | null>(null);
+  const nameSubmission = useRef<{ documentGeneration: number; interactionKey: string; sessionId: string | undefined; epoch: number; text: string } | null>(null);
   function ownsInput() {
     const presentation = controller.stateRef.current.presentation;
-    return mounted.current && canEdit() && recoveryGeneration.current === renderedRecoveryGeneration
+    return mounted.current && controller.active !== false && latestController.current.isActive?.() !== false && canEdit() && recoveryGeneration.current === renderedRecoveryGeneration
       && presentation.mode === "layout" && presentation.documentGeneration === documentGeneration && controller.stateRef.current.layout?.session.id === session?.id
       && JSON.stringify([presentation.documentGeneration, presentation.interactionGeneration]) === interactionKey;
   }
@@ -346,18 +392,34 @@ export const WorkspaceLayoutPanel = forwardRef<WorkspaceLayoutPanelHandle, { con
     return ownsInput() && !!session && !!current && current.targetDocument === session.targetDocument
       && current.targetHash === session.targetHash && current.revision === session.revision;
   }
-  function labelInput(value: string) { if (!ownsInput()) return; labelEpoch.current++; labelRef.current = value; setLabel(value); controller.setPendingInteractionInput("layout-label", value.length > 0, true); changed(); }
+  function labelInput(value: string) { if (!ownsInput() || latestController.current.canEditField?.() === false || latestController.current.canCaptureLive?.() === false) return; labelEpoch.current++; labelRef.current = value; setLabel(value); controller.setPendingInteractionInput("layout-label", value.length > 0, true); changed(); }
   function nameInput(value: string) {
-    if (!ownsInput() || controller.stateRef.current.layout?.session.name !== session?.name) return;
+    if (!nameEditable() || controller.stateRef.current.layout?.session.name !== session?.name) return;
     nameEpoch.current++; nameRef.current = value; setName(value);
     controller.setPendingInteractionInput("layout-name", value !== (controller.stateRef.current.layout?.session.name ?? "Layout session"), true);
     changed();
   }
-  function copyInput(value: string) { if (!ownsInput()) return; copyEpoch.current++; copyNameRef.current = value; setCopyName(value); controller.setPendingInteractionInput("layout-copy-name", value.length > 0, true); changed(); }
+  function nameEditable() {
+    const submission = nameSubmission.current;
+    return ownsInput() && latestController.current.canEditField?.() !== false && (!latestController.current.busy || !!submission
+      && submission.documentGeneration === documentGeneration && submission.interactionKey === interactionKey && submission.sessionId === session?.id);
+  }
+  function copyInput(value: string) { if (!ownsInput() || latestController.current.canEditField?.() === false) return; copyEpoch.current++; copyNameRef.current = value; setCopyName(value); controller.setPendingInteractionInput("layout-copy-name", value.length > 0, true); changed(); }
+  function toleranceInput(value: string) {
+    if (!ownsInput() || latestController.current.canEditField?.() === false || latestController.current.canCaptureLive?.() === false) return;
+    if (!toleranceRef.current.trim() || !value.trim()) { toleranceUnitsRef.current = controller.settings.unitSystem; setToleranceUnitSystem(toleranceUnitsRef.current); }
+    toleranceRef.current = value; setToleranceText(value);
+    controller.setPendingInteractionInput("layout-tolerance", value.length > 0, true); changed();
+  }
+  function discardTolerance() {
+    if (!ownsInput()) return;
+    toleranceRef.current = ""; setToleranceText(""); toleranceUnitsRef.current = controller.settings.unitSystem; setToleranceUnitSystem(toleranceUnitsRef.current);
+    controller.setPendingInteractionInput("layout-tolerance", false, true); changed();
+  }
   async function submitName(create: boolean): Promise<boolean> {
-    if (!ownsInput() || controller.replacementGuard().busy || !create && !ownsRenderedSession()) return false;
+    if (!ownsInput() || latestController.current.canEditField?.() === false || controller.replacementGuard().busy || !create && !ownsRenderedSession()) return false;
     changed();
-    const submitted = { documentGeneration, sessionId: session?.id, epoch: nameEpoch.current, text: nameRef.current };
+    const submitted = { documentGeneration, interactionKey, sessionId: session?.id, epoch: nameEpoch.current, text: nameRef.current };
     if (!submitted.text.trim()) {
       controller.reportError(new Error("Enter a Layout session name before saving."));
       return false;
@@ -419,24 +481,45 @@ export const WorkspaceLayoutPanel = forwardRef<WorkspaceLayoutPanelHandle, { con
   useEffect(() => { controller.setPendingInteractionInput("layout-label", label.length > 0); }, [label, controller.setPendingInteractionInput]);
   useEffect(() => { controller.setPendingInteractionInput("layout-name", name !== (session?.name ?? "Layout session")); }, [name, session?.name, controller.setPendingInteractionInput]);
   useEffect(() => { controller.setPendingInteractionInput("layout-copy-name", copyName.length > 0); }, [copyName, controller.setPendingInteractionInput]);
-  const target = session ? parseFieldLayoutTarget(session.targetDocument) : null;
+  useEffect(() => { controller.setPendingInteractionInput("layout-tolerance", toleranceText.length > 0); }, [toleranceText, controller.setPendingInteractionInput]);
+  const target = useMemo(() => session ? parseFieldLayoutTarget(session.targetDocument) : null, [session?.targetDocument]);
+  const officialSession = useMemo(() => session ? isOfficialLayoutSession(session) : false, [session]);
   const gate = target ? controller.receiver.collectionGate(target.field.projectCrs) : null;
+  const creationCrs = controller.state.editable?.kind === "field" ? controller.state.editable.editor.field.projectCrs : null;
+  const creationGate = creationCrs ? controller.receiver.collectionGate(creationCrs) : null;
+  const operationalSession = session?.documentVersion === RTK_LAYOUT_SESSION_DOCUMENT_VERSION && session.referenceSourceDocument === undefined && session.finalization === null;
+  const stationRecordsReady = useMemo(() => {
+    if (operationalSession && session) { try { layoutFinalizationRecords(session.targetDocument, session.observations); return true; } catch { /* Actual target marks remain incomplete. */ } }
+    return false;
+  }, [session, operationalSession]);
+  let guidance: ReturnType<typeof layoutPointResidual> | null = null;
+  if (target && targetPointId && controller.layoutAdmission?.ready !== false && gate?.accepted && gate.projected) {
+    try { guidance = layoutPointResidual(target, targetPointId, gate.projected); } catch { /* A foreign/old point never becomes guidance. */ }
+  }
   const observedId = controller.receiver.getSnapshot().observation?.id;
   const alreadySaved = !!session && !!observedId && session.observations.some(item => item.evidence.observationId === observedId);
   const copiedId = copyReceipt?.documentGeneration === documentGeneration && copyReceipt.sessionId === session?.id
     && copyReceipt.targetHash === session.targetHash ? copyReceipt.id : null;
   async function collect() {
-    if (!ownsInput()) return; const entered = labelRef.current, epoch = labelEpoch.current; changed();
-    if (await controller.collectLayout(entered) && ownsInput() && epoch === labelEpoch.current && labelRef.current === entered) {
+    if (!ownsInput() || latestController.current.canEditField?.() === false || latestController.current.canCaptureLive?.() === false) return; const entered = labelRef.current, epoch = labelEpoch.current; changed();
+    let tolerance: number | undefined;
+    try { if (toleranceRef.current.trim()) { tolerance = parseDistanceInput(toleranceRef.current, toleranceUnitsRef.current, "Distance tolerance"); if (tolerance <= 0) throw new Error("Enter a positive distance tolerance."); } }
+    catch (error) { controller.reportError(error); return; }
+    if (await controller.collectLayout(entered, targetPointRef.current ?? undefined, tolerance) && ownsInput() && epoch === labelEpoch.current && labelRef.current === entered) {
       labelEpoch.current++; labelRef.current = ""; setLabel(""); controller.setPendingInteractionInput("layout-label", false);
     }
   }
   useWorkspaceRecoveryParticipant(controller.recoveryParticipants, "layout", {
-    capture: () => ({ name: nameRef.current, nameBaseline: nameBaseline.current.name, label: labelRef.current,
+    capture: () => ({ targetPointId: targetPointRef.current, toleranceText: toleranceRef.current, toleranceUnitSystem: toleranceUnitsRef.current, name: nameRef.current, nameBaseline: nameBaseline.current.name, label: labelRef.current,
       copyName: copyNameRef.current, details: detailsRef.current }),
     stage(value, target) {
-      const next = recoveryPart<WorkspaceRecoveryParts["layout"]>(value, ["name", "nameBaseline", "label", "copyName"], ["details"]);
+      const next = recoveryPart<WorkspaceRecoveryParts["layout"]>(value, ["name", "nameBaseline", "label", "copyName"], ["details"], {
+        targetPointId: value => value === null || typeof value === "string" && value.length > 0,
+        toleranceText: value => typeof value === "string", toleranceUnitSystem: value => value === "metric" || value === "us_survey_feet",
+      });
       const session = target.admission.layout?.session ?? null, baseline = session?.name ?? "Layout session";
+      const actualTarget = session ? parseFieldLayoutTarget(session.targetDocument) : null;
+      if (next.targetPointId && !actualTarget?.targetPoints?.some(point => point.id === next.targetPointId)) throw new Error("Recovered Layout point belongs to another target.");
       if (next.nameBaseline !== baseline) throw new Error("Recovered Layout name has a different saved session baseline.");
       const token = eventOwner.current, source = { ...latestController.current.stateRef.current.presentation }; let consumed = false;
       const sourceKey = () => workspaceRecoveryStableJson(latestController.current.stateRef.current.layout?.session ?? null), stagedSource = sourceKey();
@@ -450,6 +533,7 @@ export const WorkspaceLayoutPanel = forwardRef<WorkspaceLayoutPanelHandle, { con
             || workspaceRecoveryStableJson(delivery.target.admission.ui.layout) !== workspaceRecoveryStableJson(next)
             || workspaceRecoveryStableJson(state.layout?.session ?? null) !== workspaceRecoveryStableJson(session)) throw new Error("Recovered Layout controls belong to an earlier session.");
           consumed = true; recoveryGeneration.current++; eventOwner.current = {}; nameEpoch.current++; labelEpoch.current++; copyEpoch.current++;
+          targetOwner.current = session?.id; targetPointRef.current = next.targetPointId ?? null; toleranceRef.current = next.toleranceText ?? ""; toleranceUnitsRef.current = next.toleranceUnitSystem ?? target.admission.ui.settings.unitSystem; setTargetPointId(targetPointRef.current); setToleranceText(toleranceRef.current); setToleranceUnitSystem(toleranceUnitsRef.current);
           nameRef.current = next.name; labelRef.current = next.label; copyNameRef.current = next.copyName; detailsRef.current = next.details;
           nameBaseline.current = { documentGeneration: state.presentation.documentGeneration, sessionId: session?.id, name: baseline };
           nameSubmission.current = null; focusRequest.current = null; setCopyReceipt(null);
@@ -457,37 +541,63 @@ export const WorkspaceLayoutPanel = forwardRef<WorkspaceLayoutPanelHandle, { con
           current.setPendingInteractionInput("layout-name", next.name !== baseline);
           current.setPendingInteractionInput("layout-label", next.label.length > 0);
           current.setPendingInteractionInput("layout-copy-name", next.copyName.length > 0);
+          current.setPendingInteractionInput("layout-tolerance", (next.toleranceText ?? "").length > 0);
         } };
     },
   });
   function layoutAction(action: () => void) { if (!ownsInput()) return; action(); changed(); }
-  const blocked = controller.busy || !canEdit();
+  const blocked = controller.busy || controller.active === false || latestController.current.isActive?.() === false || !canEdit();
   // A queued name Save owns its captured text; newer input remains a separate intention.
-  const savedNameEditable = canEdit() && (!controller.busy || !!session
-    && nameSubmission.current?.documentGeneration === documentGeneration
-    && nameSubmission.current?.sessionId === session.id);
+  const mutationBlocked = blocked || controller.canEditField?.() === false;
+  const captureBlocked = mutationBlocked || controller.canCaptureLive?.() === false;
+  const savedNameEditable = nameEditable();
   return <View ref={panelRef} style={styles.panel} testID="unified-layout-panel" onLayout={focusDetailsInput}>
+    {controller.fieldArchiveStatus?.() !== undefined && controller.fieldArchiveStatus() !== "active" && <Text style={styles.help}>{controller.fieldArchiveStatus() === "archived" ? "This customer or project is archived. Review or export the saved plan, or restore it before marking positions." : "Customer and project status is unavailable. Connect or refresh before marking Layout positions."}</Text>}
     <Text style={styles.heading}>Work from a frozen target</Text>
     <Text style={styles.help}>The target keeps its saved geometry. Receiver observations are saved separately.</Text>
     {!session ? <>
       {controller.state.editable?.kind === "project" ? <><Text style={styles.help}>Create a field design from this complete design before freezing a Layout target.</Text>
-        <WorkspaceButton label="Create field design for Layout" disabled={blocked} testID="layout-create-field" onPress={() => layoutAction(() => { void controller.createFieldFromProject(); })} />
+        <WorkspaceButton label="Create field design for Layout" disabled={mutationBlocked} testID="layout-create-field" onPress={() => layoutAction(() => { void controller.createFieldFromProject(); })} />
         {controller.savedFieldDesignId && <WorkspaceButton label="Open saved field design" disabled={blocked} onPress={() => layoutAction(() => { void controller.openDesign(controller.savedFieldDesignId!); })} />}</>
         : controller.state.editable?.kind === "field" ? <>
-          <Text style={styles.label}>Layout session name</Text><TextInput value={name} editable={!blocked} onChangeText={nameInput} accessibilityLabel="New Layout session name" style={styles.input} />
-          <WorkspaceButton label="Discard new session name" testID="layout-discard-new-name" disabled={blocked || name === "Layout session"} onPress={() => nameInput("Layout session")} />
-          <WorkspaceButton label="Freeze selected machines and open Layout" testID="layout-freeze" disabled={blocked || !name.trim()} onPress={() => { void submitName(true); }} />
-          <Text style={styles.help}>Choose the machine in Design and calculate its current preview before freezing.</Text>
+          <WorkspaceSelect label="Machine to lay out" value={controller.state.editable.editor.selectedMachineId ?? ""}
+            choices={[{ id: "", label: "Choose a machine" }, ...controller.state.editable.editor.field.machines.map(machine => ({ id: machine.id, label: machine.configuration.name })),
+              ...(controller.state.editable.editor.field.lateralMachines ?? []).map(machine => ({ id: machine.id, label: machine.name }))]}
+            disabled={blocked} onChange={id => { if (ownsInput()) controller.selectMachineForLayout(id || null); }} />
+          <Text style={styles.label}>Layout session name</Text><TextInput value={name} editable={savedNameEditable} onChangeText={nameInput} accessibilityLabel="New Layout session name" style={styles.input} />
+          <WorkspaceButton label="Discard new session name" testID="layout-discard-new-name" disabled={mutationBlocked || name === "Layout session"} onPress={() => nameInput("Layout session")} />
+          <WorkspaceButton label="Start RTK Layout for the selected machine" testID="layout-freeze" disabled={captureBlocked || !creationGate?.accepted || !name.trim() || controller.surveyReadiness?.status !== "ready"} onPress={() => { void submitName(true); }} />
+          <Text testID="layout-start-readiness" style={styles.help}>{creationGate?.accepted ? "Current RTK Fixed lock — ready to start" : creationGate?.reason ?? "Connect a receiver with a fresh RTK Fixed lock before starting Layout."}</Text>
+          <Text style={styles.help}>The machine and field geometry stay planned. The recorded RTK map contains admitted measured stations.</Text>
         </> : <Text style={styles.help}>Open or complete a design, then create its field design. You can also open a saved Layout session below.</Text>}
     </> : <View style={styles.card}>
       <Text style={styles.label}>{session.name}{session.archived ? " · Archived" : ""}</Text>
-      <Text style={styles.help}>Target: {target!.field.name} · Frozen revision {target!.source.inputRevision}</Text>
-      <Text style={styles.help}>Machines: {target!.source.selectedMachineIds.map(id => target!.field.machines.find(machine => machine.id === id)?.configuration.name ?? id).join(", ")}</Text>
-      <Text style={styles.help} testID="layout-readiness">{session.archived ? "Restore this session to collect." : controller.busy ? "Saving…" : alreadySaved ? "This receiver position is already saved. Wait for the next position."
+      <Text testID="layout-official-status" style={styles.label}>{officialSession ? "Official recorded RTK stations" : operationalSession ? "RTK Layout in progress" : "Reference map history — view and export"}</Text>
+      <Text style={styles.help}>RTK Fixed is receiver reported. Equipment accuracy and installation are not independently verified. Planned field and machine geometry remain separate from recorded stations.</Text>
+      <Text style={styles.help}>Layout plan: {target!.field.name} · Version {target!.source.inputRevision}</Text>
+      <Text style={styles.help}>Machines: {target!.source.selectedMachineIds.map(id => target!.field.machines.find(machine => machine.id === id)?.configuration.name ?? target!.field.lateralMachines?.find(machine => machine.id === id)?.name ?? id).join(", ")}</Text>
+      <Text style={styles.help} testID="layout-readiness">{controller.layoutAdmission?.ready === false ? controller.layoutAdmission.reasons.join(" ") : session.archived ? "Restore this session to collect." : controller.busy ? "Saving…" : alreadySaved ? "This receiver position is already saved. Wait for the next position."
         : gate?.accepted ? "Ready to collect — RTK Fixed, receiver reported" : gate?.reason}</Text>
-      <Text style={styles.label}>Observation label (optional)</Text><TextInput accessibilityLabel="Layout observation label" value={label} editable={!blocked} testID="layout-observation-label" style={styles.input}
+      {target?.targetPoints && <View style={styles.group} testID="layout-stakeout-controls">
+        <Text style={styles.label}>Layout point</Text>
+        <WorkspaceSelect label="Select a Layout point" value={targetPointId ?? ""} choices={[{ id: "", label: "Record position without marking a point" }, ...target.targetPoints.map(point => ({ id: point.id,
+          label: `${target.field.machines.find(machine => machine.id === point.machineId)?.configuration.name ?? "Linear machine"} · ${{ pivot_center: "Pivot center", corner_guidance: "Corner guidance", lateral_start: "Travel start", lateral_end: "Travel end" }[point.role]}${point.sourceVertexIndex === undefined ? "" : ` ${point.sourceVertexIndex + 1}`}` }))]}
+          disabled={blocked} onChange={value => { if (!ownsInput()) return; targetPointRef.current = value || null; setTargetPointId(value || null); const address = value ? controller.scene?.entities.find(entity => entity.sourceId === value && entity.sourcePath.startsWith("targetPoints["))?.address ?? null : null; controller.selectAddress?.(address); changed(); }} />
+        {guidance ? <Text testID="layout-distance-guidance" style={styles.label}>{guidance.distanceMeters === 0 ? "At the selected grid point" : `${formatDistance(guidance.distanceMeters, controller.settings.unitSystem)} remaining · ${guidance.gridBearingDegrees.toFixed(1)}° from grid north`}</Text>
+          : <Text style={styles.help}>{targetPointId ? "Connect a receiver with a fresh fixed position for guidance." : "Choose a point to see the remaining distance and direction."}</Text>}
+        <Text style={styles.label}>Distance tolerance ({(toleranceText.trim() ? toleranceUnitSystem : controller.settings.unitSystem) === "metric" ? "metres" : "feet"}, optional)</Text>
+        <TextInput value={toleranceText} accessibilityLabel="Layout distance tolerance" testID="layout-tolerance" style={styles.input} editable={!captureBlocked}
+          onChangeText={toleranceInput} />
+        <WorkspaceButton label="Discard distance tolerance" testID="layout-discard-tolerance" disabled={blocked || !toleranceText.length} onPress={discardTolerance} />
+        <Text style={styles.help}>Entered tolerance stays with this session. Clear or discard it before opening another session.</Text>
+        <Text style={styles.help}>No tolerance is assumed. A distance check does not verify GPS accuracy or installation.</Text>
+      </View>}
+      {!target?.targetPoints && <Text style={styles.help}>This saved session is available for review. Complete Survey to create a new Layout plan.</Text>}
+      <Text style={styles.label}>Observation label (optional)</Text><TextInput accessibilityLabel="Layout observation label" value={label} editable={!captureBlocked} testID="layout-observation-label" style={styles.input}
         onChangeText={labelInput} />
-      <WorkspaceButton label="Collect Layout observation" testID="layout-collect" disabled={blocked || session.archived || !gate?.accepted || alreadySaved} onPress={() => { void collect(); }} />
+      <WorkspaceButton label={targetPointId ? "Mark point" : "Record Layout position"} testID="layout-collect" disabled={captureBlocked || !operationalSession || controller.layoutAdmission?.ready === false || session.archived || !target?.targetPoints || !gate?.accepted || alreadySaved} onPress={() => { void collect(); }} />
+      {operationalSession && <WorkspaceButton label="Finalize recorded RTK map" testID="layout-finalize" disabled={captureBlocked || session.archived || !stationRecordsReady || !gate?.accepted || controller.layoutAdmission?.ready === false}
+        onPress={() => { if (ownsInput() && latestController.current.canCaptureLive?.() !== false) void controller.finalizeLayoutSession(); }} />}
       <WorkspaceButton label={details ? "Hide session details" : "Session details & actions"} disabled={blocked} onPress={() => {
         if (!ownsInput()) return; detailsRef.current = !detailsRef.current; setDetails(detailsRef.current); changed();
       }} />
@@ -495,8 +605,8 @@ export const WorkspaceLayoutPanel = forwardRef<WorkspaceLayoutPanelHandle, { con
         <Text style={styles.label}>Session name</Text><TextInput ref={nameInputRef} value={name} editable={savedNameEditable} accessibilityLabel="Layout session name" style={styles.input}
           onChangeText={nameInput} />
         <Text style={styles.help}>Use Save in the common toolbar to save the session name. Positions are saved by Collect.</Text>
-        <Text style={styles.label}>Copy name</Text><TextInput ref={copyInputRef} value={copyName} editable={!blocked} onChangeText={copyInput} accessibilityLabel="Copy Layout session name" style={styles.input} />
-        <WorkspaceButton label="Copy target into an empty session" disabled={blocked || !copyName.trim()} onPress={() => {
+        <Text style={styles.label}>Copy name</Text><TextInput ref={copyInputRef} value={copyName} editable={!mutationBlocked} onChangeText={copyInput} accessibilityLabel="Copy Layout session name" style={styles.input} />
+        <WorkspaceButton label="Copy target into an empty session" disabled={mutationBlocked || !copyName.trim()} onPress={() => {
           if (!ownsInput()) return; changed();
           const entered = copyNameRef.current, epoch = copyEpoch.current;
           void controller.copyLayout(entered).then(id => { if (id && ownsInput()) {
@@ -505,8 +615,7 @@ export const WorkspaceLayoutPanel = forwardRef<WorkspaceLayoutPanelHandle, { con
           } });
         }} />
         {copiedId && <WorkspaceButton label="Open saved session copy" disabled={blocked} onPress={() => layoutAction(() => { void controller.openLayoutSession(copiedId); })} />}
-        <WorkspaceButton label={session.archived ? "Restore session" : "Archive session"} disabled={blocked} onPress={() => layoutAction(() => { void controller.archiveLayout(!session.archived); })} />
-        <Text selectable style={styles.help}>Target hash: {session.targetHash}</Text>
+        <WorkspaceButton label={session.archived ? "Restore session" : "Archive session"} disabled={mutationBlocked} onPress={() => layoutAction(() => { void controller.archiveLayout(!session.archived); })} />
       </View>}
       <Text style={styles.label}>{session.observations.length} saved observations</Text>
       {session.observations.map(item => <View key={item.id} style={styles.record}><Text style={styles.label}>{item.label || "Layout observation"}</Text>

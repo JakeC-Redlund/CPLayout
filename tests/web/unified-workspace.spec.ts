@@ -1,5 +1,5 @@
 import { fillActiveCatalogFormInput } from "./catalog-form-readiness";
-import { expect, test, type BrowserContext, type Page } from "@playwright/test";
+import { expect, test, type BrowserContext, type Page } from "./authenticated-test";
 import { readFile, writeFile } from "node:fs/promises";
 import { newDesignDraft } from "../../apps/mobile/src/newDesignDraft";
 import { parseDesignDraftDocument } from "../../packages/core/src/designDraft";
@@ -9,14 +9,17 @@ import { parseFieldDesignDocument } from "../../packages/core/src/fieldDesignDoc
 import { createFieldLayoutTarget, serializeFieldLayoutTarget, parseFieldLayoutTarget } from "../../packages/core/src/fieldLayoutTarget";
 import { parseLayoutSessionDocument } from "../../packages/core/src/layoutSession";
 import { parseSurveyCollectionDocument } from "../../packages/core/src/surveyCollection";
+import { workspaceFieldContents } from "../../packages/project-store/src/workspaceFieldContents";
 import { projectLonLatToXy } from "../../packages/core/src/coordinates";
+import { formatDistanceInputValue } from "../../packages/core/src/units";
 import { sampleProject } from "../../packages/core/src/sampleProject";
 import { applyWorkspaceCommand } from "../../packages/project-store/src/workspaceCommands";
 import { emptyWorkspaceDocument, serializeWorkspaceDocument, type WorkspaceDocument } from "../../packages/project-store/src/workspaceDocument";
-import { createWebWorkspaceStore, WEB_WORKSPACE_LOCK } from "../../packages/project-store/src/webWorkspaceStore";
+import { createWebWorkspaceStore } from "../../packages/project-store/src/webWorkspaceStore";
 import { parseDesignWorkspaceBundle } from "../../packages/project-store/src/designWorkspaceBundle";
-import { readWorkspace, workspaceKey, workspaceStorageBytes } from "./workspace-fixtures";
+import { readWorkspace, workspaceKey, workspaceStorageBytes, actualWorkspaceWriterLock, browseDesignParents } from "./workspace-fixtures";
 import { connectOperationalReceiver, emitGga, gga, installOperationalReceiver } from "./operational-receiver-fixture";
+import { recordWorkspaceInputFlags } from "./workspace-diagnostics";
 
 // All journeys load the actual default App. Fixtures supply durable documents or
 // the synthetic serial transport boundary; no editor/controller hook is replaced.
@@ -91,15 +94,33 @@ async function open(page: Page, id: string) {
   const recent = page.getByTestId(`catalog-recent-open-${id}`);
   if (await recent.isVisible()) await recent.click();
   else {
-    await page.getByTestId(`catalog-client-${clientId}`).click();
-    await page.getByTestId(`catalog-project-${folderId}`).click();
-    await page.getByTestId(`catalog-field-${fieldMapId}`).click();
+    await browseDesignParents(page, id);
     await page.getByTestId(`catalog-design-open-${id}`).click();
   }
   // Open preserves the current mode. These journeys explicitly request Design
   // tools, including when startup has restored the saved Survey mode.
   await page.getByTestId("workspace-mode-design").click();
   await tools(page, true); await expect(page.getByTestId("unified-design-panel")).toBeVisible();
+}
+async function openSavedLayout(page: Page, id: string) {
+  const workspace = await readWorkspace(page), entry = workspace.layoutSessions?.find(item => item.id === id);
+  if (!entry) throw new Error("The actual saved Layout is unavailable.");
+  const session = parseLayoutSessionDocument(entry.document), field = workspace.catalog.fieldMaps.find(item => item.id === session.fieldMapId);
+  const project = workspace.catalog.projects.find(item => item.id === field?.projectId);
+  if (!field || !project) throw new Error("The saved Layout's actual field and customer folders are unavailable.");
+  await catalog(page); await page.getByTestId(`catalog-client-${project.clientId}`).click();
+  await page.getByTestId(`catalog-project-${project.id}`).click(); await page.getByTestId(`catalog-field-${field.id}`).click();
+  await page.getByTestId("catalog-content-survey").click();
+  const historyToggle = page.getByTestId("catalog-layout-sessions");
+  if ((await historyToggle.innerText()).startsWith("Saved Layout maps")) await historyToggle.click();
+  const review = workspaceFieldContents(workspace, field.id).surveys.find(item => item.layoutSessionIds.includes(id));
+  if (review) {
+    const folder = page.getByTestId(`catalog-survey-${review.reviewId}`); await expect(folder).toBeVisible();
+    if (await folder.getAttribute("aria-pressed") !== "true") await folder.click();
+  } else await expect(page.getByTestId("catalog-saved-layout-list")).toBeVisible();
+  await page.getByTestId(`catalog-layout-open-${id}`).click();
+  await expect(page.getByTestId("workspace-catalog")).toBeHidden(); await expect(page.getByTestId("workspace-mode-layout")).toHaveAttribute("aria-pressed", "true");
+  await tools(page, true);
 }
 async function reloadSavedWorkspace(page: Page) {
   await page.reload();
@@ -122,9 +143,9 @@ async function sessionStored(page: Page) {
   const entries = (await readWorkspace(page)).layoutSessions ?? []; expect(entries).toHaveLength(1);
   return parseLayoutSessionDocument(entries[0].document);
 }
-async function receiver(page: Page) {
+async function receiver(page: Page, requestCount = 1) {
   await page.getByTestId("workspace-receiver-toggle").click();
-  await connectOperationalReceiver(page); await expect(page.getByTestId("workspace-receiver-summary")).toContainText("RTK Fixed");
+  await connectOperationalReceiver(page, requestCount); await expect(page.getByTestId("workspace-receiver-summary")).toContainText("RTK Fixed");
 }
 async function holdWriter(page: Page) {
   // Hold the browser's actual repository writer lock, without replacing the store.
@@ -137,7 +158,7 @@ async function holdWriter(page: Page) {
       delete state.unifiedReleaseWriter;
     });
     await ready;
-  }, WEB_WORKSPACE_LOCK);
+  }, actualWorkspaceWriterLock(page));
 }
 async function releaseWriter(page: Page) { await page.evaluate(() => (window as LockFixtureWindow).unifiedReleaseWriter?.()); }
 test.beforeEach(async ({ page, context, baseURL }) => {
@@ -155,7 +176,7 @@ test.beforeEach(async ({ page, context, baseURL }) => {
 test.afterEach(async ({ page }) => { expect(errors.get(page) ?? []).toEqual([]); });
 
 test("empty default App creates explicit customer/project/first field/CRS and opens an actual empty Draft", async ({ context, page }) => {
-  await seed(context, emptyWorkspaceDocument()); await page.goto("/");
+  await seed(context, applyWorkspaceCommand(emptyWorkspaceDocument(), { type: "upgrade_workspace_to_v5", now }).workspace); await page.goto("/");
   await expect(page.getByTestId("unified-workspace")).toBeVisible();
   const empty = await readWorkspace(page); expect(empty.catalog.designs).toEqual([]); expect(empty.projectDocuments).toEqual([]);
   await expect(page.getByTestId("workspace-map-surface")).toHaveCount(0);
@@ -168,19 +189,17 @@ test("empty default App creates explicit customer/project/first field/CRS and op
   await fillActiveCatalogFormInput(page, "catalog-dialog-first-field-input", "", "catalog-dialog", "Field 1"); await page.getByTestId("catalog-dialog-create").click();
   await expect(page.getByTestId("catalog-dialog-first-field-input-error")).toBeVisible();
   await page.getByTestId("catalog-dialog-first-field-input").fill("Operator entered first field");
-  await expect(page.getByTestId("catalog-project-crs")).toHaveValue(""); await page.getByTestId("catalog-dialog-create").click();
+  await expect(page.getByTestId("catalog-project-crs")).toHaveValue(""); await page.getByTestId("catalog-project-crs").fill("EPSG:4326"); await page.getByTestId("catalog-dialog-create").click();
   await expect.poll(async () => (await readWorkspace(page)).catalog.projects.length).toBe(0);
   await expect(page.getByTestId("catalog-dialog-save-error")).toBeVisible();
   await page.getByTestId("catalog-project-crs").fill("EPSG:32613"); await page.getByTestId("catalog-units-metric").click(); await page.getByTestId("catalog-dialog-create").click();
-  await expect(page.getByTestId("catalog-new")).toHaveAttribute("aria-label", "New design");
+  await expect(page.getByTestId("workspace-catalog")).toBeHidden();
   const created = await readWorkspace(page); expect(created.catalog.projects[0]).toMatchObject({ name: "Explicit project name", projectCrs: "EPSG:32613", unitSystem: "metric" });
   expect(created.catalog.fieldMaps[0].name).toBe("Operator entered first field");
-  await page.getByTestId("catalog-new").click(); await fillActiveCatalogFormInput(page, "catalog-dialog-name-input", "Actual first draft", "catalog-dialog", ""); await page.getByTestId("catalog-dialog-create").click();
   await expect.poll(async () => (await readWorkspace(page)).catalog.designs.length).toBe(1);
   const stored = await readWorkspace(page), design = stored.catalog.designs[0]; expect(design.kind).toBe("draft");
   const draft = parseDesignDraftDocument(stored.draftDocuments[0].document); expect(draft.fieldBoundary).toEqual([]); expect(draft.pivotCenter).toBeNull(); expect(draft.machine).toEqual({}); expect(draft.projectCrs).toBe("EPSG:32613");
-  await expect(page.getByTestId("workspace-map-surface")).toHaveCount(0);
-  await page.getByTestId(`catalog-design-open-${design.id}`).click(); await tools(page, true);
+  await tools(page, true);
   await expect(page.getByTestId("workspace-map-surface")).toHaveCount(1); await page.getByTestId("design-task-review").click(); await expect(page.getByTestId("draft-create-complete")).toBeDisabled();
 });
 
@@ -205,7 +224,7 @@ test("Draft map clicks classify inline and save/reopen exact ordered geometry, l
   await expect(page.getByTestId("draft-boundary-csv")).toHaveValue(committed.fieldBoundary.map(point => `${point.x},${point.y}`).join("\n"));
 });
 
-test("Design/Survey/Layout retain one map node and camera while malformed machine text and caret survive mode changes", async ({ context, page }) => {
+test("Design/Survey retain one map and unfinished input while missing Survey review blocks Layout without changing source", async ({ context, page }, info) => {
   await seed(context, draftFixture()); await start(page, draftDesignId);
   await expect(page.getByTestId("workspace-context")).toHaveAttribute("aria-label", /Unified workflow test farm.*Explicit workflow project.*Operator named first field.*Actual Draft fixture/);
   if (page.viewportSize()!.width < 900) await expect(page.getByTestId("workspace-context")).toHaveText(/^Actual Draft fixture/);
@@ -220,7 +239,11 @@ test("Design/Survey/Layout retain one map node and camera while malformed machin
   const map = await page.getByTestId("workspace-map-surface").elementHandle(); if (!map) throw new Error("Expected actual shared map node.");
   const readout = await page.getByTestId("workspace-map-readout").innerText(); const contextText = await page.getByTestId("workspace-context").innerText();
   for (const mode of ["survey", "layout", "design"] as const) {
-    await page.getByTestId(`workspace-mode-${mode}`).click(); await expect(page.getByTestId("workspace-map-surface")).toHaveCount(1);
+    if (mode === "layout") {
+      await expect(page.getByTestId("workspace-mode-layout")).toBeDisabled();
+      await expect(page.getByTestId("workspace-mode-survey")).toHaveAttribute("aria-pressed", "true");
+    } else { await page.getByTestId(`workspace-mode-${mode}`).click(); await expect(page.getByTestId(`workspace-mode-${mode}`)).toHaveAttribute("aria-pressed", "true"); }
+    await expect(page.getByTestId("workspace-map-surface")).toHaveCount(1);
     expect(await map.evaluate(node => node === document.querySelector('[data-testid="workspace-map-surface"]'))).toBe(true);
     await expect.poll(() => page.getByTestId("workspace-map-readout").innerText()).toBe(readout); await expect(page.getByTestId("workspace-context")).toHaveText(contextText);
     await expect(page.getByTestId("workspace-common-controls")).toBeVisible();
@@ -230,6 +253,22 @@ test("Design/Survey/Layout retain one map node and camera while malformed machin
   expect(await workspaceStorageBytes(page)).toEqual(bytes);
   await page.getByTestId("command-menu-workspace-file").click(); await page.getByRole("menuitem", { name: "Reload saved design", exact: true }).click();
   await expect(page.getByRole("alert").filter({ hasText: /finish its entered inputs/ })).toBeVisible(); await expect(input).toHaveValue("unfinished 12' x");
+  await page.getByTestId("command-menu-workspace-file").click(); await page.getByRole("menuitem", { name: "Units, map & layer preferences", exact: true }).click();
+  const measurements = page.getByRole("combobox", { name: "Measurements", exact: true }), initialUnits = await measurements.inputValue(), otherUnits = initialUnits === "metric" ? "us_survey_feet" : "metric";
+  await measurements.selectOption(otherUnits); await expect(measurements).toHaveValue(initialUnits);
+  await expect(page.getByTestId("workspace-preferences-notice")).toHaveText("Apply or discard entered values before changing measurement units.");
+  await page.getByRole("button", { name: "Hide boundary", exact: true }).click(); await expect(page.getByRole("button", { name: "Show boundary", exact: true })).toBeVisible();
+  await expect(measurements).toHaveValue(initialUnits); await page.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(input).toHaveValue("unfinished 12' x");
+  expect(await input.evaluate(node => ({ start: (node as HTMLInputElement).selectionStart, end: (node as HTMLInputElement).selectionEnd }))).toEqual(selection);
+  expect(await workspaceStorageBytes(page)).toEqual(bytes);
+  await page.getByTestId("draft-inputs-discard").click();
+  await recordWorkspaceInputFlags(page, info, "discard-before-measurement-retry");
+  await page.getByTestId("command-menu-workspace-file").click(); await page.getByRole("menuitem", { name: "Units, map & layer preferences", exact: true }).click();
+  await measurements.selectOption(otherUnits);
+  try { await expect(measurements).toHaveValue(otherUnits); }
+  catch (error) { await recordWorkspaceInputFlags(page, info, "measurement-retry-refused"); throw error; }
+  await page.getByRole("button", { name: "Close", exact: true }).click(); expect(await workspaceStorageBytes(page)).toEqual(bytes);
 });
 
 test("calculation is preview only and explicit completion creates a separate saved child before explicit Open", async ({ context, page }) => {
@@ -244,7 +283,16 @@ test("calculation is preview only and explicit completion creates a separate sav
   expect(after.catalog.designs.filter(item => item.kind === "draft")).toHaveLength(1); expect(after.draftDocuments[0].document).toBe(source); expect(after.projectDocuments).toHaveLength(1);
   await expect(page.getByTestId("design-draft-inputs")).toHaveCount(1); await expect(page.getByTestId("design-draft-inputs")).toBeHidden();
   await expect(page.getByTestId("design-task-review")).toHaveAttribute("aria-selected", "true"); await expect(page.getByTestId("project-design-panel")).toHaveCount(0);
-  await page.getByTestId("draft-open-saved-complete").click(); await expect(page.getByTestId("project-design-panel")).toBeVisible(); await expect(page.getByTestId("workspace-map-surface")).toHaveCount(1);
+  const childDocument = after.projectDocuments[0].document, child = parseProjectDocument(childDocument);
+  expect(child.id).toBe(complete!.kind === "project" ? complete!.pivotProjectId : null);
+  await page.getByTestId("draft-open-saved-complete").click(); await expect(page.getByTestId("design-task-drawing")).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByTestId("workspace-context")).toHaveAttribute("aria-label", new RegExp(complete!.name));
+  await page.getByTestId("design-task-inputs").click(); await expect(page.getByTestId("design-task-inputs")).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByTestId("project-design-panel")).toBeVisible(); await expect(page.getByTestId("workspace-map-surface")).toHaveCount(1);
+  const span = page.getByTestId("project-design-machine").getByRole("textbox", { name: /^Span 1 \((m|ft\/in)\)$/ }); await expect(span).toBeVisible();
+  const units = (await span.getAttribute("aria-label"))!.endsWith("(m)") ? "metric" : "us_survey_feet";
+  await expect(span).toHaveValue(formatDistanceInputValue(child.machine.spanLengthsMeters[0], units));
+  const reopened = await readWorkspace(page); expect(reopened.draftDocuments[0].document).toBe(source); expect(reopened.projectDocuments[0].document).toBe(childDocument); expect(reopened).toEqual(after);
 });
 
 test("task tabs retire held map gestures and retain malformed input, caret and independent scroll positions", async ({ context, page }) => {
@@ -268,9 +316,9 @@ test("task tabs retire held map gestures and retain malformed input, caret and i
   await expect(drawing).toHaveAttribute("aria-selected", "false"); await expect(page.getByTestId("design-task-scroll-inputs")).toBeVisible();
   await drawing.focus(); await drawing.press("Enter"); await expect(drawing).toHaveAttribute("aria-selected", "true");
   await expect(inputs).toHaveAttribute("aria-selected", "false"); await expect(page.getByTestId("design-task-scroll-inputs")).toBeHidden();
-  await page.mouse.up(); await expect(page.getByTestId("workspace-drawing-panel")).toContainText("0 vertices");
+  await page.mouse.up(); await expect(page.getByTestId("workspace-drawing-panel")).toContainText("0 points");
   expect(await workspaceStorageBytes(page)).toEqual(bytes);
-  await page.mouse.click(hit.x, hit.y); await expect(page.getByTestId("workspace-drawing-panel")).toContainText("1 vertices");
+  await page.mouse.click(hit.x, hit.y); await expect(page.getByTestId("workspace-drawing-panel")).toContainText("1 points");
   await save(page); expect((await draftStored(page)).drawingWorkflow!.captures[0].vertices).toHaveLength(1);
   await inputs.click(); await page.getByTestId("draft-machine-add-span").click();
   const span = page.getByTestId("draft-machine-span-0"); await span.fill("12 feet unfinished"); await span.focus();
@@ -286,38 +334,61 @@ test("task tabs retire held map gestures and retain malformed input, caret and i
   await expect.poll(() => scroll.evaluate(node => node.scrollTop)).toBeCloseTo(top, 0);
 });
 
-test("unequal Field machines freeze an exact selected Layout target and observations survive save, later design edit and reopen", async ({ context, page }) => {
+test("unequal Field machines freeze an exact selected Layout target and observations survive save, later design edit and reopen", async ({ context, page }, info) => {
   await seed(context, fieldFixture()); await installOperationalReceiver(page, gga()); await start(page, fieldDesignId);
-  await page.getByTestId(`field-machine-${secondMachineId}`).click(); await page.getByTestId("design-task-review").click(); await page.getByTestId("field-calculate").click(); await expect(page.getByTestId("field-calculation-result")).toContainText(secondMachineId);
+  await page.getByTestId("design-task-machines").click();
+  await page.getByTestId(`field-machine-${secondMachineId}`).click(); await page.getByTestId("design-task-review").click(); await page.getByTestId("field-calculate").click();
+  const selectedMachine = parseFieldDesignDocument((await readWorkspace(page)).fieldDocuments!.find(item => item.id === fieldPayloadId)!.document).machines.find(item => item.id === secondMachineId)!;
+  await expect(page.getByTestId("field-calculation-result")).toContainText(selectedMachine.configuration.name);
+  // Complete the real Survey prerequisite through the production UI. This is a
+  // synthetic transport observation, never a manufactured survey receipt.
+  await page.getByTestId("workspace-mode-survey").click();
+  if (await page.getByTestId("survey-enable").isVisible()) await page.getByTestId("survey-enable").click();
+  await page.getByTestId("survey-purpose").selectOption(JSON.stringify({ kind: "point", role: "control" })); await page.getByTestId("survey-start").click();
+  await receiver(page); await expect(page.getByTestId("survey-collect")).toBeEnabled(); await page.getByTestId("survey-collect").click();
+  await expect.poll(async () => parseSurveyCollectionDocument((await readWorkspace(page)).surveyCollections![0].document).observations.length).toBe(1);
+  await page.getByTestId("survey-complete-review").click(); await expect(page.getByTestId("survey-continue-layout")).toBeEnabled();
+  // Keep the actual owned Fixed receiver connected for new RTK Layout admission.
+  await page.getByTestId("workspace-receiver-toggle").click();
   const original = await readWorkspace(page), fieldEntry = original.fieldDocuments!.find(item => item.id === fieldPayloadId)!, field = parseFieldDesignDocument(fieldEntry.document);
   await page.getByTestId("workspace-mode-layout").click(); await page.getByRole("textbox", { name: "New Layout session name", exact: true }).fill("Unified frozen target");
   await holdWriter(page);
   try {
     await page.getByTestId("layout-freeze").click();
-    await expect.poll(() => page.evaluate(async lockName => (await navigator.locks.query()).pending?.some(lock => lock.name === lockName) ?? false, WEB_WORKSPACE_LOCK)).toBe(true);
+    await expect.poll(() => page.evaluate(async lockName => (await navigator.locks.query()).pending?.some(lock => lock.name === lockName) ?? false, actualWorkspaceWriterLock(page))).toBe(true);
     await expect(page.getByRole("textbox", { name: "New Layout session name", exact: true })).toBeEditable();
     await page.getByRole("textbox", { name: "New Layout session name", exact: true }).fill("Newer unsaved session name");
   } finally { await releaseWriter(page); }
   await expect(page.getByTestId("layout-collect")).toBeVisible();
   const frozen = await sessionStored(page), target = parseFieldLayoutTarget(frozen.targetDocument);
   expect(frozen.name).toBe("Unified frozen target");
+  expect(frozen.documentVersion).toBe("layout-session-v3");
+  if (frozen.documentVersion !== "layout-session-v3") throw new Error("New RTK Layout did not retain its admission record.");
+  expect(frozen.creationLock.evidence.gga.qualityCode).toBe(4); expect(frozen.finalization).toBeNull();
   await expect(page.getByTestId("workspace-context")).toHaveAttribute("aria-label", /^Unified workflow test farm\s+›\s+Explicit workflow project\s+›\s+Operator named first field\s+›\s+Layout session: Unified frozen target; Retained design: Independent unequal machines$/);
   if (page.viewportSize()!.width < 900) await expect(page.getByTestId("workspace-context")).toHaveText(/^Unified frozen target/);
   await page.getByRole("button", { name: "Session details & actions", exact: true }).click();
   await expect(page.getByRole("textbox", { name: "Layout session name", exact: true })).toHaveValue("Newer unsaved session name");
   await page.getByRole("textbox", { name: "Layout session name", exact: true }).fill(frozen.name);
   expect(target.source.selectedMachineIds).toEqual([secondMachineId]); expect(target.field).toEqual(field); expect(frozen.observations).toEqual([]);
-  await receiver(page); await expect(page.getByTestId("layout-collect")).toBeEnabled(); await page.getByTestId("layout-observation-label").fill("Actual synthetic observation"); await page.getByTestId("layout-collect").click();
-  await expect.poll(async () => (await sessionStored(page)).observations.length).toBe(1);
+  await emitGga(page, gga("120001.00"), 500); await expect(page.getByTestId("layout-collect")).toBeEnabled(); await page.getByTestId("layout-observation-label").fill("Actual synthetic observation"); await page.getByTestId("layout-collect").click();
+  try { await expect.poll(async () => (await sessionStored(page)).observations.length).toBe(1); }
+  catch (error) {
+    const actual = await sessionStored(page);
+    await info.attach("layout-observation-count-refusal.json", { body: JSON.stringify({ count: actual.observations.length,
+      observations: actual.observations.map(observation => ({ id: observation.id, label: observation.label ?? null, sequence: observation.evidence.receipt.sequence })) }), contentType: "application/json" });
+    throw error;
+  }
   const observed = await sessionStored(page); expect(observed.targetDocument).toBe(frozen.targetDocument); expect(observed.targetHash).toBe(frozen.targetHash);
   expect(observed.observations[0].projected).toEqual(projectLonLatToXy({ latitude: 40, longitude: -105 }, field.projectCrs)); expect(observed.observations[0].evidence.physicalQualification).toBe("unverified");
+  await page.getByTestId("workspace-receiver-toggle").click();
   await page.getByRole("button", { name: "Disconnect receiver", exact: true }).click(); await page.getByTestId("workspace-mode-design").click();
   await page.getByTestId("design-task-machines").click();
   await page.getByTestId("field-input-name").fill("Changed after target freeze"); await page.getByTestId("field-apply-machine").click(); await save(page);
   const changed = await readWorkspace(page); expect(parseFieldDesignDocument(changed.fieldDocuments!.find(item => item.id === fieldPayloadId)!.document).machines[1].configuration.name).toBe("Changed after target freeze");
   expect(changed.fieldDocuments!.find(item => item.id === fieldPayloadId)!.originalProjectDocument).toBe(fieldEntry.originalProjectDocument);
-  expect(await sessionStored(page)).toEqual(observed); await reloadSavedWorkspace(page); await open(page, fieldDesignId); await page.getByTestId("workspace-mode-layout").click();
-  await page.getByRole("button", { name: "Unified frozen target", exact: true }).click(); await expect(page.getByTestId("layout-collect")).toBeDisabled();
+  expect(await sessionStored(page)).toEqual(observed); await reloadSavedWorkspace(page); await open(page, fieldDesignId); await openSavedLayout(page, observed.id);
+  await expect(page.getByTestId("layout-collect")).toBeDisabled();
   await expect(page.getByTestId("unified-layout-panel")).toContainText("Actual synthetic observation"); expect(await sessionStored(page)).toEqual(observed);
 });
 
@@ -399,11 +470,12 @@ test("common Save shows unapplied inputs, refuses without storage error, and Fil
 test("Layout common Save names its session while hidden Design input and newer names remain separate", async ({ context, page }) => {
   await seed(context, savedLayoutFixture()); await start(page, fieldDesignId);
   const before = await readWorkspace(page), fieldSource = before.fieldDocuments![0].document;
+  await page.getByTestId("design-task-machines").click();
   await page.getByTestId(`field-machine-${secondMachineId}`).click();
   await page.getByTestId("field-input-span-0").fill("unfinished field span");
   await expect(page.getByTestId("workspace-save-state")).toHaveText("Inputs awaiting Apply");
-  await page.getByTestId("workspace-mode-layout").click();
-  await page.getByRole("button", { name: "Saved file Layout", exact: true }).click();
+  await expect(page.getByTestId("workspace-mode-layout")).toBeDisabled();
+  await openSavedLayout(page, "file-layout");
   const frozen = await sessionStored(page);
   await expect(page.getByTestId("workspace-save-state")).toHaveText("Saved");
   await tools(page, false);
@@ -419,7 +491,7 @@ test("Layout common Save names its session while hidden Design input and newer n
   await name.fill("Admitted session name A"); await holdWriter(page);
   try {
     await page.getByTestId("workspace-save").click();
-    await expect.poll(() => page.evaluate(async lockName => (await navigator.locks.query()).pending?.some(lock => lock.name === lockName) ?? false, WEB_WORKSPACE_LOCK)).toBe(true);
+    await expect.poll(() => page.evaluate(async lockName => (await navigator.locks.query()).pending?.some(lock => lock.name === lockName) ?? false, actualWorkspaceWriterLock(page))).toBe(true);
     await expect(name).toBeEditable(); await name.fill("Newer session name B");
   } finally { await releaseWriter(page); }
   await expect.poll(async () => (await sessionStored(page)).name).toBe("Admitted session name A");
@@ -444,21 +516,14 @@ test("Layout common Save names its session while hidden Design input and newer n
   await expect(page.getByTestId("workspace-map-surface")).toHaveCount(1);
 });
 
-test("opening saved Layout refuses an unfinished new-session name and explicit Discard preserves the saved target", async ({ context, page }) => {
+test("unreviewed Design refuses new Layout while explicit Catalog Open preserves a historical saved target", async ({ context, page }) => {
   await seed(context, savedLayoutFixture()); await start(page, fieldDesignId);
   const before = await readWorkspace(page);
-  await page.getByTestId("workspace-mode-layout").click();
-  const name = page.getByRole("textbox", { name: "New Layout session name", exact: true });
-  await name.fill("Unfrozen session intention A");
-  await page.getByRole("button", { name: "Saved file Layout", exact: true }).click();
-  await expect(page.getByRole("alert").filter({ hasText: /entered Layout session name/ })).toBeVisible();
-  await expect(name).toHaveValue("Unfrozen session intention A");
-  await expect(page.getByTestId("layout-collect")).toHaveCount(0);
-  await expect(page.getByTestId("workspace-save")).toBeDisabled();
+  await expect(page.getByTestId("workspace-mode-layout")).toBeDisabled();
+  await expect(page.getByRole("textbox", { name: "New Layout session name", exact: true })).toBeHidden();
   expect(await readWorkspace(page)).toEqual(before);
-  await page.getByTestId("layout-discard-new-name").click(); await expect(name).toHaveValue("Layout session");
-  await page.getByRole("button", { name: "Saved file Layout", exact: true }).click();
-  await expect(page.getByTestId("layout-collect")).toBeVisible(); await save(page);
+  await openSavedLayout(page, "file-layout");
+  await expect(page.getByTestId("layout-collect")).toBeDisabled(); await save(page);
   expect(await readWorkspace(page)).toEqual(before);
   const saved = await sessionStored(page); expect(saved.name).toBe("Saved file Layout");
   expect(saved.targetDocument).toBe(parseLayoutSessionDocument(before.layoutSessions![0].document).targetDocument);

@@ -1,0 +1,2976 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-12",
+  "classification": "synthetic",
+  "claimClass": "browser",
+  "result": "pass_full_current_scope",
+  "exitCode": 0,
+  "counts": {
+    "selected": 267,
+    "passed": 267,
+    "failed": 0,
+    "flaky": 0,
+    "skipped": 0,
+    "didNotRun": 0,
+    "currentTitles": 89
+  },
+  "sourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r15.json",
+  "sourceFingerprint": "39cf1a097447da8749b64c3ca1c143a916c4830d8b6ba0a5cd11155e70c60012",
+  "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+  "sourceDrift": [],
+  "custody": {
+    "sha256": "3956be3adbedcdc8a587026fce0ad6a0e2600dc0c5f155afd7f582d42144d6d5",
+    "declaredArtifacts": 127,
+    "hashesBytesVerified": true,
+    "artifacts": [
+      {
+        "path": "playwright-html/data/062900a36b71abc851648e5d1488bef4c99d433b.png",
+        "bytes": 32010,
+        "sha256": "550536ea9502bcc7294e5e4bdb79b44d1fa72050a8cae8bf6c6df23c6bc96b7b"
+      },
+      {
+        "path": "playwright-html/data/08010aaf28b1e1ac26ad07dcca759f732bce6484.png",
+        "bytes": 88514,
+        "sha256": "1a04bd1d9f16f78ef0e7218fc9d7bcaf9a7b9b85a1b80819402f2604a42d82d1"
+      },
+      {
+        "path": "playwright-html/data/1739a92a25603b2ceaa24f32514e80f76faa62f3.png",
+        "bytes": 99742,
+        "sha256": "1371ea8aef70987138a8da598560f2aa2f3a1a6c91ccaf56a34acba8113e0708"
+      },
+      {
+        "path": "playwright-html/data/251b4adb558f1ada33f35a31a8109b997a4e27db.png",
+        "bytes": 45515,
+        "sha256": "e698ac2d4ea0a802c681759fe02398a90d862dcc253406a63d90a02da6b57c69"
+      },
+      {
+        "path": "playwright-html/data/336d4b408df3870e081aae68fc90c710c7bfcf33.png",
+        "bytes": 258952,
+        "sha256": "20488c47eb557669292ddf75f973222cff132bbebcf6c8cc59f231ecbb7574e9"
+      },
+      {
+        "path": "playwright-html/data/49af2b709937f45e1159f9b00eebde406c3cf180.png",
+        "bytes": 43044,
+        "sha256": "34e9c0cf7d67e38a39c44291eb10af2944df8e52629c9478ca78f7ad1de29c69"
+      },
+      {
+        "path": "playwright-html/data/4da4b3cf0952a194b802cc538682d7f0811b7cd7.png",
+        "bytes": 112118,
+        "sha256": "54a614c7689d5d3a84e91096951b47bcd277c3152acf7a5d8c3d38195fe2038c"
+      },
+      {
+        "path": "playwright-html/data/4df8769d6bdc3e26aac4776076e004fc3a2be9e2.png",
+        "bytes": 264925,
+        "sha256": "db79570ec129cd51f920001d2513abe13757a3aadfa8321e2c17cca5a005b4f8"
+      },
+      {
+        "path": "playwright-html/data/6134bf1fc41f5ddd573ecd393767ff3c3e640b1f.png",
+        "bytes": 47130,
+        "sha256": "08f88248cbf6ad5c089a67258b8c1487e086de0816829517a17c71907717ad86"
+      },
+      {
+        "path": "playwright-html/data/6ab92765bd20328286a75340ada75743d98e70c5.png",
+        "bytes": 79213,
+        "sha256": "1075f9c70bd221b660ec81d6af7ea30c5d45afecd706465847d5187e26b44161"
+      },
+      {
+        "path": "playwright-html/data/872b634bf7a6179859a1dd066a4373d561362c2c.png",
+        "bytes": 75149,
+        "sha256": "380763fb7ff842b31cb5463e52bb83ced4dd44849c700e5ac154da8f59fdcce5"
+      },
+      {
+        "path": "playwright-html/data/8e29d5641b7a5f109596bd9c29bd177f5c62181c.zip",
+        "bytes": 4840,
+        "sha256": "ce94ea7b937d90655cbfe73bc20f83e057ec7dc48a42d3461ab3b3438bbe4856"
+      },
+      {
+        "path": "playwright-html/data/9770edb3debbb43fd1980450327ed7d248817d65.png",
+        "bytes": 34798,
+        "sha256": "0989af051561d455def4932bc56ffbeccc16939214076d8e06c0dbf0641a30bd"
+      },
+      {
+        "path": "playwright-html/data/a02578a5d249adbe6eb1c461c93a184315352e91.png",
+        "bytes": 41257,
+        "sha256": "701f3496bacf4dce2befa4ac940a9f8396cde4c88bee607dfbe0ef57b1ab8aa8"
+      },
+      {
+        "path": "playwright-html/data/a2fbc7484735449e9519cc398ebd7cffae25ae6e.png",
+        "bytes": 100086,
+        "sha256": "645c0c027e48cce1af8d160070b7557304b437dc81de246b0ed6adc67c748dd1"
+      },
+      {
+        "path": "playwright-html/data/b20c2906ee02c8c9b9c4f35fb1eeffc6fad011f3.png",
+        "bytes": 132624,
+        "sha256": "b138d7cadcf587342606234c58a6eb9a82b69c286f7ae776f589ea7b192464d9"
+      },
+      {
+        "path": "playwright-html/data/b49b18f4c051a4b9eeda7e0e340d5aacf9b15a99.png",
+        "bytes": 32528,
+        "sha256": "e906fe7a3ac778c68ef96c3e157809fc0161b61dc44189033a7bf0b0efc7b12f"
+      },
+      {
+        "path": "playwright-html/data/c472d7837b87e89128c26b0bcb09af307cb44fd6.png",
+        "bytes": 34358,
+        "sha256": "0d21ee65f559d2784cfb83a3481c9adb92038495a183dd736db3644a6ebf1854"
+      },
+      {
+        "path": "playwright-html/data/ecdea2af47b26634dc3217843d11e4b0f8783bf6.png",
+        "bytes": 127403,
+        "sha256": "60b35a668f8ed105c806d31ea30c9a30e64805d8f6ffc2baf2406529e754ef71"
+      },
+      {
+        "path": "playwright-html/index.html",
+        "bytes": 3216104,
+        "sha256": "3030b3c78ac61250d308acf2ba55d11becb26c0ffa2e69136543ad8a8e3ab508"
+      },
+      {
+        "path": "playwright-results/.last-run.json",
+        "bytes": 45,
+        "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+      },
+      {
+        "path": "playwright-results/browser-workflow-network-a-a8092-gs-on-allowed-imagery-hosts-desktop/network-credential-query-blocked.png",
+        "bytes": 40768,
+        "sha256": "f9a6acfdbfc86bc9391d70a6feb9f5d7aac4f5465701ee8e02853493c4d764f1"
+      },
+      {
+        "path": "playwright-results/browser-workflow-network-a-a8092-gs-on-allowed-imagery-hosts-mobile-390/network-credential-query-blocked.png",
+        "bytes": 121660,
+        "sha256": "19b7f74b15bc22b2fcb94f8bbef3297bf6812bf81aadd752fd200c150d513380"
+      },
+      {
+        "path": "playwright-results/browser-workflow-network-a-a8092-gs-on-allowed-imagery-hosts-tablet-768/network-credential-query-blocked.png",
+        "bytes": 38347,
+        "sha256": "c5bdb60b86f58710da85c4add44638fa9fd72fe0f28666570e66605bdb1c0d55"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-142d2-d-reopens-honest-provenance-desktop/recorded-reference-storage.json",
+        "bytes": 586512,
+        "sha256": "ffe1e4ceddecb9f2c6c2b3ced2dd31334774cdd14d738b0ba2710621ba8273a7"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-142d2-d-reopens-honest-provenance-desktop/recorded-reference-workspace.json",
+        "bytes": 409039,
+        "sha256": "df3c1e3ff2b21dcc82095231dceb607629376c698fbd0b344b21da087c91b84f"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-142d2-d-reopens-honest-provenance-mobile-390/recorded-reference-storage.json",
+        "bytes": 586512,
+        "sha256": "e50bd139e6b86bdeccce1c35fcee1b707d9476bb4056b587c2ec473bf95066f7"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-142d2-d-reopens-honest-provenance-mobile-390/recorded-reference-workspace.json",
+        "bytes": 409039,
+        "sha256": "d19283bac49f7e053622e709dd2c8a52dd405b3aff369b2244c90adb4e773a3b"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-142d2-d-reopens-honest-provenance-tablet-768/recorded-reference-storage.json",
+        "bytes": 586512,
+        "sha256": "ff0c4e8bc740cf4347007ca832a287a1c436d3ba21d2f8f82fcd15a929150bcd"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-142d2-d-reopens-honest-provenance-tablet-768/recorded-reference-workspace.json",
+        "bytes": 409039,
+        "sha256": "1065e1d5a5d576bab29685cb0904a65aabfff5bf6363f97938b205783b8c16fa"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-19029-d-reopens-honest-provenance-desktop/recorded-reference-storage.json",
+        "bytes": 597376,
+        "sha256": "978675fb68d08e328f9772e9078541a37b7dbabbd338fbb95685f6bb1dcb3409"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-19029-d-reopens-honest-provenance-desktop/recorded-reference-workspace.json",
+        "bytes": 418570,
+        "sha256": "62bac430b48fcf3ec3e12e34de40c62be1ce99ec6cd5ef320d48340602f19d8d"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-19029-d-reopens-honest-provenance-mobile-390/recorded-reference-storage.json",
+        "bytes": 597376,
+        "sha256": "5adb3c0357da133a131155431d2570b2f4211e517adc591d157c75b99b87433f"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-19029-d-reopens-honest-provenance-mobile-390/recorded-reference-workspace.json",
+        "bytes": 418570,
+        "sha256": "cbc4d015774fa30a34a692ad27dd520f8ab7d150b95383391cfb24d9d026d46d"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-19029-d-reopens-honest-provenance-tablet-768/recorded-reference-storage.json",
+        "bytes": 597376,
+        "sha256": "2f9d5454685fbc2617a176bd2db37e4a2b6fcee4dce4cf87b19d9d6043ca9968"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-19029-d-reopens-honest-provenance-tablet-768/recorded-reference-workspace.json",
+        "bytes": 418570,
+        "sha256": "966f2d825b6b49ab2bc3efcf8afcc688e7b1caecd74c078d758e20796a689583"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-2b322-d-reopens-honest-provenance-desktop/recorded-reference-storage.json",
+        "bytes": 607285,
+        "sha256": "f69d1ba7b0a83bae3eef95608fdeeb3c136803149b0edff2d5056485904035ce"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-2b322-d-reopens-honest-provenance-desktop/recorded-reference-workspace.json",
+        "bytes": 427262,
+        "sha256": "e42f7a4588148d2c215777f9466d07d7723060a7ac821c73cf85a641be454936"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-2b322-d-reopens-honest-provenance-mobile-390/recorded-reference-storage.json",
+        "bytes": 607285,
+        "sha256": "6c8461c021f8f5c80b03e5604b00185345330292f5bde7db51005c878e9d9470"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-2b322-d-reopens-honest-provenance-mobile-390/recorded-reference-workspace.json",
+        "bytes": 427262,
+        "sha256": "be35724cbd0f7ca8f04fccd48225f57d1966eaeed8e0d60bbfbf79afa5ba17d1"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-2b322-d-reopens-honest-provenance-tablet-768/recorded-reference-storage.json",
+        "bytes": 607285,
+        "sha256": "69551e4d9748f896f682740667debe5707e3af2f3ab3a6432edc8b4b3f540326"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-2b322-d-reopens-honest-provenance-tablet-768/recorded-reference-workspace.json",
+        "bytes": 427262,
+        "sha256": "571d6bfb67cc44038551c211c3450df6f7fc8b158526fb11e3d89520b522cfcc"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-9b798-d-reopens-honest-provenance-desktop/recorded-reference-storage.json",
+        "bytes": 115738,
+        "sha256": "a7dc3bcf80f48b3baf9be4f95ddd51010f7990a9f91a11776c9bfa15c9f2cf8e"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-9b798-d-reopens-honest-provenance-desktop/recorded-reference-workspace.json",
+        "bytes": 88598,
+        "sha256": "7fb1c4868e386442d44d2eaa93bf1a97a6fd0071388ff5649d547af838968d13"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-9b798-d-reopens-honest-provenance-mobile-390/recorded-reference-storage.json",
+        "bytes": 115738,
+        "sha256": "da5e2efe543eb7744801fcd89ac3d19c5dfe95f1f1738cf2d372a83a856bcf63"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-9b798-d-reopens-honest-provenance-mobile-390/recorded-reference-workspace.json",
+        "bytes": 88598,
+        "sha256": "e0a43645ba169b134b4691b9754a5f7d9e8a35742f4bc62c7ab2e86a72e3d857"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-9b798-d-reopens-honest-provenance-tablet-768/recorded-reference-storage.json",
+        "bytes": 115738,
+        "sha256": "872403096910d0f451e801f1572ee011a73262824bb616218307119a7b52050b"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-9b798-d-reopens-honest-provenance-tablet-768/recorded-reference-workspace.json",
+        "bytes": 88598,
+        "sha256": "4e97b527ae64ad780414547ac63d2c5abb472dbebaf8bfcde50af3dd75e31f6c"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-bc852-d-reopens-honest-provenance-desktop/recorded-reference-storage.json",
+        "bytes": 607984,
+        "sha256": "14327d3d0cbe3055961682e007915327db998c631d872b91f5e5366c61c35c56"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-bc852-d-reopens-honest-provenance-desktop/recorded-reference-workspace.json",
+        "bytes": 427892,
+        "sha256": "ec81ff8356650843d73dd080becb433e7c0b0da171d0a04275f25115ea75a25c"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-bc852-d-reopens-honest-provenance-mobile-390/recorded-reference-storage.json",
+        "bytes": 607984,
+        "sha256": "d354cfe03465019872f1d2ddebe7bbd823bf817e19147c63fa4040677de286f3"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-bc852-d-reopens-honest-provenance-mobile-390/recorded-reference-workspace.json",
+        "bytes": 427892,
+        "sha256": "698b23a58be85d2d4898eba452518edbb1d1f92c822174cd072ded5132ffc123"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-bc852-d-reopens-honest-provenance-tablet-768/recorded-reference-storage.json",
+        "bytes": 607984,
+        "sha256": "3172d1d6ffc40eeb07a9c059ccd1eaa12803bdf4ea74de2ceffd75278a7a8a11"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-bc852-d-reopens-honest-provenance-tablet-768/recorded-reference-workspace.json",
+        "bytes": 427892,
+        "sha256": "56541b03b124c0d6f489399ed5919647f3f0963cdc07a831ae126b8a6a088bac"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c0d54-d-reopens-honest-provenance-desktop/recorded-reference-storage.json",
+        "bytes": 596823,
+        "sha256": "182d747f5e417105729bef00a5d305fd740bb42543335f24446939beb5c418f9"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c0d54-d-reopens-honest-provenance-desktop/recorded-reference-workspace.json",
+        "bytes": 418074,
+        "sha256": "927f7857974e53bbfc175e8118baca3a80e2364ff39cdf5fbc20503ae9f80215"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c0d54-d-reopens-honest-provenance-mobile-390/recorded-reference-storage.json",
+        "bytes": 596823,
+        "sha256": "77f068de07f90fde4f7cef0cf6181d0f9258d174977c6db2d421ef636129e9cc"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c0d54-d-reopens-honest-provenance-mobile-390/recorded-reference-workspace.json",
+        "bytes": 418074,
+        "sha256": "cbc588481c1aa6f5eb72dbc01502a2221b1020442daecc88d2cde1c5888a6708"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c0d54-d-reopens-honest-provenance-tablet-768/recorded-reference-storage.json",
+        "bytes": 596823,
+        "sha256": "84dc010cb0165062e77bfc143a2108053471f801112c13540d844717a4a55f85"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c0d54-d-reopens-honest-provenance-tablet-768/recorded-reference-workspace.json",
+        "bytes": 418074,
+        "sha256": "5dd3d2575dc5f7ff5b8bd69f20d80222899bb2299ebd227b2722d4e7d5893dcf"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c2335-d-reopens-honest-provenance-desktop/recorded-reference-storage.json",
+        "bytes": 105276,
+        "sha256": "3d52af318ecf95793c014f71aabd9e50865fa9a15a7247488cda9e7012e6ffac"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c2335-d-reopens-honest-provenance-desktop/recorded-reference-workspace.json",
+        "bytes": 79410,
+        "sha256": "b3826eb5c72722839b4d92b30f77700aa80796311a4d26d86023715add67009c"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c2335-d-reopens-honest-provenance-mobile-390/recorded-reference-storage.json",
+        "bytes": 105276,
+        "sha256": "02ea6f4bc017abf6e4ebf38665726507868b9aad5fdb16f546b06fb5a3732362"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c2335-d-reopens-honest-provenance-mobile-390/recorded-reference-workspace.json",
+        "bytes": 79410,
+        "sha256": "86fddcb6ad99e1a525a18b5899ae6201c409b9a2ed0b6f3d1edbf476a0a0da9e"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c2335-d-reopens-honest-provenance-tablet-768/recorded-reference-storage.json",
+        "bytes": 105276,
+        "sha256": "1df9de8026baca62e26f63065e5f8e9bc534e80322bd5a6499ae6f11110401a9"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c2335-d-reopens-honest-provenance-tablet-768/recorded-reference-workspace.json",
+        "bytes": 79410,
+        "sha256": "9f2d7b8771b3a60d903f48047b5f69ca60b3985e8ce75abb9a204651a60e9b25"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c8612-d-reopens-honest-provenance-desktop/recorded-reference-storage.json",
+        "bytes": 586867,
+        "sha256": "10a9afe4017cbed98c4ac86520faf761621564e81cece791e6a81af609b8e222"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c8612-d-reopens-honest-provenance-desktop/recorded-reference-workspace.json",
+        "bytes": 409351,
+        "sha256": "00d422e4f50697d0fceba1ee69d3a1e2fc889bff67a723ece3ef6749a35abf78"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c8612-d-reopens-honest-provenance-mobile-390/recorded-reference-storage.json",
+        "bytes": 586867,
+        "sha256": "f9329c6ee97a84e9500aa98f2b3d18527c72607f5cad5296529e2c1ca1c28084"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c8612-d-reopens-honest-provenance-mobile-390/recorded-reference-workspace.json",
+        "bytes": 409351,
+        "sha256": "34f133303bcbeb5c8f9289ed68b4d1ca5518ab9837cd6343ab2adf979d5d5099"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c8612-d-reopens-honest-provenance-tablet-768/recorded-reference-storage.json",
+        "bytes": 586867,
+        "sha256": "f8d4b2a1e9ddf28dd766d6a3d8c161df9ba806587c7f67e322a213453611a6ac"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c8612-d-reopens-honest-provenance-tablet-768/recorded-reference-workspace.json",
+        "bytes": 409351,
+        "sha256": "630d190002dae6c27a8106b81eb93b045d27701dce43ccd23bf5ac5356b65ec8"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-dbc7d-d-reopens-honest-provenance-desktop/recorded-reference-storage.json",
+        "bytes": 94965,
+        "sha256": "67794a365eb1d330bbbbf4a00bdbcd37876056c4fe75ca99c21760b614a07486"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-dbc7d-d-reopens-honest-provenance-desktop/recorded-reference-workspace.json",
+        "bytes": 70375,
+        "sha256": "74d1d4e5c92e8f3749561f7b489a8fa19073370633619f8385efe27611c30c2b"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-dbc7d-d-reopens-honest-provenance-mobile-390/recorded-reference-storage.json",
+        "bytes": 94965,
+        "sha256": "3ce32aa334ec7dd9a444357b5223e50c3e69462da7d9e349abf824e6264d62b7"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-dbc7d-d-reopens-honest-provenance-mobile-390/recorded-reference-workspace.json",
+        "bytes": 70375,
+        "sha256": "17d292dfed626fa2d0414472fa7425439e40043c326ed22256d1224ba846a142"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-dbc7d-d-reopens-honest-provenance-tablet-768/recorded-reference-storage.json",
+        "bytes": 94965,
+        "sha256": "a48b1c36f6c5e9e87a0ae1329371ca29cd2b3e22dfd059d4e85b02e401f45c03"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-dbc7d-d-reopens-honest-provenance-tablet-768/recorded-reference-workspace.json",
+        "bytes": 70375,
+        "sha256": "40138a600c7443a8ff0e00a30e20b74e8f984dec8f6ac075986f7ea727947777"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-0a457-text-until-explicit-Discard-desktop/actual-downloaded-design-workspace.zip",
+        "bytes": 8159,
+        "sha256": "cdd43ac135e440133f6a543d8eff1c75fb4b4ca99438c1ed4f3e6d67a1f2cc08"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-0a457-text-until-explicit-Discard-mobile-390/actual-downloaded-design-workspace.zip",
+        "bytes": 8159,
+        "sha256": "cdd43ac135e440133f6a543d8eff1c75fb4b4ca99438c1ed4f3e6d67a1f2cc08"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-0a457-text-until-explicit-Discard-tablet-768/actual-downloaded-design-workspace.zip",
+        "bytes": 8159,
+        "sha256": "cdd43ac135e440133f6a543d8eff1c75fb4b4ca99438c1ed4f3e6d67a1f2cc08"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-5a191-hout-fabricated-collections-desktop/actual-downloaded-design-workspace.json",
+        "bytes": 4133,
+        "sha256": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-5a191-hout-fabricated-collections-mobile-390/actual-downloaded-design-workspace.json",
+        "bytes": 4133,
+        "sha256": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-5a191-hout-fabricated-collections-tablet-768/actual-downloaded-design-workspace.json",
+        "bytes": 4133,
+        "sha256": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-b7e1d-hout-fabricated-collections-desktop/actual-downloaded-design-workspace.zip",
+        "bytes": 2580,
+        "sha256": "1b3e441aedbf171c712d324fa517d6e28688719ed7689bf7200fead0d6e2f3fb"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-b7e1d-hout-fabricated-collections-mobile-390/actual-downloaded-design-workspace.zip",
+        "bytes": 2580,
+        "sha256": "1b3e441aedbf171c712d324fa517d6e28688719ed7689bf7200fead0d6e2f3fb"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-b7e1d-hout-fabricated-collections-tablet-768/actual-downloaded-design-workspace.zip",
+        "bytes": 2580,
+        "sha256": "1b3e441aedbf171c712d324fa517d6e28688719ed7689bf7200fead0d6e2f3fb"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-bc637-ted-package-without-records-desktop/actual-downloaded-design-workspace.json",
+        "bytes": 23810,
+        "sha256": "448563fdac3154fa79cad8424170b7724aee6f29e45a7c550bdaa63a03f04e97"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-bc637-ted-package-without-records-mobile-390/actual-downloaded-design-workspace.json",
+        "bytes": 23810,
+        "sha256": "448563fdac3154fa79cad8424170b7724aee6f29e45a7c550bdaa63a03f04e97"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-bc637-ted-package-without-records-tablet-768/actual-downloaded-design-workspace.json",
+        "bytes": 23810,
+        "sha256": "448563fdac3154fa79cad8424170b7724aee6f29e45a7c550bdaa63a03f04e97"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-c1a3d-ted-package-without-records-desktop/actual-downloaded-design-workspace.json",
+        "bytes": 23810,
+        "sha256": "448563fdac3154fa79cad8424170b7724aee6f29e45a7c550bdaa63a03f04e97"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-c1a3d-ted-package-without-records-mobile-390/actual-downloaded-design-workspace.json",
+        "bytes": 23810,
+        "sha256": "448563fdac3154fa79cad8424170b7724aee6f29e45a7c550bdaa63a03f04e97"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-c1a3d-ted-package-without-records-tablet-768/actual-downloaded-design-workspace.json",
+        "bytes": 23810,
+        "sha256": "448563fdac3154fa79cad8424170b7724aee6f29e45a7c550bdaa63a03f04e97"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-0f6e2-opy-and-reloads-Recent-Open-desktop/actual-downloaded-design-workspace.zip",
+        "bytes": 8159,
+        "sha256": "cdd43ac135e440133f6a543d8eff1c75fb4b4ca99438c1ed4f3e6d67a1f2cc08"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-0f6e2-opy-and-reloads-Recent-Open-mobile-390/actual-downloaded-design-workspace.zip",
+        "bytes": 8159,
+        "sha256": "cdd43ac135e440133f6a543d8eff1c75fb4b4ca99438c1ed4f3e6d67a1f2cc08"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-0f6e2-opy-and-reloads-Recent-Open-tablet-768/actual-downloaded-design-workspace.zip",
+        "bytes": 8159,
+        "sha256": "cdd43ac135e440133f6a543d8eff1c75fb4b4ca99438c1ed4f3e6d67a1f2cc08"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-fa2e4-opy-and-reloads-Recent-Open-desktop/actual-downloaded-design-workspace.json",
+        "bytes": 23810,
+        "sha256": "448563fdac3154fa79cad8424170b7724aee6f29e45a7c550bdaa63a03f04e97"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-fa2e4-opy-and-reloads-Recent-Open-mobile-390/actual-downloaded-design-workspace.json",
+        "bytes": 23810,
+        "sha256": "448563fdac3154fa79cad8424170b7724aee6f29e45a7c550bdaa63a03f04e97"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-fa2e4-opy-and-reloads-Recent-Open-tablet-768/actual-downloaded-design-workspace.json",
+        "bytes": 23810,
+        "sha256": "448563fdac3154fa79cad8424170b7724aee6f29e45a7c550bdaa63a03f04e97"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-8cf1b-opy-and-reloads-Recent-Open-desktop/actual-downloaded-design-workspace.json",
+        "bytes": 34172,
+        "sha256": "a8413fdb23e42ddd0506ea65d009d61e5355a19bc1bc756589834507e857da7c"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-8cf1b-opy-and-reloads-Recent-Open-mobile-390/actual-downloaded-design-workspace.json",
+        "bytes": 34172,
+        "sha256": "a8413fdb23e42ddd0506ea65d009d61e5355a19bc1bc756589834507e857da7c"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-8cf1b-opy-and-reloads-Recent-Open-tablet-768/actual-downloaded-design-workspace.json",
+        "bytes": 34172,
+        "sha256": "a8413fdb23e42ddd0506ea65d009d61e5355a19bc1bc756589834507e857da7c"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-ada9c-opy-and-reloads-Recent-Open-desktop/actual-downloaded-design-workspace.zip",
+        "bytes": 11832,
+        "sha256": "39b28474e51826335f496ea31e9b45d327fdb637e53a9b716dd4745a08c6827a"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-ada9c-opy-and-reloads-Recent-Open-mobile-390/actual-downloaded-design-workspace.zip",
+        "bytes": 11832,
+        "sha256": "39b28474e51826335f496ea31e9b45d327fdb637e53a9b716dd4745a08c6827a"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-ada9c-opy-and-reloads-Recent-Open-tablet-768/actual-downloaded-design-workspace.zip",
+        "bytes": 11832,
+        "sha256": "39b28474e51826335f496ea31e9b45d327fdb637e53a9b716dd4745a08c6827a"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-3f997-opy-and-reloads-Recent-Open-desktop/actual-downloaded-design-workspace.zip",
+        "bytes": 10003,
+        "sha256": "7a6a936c99613cbcdb1bf8ce353452b1e6c443107c54b87c7d9745770a7b70c9"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-3f997-opy-and-reloads-Recent-Open-mobile-390/actual-downloaded-design-workspace.zip",
+        "bytes": 10003,
+        "sha256": "7a6a936c99613cbcdb1bf8ce353452b1e6c443107c54b87c7d9745770a7b70c9"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-3f997-opy-and-reloads-Recent-Open-tablet-768/actual-downloaded-design-workspace.zip",
+        "bytes": 10003,
+        "sha256": "7a6a936c99613cbcdb1bf8ce353452b1e6c443107c54b87c7d9745770a7b70c9"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-f4530-opy-and-reloads-Recent-Open-desktop/actual-downloaded-design-workspace.json",
+        "bytes": 28146,
+        "sha256": "441c3d3aa9529c8c005e158c3ae2522ccd8263119536f870419b1f0818af5895"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-f4530-opy-and-reloads-Recent-Open-mobile-390/actual-downloaded-design-workspace.json",
+        "bytes": 28146,
+        "sha256": "441c3d3aa9529c8c005e158c3ae2522ccd8263119536f870419b1f0818af5895"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-f4530-opy-and-reloads-Recent-Open-tablet-768/actual-downloaded-design-workspace.json",
+        "bytes": 28146,
+        "sha256": "441c3d3aa9529c8c005e158c3ae2522ccd8263119536f870419b1f0818af5895"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-5e4f8--upgrade-or-any-byte-change-desktop/actual-downloaded-design-workspace.json",
+        "bytes": 4133,
+        "sha256": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-5e4f8--upgrade-or-any-byte-change-mobile-390/actual-downloaded-design-workspace.json",
+        "bytes": 4133,
+        "sha256": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-5e4f8--upgrade-or-any-byte-change-tablet-768/actual-downloaded-design-workspace.json",
+        "bytes": 4133,
+        "sha256": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-desktop/actual-downloaded-design-workspace.json",
+        "bytes": 4133,
+        "sha256": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-mobile-390/actual-downloaded-design-workspace.json",
+        "bytes": 4133,
+        "sha256": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-tablet-768/actual-downloaded-design-workspace.json",
+        "bytes": 4133,
+        "sha256": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-94431-including-workspace-version-desktop/actual-downloaded-design-workspace.json",
+        "bytes": 23810,
+        "sha256": "448563fdac3154fa79cad8424170b7724aee6f29e45a7c550bdaa63a03f04e97"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-94431-including-workspace-version-mobile-390/actual-downloaded-design-workspace.json",
+        "bytes": 23810,
+        "sha256": "448563fdac3154fa79cad8424170b7724aee6f29e45a7c550bdaa63a03f04e97"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-94431-including-workspace-version-tablet-768/actual-downloaded-design-workspace.json",
+        "bytes": 23810,
+        "sha256": "448563fdac3154fa79cad8424170b7724aee6f29e45a7c550bdaa63a03f04e97"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-9fac9-including-workspace-version-desktop/actual-downloaded-design-workspace.json",
+        "bytes": 4133,
+        "sha256": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-9fac9-including-workspace-version-mobile-390/actual-downloaded-design-workspace.json",
+        "bytes": 4133,
+        "sha256": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-9fac9-including-workspace-version-tablet-768/actual-downloaded-design-workspace.json",
+        "bytes": 4133,
+        "sha256": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-desktop/actual-downloaded-design-workspace.json",
+        "bytes": 4133,
+        "sha256": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-mobile-390/actual-downloaded-design-workspace.json",
+        "bytes": 4133,
+        "sha256": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-tablet-768/actual-downloaded-design-workspace.json",
+        "bytes": 4133,
+        "sha256": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b"
+      },
+      {
+        "path": "raw.log",
+        "bytes": 51958,
+        "sha256": "e0a3713ec442a51c89c3391c95affe30b8c600ea78449fe41dbf91dd82661721"
+      }
+    ]
+  },
+  "embeddedStats": {
+    "total": 267,
+    "expected": 267,
+    "unexpected": 0,
+    "flaky": 0,
+    "skipped": 0,
+    "ok": true
+  },
+  "durationMs": 940686.253,
+  "cases": [
+    {
+      "file": "tests/web/browser-workflow.spec.ts",
+      "title": "text clipping probe distinguishes visible overflow from trailing wrap whitespace",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "31dbe23a2b97ff677fcb-964b2939cebacc3bf18e"
+    },
+    {
+      "file": "tests/web/browser-workflow.spec.ts",
+      "title": "network allowlist blocks credential query strings on allowed imagery hosts",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "31dbe23a2b97ff677fcb-06d5ad70cc20931bde2f"
+    },
+    {
+      "file": "tests/web/browser-workflow.spec.ts",
+      "title": "text clipping probe distinguishes visible overflow from trailing wrap whitespace",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "31dbe23a2b97ff677fcb-c100d72a9bd2314ed039"
+    },
+    {
+      "file": "tests/web/browser-workflow.spec.ts",
+      "title": "network allowlist blocks credential query strings on allowed imagery hosts",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "31dbe23a2b97ff677fcb-f481645192ecb3c265a8"
+    },
+    {
+      "file": "tests/web/browser-workflow.spec.ts",
+      "title": "text clipping probe distinguishes visible overflow from trailing wrap whitespace",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "31dbe23a2b97ff677fcb-cc2f87f6a596bc3e5642"
+    },
+    {
+      "file": "tests/web/browser-workflow.spec.ts",
+      "title": "network allowlist blocks credential query strings on allowed imagery hosts",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "31dbe23a2b97ff677fcb-4145b0164a3a037e27b2"
+    },
+    {
+      "file": "tests/web/editor-save-lifecycle.spec.ts",
+      "title": "StrictMode initialization and effect replay keep the initial session active through saves and rerenders",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "a794e3533c484885b0cd-72e9948a2c14a26dc4b1"
+    },
+    {
+      "file": "tests/web/editor-save-lifecycle.spec.ts",
+      "title": "StrictMode same-ID replacement isolates a delayed save receipt and feedback",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "a794e3533c484885b0cd-ecbc99fa089e340c3f25"
+    },
+    {
+      "file": "tests/web/editor-save-lifecycle.spec.ts",
+      "title": "an accepted save may finish after unmount without reviving feedback or rebasing a remount",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "a794e3533c484885b0cd-be174d004f31b375431c"
+    },
+    {
+      "file": "tests/web/editor-save-lifecycle.spec.ts",
+      "title": "StrictMode initialization and effect replay keep the initial session active through saves and rerenders",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "a794e3533c484885b0cd-18dea6eba84045e10a8a"
+    },
+    {
+      "file": "tests/web/editor-save-lifecycle.spec.ts",
+      "title": "StrictMode same-ID replacement isolates a delayed save receipt and feedback",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "a794e3533c484885b0cd-838716c02e19e2083190"
+    },
+    {
+      "file": "tests/web/editor-save-lifecycle.spec.ts",
+      "title": "an accepted save may finish after unmount without reviving feedback or rebasing a remount",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "a794e3533c484885b0cd-a737742d2f1d8c381de0"
+    },
+    {
+      "file": "tests/web/editor-save-lifecycle.spec.ts",
+      "title": "StrictMode initialization and effect replay keep the initial session active through saves and rerenders",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "a794e3533c484885b0cd-6c5e0135c30724bdab6d"
+    },
+    {
+      "file": "tests/web/editor-save-lifecycle.spec.ts",
+      "title": "StrictMode same-ID replacement isolates a delayed save receipt and feedback",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "a794e3533c484885b0cd-834ef534204e62b569b7"
+    },
+    {
+      "file": "tests/web/editor-save-lifecycle.spec.ts",
+      "title": "an accepted save may finish after unmount without reviving feedback or rebasing a remount",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "a794e3533c484885b0cd-d65573bfd44efc652a44"
+    },
+    {
+      "file": "tests/web/maplibre-runtime.spec.ts",
+      "title": "MapLibre attribution rejects consecutive unsafe attributes",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "1b2af9c74ca829dd4f36-3652c580c3ba348d0e36"
+    },
+    {
+      "file": "tests/web/maplibre-runtime.spec.ts",
+      "title": "MapLibre attribution rejects consecutive unsafe attributes",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "1b2af9c74ca829dd4f36-a145c5c7e45753e9ab49"
+    },
+    {
+      "file": "tests/web/maplibre-runtime.spec.ts",
+      "title": "MapLibre attribution rejects consecutive unsafe attributes",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "1b2af9c74ca829dd4f36-1124ce61df65f96ffb1e"
+    },
+    {
+      "file": "tests/web/production-accessibility.spec.ts",
+      "title": "operator sign-in, Home, Design and Survey stay keyboard reachable and pass automated accessibility checks",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "29ce5b9dd0cca5a0fd55-1b15591b0c6805e3f4b2"
+    },
+    {
+      "file": "tests/web/production-accessibility.spec.ts",
+      "title": "operator sign-in, Home, Design and Survey stay keyboard reachable and pass automated accessibility checks",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "29ce5b9dd0cca5a0fd55-0a3052b79049e1da2430"
+    },
+    {
+      "file": "tests/web/production-accessibility.spec.ts",
+      "title": "operator sign-in, Home, Design and Survey stay keyboard reachable and pass automated accessibility checks",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "29ce5b9dd0cca5a0fd55-9ffc2a81d97f06c86c71"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "real username/password sign-in rejects anonymous API access and retains the workspace when visiting Home",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-e933a22460c27bd89d2d"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "new customer and project open Design without GPS or fabricated coordinate and machine data",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-59fc69945d4f8599f084"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "Survey-first project skips manual Design and still requires actual survey evidence before Layout",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-c59fe21de60d6fbfbd5d"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "Survey-first recorded boundary and pivot progress through fresh field review to an immutable marked Layout without invented infrastructure",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-746798570c1a3b055267"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "Support cannot read field data through the server even with a supplied workspace membership",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-243d2fe7106c0911b476"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "prepared offline reload verifies the signed grant and rejects tampering while retaining exact field data",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-b17047a0cea826c7ebaf"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "short narrow sign-in keeps focused credentials, submit and help reachable without horizontal overflow",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-6ff800d033bc91ec6b92"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "service denial preserves unfinished customer modal before hiding it for renewed sign-in",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-39469d42e82d6283b455"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "cold service session denial prevents subsequent offline grant revival while retaining exact work",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-d1ee423088fbf1daf7f8"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "post-login device quota reconciles service identity and then isolates a read-only operator account",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-5911221443d068d98292"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "actual Catalog customer archive and restore retain field history through an acknowledged status-read failure",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-3fbbc2c302b1f6ff6b3e"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "two actual App pages serialize sign-out response cookies before a newer username/password sign-in",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-d1c326531f4167b1a090"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "real username/password sign-in rejects anonymous API access and retains the workspace when visiting Home",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-e7143207b8d5dfff3fbc"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "new customer and project open Design without GPS or fabricated coordinate and machine data",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-f5686aabac9ddfc45062"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "Survey-first project skips manual Design and still requires actual survey evidence before Layout",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-d37b2cf37cde7a87b1b1"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "Survey-first recorded boundary and pivot progress through fresh field review to an immutable marked Layout without invented infrastructure",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-253724e596a55c749c3d"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "Support cannot read field data through the server even with a supplied workspace membership",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-7ccac4a292dd5411f6c3"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "prepared offline reload verifies the signed grant and rejects tampering while retaining exact field data",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-b82c14d647ea5f0e0903"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "short narrow sign-in keeps focused credentials, submit and help reachable without horizontal overflow",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-bad1eef5854ac48df108"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "service denial preserves unfinished customer modal before hiding it for renewed sign-in",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-56df43ab6939fab16f48"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "cold service session denial prevents subsequent offline grant revival while retaining exact work",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-82d7c2bdfddc975be088"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "post-login device quota reconciles service identity and then isolates a read-only operator account",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-53ca393b50cccd643947"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "actual Catalog customer archive and restore retain field history through an acknowledged status-read failure",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-bc423ca152a2d6b006a7"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "two actual App pages serialize sign-out response cookies before a newer username/password sign-in",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-1f799895afa4f0f6b6da"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "real username/password sign-in rejects anonymous API access and retains the workspace when visiting Home",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-ada051db2d672f29f13f"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "new customer and project open Design without GPS or fabricated coordinate and machine data",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-c6582b565fecc90601f5"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "Survey-first project skips manual Design and still requires actual survey evidence before Layout",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-5b965be8bee35c29ce5c"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "Survey-first recorded boundary and pivot progress through fresh field review to an immutable marked Layout without invented infrastructure",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-e6fde1a658ad2ab02835"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "Support cannot read field data through the server even with a supplied workspace membership",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-137ee1f27934819abf2e"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "prepared offline reload verifies the signed grant and rejects tampering while retaining exact field data",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-24c1a1e7c07a0ffb7419"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "short narrow sign-in keeps focused credentials, submit and help reachable without horizontal overflow",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-4ee04d83e54278021a2b"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "service denial preserves unfinished customer modal before hiding it for renewed sign-in",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-441458b028ffd09282c0"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "cold service session denial prevents subsequent offline grant revival while retaining exact work",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-3ba8f3334a464b679142"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "post-login device quota reconciles service identity and then isolates a read-only operator account",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-548d84830aa1eb0d7487"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "actual Catalog customer archive and restore retain field history through an acknowledged status-read failure",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-64068ae5ef3e1afda5ad"
+    },
+    {
+      "file": "tests/web/production-auth-workflow.spec.ts",
+      "title": "two actual App pages serialize sign-out response cookies before a newer username/password sign-in",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "05bca20122471ea847fc-47cb3ceec88fc736ed4b"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "empty default App creates explicit customer/project/first field/CRS and opens an actual empty Draft",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-2c262d9340c9f0945b2c"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "Draft map clicks classify inline and save/reopen exact ordered geometry, labels and digitized times",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-a3d7d1b37c18afb66d94"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "Design/Survey retain one map and unfinished input while missing Survey review blocks Layout without changing source",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-363da79adac9782122e4"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "calculation is preview only and explicit completion creates a separate saved child before explicit Open",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-fabff1a8923bfc78c853"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "task tabs retire held map gestures and retain malformed input, caret and independent scroll positions",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-2a2c1d628407ec870cce"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "unequal Field machines freeze an exact selected Layout target and observations survive save, later design edit and reopen",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-07aed08a9a589bd5545f"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "Survey retains immutable evidence through mode changes and clear/Undo, then applies a real line while disconnected",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-0cf68af1eaa19f0c9707"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "common Save shows unapplied inputs, refuses without storage error, and File copy exports exact applied source",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-0b5ee3b1ff70ae7aac86"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "Layout common Save names its session while hidden Design input and newer names remain separate",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-37bba031445186a7ed3a"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "unreviewed Design refuses new Layout while explicit Catalog Open preserves a historical saved target",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-52aaae590f0797b5141f"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded Point reference applies in actual draft while disconnected and reopens honest provenance",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-96bbd7e84ac4b6cef044"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded LineString reference applies in actual draft while disconnected and reopens honest provenance",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-8960d48e12d15e5aa22c"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded Polygon reference applies in actual draft while disconnected and reopens honest provenance",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-36f10727b6dac9c97410"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded Point reference applies in actual project while disconnected and reopens honest provenance",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-375a35fa899f3f091376"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded LineString reference applies in actual project while disconnected and reopens honest provenance",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-5d513c376d47a7476b34"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded Polygon reference applies in actual project while disconnected and reopens honest provenance",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-04b786ef7a05de66be2a"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded Point reference applies in actual field while disconnected and reopens honest provenance",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-daeabfbeb6fad5d039ac"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded LineString reference applies in actual field while disconnected and reopens honest provenance",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-cd112ac3d13589aef997"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded Polygon reference applies in actual field while disconnected and reopens honest provenance",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-61a2948bcf17ddd98dd2"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "empty default App creates explicit customer/project/first field/CRS and opens an actual empty Draft",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-b7dda0d69d7e50415901"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "Draft map clicks classify inline and save/reopen exact ordered geometry, labels and digitized times",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-b38bce0518c950209ea8"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "Design/Survey retain one map and unfinished input while missing Survey review blocks Layout without changing source",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-3fc4441167084df80414"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "calculation is preview only and explicit completion creates a separate saved child before explicit Open",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-c698c0615d059a320900"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "task tabs retire held map gestures and retain malformed input, caret and independent scroll positions",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-d3340bb26b85ded38e2a"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "unequal Field machines freeze an exact selected Layout target and observations survive save, later design edit and reopen",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-a9dcfd490311a7b8c617"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "Survey retains immutable evidence through mode changes and clear/Undo, then applies a real line while disconnected",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-2703043fd29cb07d2c91"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "common Save shows unapplied inputs, refuses without storage error, and File copy exports exact applied source",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-0fefa3f94576ea20f7ff"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "Layout common Save names its session while hidden Design input and newer names remain separate",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-8bc6e8820ed6378f8d2b"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "unreviewed Design refuses new Layout while explicit Catalog Open preserves a historical saved target",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-44f1c2e9c7d07660b25a"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded Point reference applies in actual draft while disconnected and reopens honest provenance",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-65b8c4e3b57bfd7c5508"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded LineString reference applies in actual draft while disconnected and reopens honest provenance",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-e2db0f83edbc548c615f"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded Polygon reference applies in actual draft while disconnected and reopens honest provenance",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-ab64b8f87d1885bab892"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded Point reference applies in actual project while disconnected and reopens honest provenance",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-dbad0eb61eb423a6e897"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded LineString reference applies in actual project while disconnected and reopens honest provenance",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-23da1123e9f9bed0f95b"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded Polygon reference applies in actual project while disconnected and reopens honest provenance",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-68886ee955f8beee128e"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded Point reference applies in actual field while disconnected and reopens honest provenance",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-972df96919cc4ff3e0f3"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded LineString reference applies in actual field while disconnected and reopens honest provenance",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-baa375a05c47bfda583c"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded Polygon reference applies in actual field while disconnected and reopens honest provenance",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-c83ebd91290bd27b2a4b"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "empty default App creates explicit customer/project/first field/CRS and opens an actual empty Draft",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-58d788afb5004d0a9a93"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "Draft map clicks classify inline and save/reopen exact ordered geometry, labels and digitized times",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-9565bbc1d8a994a9cbea"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "Design/Survey retain one map and unfinished input while missing Survey review blocks Layout without changing source",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-0485dc937761e26a98b5"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "calculation is preview only and explicit completion creates a separate saved child before explicit Open",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-ccc768c2d7b93021cf6b"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "task tabs retire held map gestures and retain malformed input, caret and independent scroll positions",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-aa2b25897a953420f710"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "unequal Field machines freeze an exact selected Layout target and observations survive save, later design edit and reopen",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-a1dd64b2aca1d20f2ea7"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "Survey retains immutable evidence through mode changes and clear/Undo, then applies a real line while disconnected",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-4e42aa10b4ed3ae1d86b"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "common Save shows unapplied inputs, refuses without storage error, and File copy exports exact applied source",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-2fb3b7b3366dc5e2d271"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "Layout common Save names its session while hidden Design input and newer names remain separate",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-7e8ae71a18a7b99ff522"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "unreviewed Design refuses new Layout while explicit Catalog Open preserves a historical saved target",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-c28695e459d672515972"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded Point reference applies in actual draft while disconnected and reopens honest provenance",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-d45b5182b51ff3bb3af6"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded LineString reference applies in actual draft while disconnected and reopens honest provenance",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-91833068a3ded2885f42"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded Polygon reference applies in actual draft while disconnected and reopens honest provenance",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-f2ccd4e5bdd7979b1e08"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded Point reference applies in actual project while disconnected and reopens honest provenance",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-e3d8000f35c2955ac863"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded LineString reference applies in actual project while disconnected and reopens honest provenance",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-97917ab62139aa5cc5a2"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded Polygon reference applies in actual project while disconnected and reopens honest provenance",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-938b2b8e35d87c6b757c"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded Point reference applies in actual field while disconnected and reopens honest provenance",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-a6fc2dd0f131e26b6302"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded LineString reference applies in actual field while disconnected and reopens honest provenance",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-ca1ba036437fd9e64d27"
+    },
+    {
+      "file": "tests/web/unified-workspace.spec.ts",
+      "title": "recorded Polygon reference applies in actual field while disconnected and reopens honest provenance",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "afa49328af5a27a98259-e4f4cc047de7e33dc37f"
+    },
+    {
+      "file": "tests/web/workspace-drafts.spec.ts",
+      "title": "draft repository persists missing inputs across tabs and reloads with revision and deletion protection",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "ce1bbd3bfc738b0bae2c-abe7e54da3fcdb0bbd7d"
+    },
+    {
+      "file": "tests/web/workspace-drafts.spec.ts",
+      "title": "draft repository persists missing inputs across tabs and reloads with revision and deletion protection",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "ce1bbd3bfc738b0bae2c-369be8af16c651d5e0eb"
+    },
+    {
+      "file": "tests/web/workspace-drafts.spec.ts",
+      "title": "draft repository persists missing inputs across tabs and reloads with revision and deletion protection",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "ce1bbd3bfc738b0bae2c-3f66815ddd451c958851"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "draft actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-8ac3fb43fa5d9ebce443"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "project actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-9f0db064880bb9d9547f"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "field actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-6bf615b3082244803c75"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "actual hidden-Catalog raw edit checkpoints automatically and reload Restore returns its exact unfinished input",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-23d74de1ff90d0654968"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "actual Catalog-only unfinished customer form checkpoints and reload Restore preserves invalid fields and errors without records",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-ef0d0ae57755bf72a7fb"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "actual checkpoint Export and conditional Discard preserve exact candidate bytes and every durable source",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-d65201b0acccf08e03c7"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "actual corrupt-checkpoint refusal keeps exact opaque ledger Export available without normalization or source writes",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-50ef62d5bc5c3852226c"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "actual Review refuses a changed saved source while retaining the checkpoint and newer design exact",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-f301bba0641fc6382a6e"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "actual Restore refuses a connected synthetic receiver and never reconnects it implicitly",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-f5246df43ff82ee92d17"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "draft actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-dc3fe881a4bddbd26197"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "project actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-d22666b73e7a30a6b78b"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "field actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-a29b01d2ea334d8fca10"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "actual hidden-Catalog raw edit checkpoints automatically and reload Restore returns its exact unfinished input",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-0c4d4f70c986f7a215ae"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "actual Catalog-only unfinished customer form checkpoints and reload Restore preserves invalid fields and errors without records",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-211eb029473bca9424ac"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "actual checkpoint Export and conditional Discard preserve exact candidate bytes and every durable source",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-f9a4d5fdb3e65f6aa17a"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "actual corrupt-checkpoint refusal keeps exact opaque ledger Export available without normalization or source writes",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-0cb609eb70c94a30b3f4"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "actual Review refuses a changed saved source while retaining the checkpoint and newer design exact",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-c2f4d00325a9771729a4"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "actual Restore refuses a connected synthetic receiver and never reconnects it implicitly",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-71982adcd16e86866a4d"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "draft actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-96b547fe3506fdbfd71c"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "project actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-4109c3306374fa4c0a34"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "field actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-52e32ad7365edcf40289"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "actual hidden-Catalog raw edit checkpoints automatically and reload Restore returns its exact unfinished input",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-d0dbce10220dec69139b"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "actual Catalog-only unfinished customer form checkpoints and reload Restore preserves invalid fields and errors without records",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-b697f55351b40d0dc06e"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "actual checkpoint Export and conditional Discard preserve exact candidate bytes and every durable source",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-90257d3165fda782f8c8"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "actual corrupt-checkpoint refusal keeps exact opaque ledger Export available without normalization or source writes",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-31f9e1ae7466272b37a7"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "actual Review refuses a changed saved source while retaining the checkpoint and newer design exact",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-fb0f45f747fcea29548a"
+    },
+    {
+      "file": "tests/web/workspace-edit-recovery.spec.ts",
+      "title": "actual Restore refuses a connected synthetic receiver and never reconnects it implicitly",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "09aeb6b2a56214b44feb-b62f64e4cd0242ce788f"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "retained Survey with unavailable original folders remains readable and exports its exact source without inventing parents",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-abd5a411f98df2a43402"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "draft applied title synchronizes its saved list name only on ordinary Save and preserves field/history/targets",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-7f0383332c0a770aab57"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "project applied title synchronizes its saved list name only on ordinary Save and preserves field/history/targets",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-ae8e001ec487d310d7d6"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "field applied title synchronizes its saved list name only on ordinary Save and preserves field/history/targets",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-1e69d1f111e5e4eb8558"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "draft File Rename focuses its retained raw name from collapsed tools without a duplicate File form",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-6ac2d7c8936cee1f97ca"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "field File Rename focuses its retained raw name from collapsed tools without a duplicate File form",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-75b70cf69a4bf9d7558b"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "current-field New in design keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-6e44b3c58e2c40815fea"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "current-field New in survey keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-2b80082b5f357439e36b"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "current-field New in layout keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-e72d0fb12198394e0ff0"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "early customer entry keeps an emptied required name, validates it and preserves all saved design work",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-10b7564be54ea09d51b8"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "field container Rename is metadata-only, reachable on a short viewport and checkpointed as recovery v2",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-bd541522bf220d7182f5"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "invalid field rename reloads through File Review/Restore as its original rename form and requires Recheck",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-b96f95c745a7d596f3df"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "retained Survey with unavailable original folders remains readable and exports its exact source without inventing parents",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-191a9e99a2154478c7a6"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "draft applied title synchronizes its saved list name only on ordinary Save and preserves field/history/targets",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-d15d5bd4928ce6e2a27b"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "project applied title synchronizes its saved list name only on ordinary Save and preserves field/history/targets",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-473d937794ceff15fb41"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "field applied title synchronizes its saved list name only on ordinary Save and preserves field/history/targets",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-9279797438907b090232"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "draft File Rename focuses its retained raw name from collapsed tools without a duplicate File form",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-8843bd709e71fa09ff9f"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "field File Rename focuses its retained raw name from collapsed tools without a duplicate File form",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-4237739628667557635d"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "current-field New in design keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-5e0b8a482ba40ef73eca"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "current-field New in survey keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-045b3b0fac7a8afe987d"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "current-field New in layout keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-1443f60ce21a5c03d160"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "early customer entry keeps an emptied required name, validates it and preserves all saved design work",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-9fd0e8f4af534ea0222e"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "field container Rename is metadata-only, reachable on a short viewport and checkpointed as recovery v2",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-a588d7f14868e763ade1"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "invalid field rename reloads through File Review/Restore as its original rename form and requires Recheck",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-a635ff97efbc5c4d52b5"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "retained Survey with unavailable original folders remains readable and exports its exact source without inventing parents",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-68d097ad6cc0f0faac06"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "draft applied title synchronizes its saved list name only on ordinary Save and preserves field/history/targets",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-517e0ca1c43f604c9e32"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "project applied title synchronizes its saved list name only on ordinary Save and preserves field/history/targets",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-625baccbcb5d550e6130"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "field applied title synchronizes its saved list name only on ordinary Save and preserves field/history/targets",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-ea7778a50991b685bed0"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "draft File Rename focuses its retained raw name from collapsed tools without a duplicate File form",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-7a6fbe24477fc2ade5f9"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "field File Rename focuses its retained raw name from collapsed tools without a duplicate File form",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-b5a72e4728a665e0da5a"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "current-field New in design keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-e379ef6445b54679449a"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "current-field New in survey keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-2c5f8b8667a141070174"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "current-field New in layout keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-3a1873319f0c16a7c3b6"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "early customer entry keeps an emptied required name, validates it and preserves all saved design work",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-e3f75974c9e9541912a5"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "field container Rename is metadata-only, reachable on a short viewport and checkpointed as recovery v2",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-812f9f5905da01f66cca"
+    },
+    {
+      "file": "tests/web/workspace-management.spec.ts",
+      "title": "invalid field rename reloads through File Review/Restore as its original rename form and requires Recheck",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "86b7e7859961f373d1a0-907b4871084798b7d266"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "draft actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-d15a054e44e4f25c0693"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "draft actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-a6fed40984e9c9a7143a"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "project actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-1eec1257c49aa0313c6c"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "project actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-36613df6603c97fafd94"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "field actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-2e385aa42e03555f7308"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "field actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-b5ce0baf2b72b1d5ec4b"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "actual JSON package without Survey history imports without fabricated collections",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-6a1f6d79d92d154ef117"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "actual ZIP package without Survey history imports without fabricated collections",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-8a6ae8e46416774642ff"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "v1 actual package prepares the retained Field/Layout/Survey chain before one saved-copy import",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-fcaaacaa8bd19fe0bd3b"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "v2 actual package prepares the retained Field/Layout/Survey chain before one saved-copy import",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-28281b6ab30eaed5fe2d"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "v3 actual storage Prepare refuses wrong CRS without an upgrade or any byte change",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-23bbe34354405c495411"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "actual upload of unknown replacement retires previously admitted package without records",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-5d10504375ffd5ec240c"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "actual upload of corrupt replacement retires previously admitted package without records",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-fc3a276136fb7a171237"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "v3 actual complete upload refuses mismatched CRS atomically including workspace version",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-1c9f72c61d418cfcd175"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "v4 actual complete upload refuses mismatched CRS atomically including workspace version",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-af4448ed9eec9bf66e92"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "actual saved-copy Open refuses dirty current input and retains raw text until explicit Discard",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-1b96a0779bad05381b51"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "draft actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-4ac92b141643867d2889"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "draft actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-a7864e1e8439e1e37c0c"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "project actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-de3064ad72c0af7a6d78"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "project actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-a1f2b1f74be07fa1ce89"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "field actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-a12eb52d1d12b58776d6"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "field actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-33117c6b3c95f7a02d79"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "actual JSON package without Survey history imports without fabricated collections",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-4545b6a3fc5e21196a49"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "actual ZIP package without Survey history imports without fabricated collections",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-be680de1759d1cfe2d8b"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "v1 actual package prepares the retained Field/Layout/Survey chain before one saved-copy import",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-c8a86ebd231f215bc1c7"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "v2 actual package prepares the retained Field/Layout/Survey chain before one saved-copy import",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-d1e2699fd39670f888fd"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "v3 actual storage Prepare refuses wrong CRS without an upgrade or any byte change",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-3b262dc135d9f23946d2"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "actual upload of unknown replacement retires previously admitted package without records",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-b11644880426d96bfedc"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "actual upload of corrupt replacement retires previously admitted package without records",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-1117879c89f869cecb53"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "v3 actual complete upload refuses mismatched CRS atomically including workspace version",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-433754585073182dcea0"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "v4 actual complete upload refuses mismatched CRS atomically including workspace version",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-d33c1b7759bb3969ed1f"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "actual saved-copy Open refuses dirty current input and retains raw text until explicit Discard",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-e7442feeb44b26d7a63f"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "draft actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-3ffbffdcb901eb2537c6"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "draft actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-8db708bfef2ada1c3ca3"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "project actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-c0cccee4749e740dbedb"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "project actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-a528578548563f557bdb"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "field actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-99a273d0d1757418976c"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "field actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-8b0676ea4d61069b8c63"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "actual JSON package without Survey history imports without fabricated collections",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-5389cfb55fd04f441e0e"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "actual ZIP package without Survey history imports without fabricated collections",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-9c4409b55a4d1beb8c15"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "v1 actual package prepares the retained Field/Layout/Survey chain before one saved-copy import",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-c2d646519d801d3bf20e"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "v2 actual package prepares the retained Field/Layout/Survey chain before one saved-copy import",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-87ee20bbe5128bef516e"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "v3 actual storage Prepare refuses wrong CRS without an upgrade or any byte change",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-0511f7adbe0355cc2570"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "actual upload of unknown replacement retires previously admitted package without records",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-e213cfbf8dee727598db"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "actual upload of corrupt replacement retires previously admitted package without records",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-f938a81e1016173b2cd2"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "v3 actual complete upload refuses mismatched CRS atomically including workspace version",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-0c2673d23ac0a08a98b4"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "v4 actual complete upload refuses mismatched CRS atomically including workspace version",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-8bc4bb016880d7c25448"
+    },
+    {
+      "file": "tests/web/workspace-package-import.spec.ts",
+      "title": "actual saved-copy Open refuses dirty current input and retains raw text until explicit Discard",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "dfb8a28a471a55473a1d-9c62bb02f7640655aad5"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "draft automatically reloads the exact saved design, Survey collection and immutable histories",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-3a20bfdeb3ad1eb9ba9e"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "project automatically reloads the exact saved design, Survey collection and immutable histories",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-c0e74763e441399f41ca"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "field automatically reloads the exact saved design, Survey collection and immutable histories",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-18b27de6c94145ee3680"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "dual-subject startup retains the exact Layout target and acknowledges Layout and Design saves separately",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-6978a24fb14fa1a2bf96"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "Browse remains separate from Open and startup restores catalog selection and visibility after source reset",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-5c4909c80b91119f0e88"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "Layout-only startup opens without an editable design and preserves frozen geometry",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-2b48af2fbf4081aed985"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "Layout-only startup keeps archived collection disabled and preserves frozen geometry",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-0c7064c2f159b66cba85"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "absent/malformed startup hints fall back without preference or workspace-byte writes",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-a0ed50ab9e278e719d23"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "deleted/foreign startup hints fall back without preference or workspace-byte writes",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-745f625e6b87a4baeff4"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "operator Open, mode, collection, Browse and catalog visibility publish accepted hints that reload automatically",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-c254a223025736ed176d"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "dirty input Open refusal keeps the previous accepted hint and saved source exact",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-741858ae5ad16d3549c5"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "externally deleted destination Open refusal keeps the previous accepted hint and saved source exact",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-3224bc8536b7c6268733"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "draft automatically reloads the exact saved design, Survey collection and immutable histories",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-43714b43ae99cf8fa0cd"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "project automatically reloads the exact saved design, Survey collection and immutable histories",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-e7eaa24dab3093d30eb5"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "field automatically reloads the exact saved design, Survey collection and immutable histories",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-2e8803ce4c41097339bf"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "dual-subject startup retains the exact Layout target and acknowledges Layout and Design saves separately",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-879a388cec484628cb49"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "Browse remains separate from Open and startup restores catalog selection and visibility after source reset",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-3d4be156174657e3ebd2"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "Layout-only startup opens without an editable design and preserves frozen geometry",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-ed3f6a882cfb1a4b9c7f"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "Layout-only startup keeps archived collection disabled and preserves frozen geometry",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-c994fa9db69156979184"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "absent/malformed startup hints fall back without preference or workspace-byte writes",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-434ba000e862315dfaf1"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "deleted/foreign startup hints fall back without preference or workspace-byte writes",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-99b1ed4da62814893fad"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "operator Open, mode, collection, Browse and catalog visibility publish accepted hints that reload automatically",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-1042ddc73d1c49a343cc"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "dirty input Open refusal keeps the previous accepted hint and saved source exact",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-87f4c132e3f80ddc230e"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "externally deleted destination Open refusal keeps the previous accepted hint and saved source exact",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-17327eff484b335608d3"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "draft automatically reloads the exact saved design, Survey collection and immutable histories",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-71c4ba3c641ff3163b08"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "project automatically reloads the exact saved design, Survey collection and immutable histories",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-7dd8aa8fc1216889f4f5"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "field automatically reloads the exact saved design, Survey collection and immutable histories",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-43c608d7b8e49092a249"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "dual-subject startup retains the exact Layout target and acknowledges Layout and Design saves separately",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-7a8abf48d2e89bbc59e6"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "Browse remains separate from Open and startup restores catalog selection and visibility after source reset",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-92db1a226df17f990b95"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "Layout-only startup opens without an editable design and preserves frozen geometry",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-1e07a07d5671812d2052"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "Layout-only startup keeps archived collection disabled and preserves frozen geometry",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-0fbddbcb4bd9185cf605"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "absent/malformed startup hints fall back without preference or workspace-byte writes",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-cf3fe2368c77aa74a537"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "deleted/foreign startup hints fall back without preference or workspace-byte writes",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-f068acbb45f46b68c3b3"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "operator Open, mode, collection, Browse and catalog visibility publish accepted hints that reload automatically",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-e7622b6d8dd8354b1c49"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "dirty input Open refusal keeps the previous accepted hint and saved source exact",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-c92dea51533ff924cb19"
+    },
+    {
+      "file": "tests/web/workspace-startup-resume.spec.ts",
+      "title": "externally deleted destination Open refusal keeps the previous accepted hint and saved source exact",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "7f6365ff5d19a8109210-09f803b803b86a901fda"
+    },
+    {
+      "file": "tests/web/workspace-storage.spec.ts",
+      "title": "workspace foundation serializes two browser tabs and rejects stale saves",
+      "project": "desktop",
+      "outcome": "expected",
+      "testId": "6f693d9580f0a0ee74ea-80955a6c5fe57dc7bc7d"
+    },
+    {
+      "file": "tests/web/workspace-storage.spec.ts",
+      "title": "workspace foundation serializes two browser tabs and rejects stale saves",
+      "project": "tablet-768",
+      "outcome": "expected",
+      "testId": "6f693d9580f0a0ee74ea-405e3091c8438848170a"
+    },
+    {
+      "file": "tests/web/workspace-storage.spec.ts",
+      "title": "workspace foundation serializes two browser tabs and rejects stale saves",
+      "project": "mobile-390",
+      "outcome": "expected",
+      "testId": "6f693d9580f0a0ee74ea-6835b754c76909bb7092"
+    }
+  ],
+  "log": {
+    "sha256": "e0a3713ec442a51c89c3391c95affe30b8c600ea78449fe41dbf91dd82661721",
+    "bytes": 51958
+  },
+  "priorFailureRecheck": {
+    "passedFormerlyFailedExecutions": 60,
+    "passedFormerlyFailedTitleGroups": 20,
+    "verification": "EveryR14failed(file,title,project) tuple isexpected/passin currentR15embeddedHTML."
+  },
+  "automatedAccessibility": {
+    "scans": 18,
+    "details": [
+      {
+        "project": "desktop",
+        "attachment": "sign-in-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0,
+        "incompleteRuleIds": []
+      },
+      {
+        "project": "desktop",
+        "attachment": "customer-home-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0,
+        "incompleteRuleIds": []
+      },
+      {
+        "project": "desktop",
+        "attachment": "project-home-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0,
+        "incompleteRuleIds": []
+      },
+      {
+        "project": "desktop",
+        "attachment": "design-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 2,
+        "incompleteRuleIds": [
+          "aria-prohibited-attr",
+          "color-contrast"
+        ]
+      },
+      {
+        "project": "desktop",
+        "attachment": "survey-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 2,
+        "incompleteRuleIds": [
+          "aria-prohibited-attr",
+          "color-contrast"
+        ]
+      },
+      {
+        "project": "desktop",
+        "attachment": "short-catalog-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 2,
+        "incompleteRuleIds": [
+          "aria-prohibited-attr",
+          "color-contrast"
+        ]
+      },
+      {
+        "project": "tablet-768",
+        "attachment": "sign-in-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0,
+        "incompleteRuleIds": []
+      },
+      {
+        "project": "tablet-768",
+        "attachment": "customer-home-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0,
+        "incompleteRuleIds": []
+      },
+      {
+        "project": "tablet-768",
+        "attachment": "project-home-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0,
+        "incompleteRuleIds": []
+      },
+      {
+        "project": "tablet-768",
+        "attachment": "design-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 2,
+        "incompleteRuleIds": [
+          "aria-prohibited-attr",
+          "color-contrast"
+        ]
+      },
+      {
+        "project": "tablet-768",
+        "attachment": "survey-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 2,
+        "incompleteRuleIds": [
+          "aria-prohibited-attr",
+          "color-contrast"
+        ]
+      },
+      {
+        "project": "tablet-768",
+        "attachment": "short-catalog-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 1,
+        "incompleteRuleIds": [
+          "aria-prohibited-attr"
+        ]
+      },
+      {
+        "project": "mobile-390",
+        "attachment": "sign-in-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0,
+        "incompleteRuleIds": []
+      },
+      {
+        "project": "mobile-390",
+        "attachment": "customer-home-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0,
+        "incompleteRuleIds": []
+      },
+      {
+        "project": "mobile-390",
+        "attachment": "project-home-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0,
+        "incompleteRuleIds": []
+      },
+      {
+        "project": "mobile-390",
+        "attachment": "design-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 2,
+        "incompleteRuleIds": [
+          "aria-prohibited-attr",
+          "color-contrast"
+        ]
+      },
+      {
+        "project": "mobile-390",
+        "attachment": "survey-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 2,
+        "incompleteRuleIds": [
+          "aria-prohibited-attr",
+          "color-contrast"
+        ]
+      },
+      {
+        "project": "mobile-390",
+        "attachment": "short-catalog-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 1,
+        "incompleteRuleIds": [
+          "aria-prohibited-attr"
+        ]
+      }
+    ],
+    "violationsTotal": 0,
+    "incompleteRuleOutcomes": 16,
+    "incompleteRuleIds": [
+      "aria-prohibited-attr",
+      "color-contrast"
+    ],
+    "boundary": "ActualAxe4.13fiveWCAGtag scopes;0violations/16incompletearia/color outcomes, notfullWCAGcertification."
+  },
+  "sourceQualification": {
+    "completeActualAggregate": "docs/evidence/production-workflow-review-20261011/source-hierarchy-r14-pass.json",
+    "testOnlyBridge": "docs/evidence/production-workflow-review-20261011/hierarchy-r14-to-r15-test-only-bridge.json",
+    "unchangedShippingPaths": 955,
+    "changedProofPaths": 6,
+    "boundary": "No freshR15aggregate claimed; bothfinalreviewers mustvet boundedrequalification."
+  },
+  "visibleSceneProof": "docs/evidence/production-workflow-review-20261011/visible-edge-hierarchy-r15-pass.json",
+  "boundary": "Actual267allpass completed. Additionalfinalized-map pixel scope remainsunresolved until realFitobserver proof; twofinalreviews/sourcepublication/native/physical/human/hooks/deployment separate."
+}

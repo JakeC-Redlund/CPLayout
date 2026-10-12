@@ -12,6 +12,7 @@ import { evaluateLayout } from "../../../../packages/geometry/src/geometry";
 import { editableFromIndependentDocument, serializeWorkspaceEditable, type WorkspaceEditableDocument } from "./workspaceDocumentAdapters";
 import type { UnifiedDesignCalculation, UnifiedDesignPanelProps } from "./UnifiedDesignPanel";
 import { InputRetentionProvider, InputRetentionStore, useRetainedInput } from "../inputRetention";
+import { createWorkspacePresentation, selectWorkspaceMode } from "./workspacePresentation";
 
 // Controlled routing boundaries only. Real reusable input/advisory behavior has
 // independent tests; no browser, native focus, or solver-execution proof is claimed.
@@ -27,15 +28,25 @@ try { loader._load = function(request, parent, isMain) {
   if (name) return { [name]: child(name) };
   return original.call(this, request, parent, isMain);
 }; panel = requireCurrent(resolve(__dirname, "UnifiedDesignPanel.tsx")); } finally { loader._load = original; }
-function retainedPanel(projectProbe?: React.ReactNode) {
+function retainedPanel(projectProbe?: React.ReactNode, timing?: { focusNode: { focus(): void } }) {
   const refs: Array<{ current: unknown }> = []; let cursor = 0, focusCalls = 0, handle: import("./UnifiedDesignPanel").UnifiedDesignPanelHandle | null = null;
   const states: unknown[] = [], tabFocus: string[] = []; let stateCursor = 0;
   const visibility = { shown: true };
-  const root = { isConnected: true, getClientRects: () => ({ length: visibility.shown ? 1 : 0 }) };
+  const root = { isConnected: true, getClientRects: () => ({ length: visibility.shown ? 1 : 0 }), contains: () => true, addEventListener() {}, removeEventListener() {} };
+  let effectCursor = 0;
+  const effectSlots: { dependencies?: readonly unknown[]; cleanup?: () => void }[] = [], pendingEffects: (() => void)[] = [];
   const retainedReact = { ...React, useRef(value: unknown) { return refs[cursor++] ?? (refs[cursor - 1] = { current: value }); },
     useState(initial: unknown) { const index = stateCursor++; if (!(index in states)) states[index] = typeof initial === "function" ? (initial as () => unknown)() : initial;
       return [states[index], (update: unknown) => { states[index] = typeof update === "function" ? (update as (previous: unknown) => unknown)(states[index]) : update; }]; },
-    useImperativeHandle(_ref: unknown, create: () => import("./UnifiedDesignPanel").UnifiedDesignPanelHandle) { handle = create(); } };
+    useImperativeHandle(_ref: unknown, create: () => import("./UnifiedDesignPanel").UnifiedDesignPanelHandle) { handle = create(); },
+    useEffect(effect: () => void | (() => void), dependencies?: readonly unknown[]) {
+      if (!timing) return React.useEffect(effect, dependencies);
+      const index = effectCursor++, previous = effectSlots[index] ?? (effectSlots[index] = {});
+      if (!dependencies || !previous.dependencies || dependencies.length !== previous.dependencies.length || dependencies.some((value, slot) => value !== previous.dependencies![slot])) {
+        previous.dependencies = dependencies;
+        pendingEffects.push(() => { previous.cleanup?.(); const cleanup = effect(); previous.cleanup = typeof cleanup === "function" ? cleanup : undefined; });
+      }
+    } };
   const path = resolve(__dirname, "UnifiedDesignPanel.tsx"); delete requireCurrent.cache[path]; let loaded: typeof panel;
   try { loader._load = function(request, parent, isMain) {
     if (request === "react") return retainedReact;
@@ -43,7 +54,8 @@ function retainedPanel(projectProbe?: React.ReactNode) {
       View: (props: Record<string, unknown>) => { if (props.testID === "unified-design-panel" && props.ref) (props.ref as { current: unknown }).current = root; return host("div")(props); } };
     const name = ["DesignDraftInputs", "FieldDesignInputs", "FieldLayoutSearchPanel", "FieldLateralReview", "FieldMachinePairReview", "ProjectDesignPanel", "WorkspaceDrawingPanel"].find(value => request.endsWith(`/${value}`));
     if (name) return { [name]: (props: Record<string, unknown>) => {
-      if (props.ref) (props.ref as { current: unknown }).current = { restoreRetainedFocus() { focusCalls++; return true; } };
+      if (props.ref) (props.ref as { current: unknown }).current = { restoreRetainedFocus() { focusCalls++; timing?.focusNode.focus(); return true; },
+        focusSection() { focusCalls++; timing?.focusNode.focus(); } };
       if (name === "ProjectDesignPanel" && projectProbe) {
         children.set(name, props); const presentation = props.presentation as import("./ProjectDesignPanel").ProjectDesignPanelPresentation;
         return React.createElement(React.Fragment, null, presentation.renderSurface("inputs", projectProbe), presentation.renderSurface("review", null));
@@ -52,7 +64,9 @@ function retainedPanel(projectProbe?: React.ReactNode) {
     } };
     return original.call(this, request, parent, isMain);
   }; loaded = requireCurrent(path); } finally { loader._load = original; }
-  return { module: loaded, visibility, tabFocus, beginRender() { cursor = 0; stateCursor = 0; }, get focusCalls() { return focusCalls; }, get handle() { return handle!; } };
+  return { module: loaded, visibility, tabFocus, beginRender() { cursor = 0; stateCursor = 0; effectCursor = 0; },
+    runEffects() { pendingEffects.splice(0).forEach(effect => effect()); }, disposeEffects() { effectSlots.forEach(slot => slot.cleanup?.()); },
+    get focusCalls() { return focusCalls; }, get handle() { return handle!; } };
 }
 function render(editable: WorkspaceEditableDocument | null, extra: Partial<UnifiedDesignPanelProps> = {}, retained?: ReturnType<typeof retainedPanel>, store?: InputRetentionStore) {
   retained?.beginRender();
@@ -125,7 +139,7 @@ test("Draft review uses actual completeness blockers to request the existing rel
   assert.deepEqual(panel.draftReviewBlockerTarget({ path: "machine.spanLengthsMeters.0", code: "missing", message: "Actual missing span" }), { task: "inputs", section: "machine" });
   assert.deepEqual(panel.draftReviewBlockerTarget({ path: "drawingWorkflow", code: "unfinished_drawing", message: "Actual unfinished capture" }), { task: "drawing", section: null });
   render(editable, { activeTask: "inputs" }); assert.equal(children.get("DesignDraftInputs")!.disabled, false);
-  assert.deepEqual(panel.unifiedDesignTasks("field"), ["machines", "review"]);
+  assert.deepEqual(panel.unifiedDesignTasks("field"), ["drawing", "machines", "review"]);
 });
 test("pending Field raw input synchronously prevents externally supplied advisory adoption from replacing its source", () => {
   const field = convertPivotProjectToFieldDesign(JSON.stringify(sampleProject), { fieldId: "actual-field", waterSourceId: "water", powerSourceId: "power" }).field;
@@ -160,6 +174,61 @@ test("ancestor-hidden web root refuses child focus delegation before touching In
   assert.equal(oldHandle.restoreRetainedFocus(), false); assert.equal(retained.focusCalls, 1);
   assert.equal(panel.visibleDesignRoot({ isConnected: true, getClientRects: () => ({ length: 0 }) }), false);
   assert.equal(panel.visibleDesignRoot({ isConnected: false, getClientRects: () => ({ length: 1 }) }), false);
+});
+
+test("name focus reveals the actual input inside the compact viewport instead of only aligning its section heading", () => {
+  let scroll = 0, connected = true, visible = true, contains = true;
+  const scroller = { isConnected: true, getClientRects: () => ({ length: 1 }), contains: () => contains,
+    getBoundingClientRect: () => ({ top: 365, bottom: 600 }), clientHeight: 235, scrollHeight: 1400,
+    get scrollTop() { return scroll; }, set scrollTop(value: number) { scroll = value; } } as unknown as HTMLElement;
+  const input = { get isConnected() { return connected; }, getClientRects: () => ({ length: visible ? 1 : 0 }),
+    getBoundingClientRect: () => ({ top: 423 - scroll, bottom: 467 - scroll }) } as unknown as HTMLElement;
+  assert.equal(panel.revealDesignInput(scroller, input, { top: 0, bottom: 431 }), true);
+  assert.equal(input.getBoundingClientRect().bottom, 431); assert(input.getBoundingClientRect().top >= scroller.getBoundingClientRect().top);
+  const positioned = scroll; assert.equal(panel.revealDesignInput(scroller, input, { top: 0, bottom: 431 }), true); assert.equal(scroll, positioned);
+  connected = false; assert.equal(panel.revealDesignInput(scroller, input), false); connected = true;
+  visible = false; assert.equal(panel.revealDesignInput(scroller, input), false); visible = true;
+  contains = false; assert.equal(panel.revealDesignInput(scroller, input), false); assert.equal(scroll, positioned);
+});
+
+test("parent name focus before queued afterCommit retains its corrected scroll through the actual panel frame and later restoration", () => {
+  const keys = ["document", "window", "HTMLElement", "requestAnimationFrame", "cancelAnimationFrame"] as const;
+  const prior = keys.map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)] as const);
+  let input: TestNode, scroller: TestNode, frameSequence = 0;
+  const frames = new Map<number, () => void>();
+  const doc = { activeElement: null as TestNode | null, addEventListener() {}, removeEventListener() {} };
+  class TestNode {
+    isConnected = true; scrollTop = 0; scrollHeight = 1400; clientHeight = 235;
+    getClientRects() { return { length: 1 }; }
+    contains(node: unknown) { return node === input; }
+    getBoundingClientRect() { return this === scroller ? { top: 365, bottom: 600 } : { top: 423 - scroller.scrollTop, bottom: 467 - scroller.scrollTop }; }
+    focus() { doc.activeElement = this; }
+  }
+  input = new TestNode(); scroller = new TestNode();
+  const values = { document: doc, window: { innerHeight: 431 }, HTMLElement: TestNode,
+    requestAnimationFrame(callback: () => void) { const id = ++frameSequence; frames.set(id, callback); return id; }, cancelAnimationFrame(id: number) { frames.delete(id); } };
+  let retained: ReturnType<typeof retainedPanel> | undefined;
+  try {
+    for (const key of keys) Object.defineProperty(globalThis, key, { configurable: true, writable: true, value: values[key] });
+    const settings = defaultProjectSettings(), editable = editableFromIndependentDocument("draft", serializeDesignDraftDocument({ id: "queued-name", name: "Exact retained name", projectCrs: null,
+      unitSystem: settings.unitSystem, settings, fieldBoundary: [], pivotCenter: null, waterSource: null, powerSource: null, machine: {}, obstacles: [], surveyPoints: [] }));
+    retained = retainedPanel(undefined, { focusNode: input });
+    const show = (disabled = false) => {
+      render(editable, { activeTask: "inputs", disabled }, retained);
+      (controls.get("design-task-scroll-inputs")!.ref as (node: unknown) => void)({ getScrollableNode: () => scroller, scrollTo: ({ y }: { y: number }) => { scroller.scrollTop = y; } });
+      retained!.runEffects();
+    };
+    const flushFrames = () => { for (let turns = 0; frames.size; turns++) { assert(turns < 8, "Focus frames must settle"); const callbacks = [...frames.values()]; frames.clear(); callbacks.forEach(callback => callback()); } };
+    show(); flushFrames(); assert.equal(scroller.scrollTop, 0);
+    assert.equal(retained.handle.requestDesignNameFocus(() => true), true); show(); assert(frames.size > 0);
+    assert.equal(retained.handle.restoreRetainedFocus(), true); assert.equal(scroller.scrollTop, 36);
+    flushFrames(); assert.equal(scroller.scrollTop, 36); assert.equal(input.getBoundingClientRect().bottom, 431);
+    show(true); flushFrames(); show(); flushFrames(); assert.equal(scroller.scrollTop, 36);
+    assert.equal(input.getBoundingClientRect().bottom, 431); assert.equal(doc.activeElement, input);
+  } finally {
+    retained?.disposeEffects();
+    for (const [key, descriptor] of prior) { if (descriptor) Object.defineProperty(globalThis, key, descriptor); else delete (globalThis as Record<string, unknown>)[key]; }
+  }
 });
 test("actual task surface admission protects internal retained setters before a retired functional updater executes", () => {
   let setter!: React.Dispatch<React.SetStateAction<string>>;
@@ -207,4 +276,59 @@ test("friendly Review actions preserve distinct real machine inputs and exact di
   assert.equal(actions.length, 4); assert.deepEqual(actions[0].diagnostics, blockers.slice(0, 2)); assert.deepEqual(actions.at(-1)!.diagnostics, blockers.slice(4));
   assert.deepEqual(actions.slice(1).map(action => action.label), ["Set machine ID", "Set machine name", "Set span lengths"]); assert.deepEqual(blockers, before);
   assert.deepEqual(actions.at(-1)!.target, { task: "inputs", section: "machine" });
+});
+
+test("Survey owns the single Draft/Field information subtree while hidden Design keeps its drawing surface", () => {
+  const settings = defaultProjectSettings();
+  const draft = editableFromIndependentDocument("draft", serializeDesignDraftDocument({ id: "survey-original", name: "Actual Survey", projectCrs: null, unitSystem: settings.unitSystem,
+    settings, fieldBoundary: [], pivotCenter: null, waterSource: null, powerSource: null, machine: {}, obstacles: [], surveyPoints: [] }));
+  render(draft, { informationOwnedBySurvey: true }); assert.equal(children.has("DesignDraftInputs"), false); assert.equal(controls.has("design-task-scroll-drawing"), true);
+  const field = convertPivotProjectToFieldDesign(JSON.stringify(sampleProject), { fieldId: "survey-prepared", waterSourceId: "water", powerSourceId: "power" }).field;
+  render(editableFromIndependentDocument("field", serializeFieldDesignDocument(field)), { informationOwnedBySurvey: true });
+  assert.equal(children.has("FieldDesignInputs"), false); assert.equal(children.has("ProjectDesignPanel"), false); assert.equal(controls.has("design-task-scroll-drawing"), true);
+});
+
+test("Survey information retains actual raw values and refuses held callbacks after mode ABA, hidden work, or manual-port denial", () => {
+  let survey: typeof import("./SurveyKnownInformationPanel"), setter!: React.Dispatch<React.SetStateAction<string>>;
+  const childProps = new Map<string, Record<string, unknown>>();
+  const informationChild = (name: string) => (props: Record<string, unknown>) => {
+    childProps.set(name, props);
+    const [value, set] = useRetainedInput("survey-information/actual-raw", "saved baseline"); setter = set;
+    return React.createElement("input", { value, readOnly: true });
+  };
+  try { loader._load = function(request, parent, isMain) {
+    if (request === "react-native") return { Text: host("span"), View: host("div") };
+    if (request === "@cplayout/project-store") return { createCatalogId: () => "created-on-command-only" };
+    const name = ["DesignDraftInputs", "FieldDesignInputs", "WorkspaceLateralInputs"].find(value => request.endsWith(`/${value}`));
+    if (name) return { [name]: informationChild(name) };
+    return original.call(this, request, parent, isMain);
+  }; survey = requireCurrent(resolve(__dirname, "SurveyKnownInformationPanel.tsx")); } finally { loader._load = original; }
+  const settings = defaultProjectSettings(), editable = editableFromIndependentDocument("draft", serializeDesignDraftDocument({ id: "raw-survey", name: "Actual Survey", projectCrs: null,
+    unitSystem: settings.unitSystem, settings, fieldBoundary: [], pivotCenter: null, waterSource: null, powerSource: null, machine: {}, obstacles: [], surveyPoints: [] }));
+  let current = { editable, presentation: createWorkspacePresentation(editable.identity, "survey") }, active = true, manual = true, actions = 0, changes = 0, pending = 0;
+  const stateRef = { get current() { return current; } }, store = new InputRetentionStore();
+  function show() {
+    childProps.clear();
+    const controller = { state: current, stateRef, isActive: () => active, canEditField: () => manual,
+      noteUserIntent: () => changes++, setPendingInteractionInput: () => pending++, dispatchSurveyInformation: () => { actions++; return true; } } as unknown as React.ComponentProps<typeof survey.SurveyKnownInformationPanel>["controller"];
+    return renderToStaticMarkup(React.createElement(InputRetentionProvider, { store, children: React.createElement(survey.SurveyKnownInformationPanel, { controller }) }));
+  }
+  show(); assert.equal(childProps.get("DesignDraftInputs")!.surveyInformationOnly, true);
+  setter("unfinished 12'"); const heldSetter = setter, held = childProps.get("DesignDraftInputs")!;
+  current = { ...current, presentation: selectWorkspaceMode(current.presentation, "design") };
+  current = { ...current, presentation: selectWorkspaceMode(current.presentation, "survey") };
+  let updaterCalls = 0; heldSetter(() => { updaterCalls++; return "retired overwrite"; });
+  (held.onAction as (action: unknown) => void)({ type: "rename", name: "retired" });
+  (held.onRawInputChange as () => void)(); (held.onPendingChange as (value: boolean) => void)(false);
+  assert.equal(updaterCalls, 0); assert.equal(actions, 0); assert.equal(changes, 0); assert.equal(pending, 0);
+  assert(show().includes("unfinished 12&#x27;")); assert(store.hasDirty());
+  setter("current exact raw"); show(); const currentHandler = childProps.get("DesignDraftInputs")!;
+  active = false; setter("hidden overwrite"); (currentHandler.onAction as (action: unknown) => void)({ type: "rename" });
+  active = true; manual = false; setter("unavailable overwrite"); (currentHandler.onAction as (action: unknown) => void)({ type: "rename" });
+  manual = true; assert(show().includes("current exact raw")); assert.equal(actions, 0);
+  const field = convertPivotProjectToFieldDesign(JSON.stringify(sampleProject), { fieldId: "prepared-raw", waterSourceId: "water", powerSourceId: "power" }).field;
+  const fieldEditable = editableFromIndependentDocument("field", serializeFieldDesignDocument(field));
+  current = { editable: fieldEditable, presentation: createWorkspacePresentation(fieldEditable.identity, "survey") };
+  show(); assert.equal(childProps.has("DesignDraftInputs"), false); assert.equal(childProps.get("FieldDesignInputs")!.recordedPivotOnly, true);
+  assert.equal(childProps.get("WorkspaceLateralInputs")!.savedPathOnly, true);
 });

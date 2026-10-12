@@ -70,7 +70,7 @@ export function createVersionedProjectRepository(dependencies: WebWorkspaceStore
     async readDesignAsync(designId) { return readWorkspaceDesign(await store.initializeAsync(), designId); },
     async executeAsync(expectedRevision, command, isCurrent) {
       const captured = parseWorkspaceCommand(command);
-      if (captured.type === "append_survey_capture" && !isCurrent) throw new WorkspaceDocumentError("conflict", "A live Survey capture requires its external commit owner predicate.");
+      if (["append_survey_capture", "append_layout_mark", "create_rtk_layout_session", "finalize_rtk_layout_session"].includes(captured.type) && !isCurrent) throw new WorkspaceDocumentError("conflict", "A live Survey or RTK Layout operation requires its external commit owner predicate.");
       let value: WorkspaceCommandValue = undefined;
       const workspace = await store.transactAsync(expectedRevision, current => {
         if (isCurrent && !isCurrent()) throw new WorkspaceDocumentError("conflict", "The active editor or live observation changed before saving; retry from the current screen.");

@@ -1,0 +1,83 @@
+{
+  "versions": {
+    "expo": "57.0.27",
+    "expo-sqlite": "57.0.4",
+    "expo-modules-core": "57.0.21"
+  },
+  "pins": {
+    "android/build.gradle": "cbac6bfa980788e1c044f714bd4c519fc191622ddf6117f8292129f1e16d7a60",
+    "android/src/main/java/expo/modules/sqlite/SQLiteOptions.kt": "dfacc404baf637cf0a26ba5cab449a06669dfc6fdcd1cdbccb6d5057b73f2b10",
+    "android/src/main/java/expo/modules/sqlite/SQLiteModule.kt": "ff9a4ec24d965cab34610924612105751c0b436b63a60e11162a28d69198915f",
+    "android/src/main/java/expo/modules/sqlite/NativeDatabaseBinding.kt": "ddde637b79d13ee8739a60f5349c0ad36d8fbc92bf9e0dc0ec34eb1049e281fa",
+    "android/src/main/cpp/NativeDatabaseBinding.h": "c3a5c357896ef19ab4fa4cffdeffc4e6ecb137b0aa3567b667002e45f3e71575",
+    "android/src/main/cpp/NativeDatabaseBinding.cpp": "935f1b5b9abc3829a8e13562660f962a43ed749041b875414f6aee6793459329",
+    "android/src/main/java/expo/modules/sqlite/NativeDatabase.kt": "c8b6cfb05ce487bc3e873084ffd36f3410423cbc00a4c41ba8516ec87af96917",
+    "vendor/sqlite3/sqlite3.h": "0d247fd5e5e2fd602f427227bae7bf6349dd3322d6090d9751b21b5b3f51db62",
+    "vendor/sqlite3/sqlite3.c": "df16f4f2845488289d416e1d3b928c82ade5256564605b762daf0113fad394c5",
+    "android/CMakeLists.txt": "57ada8eb0c3b0050ad884f8ca92131126cb5663e4efa595c19a584766ecdf2bf"
+  },
+  "patchSha256": "ddc9a6ee0155cd258d1b62c0026bd79ff077b277221f63b99bf7ba972f0c6595",
+  "files": [
+    {
+      "target": "node_modules/expo-sqlite/android/build.gradle",
+      "added": false,
+      "expected": "1095bccf2ccd0a05283f925c54a1da0d2b566e3ac2890a7d774d3e509305306b"
+    },
+    {
+      "target": "node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/SQLiteOptions.kt",
+      "added": false,
+      "expected": "c6d51c105e20eabf1cd4a3ec8882becb8a14010bb75d7a5faf812515ced805b8"
+    },
+    {
+      "target": "node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/SQLiteModule.kt",
+      "added": false,
+      "expected": "42491b99d5802c1e1c9242f61e7fcc9bb9348e41769a7c4d5e44f52290a50077"
+    },
+    {
+      "target": "node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/NativeDatabaseBinding.kt",
+      "added": false,
+      "expected": "e65ebdef30a507aa60a3097df1af62aad6d137e5ae69d00f71aa8b18e288c756"
+    },
+    {
+      "target": "node_modules/expo-sqlite/android/src/main/cpp/NativeDatabaseBinding.h",
+      "added": false,
+      "expected": "7873a0a7377e83fb4c44d4136cd5118ea4d75f3ef1b02bb8c7e4dc632fda5f32"
+    },
+    {
+      "target": "node_modules/expo-sqlite/android/src/main/cpp/NativeDatabaseBinding.cpp",
+      "added": false,
+      "expected": "ee590529e69b66ed37640964bcf23b3d9a925139d97e70737a29d2c1121be7c0"
+    },
+    {
+      "target": "node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/NativeDatabase.kt",
+      "added": false,
+      "expected": "45b36d49754c1f3a0dcdad0b9b0d4a55396368464991cd407893a20f4ff43313"
+    },
+    {
+      "target": "node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/CPLayoutDatabaseOwnership.kt",
+      "added": true,
+      "expected": "3f2b248cd1f03681928d7c4225775da70a4caf649dc41eb0d9426e0fd96742b0"
+    },
+    {
+      "target": "node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/CPLayoutConnectionRegistry.java",
+      "added": true,
+      "expected": "631e5257826488b8adcff3e799dcd6f336fbeece85cc7e25f3e645d34df318d3"
+    },
+    {
+      "target": "node_modules/expo-sqlite/android/src/main/java/expo/modules/sqlite/CPLayoutSidecarPolicy.java",
+      "added": true,
+      "expected": "7dcf6086680246c3eef14eee5cc203e3a2ea1d3a91a1a4ad988854160c5d22e3"
+    }
+  ],
+  "reviewedSource": {
+    "checkedOn": "2026-10-11",
+    "upstream": "https://registry.npmjs.org/expo-sqlite/57.0.4",
+    "publishedSourceChanges": [
+      "android/build.gradle version",
+      "SQLiteOptions OptimizedRecord annotation",
+      "SQLiteModule buffer/statement handling outside unchanged ownership patch"
+    ],
+    "ownershipFix": "Existing-only/source-lease behavior is not upstream-fixed; same reviewed ownership hunks apply with versionName context changed only.",
+    "qualification": "Published source/patch applicability and exact bytes only; no native build/device proof."
+  }
+}

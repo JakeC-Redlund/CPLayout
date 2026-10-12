@@ -16,6 +16,8 @@ interface Props {
   onRawInputChange?: () => void;
   onPendingChange?: (pending: boolean) => void;
   disabled?: boolean;
+  /** Survey information edits exclude coordinates and geometry captured by the receiver. */
+  surveyInformationOnly?: boolean;
   onSectionLayout?: (section: string, y: number) => void;
 }
 
@@ -39,7 +41,7 @@ export const DesignDraftInputs = React.forwardRef<DesignDraftInputsHandle, Props
 });
 
 const RetainedDesignDraftInputs = React.forwardRef<DesignDraftInputsHandle, Props>(function RetainedDesignDraftInputs(
-  { editor, onAction, onPendingChange, disabled = false, onSectionLayout, onRawInputChange }, ref,
+  { editor, onAction, onPendingChange, disabled = false, onSectionLayout, onRawInputChange, surveyInformationOnly = false }, ref,
 ): React.JSX.Element {
   const store = useInputRetentionStore();
   const scope = JSON.stringify(["draft-inputs", editor.draft.id]);
@@ -77,13 +79,13 @@ const RetainedDesignDraftInputs = React.forwardRef<DesignDraftInputsHandle, Prop
             onPress={() => { store.resetScope(scope); setPendingSections({}); onAction({ type: "clear_error" }); }} testID="draft-inputs-discard" />
         </View>
         {editor.lastError ? <FormError message={editor.lastError} /> : null}
-        <NameSection key={keyFor(draft.name)} name={draft.name} onAction={onAction} reportPending={reportPending} />
-        <CrsSection key={keyFor([draft.projectCrs, lockedCrs])} crs={draft.projectCrs} lockedCrs={lockedCrs} onAction={onAction} reportPending={reportPending} />
+        <NameSection key={keyFor(draft.name)} name={draft.name} label={surveyInformationOnly ? "Field work name" : "Design name"} onAction={onAction} reportPending={reportPending} />
+        {!surveyInformationOnly && <><CrsSection key={keyFor([draft.projectCrs, lockedCrs])} crs={draft.projectCrs} lockedCrs={lockedCrs} onAction={onAction} reportPending={reportPending} />
         <PointSection key={`pivot-${keyFor(draft.pivotCenter)}`} label="Pivot center" role="pivot_center" point={draft.pivotCenter} onAction={onAction} reportPending={reportPending} />
         <PointSection key={`water-${keyFor(draft.waterSource)}`} label="Water source" role="water_source" point={draft.waterSource} onAction={onAction} reportPending={reportPending} />
         <PointSection key={`power-${keyFor(draft.powerSource)}`} label="Power source" role="power_source" point={draft.powerSource} onAction={onAction} reportPending={reportPending} />
         <BoundarySection key={keyFor(draft.fieldBoundary)} vertices={draft.fieldBoundary} onAction={onAction} reportPending={reportPending} />
-        <SavedMapItemsSection draft={draft} onAction={onAction} disabled={pending} />
+        <SavedMapItemsSection draft={draft} onAction={onAction} disabled={pending} /></>}
         <MachineSection key={keyFor(draft.machine)} machine={draft.machine} onAction={onAction} reportPending={reportPending} />
       </View>
     </SectionLayout.Provider></InputsDisabled.Provider></InputRegistry.Provider></RawInputChange.Provider></RetentionScope.Provider>
@@ -98,12 +100,12 @@ function useRetainedSection<T>(section: string, source: T, canonical: unknown = 
     retained.error, error => setRetained(previous => ({ ...previous, error }))];
 }
 
-function NameSection({ name, onAction, reportPending }: { name: string; onAction: Props["onAction"]; reportPending: ReportPending }): React.JSX.Element {
+function NameSection({ name, label, onAction, reportPending }: { name: string; label: string; onAction: Props["onAction"]; reportPending: ReportPending }): React.JSX.Element {
   const [text, setText, error, setError] = useRetainedSection("name", name);
   usePending("name", text !== name, reportPending);
   return (
-    <Section title="Design name">
-      <Input label="Design name" value={text} onChange={(value) => { setText(value); setError(null); }} testID="draft-name" />
+    <Section title={label}>
+      <Input label={label} value={text} onChange={(value) => { setText(value); setError(null); }} testID="draft-name" />
       <FormError message={error} />
       <Apply label="Apply name" onPress={() => attempt(setError, () => {
         if (!text.trim()) throw new Error("Supply a draft document name before applying.");
@@ -270,7 +272,7 @@ function MachineSection({ machine, onAction, reportPending }: { machine: DesignD
 
 function Section({ title, children }: { title: string; children: React.ReactNode }): React.JSX.Element {
   const onLayout = useContext(SectionLayout);
-  const section = ({ "Design name": "name", "Coordinate system": "projectCrs", "Pivot center": "pivotCenter", "Water source": "waterSource", "Power source": "powerSource", "Field boundary": "fieldBoundary", "Machine": "machine" } as Record<string, string>)[title];
+  const section = ({ "Design name": "name", "Field work name": "name", "Coordinate system": "projectCrs", "Pivot center": "pivotCenter", "Water source": "waterSource", "Power source": "powerSource", "Field boundary": "fieldBoundary", "Machine": "machine" } as Record<string, string>)[title];
   return <InputSection.Provider value={section}><View style={styles.section} onLayout={event => { if (section) onLayout?.(section, event.nativeEvent.layout.y); }}><Text accessibilityRole="header" style={styles.title}>{title}</Text>{children}</View></InputSection.Provider>;
 }
 
@@ -333,8 +335,8 @@ function Options<T extends string>({ label, value, options, onChange }: {
       <View accessibilityRole="radiogroup" accessibilityLabel={label} style={styles.options}>
         {options.map((option) => (
           <Pressable key={option.value} accessibilityRole="radio" accessibilityLabel={`${label}: ${option.label}`}
-            accessibilityState={{ checked: value === option.value, disabled }} disabled={disabled}
-            onPress={() => onChange(option.value)} style={[styles.option, disabled && styles.disabled]}>
+            accessibilityState={{ checked: value === option.value, disabled }} aria-checked={value === option.value} aria-disabled={disabled} disabled={disabled}
+            onPress={() => { if (!disabled) onChange(option.value); }} style={[styles.option, disabled && styles.disabled]}>
             {value === option.value ? <CircleDot size={18} color="#254234" /> : <Circle size={18} color="#607067" />}
             <Text style={styles.optionLabel}>{option.label}</Text>
           </Pressable>

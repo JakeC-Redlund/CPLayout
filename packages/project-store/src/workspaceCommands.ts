@@ -1,18 +1,22 @@
+import { getSurveyReadiness, assertLayoutSurveyAdmission, validateWorkflowConversion, type WorkflowConversion } from "./productionWorkflow";
 import { parseSurveyCollectionDocument, serializeSurveyCollectionDocument, proposeSurveyCaptureAppend, proposeSurveyMembershipRestore, assertSurveyCollectionTransition, type SurveyCollection } from "../../core/src/surveyCollection";
 import { appendSurveyPointToDesign, applySurveyCollectionToDesign, readSurveyDesignDocument } from "../../core/src/surveyCollectionApplication";
 import { mapRecordedReferenceAttachments, assertSurvivingRecordedReferenceHistory, assertNewRecordedReferenceHistory } from "./recordedReferenceAttachments";
-import { parseDesignWorkspaceBundle, buildDesignWorkspaceBundle, type DesignWorkspaceBundle } from "./designWorkspaceBundle";
+import { parseDesignWorkspaceBundle, serializeDesignWorkspaceBundle, buildDesignWorkspaceBundle, type DesignWorkspaceBundle } from "./designWorkspaceBundle";
 import {
   RECORDED_REFERENCE_DESIGN_DRAFT_DOCUMENT_VERSION, PivotProjectSchema, parseDesignDraftDocument, parseProjectDocument,
   serializeDesignDraftDocument, serializeProjectDocument, validateFieldDesign, serializeFieldDesignDocument,
   parseFieldDesignDocument, convertPivotProjectToFieldDesign, createFieldDesignEditorState, reduceFieldDesignEditorState,
   tryBuildPivotProject, createLayoutSessionDocument, parseLayoutSessionDocument, serializeLayoutSessionDocument, LayoutObservationSchema,
-  seedRecordedReferenceOrigins,
+  seedRecordedReferenceOrigins, createSurveyReview, serializeSurveyReview, createReviewedFieldLayoutTarget, serializeFieldLayoutTarget,
+  parseFieldLayoutTarget, annotateLayoutObservation, sha256Text, defaultProjectSettings, DESIGN_DRAFT_DOCUMENT_VERSION, convertSurveyDraftToField,
+  createRtkLayoutSessionDocument, finalizeRtkLayoutSession, LayoutLockReceiptSchema, RTK_LAYOUT_SESSION_DOCUMENT_VERSION,
 } from "@cplayout/core";
-import type { DesignDraft, FieldDesign, FieldPivotMachine, LayoutResult, PivotProject, LayoutSession, LayoutObservation } from "@cplayout/core";
+import type { DesignDraft, FieldDesign, FieldPivotMachine, LayoutResult, PivotProject, LayoutSession, LayoutObservation, LayoutLockReceipt } from "@cplayout/core";
 import { z } from "zod";
 import { parseStrictJson } from "./strictJson";
 import { parseEditableProjectDocument } from "./projectDocumentEditing";
+import { projectDataKey } from "../../core/src/projectDataComparison";
 
 import {
   assertClientPrimaryContact, defaultDesignId, defaultFieldMapId, emptyClientProfileFields,
@@ -24,11 +28,22 @@ import type {
   CreateProjectWithInitialFieldMapInput, DesignRecord, FieldMapRecord,
 } from "./projectRepositoryTypes";
 import {
-  assertRetainedOperationalEvidence, createWorkspaceDesign, deleteWorkspaceDesign, saveWorkspaceDesign, validateWorkspaceDocument, WorkspaceDocumentError,
-  serializeWorkspaceDocument, upgradeWorkspaceDocumentToV2, upgradeWorkspaceDocumentToV3, upgradeWorkspaceDocumentToV4, FIELD_WORKSPACE_DOCUMENT_VERSION, LAYOUT_WORKSPACE_DOCUMENT_VERSION, SURVEY_WORKSPACE_DOCUMENT_VERSION, workspaceDesignSource, assertRetainedSurveyHistory,
+  assertRetainedOperationalEvidence, assertRetainedLayoutHistory, createWorkspaceDesign, deleteWorkspaceDesign, saveWorkspaceDesign, validateWorkspaceDocument, WorkspaceDocumentError,
+  parseWorkspaceDocument, serializeWorkspaceDocument, upgradeWorkspaceDocumentToV2, upgradeWorkspaceDocumentToV3, upgradeWorkspaceDocumentToV4, FIELD_WORKSPACE_DOCUMENT_VERSION, LAYOUT_WORKSPACE_DOCUMENT_VERSION, SURVEY_WORKSPACE_DOCUMENT_VERSION, PRODUCTION_WORKSPACE_DOCUMENT_VERSION, upgradeWorkspaceDocumentToV5, workspaceDesignSource, assertRetainedSurveyHistory, assertRetainedWorkflowHistory,
   type WorkspaceDesignRecord, type WorkspaceDocument,
 } from "./workspaceDocument";
 
+export type ProductionWorkflowCommand =
+  | TimedCommand<"upgrade_workspace_to_v5">
+  | (TimedCommand<"start_project_work"> & { clientId: string; projectId: string; fieldMapId: string; designId: string; draftId: string; projectName: string; fieldName: string; workName: string; unitSystem: "metric" | "us_survey_feet"; initialMode: "design" | "survey"; projectCrs?: string | null; siteDescription?: string; locator?: { latitude: number; longitude: number } })
+  | (TimedCommand<"declare_work_crs"> & { designId: string; expectedDesignRevision: number; projectCrs: string })
+  | (TimedCommand<"prepare_surveyed_field"> & { sourceDesignId: string; expectedDesignRevision: number; designId: string; fieldMapId: string; fieldId: string; waterSourceId: string; powerSourceId: string; name: string })
+  | (TimedCommand<"bind_recorded_pivot"> & { designId: string; expectedDesignRevision: number; collectionId: string; expectedCollectionRevision: number; pointId: string })
+  | (TimedCommand<"review_survey"> & { reviewId: string; designId: string; expectedDesignRevision: number; includedCollectionIds: string[]; excludedCollectionIds: string[]; completedBy: string })
+  | (TimedCommand<"create_reviewed_layout_session"> & { sessionId: string; name: string; designId: string; expectedDesignRevision: number; reviewId: string; selectedMachineIds: string[] })
+  | (TimedCommand<"create_rtk_layout_session"> & { sessionId: string; name: string; designId: string; expectedDesignRevision: number; reviewId: string; selectedMachineIds: string[]; creationLock: LayoutLockReceipt })
+  | (TimedCommand<"finalize_rtk_layout_session"> & { sessionId: string; expectedSessionRevision: number; finalizationLock: LayoutLockReceipt })
+  | (TimedCommand<"append_layout_mark"> & { sessionId: string; expectedSessionRevision: number; observation: LayoutObservation; targetPointId?: string; toleranceMeters?: number; recordedBy: string });
 type TimedCommand<T extends string> = { type: T; now: string };
 export type SaveProjectCommand = TimedCommand<"save_project"> & { project: PivotProject; result?: LayoutResult; createOnly: boolean };
 export type SaveDesignProjectCommand = TimedCommand<"save_design_project"> & { designId: string; project: PivotProject; result?: LayoutResult; syncCatalogName?: boolean };
@@ -51,7 +66,7 @@ export type CreateProjectWithInitialFieldMapCommand = TimedCommand<"create_proje
   input: CreateProjectWithInitialFieldMapInput & { projectId: string };
 };
 export type CreateProjectRecordCommand = TimedCommand<"create_project_record"> & {
-  input: { id: string; clientId: string; name: string; projectCrs: string; unitSystem: string };
+  input: { id: string; clientId: string; name: string; projectCrs: string | null; unitSystem: string };
 };
 export type RenameProjectCommand = TimedCommand<"rename_project"> & { projectId: string; name: string };
 export type RenameFieldMapCommand = TimedCommand<"rename_field_map"> & { fieldMapId: string; name: string };
@@ -110,8 +125,8 @@ export type WorkspaceCommand = SaveProjectCommand | SaveDesignProjectCommand | C
   | UpgradeFieldWorkspaceCommand | CreateFieldDesignCommand | SaveFieldDesignCommand | CopyFieldDesignCommand
   | ConvertProjectToFieldDesignCommand | AdoptFieldPlanCommand | CreateCompleteDesignFromDraftCommand
   | UpgradeLayoutWorkspaceCommand | CreateLayoutSessionCommand | AppendLayoutObservationCommand | RenameLayoutSessionCommand
-  | ArchiveLayoutSessionCommand | CopyLayoutSessionCommand | ImportLayoutSessionCommand | ImportDesignDocumentCommand | SurveyWorkspaceCommand;
-export type WorkspaceCommandValue = SurveyCollection | void | ClientRecord | CatalogProjectRecord | FieldMapRecord | DesignRecord
+  | ArchiveLayoutSessionCommand | CopyLayoutSessionCommand | ImportLayoutSessionCommand | ImportDesignDocumentCommand | SurveyWorkspaceCommand | ProductionWorkflowCommand;
+export type WorkspaceCommandValue = import("../../core/src/surveyReview").SurveyReview | SurveyCollection | void | ClientRecord | CatalogProjectRecord | FieldMapRecord | DesignRecord
   | CreatedProjectWorkspace | CreatedProjectFieldMapWorkspace | PivotProject | LayoutSession | Extract<WorkspaceDesignRecord, { kind: "draft" | "field" }>;
 export interface WorkspaceCommandResult { workspace: WorkspaceDocument; value: WorkspaceCommandValue }
 
@@ -125,7 +140,7 @@ const profileFields = {
   location: text.optional(), notes: text.optional(),
 };
 const ProfileSchema = z.object(profileFields).strict();
-const ProjectRecordInputSchema = z.object({ id, clientId: id, name: text, projectCrs: text, unitSystem: text }).strict();
+const ProjectRecordInputSchema = z.object({ id, clientId: id, name: text, projectCrs: text.nullable(), unitSystem: text }).strict();
 const FieldMapInputSchema = z.object({ id, projectId: id, name: text }).strict();
 const DesignInputSchema = z.object({ id, fieldMapId: id, name: text, pivotProjectId: id, isActive: z.boolean().optional() }).strict();
 const xy = z.object({ x: z.number(), y: z.number() }).strict();
@@ -163,6 +178,18 @@ const surveyMembership = { collectionId: id, expectedCollectionRevision: designR
 const collectionInput = z.unknown().transform(input => parseSurveyCollectionDocument(input));
 const bundleInput = z.unknown().transform(input => parseDesignWorkspaceBundle(input));
 const CommandSchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("upgrade_workspace_to_v5"), now }).strict(),
+  z.object({ type: z.literal("start_project_work"), now, clientId: id, projectId: id, fieldMapId: id, designId: id, draftId: id,
+    projectName: id, fieldName: id, workName: id, unitSystem: z.enum(["metric", "us_survey_feet"]), initialMode: z.enum(["design", "survey"]),
+    projectCrs: id.nullable().optional(), siteDescription: text.optional(), locator: z.object({ latitude: z.number().finite().min(-90).max(90), longitude: z.number().finite().min(-180).max(180) }).strict().optional() }).strict(),
+  z.object({ type: z.literal("declare_work_crs"), now, designId: id, expectedDesignRevision: designRevision, projectCrs: id }).strict(),
+  z.object({ type: z.literal("review_survey"), now, reviewId: id, designId: id, expectedDesignRevision: designRevision, includedCollectionIds: z.array(id).min(1), excludedCollectionIds: z.array(id), completedBy: id }).strict(),
+  z.object({ type: z.literal("create_reviewed_layout_session"), now, sessionId: id, name: id, designId: id, expectedDesignRevision: designRevision, reviewId: id, selectedMachineIds: z.array(id).min(1) }).strict(),
+  z.object({ type: z.literal("create_rtk_layout_session"), now, sessionId: id, name: id, designId: id, expectedDesignRevision: designRevision, reviewId: id, selectedMachineIds: z.array(id).min(1), creationLock: LayoutLockReceiptSchema }).strict(),
+  z.object({ type: z.literal("finalize_rtk_layout_session"), now, sessionId: id, expectedSessionRevision: designRevision, finalizationLock: LayoutLockReceiptSchema }).strict(),
+  z.object({ type: z.literal("prepare_surveyed_field"), now, sourceDesignId: id, expectedDesignRevision: designRevision, designId: id, fieldMapId: id, fieldId: id, waterSourceId: id, powerSourceId: id, name: id }).strict(),
+  z.object({ type: z.literal("bind_recorded_pivot"), now, designId: id, expectedDesignRevision: designRevision, collectionId: id, expectedCollectionRevision: designRevision, pointId: id }).strict(),
+  z.object({ type: z.literal("append_layout_mark"), now, sessionId: id, expectedSessionRevision: designRevision, observation: LayoutObservationSchema, targetPointId: id.optional(), toleranceMeters: z.number().finite().positive().optional(), recordedBy: id }).strict(),
   z.object({ type: z.literal("upgrade_workspace_to_v4"), now }).strict(),
   z.object({ type: z.literal("create_survey_collection"), now, collection: collectionInput, expectedDesignRevision: designRevision }).strict(),
   z.object({ type: z.literal("append_survey_capture"), now, collectionId: id, expectedCollectionRevision: designRevision, expectedDesignRevision: designRevision, point: PivotProjectSchema.shape.surveyPoints.element }).strict(),
@@ -237,13 +264,98 @@ export function parseWorkspaceCommand(input: unknown): WorkspaceCommand {
 
 /** The adapter checks the caller's workspace revision under its storage lock before applying this transition. */
 export function applyWorkspaceCommand(workspace: WorkspaceDocument, command: WorkspaceCommand): WorkspaceCommandResult {
+  return applyWorkspaceTransition(workspace, command);
+}
+/** Authoritative boundary for adapters holding actual stored JSON text. Upgrade
+ * archives retain those exact bytes; ordinary mutations share the pure reducer. */
+export function applyWorkspaceDocumentCommand(sourceDocument: string, commandInput: unknown): WorkspaceCommandResult {
+  if (typeof sourceDocument !== "string") fail("invalid_document", "Saved work must be supplied as its actual JSON text.");
+  return applyWorkspaceTransition(parseWorkspaceDocument(sourceDocument), parseWorkspaceCommand(commandInput), sourceDocument);
+}
+function applyWorkspaceTransition(workspace: WorkspaceDocument, command: WorkspaceCommand, sourceDocument?: string): WorkspaceCommandResult {
   assertPlainData(workspace);
   let next = validateWorkspaceDocument(workspace);
   const cmd = parseWorkspaceCommand(command);
   const revision = increment(next.revision);
   let value: WorkspaceCommandValue = undefined;
   switch (cmd.type) {
-    case "upgrade_workspace_to_v4": next = upgradeWorkspaceDocumentToV4(serializeWorkspaceDocument(next)); break;
+    case "upgrade_workspace_to_v5": next = upgradeWorkspaceDocumentToV5(sourceDocument ?? serializeWorkspaceDocument(next)); break;
+    case "start_project_work": {
+      requireProductionWorkspace(next);
+      const projectRecord = addProject(next, { id: cmd.projectId, clientId: cmd.clientId, name: cmd.projectName, projectCrs: cmd.projectCrs ?? null, unitSystem: cmd.unitSystem }, cmd.now);
+      const fieldMap = addFieldMap(next, { id: cmd.fieldMapId, projectId: projectRecord.id, name: cmd.fieldName }, cmd.now);
+      const settings = defaultProjectSettings(); settings.unitSystem = cmd.unitSystem;
+      const draft = parseDesignDraftDocument({ documentVersion: DESIGN_DRAFT_DOCUMENT_VERSION, draft: { id: cmd.draftId, name: cmd.workName,
+        unitSystem: cmd.unitSystem, settings, projectCrs: cmd.projectCrs ?? null, fieldBoundary: [], pivotCenter: null, waterSource: null, powerSource: null,
+        machine: {}, obstacles: [], surveyPoints: [], mapFeatures: [], mapPackages: [] } });
+      const design: Extract<WorkspaceDesignRecord, { kind: "draft" }> = { id: cmd.designId, fieldMapId: fieldMap.id, name: cmd.workName, kind: "draft", draftId: cmd.draftId,
+        isActive: true, revision: 0, createdAt: cmd.now, updatedAt: cmd.now };
+      next = createWorkspaceDesign(next, { design, document: serializeDesignDraftDocument(draft) });
+      next.workItems!.push({ designId: design.id, initialMode: cmd.initialMode, ...(cmd.siteDescription === undefined ? {} : { siteDescription: cmd.siteDescription }), ...(cmd.locator === undefined ? {} : { locator: cmd.locator }) });
+      value = design; break;
+    }
+    case "declare_work_crs": {
+      requireProductionWorkspace(next);
+      const source = currentSurveyDesign(next, cmd.designId, cmd.expectedDesignRevision);
+      if (source.kind !== "draft") fail("conflict", "Declare coordinates only for an actual empty work record.");
+      const draft = parseDesignDraftDocument(source.document);
+      if (draft.fieldBoundary.length || draft.obstacles.length || draft.surveyPoints.length || (draft.mapFeatures?.length ?? 0)
+        || draft.pivotCenter !== null || draft.waterSource !== null || draft.powerSource !== null
+        || draft.drawingWorkflow?.captures.some(capture => capture.vertices.length)
+        || next.surveyCollections!.some(entry => parseSurveyCollectionDocument(entry.document).owner.designId === source.design.id)) fail("conflict", "Saved coordinates or Survey work require a transformation, never a coordinate label change.");
+      const map = requireRecord(next.catalog.fieldMaps, source.design.fieldMapId, "Field");
+      const project = requireRecord(next.catalog.projects, map.projectId, "Project");
+      const siblings = next.catalog.designs.filter(design => next.catalog.fieldMaps.some(field => field.id === design.fieldMapId && field.projectId === project.id));
+      if (siblings.some(design => design.id !== source.design.id)) fail("conflict", "Coordinate declaration must not relabel another project work record.");
+      next = saveWorkspaceDesign(next, { designId: source.design.id, expectedRevision: source.design.revision, document: serializeDesignDraftDocument({ ...draft, projectCrs: cmd.projectCrs }), updatedAt: cmd.now });
+      next.catalog.projects.find(item => item.id === project.id)!.projectCrs = cmd.projectCrs;
+      next.catalog.projects.find(item => item.id === project.id)!.updatedAt = cmd.now;
+      value = next.catalog.designs.find(item => item.id === source.design.id)!; break;
+    }
+    case "review_survey": {
+      requireProductionWorkspace(next);
+      const source = currentSurveyDesign(next, cmd.designId, cmd.expectedDesignRevision), data = readSurveyDesignDocument(source.kind, source.document);
+      if (data.projectCrs === null) fail("conflict", "Declare the actual field coordinates before reviewing Survey.");
+      assertUnused(next.surveyReviews!, cmd.reviewId, "Survey review");
+      const review = createSurveyReview({ id: cmd.reviewId, completedBy: cmd.completedBy, completedAt: cmd.now, sourceRevision: source.design.revision,
+        owner: { designId: source.design.id, documentKind: source.kind, payloadId: source.payloadId, fieldMapId: source.design.fieldMapId, projectCrs: data.projectCrs }, sourceDocument: source.document,
+        collections: next.surveyCollections!.filter(entry => parseSurveyCollectionDocument(entry.document).owner.designId === source.design.id), includedCollectionIds: cmd.includedCollectionIds, excludedCollectionIds: cmd.excludedCollectionIds });
+      next.surveyReviews!.push({ id: review.id, document: serializeSurveyReview(review) }); value = review; break;
+    }
+    case "create_reviewed_layout_session":
+    case "create_rtk_layout_session": {
+      requireProductionWorkspace(next);
+      const source = currentSurveyDesign(next, cmd.designId, cmd.expectedDesignRevision), readiness = getSurveyReadiness(next, cmd.designId);
+      if (source.kind !== "field" || readiness.status !== "ready" || readiness.review?.id !== cmd.reviewId) fail("conflict", "Review the current field Survey before creating Layout.");
+      const target = createReviewedFieldLayoutTarget(parseFieldDesignDocument(source.document), { inputRevision: source.design.revision, expectedRevision: cmd.expectedDesignRevision,
+        selectedMachineIds: cmd.selectedMachineIds, designId: source.design.id, fieldMapId: source.design.fieldMapId, review: readiness.review });
+      const input = { id: cmd.sessionId, name: cmd.name, fieldMapId: source.design.fieldMapId, targetDocument: serializeFieldLayoutTarget(target), now: cmd.now };
+      const session = cmd.type === "create_rtk_layout_session" ? createRtkLayoutSessionDocument({ ...input, creationLock: cmd.creationLock }) : createLayoutSessionDocument(input);
+      assertLayoutSurveyAdmission(next, session.targetDocument); insertLayoutSession(next, session); value = session; break;
+    }
+    case "finalize_rtk_layout_session": {
+      requireProductionWorkspace(next);
+      const session = readLayoutSession(next, cmd.sessionId, cmd.expectedSessionRevision);
+      assertLayoutSurveyAdmission(next, session.targetDocument);
+      const finalized = finalizeRtkLayoutSession(session, cmd.finalizationLock, cmd.now);
+      finalized.revision = increment(session.revision); finalized.updatedAt = cmd.now;
+      next.layoutSessions!.find(item => item.id === session.id)!.document = serializeLayoutSessionDocument(finalized); value = finalized; break;
+    }
+    case "append_layout_mark": {
+      requireProductionWorkspace(next);
+      const session = readLayoutSession(next, cmd.sessionId, cmd.expectedSessionRevision);
+      if (session.documentVersion !== RTK_LAYOUT_SESSION_DOCUMENT_VERSION || session.referenceSourceDocument !== undefined)
+        fail("conflict", "This saved map is reference history. Create a current RTK Layout before marking positions.");
+      if (session.finalization) fail("conflict", "The official measured stations are finalized. Create a new RTK Layout to record another edition.");
+      if (session.archived) fail("conflict", "Restore this Layout session before recording positions.");
+      assertLayoutSurveyAdmission(next, session.targetDocument);
+      const observation = annotateLayoutObservation(parseFieldLayoutTarget(session.targetDocument), cmd.observation,
+        { recordedBy: cmd.recordedBy, ...(cmd.targetPointId === undefined ? {} : { targetPointId: cmd.targetPointId }), ...(cmd.toleranceMeters === undefined ? {} : { toleranceMeters: cmd.toleranceMeters }) });
+      session.observations.push(observation); session.revision = increment(session.revision); session.updatedAt = cmd.now;
+      const document = serializeLayoutSessionDocument(session); next.layoutSessions!.find(entry => entry.id === session.id)!.document = document;
+      value = parseLayoutSessionDocument(document); break;
+    }
+    case "upgrade_workspace_to_v4": next = upgradeWorkspaceDocumentToV4(sourceDocument ?? serializeWorkspaceDocument(next)); break;
     case "create_survey_collection": {
       requireSurveyWorkspace(next);
       const collection = cmd.collection;
@@ -363,24 +475,27 @@ export function applyWorkspaceCommand(workspace: WorkspaceDocument, command: Wor
         next.catalog.designs.find(entry => entry.id === source.id)!.name = normalizeCatalogSortName(cmd.draft.name);
       }
       const attached = (next.surveyCollections ?? []).map(entry => parseSurveyCollectionDocument(entry.document)).filter(item => item.owner.designId === source.id);
-      if (cmd.surveyCollectionIds !== undefined && (attached.length > 0 || cmd.surveyCollectionIds.length > 0)) {
+      const surveyMappings = cmd.surveyCollectionIds ?? (next.workspaceVersion === PRODUCTION_WORKSPACE_DOCUMENT_VERSION ? attached.map(item => ({ sourceId: item.id, id: `${cmd.designId}:survey:${item.id}`, expectedRevision: item.revision })) : undefined);
+      if (surveyMappings !== undefined && (attached.length > 0 || surveyMappings.length > 0)) {
         requireSurveyWorkspace(next);
-        cloneSurveyCollections(next, attached, cmd.surveyCollectionIds, { designId: cmd.designId, payloadId: cmd.projectId, fieldMapId: source.fieldMapId, kind: "project" });
+        cloneSurveyCollections(next, attached, surveyMappings, { designId: cmd.designId, payloadId: cmd.projectId, fieldMapId: source.fieldMapId, kind: "project" });
         // Pure Core completion retires locators for its collection-free new owner.
         // This transaction has complete clones, so remap the source's locators.
         if (cmd.draft.drawingMetadata) project = { ...project, drawingMetadata: cmd.draft.drawingMetadata };
-        project = mapRecordedReferenceAttachments(project, attachmentMappings(cmd.surveyCollectionIds));
+        project = mapRecordedReferenceAttachments(project, attachmentMappings(surveyMappings));
       } else project = mapRecordedReferenceAttachments(project);
       next.catalog.designs.push({ id: cmd.designId, kind: "project", pivotProjectId: project.id, fieldMapId: source.fieldMapId,
         name: cmd.name, isActive: true, revision: 0, createdAt: cmd.now, updatedAt: cmd.now });
       next.projectDocuments.push(projectEntry(project, cmd.now));
+      if (next.workspaceVersion === PRODUCTION_WORKSPACE_DOCUMENT_VERSION) recordConversion(next, source.id, cmd.designId, surveyMappings ?? [], cmd.now);
       value = project;
       break;
     }
     case "upgrade_workspace_to_v3":
-      next = upgradeWorkspaceDocumentToV3(serializeWorkspaceDocument(next));
+      next = upgradeWorkspaceDocumentToV3(sourceDocument ?? serializeWorkspaceDocument(next));
       break;
     case "create_layout_session": {
+      if (next.workspaceVersion === PRODUCTION_WORKSPACE_DOCUMENT_VERSION) fail("conflict", "Review Survey and use Create Layout for this workspace.");
       requireLayoutWorkspace(next);
       const session = createLayoutSessionDocument({ id: cmd.sessionId, fieldMapId: cmd.fieldMapId, name: cmd.name, targetDocument: cmd.targetDocument, now: cmd.now });
       insertLayoutSession(next, session); value = session; break;
@@ -388,9 +503,12 @@ export function applyWorkspaceCommand(workspace: WorkspaceDocument, command: Wor
     case "import_layout_session": {
       requireLayoutWorkspace(next);
       const session = parseLayoutSessionDocument(cmd.document);
+      if (session.documentVersion === RTK_LAYOUT_SESSION_DOCUMENT_VERSION && session.fieldMapId !== cmd.fieldMapId)
+        fail("conflict", "This RTK map belongs to its original field. Keep the file as reference history, or start a new RTK Layout in the destination field.");
       // Association is explicit; immutable target bytes, observation identities and history remain exact.
-      const associated = parseLayoutSessionDocument({ ...session, fieldMapId: cmd.fieldMapId });
-      insertLayoutSession(next, associated); value = associated; break;
+      const associated = parseLayoutSessionDocument({ ...session, fieldMapId: cmd.fieldMapId,
+        ...(session.documentVersion === RTK_LAYOUT_SESSION_DOCUMENT_VERSION ? { finalization: null, referenceSourceDocument: cmd.document } : {}) });
+      insertLayoutSession(next, associated, session.documentVersion !== RTK_LAYOUT_SESSION_DOCUMENT_VERSION && session.fieldMapId === cmd.fieldMapId ? cmd.document : undefined); value = associated; break;
     }
     case "copy_layout_session": {
       const source = readLayoutSession(next, cmd.sourceSessionId, cmd.expectedSessionRevision);
@@ -402,8 +520,7 @@ export function applyWorkspaceCommand(workspace: WorkspaceDocument, command: Wor
     case "archive_layout_session": {
       const session = readLayoutSession(next, cmd.sessionId, cmd.expectedSessionRevision);
       if (cmd.type === "append_layout_observation") {
-        if (session.archived) fail("conflict", "Restore the archived Layout session before collecting observations.");
-        session.observations.push(cmd.observation);
+        fail("conflict", "Legacy Layout captures are unavailable; create a reviewed Layout and record its target observations.");
       } else if (cmd.type === "rename_layout_session") session.name = cmd.name;
       else session.archived = cmd.archived;
       session.revision = increment(session.revision); session.updatedAt = cmd.now;
@@ -412,7 +529,7 @@ export function applyWorkspaceCommand(workspace: WorkspaceDocument, command: Wor
       value = parseLayoutSessionDocument(document); break;
     }
     case "upgrade_workspace_to_v2":
-      next = upgradeWorkspaceDocumentToV2(serializeWorkspaceDocument(next));
+      next = upgradeWorkspaceDocumentToV2(sourceDocument ?? serializeWorkspaceDocument(next));
       break;
     case "create_field_design": {
       const created = createField(next, cmd, cmd.field);
@@ -440,6 +557,32 @@ export function applyWorkspaceCommand(workspace: WorkspaceDocument, command: Wor
       if (entry.originalProjectDocument !== undefined) next.fieldDocuments!.find(item => item.id === cmd.fieldId)!.originalProjectDocument = entry.originalProjectDocument;
       break;
     }
+    case "bind_recorded_pivot": {
+      requireProductionWorkspace(next);
+      const source = currentSurveyDesign(next, cmd.designId, cmd.expectedDesignRevision), data = readSurveyDesignDocument(source.kind, source.document);
+      const entry = requireRecord(next.surveyCollections!, cmd.collectionId, "Survey collection"), collection = parseSurveyCollectionDocument(entry.document);
+      const point = collection.observations.find(item => item.id === cmd.pointId);
+      if (source.kind !== "draft" || collection.owner.designId !== source.design.id || collection.revision !== cmd.expectedCollectionRevision
+        || collection.purpose.kind !== "point" || collection.purpose.role !== "pivot_center" || !collection.activePointIds.includes(cmd.pointId)
+        || !point || !data.surveyPoints.some(item => projectDataKey(item) === projectDataKey(point))) fail("conflict", "Select an actual recorded pivot position from this saved Survey work.");
+      const draft = parseDesignDraftDocument(source.document);
+      next = saveWorkspaceDesign(next, { designId: cmd.designId, expectedRevision: cmd.expectedDesignRevision,
+        document: serializeDesignDraftDocument({ ...draft, pivotCenter: { ...point.projected }, infrastructureObservationRefs: { ...draft.infrastructureObservationRefs, pivot_center: point.id } }), updatedAt: cmd.now });
+      value = next.catalog.designs.find(item => item.id === cmd.designId)!; break;
+    }
+    case "prepare_surveyed_field": {
+      requireProductionWorkspace(next);
+      const source = currentSurveyDesign(next, cmd.sourceDesignId, cmd.expectedDesignRevision);
+      if (source.kind !== "draft" || source.design.fieldMapId !== cmd.fieldMapId) fail("identity_mismatch", "Prepare the selected Survey work in its actual field.");
+      if (getSurveyReadiness(next, source.design.id).status !== "ready") fail("conflict", "Complete the source Survey review before preparing its field.");
+      const converted = convertSurveyDraftToField(source.document, { fieldId: cmd.fieldId, waterSourceId: cmd.waterSourceId, powerSourceId: cmd.powerSourceId });
+      requireDestinationCrs(next, cmd.fieldMapId, converted.field.projectCrs);
+      const created = createField(next, cmd, { ...converted.field, name: cmd.name }); next = created.workspace; value = created.design;
+      const attached = next.surveyCollections!.map(entry => parseSurveyCollectionDocument(entry.document)).filter(item => item.owner.designId === source.design.id);
+      const mappings = attached.map(item => ({ sourceId: item.id, id: `${cmd.designId}:survey:${item.id}`, expectedRevision: item.revision }));
+      cloneSurveyCollections(next, attached, mappings, { designId: cmd.designId, payloadId: cmd.fieldId, fieldMapId: cmd.fieldMapId, kind: "field" });
+      recordConversion(next, source.design.id, cmd.designId, mappings, cmd.now); break;
+    }
     case "convert_project_to_field_design": {
       const source = requireRecord(next.catalog.designs, cmd.sourceDesignId, "Source design");
       if (source.kind !== "project") fail("identity_mismatch", "Explicit conversion requires a project-backed source design.");
@@ -452,6 +595,12 @@ export function applyWorkspaceCommand(workspace: WorkspaceDocument, command: Wor
       const created = createField(next, cmd, { ...converted.field, name: cmd.name });
       next = created.workspace; value = created.design;
       next.fieldDocuments!.find(item => item.id === cmd.fieldId)!.originalProjectDocument = original;
+      if (next.workspaceVersion === PRODUCTION_WORKSPACE_DOCUMENT_VERSION) {
+        const attached = next.surveyCollections!.map(entry => parseSurveyCollectionDocument(entry.document)).filter(item => item.owner.designId === source.id);
+        const mappings = attached.map(item => ({ sourceId: item.id, id: `${cmd.designId}:survey:${item.id}`, expectedRevision: item.revision }));
+        cloneSurveyCollections(next, attached, mappings, { designId: cmd.designId, payloadId: cmd.fieldId, fieldMapId: cmd.fieldMapId, kind: "field" });
+        recordConversion(next, source.id, cmd.designId, mappings, cmd.now);
+      }
       break;
     }
     case "adopt_field_plan": {
@@ -633,9 +782,11 @@ export function applyWorkspaceCommand(workspace: WorkspaceDocument, command: Wor
       break;
     }
   }
-  next.revision = revision;
+  next.revision = cmd.type === "upgrade_workspace_to_v5" ? next.revision : revision;
   assertRetainedOperationalEvidence(workspace, next);
   assertRetainedSurveyHistory(workspace, next);
+  assertRetainedWorkflowHistory(workspace, next);
+  assertRetainedLayoutHistory(workspace, next);
   return { workspace: validateWorkspaceDocument(next), value };
 }
 
@@ -647,7 +798,7 @@ function fieldDesign(workspace: WorkspaceDocument, designId: string, revision: n
 }
 
 function createField(workspace: WorkspaceDocument, command: { designId: string; fieldMapId: string; name: string; isActive?: boolean; now: string }, field: FieldDesign) {
-  if (workspace.workspaceVersion !== FIELD_WORKSPACE_DOCUMENT_VERSION && workspace.workspaceVersion !== LAYOUT_WORKSPACE_DOCUMENT_VERSION && workspace.workspaceVersion !== SURVEY_WORKSPACE_DOCUMENT_VERSION) fail("unsupported_version", "Explicitly upgrade the workspace to v2 before creating field designs.");
+  if (workspace.workspaceVersion !== FIELD_WORKSPACE_DOCUMENT_VERSION && workspace.workspaceVersion !== LAYOUT_WORKSPACE_DOCUMENT_VERSION && workspace.workspaceVersion !== SURVEY_WORKSPACE_DOCUMENT_VERSION && workspace.workspaceVersion !== PRODUCTION_WORKSPACE_DOCUMENT_VERSION) fail("unsupported_version", "Explicitly upgrade the workspace to v2 before creating field designs.");
   const design: Extract<WorkspaceDesignRecord, { kind: "field" }> = { id: command.designId, fieldMapId: command.fieldMapId,
     name: normalizeCatalogSortName(command.name), kind: "field", fieldDesignId: field.id, isActive: command.isActive ?? true,
     revision: 0, createdAt: command.now, updatedAt: command.now };
@@ -683,6 +834,9 @@ function addProject(workspace: WorkspaceDocument, input: CreateProjectRecordComm
 
 function addFieldMap(workspace: WorkspaceDocument, input: CreateFieldMapRecordCommand["input"], timestamp: string): FieldMapRecord {
   assertUnused(workspace.catalog.fieldMaps, input.id, "Field map");
+  if (workspace.surveyOwnerArchives?.some(entry => entry.design.fieldMapId === input.id)
+    || workspace.surveyCollections?.some(entry => parseSurveyCollectionDocument(entry.document).owner.fieldMapId === input.id))
+    fail("conflict", "This field identity belongs to retained survey history. Create a new field without reassigning its original folder context.");
   requireRecord(workspace.catalog.projects, input.projectId, "Project folder");
   const record = { ...input, name: normalizeCatalogSortName(input.name), createdAt: timestamp, updatedAt: timestamp };
   workspace.catalog.fieldMaps.push(record);
@@ -693,6 +847,9 @@ function deleteProject(workspace: WorkspaceDocument, projectId: string, deletedA
   const folder = workspace.catalog.projects.find((record) => record.id === projectId);
   const mapIds = new Set(folder ? workspace.catalog.fieldMaps.filter((record) => record.projectId === projectId).map((record) => record.id) : []);
   if (workspace.layoutSessions?.some(entry => mapIds.has(parseLayoutSessionDocument(entry.document).fieldMapId))) fail("conflict", "This project owns retained Layout sessions. Keep the project to preserve their field context.");
+  if (workspace.surveyOwnerArchives?.some(entry => mapIds.has(entry.design.fieldMapId))
+    || workspace.surveyCollections?.some(entry => mapIds.has(parseSurveyCollectionDocument(entry.document).owner.fieldMapId)))
+    fail("conflict", "This project owns retained field surveys. Keep its customer, project and field context; archive the project instead of deleting it.");
   // A matching payload owned by a different folder is outside this cascade.
   const removedDesigns = workspace.catalog.designs.filter((record) => folder ? mapIds.has(record.fieldMapId) : record.kind === "project" && record.pivotProjectId === projectId);
   const documents = new Set(removedDesigns.filter((record) => record.kind === "project").map(payloadId));
@@ -802,7 +959,7 @@ function assertNoStrippedFields(input: unknown, parsed: unknown, message = "Unkn
 }
 
 function requireLayoutWorkspace(workspace: WorkspaceDocument): void {
-  if ((workspace.workspaceVersion !== LAYOUT_WORKSPACE_DOCUMENT_VERSION && workspace.workspaceVersion !== SURVEY_WORKSPACE_DOCUMENT_VERSION) || !workspace.layoutSessions) fail("unsupported_version", "Choose Upgrade workspace for Layout before creating or changing a Layout session.");
+  if ((workspace.workspaceVersion !== LAYOUT_WORKSPACE_DOCUMENT_VERSION && workspace.workspaceVersion !== SURVEY_WORKSPACE_DOCUMENT_VERSION && workspace.workspaceVersion !== PRODUCTION_WORKSPACE_DOCUMENT_VERSION) || !workspace.layoutSessions) fail("unsupported_version", "Choose Upgrade workspace for Layout before creating or changing a Layout session.");
 }
 function readLayoutSession(workspace: WorkspaceDocument, sessionId: string, expectedRevision: number): LayoutSession {
   requireLayoutWorkspace(workspace);
@@ -811,14 +968,18 @@ function readLayoutSession(workspace: WorkspaceDocument, sessionId: string, expe
   if (session.revision !== expectedRevision) fail("conflict", "Layout session changed; reopen it before saving.");
   return session;
 }
-function insertLayoutSession(workspace: WorkspaceDocument, session: LayoutSession): void {
+function insertLayoutSession(workspace: WorkspaceDocument, session: LayoutSession, exactDocument?: string): void {
   requireRecord(workspace.catalog.fieldMaps, session.fieldMapId, "Layout session field");
   assertUnused(workspace.layoutSessions!, session.id, "Layout session");
-  workspace.layoutSessions!.push({ id: session.id, document: serializeLayoutSessionDocument(session) });
+  if (exactDocument !== undefined && projectDataKey(parseLayoutSessionDocument(exactDocument)) !== projectDataKey(session)) fail("invalid_document", "The exact imported map differs from its admitted source.");
+  workspace.layoutSessions!.push({ id: session.id, document: exactDocument ?? serializeLayoutSessionDocument(session) });
 }
 
+function requireProductionWorkspace(workspace: WorkspaceDocument): void {
+  if (workspace.workspaceVersion !== PRODUCTION_WORKSPACE_DOCUMENT_VERSION || !workspace.workItems || !workspace.surveyReviews || !workspace.workflowConversions || !workspace.workflowBundleArchives) fail("unsupported_version", "Prepare this workspace for saved Survey review and Layout first.");
+}
 function requireSurveyWorkspace(workspace: WorkspaceDocument): void {
-  if (workspace.workspaceVersion !== SURVEY_WORKSPACE_DOCUMENT_VERSION || !workspace.surveyCollections || !workspace.surveyOwnerArchives) fail("unsupported_version", "Explicit workspace v4 upgrade is required for durable Survey.");
+  if ((workspace.workspaceVersion !== SURVEY_WORKSPACE_DOCUMENT_VERSION && workspace.workspaceVersion !== PRODUCTION_WORKSPACE_DOCUMENT_VERSION) || !workspace.surveyCollections || !workspace.surveyOwnerArchives) fail("unsupported_version", "Explicit workspace v4 upgrade is required for durable Survey.");
 }
 function currentSurveyDesign(workspace: WorkspaceDocument, designId: string, expected: number) {
   const source = workspaceDesignSource(workspace, designId);
@@ -842,6 +1003,7 @@ function refusePartialSurveyCopy(workspace: WorkspaceDocument, designId: string)
 }
 function importSurveyBundle(workspace: WorkspaceDocument, input: DesignWorkspaceBundle, command: { designId: string; payloadId: string; fieldMapId: string; name?: string; collectionIds: SurveyCollectionIdMap[]; now: string }): WorkspaceDocument {
   const bundle = parseDesignWorkspaceBundle(input);
+  if (bundle.workflowSources && workspace.workspaceVersion !== PRODUCTION_WORKSPACE_DOCUMENT_VERSION) fail("unsupported_version", "Workflow bundles require workspace v5; preserve the original file.");
   const originals = bundle.surveyDocuments.map(document => parseSurveyCollectionDocument(document));
   assertUnused(workspace.catalog.designs, command.designId, "Design");
   if (workspace.tombstones.some(item => item.entity === "design" && item.id === command.designId)) fail("conflict", "Design identity was already deleted.");
@@ -865,6 +1027,16 @@ function importSurveyBundle(workspace: WorkspaceDocument, input: DesignWorkspace
     workspace.fieldDocuments!.push({ id: payload.id, document: serializeFieldDesignDocument(payload as FieldDesign),
       ...(bundle.originalProjectDocument === undefined ? {} : { originalProjectDocument: bundle.originalProjectDocument }) });
   }
+  if (workspace.workspaceVersion === PRODUCTION_WORKSPACE_DOCUMENT_VERSION) {
+    const destination = workspaceDesignSource(workspace, command.designId);
+    const conversion: WorkflowConversion = { id: `${command.designId}:conversion`, createdAt: command.now,
+      source: { designId: bundle.designId, kind: bundle.documentKind, payloadId: bundle.payloadId, fieldMapId: bundle.fieldMapId, revision: bundle.designRevision ?? null, document: bundle.designDocument, sha256: sha256Text(bundle.designDocument) },
+      destination: { designId: destination.design.id, kind: destination.kind, payloadId: destination.payloadId, fieldMapId: destination.design.fieldMapId, revision: destination.design.revision, document: destination.document, sha256: sha256Text(destination.document) },
+      collectionMappings: command.collectionIds.map(mapping => ({ sourceId: mapping.sourceId, destinationId: mapping.id, sourceDocument: bundle.surveyDocuments.find(document => parseSurveyCollectionDocument(document).id === mapping.sourceId)!, destinationDocument: workspace.surveyCollections!.find(entry => entry.id === mapping.id)!.document })),
+      sourceReviews: bundle.workflowSources?.reviews ?? [], qualification: "lossless_identity_conversion" };
+    workspace.workflowConversions!.push(validateWorkflowConversion(conversion));
+    workspace.workflowBundleArchives!.push({ designId: command.designId, document: serializeDesignWorkspaceBundle(bundle) });
+  }
   return workspace;
 }
 
@@ -885,4 +1057,18 @@ function cloneSurveyCollections(workspace: WorkspaceDocument, originals: SurveyC
     insertSurvey(workspace, parseSurveyCollectionDocument({ ...original, id: mapping.id, revision: 0,
       owner: { ...original.owner, designId: owner.designId, payloadId: owner.payloadId, fieldMapId: owner.fieldMapId, documentKind: owner.kind } }));
   }
+}
+
+function recordConversion(workspace: WorkspaceDocument, sourceId: string, destinationId: string, mappings: SurveyCollectionIdMap[], now: string): void {
+  const a = workspaceDesignSource(workspace, sourceId), b = workspaceDesignSource(workspace, destinationId);
+  const source = (entry: typeof a) => ({ designId: entry.design.id, kind: entry.kind, payloadId: entry.payloadId, fieldMapId: entry.design.fieldMapId,
+    revision: entry.design.revision, document: entry.document, sha256: sha256Text(entry.document) });
+  const conversion: WorkflowConversion = { id: `${destinationId}:conversion`, createdAt: now, source: source(a), destination: source(b),
+    collectionMappings: mappings.map(mapping => ({ sourceId: mapping.sourceId, destinationId: mapping.id,
+      sourceDocument: workspace.surveyCollections!.find(entry => entry.id === mapping.sourceId)!.document,
+      destinationDocument: workspace.surveyCollections!.find(entry => entry.id === mapping.id)!.document })),
+    sourceReviews: workspace.surveyReviews!.filter(entry => JSON.parse(entry.document).owner.designId === sourceId).map(entry => entry.document),
+    qualification: "lossless_identity_conversion" };
+  assertUnused(workspace.workflowConversions!, conversion.id, "Conversion");
+  workspace.workflowConversions!.push(validateWorkflowConversion(conversion));
 }

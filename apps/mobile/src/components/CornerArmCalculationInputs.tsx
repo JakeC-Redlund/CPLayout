@@ -26,7 +26,7 @@ export function CornerArmCalculationInputs({ project, value, onChange, onRun, mi
           placeholder="Measured ground speed" testID="corner-input-speed" />
       </View>
       <ChoiceMenu label="2. Corner model" id="model" value={value.modelId} onChange={modelId => change({ modelId })}
-        options={VALLEY_CORNER_ARM_SCAFFOLD_CATALOG.map(entry => ({ value: entry.id, label: `${entry.label} (unverified catalog)` }))} />
+        options={VALLEY_CORNER_ARM_SCAFFOLD_CATALOG.map(entry => ({ value: entry.id, label: `${entry.label.replace(/ scaffold/gi, "")} (verify specifications)` }))} />
       <ChoiceMenu label="3. Rotation direction" id="rotation" value={value.rotation}
         onChange={rotation => change({ rotation: rotation as CornerArmInputDraft["rotation"] })}
         options={project.machine.sweep.mode === "partial_circle"
@@ -40,7 +40,7 @@ export function CornerArmCalculationInputs({ project, value, onChange, onRun, mi
         options={candidates.map(entry => ({ value: entry.id, label: `${entry.name} (${entry.kind.replaceAll("_", " ")})` }))} />
     </View>
     {model ? <View style={styles.notice} testID="corner-input-model-warning"><TriangleAlert size={20} color="#925600" style={styles.fixedIcon} />
-      <Text style={styles.warning}>{model.label}: unverified catalog dimensions, {metersToFeet(model.spanLengthMeters).toFixed(2)} ft span + {metersToFeet(model.overhangLengthMeters).toFixed(2)} ft overhang. Not verified equipment specifications.</Text>
+      <Text style={styles.warning}>{model.label.replace(/ scaffold/gi, "")}: planning dimensions, {metersToFeet(model.spanLengthMeters).toFixed(2)} ft span + {metersToFeet(model.overhangLengthMeters).toFixed(2)} ft overhang. Verify these dimensions against the equipment specifications.</Text>
     </View> : null}
     {feature ? <Text style={styles.note} testID="corner-input-guidance-note">Selected line: {feature.name} | {feature.confidence.replaceAll("_", " ")} | Guidance suitability unverified</Text> : null}
     {!candidates.length ? <Text style={styles.warning}>No eligible saved lines. Steerable corner tower guidance remains missing.</Text> : null}

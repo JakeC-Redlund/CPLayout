@@ -1,0 +1,614 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-12",
+  "classification": "synthetic",
+  "claimClass": "browser",
+  "result": "pass_focused_current_cases",
+  "exitCode": 0,
+  "counts": {
+    "selected": 15,
+    "passed": 15,
+    "failed": 0,
+    "flaky": 0,
+    "skipped": 0,
+    "didNotRun": 0
+  },
+  "sourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r14.json",
+  "sourceFingerprint": "d6af4cec8c4b78888bf0a8e2df11a7e4a5e1ac9f69f3978cd5c1dcbc40f373d5",
+  "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+  "sourceDrift": [],
+  "custody": {
+    "sha256": "488350dc8d1858bce5210f36fe783e25cdb7d830ab6d8f4d976d8af57b8538dc",
+    "declaredArtifacts": 22,
+    "hashesAndBytesVerified": true,
+    "artifacts": [
+      {
+        "path": "playwright-html/data/062900a36b71abc851648e5d1488bef4c99d433b.png",
+        "bytes": 32010,
+        "sha256": "550536ea9502bcc7294e5e4bdb79b44d1fa72050a8cae8bf6c6df23c6bc96b7b"
+      },
+      {
+        "path": "playwright-html/data/08010aaf28b1e1ac26ad07dcca759f732bce6484.png",
+        "bytes": 88514,
+        "sha256": "1a04bd1d9f16f78ef0e7218fc9d7bcaf9a7b9b85a1b80819402f2604a42d82d1"
+      },
+      {
+        "path": "playwright-html/data/1739a92a25603b2ceaa24f32514e80f76faa62f3.png",
+        "bytes": 99742,
+        "sha256": "1371ea8aef70987138a8da598560f2aa2f3a1a6c91ccaf56a34acba8113e0708"
+      },
+      {
+        "path": "playwright-html/data/251b4adb558f1ada33f35a31a8109b997a4e27db.png",
+        "bytes": 45515,
+        "sha256": "e698ac2d4ea0a802c681759fe02398a90d862dcc253406a63d90a02da6b57c69"
+      },
+      {
+        "path": "playwright-html/data/336d4b408df3870e081aae68fc90c710c7bfcf33.png",
+        "bytes": 258952,
+        "sha256": "20488c47eb557669292ddf75f973222cff132bbebcf6c8cc59f231ecbb7574e9"
+      },
+      {
+        "path": "playwright-html/data/49af2b709937f45e1159f9b00eebde406c3cf180.png",
+        "bytes": 43044,
+        "sha256": "34e9c0cf7d67e38a39c44291eb10af2944df8e52629c9478ca78f7ad1de29c69"
+      },
+      {
+        "path": "playwright-html/data/4da4b3cf0952a194b802cc538682d7f0811b7cd7.png",
+        "bytes": 112118,
+        "sha256": "54a614c7689d5d3a84e91096951b47bcd277c3152acf7a5d8c3d38195fe2038c"
+      },
+      {
+        "path": "playwright-html/data/4df8769d6bdc3e26aac4776076e004fc3a2be9e2.png",
+        "bytes": 264925,
+        "sha256": "db79570ec129cd51f920001d2513abe13757a3aadfa8321e2c17cca5a005b4f8"
+      },
+      {
+        "path": "playwright-html/data/6134bf1fc41f5ddd573ecd393767ff3c3e640b1f.png",
+        "bytes": 47130,
+        "sha256": "08f88248cbf6ad5c089a67258b8c1487e086de0816829517a17c71907717ad86"
+      },
+      {
+        "path": "playwright-html/data/6ab92765bd20328286a75340ada75743d98e70c5.png",
+        "bytes": 79213,
+        "sha256": "1075f9c70bd221b660ec81d6af7ea30c5d45afecd706465847d5187e26b44161"
+      },
+      {
+        "path": "playwright-html/data/872b634bf7a6179859a1dd066a4373d561362c2c.png",
+        "bytes": 75149,
+        "sha256": "380763fb7ff842b31cb5463e52bb83ced4dd44849c700e5ac154da8f59fdcce5"
+      },
+      {
+        "path": "playwright-html/data/8e29d5641b7a5f109596bd9c29bd177f5c62181c.zip",
+        "bytes": 4840,
+        "sha256": "ce94ea7b937d90655cbfe73bc20f83e057ec7dc48a42d3461ab3b3438bbe4856"
+      },
+      {
+        "path": "playwright-html/data/9770edb3debbb43fd1980450327ed7d248817d65.png",
+        "bytes": 34798,
+        "sha256": "0989af051561d455def4932bc56ffbeccc16939214076d8e06c0dbf0641a30bd"
+      },
+      {
+        "path": "playwright-html/data/a02578a5d249adbe6eb1c461c93a184315352e91.png",
+        "bytes": 41257,
+        "sha256": "701f3496bacf4dce2befa4ac940a9f8396cde4c88bee607dfbe0ef57b1ab8aa8"
+      },
+      {
+        "path": "playwright-html/data/a2fbc7484735449e9519cc398ebd7cffae25ae6e.png",
+        "bytes": 100086,
+        "sha256": "645c0c027e48cce1af8d160070b7557304b437dc81de246b0ed6adc67c748dd1"
+      },
+      {
+        "path": "playwright-html/data/b20c2906ee02c8c9b9c4f35fb1eeffc6fad011f3.png",
+        "bytes": 132624,
+        "sha256": "b138d7cadcf587342606234c58a6eb9a82b69c286f7ae776f589ea7b192464d9"
+      },
+      {
+        "path": "playwright-html/data/b49b18f4c051a4b9eeda7e0e340d5aacf9b15a99.png",
+        "bytes": 32528,
+        "sha256": "e906fe7a3ac778c68ef96c3e157809fc0161b61dc44189033a7bf0b0efc7b12f"
+      },
+      {
+        "path": "playwright-html/data/c472d7837b87e89128c26b0bcb09af307cb44fd6.png",
+        "bytes": 34358,
+        "sha256": "0d21ee65f559d2784cfb83a3481c9adb92038495a183dd736db3644a6ebf1854"
+      },
+      {
+        "path": "playwright-html/data/ecdea2af47b26634dc3217843d11e4b0f8783bf6.png",
+        "bytes": 127403,
+        "sha256": "60b35a668f8ed105c806d31ea30c9a30e64805d8f6ffc2baf2406529e754ef71"
+      },
+      {
+        "path": "playwright-html/index.html",
+        "bytes": 1253232,
+        "sha256": "4186a2415fa997e6d474639c01c31f69ba3fa6c56984b2aecf99233bec78634f"
+      },
+      {
+        "path": "playwright-results/.last-run.json",
+        "bytes": 45,
+        "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+      },
+      {
+        "path": "raw.log",
+        "bytes": 6341,
+        "sha256": "6b1f878873c87c4062fce061c3efa201db608af83830bfbb49db0789d1ef6fa3"
+      }
+    ]
+  },
+  "embeddedReportStats": {
+    "total": 15,
+    "expected": 15,
+    "unexpected": 0,
+    "flaky": 0,
+    "skipped": 0,
+    "ok": true
+  },
+  "cases": [
+    {
+      "title": "operator sign-in, Home, Design and Survey stay keyboard reachable and pass automated accessibility checks",
+      "project": "desktop",
+      "outcome": "expected"
+    },
+    {
+      "title": "operator sign-in, Home, Design and Survey stay keyboard reachable and pass automated accessibility checks",
+      "project": "tablet-768",
+      "outcome": "expected"
+    },
+    {
+      "title": "operator sign-in, Home, Design and Survey stay keyboard reachable and pass automated accessibility checks",
+      "project": "mobile-390",
+      "outcome": "expected"
+    },
+    {
+      "title": "real username/password sign-in rejects anonymous API access and retains the workspace when visiting Home",
+      "project": "desktop",
+      "outcome": "expected"
+    },
+    {
+      "title": "Survey-first recorded boundary and pivot progress through fresh field review to an immutable marked Layout without invented infrastructure",
+      "project": "desktop",
+      "outcome": "expected"
+    },
+    {
+      "title": "real username/password sign-in rejects anonymous API access and retains the workspace when visiting Home",
+      "project": "tablet-768",
+      "outcome": "expected"
+    },
+    {
+      "title": "Survey-first recorded boundary and pivot progress through fresh field review to an immutable marked Layout without invented infrastructure",
+      "project": "tablet-768",
+      "outcome": "expected"
+    },
+    {
+      "title": "real username/password sign-in rejects anonymous API access and retains the workspace when visiting Home",
+      "project": "mobile-390",
+      "outcome": "expected"
+    },
+    {
+      "title": "Survey-first recorded boundary and pivot progress through fresh field review to an immutable marked Layout without invented infrastructure",
+      "project": "mobile-390",
+      "outcome": "expected"
+    },
+    {
+      "title": "unequal Field machines freeze an exact selected Layout target and observations survive save, later design edit and reopen",
+      "project": "desktop",
+      "outcome": "expected"
+    },
+    {
+      "title": "unequal Field machines freeze an exact selected Layout target and observations survive save, later design edit and reopen",
+      "project": "tablet-768",
+      "outcome": "expected"
+    },
+    {
+      "title": "unequal Field machines freeze an exact selected Layout target and observations survive save, later design edit and reopen",
+      "project": "mobile-390",
+      "outcome": "expected"
+    },
+    {
+      "title": "retained Survey with unavailable original folders remains readable and exports its exact source without inventing parents",
+      "project": "desktop",
+      "outcome": "expected"
+    },
+    {
+      "title": "retained Survey with unavailable original folders remains readable and exports its exact source without inventing parents",
+      "project": "tablet-768",
+      "outcome": "expected"
+    },
+    {
+      "title": "retained Survey with unavailable original folders remains readable and exports its exact source without inventing parents",
+      "project": "mobile-390",
+      "outcome": "expected"
+    }
+  ],
+  "automatedAccessibility": {
+    "scans": 18,
+    "testEngine": {
+      "name": "axe-core",
+      "version": "4.13.0"
+    },
+    "runOnly": {
+      "type": "tag",
+      "values": [
+        "wcag2a",
+        "wcag2aa",
+        "wcag21a",
+        "wcag21aa",
+        "wcag22aa"
+      ]
+    },
+    "violationsTotal": 0,
+    "incompleteRuleOutcomes": 16,
+    "incompleteRuleIds": [
+      "aria-prohibited-attr",
+      "color-contrast"
+    ],
+    "scanDetails": [
+      {
+        "project": "desktop",
+        "attachment": "sign-in-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "attachment": "customer-home-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "attachment": "project-home-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "attachment": "design-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 2
+      },
+      {
+        "project": "desktop",
+        "attachment": "survey-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 2
+      },
+      {
+        "project": "desktop",
+        "attachment": "short-catalog-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 2
+      },
+      {
+        "project": "tablet-768",
+        "attachment": "sign-in-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "tablet-768",
+        "attachment": "customer-home-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "tablet-768",
+        "attachment": "project-home-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "tablet-768",
+        "attachment": "design-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 2
+      },
+      {
+        "project": "tablet-768",
+        "attachment": "survey-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 2
+      },
+      {
+        "project": "tablet-768",
+        "attachment": "short-catalog-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 1
+      },
+      {
+        "project": "mobile-390",
+        "attachment": "sign-in-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile-390",
+        "attachment": "customer-home-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile-390",
+        "attachment": "project-home-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile-390",
+        "attachment": "design-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 2
+      },
+      {
+        "project": "mobile-390",
+        "attachment": "survey-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 2
+      },
+      {
+        "project": "mobile-390",
+        "attachment": "short-catalog-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 1
+      }
+    ],
+    "boundary": "Actualembeddedattachments inspected. Zeroviolations doesnotclose incompletemanual outcomes or establishfullWCAG/nativeconformance."
+  },
+  "scopedRequalification": {
+    "matchedCases": "Fiveactualtitles acrossdesktop/tablet/phone, including completeSurvey-first recordedboundary/pivot/linearLayout andunequalField +retainedorphan exactZIPpaths.",
+    "previousConditions": "R10Disconnect interaction, R11clockfixture, R12Syncqueue/receipt and R13creation/Catalog/offline deadline conditions nowpass in matchingcriticalcase/viewports.",
+    "retainedUncertainty": "Originalclockdiscontinuitycause/exactrejectedtimestamps remainunknown; originalfailures/profilecontexts retained. Passedsyntheticfixture isnotphysicalGPSaccuracy or measuredglobalbrowser speedup."
+  },
+  "boundary": "ActualcurrentR14focused15pass onmatching961source edition. Current267fullsuite isrunning; thisfocusedpacket doesnotqualifywholeQA/finalreviews/publication/deployment/native/physical/humanacceptance."
+}

@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "scope": "Intermediate coordinator-reported receipts and direct retained log identity; source still mutable.",
+  "priorAggregate": {
+    "result": "fail",
+    "exit": 1,
+    "provenance": "Coordinator delivered conclusive completion receipt after the prior log-only observation.",
+    "cause": "Mobile startup fixture omitted repository context and produced46 invalid hook-call failures.",
+    "progress": "Corrected fixture first yielded45 passes/1 meaningful optional-storage getter failure; product optional legacy getter then catches null. Subsequent46 startup cases passed. Whole mobile next stopped on two older recovery-owner wording expectations; assertions were updated while retaining no-storage-effects checks.",
+    "boundary": "Other workspace passes and a passing final log tail do not override the aggregate exit1."
+  },
+  "subsequentScopedResults": {
+    "mobileTail": {
+      "passed": 109,
+      "failed": 0,
+      "skipped": 0,
+      "logSha256": "dbb9be55d283e440cb0204b4a3a71078d4b822d934ed316c07098d23d5eb7c80",
+      "qualification": "Direct log counts, scoped mobile tail only."
+    },
+    "startup": {
+      "passed": 46,
+      "source": "coordinator-delivered receipt"
+    },
+    "typescript": {
+      "exit": 0,
+      "source": "coordinator-delivered actual session19463 receipt",
+      "sourceFreezeProvided": false
+    },
+    "presentation": {
+      "passed": 25,
+      "skipped": 0,
+      "logSha256": "3e0cabb18e1541e891ed661353404e20b7b053234925f892f3353d24bd6f0790",
+      "qualification": "Scoped presentation checks, not browser acceptance."
+    },
+    "dependencies": {
+      "expoCompatibilityExit": 0,
+      "verifiedAuditExit": 0,
+      "rawHigh": 16,
+      "rawModerate": 0,
+      "admission": "verified_local_mitigations",
+      "logSha256": "71f6784362f59e9cc2aefc6f95fb072eeff3c7a73bf6281293e8d3334e6a31c5",
+      "source": "coordinator receipt plus retained log; raw findings are not upstream fixes."
+    }
+  },
+  "noClaim": "No final complete aggregate/current-browser/native/deployment/hook qualification is established."
+}

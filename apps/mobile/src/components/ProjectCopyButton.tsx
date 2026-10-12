@@ -33,7 +33,7 @@ export function ProjectCopyButton({ project, sourceStored, repository, onCopy }:
   function open(): void {
     if (pending.current) return;
     try {
-      if (!repository.canCopyProject || repository.catalogRevision === null) throw new Error("Copy requires available revision-checked local storage.");
+      if (!repository.canCopyProject || repository.catalogRevision === null) throw new Error("Refresh saved work before creating a project copy.");
       const command = parseWorkspaceCommand({ type: "copy_project", source: project, sourceStored,
         newProjectId: `project-copy-${globalThis.crypto.randomUUID()}`, name: `${project.name} copy`.slice(0, 200), now: new Date().toISOString() }) as CopyProjectCommand;
       const next = { command, revision: repository.catalogRevision };
@@ -67,7 +67,7 @@ export function ProjectCopyButton({ project, sourceStored, repository, onCopy }:
       <CopyPlus size={18} color="#254234" /><Text style={styles.label}>Save Copy</Text>
     </Pressable>
     {message ? <Text accessibilityLiveRegion="polite" style={styles.message} testID="project-copy-status">{message}</Text> : null}
-    {!repository.canCopyProject ? <Text style={styles.message}>Copy unavailable for this storage backend.</Text> : null}
+    {!repository.canCopyProject ? <Text style={styles.message}>Project copies are unavailable on this device.</Text> : null}
     {form ? <ProjectCatalogDialog visible mode="project" title="Save Copy" helper=""
       contextPreview={`Source: ${form.command.source.name}`} defaultName={form.command.name}
       createButtonLabel="Save Copy" createAccessibilityLabel="Confirm Save Copy" submitting={submitting}

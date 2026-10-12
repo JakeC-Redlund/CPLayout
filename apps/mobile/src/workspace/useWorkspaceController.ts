@@ -1,14 +1,17 @@
+import { workspaceHasSurveyStorage, workspaceHasLayoutStorage, workspaceCanImportBundle, surveyReviewCandidateIds, workspaceLayoutAdmission, workspaceArchiveOwnerStatus, workspaceCommandArchiveStatus } from "./workspaceProductionCapabilities";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import {
-  createSurveyCollection, defaultAppSettings, parseSurveyCollectionDocument, createFieldLayoutTarget, serializeFieldLayoutTarget, parseFieldLayoutTarget, parseLayoutSessionDocument, serializeLayoutSessionDocument,
+  createSurveyCollection, defaultAppSettings, parseAppSettings, parseSurveyCollectionDocument, createFieldLayoutTarget, serializeFieldLayoutTarget, parseFieldLayoutTarget, parseLayoutSessionDocument, serializeLayoutSessionDocument,
   readSurveyDesignDocument, type AppSettings, type SurveyCollection, type SurveyCollectionPurpose, type CrsQualificationOptions, type LayoutObservation,
+  layoutLockFromReceiverCapture, RTK_LAYOUT_SESSION_DOCUMENT_VERSION,
 } from "@cplayout/core";
 import { createCatalogId, readWorkspaceDesign, buildDesignWorkspaceBundle, parseDesignWorkspaceBundle, serializeDesignWorkspaceBundle,
   exportDesignWorkspaceBundleZip, exportLayoutSessionArchiveZip, exportFileAsync, type ArchiveIoResult, type DesignWorkspaceBundle,
-  parseWorkspaceCommand, type WorkspaceCommand, type WorkspaceCommandValue, type WorkspaceDocument } from "@cplayout/project-store";
+  parseWorkspaceCommand, workspaceCommandPermission, type WorkspaceCommand, type WorkspaceCommandValue, type WorkspaceDocument, getSurveyReadiness } from "@cplayout/project-store";
 import { workspaceMapSceneFromSession, type WorkspaceMapScene, type WorkspaceSceneOptions } from "@cplayout/map-adapters";
 import { createEditorSaveCoordinator, type EditorSaveSession } from "../editorSaveCoordinator";
 import { createBrowserReceiverSessionOwner, layoutObservationFromReceiverCapture } from "../gnss/receiverSessionOwner";
+import { useWorkspaceRepositoryAccess } from "./WorkspaceRepositoryContext";
 import { useProjectRepository, type ProjectCatalogContext, type OpenedLayoutSession } from "../hooks/useProjectRepository";
 import { InputRetentionStore } from "../inputRetention";
 import { createWorkspaceRecoveryParticipants } from "./workspaceRecoveryParticipants";
@@ -37,9 +40,9 @@ export interface WorkspaceResumeDelivery {
   catalogSelection: ProjectCatalogContext; catalogVisible: boolean;
 }
 type ResumeRaw = { kind: "available"; raw: string | null } | { kind: "unavailable" };
-function readResumeRaw(): ResumeRaw {
+function readResumeRaw(storage: { getItem(key: string): string | null } | null): ResumeRaw {
   try {
-    const raw = globalThis.localStorage?.getItem(UNIFIED_WORKSPACE_RESUME_KEY);
+    const raw = storage?.getItem(UNIFIED_WORKSPACE_RESUME_KEY);
     return raw === null || typeof raw === "string" ? { kind: "available", raw } : { kind: "unavailable" };
   } catch { return { kind: "unavailable" }; }
 }
@@ -51,6 +54,36 @@ class WorkspaceInputNotice extends Error {
 /** The single editable document, raw-input, repository, save and receiver owner.
  * Panels receive commands/state; none can recreate this hook on a mode change. */
 export function useWorkspaceController() {
+  const access = useWorkspaceRepositoryAccess();
+  const accessRef = useRef(access); accessRef.current = access;
+  const navigationPending = useRef(false), [preparingNavigation, setPreparingNavigation] = useState(false);
+  function isActive() { return accessRef.current.visible !== false && accessRef.current.authorityBlocked !== true && !navigationPending.current; }
+  function roleCanWrite() { return accessRef.current.authorityBlocked !== true && (accessRef.current.roles === undefined || accessRef.current.roles.some(role => role === "operator" || role === "admin")); }
+  function fieldArchiveStatus() {
+    const current = stateRef.current;
+    const owner = current.presentation.mode === "layout" && current.layout ? { fieldMapId: current.layout.session.fieldMapId }
+      : current.editable?.identity ?? (current.layout ? { fieldMapId: current.layout.session.fieldMapId } : {});
+    return workspaceArchiveOwnerStatus(knownWorkspace.current?.catalog ?? repositoryRef.current.catalog, accessRef.current.archives, owner);
+  }
+  function canEditField() { return accessRef.current.fieldMutationsAvailable !== false && roleCanWrite() && fieldArchiveStatus() === "active" && (accessRef.current.permissions === undefined || accessRef.current.permissions.includes("field:write")); }
+  function canCaptureLive() { return canEditField() && accessRef.current.liveCaptureAvailable !== false; }
+  const liveCommand = (type: string) => ["append_survey_capture", "append_layout_mark", "append_layout_observation", "create_rtk_layout_session", "finalize_rtk_layout_session"].includes(type);
+  function canMaintainCatalog() { return roleCanWrite() && (accessRef.current.permissions === undefined || accessRef.current.permissions.includes("catalog:write")); }
+  function canArchiveCatalog() { return accessRef.current.authorityBlocked !== true && (accessRef.current.permissions === undefined && accessRef.current.roles === undefined
+    || accessRef.current.permissions?.includes("catalog:archive") === true && accessRef.current.roles?.includes("admin") === true); }
+  function hasMutationPermission(type: string) {
+    const permissions = accessRef.current.permissions;
+    return roleCanWrite() && (permissions === undefined || permissions.includes(workspaceCommandPermission(type)))
+      && (workspaceCommandPermission(type) !== "catalog:archive" || canArchiveCatalog())
+      && (workspaceCommandPermission(type) !== "field:write" || accessRef.current.fieldMutationsAvailable !== false)
+      && (!liveCommand(type) || accessRef.current.liveCaptureAvailable !== false);
+  }
+  function requireMutationPermission(type: string) {
+    if (workspaceCommandPermission(type) === "field:write" && accessRef.current.fieldMutationsAvailable === false) throw new Error(accessRef.current.fieldMutationsUnavailableReason ?? "Connect to save field changes on this device.");
+    if (liveCommand(type) && accessRef.current.liveCaptureAvailable === false) throw new Error("Live GPS collection is unavailable on this device. Use a device that can retain fresh observations.");
+    if (!hasMutationPermission(type)) throw new Error("Your account cannot change this saved work.");
+  }
+  const visibilityOwner = useRef(access.visible !== false && access.authorityBlocked !== true);
   const repository = useProjectRepository();
   const repositoryRef = useRef(repository); repositoryRef.current = repository;
   const [state, renderState] = useState(createWorkspaceControllerState);
@@ -65,6 +98,7 @@ export function useWorkspaceController() {
   const [saveCoordinator] = useState(createEditorSaveCoordinator);
   const saveSession = useRef<EditorSaveSession | null>(null);
   const mounted = useRef(true), busyRef = useRef(false);
+  const operationJobs = useRef(new Set<Promise<unknown>>());
   const savingCount = useRef(0);
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -85,6 +119,7 @@ export function useWorkspaceController() {
   const [calculation, setCalculation] = useState<WorkspaceCalculationPreview | null>(null);
   const [savedCompleteDesignId, setSavedCompleteDesignId] = useState<string | null>(null);
   const [savedFieldDesignId, setSavedFieldDesignId] = useState<string | null>(null);
+  const [designViewRequest, setDesignViewRequest] = useState<{ sequence: number; designId: string; documentGeneration: number; category: "machine" | "map" } | null>(null);
   const [autosaveEnabled, setAutosaveEnabled] = useState(false);
   const [autosaveFailure, setAutosaveFailure] = useState<string | null>(null);
   const autosaveAttempt = useRef<string | null>(null);
@@ -102,9 +137,20 @@ export function useWorkspaceController() {
   const liveReceiver = useSyncExternalStore(receiver.subscribe, receiver.getSnapshot, receiver.getSnapshot);
   useEffect(() => {
     mounted.current = true;
-    const timer = setInterval(() => tickAge(value => value + 1), 200);
-    return () => { mounted.current = false; clearInterval(timer); saveCoordinator.retire(); void receiver.disconnect().catch(() => undefined); };
+    return () => { mounted.current = false; saveCoordinator.retire(); void receiver.disconnect().catch(() => undefined); };
   }, [receiver, saveCoordinator]);
+  useEffect(() => {
+    if (liveReceiver.phase !== "connected" || !liveReceiver.observation || access.visible === false || access.authorityBlocked === true) return;
+    const timer = setInterval(() => tickAge(value => value + 1), 200);
+    return () => clearInterval(timer);
+  }, [liveReceiver.phase, !!liveReceiver.observation, access.visible, access.authorityBlocked]);
+
+  useEffect(() => {
+    const active = access.visible !== false && access.authorityBlocked !== true;
+    if (visibilityOwner.current === active) return;
+    visibilityOwner.current = active; openRequestGeneration.current++;
+    update(current => ({ ...current, presentation: retireWorkspaceInteractions(current.presentation) }));
+  }, [access.visible, access.authorityBlocked]);
 
   function update(next: WorkspaceControllerState | ((current: WorkspaceControllerState) => WorkspaceControllerState)) {
     const value = typeof next === "function" ? next(stateRef.current) : next;
@@ -168,7 +214,12 @@ export function useWorkspaceController() {
     return workspace;
   }
   async function executeWorkspaceReceipt(...args: Parameters<typeof repository.executeWorkspaceCommand>) {
-    const result = await repositoryRef.current.executeWorkspaceCommand(...args);
+    const [command, revision, owner] = args;
+    requireMutationPermission(command.type);
+    const archiveAllowed = () => !knownWorkspace.current || workspaceCommandArchiveStatus(knownWorkspace.current, accessRef.current.archives, command) === "active";
+    if (!archiveAllowed()) throw new Error("Restore this customer or project before changing its saved work. Wait for its status if it is still loading.");
+    const guarded = owner ? { ...owner, isCurrent: () => owner.isCurrent() && hasMutationPermission(command.type) && archiveAllowed() } : undefined;
+    const result = await repositoryRef.current.executeWorkspaceCommand(command, revision, guarded);
     if (!knownWorkspace.current || result.workspace.revision >= knownWorkspace.current.revision) knownWorkspace.current = result.workspace;
     return result;
   }
@@ -180,7 +231,7 @@ export function useWorkspaceController() {
     catalogCloseHandoff.current = null;
     const owner = startup.current, intent = Object.freeze({ epoch: ++owner.epoch });
     owner.intent = intent; owner.accepted = null; owner.delivery = null; acceptedTransition.current = null;
-    owner.raw = repositoryRef.current.backendInfo?.runtime === "web" && resumeReady() ? readResumeRaw() : { kind: "unavailable" };
+    owner.raw = repositoryRef.current.backendInfo?.runtime === "web" && resumeReady() ? readResumeRaw(access.storage) : { kind: "unavailable" };
     owner.settled = true;
     if (mounted.current) { setResumePhase("settled"); setResumeDelivery(null); }
     return intent;
@@ -219,12 +270,12 @@ export function useWorkspaceController() {
           || active.projectId !== resolved.designRead.context.projectId)) return false;
       }
       owner.accepted = snapshot;
-      const currentRaw = readResumeRaw();
+      const currentRaw = readResumeRaw(access.storage);
       if (owner.raw.kind !== "available" || currentRaw.kind !== "available") return true;
       if (currentRaw.raw !== owner.raw.raw) { owner.accepted = null; return false; }
       const serialized = JSON.stringify(snapshot);
       if (serialized === currentRaw.raw) return true;
-      const result = writeUnifiedWorkspaceResume(snapshot);
+      const result = writeUnifiedWorkspaceResume(snapshot, access.storage);
       if (result.kind === "success") owner.raw = { kind: "available", raw: result.raw };
       return true;
     } catch { return false; }
@@ -244,7 +295,7 @@ export function useWorkspaceController() {
     if (!resumeReady()) return Promise.resolve("cancelled");
     if (owner.epoch !== 0 || owner.settled) return Promise.resolve(settle("cancelled"));
     owner.started = true;
-    const hint = readUnifiedWorkspaceResume();
+    const hint = readUnifiedWorkspaceResume(access.storage);
     if (hint.kind !== "success") return Promise.resolve(settle("fallback"));
     const operation = captureWorkspaceOperationOwner(stateRef.current.presentation, "interaction"), request = openRequestGeneration.current;
     const isCurrent = () => mounted.current && owner.epoch === 0 && request === openRequestGeneration.current
@@ -259,7 +310,7 @@ export function useWorkspaceController() {
         if (resolved.layoutSession) next = openControllerLayout(next, { session: resolved.layoutSession, persistenceRevision: workspace.revision }, replacementGuard());
         next = selectControllerMode(next, resolved.mode);
         const target = next.editable ? workspaceSaveTarget(next.editable) : null;
-        const freshHint = readUnifiedWorkspaceResume();
+        const freshHint = readUnifiedWorkspaceResume(access.storage);
         if (!isCurrent() || freshHint.kind !== "success" || freshHint.raw !== hint.raw) return settle("cancelled");
         // All domain validation precedes the one owner publication. No durable command occurs.
         inputs.reset(); pendingInteractionInputs.current.clear(); setCalculation(null); setSavedCompleteDesignId(null); setSavedFieldDesignId(null);
@@ -279,7 +330,7 @@ export function useWorkspaceController() {
   // Save acknowledgements and receiver ticks retain their existing ownership.
   function operator<T extends (...args: any[]) => any>(command: T): T {
     return ((...args: Parameters<T>) => {
-      if (!recoveryParticipants.canEdit()) return false;
+      if (!isActive() || !recoveryParticipants.canEdit()) return false;
       const held = command === closeDesign || command === closeLayout || command === executeCatalog ? catalogCloseHandoff.current : null;
       const handoff = held && held.intent === startup.current.intent
         && isWorkspaceOperationCurrent(stateRef.current.presentation, held.to)
@@ -300,13 +351,105 @@ export function useWorkspaceController() {
         }
         return result;
       }
+      if ([dispatch, dispatchBatch, save, completeSurvey, completeDesign, createFieldFromProject, undo, redo, enableSurvey, startSurvey, collectSurvey, applySurvey, changeMembership,
+        createLayoutSession, finalizeLayoutSession, collectLayout, renameLayout, archiveLayout, copyLayout, copyDesign, dispatchSurveyInformation, prepareSurveyedField, useRecordedPivot].some(value => value === command) && !canEditField()) {
+        notice(new Error(accessRef.current.fieldMutationsAvailable === false ? accessRef.current.fieldMutationsUnavailableReason ?? "Connect to save field changes on this device." : "Your account can view this field work. Editing and recording positions require field access.")); return false;
+      }
       const result = command(...args);
-      return result && typeof result.then === "function" ? result.then(completed) : completed(result);
+      if (result && typeof result.then === "function") {
+        const tracked = Promise.resolve(result).then(completed);
+        operationJobs.current.add(tracked);
+        void tracked.then(() => operationJobs.current.delete(tracked), () => operationJobs.current.delete(tracked));
+        return tracked;
+      }
+      return completed(result);
     }) as T;
   }
 
-  function selectMode(mode: WorkspaceMode) { update(current => selectControllerMode(current, mode)); }
-  async function openDesign(designId: string, reload = false): Promise<boolean> {
+  function selectMachineForLayout(id: string | null): boolean {
+    const current = stateRef.current, editable = current.editable;
+    if (!isActive() || busyRef.current || !editable || editable.kind !== "field"
+      || !isWorkspaceOperationCurrent(current.presentation, renderedInteractionOwner)) return false;
+    if (id !== null && ![...editable.editor.field.machines, ...(editable.editor.field.lateralMachines ?? [])].some(machine => machine.id === id)) {
+      notice(new Error("Choose a machine from this field.")); return false;
+    }
+    update(state => ({ ...state, editable: { ...editable, editor: { ...editable.editor, selectedMachineId: id } } }));
+    return true;
+  }
+  function changeSettings(value: AppSettings): boolean {
+    const next = parseAppSettings(value);
+    if (next.unitSystem !== settingsRef.current.unitSystem && (inputs.hasDirty() || pendingInteractionInputs.current.size > 0)) {
+      notice(new WorkspaceInputNotice("Apply or discard entered values before changing measurement units.", () => !inputs.hasDirty() && pendingInteractionInputs.current.size === 0));
+      return false;
+    }
+    settingsRef.current = next; setSettings(next); return true;
+  }
+  function selectMode(mode: WorkspaceMode) {
+    if (!isActive()) return;
+    if (mode === "layout" && !stateRef.current.layout) {
+      const id = stateRef.current.editable?.identity.designId;
+      if (!id || !knownWorkspace.current || getSurveyReadiness(knownWorkspace.current, id).status !== "ready") {
+        notice(new Error("Complete the Survey review before starting Layout.")); return;
+      }
+    }
+    update(current => selectControllerMode(current, mode));
+  }
+  async function ensureProductionWorkspace(): Promise<void> {
+    let workspace = await readWorkspaceReceipt();
+    if (workspace.workspaceVersion !== "cplayout-workspace-v5") {
+      await siblingCommand(() => ({ type: "upgrade_workspace_to_v5", now: new Date().toISOString() }));
+    }
+  }
+  async function completeSurvey(includedCollectionIds?: readonly string[]): Promise<boolean> {
+    try {
+      const owns = captureSurveyWorkflowAdmission();
+      if (!access.actorId) throw new Error("Sign in before completing a Survey review.");
+      if (workspaceEditableIsDirty(requireEditable()) && !await save()) return false;
+      if (!owns()) throw new Error("The Survey work or entered information changed. Review the current work before completing it.");
+      const editable = requireManaged();
+      if (designFileInputsPending()) throw new Error("Finish or discard the entered Survey details before reviewing it.");
+      await ensureProductionWorkspace();
+      if (!owns()) throw new Error("The Survey review belongs to an earlier view. Your observations remain saved.");
+      const included = includedCollectionIds ? [...includedCollectionIds] : stateRef.current.collections.filter(item => item.activePointIds.length > 0 || item.state === "applied" && item.applications.some(application => application.sourcePointIds.length > 0)).map(item => item.id);
+      const excluded = stateRef.current.collections.filter(item => !included.includes(item.id)).map(item => item.id);
+      await siblingCommand(() => ({ type: "review_survey", reviewId: createCatalogId("survey-review"),
+        designId: editable.identity.designId!, expectedDesignRevision: editable.designRevision!,
+        includedCollectionIds: included, excludedCollectionIds: excluded, completedBy: access.actorId!, now: new Date().toISOString() }), owns, renderedInteractionOwner);
+      return true;
+    } catch (error) { notice(error); return false; }
+  }
+  function captureSurveyWorkflowAdmission(): () => boolean {
+    if (stateRef.current.presentation.mode !== "survey") throw new Error("Open Survey before using its review or preparation controls.");
+    const owner = renderedInteractionOwner, editable = requireManaged(), document = serializeWorkspaceEditable(editable), revision = editable.editor.revision;
+    const actor = accessRef.current.actorId, partition = accessRef.current.partition, intent = startup.current.intent;
+    const input = inputs.getRevision(), ui = recoveryParticipants.getInputOwner(), epochs = JSON.stringify([...pendingInputEpochs.current]);
+    return () => mounted.current && isActive() && canEditField() && stateRef.current.presentation.mode === "survey"
+      && isWorkspaceOperationCurrent(stateRef.current.presentation, owner) && accessRef.current.actorId === actor && accessRef.current.partition === partition
+      && startup.current.intent === intent && inputs.getRevision() === input && recoveryParticipants.getInputOwner() === ui
+      && JSON.stringify([...pendingInputEpochs.current]) === epochs && stateRef.current.editable?.identity.designId === editable.identity.designId
+      && stateRef.current.editable.editor.revision === revision && serializeWorkspaceEditable(stateRef.current.editable) === document;
+  }
+  async function declareCoordinateSystem(projectCrs: string): Promise<boolean> {
+    try {
+      requireMutationPermission("declare_work_crs");
+      const editable = requireManaged();
+      if (replacementGuard().dirty || designFileInputsPending()) throw new Error("Save, apply or preserve unfinished inputs before choosing the field coordinate system.");
+      await ensureProductionWorkspace();
+      const workspace = await readWorkspaceReceipt();
+      if (busyRef.current) throw new Error("Wait for the current field operation before choosing its coordinate system.");
+      busyRef.current = true; setBusy(true);
+      try {
+        await executeWorkspaceReceipt({ type: "declare_work_crs", designId: editable.identity.designId!,
+          expectedDesignRevision: editable.designRevision!, projectCrs, now: new Date().toISOString() }, workspace.revision,
+          { isCurrent: () => mounted.current && accessRef.current.visible !== false
+            && isWorkspaceOperationCurrent(stateRef.current.presentation, renderedDocumentOwner)
+            && stateRef.current.editable?.sourceDocument === editable.sourceDocument
+            && !replacementGuard().dirty && !designFileInputsPending() });
+      } finally { busyRef.current = false; if (mounted.current) setBusy(false); }
+      return await openDesign(editable.identity.designId!, true);
+    } catch (error) { notice(error); return false; }
+  }
+  async function openDesign(designId: string, reload = false, initialMode?: "design" | "survey", view?: { category: "machine" | "map"; machineId?: string }): Promise<boolean> {
     const owner = renderedInteractionOwner;
     if (!isWorkspaceOperationCurrent(stateRef.current.presentation, owner)) return false;
     const requestGeneration = ++openRequestGeneration.current;
@@ -316,8 +459,19 @@ export function useWorkspaceController() {
       const workspace = await readWorkspaceReceipt();
       if (!mounted.current || requestGeneration !== openRequestGeneration.current || !isWorkspaceOperationCurrent(stateRef.current.presentation, owner)) return false;
       const read = existingRead(workspace, designId);
-      const next = openControllerDocument(stateRef.current, editableFromSavedDesign(read), replacementGuard(), reload);
-      if (next === stateRef.current) return true;
+      let opened = openControllerDocument(stateRef.current, editableFromSavedDesign(read), replacementGuard(), reload);
+      if (view?.machineId !== undefined) {
+        const editable = opened.editable;
+        if (editable?.kind === "field") {
+          if (![...editable.editor.field.machines, ...(editable.editor.field.lateralMachines ?? [])].some(item => item.id === view.machineId)) throw new Error("This machine is no longer present in the saved field work.");
+          opened = { ...opened, editable: { ...editable, editor: { ...editable.editor, selectedMachineId: view.machineId } } };
+        } else if (editable?.kind === "project" ? editable.editor.project.machine.id !== view.machineId : editable?.kind === "draft" ? editable.editor.draft.machine.id !== view.machineId : true)
+          throw new Error("This machine is no longer present in the saved field work.");
+      }
+      const next = initialMode ? selectControllerMode(opened, initialMode) : opened;
+      if (view) setDesignViewRequest(previous => ({ sequence: (previous?.sequence ?? 0) + 1, designId,
+        documentGeneration: next.presentation.documentGeneration, category: view.category }));
+      if (opened === stateRef.current) { if (next !== opened) update(next); return true; }
       inputs.reset(); pendingInteractionInputs.current.clear(); setCalculation(null); setSavedCompleteDesignId(null); setSavedFieldDesignId(null); update(retainControllerCollections(next, collectionsFor(workspace, designId)));
       setCollectionSelection(null); installSaveSession(); return true;
     } catch (error) { if (requestGeneration === openRequestGeneration.current && isWorkspaceOperationCurrent(stateRef.current.presentation, owner)) notice(error); return false; }
@@ -330,6 +484,7 @@ export function useWorkspaceController() {
     } catch (error) { notice(error); return false; }
   }
   function dispatch(action: WorkspaceEditableAction): boolean {
+    if (!isActive()) return false;
     if (busyRef.current || !isWorkspaceOperationCurrent(stateRef.current.presentation, renderedInteractionOwner)
       || stateRef.current.editable?.editor.revision !== state.editable?.editor.revision) return false;
     try {
@@ -338,7 +493,45 @@ export function useWorkspaceController() {
       update(next); return !next.editable?.editor.lastError;
     } catch (error) { notice(error); return false; }
   }
+  function dispatchSurveyInformation(action: WorkspaceEditableAction): boolean {
+    const current = stateRef.current;
+    if (!isActive() || !canEditField() || busyRef.current || current.presentation.mode !== "survey" || !current.editable
+      || !isWorkspaceOperationCurrent(current.presentation, renderedInteractionOwner)) return false;
+    const allowed = action.kind === "draft" ? ["rename", "set_machine", "clear_error"] : action.kind === "field"
+      ? ["rename", "add_machine", "update_machine", "remove_machine", "select_machine", "clear_error", "select_lateral", "add_lateral", "update_lateral", "remove_lateral"] : [];
+    if (action.kind !== current.editable.kind || !allowed.includes(action.action.type)) { notice(new Error("Use Survey collection controls for measured coordinates. Known information cannot replace saved observations.")); return false; }
+    try {
+      const editing = { ...current, presentation: { ...current.presentation, mode: "design" as const } };
+      const reduced = reduceControllerDocument(editing, action);
+      update({ ...reduced, presentation: current.presentation }); return !reduced.editable?.editor.lastError;
+    } catch (error) { notice(error); return false; }
+  }
+  function useRecordedPivot(pointId: string): Promise<boolean> {
+    if (stateRef.current.presentation.mode !== "survey" || stateRef.current.editable?.kind !== "draft") return Promise.resolve(false);
+    const collection = currentCollection();
+    return recordedCommand(editable => ({ type: "bind_recorded_pivot", designId: editable.identity.designId!, expectedDesignRevision: editable.designRevision!,
+      collectionId: collection.id, expectedCollectionRevision: collection.revision, pointId, now: new Date().toISOString() }),
+      () => collectionSelection.current === collection.id && stateRef.current.collections.find(item => item.id === collection.id)?.revision === collection.revision);
+  }
+  async function prepareSurveyedField(): Promise<boolean> {
+    try {
+      const owns = captureSurveyWorkflowAdmission();
+      if (replacementGuard().dirty && (inputs.hasDirty() || designFileInputsPending())) throw new Error("Apply or discard the entered field and machine information before preparing Layout.");
+      if (workspaceEditableIsDirty(requireEditable()) && !await save()) return false;
+      if (!owns()) throw new Error("Survey work changed before preparation. Your entered values remain here.");
+      const editable = requireManaged(); if (editable.kind !== "draft") throw new Error("Prepare the original Survey work before opening its field.");
+      const designId = createCatalogId("design"), fieldId = createCatalogId("field");
+      const receipt = await siblingCommand(() => ({ type: "prepare_surveyed_field", sourceDesignId: editable.identity.designId!, expectedDesignRevision: editable.designRevision!,
+        designId, fieldMapId: editable.identity.fieldMapId!, fieldId, waterSourceId: createCatalogId("water"), powerSourceId: createCatalogId("power"), name: editable.editor.draft.name, now: new Date().toISOString() }), owns, renderedInteractionOwner);
+      const read = existingRead(receipt.workspace, designId);
+      if (!owns() || replacementGuard().dirty) throw new Error("The prepared field was saved. Preserve your later entered work before opening its saved record.");
+      const next = retainControllerCollections(selectControllerMode(openControllerDocument(stateRef.current, editableFromSavedDesign(read), { dirty: false, busy: false }), "survey"), collectionsFor(receipt.workspace, designId));
+      inputs.reset(); pendingInteractionInputs.current.clear(); setCalculation(null); update(next); setCollectionSelection(null); installSaveSession();
+      return true;
+    } catch (error) { notice(error); return false; }
+  }
   function dispatchBatch(actions: readonly WorkspaceEditableAction[]): boolean {
+    if (!isActive()) return false;
     if (busyRef.current || !isWorkspaceOperationCurrent(stateRef.current.presentation, renderedInteractionOwner)
       || stateRef.current.editable?.editor.revision !== state.editable?.editor.revision) return false;
     try {
@@ -440,7 +633,7 @@ export function useWorkspaceController() {
       const historyBefore = stateRef.current;
       if (!session) throw new Error("The workspace save session was replaced.");
       const expected = { editorRevision: editable.editor.revision, document: serializeWorkspaceEditable(editable) };
-      const isCurrent = () => mounted.current && isWorkspaceOperationCurrent(stateRef.current.presentation, owner)
+      const isCurrent = () => mounted.current && isActive() && isWorkspaceOperationCurrent(stateRef.current.presentation, owner)
         && stateRef.current.editable?.editor.revision === expected.editorRevision
         && !inputs.hasDirty() && extraIsCurrent();
       const receipt = await saveCoordinator.transact({ session, isCurrent,
@@ -453,6 +646,7 @@ export function useWorkspaceController() {
           if (source.document !== currentEditable.sourceDocument || source.design.revision !== currentEditable.designRevision
             || serializeWorkspaceEditable(currentEditable) !== expected.document) throw new Error("The saved source design changed. Preserve your edits before reopening it.");
           const command = build(currentEditable, workspace);
+          requireMutationPermission(command.type);
           if (commitPolicy === "atomic_draft_completion" && (command.type !== "create_complete_design_from_draft"
             || currentEditable.kind !== "draft" || command.sourceDesignId !== currentEditable.identity.designId
             || command.expectedDesignRevision !== currentEditable.designRevision)) throw new Error("Atomic completion cannot run another recorded command or change its saved source.");
@@ -481,19 +675,9 @@ export function useWorkspaceController() {
   }
 
   async function enableSurvey(): Promise<boolean> {
-    const owner = captureWorkspaceOperationOwner(stateRef.current.presentation, "interaction");
-    try {
-      const current = await readWorkspaceReceipt();
-      if (!isWorkspaceOperationCurrent(stateRef.current.presentation, owner)) return false;
-      if (current.workspaceVersion === "cplayout-workspace-v4") return true;
-      // Each explicit upgrade retains its exact predecessor; v4 never relabels
-      // an older snapshot as v3 or skips the Layout collection contract.
-      if (current.workspaceVersion !== "cplayout-workspace-v3") {
-        if (!await recordedCommand(() => ({ type: "upgrade_workspace_to_v3", now: new Date().toISOString() }))) return false;
-        if (!isWorkspaceOperationCurrent(stateRef.current.presentation, owner)) return false;
-      }
-      return await recordedCommand(() => ({ type: "upgrade_workspace_to_v4", now: new Date().toISOString() }));
-    } catch (error) { if (isWorkspaceOperationCurrent(stateRef.current.presentation, owner)) notice(error); return false; }
+    if (!isActive()) return false;
+    try { await ensureProductionWorkspace(); return workspaceHasSurveyStorage(knownWorkspace.current?.workspaceVersion); }
+    catch (error) { notice(error); return false; }
   }
   async function startSurvey(purpose: SurveyCollectionPurpose): Promise<boolean> {
     if (pendingInput("survey-reference")) { notice(new WorkspaceInputNotice("Apply or discard the entered reference details before starting another collection.", () => !pendingInput("survey-reference"))); return false; }
@@ -516,6 +700,7 @@ export function useWorkspaceController() {
   }
   async function collectSurvey(label: string): Promise<boolean> {
     try {
+      requireMutationPermission("append_survey_capture");
       if (stateRef.current.presentation.mode !== "survey") throw new Error("Select Survey mode before collecting a receiver position.");
       const editable = requireManaged(), collection = currentCollection(), crs = editable.identity.projectCrs;
       if (!crs) throw new Error("A resolved projected field coordinate system is required.");
@@ -530,7 +715,7 @@ export function useWorkspaceController() {
         () => {
           const snapshot = receiver.getSnapshot(), gate = receiver.collectionGate(crs);
           const selected = stateRef.current.collections.find(item => item.id === collection.id);
-          return snapshot.phase === "connected" && snapshot.sessionId === receiverSession
+          return isActive() && snapshot.phase === "connected" && snapshot.sessionId === receiverSession
             && snapshot.observation?.id === receiverObservation && gate.accepted
             && gate.projectionId === point.captureEvidence.projection.id
             && collectionSelection.current === collection.id && selected?.revision === collection.revision
@@ -571,7 +756,7 @@ export function useWorkspaceController() {
     setCollectionSelection(id);
   }
   function layoutInputsBlockOpen(sessionId: string, admittedCreation = false): boolean {
-    return stateRef.current.layout?.session.id !== sessionId && ["layout-name", "layout-label", "layout-copy-name"]
+    return stateRef.current.layout?.session.id !== sessionId && ["layout-name", "layout-label", "layout-copy-name", "layout-tolerance"]
       .some(key => !(admittedCreation && key === "layout-name") && pendingInteractionInputs.current.has(key));
   }
   function openLayout(input: OpenedLayoutSession): boolean { return presentLayout(input); }
@@ -646,12 +831,13 @@ export function useWorkspaceController() {
 
   /** A sibling write keeps exact stored source authority and all dirty editor/history/input state. */
   async function siblingCommand(build: (workspace: WorkspaceDocument) => WorkspaceCommand, extra: () => boolean = () => true, owner = renderedDocumentOwner) {
+    const receiptOwner = captureWorkspaceOperationOwner(stateRef.current.presentation, "document");
     if (busyRef.current || !isWorkspaceOperationCurrent(stateRef.current.presentation, owner)) throw new Error("The workspace operation is busy or its source retired.");
     const session = saveSession.current ?? undefined;
     busyRef.current = true; setBusy(true);
     try {
       return await saveCoordinator.exclusive({ session,
-        isCurrent: () => mounted.current && isWorkspaceOperationCurrent(stateRef.current.presentation, owner) && extra(),
+        isCurrent: () => mounted.current && isActive() && isWorkspaceOperationCurrent(stateRef.current.presentation, owner) && extra(),
         async write(target, commitOwner) {
           const before = await readWorkspaceReceipt();
           if (!commitOwner.isCurrent()) throw new Error("The workspace source changed while reading its receipt.");
@@ -661,10 +847,13 @@ export function useWorkspaceController() {
           const layout = stateRef.current.layout;
           const oldLayout = layout ? before.layoutSessions?.find(item => item.id === layout.session.id) : undefined;
           if (layout && (!oldLayout || projectDataKey(parseLayoutSessionDocument(oldLayout.document)) !== projectDataKey(layout.session))) throw new Error("The open Layout source changed; reopen its saved session explicitly.");
-          const receipt = await executeWorkspaceReceipt(build(before), before.revision, commitOwner);
+          const command = build(before);
+          requireMutationPermission(command.type);
+          const receipt = await executeWorkspaceReceipt(command, before.revision, commitOwner);
           const afterEditable = editable && proof ? reconcileWorkspaceSibling(editable, proof, receipt.workspace) : editable;
           return { previousRevision: before.revision, persistenceRevision: receipt.workspace.revision, designRevision: proof?.designRevision,
-            value: { ...receipt, editable: afterEditable, documentOwner: owner } };
+            ...(command.type === "upgrade_workspace_to_v5" ? { migration: { kind: "workspace_v5_upgrade" as const, sourceWorkspace: before, resultWorkspace: receipt.workspace } } : {}),
+            value: { ...receipt, editable: afterEditable, documentOwner: receiptOwner } };
         },
         onCommitted(receipt) {
           if (!mounted.current || !isWorkspaceOperationCurrent(stateRef.current.presentation, receipt.documentOwner)) return;
@@ -682,7 +871,8 @@ export function useWorkspaceController() {
   }
   async function executeCatalog(command: WorkspaceCommand, review?: { expectedWorkspaceRevision: number; isCurrent: () => boolean }): Promise<WorkspaceCommandValue> {
     command = parseWorkspaceCommand(command);
-    const allowed = new Set(["create_client", "update_client", "delete_client", "create_project_with_initial_design", "create_project_with_initial_field_map", "create_project_record", "rename_project", "rename_field_map", "move_project_to_client", "create_field_map_record", "create_design_record", "create_design_draft", "create_field_design", "delete_design", "archive_and_delete_design", "delete_project", "import_design_document"]);
+    requireMutationPermission(command.type);
+    const allowed = new Set(["start_project_work", "create_client", "update_client", "delete_client", "create_project_with_initial_design", "create_project_with_initial_field_map", "create_project_record", "rename_project", "rename_field_map", "move_project_to_client", "create_field_map_record", "create_design_record", "create_design_draft", "create_field_design", "delete_design", "archive_and_delete_design", "delete_project", "import_design_document"]);
     if (!allowed.has(command.type)) throw new Error("Use the dedicated design, Survey or Layout command for this operation.");
     const identity = stateRef.current.editable?.identity;
     if (identity && (((command.type === "delete_design" || command.type === "archive_and_delete_design") && command.designId === identity.designId)
@@ -744,10 +934,10 @@ export function useWorkspaceController() {
   async function ensureWorkspaceVersion(survey: boolean, extra: () => boolean = () => true): Promise<void> {
     let workspace = await readWorkspaceReceipt();
     if (!extra()) throw new Error("The entered inputs or active source changed while reading the workspace.");
-    if (workspace.workspaceVersion !== "cplayout-workspace-v3" && workspace.workspaceVersion !== "cplayout-workspace-v4") {
+    if (!workspaceHasLayoutStorage(workspace.workspaceVersion)) {
       workspace = (await siblingCommand(() => ({ type: "upgrade_workspace_to_v3", now: new Date().toISOString() }), extra)).workspace;
     }
-    if (survey && workspace.workspaceVersion !== "cplayout-workspace-v4") await siblingCommand(() => ({ type: "upgrade_workspace_to_v4", now: new Date().toISOString() }), extra);
+    if (survey && !workspaceHasSurveyStorage(workspace.workspaceVersion)) await siblingCommand(() => ({ type: "upgrade_workspace_to_v4", now: new Date().toISOString() }), extra);
   }
   async function copyDesign(name: string, fieldMapId?: string): Promise<string | null> {
     if (fileJob.current || busyRef.current || savingCount.current) return null;
@@ -785,11 +975,11 @@ export function useWorkspaceController() {
     const current = await readWorkspaceReceipt();
     if (!isCurrent() || current.revision !== review.expectedWorkspaceRevision) throw new Error("Saved catalog or import review changed. Recheck the current file and destination before preparing storage.");
     requirePackageDestination(current, bundle, fieldMapId);
-    if (current.workspaceVersion === "cplayout-workspace-v4") return { workspaceRevision: current.revision, workspaceVersion: current.workspaceVersion };
+    if (workspaceCanImportBundle(current.workspaceVersion, bundle)) return { workspaceRevision: current.revision, workspaceVersion: current.workspaceVersion };
     const receipt = await siblingCommand(before => {
       if (before.revision !== review.expectedWorkspaceRevision) throw new Error("Saved catalog changed before storage preparation. Recheck the destination; your file is retained.");
       requirePackageDestination(before, bundle, fieldMapId);
-      return { type: before.workspaceVersion === "cplayout-workspace-v3" ? "upgrade_workspace_to_v4" : "upgrade_workspace_to_v3", now: new Date().toISOString() };
+      return { type: "upgrade_workspace_to_v5", now: new Date().toISOString() };
     }, isCurrent);
     return { workspaceRevision: receipt.workspace.revision, workspaceVersion: receipt.workspace.workspaceVersion };
   }
@@ -803,7 +993,7 @@ export function useWorkspaceController() {
       await siblingCommand(before => {
         if (review && before.revision !== review.expectedWorkspaceRevision) throw new Error("Saved catalog changed. Recheck the import destination; the original file is retained.");
         requirePackageDestination(before, bundle, fieldMapId);
-        if (before.workspaceVersion !== "cplayout-workspace-v4") throw new Error("Prepare storage for this import before saving the copy. The file and current workspace are unchanged.");
+        if (!workspaceCanImportBundle(before.workspaceVersion, bundle)) throw new Error("Prepare storage for this import before saving the copy. The file and current workspace are unchanged.");
         return { type: "import_design_workspace_bundle", bundle, designId: id, payloadId: createCatalogId(bundle.documentKind), fieldMapId,
           collectionIds: bundle.surveyDocuments.map(document => { const item = parseSurveyCollectionDocument(document); return { sourceId: item.id, id: createCatalogId("survey"), expectedRevision: item.revision }; }), now: new Date().toISOString() };
       }, isCurrent);
@@ -839,18 +1029,60 @@ export function useWorkspaceController() {
   }
   async function createLayoutSession(name: string): Promise<boolean> {
     try {
+      const initial = requireManaged();
+      if (initial.kind !== "field") throw new Error("Open the surveyed field before starting RTK Layout.");
+      const captured = captureLayoutLock(initial.editor.field.projectCrs, "create_rtk_layout_session");
       if (workspaceEditableIsDirty(requireEditable()) && !await save()) return false;
+      if (!captured.isCurrent()) throw new Error("The RTK Fixed lock or current field changed. Start Layout again from the current position.");
       const editable = requireManaged();
       if (editable.kind !== "field") throw new Error("Create and explicitly open a saved independent-machine Field before freezing a Layout target.");
-      const machineId = editable.editor.selectedMachineId ?? (editable.editor.field.machines.length === 1 ? editable.editor.field.machines[0].id : null);
+      const machines = [...editable.editor.field.machines, ...(editable.editor.field.lateralMachines ?? [])];
+      const machineId = editable.editor.selectedMachineId ?? (machines.length === 1 ? machines[0].id : null);
       if (!machineId) throw new Error("Select the actual field machine to include in the frozen target.");
-      const targetDocument = serializeFieldLayoutTarget(createFieldLayoutTarget(editable.editor.field, { inputRevision: editable.designRevision!, expectedRevision: editable.designRevision!, selectedMachineIds: [machineId] }));
+      await ensureProductionWorkspace();
+      if (!captured.isCurrent()) throw new Error("The RTK Fixed lock changed while preparing Layout.");
+      const workspace = await readWorkspaceReceipt();
+      const readiness = getSurveyReadiness(workspace, editable.identity.designId!);
+      if (readiness.status !== "ready" || !readiness.review) throw new Error("Complete the Survey review before starting Layout.");
       const id = createCatalogId("layout");
-      await ensureWorkspaceVersion(false);
-      const receipt = await siblingCommand(() => ({ type: "create_layout_session", sessionId: id, fieldMapId: editable.identity.fieldMapId!, name, targetDocument, now: new Date().toISOString() }));
+      const receipt = await siblingCommand(() => ({ type: "create_rtk_layout_session", sessionId: id,
+        designId: editable.identity.designId!, expectedDesignRevision: editable.designRevision!, reviewId: readiness.review!.id,
+        selectedMachineIds: [machineId], creationLock: captured.lock, name, now: new Date().toISOString() }), captured.isCurrent, captured.owner);
       const entry = receipt.workspace.layoutSessions!.find(item => item.id === id)!;
       // The command is committed and its busy owner released before guarded presentation.
+      if (!captured.isCurrent()) { notice(new Error("The RTK Layout was saved. Open its retained record after checking the current receiver lock.")); return false; }
       return presentLayout({ session: parseLayoutSessionDocument(entry.document), persistenceRevision: receipt.workspace.revision }, true);
+    } catch (error) { notice(error); return false; }
+  }
+  function captureLayoutLock(crs: string, type: "create_rtk_layout_session" | "finalize_rtk_layout_session") {
+    requireMutationPermission(type);
+    if (!isActive() || stateRef.current.presentation.mode !== "layout" || !isWorkspaceOperationCurrent(stateRef.current.presentation, renderedInteractionOwner)) throw new Error("Open the current Layout controls before recording its RTK lock.");
+    const actor = accessRef.current.actorId, partition = accessRef.current.partition, owner = renderedInteractionOwner;
+    if (!actor) throw new Error("Sign in before starting or finalizing RTK Layout.");
+    const point = receiver.capture(crs, createCatalogId("layout-lock"), "RTK Layout operation");
+    const lock = layoutLockFromReceiverCapture(point, actor), source = stateRef.current.editable ? serializeWorkspaceEditable(stateRef.current.editable) : null;
+    const session = stateRef.current.layout?.session;
+    const machine = stateRef.current.editable?.kind === "field" ? stateRef.current.editable.editor.selectedMachineId : null;
+    const isCurrent = () => {
+      const live = receiver.getSnapshot(), gate = receiver.collectionGate(crs);
+      return mounted.current && isActive() && hasMutationPermission(type) && isWorkspaceOperationCurrent(stateRef.current.presentation, owner)
+        && accessRef.current.actorId === actor && accessRef.current.partition === partition
+        && (stateRef.current.editable ? serializeWorkspaceEditable(stateRef.current.editable) : null) === source
+        && (stateRef.current.editable?.kind !== "field" || stateRef.current.editable.editor.selectedMachineId === machine)
+        && stateRef.current.layout?.session.id === session?.id && stateRef.current.layout?.session.targetHash === session?.targetHash
+        && live.phase === "connected" && live.sessionId === lock.evidence.sessionId && live.observation?.id === lock.evidence.observationId
+        && gate.accepted && gate.projectionId === lock.evidence.projection.id;
+    };
+    if (!isCurrent()) throw new Error("A fresh owned RTK Fixed lock is required for this Layout operation.");
+    return { lock, isCurrent, owner };
+  }
+  async function finalizeLayoutSession(): Promise<boolean> {
+    try {
+      const current = stateRef.current.layout;
+      if (!current) throw new Error("Open the current RTK Layout before finalizing its stations.");
+      const captured = captureLayoutLock(parseFieldLayoutTarget(current.session.targetDocument).field.projectCrs, "finalize_rtk_layout_session");
+      return await layoutCommand(opened => ({ type: "finalize_rtk_layout_session", sessionId: opened.session.id,
+        expectedSessionRevision: opened.session.revision, finalizationLock: captured.lock, now: new Date().toISOString() }), captured.isCurrent);
     } catch (error) { notice(error); return false; }
   }
   async function layoutCommand(build: (opened: OpenedLayoutSession) => WorkspaceCommand, extra: () => boolean = () => true): Promise<boolean> {
@@ -863,18 +1095,22 @@ export function useWorkspaceController() {
       return true;
     } catch (error) { if (isWorkspaceOperationCurrent(stateRef.current.presentation, renderedInteractionOwner)) notice(error); return false; }
   }
-  async function collectLayout(label: string): Promise<boolean> {
+  async function collectLayout(label: string, targetPointId?: string, toleranceMeters?: number): Promise<boolean> {
     try {
+      requireMutationPermission("append_layout_mark");
       if (stateRef.current.presentation.mode !== "layout") throw new Error("Select Layout mode before recording an observation.");
+      if (!access.actorId) throw new Error("Sign in before recording a Layout position.");
       const opened = stateRef.current.layout;
       if (!opened) throw new Error("Open a frozen Layout target first.");
+      if (opened.session.documentVersion !== RTK_LAYOUT_SESSION_DOCUMENT_VERSION || opened.session.referenceSourceDocument !== undefined || opened.session.finalization)
+        throw new Error("This recorded map is retained history. Start a current RTK Layout to mark new stations.");
       const target = parseFieldLayoutTarget(opened.session.targetDocument), crs = target.field.projectCrs;
       const point = receiver.capture(crs, createCatalogId("layout-observation"), label);
       const evidence = point.captureEvidence;
       const observation: LayoutObservation = layoutObservationFromReceiverCapture(opened.session.id, point);
-      return await layoutCommand(current => ({ type: "append_layout_observation", sessionId: current.session.id, expectedSessionRevision: current.session.revision, observation, now: new Date().toISOString() }), () => {
+      return await layoutCommand(current => ({ type: "append_layout_mark", sessionId: current.session.id, expectedSessionRevision: current.session.revision, observation, recordedBy: access.actorId!, ...(targetPointId ? { targetPointId } : {}), ...(toleranceMeters === undefined ? {} : { toleranceMeters }), now: new Date().toISOString() }), () => {
         const live = receiver.getSnapshot(), gate = receiver.collectionGate(crs);
-        return live.phase === "connected" && live.sessionId === evidence.sessionId && live.observation?.id === evidence.observationId && gate.accepted && gate.projectionId === evidence.projection.id;
+        return isActive() && live.phase === "connected" && live.sessionId === evidence.sessionId && live.observation?.id === evidence.observationId && gate.accepted && gate.projectionId === evidence.projection.id;
       });
     } catch (error) { notice(error); return false; }
   }
@@ -1043,7 +1279,7 @@ export function useWorkspaceController() {
     readWorkspace: readWorkspaceReceipt,
     readLease: (revision, action, isCurrent) => {
       const read = repositoryRef.current.readWorkspaceLease;
-      if (repositoryRef.current.backendInfo?.runtime !== "web" || !read) throw new Error("Restore requires the supported browser workspace read lease.");
+      if (repositoryRef.current.backendInfo?.runtime !== "web" || !read) throw new Error("Restore unfinished work in the browser workspace.");
       return read(revision, action, isCurrent);
     },
     captureOwner: () => {
@@ -1052,15 +1288,15 @@ export function useWorkspaceController() {
       const receiverOwner = receiver.getSnapshot(), pending = JSON.stringify([...pendingInputEpochs.current]);
       const catalogRevision = repositoryRef.current.catalogRevision;
       return () => mounted.current && stateRef.current === before && startup.current.intent === intent
-        && recoveryParticipants.canEdit()
+        && (recoveryParticipants.canEdit() || navigationPending.current)
         && inputs.getRevision() === input && recoveryParticipants.getInputOwner() === uiOwner
-        && settingsRef.current === settingsOwner && receiver.getSnapshot() === receiverOwner
+        && settingsRef.current === settingsOwner && (navigationPending.current || receiver.getSnapshot() === receiverOwner)
         && pending === JSON.stringify([...pendingInputEpochs.current]) && repositoryRef.current.catalogRevision === catalogRevision
         && !busyRef.current && !savingCount.current && !fileJob.current;
     },
     canRestore: () => {
       if (!recoveryParticipants.canEdit()) throw new Error("A previous recovery delivery remains gated. Export its retained checkpoint before resolving it.");
-      if (repositoryRef.current.backendInfo?.runtime !== "web") throw new Error("Unfinished-work Restore is available in the browser workspace; native activation remains unsupported.");
+      if (repositoryRef.current.backendInfo?.runtime !== "web") throw new Error("Restore unfinished work in the browser workspace.");
       if (busyRef.current || savingCount.current || fileJob.current) throw new Error("Wait for the current save or workspace operation before restoring.");
       const live = receiver.getSnapshot();
       if (live.phase !== "idle" || live.sessionId !== null || live.observation !== null) throw new Error("Disconnect the receiver before restoring unfinished work. Reconnect explicitly when ready.");
@@ -1109,22 +1345,95 @@ export function useWorkspaceController() {
         ...(calculationIsCurrent(calculation, state.editable) ? { calculation: { sourceDocumentId: calculation!.documentId, inputRevision: calculation!.inputRevision, machineIds: calculation!.machineIds, result: calculation!.results[0].result, overlays: [] } } : {}) });
   }, [state, calculation, receiverDisplay?.observationId, receiverDisplay?.point.x, receiverDisplay?.point.y]);
 
-  return { state, stateRef, repository, inputs, receiver, settings, setSettings: operator(setSettings), recoveryParticipants, recovery,
+  async function prepareNavigationBoundary(): Promise<boolean> {
+    if (navigationPending.current || recovery.hydrating || !recoveryParticipants.canEdit()) { notice(new Error("Wait for the current recovery operation before leaving this workspace.")); return false; }
+    navigationPending.current = true; recoveryParticipants.setBlocked(true); setPreparingNavigation(true);
+    try {
+      await saveCoordinator.whenIdle();
+      await Promise.allSettled([...operationJobs.current]);
+      if (busyRef.current || fileJob.current || savingCount.current) throw new Error("Finish the current saved-work operation before leaving. Your inputs remain here.");
+      if (!recovery.available || !recoveryParticipants.isReady() || accessRef.current.storage === null) {
+        if (!replacementGuard().dirty) return true;
+        throw new Error("Preserve or finish the unfinished inputs before changing accounts or workspaces.");
+      }
+      const waitForCheckpoint = async () => {
+        if (recovery.owner.getSnapshot().phase !== "saving") return;
+        await new Promise<void>(resolve => {
+          const stop = recovery.owner.subscribe(() => { if (recovery.owner.getSnapshot().phase !== "saving") { stop(); resolve(); } });
+          if (recovery.owner.getSnapshot().phase !== "saving") { stop(); resolve(); }
+        });
+      };
+      await waitForCheckpoint();
+      await recovery.owner.checkpoint();
+      await waitForCheckpoint();
+      const checkpoint = recovery.owner.getSnapshot();
+      if (checkpoint.phase !== "saved" || checkpoint.message) throw new Error(checkpoint.message ?? "Unfinished inputs could not be preserved. Keep this workspace open and export recovery.");
+      return true;
+    } catch (error) { notice(error); return false; }
+    finally { navigationPending.current = false; recoveryParticipants.setBlocked(false); if (mounted.current) setPreparingNavigation(false); }
+  }
+  /** Archive metadata may advance the account's workspace CAS receipt without
+   * changing its domain. Prove the saved source and ledger, then rebase only the
+   * loaded receipt. Raw controls, history, receiver and mounted map stay owned. */
+  async function refreshMetadataReceipts(): Promise<void> {
+    if (busyRef.current || fileJob.current || navigationPending.current || !mounted.current) throw new Error("Wait for the current field operation before refreshing customer status.");
+    const owner = captureWorkspaceOperationOwner(stateRef.current.presentation, "document"), session = saveSession.current, actor = accessRef.current.actorId, partition = accessRef.current.partition;
+    const isCurrent = () => mounted.current && accessRef.current.actorId === actor && accessRef.current.partition === partition && isWorkspaceOperationCurrent(stateRef.current.presentation, owner);
+    busyRef.current = true; setBusy(true);
+    try {
+      const read = async () => {
+        const before = knownWorkspace.current;
+        const fresh = await readWorkspaceReceipt();
+        if (!isCurrent()) throw new Error("The displayed field changed during customer maintenance. Its entered values remain retained.");
+        const current = stateRef.current, editable = current.editable;
+        if (editable?.identity.designId) {
+          if (!before) throw new Error("Read the saved field before reconciling customer maintenance.");
+          const owned = (workspace: WorkspaceDocument) => (workspace.surveyCollections ?? []).filter(item => parseSurveyCollectionDocument(item.document).owner.designId === editable.identity.designId).sort((a, b) => a.id.localeCompare(b.id));
+          if (projectDataKey(owned(before)) !== projectDataKey(owned(fresh))) throw new Error("Saved Survey evidence changed during customer maintenance. Preserve entered work before reviewing its new source.");
+        }
+        const proof = editable?.identity.designId ? captureWorkspaceSiblingProof(editable, fresh, true) : null;
+        let next = editable && proof ? { ...current, editable: reconcileWorkspaceSibling(editable, proof, fresh) } : current;
+        if (current.layout) {
+          const entry = fresh.layoutSessions?.find(item => item.id === current.layout!.session.id);
+          if (!entry || projectDataKey(parseLayoutSessionDocument(entry.document)) !== projectDataKey(current.layout.session)) throw new Error("The saved Layout changed during customer maintenance. Keep entered text and review its current session.");
+          next = acceptControllerLayoutReceipt(next, { session: current.layout.session, persistenceRevision: fresh.revision });
+        }
+        return { next, fresh };
+      };
+      if (session && stateRef.current.editable?.identity.designId) {
+        await saveCoordinator.reconcileRead({ session, isCurrent, async read() {
+          const value = await read(); return { value, workspaceRevision: value.fresh.revision, designRevision: value.next.editable!.designRevision! };
+        }, onCommitted(value) { update(value.next); } });
+      } else { await saveCoordinator.whenIdle(); const value = await read(); if (!isCurrent()) throw new Error("Customer status refresh retired."); update(value.next); }
+      await repositoryRef.current.refreshProjects();
+    } catch (error) { notice(error); throw error; }
+    finally { busyRef.current = false; if (mounted.current) setBusy(false); }
+  }
+  const displayWorkspace = knownWorkspace.current;
+  const layoutAdmission = useMemo(() => workspaceLayoutAdmission(displayWorkspace, state.layout?.session.targetDocument ?? null),
+    [displayWorkspace, state.layout?.session.targetDocument]);
+  const surveyReadiness = useMemo(() => displayWorkspace && state.editable?.identity.designId
+    ? getSurveyReadiness(displayWorkspace, state.editable.identity.designId)
+    : { status: "not_started" as const, review: null, reasons: ["Open a saved field project to review its Survey."] },
+  [displayWorkspace, state.editable?.identity.designId]);
+  return { state, stateRef, repository, inputs, receiver, settings, setSettings: operator(changeSettings), recoveryParticipants, recovery,
     noteUserIntent, acceptLocalContext, createResumeSnapshot, restoreStartupContext, resumePhase, resumeDelivery, isResumeDeliveryCurrent,
     getLocalIntentReceipt: () => startup.current.intent, acceptedContextSequence,
-    getAcceptedContextTransition: () => acceptedTransition.current, busy: busy || fileBusy || recovery.hydrating, saving, scene, cameraContextKey, interactionKey,
+    getAcceptedContextTransition: () => acceptedTransition.current, busy: busy || fileBusy || preparingNavigation || recovery.hydrating, saving, scene, cameraContextKey, interactionKey,
     referenceApplicationSupported: repository.backendInfo?.runtime === "web",
     inputRevision, pendingInputRevision, pendingInput, designInputsPending: inputs.hasDirty(), layoutSaveState,
-    calculation: calculationIsCurrent(calculation, state.editable) ? calculation : null, savedCompleteDesignId, savedFieldDesignId, autosaveEnabled, setAutosaveEnabled: operator(setAutosaveEnabled), autosaveFailure,
+    calculation: calculationIsCurrent(calculation, state.editable) ? calculation : null, savedCompleteDesignId, savedFieldDesignId, designViewRequest, autosaveEnabled, setAutosaveEnabled: operator(setAutosaveEnabled), autosaveFailure,
     canUndo: state.historyPast.length > 0, canRedo: state.historyFuture.length > 0,
-    executeCatalog: operator(executeCatalog), calculate: operator(calculate), completeDesign: operator(completeDesign), createFieldFromProject: operator(createFieldFromProject), undo: operator(undo), redo: operator(redo), openLayoutSession: operator(openLayoutSession), createLayoutSession: operator(createLayoutSession), collectLayout: operator(collectLayout), renameLayout: operator(renameLayout), acknowledgeLayoutSession, archiveLayout: operator(archiveLayout), copyLayout: operator(copyLayout),
+    executeCatalog: operator(executeCatalog), calculate: operator(calculate), completeDesign: operator(completeDesign), createFieldFromProject: operator(createFieldFromProject), undo: operator(undo), redo: operator(redo), openLayoutSession: operator(openLayoutSession), createLayoutSession: operator(createLayoutSession), finalizeLayoutSession: operator(finalizeLayoutSession), collectLayout: operator(collectLayout), renameLayout: operator(renameLayout), acknowledgeLayoutSession, archiveLayout: operator(archiveLayout), copyLayout: operator(copyLayout),
     exportDesignWorkspace: operator(exportDesignWorkspace), exportLayoutSession: operator(exportLayoutSession), copyDesign: operator(copyDesign), importDesignWorkspace: operator(importDesignWorkspace), preparePackageStorageStep: operator(preparePackageStorageStep), closeDesign: operator(closeDesign), closeLayout: operator(closeLayout), setPendingInteractionInput,
+    selectMachineForLayout: operator(selectMachineForLayout), useRecordedPivot: operator(useRecordedPivot), dispatchSurveyInformation: operator(dispatchSurveyInformation), prepareSurveyedField: operator(prepareSurveyedField), canEditField, canCaptureLive, canMaintainCatalog, canArchiveCatalog, fieldArchiveStatus, isActive, prepareNavigationBoundary, refreshMetadataReceipts, layoutAdmission, active: isActive(), actorId: access.actorId, prepareProductionWorkspace: operator(ensureProductionWorkspace), completeSurvey: operator(completeSurvey), declareCoordinateSystem: operator(declareCoordinateSystem),
+    surveyReadiness,
     selectedCollectionId, getSelectedCollectionId: () => collectionSelection.current,
     selectedCollection: state.collections.find(collection => collection.id === selectedCollectionId) ?? null,
     selectMode: operator(selectMode), openDesign: operator(openDesign), openIndependent: operator(openIndependent), openLayout: operator(openLayout), acceptLayoutReceipt, dispatch: operator(dispatch), dispatchBatch: operator(dispatchBatch), save: operator(save),
     enableSurvey: operator(enableSurvey), startSurvey: operator(startSurvey), selectCollection: operator(selectCollection), collectSurvey: operator(collectSurvey), applySurvey: operator(applySurvey), changeMembership: operator(changeMembership),
     replacementGuard, reportError: notice,
     selectAddress(address: string | null) {
-      if (recoveryParticipants.canEdit() && isWorkspaceOperationCurrent(stateRef.current.presentation, renderedInteractionOwner)) update(current => ({ ...current, selectedAddress: address }));
+      if (isActive() && recoveryParticipants.canEdit() && isWorkspaceOperationCurrent(stateRef.current.presentation, renderedInteractionOwner)) update(current => ({ ...current, selectedAddress: address }));
     } };
 }

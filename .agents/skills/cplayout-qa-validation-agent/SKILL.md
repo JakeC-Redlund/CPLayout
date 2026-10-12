@@ -23,3 +23,7 @@ Use this skill when a CPLayout task needs an independent validation or acceptanc
 - Skill, hook, agent, and record changes: `npm run context-map:check`, `npm run validate:skills`, and `git diff --check`.
 - Repository success reports: run the dependency audit and report findings; do not apply forced breaking repairs without explicit approval.
 - Release evidence: source-ledger freshness, known-gap review, completed proof reports, and explicit non-goals.
+
+## Current workflow record
+
+Use `docs/workflow-registry.json` for requirement IDs, dependencies, owners, source-bound evidence and next action; `docs/development-status.md` is its generated projection. The current owner delegates decisions without further questionnaires. Keep human receipts separate from delegated acceptance, retain failed/deferred evidence and do not reinstate withdrawn AGENTS rules. The relevant maintenance guide defines qualified retirement; source presence, frontmatter/configuration validation and actual runtime remain different capability claims.

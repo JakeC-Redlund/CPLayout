@@ -253,25 +253,29 @@ test("explicit v3 upgrade atomically retains exact v1/v2 bytes, records, revisio
   }
 });
 
-test("Layout CRUD preserves target and evidence, copies empty, refuses duplicates and stale/wrong-session captures", async () => {
+test("historical Layout CRUD preserves target/evidence, copies empty and refuses new captures while its reader validates evidence", async () => {
   const f = await fixture(), target = targetDocument();
   const create: WorkspaceCommand = { type: "create_layout_session", now, sessionId: "layout", fieldMapId: "catalog-field", name: "North Layout", targetDocument: target };
   await assert.rejects(f.execute(create), /upgrade/i);
   await f.execute({ type: "upgrade_workspace_to_v3", now });
-  await f.execute(create);
+  const historical = createLayoutSessionDocument({ id: "layout", fieldMapId: "catalog-field", name: "North Layout", targetDocument: target, now });
+  historical.observations.push(observation()); historical.revision = 1;
+  const imported = await f.execute({ type: "import_layout_session", now, fieldMapId: "catalog-field", document: serializeLayoutSessionDocument(historical) });
   const append: WorkspaceCommand = { type: "append_layout_observation", now, sessionId: "layout", expectedSessionRevision: 0, observation: observation() };
-  let receipt = await f.execute(append), session = receipt.value as LayoutSession;
+  let receipt = imported, session = receipt.value as LayoutSession;
   assert.equal(session.targetDocument, target); assert.equal(session.observations.length, 1);
   const good = f.storage.getItem(WEB_WORKSPACE_KEY);
   await assert.rejects(f.execute(append), /changed/i);
-  await assert.rejects(f.execute({ ...append, expectedSessionRevision: 1 }), /duplicate/i);
-  await assert.rejects(f.execute({ ...append, expectedSessionRevision: 1, observation: { ...observation("wrong"), sessionId: "other" } }), /session/i);
+  await assert.rejects(f.execute({ ...append, expectedSessionRevision: 1 }), /Legacy Layout/i);
+  assert.throws(() => parseLayoutSessionDocument({ ...session, observations: [...session.observations, ...session.observations] }), /duplicate/i);
+  await assert.rejects(f.execute({ ...append, expectedSessionRevision: 1, observation: { ...observation("wrong"), sessionId: "other" } }), /Legacy Layout/i);
+  assert.throws(() => parseLayoutSessionDocument({ ...session, observations: [{ ...observation("wrong"), sessionId: "other" }] }), /session/i);
   const stale = observation("stale"); stale.evidence.capture.ageMs = 2500; stale.evidence.capture.evaluatedMonotonicMs = 3500;
   await assert.rejects(f.execute({ ...append, expectedSessionRevision: 1, observation: stale }), /invalid/i);
   assert.equal(f.storage.getItem(WEB_WORKSPACE_KEY), good);
   receipt = await f.execute({ type: "rename_layout_session", now, sessionId: "layout", expectedSessionRevision: 1, name: "Renamed" }); session = receipt.value as LayoutSession;
   await f.execute({ type: "archive_layout_session", now, sessionId: "layout", expectedSessionRevision: 2, archived: true });
-  await assert.rejects(f.execute({ ...append, expectedSessionRevision: 3, observation: observation("next") }), /restore/i);
+  await assert.rejects(f.execute({ ...append, expectedSessionRevision: 3, observation: observation("next") }), /Legacy Layout/i);
   await f.execute({ type: "archive_layout_session", now, sessionId: "layout", expectedSessionRevision: 3, archived: false });
   const copy = (await f.execute({ type: "copy_layout_session", now, sourceSessionId: "layout", expectedSessionRevision: 4, sessionId: "copy", name: "Copied" })).value as LayoutSession;
   assert.equal(copy.targetDocument, target); assert.deepEqual(copy.observations, []); assert.equal(copy.revision, 0);
@@ -282,8 +286,8 @@ test("Layout CRUD preserves target and evidence, copies empty, refuses duplicate
   assert.equal(f.storage.getItem(WEB_WORKSPACE_KEY), saved);
   await assert.rejects(f.execute({ type: "delete_project", now, projectId: "folder" }), /Layout sessions/i);
   const other = await fixture(); await other.execute({ type: "upgrade_workspace_to_v3", now });
-  const imported = (await other.execute({ type: "import_layout_session", now, fieldMapId: "catalog-field", document: serializeLayoutSessionDocument(roundTrip) })).value as LayoutSession;
-  assert.deepEqual(imported, roundTrip);
+  const importedElsewhere = (await other.execute({ type: "import_layout_session", now, fieldMapId: "catalog-field", document: serializeLayoutSessionDocument(roundTrip) })).value as LayoutSession;
+  assert.deepEqual(importedElsewhere, roundTrip);
   await assert.rejects(other.execute({ type: "import_layout_session", now, fieldMapId: "catalog-field", document: serializeLayoutSessionDocument(roundTrip) }), /used/i);
 });
 
@@ -291,8 +295,9 @@ test("valid rehashed Layout targets and existing field ownership cannot replace 
   const f = await fixture();
   await f.execute({ type: "create_field_map_record", now, input: { id: "other-field", projectId: "folder", name: "Other field" } });
   await f.execute({ type: "upgrade_workspace_to_v3", now });
-  await f.execute({ type: "create_layout_session", now, sessionId: "layout", fieldMapId: "catalog-field", name: "Layout", targetDocument: targetDocument() });
-  await f.execute({ type: "append_layout_observation", now, sessionId: "layout", expectedSessionRevision: 0, observation: observation() });
+  const historical = createLayoutSessionDocument({ id: "layout", fieldMapId: "catalog-field", name: "Layout", targetDocument: targetDocument(), now });
+  historical.observations.push(observation()); historical.revision = 1;
+  await f.execute({ type: "import_layout_session", now, fieldMapId: "catalog-field", document: serializeLayoutSessionDocument(historical) });
   const before = await f.api.readAsync(), saved = [...f.storage.values], writes = f.storage.writes;
   const original = parseLayoutSessionDocument(before.layoutSessions![0].document);
   const changedProject = structuredClone(sampleProject);
@@ -308,7 +313,7 @@ test("valid rehashed Layout targets and existing field ownership cannot replace 
   for (const mutation of mutations) {
     const candidate = structuredClone(before);
     const changed = { ...original, ...mutation, revision: original.revision + 1 };
-    candidate.layoutSessions![0].document = serializeLayoutSessionDocument(changed);
+    candidate.layoutSessions![0].document = serializeLayoutSessionDocument(parseLayoutSessionDocument(changed));
     candidate.revision++;
     // Both candidates are valid documents; only retention against the saved session may refuse them.
     assert.deepEqual(parseWorkspaceDocument(JSON.stringify(candidate)), candidate);

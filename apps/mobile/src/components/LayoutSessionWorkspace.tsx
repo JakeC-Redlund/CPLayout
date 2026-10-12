@@ -125,7 +125,7 @@ export function LayoutSessionWorkspace({ initial, receiverOwner, onClose, onOpen
         ? await exportFileAsync(layoutSessionFilename(saved.name, format), serializeLayoutSessionDocument(saved), { mimeType: "application/json" })
         : await exportZipFileAsync(layoutSessionFilename(saved.name, format), exportLayoutSessionArchiveZip(saved));
       if (!result.ok) throw new Error(result.message);
-      if (mounted.current) setMessage(`${result.message} Saved session revision ${saved.revision}; design revision ${target.source.inputRevision}.`);
+      if (mounted.current) setMessage(result.message);
     }, "Preparing export…");
   }
   async function archive(): Promise<void> {
@@ -141,7 +141,7 @@ export function LayoutSessionWorkspace({ initial, receiverOwner, onClose, onOpen
     <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
       <View style={styles.header}><View style={styles.grow}><Text style={styles.title}>{session.name}</Text>
         <Text style={styles.meta}>{customer?.displayName ?? "Customer"} → {project?.name ?? "Project"} → {field?.name ?? "Field"} → Layout</Text>
-        <Text accessibilityLiveRegion="polite" style={styles.saveState} testID="layout-save-state">{busy ? busyLabel : failed ? "Action failed — saved work retained" : nameDirty ? "Unsaved session name" : "Saved"}{session.archived ? " · Archived" : ""} · Session revision {session.revision}</Text>
+        <Text accessibilityLiveRegion="polite" style={styles.saveState} testID="layout-save-state">{busy ? busyLabel : failed ? "Action failed — saved work retained" : nameDirty ? "Unsaved session name" : "Saved"}{session.archived ? " · Archived" : ""}</Text>
       </View><IconCommandButton id="layout-back" label="Layout sessions" icon={<ArrowLeft />} showLabel disabled={busy} onPress={() => { if (!visibleRef.current || busyRef.current) return; if (hasUnfinishedInput()) setConfirmClose(true); else onClose(); }} testID="layout-workspace-back" /></View>
       <IconCommandButton id="layout-session-actions" label="Session actions" icon={<Check />} showLabel selected={actionsOpen} onPress={() => setActionsOpen(value => !value)} testID="layout-session-actions-toggle" />
       {actionsOpen && <View style={styles.card} testID="layout-session-actions"><Text style={styles.heading}>Session actions</Text>
@@ -173,13 +173,13 @@ export function LayoutSessionWorkspace({ initial, receiverOwner, onClose, onOpen
       {(message || repository.storageError) && <Text accessibilityLiveRegion="polite" style={[styles.notice, failed && styles.error]} testID="layout-feedback">{message ?? repository.storageError}</Text>}
       <ReceiverConnectionPanel owner={receiverOwner} projectCrs={target.field.projectCrs} />
       <View style={styles.card} testID="layout-target-card"><Text style={styles.heading}>Frozen design target</Text>
-        <Text style={styles.label}>{target.field.name} · Design revision {target.source.inputRevision}</Text>
+        <Text style={styles.label}>{target.field.name}</Text>
         <Text style={styles.meta}>The boundary and machine locations below stay fixed. Blue marks are saved observations.</Text>
         <TargetDiagram target={target} observations={session.observations} />
         {target.source.selectedMachineIds.map(id => {
           const machine = target.field.machines.find(item => item.id === id);
-          return <View key={id} style={styles.machineRow}><Text style={styles.label}>{machine?.configuration.name ?? id}</Text>
-            <Text selectable style={styles.meta}>Machine ID: {id}</Text>{machine && <Text style={styles.meta}>{layoutCoordinateLabel(machine.pivotCenter, target)}</Text>}</View>;
+          return <View key={id} style={styles.machineRow}><Text style={styles.label}>{machine?.configuration.name ?? "Machine name unavailable"}</Text>
+            {machine && <Text style={styles.meta}>{layoutCoordinateLabel(machine.pivotCenter, target)}</Text>}</View>;
         })}
         <Text selectable style={styles.meta}>Coordinate system: {target.field.projectCrs}</Text>
         <IconCommandButton id="layout-details" label={details ? "Hide target details" : "Show target details"} icon={<Check />} showLabel selected={details} onPress={() => setDetails(value => !value)} testID="layout-target-details-toggle" />
@@ -188,7 +188,7 @@ export function LayoutSessionWorkspace({ initial, receiverOwner, onClose, onOpen
       </View>
       <View style={styles.card}><Text style={styles.heading}>Saved observations ({session.observations.length})</Text>
         {session.observations.length === 0 && <Text style={styles.meta}>No observations collected. Connect the receiver above when ready.</Text>}
-        {session.observations.slice(-100).reverse().map(observation => <View style={styles.observation} key={observation.id} testID={`layout-observation-${observation.id}`}><Text style={styles.label}>{observation.label ?? observation.id}</Text>
+        {session.observations.slice(-100).reverse().map((observation, index) => <View style={styles.observation} key={observation.id} testID={`layout-observation-${observation.id}`}><Text style={styles.label}>{observation.label ?? `Observation ${session.observations.length - index}`}</Text>
           <Text style={styles.meta}>{layoutCoordinateLabel(observation.projected, target)}</Text>
           <Text style={styles.meta}>{observation.capturedAt} · {observation.evidence.gga.sentenceIdentifier} · {(observation.evidence.capture.ageMs / 1000).toFixed(2)} s old when captured</Text>
         </View>)}

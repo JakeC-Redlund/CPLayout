@@ -8,7 +8,7 @@ export interface BrowserProofEntry { readonly file: string; readonly category: B
 const debt = "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.";
 const entry = (file: string, category: BrowserProofCategory, coverageGap: string | null = null): BrowserProofEntry => ({ file, category, coverageGap });
 export const BROWSER_PROOF_REGISTRY: readonly BrowserProofEntry[] = [
-  ...["unified-workspace.spec.ts", "workspace-package-import.spec.ts", "workspace-startup-resume.spec.ts", "workspace-edit-recovery.spec.ts", "workspace-management.spec.ts"].map(file => entry(file, "current-app")),
+  ...["production-accessibility.spec.ts", "production-auth-workflow.spec.ts", "unified-workspace.spec.ts", "workspace-package-import.spec.ts", "workspace-startup-resume.spec.ts", "workspace-edit-recovery.spec.ts", "workspace-management.spec.ts"].map(file => entry(file, "current-app")),
   ...["workspace-storage.spec.ts", "workspace-drafts.spec.ts", "editor-save-lifecycle.spec.ts"].map(file => entry(file, "platform")),
   { file: "maplibre-runtime.spec.ts", category: "mixed", coverageGap: debt, currentTitles: ["MapLibre attribution rejects consecutive unsafe attributes"] },
   { file: "browser-workflow.spec.ts", category: "mixed", coverageGap: debt, currentTitles: [
@@ -132,7 +132,7 @@ export function assertBrowserProofInventory(root: string, inventory: BrowserProo
     }
   }
   if (inventory.discoveryFingerprint !== sha(JSON.stringify(discoveryFromInventory(inventory)))) fail("title/line discovery fingerprint drift.");
-  if (JSON.stringify(inventory.counts) !== JSON.stringify({ files: 31, uniqueCases: 395, currentExecutions: 225, deferredExecutions: 960, allExecutions: 1185 })
-    || all !== 1185 || active !== 225 || seen.size !== 395) fail("reviewed counts drift; a complete deliberate inventory update is required.");
+  if (JSON.stringify(inventory.counts) !== JSON.stringify({ files: 33, uniqueCases: 409, currentExecutions: 267, deferredExecutions: 960, allExecutions: 1227 })
+    || all !== 1227 || active !== 267 || seen.size !== 409) fail("reviewed counts drift; a complete deliberate inventory update is required.");
   if (discovery && JSON.stringify(parseFullBrowserDiscovery(discovery)) !== JSON.stringify(discoveryFromInventory(inventory))) fail("fresh discovery title/line drift.");
 }

@@ -4,7 +4,8 @@ import {
   type DesignDraft, type PivotProject, type FieldDesign,
 } from "@cplayout/core";
 
-import type { WorkspaceDocument } from "@cplayout/project-store";
+import { parseWorkspaceDocument, upgradeWorkspaceDocumentToV5, type WorkspaceDocument } from "@cplayout/project-store";
+import { projectDataKey } from "../../../packages/core/src/projectDataComparison";
 import { captureProjectSourceProof, verifyRetainedProjectSource, type ProjectSourceProof } from "./projectReceiptReconciliation";
 
 export type EditorPersistenceRevision = number | null | undefined;
@@ -103,6 +104,8 @@ export function createEditorSaveCoordinator() {
     isCurrent(session: EditorSaveSession): boolean { return active === session; },
     retire(session?: EditorSaveSession): void { if (!session || active === session) active = null; },
     receipt(session: EditorSaveSession): EditorSaveTarget { return { ...targetFor(session) }; },
+    /** Read-only drain. Navigation callers separately block new admissions before awaiting it. */
+    async whenIdle(): Promise<void> { await tail; },
 
     async save(request: {
       session: EditorSaveSession;
@@ -195,7 +198,8 @@ export function createEditorSaveCoordinator() {
     async exclusive<T>(request: {
       session?: EditorSaveSession;
       isCurrent: () => boolean;
-      write: (target: EditorSaveTarget | null, owner: { isCurrent(): boolean }) => Promise<{ value: T; previousRevision: number; persistenceRevision: number; designRevision?: number }>;
+      write: (target: EditorSaveTarget | null, owner: { isCurrent(): boolean }) => Promise<{ value: T; previousRevision: number; persistenceRevision: number; designRevision?: number;
+        migration?: { kind: "workspace_v5_upgrade"; sourceWorkspace: WorkspaceDocument; resultWorkspace: WorkspaceDocument } }>;
       onCommitted?: (value: T) => void;
     }): Promise<T> {
       if (request.session) requireActive(request.session);
@@ -206,7 +210,17 @@ export function createEditorSaveCoordinator() {
         if (!owner.isCurrent()) throw new Error("The workspace operation retired while waiting for earlier writes.");
         const target = request.session ? targetFor(request.session) : null;
         const outcome = await request.write(target ? { ...target } : null, owner);
-        assertNextRevision(outcome.previousRevision, outcome.persistenceRevision, "Sibling workspace revision");
+        if (outcome.migration) {
+          const migration = outcome.migration;
+          if (migration.kind !== "workspace_v5_upgrade" || migration.sourceWorkspace.revision !== outcome.previousRevision || migration.resultWorkspace.revision !== outcome.persistenceRevision) throw new Error("The explicit workspace upgrade receipt does not match its source and saved revision.");
+          const result = migration.resultWorkspace;
+          const v4 = parseWorkspaceDocument(result.originalWorkflowUpgradeDocument ?? "");
+          const v3 = parseWorkspaceDocument(v4.originalSurveyUpgradeDocument ?? "");
+          const exactSource = migration.sourceWorkspace.workspaceVersion === "cplayout-workspace-v4" ? result.originalWorkflowUpgradeDocument!
+            : migration.sourceWorkspace.workspaceVersion === "cplayout-workspace-v3" ? v4.originalSurveyUpgradeDocument! : v3.originalPreviousWorkspaceDocument!;
+          if (projectDataKey(parseWorkspaceDocument(exactSource)) !== projectDataKey(migration.sourceWorkspace)
+            || projectDataKey(upgradeWorkspaceDocumentToV5(exactSource)) !== projectDataKey(result)) throw new Error("The workspace upgrade must retain its exact reviewed source chain and change no ordinary records.");
+        } else assertNextRevision(outcome.previousRevision, outcome.persistenceRevision, "Sibling workspace revision");
         if (target && request.session) {
           if (target.workspaceRevision !== outcome.previousRevision) throw new Error("The sibling source receipt changed before its write.");
           if (target.kind !== "project") {

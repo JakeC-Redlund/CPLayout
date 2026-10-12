@@ -20,7 +20,7 @@ export interface WorkspaceRenderPrimitive {
 }
 const colors: Record<WorkspaceSceneLayer, string> = { boundary: "#416c49", obstacle: "#a44837", map_feature: "#84601d",
   infrastructure: "#927411", machine: "#234f39", saved_survey: "#246f9f", manual_capture: "#8a58a7", survey_capture: "#cf741b",
-  frozen_target: "#184932", layout_observation: "#267cc0", receiver: "#c82a65", preview: "#249c92" };
+  frozen_target: "#184932", layout_observation: "#267cc0", official_layout_station: "#007c77", receiver: "#c82a65", preview: "#249c92" };
 
 export function workspaceRenderPrimitives(scene: WorkspaceMapScene, visibility: WorkspaceMapSurfaceProps["layerVisibility"] = {}): WorkspaceRenderPrimitive[] {
   const primitives: WorkspaceRenderPrimitive[] = scene.entities.filter(entity => visibility[entity.layer] !== false).map(entity => ({

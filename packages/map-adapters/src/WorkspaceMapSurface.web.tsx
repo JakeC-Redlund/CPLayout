@@ -183,7 +183,7 @@ function WorkspaceWebCanvas(props: WorkspaceCanvasProps): React.JSX.Element {
   useLayoutEffect(() => { sourceUpdate.current(); }, [geoJson]);
   useLayoutEffect(() => { drive.current(); }, [props.cameraContextKey, props.viewport, props.scene.identity.projectCrs, props.screen.width, props.screen.height]);
   if (!supported || !geoJson || failure) return <>
-    <WorkspaceSvgCanvas {...props} reason={failure ?? "Saved XY view: this coordinate frame cannot use web imagery."} />
+    <WorkspaceSvgCanvas {...props} reason={failure ?? "Map imagery is unavailable for this coordinate system."} />
     {failure && <button type="button" onClick={() => setFailure(null)} style={{ position: "absolute", left: 8, top: 8 }}>Retry web map</button>}
   </>;
   return <>

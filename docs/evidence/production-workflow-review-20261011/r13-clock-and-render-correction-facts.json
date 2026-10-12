@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-12",
+  "classification": "bounded_correction_facts",
+  "claimClass": "source",
+  "result": "partial_source_changes_under_scoped_testing",
+  "priorFailedPacket": "docs/evidence/production-workflow-review-20261011/critical-hierarchy-r13-failed.json",
+  "clockObservation": {
+    "browserWallAdvanceMs": 3975,
+    "hostMonotonicIntervalMs": 634.557,
+    "offsetDifferenceMs": 3340.443,
+    "provenance": "Coordinator delivery of two independent reviewers directR13trace comparison. No separate measurementartifact path supplied; none invented.",
+    "limitation": "Exact rejected creation-lock/capture timestamps are unavailable. The cause of the host/browser wall-clock discontinuity is unknown; these values do not establish field accuracy or the full causal path to refusal."
+  },
+  "fixtureCorrection": {
+    "owner": "workflow reviewer under coordinator-disjoint authorization",
+    "scope": "Only the syntheticRTK stage pairs Date.now and zero-argument newDate to a realwallanchor plusfixture monotonic delta, with originalDate restored in finally before Sync/grant/offline operations.",
+    "directSourceRead": "CurrentwithPairedLayoutClock helper independently read; nativeDate/wallAnchor/monoAnchor andfinallyrestore exactlypresent. OriginalDate here means browserJavaScript Date, not nativeGPS/device qualification.",
+    "helperVMChecks": {
+      "pairedWallAndZeroArgConstructor": true,
+      "suppliedConstructorsAndStaticParsingPreserved": true,
+      "restorationOnSuccessAndFailure": true,
+      "timersAndAnimationUntouched": true
+    },
+    "logSha256": "57bf36b8d94ed9dfa6c2ee6623b353ec14595ddf59d4e7e55ff5a80718dab705",
+    "logBytes": 167,
+    "syntaxExitCode": 0,
+    "syntaxProvenance": "Coordinator delivered completed syntax0; VMloghash/booleans directlyverified.",
+    "boundary": "Purehelper/fixture checks only. Timer/animation untouched perVMcheck; no captureguard change and no closed browserfailure inferred."
+  },
+  "renderObservation": {
+    "privateSyntheticResponse": {
+      "fileName": "r12-final-shared-response.json",
+      "bytes": 300476,
+      "sha256": "8c67d6237ba72e851293bb10c7ba67d7baa26547361db79895ca3936745c62ac",
+      "contentCopiedOrDisplayed": false
+    },
+    "hiddenCatalogContentMs": [
+      325,
+      379
+    ],
+    "hiddenCatalogHistoryMs": [
+      177,
+      183
+    ],
+    "ageTickMs": 200,
+    "tickObservedWhileDisconnected": true,
+    "measurementProvenance": "Mapper direct retainedR12profiling asdelivered bycoordinator; responsebytes/hash separatelyverified. No invented profilingartifact/callcount/combinedtotal."
+  },
+  "displayCorrection": {
+    "owner": "mapping reviewer under coordinator authorization",
+    "scope": "Memoize retainedhistory/selectedfieldcontent/officiallayout IDs andderiveddisplay state; age timer runs only whileconnected with anobservation, visible andnotauthorityblocked.",
+    "directSourceRead": "CurrentCataloguseMemo andcontroller200ms effect connection/observation/visible/authority predicates independentlyread.",
+    "contractBoundary": "Coordinator says schemas/writer/freshness contractsunchanged. This is a realdisplay/controller implementationchange, not a proof-onlyfixture bridge. Scopedtests/frozenR14/freshaggregate/currentbrowser receipts stillrequired."
+  },
+  "pending": [
+    "ImmutableR14source/criteria census",
+    "Finalscoped display correction results",
+    "Freshfullaggregate for correctedimplementation",
+    "Matchingfocused/full267/visible packets",
+    "Two complete acceptedfinalreviews",
+    "Publication",
+    "Physical/native/device qualification"
+  ],
+  "boundary": "Preserve distinctR13failure domains andpriorR12Sync receipts. No exact rejected timestamp, clockrootcause, browserclosure, wholeacceptance orphysicalprecision isinvented."
+}

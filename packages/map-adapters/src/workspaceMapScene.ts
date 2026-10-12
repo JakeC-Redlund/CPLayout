@@ -1,7 +1,8 @@
 import type { DesignDraft, DesignDraftMachine } from "../../core/src/designDraft";
 import type { FieldDesign, FieldPivotMachine } from "../../core/src/fieldDesignDocument";
-import { parseFieldLayoutTarget, type FieldLayoutTarget } from "../../core/src/fieldLayoutTarget";
+import { parseFieldLayoutTarget, serializeFieldLayoutTarget, type FieldLayoutTarget } from "../../core/src/fieldLayoutTarget";
 import { parseLayoutSessionDocument, type LayoutSession } from "../../core/src/layoutSession";
+import { officialMeasuredStations } from "../../core/src/officialLayout";
 import { snapshotJsonValue } from "../../core/src/jsonDataSnapshot";
 import { sha256Text } from "../../core/src/sha256";
 import { parseSurveyCollectionDocument, surveyPurposeGeometryType, type SurveyCollection, type SurveyCollectionPurpose } from "../../core/src/surveyCollection";
@@ -25,7 +26,7 @@ export interface WorkspaceSceneFrame {
   readonly catalogOwner?: WorkspaceSceneCatalogOwner;
 }
 export type WorkspaceSceneLayer = "boundary" | "obstacle" | "map_feature" | "infrastructure" | "machine"
-  | "saved_survey" | "manual_capture" | "survey_capture" | "frozen_target" | "layout_observation" | "receiver" | "preview";
+  | "saved_survey" | "manual_capture" | "survey_capture" | "frozen_target" | "layout_observation" | "official_layout_station" | "receiver" | "preview";
 export type WorkspaceSceneGeometry = WorkspaceReadonly<ProjectMapFeatureGeometry>
   | { readonly type: "Pending"; readonly geometryType: "Point" | "LineString" | "Polygon"; readonly vertices: readonly WorkspaceReadonly<XY>[] };
 export interface WorkspaceMapEntity {
@@ -157,6 +158,7 @@ export function workspaceMapSceneFromTarget(input: FieldLayoutTarget, frame: Wor
   const scene = begin({ kind: "target", data: target }, target.source.fieldId, target.field.projectCrs, frame);
   fieldGeometry(scene, target.field, false, true);
   fieldMachines(scene, target.field, target.source.selectedMachineIds);
+  layoutTargetPoints(scene, target);
   if (options.authority) {
     const parsed = checkedTarget(options.authority.document, options.authority.hash);
     if (!sameData(parsed, target)) throw new Error("Retained target bytes differ from the supplied target scene source.");
@@ -173,6 +175,7 @@ export function workspaceMapSceneFromSession(input: LayoutSession, frame: Worksp
   const scene = begin({ kind: "session", data: session }, session.id, target.field.projectCrs, frame);
   fieldGeometry(scene, target.field, false, true);
   fieldMachines(scene, target.field, target.source.selectedMachineIds);
+  layoutTargetPoints(scene, target);
   scene.targetAuthority = authority(target, session.targetDocument, session.targetHash);
   sessionObservations(scene, session);
   return finish(scene, options);
@@ -198,6 +201,14 @@ function fieldGeometry(scene: MutableScene, source: FieldGeometry, incomplete: b
   source.surveyPoints.forEach((point, index) => entity(scene, "survey_point", "saved_survey", `surveyPoints[${index}]`, { type: "Point", point: point.projected }, point.id, point.label));
 }
 
+function layoutTargetPoints(scene: MutableScene, target: FieldLayoutTarget): void {
+  target.targetPoints?.forEach((point, index) => {
+    const labels = { pivot_center: "Pivot center", corner_guidance: "Corner guidance point", lateral_start: "Linear travel start", lateral_end: "Linear travel end" };
+    entity(scene, "machine", "frozen_target", `targetPoints[${index}]`, { type: "Point", point: point.projected }, point.id,
+      `${labels[point.role]}${point.sourceVertexIndex === undefined ? "" : ` ${point.sourceVertexIndex + 1}`}`);
+  });
+}
+
 function fieldMachines(scene: MutableScene, field: WorkspaceReadonly<FieldDesign>, selected?: readonly string[]): void {
   field.machines.forEach((machine, index) => {
     if (selected && !selected.includes(machine.id)) return;
@@ -205,18 +216,21 @@ function fieldMachines(scene: MutableScene, field: WorkspaceReadonly<FieldDesign
     scene.machines.push({ sourcePath, id: machine.id, kind: machine.kind, configuration: machine.configuration, location: machine.pivotCenter });
     entity(scene, "machine", selected ? "frozen_target" : "machine", sourcePath, { type: "Point", point: machine.pivotCenter }, machine.id, machine.configuration.name);
   });
-  if (!selected) field.lateralMachines?.forEach((machine, index) => {
+  field.lateralMachines?.forEach((machine, index) => {
+    if (selected && !selected.includes(machine.id)) return;
     const sourcePath = `lateralMachines[${index}]`;
     scene.machines.push({ sourcePath, id: machine.id, kind: machine.kind, configuration: machine });
-    entity(scene, "machine", "machine", sourcePath, { type: "LineString", vertices: [machine.travel.start, machine.travel.end] }, machine.id, machine.name);
+    entity(scene, "machine", selected ? "frozen_target" : "machine", sourcePath, { type: "LineString", vertices: [machine.travel.start, machine.travel.end] }, machine.id, machine.name);
   });
   field.infrastructure.forEach((item, index) => entity(scene, "infrastructure", selected ? "frozen_target" : "infrastructure", `infrastructure[${index}]`,
-    { type: "Point", point: item.point }, item.id, item.kind));
+    { type: "Point", point: item.point }, item.id, item.kind === "water_source" ? "Water source" : "Power source"));
 }
 
 function sessionObservations(scene: MutableScene, session: WorkspaceReadonly<LayoutSession>): void {
-  session.observations.forEach((observation, index) => entity(scene, "observation", "layout_observation", `observations[${index}]`,
-    { type: "Point", point: observation.projected }, observation.id, observation.label));
+  const officialIds = new Set(officialMeasuredStations(parseLayoutSessionDocument(session)).map(station => station.id));
+  session.observations.forEach((observation, index) => entity(scene, "observation", officialIds.has(observation.id) ? "official_layout_station" : "layout_observation", `observations[${index}]`,
+    { type: "Point", point: observation.projected }, observation.id,
+    officialIds.has(observation.id) ? `Official RTK station${observation.label ? `: ${observation.label}` : ""}` : observation.label));
 }
 
 function surveyCollectionEntities(scene: MutableScene, input: readonly WorkspaceReadonly<SurveyCollection>[]): void {
@@ -285,7 +299,7 @@ function finish(scene: MutableScene, inputOptions: WorkspaceSceneOptions): Works
 }
 
 function manualDrawingEntity(scene: MutableScene, display: WorkspaceManualDrawingDisplay): void {
-  if (scene.sourceDocument.kind !== "project") throw new Error("External manual preview is only supported for its actual Project; Draft vertices belong to their saved workflow.");
+  if (scene.sourceDocument.kind !== "project" && scene.sourceDocument.kind !== "field") throw new Error("Manual preview requires its actual Project or Field; Draft vertices belong to their saved workflow.");
   textId(display.captureId, "Manual drawing identity");
   assertRevision(display.inputRevision, "Manual drawing revision");
   if (display.sourceDocumentId !== scene.identity.documentId || display.inputRevision !== scene.identity.inputRevision) throw new Error("Manual preview belongs to another source document or revision.");
@@ -294,7 +308,7 @@ function manualDrawingEntity(scene: MutableScene, display: WorkspaceManualDrawin
     "Manual drawing preview", pending ? "incomplete" : "complete");
 }
 
-/** Add a source-bound Project interaction preview to the same immutable scene.
+/** Add a source-bound Project or Field interaction preview to the same immutable scene.
  * No domain document, calculation result or map lifecycle is manufactured. */
 export function withWorkspaceManualDrawing(input: WorkspaceMapScene, display: WorkspaceManualDrawingDisplay | null): WorkspaceMapScene {
   const current = snapshot(validateWorkspaceMapScene(input)) as MutableScene;
@@ -330,11 +344,11 @@ export function validateWorkspaceMapScene(input: WorkspaceMapScene): WorkspaceMa
   const layersByKind: Record<WorkspaceMapEntity["kind"], readonly WorkspaceSceneLayer[]> = {
     boundary: ["boundary", "frozen_target"], obstacle: ["obstacle", "frozen_target"], map_feature: ["map_feature", "frozen_target"],
     infrastructure: ["infrastructure", "frozen_target"], machine: ["machine", "frozen_target"], survey_point: ["saved_survey"],
-    manual_capture: ["manual_capture"], survey_capture: ["survey_capture"], observation: ["layout_observation"], receiver: ["receiver"], preview: ["preview"],
+    manual_capture: ["manual_capture"], survey_capture: ["survey_capture"], observation: ["layout_observation", "official_layout_station"], receiver: ["receiver"], preview: ["preview"],
   };
   for (const item of scene.entities) {
     if (!["boundary", "obstacle", "map_feature", "infrastructure", "machine", "survey_point", "manual_capture", "survey_capture", "observation", "receiver", "preview"].includes(item.kind)
-      || !["boundary", "obstacle", "map_feature", "infrastructure", "machine", "saved_survey", "manual_capture", "survey_capture", "frozen_target", "layout_observation", "receiver", "preview"].includes(item.layer)
+      || !["boundary", "obstacle", "map_feature", "infrastructure", "machine", "saved_survey", "manual_capture", "survey_capture", "frozen_target", "layout_observation", "official_layout_station", "receiver", "preview"].includes(item.layer)
       || !["complete", "incomplete"].includes(item.geometryState)) throw new Error("Unknown render entity kind, layer or geometry state.");
     if (!layersByKind[item.kind].includes(item.layer)) throw new Error("Render entity kind differs from its layer.");
     if (item.label !== undefined && typeof item.label !== "string") throw new Error("Render label must be text.");
@@ -407,14 +421,14 @@ export function validateWorkspaceMapScene(input: WorkspaceMapScene): WorkspaceMa
     assertTargetSelection(target);
     const expected = begin(source, scene.identity.documentId, scene.identity.projectCrs,
       { id: scene.identity.frameId, generation: scene.identity.generation, ...(scene.identity.inputRevision === undefined ? {} : { inputRevision: scene.identity.inputRevision }) });
-    fieldGeometry(expected, target.field, false, true); fieldMachines(expected, target.field, target.source.selectedMachineIds);
+    fieldGeometry(expected, target.field, false, true); fieldMachines(expected, target.field, target.source.selectedMachineIds); layoutTargetPoints(expected, target);
     const retainedGeometry = (entities: readonly WorkspaceMapEntity[]) => entities.filter(item => item.layer === "frozen_target" || item.layer === "saved_survey");
     if (!sameData(retainedGeometry(scene.entities), retainedGeometry(expected.entities)) || !sameData(scene.machines, expected.machines)) {
       throw new Error("Frozen render geometry differs from its retained target source.");
     }
     if (source.kind === "session") {
       sessionObservations(expected, source.data);
-      const observations = (entities: readonly WorkspaceMapEntity[]) => entities.filter(item => item.layer === "layout_observation");
+      const observations = (entities: readonly WorkspaceMapEntity[]) => entities.filter(item => item.layer === "layout_observation" || item.layer === "official_layout_station");
       if (!sameData(observations(scene.entities), observations(expected.entities))) {
         throw new Error("Rendered Layout observations differ from their exact retained session observations.");
       }
@@ -458,10 +472,9 @@ function authority(target: FieldLayoutTarget, document: string, hash: string): W
   return { document, hash, sourceFieldId: target.source.fieldId, inputRevision: target.source.inputRevision };
 }
 function assertTargetSelection(target: FieldLayoutTarget): void {
-  if (target.documentVersion !== "field-layout-target-v1" || target.qualification !== "design_snapshot_only"
-    || target.source.fieldId !== target.field.id || !target.source.selectedMachineIds.length
-    || new Set(target.source.selectedMachineIds).size !== target.source.selectedMachineIds.length
-    || target.source.selectedMachineIds.some(id => !target.field.machines.some(machine => machine.id === id))) throw new Error("Invalid frozen target selection identity.");
+  // The domain reader validates both historical snapshots and reviewed target
+  // inventories; rendering never supplies its own weaker operational contract.
+  parseFieldLayoutTarget(serializeFieldLayoutTarget(target));
   assertRevision(target.source.inputRevision, "Target input revision");
 }
 function sameData(a: unknown, b: unknown): boolean {

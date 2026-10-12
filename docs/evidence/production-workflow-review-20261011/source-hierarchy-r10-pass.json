@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "classification": "synthetic",
+  "claimClass": "source_checks",
+  "result": "pass",
+  "exitCode": 0,
+  "command": "npm run validate",
+  "runtime": "Node 24.21.0; actual owned PostgreSQL 18.6 Unix-socket test service",
+  "sourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r10.json",
+  "sourceFingerprint": "b76c1c2a5b5d10eeb245d0c5e116ca1bda3c6a719e4767163e1edc8ab68d03d2",
+  "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+  "log": {
+    "sha256": "a5d2ffbac666e0dfd9a8b72e87c28b9383c3500f692a98b3de151bef3f76460c",
+    "bytes": 304881,
+    "reportedNonzeroFailures": 0,
+    "reportedNonzeroSkipped": 0
+  },
+  "boundary": "Complete actual r10 aggregate. Later r11 differs only in one browser interaction helper and its regenerated discovery inventory; this does not become a newly executed r11 aggregate. Current browser, device, physical accuracy, independent reviews and publication require separate evidence."
+}

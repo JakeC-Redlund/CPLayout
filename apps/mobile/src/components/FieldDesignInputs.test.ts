@@ -149,6 +149,25 @@ test("controlled choices retain partial sweep/direction, explicit Unassigned ass
   h.call("field-input-span-0", "onChangeText", "not a length"); oldCopy(); assert.equal(h.editor.field.machines.length, 1);
 });
 
+test("infrastructure choices show business labels and declared-unit coordinates without exposing storage IDs", () => {
+  const h = harness(), field = h.editor.field, source = field.infrastructure[0];
+  const label = panel.fieldInfrastructureLabel(field, source, 1);
+  assert(label.includes(source.kind === "water_source" ? "Water source 1" : "Power source 1"));
+  assert(label.includes("(X ") && label.includes(" ft)")); assert(!label.includes(source.id));
+  assert.equal(panel.fieldInfrastructureLabel({ ...field, projectCrs: "LOCAL:unknown-units" }, source, 1), source.kind === "water_source" ? "Water source 1" : "Power source 1");
+});
+
+test("actual Field radio choices expose explicit checked DOM props through choice changes and disabled handlers", () => {
+  const h = harness(); h.render();
+  assert.equal(controls.get("field-sweep-0")!["aria-checked"], true); assert.equal(controls.get("field-sweep-1")!["aria-checked"], false);
+  h.call("field-sweep-1", "onPress"); h.render();
+  assert.equal(controls.get("field-sweep-0")!["aria-checked"], false); assert.equal(controls.get("field-sweep-1")!["aria-checked"], true);
+  assert.equal(controls.get("field-direction-0")!["aria-checked"], true); h.call("field-direction-1", "onPress"); h.render();
+  assert.equal(controls.get("field-direction-0")!["aria-checked"], false); assert.equal(controls.get("field-direction-1")!["aria-checked"], true);
+  h.render({ disabled: true }); assert.equal(controls.get("field-sweep-0")!["aria-disabled"], true); h.call("field-sweep-0", "onPress");
+  h.render(); assert.equal(controls.get("field-sweep-1")!["aria-checked"], true); assert.equal(h.editor.revision, 0);
+});
+
 test("actual supplied calculation preview shows only its current revision and selected machine", () => {
   const h = harness(), state = h.editor;
   const admitted = createFieldCalculationInput(state.field, { machineId: state.selectedMachineId!, inputRevision: state.revision, expectedRevision: state.revision });

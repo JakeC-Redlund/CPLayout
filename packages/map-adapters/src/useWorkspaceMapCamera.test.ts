@@ -169,7 +169,7 @@ const originalReact = require.cache[reactId], originalNative = require.cache[nat
 let actualHook: typeof import("./useWorkspaceMapCamera")["useWorkspaceMapCamera"], actualFrame: typeof import("./WorkspaceMapFrame")["WorkspaceMapFrame"];
 try {
   require.cache[reactId] = { ...originalReact, exports: hooks } as any;
-  require.cache[nativeId] = { exports: { Pressable: "Pressable", ScrollView: "ScrollView", Text: "Text", View: "View", StyleSheet: { create: (value: unknown) => value } } } as any;
+  require.cache[nativeId] = { exports: { Platform: { OS: "web" }, Pressable: "Pressable", ScrollView: "ScrollView", Text: "Text", View: "View", StyleSheet: { create: (value: unknown) => value } } } as any;
   delete require.cache[hookId]; delete require.cache[frameId];
   actualHook = require(hookId).useWorkspaceMapCamera; actualFrame = require(frameId).WorkspaceMapFrame;
 } finally {

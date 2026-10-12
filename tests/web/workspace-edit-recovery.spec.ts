@@ -1,5 +1,5 @@
 import { fillActiveCatalogFormInput } from "./catalog-form-readiness";
-import { expect, test, type BrowserContext, type Locator, type Page } from "@playwright/test";
+import { expect, test, type BrowserContext, type Locator, type Page } from "./authenticated-test";
 import { readFile } from "node:fs/promises";
 import { formatDistanceInputValue, parseDesignDraftDocument, parseLayoutSessionDocument, parseSurveyCollectionDocument } from "../../packages/core/src/index";
 import { readWorkspaceDesign } from "../../packages/project-store/src/versionedProjectRepository";
@@ -16,7 +16,7 @@ import { emptyWorkspaceEditRecoveryUi, parseWorkspaceEditRecovery, serializeWork
 import { WORKSPACE_EDIT_RECOVERY_KEY, WORKSPACE_EDIT_RECOVERY_LEDGER_VERSION } from "../../apps/mobile/src/workspace/workspaceEditRecoveryStore";
 import { UNIFIED_WORKSPACE_RESUME_KEY, type UnifiedWorkspaceResume } from "../../apps/mobile/src/navigation/unifiedWorkspaceResume";
 import { packageFixture, packageIds, seedPackageWorkspace, sourcePayload, type PackageOwnerKind } from "./workspace-package-fixtures";
-import { readWorkspace, workspaceStorageBytes } from "./workspace-fixtures";
+import { readWorkspace, workspaceStorageBytes, accountPreferenceKey, readAccountPreference } from "./workspace-fixtures";
 import { connectOperationalReceiver, installOperationalReceiver, type ReceiverFixtureWindow } from "./operational-receiver-fixture";
 
 // Actual default App, its origin storage, File/Review/Restore controls and downloads.
@@ -121,7 +121,7 @@ async function stored(page: Page) {
   const rows = await page.evaluate(key => {
     const raw = localStorage.getItem(key); if (!raw) return [];
     return (JSON.parse(raw) as { slots: Array<{ writerId: string; sequence: number; raw: string }> }).slots;
-  }, WORKSPACE_EDIT_RECOVERY_KEY);
+  }, accountPreferenceKey(page, WORKSPACE_EDIT_RECOVERY_KEY));
   return rows.map(row => ({ ...row, candidate: parseWorkspaceEditRecovery(row.raw) }));
 }
 async function disconnected(page: Page) { await expect(page.getByTestId("workspace-receiver-summary")).toHaveText("Receiver: idle · Data: waiting · Fix unknown"); }
@@ -152,7 +152,9 @@ test(`${kind} actual File Review/Restore recovers raw inputs, history, independe
   await expect(page.getByRole("textbox", { name: "Layout session name", exact: true })).toHaveValue("  ");
   await expect(page.getByTestId("layout-observation-label")).toHaveValue("  Uncollected Layout label  ");
   await expect(page.getByRole("textbox", { name: "Copy Layout session name", exact: true })).toHaveValue("  Unsubmitted copy  ");
-  await expect(page.getByTestId("unified-layout-panel")).toContainText(`Target hash: ${candidate.layout!.targetHash}`); await expect(page.getByTestId("layout-collect")).toBeDisabled();
+  const recoveredTarget = parseLayoutSessionDocument((await readWorkspace(page)).layoutSessions!.find(item => item.id === candidate.layout!.id)!.document);
+  expect(recoveredTarget.targetHash).toBe(candidate.layout!.targetHash); expect(recoveredTarget.targetDocument).toBe(parseLayoutSessionDocument(candidate.layout!.document).targetDocument);
+  await expect(page.getByTestId("layout-collect")).toBeDisabled();
   await disconnected(page); expect(await workspaceStorageBytes(page)).toEqual(before); expect(await readWorkspace(page)).toEqual(fixture.workspace);
   expect((await readWorkspace(page)).surveyCollections).toEqual(fixture.workspace.surveyCollections); expect((await readWorkspace(page)).layoutSessions).toEqual(fixture.workspace.layoutSessions);
 });
@@ -211,7 +213,7 @@ test("actual corrupt-checkpoint refusal keeps exact opaque ledger Export availab
   await expect(page.getByRole("button", { name: "Restore unfinished work", exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "Recovery storage details", exact: true }).click();
   const exported = await exactDownload(page, page.getByRole("button", { name: "Export stored recovery bytes", exact: true }), "cplayout-recovery-ledger.json");
-  expect(exported).toBe(corrupt); expect(await page.evaluate(key => localStorage.getItem(key), WORKSPACE_EDIT_RECOVERY_KEY)).toBe(corrupt);
+  expect(exported).toBe(corrupt); expect(await readAccountPreference(page, WORKSPACE_EDIT_RECOVERY_KEY)).toBe(corrupt);
   expect(await workspaceStorageBytes(page)).toEqual(before); await disconnected(page);
 });
 

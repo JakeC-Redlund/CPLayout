@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "classification": "synthetic",
+  "result": "fail",
+  "exitCode": 1,
+  "scope": "Completed33-case critical selection across desktop/tablet/mobile on frozenr2 source; not full-suite acceptance.",
+  "counts": {
+    "selected": 33,
+    "passed": 21,
+    "failed": 12,
+    "skipped": 0,
+    "didNotRun": 0
+  },
+  "source": {
+    "path": "docs/evidence/production-workflow-review-20261011/candidate-source-r2.json",
+    "sourceCount": 902,
+    "fingerprint": "9894a0b5d668de5720624c27544d0659dcf5e6820e77c1b82b9085516549eec4",
+    "manifestSha256": "b9a84194c0505493c6dfff5e64847687aa5f03823d45aced3215a8df62a546b4",
+    "unchangedDuringRun": "Custody record confirms source unchanged during this focused run.",
+    "boundary": "Later diagnosed corrections are a new edition and cannot promote this failed packet."
+  },
+  "custody": {
+    "packetName": "critical-r2-failed",
+    "manifestName": "custody.json",
+    "manifestSha256": "677f80f56ee0310406d4155e5e4247bb708910b3c9b4aaf98ccd06852841198b",
+    "declaredArtifacts": 89,
+    "hashesVerified": true,
+    "artifactHashes": {
+      "playwright-html/data/0244d18046821363955bd6f9b345b48d5266ad74.png": "65d31ae9b7b02de93ce33bb35eb5b3e87567e445d567bc26132e9288e3b44d2d",
+      "playwright-html/data/13caa74f19e5e16cbe245c4584d8739671dfba3d.zip": "63357f7d0a753066bae90c1d6992de10a192ce746c8af9a366d4a140ee05f684",
+      "playwright-html/data/160ffb79663bbf5f8bd13d65a9fa8cc6ff1372ec.md": "7143aafe872de5bca3d1dd5d694f1a927894c3e06dafd9bd842d944c7ecf87fa",
+      "playwright-html/data/245832c17ff39b7e37125de681e94c158dd8ddf7.zip": "f77d6b8906e47b0e14dea33912849f1adc6dba008fa8ccd2211ac6f9713c542e",
+      "playwright-html/data/2a9d7965d266899508aab04fa020799be0a18618.md": "53d0fffc09ceea5f687e4f6ba562832e897e6a89a0e2a0c787925167e2199486",
+      "playwright-html/data/50e1e82937dc7b37523098928c17c08c40884970.zip": "49f99a6cd3ebe20bac05f377ca5a90202c00be5ff2deac4a03fd0c0366328684",
+      "playwright-html/data/5a09974fc86559f820d70676ba104981293096e4.png": "e25ceab98f7ed55c516d1f2eec4d7480b8538753f1d2374164671c8c1e62209c",
+      "playwright-html/data/613a52e89320d607e4ea1e22f0145a3dc6c2ad2a.md": "4d35f8c9557c5b05ecdde3c8bd5f252e8d157936604cd1a37ebcc6b839c39f56",
+      "playwright-html/data/623de13bffe5a2dfbd1a3890f3543115d3a55aed.md": "0afc7a0862bae2a15a3655cf1b591150a0e64c3cf017167121e21768acc21949",
+      "playwright-html/data/6e2618e26adeafca7865a847efb1febb099be1fb.zip": "42985fa397086dc6efe6e2db5bd2587ad365eb755f69bc9b9a9ac7b4f2a337cc",
+      "playwright-html/data/6f5e5ad6ecff29a57ffda4a047c188f9145efdfb.zip": "7abbfdbd0189ebe55de34784e3d699835e47d15c0b8f11a3dd4d3f1c44c025a1",
+      "playwright-html/data/6fbcd4dfaf10828fd2498cec180b0cdd883a0515.md": "410e9decd4445584e2cad006ba20b4fe9d6b009f3bae4530af3f3b3d03d3045d",
+      "playwright-html/data/71f42b76f3a3218ddbd2cde4a8d5f004199c00c2.zip": "fb64ecad46d0f027aeb5ec080292ce6f32f900e5731e3e70e71a55374708a17b",
+      "playwright-html/data/7477440e4da469c7efe81e72dddf369966df6934.png": "3898528c0500f4bf57879996cd9ad8351c32072189cf6f7d12a728ca49e9d5c5",
+      "playwright-html/data/784fadaa92a6f89d19f04f2820ec449d0bd1c696.zip": "e2d77cca6549686474c8a580e70dc27c927678f884b5dc0839dc931ff0244577",
+      "playwright-html/data/87d291a14d2d075fed8916ffa713d8b516815a03.png": "67c933d8f5835f599e05fda849188447b6cdfe95ab30f205d03511f71c22034f",
+      "playwright-html/data/8bcd287459e860413ebcac038b7bb25113744002.zip": "4c8fc6e3066a5c49b757e06e67b95fa0015ea08be008ad53d396f8f49a08a95b",
+      "playwright-html/data/9d0a32c18cbd6ba59070321a6c171b4bf1d71481.zip": "0e9f28e19a69c2929db689df12d565b3b073486210a7012d7040fcef1e65b30b",
+      "playwright-html/data/9f93000b33ca872a040752936c9f49fc0cf76c74.md": "6a4096d135e5696061c6384b6677c205def35d1f703cf9ee4bbbfb54a6dab31a",
+      "playwright-html/data/ab4a375eb9b2333c45b24f767a7daa6ecb575fb1.md": "74ee90c79afe70f96dea18e0b3ecf63d437808634dd34e2afc6cc05cb47141cc",
+      "playwright-html/data/b2522f63d50649ec652eb5137bf9400d336cbecf.png": "7fcabd3f41a0227cbe89e28465ac58c9e67001a63d6f00ad42d324e5ed960ff7",
+      "playwright-html/data/c0c8a90b6c90dcbdf216121393bd8c7f8b494f59.png": "5896a5454e6a3bd0740294f6de4879cf643e4e76db4dd79c9ef2d09edd3fae63",
+      "playwright-html/data/c5b972a799ede049104162c22b5c25a8c2020c80.md": "96e68dc6e99fc0ef4405237bc860fab95a47eca2e86ad5149a4601fc507ac6f0",
+      "playwright-html/data/d3d2fed770569e824111b329fe49d6d55c8b8e9b.png": "3f26e9195e2da90a053b2fe21e57fa179fe6550b4ab08038486ca2362f4e66cf",
+      "playwright-html/data/d8a808af0f612f1bef1d29aa08c73bee8ae98af6.png": "7a4063406293848e4da50ffb17f6d80a55fe052d95622a2421ab5fa31a4c40d1",
+      "playwright-html/data/e06ee100c0865d02a86d4f1cc2dbcecb745f7696.zip": "1e177a8ddcfb5c90519369e7da72321e9f38974d312b70492ebf431168ec7d6b",
+      "playwright-html/data/e97fc33e52003a8dac8d9c5905bc48b931aeee51.zip": "39c2528850825f6b956c03b1bd3a19d788ee67a51825487092e445c182a4722e",
+      "playwright-html/data/f6aceafd17fee2f74b8929ae790427aa205a6344.zip": "b8cdeff0e1361500d7c939ad5a2df3357ceaaed10652f20926a1aae844911e69",
+      "playwright-html/index.html": "d3133d920af217b2a3c90f68c06ad1642f93b5e202147d346e4f0d8c365544de",
+      "playwright-html/trace/assets/codeMirrorModule-BEB2e8M3.js": "0da75d228abc1d8b940aa04ec086570dace7b2e7b2ccc5f4bc16f05e79bdb7d7",
+      "playwright-html/trace/assets/defaultSettingsView-D-g2vrvf.js": "554bdef910d18e763118f1221667b809edafba46e29e3f8de4b9dcf21c6b7d79",
+      "playwright-html/trace/assets/urlMatch-L3liM589.js": "1bc6321e32d11c31a452bc75896f0b344e6153321854d9f1658818be7f845c16",
+      "playwright-html/trace/codeMirrorModule.-QdMvsKi.css": "20be824a82832b62cc04642d31da3c609fd280b23f1cdcb1e622c4f40aac5ab8",
+      "playwright-html/trace/codicon.DCmgc-ay.ttf": "0f1d5219934e96e83b8db162d60b4d8c09b5de1e7d38031cbafe4a3c0f2889c9",
+      "playwright-html/trace/defaultSettingsView.C8BeHuxd.css": "278101b68ab48ee6323a6afbf4e0e629324e10e96902a62a0875643a1bba3d94",
+      "playwright-html/trace/index.7-c5LSTW.js": "ce1eb956b15739b52a45c9fc2b9a0c529448242426b2b124d5c3167915910ff1",
+      "playwright-html/trace/index.B_TqY17P.css": "08a212fcacae1866f44f065654afcc4c7d03409c68c74b3315c5bda17a0ca003",
+      "playwright-html/trace/index.html": "b80661d46bc580d1e7be45c2c2b0e891c466f3f67e52c33e4f111f000f3532c6",
+      "playwright-html/trace/manifest.webmanifest": "d8540500603a32a39fe7e5a0375dc0f9ebafd11118e06a846db7efc608223ab9",
+      "playwright-html/trace/playwright-logo.svg": "6b0a4367bdeab10995bc239278f04c68c10e48adbec15e799e01909a0d66dcb9",
+      "playwright-html/trace/snapshot.B_Jk1wbt.js": "d4d09e05451d107d8e1a6bbd041405fe518b9fd2833890e4ebaaad83b7f554f5",
+      "playwright-html/trace/snapshot.html": "c608c8899c95c5a74d3f556e20146c3d852b9df85ae2854c659a7cc773c9b727",
+      "playwright-html/trace/sw.bundle.js": "d1d6fec6687eb3fd93a8990bd9daa3951422695afffae2382f97f10811cf1c30",
+      "playwright-html/trace/uiMode.CYwC_gH1.js": "c920eaa161f65b6c0dd431a642c4bdf2e6262ae51335c02d155b187f48c0296c",
+      "playwright-html/trace/uiMode.CyMfwkXJ.css": "fb403cf0b07007bc1d771e29737f7408924da300e2fab8b289a3ef2e8fc08d7b",
+      "playwright-html/trace/uiMode.html": "6de2f5db7f7532c30e8b1381752a1daf23facbdef6bea130cef0cfa5a003eb22",
+      "playwright-html/trace/xtermModule.kHJ-D0s7.css": "0dd60056134e6a2994a86b59a1e9789b9f04e92924da109aef8c923acaf08ce5",
+      "playwright-results/.last-run.json": "1c947f11054472a95538edbb346029ee238f58cc1e5d2b8e163181013917415b",
+      "playwright-results/unified-workspace-Design-S-0829f-out-without-changing-source-desktop/error-context.md": "410e9decd4445584e2cad006ba20b4fe9d6b009f3bae4530af3f3b3d03d3045d",
+      "playwright-results/unified-workspace-Design-S-0829f-out-without-changing-source-desktop/test-failed-1.png": "7fcabd3f41a0227cbe89e28465ac58c9e67001a63d6f00ad42d324e5ed960ff7",
+      "playwright-results/unified-workspace-Design-S-0829f-out-without-changing-source-desktop/trace.zip": "fb64ecad46d0f027aeb5ec080292ce6f32f900e5731e3e70e71a55374708a17b",
+      "playwright-results/unified-workspace-Design-S-0829f-out-without-changing-source-mobile-390/error-context.md": "410e9decd4445584e2cad006ba20b4fe9d6b009f3bae4530af3f3b3d03d3045d",
+      "playwright-results/unified-workspace-Design-S-0829f-out-without-changing-source-mobile-390/test-failed-1.png": "5896a5454e6a3bd0740294f6de4879cf643e4e76db4dd79c9ef2d09edd3fae63",
+      "playwright-results/unified-workspace-Design-S-0829f-out-without-changing-source-mobile-390/trace.zip": "7abbfdbd0189ebe55de34784e3d699835e47d15c0b8f11a3dd4d3f1c44c025a1",
+      "playwright-results/unified-workspace-Design-S-0829f-out-without-changing-source-tablet-768/error-context.md": "410e9decd4445584e2cad006ba20b4fe9d6b009f3bae4530af3f3b3d03d3045d",
+      "playwright-results/unified-workspace-Design-S-0829f-out-without-changing-source-tablet-768/test-failed-1.png": "65d31ae9b7b02de93ce33bb35eb5b3e87567e445d567bc26132e9288e3b44d2d",
+      "playwright-results/unified-workspace-Design-S-0829f-out-without-changing-source-tablet-768/trace.zip": "e2d77cca6549686474c8a580e70dc27c927678f884b5dc0839dc931ff0244577",
+      "playwright-results/workspace-management-draft-e7e93-thout-a-duplicate-File-form-desktop/error-context.md": "0afc7a0862bae2a15a3655cf1b591150a0e64c3cf017167121e21768acc21949",
+      "playwright-results/workspace-management-draft-e7e93-thout-a-duplicate-File-form-desktop/test-failed-1.png": "e25ceab98f7ed55c516d1f2eec4d7480b8538753f1d2374164671c8c1e62209c",
+      "playwright-results/workspace-management-draft-e7e93-thout-a-duplicate-File-form-desktop/trace.zip": "1e177a8ddcfb5c90519369e7da72321e9f38974d312b70492ebf431168ec7d6b",
+      "playwright-results/workspace-management-draft-e7e93-thout-a-duplicate-File-form-mobile-390/error-context.md": "0afc7a0862bae2a15a3655cf1b591150a0e64c3cf017167121e21768acc21949",
+      "playwright-results/workspace-management-draft-e7e93-thout-a-duplicate-File-form-mobile-390/test-failed-1.png": "3898528c0500f4bf57879996cd9ad8351c32072189cf6f7d12a728ca49e9d5c5",
+      "playwright-results/workspace-management-draft-e7e93-thout-a-duplicate-File-form-mobile-390/trace.zip": "f77d6b8906e47b0e14dea33912849f1adc6dba008fa8ccd2211ac6f9713c542e",
+      "playwright-results/workspace-management-draft-e7e93-thout-a-duplicate-File-form-tablet-768/error-context.md": "0afc7a0862bae2a15a3655cf1b591150a0e64c3cf017167121e21768acc21949",
+      "playwright-results/workspace-management-draft-e7e93-thout-a-duplicate-File-form-tablet-768/test-failed-1.png": "e25ceab98f7ed55c516d1f2eec4d7480b8538753f1d2374164671c8c1e62209c",
+      "playwright-results/workspace-management-draft-e7e93-thout-a-duplicate-File-form-tablet-768/trace.zip": "4c8fc6e3066a5c49b757e06e67b95fa0015ea08be008ad53d396f8f49a08a95b",
+      "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-desktop/actual-downloaded-design-workspace.json": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b",
+      "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-desktop/error-context.md": "7143aafe872de5bca3d1dd5d694f1a927894c3e06dafd9bd842d944c7ecf87fa",
+      "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-desktop/test-failed-1.png": "7a4063406293848e4da50ffb17f6d80a55fe052d95622a2421ab5fa31a4c40d1",
+      "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-desktop/trace.zip": "42985fa397086dc6efe6e2db5bd2587ad365eb755f69bc9b9a9ac7b4f2a337cc",
+      "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-mobile-390/error-context.md": "4d35f8c9557c5b05ecdde3c8bd5f252e8d157936604cd1a37ebcc6b839c39f56",
+      "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-mobile-390/test-failed-1.png": "67c933d8f5835f599e05fda849188447b6cdfe95ab30f205d03511f71c22034f",
+      "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-mobile-390/trace.zip": "49f99a6cd3ebe20bac05f377ca5a90202c00be5ff2deac4a03fd0c0366328684",
+      "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-tablet-768/actual-downloaded-design-workspace.json": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b",
+      "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-tablet-768/error-context.md": "53d0fffc09ceea5f687e4f6ba562832e897e6a89a0e2a0c787925167e2199486",
+      "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-tablet-768/test-failed-1.png": "3f26e9195e2da90a053b2fe21e57fa179fe6550b4ab08038486ca2362f4e66cf",
+      "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-tablet-768/trace.zip": "39c2528850825f6b956c03b1bd3a19d788ee67a51825487092e445c182a4722e",
+      "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-desktop/actual-downloaded-design-workspace.json": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b",
+      "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-desktop/error-context.md": "96e68dc6e99fc0ef4405237bc860fab95a47eca2e86ad5149a4601fc507ac6f0",
+      "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-desktop/test-failed-1.png": "7a4063406293848e4da50ffb17f6d80a55fe052d95622a2421ab5fa31a4c40d1",
+      "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-desktop/trace.zip": "b8cdeff0e1361500d7c939ad5a2df3357ceaaed10652f20926a1aae844911e69",
+      "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-mobile-390/error-context.md": "74ee90c79afe70f96dea18e0b3ecf63d437808634dd34e2afc6cc05cb47141cc",
+      "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-mobile-390/test-failed-1.png": "67c933d8f5835f599e05fda849188447b6cdfe95ab30f205d03511f71c22034f",
+      "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-mobile-390/trace.zip": "0e9f28e19a69c2929db689df12d565b3b073486210a7012d7040fcef1e65b30b",
+      "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-tablet-768/actual-downloaded-design-workspace.json": "cb879aa0c8e400c6bcc0f104e0eb8205f656eb5cae6b86334ee1a4c8e850c40b",
+      "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-tablet-768/error-context.md": "6a4096d135e5696061c6384b6677c205def35d1f703cf9ee4bbbfb54a6dab31a",
+      "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-tablet-768/test-failed-1.png": "3f26e9195e2da90a053b2fe21e57fa179fe6550b4ab08038486ca2362f4e66cf",
+      "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-tablet-768/trace.zip": "63357f7d0a753066bae90c1d6992de10a192ce746c8af9a366d4a140ee05f684",
+      "run.log": "513cdd177a0c1727c90fe45096f4f06381b422c5970946626b427abb3359e457"
+    },
+    "boundary": "Declared raw artifact hashes verified directly; no screenshot/DOM/trace/session contents copied into this summary."
+  },
+  "qualifiedPassingPaths": [
+    {
+      "path": "Actual File Review/Restore for Draft,Project,Field across three viewports",
+      "executions": 9
+    },
+    {
+      "path": "Connected synthetic receiver refusal across three viewports",
+      "executions": 3
+    },
+    {
+      "path": "Session-denial preservation across three viewports",
+      "executions": 3
+    }
+  ],
+  "passingPathProvenance": "Coordinator-delivered exact scenario results reconciled with the completed retained run log; remaining six passing executions are not given invented semantics.",
+  "failureGroups": [
+    {
+      "kind": "stale unit/pending state",
+      "executions": 3
+    },
+    {
+      "kind": "short Draft Rename bounds",
+      "executions": 3
+    },
+    {
+      "kind": "v1/v2 previous-source helper expectation",
+      "executions": 6
+    }
+  ],
+  "failureDiagnosisProvenance": "Coordinator-delivered source/test diagnosis after this failed run; corrections remain subject to actual matching rechecks.",
+  "findings": [
+    {
+      "id": "R2-UNITS-20261011-01",
+      "requirements": [
+        "UI-01",
+        "RECOVERY-01"
+      ],
+      "description": "Measurement-unit switching refuses in all three viewports because Survey known-information pending state remains true when inputs.hasDirty is false.",
+      "status": "open_remediation",
+      "verificationRequired": "Retire only the inactive/stale pending claim while preserving real raw-input ownership and dirty-unit refusal; recheck actual mode changes and unit choices in all viewports."
+    },
+    {
+      "id": "R2-RENAME-20261011-02",
+      "requirements": [
+        "UI-01",
+        "ENTRY-01"
+      ],
+      "description": "Short Draft File Rename remains below the usable view: observed input bottom467 exceeds431 viewport bound in all three viewport scenarios.",
+      "status": "open_remediation",
+      "verificationRequired": "Keep retained raw name/caret and one File form while making focused Rename fully reachable in the short working viewport; recheck actual measured bounds."
+    },
+    {
+      "id": "R2-PACKAGE-20261011-03",
+      "requirements": [
+        "QA-01",
+        "RECOVERY-01"
+      ],
+      "description": "Six v1/v2 package checks use a previous-source helper recognizing only a retained chain through v3, while actual state is already exact purev5.",
+      "status": "open_test_helper_remediation",
+      "verificationRequired": "Teach the expectation helper the actual validated retained v5 chain without changing imported/raw domain bytes or weakening one-upgrade/one-import/source-preservation assertions."
+    }
+  ],
+  "sourceAggregate": {
+    "status": "running",
+    "logName": "cplayout-production-source-r2.log",
+    "completedExitReceipt": "not supplied",
+    "boundary": "No unfinished aggregate pass is curated."
+  },
+  "notEstablished": [
+    "Full current-source/current-browser acceptance",
+    "Accepted final independent review",
+    "Native/device or physical GNSS qualification",
+    "Deployment/hosted automation/genuine hook execution"
+  ]
+}

@@ -1,5 +1,7 @@
 # Windows Edge Visual Review
 
+Current task disposition (2026-10-11): the owner delegates decisions to independent source-bound review without further human questionnaires. Use current registry requirements and actual served-source visual evidence. Human response/receipt procedures below remain available only for an explicitly requested human review; they are historical task guidance, not a mandatory new gate. Preserve existing answers verbatim and never relabel delegated or synthetic review as human acceptance.
+
 User requirement added 2026-09-27. Status: first desktop draft-tool packet captured
 in visible Windows Edge; human responses received, rework requested. See
 [the response receipt and implementation sequence](drawing-review-response-plan.md).

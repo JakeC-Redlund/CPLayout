@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "classification": "owned_synthetic_runtime_cleanup",
+  "closedPortsVerified": {
+    "19133": true,
+    "19136": true,
+    "19139": true,
+    "9237": true
+  },
+  "ownedEdge": {
+    "pid": 1208,
+    "profileIdentity": "cplayout-production-review-4f33605419c44c6093beae2c488b9dc5",
+    "port": 9237,
+    "closure": "Fresh CIM identity match; graceful CloseMainWindow and bounded WaitForExit returned success",
+    "profileDisposition": "Retained private for recovery"
+  },
+  "ownedPostgres": {
+    "pid": 24984,
+    "executable": "/home/cyber/cplayout-toolchains/pgsql18.6/bin/postgres",
+    "dataDirectory": "/home/cyber/cplayout-toolchains/pg-production-test",
+    "closure": "Exact cmdline identity checked; pg_ctl fast stop completed exit0",
+    "dataDisposition": "Private test database retained for recovery",
+    "processAbsentVerified": true,
+    "unixSocketAbsentVerified": true,
+    "tcpBoundary": "The owned PostgreSQL service used Unix sockets; port19133 TCP refusal alone is not its liveness proof."
+  },
+  "historicalResources": "No historical Edge9230/server19018/Postgres297 processes or data were stopped/deleted.",
+  "softwareOrGeometryEdits": false
+}

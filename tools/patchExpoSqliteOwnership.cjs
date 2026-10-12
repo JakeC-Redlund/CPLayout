@@ -7,8 +7,10 @@ const prefix = "node_modules/expo-sqlite/";
 const sha256 = file => createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 
 function patchExpoSqliteOwnership(root, { checkOnly = false } = {}) {
-  const patch = path.join(root, "patches/expo-sqlite+55.0.20.patch");
-  const manifest = JSON.parse(fs.readFileSync(path.join(root, "patches/expo-sqlite+55.0.20.json"), "utf8"));
+  const installedSqlite = JSON.parse(fs.readFileSync(path.join(root, prefix, "package.json"), "utf8"));
+  if (installedSqlite.name !== "expo-sqlite" || !["55.0.20", "56.0.6", "57.0.4"].includes(installedSqlite.version)) throw new Error("SQLite ownership package version mismatch: expo-sqlite");
+  const patch = path.join(root, `patches/expo-sqlite+${installedSqlite.version}.patch`);
+  const manifest = JSON.parse(fs.readFileSync(path.join(root, `patches/expo-sqlite+${installedSqlite.version}.json`), "utf8"));
   if (sha256(patch) !== manifest.patchSha256) throw new Error("SQLite ownership patch digest mismatch");
   for (const [name, version] of Object.entries(manifest.versions)) {
     const installed = JSON.parse(fs.readFileSync(path.join(root, "node_modules", name, "package.json"), "utf8"));

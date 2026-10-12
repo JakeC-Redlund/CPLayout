@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "classification": "synthetic",
+  "result": "pass",
+  "exitCode": 0,
+  "scope": "Nine affected actual current-field New camera/preservation executions only, across three modes/viewports.",
+  "counts": {
+    "selected": 9,
+    "passed": 9,
+    "failed": 0,
+    "skipped": 0,
+    "didNotRun": 0
+  },
+  "source": {
+    "path": "docs/evidence/production-workflow-review-20261011/candidate-source-r5.json",
+    "sourceCount": 902,
+    "fingerprint": "00135b89fccb53e027c031079e4aff4e3f6122b7da78f01bf391417d988c51e7",
+    "manifestSha256": "abf6a07b1ec4cf5276cf292ad8a805ce0ce96d833f49f85c0a84246b9791c8e1"
+  },
+  "custody": {
+    "packet": "critical-r5-pass",
+    "manifestSha256": "570ea4bdc829bb1a9930eeebd6fbe14e0dd60c1cba269588d14153dda70f524d",
+    "declaredArtifacts": 4,
+    "hashesVerified": true,
+    "artifactHashes": {
+      "affected-source-checks.log": "8a67080e43b991831f7ac58a533b215ab741abb3ed814f7a2cc793d21b97a9d0",
+      "playwright-html/index.html": "87c57bd041fd0bddd5c8546608e95aaef70dc4e5814fe225970c8c699d878474",
+      "playwright-results/.last-run.json": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "run.log": "e3053d2ca1155dba4168c165cdad29bfabef595735abfb8ef19fedf082a831d9"
+    }
+  },
+  "equivalenceReference": "docs/evidence/production-workflow-review-20261011/r4-to-r5-source-equivalence.json",
+  "boundary": "Exact reviewed spec/inventory-only delta with900 unchanged implementation paths. Raw source aggregate remains r4; full264r5 and final reviews pending."
+}

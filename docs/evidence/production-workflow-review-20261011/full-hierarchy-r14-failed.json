@@ -1,0 +1,2792 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-12",
+  "classification": "synthetic",
+  "claimClass": "browser",
+  "result": "fail_full_current_scope",
+  "exitCode": 1,
+  "counts": {
+    "selected": 267,
+    "passed": 207,
+    "failed": 60,
+    "flaky": 0,
+    "skipped": 0,
+    "didNotRun": 0,
+    "uniqueFailedTitles": 20
+  },
+  "failedByFile": {
+    "workspace-management.spec.ts": 9,
+    "workspace-package-import.spec.ts": 48,
+    "workspace-startup-resume.spec.ts": 3
+  },
+  "failedCases": [
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "current-field New in design keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "desktop",
+      "testId": "86b7e7859961f373d1a0-6e44b3c58e2c40815fea"
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "current-field New in survey keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "desktop",
+      "testId": "86b7e7859961f373d1a0-2b80082b5f357439e36b"
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "current-field New in layout keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "desktop",
+      "testId": "86b7e7859961f373d1a0-e72d0fb12198394e0ff0"
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "current-field New in design keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "tablet-768",
+      "testId": "86b7e7859961f373d1a0-5e0b8a482ba40ef73eca"
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "current-field New in survey keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "tablet-768",
+      "testId": "86b7e7859961f373d1a0-045b3b0fac7a8afe987d"
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "current-field New in layout keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "tablet-768",
+      "testId": "86b7e7859961f373d1a0-1443f60ce21a5c03d160"
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "current-field New in design keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "mobile-390",
+      "testId": "86b7e7859961f373d1a0-e379ef6445b54679449a"
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "current-field New in survey keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "mobile-390",
+      "testId": "86b7e7859961f373d1a0-2c5f8b8667a141070174"
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "current-field New in layout keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "mobile-390",
+      "testId": "86b7e7859961f373d1a0-3a1873319f0c16a7c3b6"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "draft actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "desktop",
+      "testId": "dfb8a28a471a55473a1d-d15a054e44e4f25c0693"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "draft actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "desktop",
+      "testId": "dfb8a28a471a55473a1d-a6fed40984e9c9a7143a"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "project actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "desktop",
+      "testId": "dfb8a28a471a55473a1d-1eec1257c49aa0313c6c"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "project actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "desktop",
+      "testId": "dfb8a28a471a55473a1d-36613df6603c97fafd94"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "field actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "desktop",
+      "testId": "dfb8a28a471a55473a1d-2e385aa42e03555f7308"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "field actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "desktop",
+      "testId": "dfb8a28a471a55473a1d-b5ce0baf2b72b1d5ec4b"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual JSON package without Survey history imports without fabricated collections",
+      "project": "desktop",
+      "testId": "dfb8a28a471a55473a1d-6a1f6d79d92d154ef117"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual ZIP package without Survey history imports without fabricated collections",
+      "project": "desktop",
+      "testId": "dfb8a28a471a55473a1d-8a6ae8e46416774642ff"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v1 actual package prepares the retained Field/Layout/Survey chain before one saved-copy import",
+      "project": "desktop",
+      "testId": "dfb8a28a471a55473a1d-fcaaacaa8bd19fe0bd3b"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v2 actual package prepares the retained Field/Layout/Survey chain before one saved-copy import",
+      "project": "desktop",
+      "testId": "dfb8a28a471a55473a1d-28281b6ab30eaed5fe2d"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v3 actual storage Prepare refuses wrong CRS without an upgrade or any byte change",
+      "project": "desktop",
+      "testId": "dfb8a28a471a55473a1d-23bbe34354405c495411"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual upload of unknown replacement retires previously admitted package without records",
+      "project": "desktop",
+      "testId": "dfb8a28a471a55473a1d-5d10504375ffd5ec240c"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual upload of corrupt replacement retires previously admitted package without records",
+      "project": "desktop",
+      "testId": "dfb8a28a471a55473a1d-fc3a276136fb7a171237"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v3 actual complete upload refuses mismatched CRS atomically including workspace version",
+      "project": "desktop",
+      "testId": "dfb8a28a471a55473a1d-1c9f72c61d418cfcd175"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v4 actual complete upload refuses mismatched CRS atomically including workspace version",
+      "project": "desktop",
+      "testId": "dfb8a28a471a55473a1d-af4448ed9eec9bf66e92"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual saved-copy Open refuses dirty current input and retains raw text until explicit Discard",
+      "project": "desktop",
+      "testId": "dfb8a28a471a55473a1d-1b96a0779bad05381b51"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "draft actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "tablet-768",
+      "testId": "dfb8a28a471a55473a1d-4ac92b141643867d2889"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "draft actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "tablet-768",
+      "testId": "dfb8a28a471a55473a1d-a7864e1e8439e1e37c0c"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "project actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "tablet-768",
+      "testId": "dfb8a28a471a55473a1d-de3064ad72c0af7a6d78"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "project actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "tablet-768",
+      "testId": "dfb8a28a471a55473a1d-a1f2b1f74be07fa1ce89"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "field actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "tablet-768",
+      "testId": "dfb8a28a471a55473a1d-a12eb52d1d12b58776d6"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "field actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "tablet-768",
+      "testId": "dfb8a28a471a55473a1d-33117c6b3c95f7a02d79"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual JSON package without Survey history imports without fabricated collections",
+      "project": "tablet-768",
+      "testId": "dfb8a28a471a55473a1d-4545b6a3fc5e21196a49"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual ZIP package without Survey history imports without fabricated collections",
+      "project": "tablet-768",
+      "testId": "dfb8a28a471a55473a1d-be680de1759d1cfe2d8b"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v1 actual package prepares the retained Field/Layout/Survey chain before one saved-copy import",
+      "project": "tablet-768",
+      "testId": "dfb8a28a471a55473a1d-c8a86ebd231f215bc1c7"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v2 actual package prepares the retained Field/Layout/Survey chain before one saved-copy import",
+      "project": "tablet-768",
+      "testId": "dfb8a28a471a55473a1d-d1e2699fd39670f888fd"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v3 actual storage Prepare refuses wrong CRS without an upgrade or any byte change",
+      "project": "tablet-768",
+      "testId": "dfb8a28a471a55473a1d-3b262dc135d9f23946d2"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual upload of unknown replacement retires previously admitted package without records",
+      "project": "tablet-768",
+      "testId": "dfb8a28a471a55473a1d-b11644880426d96bfedc"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual upload of corrupt replacement retires previously admitted package without records",
+      "project": "tablet-768",
+      "testId": "dfb8a28a471a55473a1d-1117879c89f869cecb53"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v3 actual complete upload refuses mismatched CRS atomically including workspace version",
+      "project": "tablet-768",
+      "testId": "dfb8a28a471a55473a1d-433754585073182dcea0"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v4 actual complete upload refuses mismatched CRS atomically including workspace version",
+      "project": "tablet-768",
+      "testId": "dfb8a28a471a55473a1d-d33c1b7759bb3969ed1f"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual saved-copy Open refuses dirty current input and retains raw text until explicit Discard",
+      "project": "tablet-768",
+      "testId": "dfb8a28a471a55473a1d-e7442feeb44b26d7a63f"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "draft actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "mobile-390",
+      "testId": "dfb8a28a471a55473a1d-3ffbffdcb901eb2537c6"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "draft actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "mobile-390",
+      "testId": "dfb8a28a471a55473a1d-8db708bfef2ada1c3ca3"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "project actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "mobile-390",
+      "testId": "dfb8a28a471a55473a1d-c0cccee4749e740dbedb"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "project actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "mobile-390",
+      "testId": "dfb8a28a471a55473a1d-a528578548563f557bdb"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "field actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "mobile-390",
+      "testId": "dfb8a28a471a55473a1d-99a273d0d1757418976c"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "field actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "mobile-390",
+      "testId": "dfb8a28a471a55473a1d-8b0676ea4d61069b8c63"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual JSON package without Survey history imports without fabricated collections",
+      "project": "mobile-390",
+      "testId": "dfb8a28a471a55473a1d-5389cfb55fd04f441e0e"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual ZIP package without Survey history imports without fabricated collections",
+      "project": "mobile-390",
+      "testId": "dfb8a28a471a55473a1d-9c4409b55a4d1beb8c15"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v1 actual package prepares the retained Field/Layout/Survey chain before one saved-copy import",
+      "project": "mobile-390",
+      "testId": "dfb8a28a471a55473a1d-c2d646519d801d3bf20e"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v2 actual package prepares the retained Field/Layout/Survey chain before one saved-copy import",
+      "project": "mobile-390",
+      "testId": "dfb8a28a471a55473a1d-87ee20bbe5128bef516e"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v3 actual storage Prepare refuses wrong CRS without an upgrade or any byte change",
+      "project": "mobile-390",
+      "testId": "dfb8a28a471a55473a1d-0511f7adbe0355cc2570"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual upload of unknown replacement retires previously admitted package without records",
+      "project": "mobile-390",
+      "testId": "dfb8a28a471a55473a1d-e213cfbf8dee727598db"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual upload of corrupt replacement retires previously admitted package without records",
+      "project": "mobile-390",
+      "testId": "dfb8a28a471a55473a1d-f938a81e1016173b2cd2"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v3 actual complete upload refuses mismatched CRS atomically including workspace version",
+      "project": "mobile-390",
+      "testId": "dfb8a28a471a55473a1d-0c2673d23ac0a08a98b4"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v4 actual complete upload refuses mismatched CRS atomically including workspace version",
+      "project": "mobile-390",
+      "testId": "dfb8a28a471a55473a1d-8bc4bb016880d7c25448"
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual saved-copy Open refuses dirty current input and retains raw text until explicit Discard",
+      "project": "mobile-390",
+      "testId": "dfb8a28a471a55473a1d-9c62bb02f7640655aad5"
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "operator Open, mode, collection, Browse and catalog visibility publish accepted hints that reload automatically",
+      "project": "desktop",
+      "testId": "7f6365ff5d19a8109210-c254a223025736ed176d"
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "operator Open, mode, collection, Browse and catalog visibility publish accepted hints that reload automatically",
+      "project": "tablet-768",
+      "testId": "7f6365ff5d19a8109210-1042ddc73d1c49a343cc"
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "operator Open, mode, collection, Browse and catalog visibility publish accepted hints that reload automatically",
+      "project": "mobile-390",
+      "testId": "7f6365ff5d19a8109210-e7622b6d8dd8354b1c49"
+    }
+  ],
+  "sourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r14.json",
+  "sourceFingerprint": "d6af4cec8c4b78888bf0a8e2df11a7e4a5e1ac9f69f3978cd5c1dcbc40f373d5",
+  "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+  "embeddedStats": {
+    "total": 267,
+    "expected": 207,
+    "unexpected": 60,
+    "flaky": 0,
+    "skipped": 0,
+    "ok": false
+  },
+  "durationMs": 1167355.15,
+  "custody": {
+    "sha256": "3fe78762e20f0204c1599182e130e56c34967bc98e1fb0a09bdc23d09ac130e9",
+    "declaredArtifacts": 392,
+    "hashesAndBytesVerified": true,
+    "artifacts": [
+      {
+        "path": "playwright-html/data/0028db097230f0f67bb6d8bd817eec18d7422f49.zip",
+        "bytes": 3598376,
+        "sha256": "76f70e24e6af2efde81bb466294920d5a441d4a367134d703c6309af40d7f3a6"
+      },
+      {
+        "path": "playwright-html/data/01bc37d1c2bc4720a985065f79c8c50ec4c3c0d1.md",
+        "bytes": 27661,
+        "sha256": "72543c6648b39af49dd20c8ccf7b8675972a925c71e0d8939779d486bd0a5cf6"
+      },
+      {
+        "path": "playwright-html/data/01d57d8995aa5d01ecdfaa9a01f49663bdb18e4e.zip",
+        "bytes": 420829,
+        "sha256": "3ef21dcea84ca22ea21b24a3fc8261de0e49a8ac00b1dd5cedfc29e44b73d14d"
+      },
+      {
+        "path": "playwright-html/data/0272fbc6166a6d8f85ecf3a166449e0534710cc7.zip",
+        "bytes": 3661906,
+        "sha256": "3816707b5f4c2791c21085ea424943e5bf79796e1a292f8791fa7fc75103eb58"
+      },
+      {
+        "path": "playwright-html/data/03ed0cdbedc404c1bc1efa9250cce552285ba207.zip",
+        "bytes": 396779,
+        "sha256": "1baaf995eff7758242b67b5fb8e483f3c7f351a05a6882c45c0bf6724848e011"
+      },
+      {
+        "path": "playwright-html/data/062900a36b71abc851648e5d1488bef4c99d433b.png",
+        "bytes": 32010,
+        "sha256": "550536ea9502bcc7294e5e4bdb79b44d1fa72050a8cae8bf6c6df23c6bc96b7b"
+      },
+      {
+        "path": "playwright-html/data/08010aaf28b1e1ac26ad07dcca759f732bce6484.png",
+        "bytes": 88514,
+        "sha256": "1a04bd1d9f16f78ef0e7218fc9d7bcaf9a7b9b85a1b80819402f2604a42d82d1"
+      },
+      {
+        "path": "playwright-html/data/146bc2f22732eb4d708acefff6198f293b10a411.zip",
+        "bytes": 609332,
+        "sha256": "4cbceb5ca61b2052a05ba8ac9dc3ea4421085886b12f42a44b4bb8ee86cbfe41"
+      },
+      {
+        "path": "playwright-html/data/14dc0e2c32ea225624817321eb48e4b98c5d685f.zip",
+        "bytes": 602540,
+        "sha256": "2aebed6ae44c270739421eccb77ab085f0c55c3fe6f9fbcbe51c833597ebcdb0"
+      },
+      {
+        "path": "playwright-html/data/15ed77809b4c8c503e8200f6ee44eea5fc4811b6.png",
+        "bytes": 204559,
+        "sha256": "df207188b4b26f0fdd3ccc07e009d119e09455396c285fb5110033bbee8a878f"
+      },
+      {
+        "path": "playwright-html/data/1739a92a25603b2ceaa24f32514e80f76faa62f3.png",
+        "bytes": 99742,
+        "sha256": "1371ea8aef70987138a8da598560f2aa2f3a1a6c91ccaf56a34acba8113e0708"
+      },
+      {
+        "path": "playwright-html/data/17acc7ad335d52e175cbe08843a738f69ad2d825.png",
+        "bytes": 76995,
+        "sha256": "5feca9643c7a17d83cb4016722aa6d17c38e954101a42b69403bd0820262b90b"
+      },
+      {
+        "path": "playwright-html/data/19145cd3ded29d3034312b4ea6a475e90f935679.zip",
+        "bytes": 698135,
+        "sha256": "5448327670680246f41a34f79de15f4aa1efce9f9d8f87ff400dd58784905a05"
+      },
+      {
+        "path": "playwright-html/data/1a4558fe1642aa83e23e254aab85eac4db9af9b4.md",
+        "bytes": 15473,
+        "sha256": "a63f3bc4b24e31b93b8cc1b7fac774765b483508395d66cc5c2d1a727d15b305"
+      },
+      {
+        "path": "playwright-html/data/1d941d4750541ae9f3060a1a24d3b721e0978e2b.md",
+        "bytes": 15465,
+        "sha256": "88c5d2fe858b975810840334f5e9e9c840d0cbad7284b1b06b1f7e701785f641"
+      },
+      {
+        "path": "playwright-html/data/23f6dd7c455639776c8312d35d813ec84cf113a8.md",
+        "bytes": 15477,
+        "sha256": "8a1b337b18905d10eee5f1d5a33bcc25e6a3eb165188b45466e5f94298af75b8"
+      },
+      {
+        "path": "playwright-html/data/251b4adb558f1ada33f35a31a8109b997a4e27db.png",
+        "bytes": 45515,
+        "sha256": "e698ac2d4ea0a802c681759fe02398a90d862dcc253406a63d90a02da6b57c69"
+      },
+      {
+        "path": "playwright-html/data/28f119de998f931515135e7645bab2945ad5a405.md",
+        "bytes": 15486,
+        "sha256": "31cf3cf6a6415027a01c1510338bb4d09177dbf5b46b2fc2abb079a8f7e35613"
+      },
+      {
+        "path": "playwright-html/data/29ae9abf085dbfd52c400be6685dd2d15e2227e9.zip",
+        "bytes": 330314,
+        "sha256": "350337ebe2db28ce5ac46e67df0f006d6292ad9870f362ea9c303f021b987adc"
+      },
+      {
+        "path": "playwright-html/data/2a211089a703866f2246a5c9614e5d58af5acba7.zip",
+        "bytes": 390422,
+        "sha256": "ec9fc9b1b2058348ac1adbdeaac9698a2cf006f5f14f534eba41c4f5d288036f"
+      },
+      {
+        "path": "playwright-html/data/2b2027258632d7431cb83a8958558bfd2c0e1919.zip",
+        "bytes": 431350,
+        "sha256": "fa98d440e44dfa9341c3755a7bf8a950bf5e3cac37aac61bf9002a9eac60f6f2"
+      },
+      {
+        "path": "playwright-html/data/2cf6258057adc595c7b3d92c627d9a2989d4ab68.zip",
+        "bytes": 618048,
+        "sha256": "b98a192140f429270146a204d6c7687330e0db84673db5a6131798f1f05af6ec"
+      },
+      {
+        "path": "playwright-html/data/345b36756be3eeb5ea2c4fa7faa33fb08ebea37c.md",
+        "bytes": 15483,
+        "sha256": "8258f1372405164a016254619f53ce79f0806e9e4282db55bf7b43e5a10d9c63"
+      },
+      {
+        "path": "playwright-html/data/370bef6be1e6c91e905443a8061c96291f95f2f6.zip",
+        "bytes": 355968,
+        "sha256": "afef9e6b1560881850c42759eb26797ef6679e07596c2cd606797bb26f32fc64"
+      },
+      {
+        "path": "playwright-html/data/38c8d964ebb21b6f75c9b272ec5a43668d84f06b.zip",
+        "bytes": 456837,
+        "sha256": "138df17d21990232698c789eed4222ef0b297f076059af6ef63e13fe15400c27"
+      },
+      {
+        "path": "playwright-html/data/39135d2fadcc127a7e1ca7ab67b5ab92def46c8c.md",
+        "bytes": 15483,
+        "sha256": "914e61620fe5a5bdc0a7bdb45382a523ed8d0a951fed898387e51a7261b7b9c9"
+      },
+      {
+        "path": "playwright-html/data/39f952fe0424efe502a93e74404f6de00a46f100.md",
+        "bytes": 15468,
+        "sha256": "758a0d55d7451227d262def7d0c6c53e6ab68d7384f08b2108a404d7e6627f50"
+      },
+      {
+        "path": "playwright-html/data/3a5fb95679438fbb3ebb22c4692057a13fd32a02.zip",
+        "bytes": 3333054,
+        "sha256": "395d5e4227ac4dc5b17e7d459f5464efc88d489fcaa26e2ad44fe47d158c629a"
+      },
+      {
+        "path": "playwright-html/data/3ca9da445ae094f8a209aacfdeaece7a77bd7e4a.md",
+        "bytes": 15483,
+        "sha256": "fc3bd89df66c47df3ecd7083a74bb1d80daa351e6e24c48b6cfe684f58e6d8db"
+      },
+      {
+        "path": "playwright-html/data/477c07856ee504642445bb0d392ae54907b3473b.md",
+        "bytes": 15474,
+        "sha256": "ccbbee4753637537b24dd0c8e9f05fc6922ad33ef91c240f9d765961e40cdb6d"
+      },
+      {
+        "path": "playwright-html/data/481f6f2ed13930218333b6c3cbe62c9b1965e056.zip",
+        "bytes": 475061,
+        "sha256": "96ced67da9675c47906e83391d7bfb4cabd964294f26fad79795b56ce1ad768c"
+      },
+      {
+        "path": "playwright-html/data/4902f57afade0102e92955242fa6b981a40f148e.png",
+        "bytes": 76845,
+        "sha256": "2f2cd2ac11d8b8eb76f123a1282f67847077deae3cf1bd3cffa073ccdf28c7f2"
+      },
+      {
+        "path": "playwright-html/data/49af2b709937f45e1159f9b00eebde406c3cf180.png",
+        "bytes": 43044,
+        "sha256": "34e9c0cf7d67e38a39c44291eb10af2944df8e52629c9478ca78f7ad1de29c69"
+      },
+      {
+        "path": "playwright-html/data/4da4b3cf0952a194b802cc538682d7f0811b7cd7.png",
+        "bytes": 112118,
+        "sha256": "54a614c7689d5d3a84e91096951b47bcd277c3152acf7a5d8c3d38195fe2038c"
+      },
+      {
+        "path": "playwright-html/data/4df8769d6bdc3e26aac4776076e004fc3a2be9e2.png",
+        "bytes": 264925,
+        "sha256": "db79570ec129cd51f920001d2513abe13757a3aadfa8321e2c17cca5a005b4f8"
+      },
+      {
+        "path": "playwright-html/data/4ef9558866fb3afec3d4ae16385e72f5645d2e19.zip",
+        "bytes": 415752,
+        "sha256": "6a077677125a57918394efe60f448b27471c944aa3156a185a78b791f9a56c53"
+      },
+      {
+        "path": "playwright-html/data/53f4bc5ee121a05b545267e1759c3f6ff5901f27.png",
+        "bytes": 205333,
+        "sha256": "4167edb6987004c0d1602c56bdbb1b54451fb60f9c3dc0ffd54da909b4d76063"
+      },
+      {
+        "path": "playwright-html/data/55766d6c5abc597eeb2b135d1439f8ff2aa73190.png",
+        "bytes": 72369,
+        "sha256": "a7cfd93ff90b367b207213cea1b66d8b536dc0ed6f2eeee7ce10bdf48bb17201"
+      },
+      {
+        "path": "playwright-html/data/55953db5e7384eaccd4c8f8a8f19f8feee9aaf6f.zip",
+        "bytes": 719921,
+        "sha256": "4f94cb0732fff20bc6ff162e2fafd6112728012d845c0c0326c902ffad3ba020"
+      },
+      {
+        "path": "playwright-html/data/5797e0b717dbdbaa1b40f9fdc0a2e113a6305ef4.zip",
+        "bytes": 436274,
+        "sha256": "e01d3f3963dbcc882277385dc5dfe79fd6e3b1352b24b0ff29b2dfc2f1b590d2"
+      },
+      {
+        "path": "playwright-html/data/579bf2c6691ea80e9af3939de1981299df4aa242.zip",
+        "bytes": 485343,
+        "sha256": "430fd6b2d62bc8b9991e113bb7f676f943397ca373eb30182a235141a2761d65"
+      },
+      {
+        "path": "playwright-html/data/57acb353c91b6ca59dd63084295eddef2c51ea66.md",
+        "bytes": 15484,
+        "sha256": "d8d1f85dcbfc0a2f8f0a70c8a952318e56163cd563388baa03fca1fab030dea4"
+      },
+      {
+        "path": "playwright-html/data/5840e0dfd4454e40e6433993661c2ee51df72a4a.zip",
+        "bytes": 643904,
+        "sha256": "0b4238c077fb65ada94381e146fc32273f7889c4c29b92aea781943c6fac9f3c"
+      },
+      {
+        "path": "playwright-html/data/5c36a9f6f7ce8d56f804777eda64df8376a6a040.md",
+        "bytes": 15481,
+        "sha256": "3253604e0e37e78f539de361a44c8bafce624e9ec179ad621670eaf2d650bb6c"
+      },
+      {
+        "path": "playwright-html/data/5d0522e79a149d8f74d4fb4c844b9f0d39c98927.png",
+        "bytes": 82979,
+        "sha256": "b56ddf02859f471228a97f719f5c30675a3fe09fd020b6326f34ce82e3cd30ac"
+      },
+      {
+        "path": "playwright-html/data/6134bf1fc41f5ddd573ecd393767ff3c3e640b1f.png",
+        "bytes": 47130,
+        "sha256": "08f88248cbf6ad5c089a67258b8c1487e086de0816829517a17c71907717ad86"
+      },
+      {
+        "path": "playwright-html/data/61b728b55d8a785b7deaf92da880838ba65d578b.zip",
+        "bytes": 523776,
+        "sha256": "0f0f59402b9595ea3ed6538b3b60519268cdad2926fb55157115d42c0db14e7f"
+      },
+      {
+        "path": "playwright-html/data/6294933785136b04ff273eaa8a3aaf2e38c328f2.md",
+        "bytes": 15485,
+        "sha256": "98b8ef70427ebd5bab4ec76b1c1fcb1d1152e523f606cfe393d672ab29a32de5"
+      },
+      {
+        "path": "playwright-html/data/63005e30db0acc2dd61e63c745c03f4f95858c02.zip",
+        "bytes": 347771,
+        "sha256": "a19d724348ff728f8bcd70057310801a6c740a9cb58ea020ab9bcb38ca3963a2"
+      },
+      {
+        "path": "playwright-html/data/658478cd81b73b4b1f6954f7ff4d028e0c2bf97e.zip",
+        "bytes": 713477,
+        "sha256": "0453e68442bf49145ad3e56c9fda5da8fba0069fe7f50d2dd55d7bf1cdd6c911"
+      },
+      {
+        "path": "playwright-html/data/666a5e851c90ebd5acee5a255ee129689a9a7cb5.md",
+        "bytes": 15488,
+        "sha256": "03f548e4e16565d2e6900b438c8a5b8f6d661c1d59e470643daeb29ada576a99"
+      },
+      {
+        "path": "playwright-html/data/66eb334b1b15d0e5bc4ca1bceff857ac3ff243ab.md",
+        "bytes": 15489,
+        "sha256": "1365bba156d27a408124b132930400fb6846d2fc59b45dfb16dc7937a636a10c"
+      },
+      {
+        "path": "playwright-html/data/6ab92765bd20328286a75340ada75743d98e70c5.png",
+        "bytes": 79213,
+        "sha256": "1075f9c70bd221b660ec81d6af7ea30c5d45afecd706465847d5187e26b44161"
+      },
+      {
+        "path": "playwright-html/data/6b9e82a6def216c06e678ed053730a2afe1ae5b9.png",
+        "bytes": 74457,
+        "sha256": "47dc4b37b46f6a5a56e37d9244250cb3a3a552fe810a936edb3dfe15a5d72c13"
+      },
+      {
+        "path": "playwright-html/data/7028dcfe3543606b5a5910478a28d0b9bf749b60.zip",
+        "bytes": 2092029,
+        "sha256": "b24fda987d86264fdfa919a6c31b81d7f1c8a80e6cd6847b0dfdfe4cc88ef1a9"
+      },
+      {
+        "path": "playwright-html/data/70517362bf243cfed6429f977f315c96c8749624.zip",
+        "bytes": 4141100,
+        "sha256": "0a50bf93c20767ab1cc6a206635270ecd64d5735858b19996c3d341060ce8f5b"
+      },
+      {
+        "path": "playwright-html/data/71b17b14350e03ca15dc7555146a60ced1943b14.md",
+        "bytes": 27539,
+        "sha256": "5be8ab36bb5fc502a7bf23f73acf3635ae65a8bf52ae36255deaa48ebdf4b471"
+      },
+      {
+        "path": "playwright-html/data/74a33bde708c7a2ec9c9ae6b76a32b357ff54ec3.zip",
+        "bytes": 428387,
+        "sha256": "4c6832db3c12e881985500740c4795cc568058a182ba8350b7a371f73a141ce8"
+      },
+      {
+        "path": "playwright-html/data/7514217a458466a09e78173f7db4deb28d9e8a01.zip",
+        "bytes": 725700,
+        "sha256": "7594f0779796a3e451715c7039b1eede51a3f1ced79e2ffb73c490e8d0888fea"
+      },
+      {
+        "path": "playwright-html/data/751b1c95f4b0cd2ec2d4e31b102a63896958f3e1.zip",
+        "bytes": 3307253,
+        "sha256": "9d5283d847b1b77cc6a4e1f21031991e277f9af7c732b7b411c9d70d9867e70b"
+      },
+      {
+        "path": "playwright-html/data/76d9eeadbbedf2e86675f44cc3cb71627e3408cf.zip",
+        "bytes": 759648,
+        "sha256": "995721d255b8e5d869b7472e3104e5854275f4bb7cede91c6f0de86ea50418a6"
+      },
+      {
+        "path": "playwright-html/data/78fea543f5c05ee2b1f4002129909a121cda2dc6.zip",
+        "bytes": 386836,
+        "sha256": "09f05e2a791756e813bfc4cabedccf0a46e34219fbe6601035d3f96654c816e2"
+      },
+      {
+        "path": "playwright-html/data/7cbb81c95f75b2188ebb4a1a7a631608f871874a.zip",
+        "bytes": 282836,
+        "sha256": "889014ef2c2fdb5080b57d34639eefbbcdf48e317f8187c218d81ecbfe789e26"
+      },
+      {
+        "path": "playwright-html/data/803f6e3b010cb47f06a50c673d4e41995947dc94.zip",
+        "bytes": 497612,
+        "sha256": "0dfe423f5fea68fc804f23297b1d1c51feec6f3e1a47bb3ab59014f6459fefa4"
+      },
+      {
+        "path": "playwright-html/data/823a1aba2f7948c1498d3de332ffa372b48550a2.md",
+        "bytes": 27576,
+        "sha256": "1845e14550d93fe843e7962da40ce0c160fb5b2a2a9499333d849b94d95a75c8"
+      },
+      {
+        "path": "playwright-html/data/86433a5fa0f1e9af24d37bd4b23475c294678e5d.md",
+        "bytes": 27661,
+        "sha256": "7692185032569a8c4c589457a2bf31f6788b0f17f2f3017a32d12b34ebec2105"
+      },
+      {
+        "path": "playwright-html/data/8678937c05e9e4600b082f658301b1c0a9a36eed.zip",
+        "bytes": 604973,
+        "sha256": "50bf48021fe5daf8e6577dced3680e294d495530fefd8a011a93c91d53380cde"
+      },
+      {
+        "path": "playwright-html/data/8695c4031b184ec71d531088309d2dae1cb899a3.zip",
+        "bytes": 627744,
+        "sha256": "5b6a786cae1cdc90c91f7d8555ec5fbd70ae731e295f78a8796f67b0962a2538"
+      },
+      {
+        "path": "playwright-html/data/872b634bf7a6179859a1dd066a4373d561362c2c.png",
+        "bytes": 75149,
+        "sha256": "380763fb7ff842b31cb5463e52bb83ced4dd44849c700e5ac154da8f59fdcce5"
+      },
+      {
+        "path": "playwright-html/data/8c5867bdfd290e89a5bc1e24319556e09dd52a57.zip",
+        "bytes": 719001,
+        "sha256": "0a62fd49cba776123213537333bc17855f9fd8a1bbc1b482b1d1710e6b61189d"
+      },
+      {
+        "path": "playwright-html/data/8e29d5641b7a5f109596bd9c29bd177f5c62181c.zip",
+        "bytes": 4840,
+        "sha256": "ce94ea7b937d90655cbfe73bc20f83e057ec7dc48a42d3461ab3b3438bbe4856"
+      },
+      {
+        "path": "playwright-html/data/90186d272b4a7e2cf09750caf1966908eb586eb8.md",
+        "bytes": 15477,
+        "sha256": "8bee3344b9d5d2e7a51a5fb85d38e2add6cffe064f4c427296c457245f0ef028"
+      },
+      {
+        "path": "playwright-html/data/91139b865828d8d044e6d8513b501343354b3c95.zip",
+        "bytes": 704670,
+        "sha256": "f1d9429776a0ea9eb9dab684081d731a67aa7b021796c53d2be8c512924303bc"
+      },
+      {
+        "path": "playwright-html/data/92e119e0f02d9344e36fb98e824a3e70392e9c9a.zip",
+        "bytes": 318803,
+        "sha256": "9a30ac79f551ef0081458fd49c58f624d725fcb04a2dd718261e7e6722e6ef1b"
+      },
+      {
+        "path": "playwright-html/data/933e16765863422ef4e84e4ad8724a0dc382e17b.md",
+        "bytes": 27661,
+        "sha256": "c83ceee4a6356e0df186fdfcdaafb9d50cf075b76534df2b28e6eff465ba0781"
+      },
+      {
+        "path": "playwright-html/data/9419c6a0249e606eb49c1bd67af9d45f4f8bb9c1.zip",
+        "bytes": 716125,
+        "sha256": "ec7b5bf94142eacd96e55b7f34b94e07abc3884956265903f9775ca3d5cef2e8"
+      },
+      {
+        "path": "playwright-html/data/9567e110ed2f1bd033f762b22afabf32b5b6e60d.zip",
+        "bytes": 404550,
+        "sha256": "52a956567d0a229e3027bc62a07e8ecd7e1ac69599e2352620c3f9437afd5645"
+      },
+      {
+        "path": "playwright-html/data/96f149fe90624267a37ce6d215b497c765ac4a82.zip",
+        "bytes": 420468,
+        "sha256": "d02b015bc871eff46543dacc0478cbc83066eea4bd90748d6e3ab9c52b543109"
+      },
+      {
+        "path": "playwright-html/data/9770edb3debbb43fd1980450327ed7d248817d65.png",
+        "bytes": 34798,
+        "sha256": "0989af051561d455def4932bc56ffbeccc16939214076d8e06c0dbf0641a30bd"
+      },
+      {
+        "path": "playwright-html/data/99233ff5e25a80e8878ccc61203c1e3c66330075.md",
+        "bytes": 15465,
+        "sha256": "ef4608ffb4aae43e5ef3b027a6c646b952a44a52174773a99801ed567f3750a8"
+      },
+      {
+        "path": "playwright-html/data/9e31800c2142b9c22c28e26dcf4a6aff490a251f.md",
+        "bytes": 15474,
+        "sha256": "300abeb47f309ddfb63b61049a8d495ff953877f068d6f6945bd452a7a269e97"
+      },
+      {
+        "path": "playwright-html/data/a02578a5d249adbe6eb1c461c93a184315352e91.png",
+        "bytes": 41257,
+        "sha256": "701f3496bacf4dce2befa4ac940a9f8396cde4c88bee607dfbe0ef57b1ab8aa8"
+      },
+      {
+        "path": "playwright-html/data/a18dd14f7b7505e0cf80bd568aa9f7b76ce1ca12.zip",
+        "bytes": 594505,
+        "sha256": "b18181dbd8b808819e2449fa17bd38e05d81fd81d35bf662113d6d7c5a7229e2"
+      },
+      {
+        "path": "playwright-html/data/a2fbc7484735449e9519cc398ebd7cffae25ae6e.png",
+        "bytes": 100086,
+        "sha256": "645c0c027e48cce1af8d160070b7557304b437dc81de246b0ed6adc67c748dd1"
+      },
+      {
+        "path": "playwright-html/data/a38c9dcbcd80d90f51caadb600907458e3e41818.png",
+        "bytes": 220758,
+        "sha256": "7d4c56863599792ac99b0455796bccfce8e2e15b4e4ee3c8cacbac421bba37ae"
+      },
+      {
+        "path": "playwright-html/data/a515aca3cf7ce9fb5605e2fc4cb5c7356da5b8fa.zip",
+        "bytes": 2467216,
+        "sha256": "c0d652bc86b2715041b9824515660fe2efe27b705d1bb7da760079c2b5c4e058"
+      },
+      {
+        "path": "playwright-html/data/a6381ae92e34d7c2ea72c2a0f530a871ecc011a7.md",
+        "bytes": 15487,
+        "sha256": "9a9a975894c8efbcfc9f1aa7ecc35f37bab8b30bd0f30783710c9ef62ff6b22d"
+      },
+      {
+        "path": "playwright-html/data/a6e091f249b3e043d62e0328f63656e6cb155cd0.zip",
+        "bytes": 401258,
+        "sha256": "795887aef28d782ec36c4be0c9f9f1bfd1ed25154830ed961708238ae2468420"
+      },
+      {
+        "path": "playwright-html/data/a8e4a8c55d602968bb1db264f4cfec1699285d0d.zip",
+        "bytes": 565780,
+        "sha256": "bc9df818fc64aa89a0e048bd7c667c87089cf560795feba89c8ac148d213eeed"
+      },
+      {
+        "path": "playwright-html/data/af395b5ee05921e07e36870acef7c893d0a903fd.zip",
+        "bytes": 378220,
+        "sha256": "eea99fb62974abbe76869bc8fa353fe9d551c85e41060653f4caddc01834da66"
+      },
+      {
+        "path": "playwright-html/data/b18a5061c27184549fbfe74278ac911f901c641b.png",
+        "bytes": 72458,
+        "sha256": "e6b2f0a55b569f7e9b0610df49f43c079c16a595194b564fc9bb9969e051535e"
+      },
+      {
+        "path": "playwright-html/data/b1a0afd0da5c4e78a98ab3f611a9db17c69bf86c.md",
+        "bytes": 15471,
+        "sha256": "dcd4217a06eb8b64568ce5afadef9650890207296efb1ea70bd25187a9a7ed7e"
+      },
+      {
+        "path": "playwright-html/data/b20c2906ee02c8c9b9c4f35fb1eeffc6fad011f3.png",
+        "bytes": 132624,
+        "sha256": "b138d7cadcf587342606234c58a6eb9a82b69c286f7ae776f589ea7b192464d9"
+      },
+      {
+        "path": "playwright-html/data/b49b18f4c051a4b9eeda7e0e340d5aacf9b15a99.png",
+        "bytes": 32528,
+        "sha256": "e906fe7a3ac778c68ef96c3e157809fc0161b61dc44189033a7bf0b0efc7b12f"
+      },
+      {
+        "path": "playwright-html/data/b534334945e98f9a82c2110a775120a238a853f3.md",
+        "bytes": 15474,
+        "sha256": "c5e92e89e84c305471d5a1fbb6f32879fa345f9922b2360dde07a703c1b3e149"
+      },
+      {
+        "path": "playwright-html/data/b77be51a725999a5594b598f89f832aa4fd985f0.md",
+        "bytes": 15484,
+        "sha256": "f97177a83e62b2ecfb66adabd23c562ed8a4c1c7e2ab33cae2303952f1a03325"
+      },
+      {
+        "path": "playwright-html/data/b8aa84f8363a63869f95c4222beb96379e26287a.md",
+        "bytes": 15478,
+        "sha256": "8417f7eff3e6963a38206b05aa71af9db88a5a5d2aff1564b0620c6aecfce7ca"
+      },
+      {
+        "path": "playwright-html/data/b98d73b37c53cf160e5885e3570f22820228f738.zip",
+        "bytes": 2078825,
+        "sha256": "eef544963707e73e8520b5698098a8ba0ddc678c5fc6b62e7e2e372980f849b5"
+      },
+      {
+        "path": "playwright-html/data/bd7a561c06e78e804a71807c34d856dcf01e6648.zip",
+        "bytes": 754789,
+        "sha256": "39334499f46d0561a0547f0b1875ecf5a3cfff497387c3157b06ca01bb9423f9"
+      },
+      {
+        "path": "playwright-html/data/c0483cb46feb74d545f007a47ec92fda0b6900cf.png",
+        "bytes": 72208,
+        "sha256": "29b51ff672649f15d84497450e2ff743748f664207afb1b5077518b5027d8e6e"
+      },
+      {
+        "path": "playwright-html/data/c3e86f5a01266a7b4313c5b4f77e9ae0092f11fc.md",
+        "bytes": 15486,
+        "sha256": "ebcfde1679ab957e7ccf2fa5edebf5c269b9a1261cdcdb0171309961e24b4720"
+      },
+      {
+        "path": "playwright-html/data/c472d7837b87e89128c26b0bcb09af307cb44fd6.png",
+        "bytes": 34358,
+        "sha256": "0d21ee65f559d2784cfb83a3481c9adb92038495a183dd736db3644a6ebf1854"
+      },
+      {
+        "path": "playwright-html/data/c7f40840f1d625d02fdf176bd674ff56b06e9764.zip",
+        "bytes": 588837,
+        "sha256": "2c6796d77d6abe0d19cbb386057406b19e656eeabcd71b984ded006c249931eb"
+      },
+      {
+        "path": "playwright-html/data/ca2c3e2bf1a2a8af663304887e6c0bd569ebcff2.md",
+        "bytes": 19857,
+        "sha256": "a9cc6bc585eb5dd3df5a3804d6b51c877dfebbd7c589e6d6feb4737e28083234"
+      },
+      {
+        "path": "playwright-html/data/cd46c37512c805447a45d9cab413dfadf24dcac9.md",
+        "bytes": 15464,
+        "sha256": "d7b085b2a409a79d1329e5cabedfc959ca65c5a1de65f7bece7ceaaf2433b38f"
+      },
+      {
+        "path": "playwright-html/data/d135caa57363a345468b0ae4d2228db182c9901f.zip",
+        "bytes": 314099,
+        "sha256": "645e68d26a687145c38e6279584d19118c10330f866743b28c6f82a3dab8efd4"
+      },
+      {
+        "path": "playwright-html/data/d29b6bda62b8a0b3aa3fe4f8c2f479d7bf776cab.md",
+        "bytes": 15480,
+        "sha256": "f04bce4fe296ded168c0338c6d253f1b015f59aad7919819aa09b8883c2e3689"
+      },
+      {
+        "path": "playwright-html/data/d327b6da856f30d6e1fc5387dfeb8ae61d9d9864.zip",
+        "bytes": 423575,
+        "sha256": "b1dfaac8b8aded7377561075d3c82a073ff7ecfb16e96e7eadd36869dc2d90f3"
+      },
+      {
+        "path": "playwright-html/data/d606fd58a612c02a9a405bed3f59961542c2a704.md",
+        "bytes": 15481,
+        "sha256": "df749a014bdd81de213ebf7f48d30f7b2d9aa3f062206e51224ae561a0ef80c0"
+      },
+      {
+        "path": "playwright-html/data/d6163cc1d5af63d963d9da70952dc89763e51077.md",
+        "bytes": 15478,
+        "sha256": "b174765b345bb5b65ccd5636fd041fe55e58149b1829e2ed4f2adfefb531038f"
+      },
+      {
+        "path": "playwright-html/data/d6a9bb270114475aa04cb45773f42e3bbf60f958.md",
+        "bytes": 19860,
+        "sha256": "41557ef9469af8ed4a5ce17892fd08ea4d7d000d70e9af102b2dfd4c2869c06b"
+      },
+      {
+        "path": "playwright-html/data/d95e242dce8837b860c927f0b8d6a98b386c0b5f.md",
+        "bytes": 15468,
+        "sha256": "64fafb2b514b99483a73133bd546291040ccf880b33f62bcba2a800e96f85864"
+      },
+      {
+        "path": "playwright-html/data/da46d80ba7e96dbaeadca287fba54d25172ccef8.md",
+        "bytes": 27627,
+        "sha256": "cb80f03ff3dec2be980fb32817f25b1e9f8bf1c377b5906fb4905c6a756f2171"
+      },
+      {
+        "path": "playwright-html/data/da60f59feee005d791fa6d68605ccaabf48e50b7.md",
+        "bytes": 15467,
+        "sha256": "bab9dc7ec87562856a9d0a661e4820b8be206161329bebc95f3738fbc927658f"
+      },
+      {
+        "path": "playwright-html/data/dccf603462c160381990f364b2c1c482523d609a.zip",
+        "bytes": 708496,
+        "sha256": "c3c7df8d670b996652644a5e12a52e569da2fe777ba0ef4f70d0e418b5a8af72"
+      },
+      {
+        "path": "playwright-html/data/dce519e17a7972245542df6d51a2a4f9794da7a9.zip",
+        "bytes": 385235,
+        "sha256": "ca223bb3bf54457551843ad6a32fb2f7ad82ab180e17576a6a668cbc72f0488f"
+      },
+      {
+        "path": "playwright-html/data/dd01c86fbd4952a0d5f73aaaa506f276e2fae90c.zip",
+        "bytes": 765247,
+        "sha256": "7ffcb2bd0ddfb668698fa0f833ab16f7bde92ec33f2a8107a928c0083d57be5a"
+      },
+      {
+        "path": "playwright-html/data/dfe6fa137d9042c844da3ab241ee69e06ef450cc.md",
+        "bytes": 27627,
+        "sha256": "8a20380caae0438d5fc06a1edc9648bbe879ce5c14e9dbbe5fcf552f334658d3"
+      },
+      {
+        "path": "playwright-html/data/e216f61e4665857879ceb56c7081f1bd330a7e62.png",
+        "bytes": 205852,
+        "sha256": "c53aa7103c75160874f60e1acc8b4805b53082c6c88803e8e35fe71c556a28fa"
+      },
+      {
+        "path": "playwright-html/data/e27ee1c75e1bfbf1eb537cd9f4f88274ce82e499.zip",
+        "bytes": 3707873,
+        "sha256": "6a6164bf5b6615218e0988ba417449aefc9d6ce614f31fb23d36c0727cc07fa8"
+      },
+      {
+        "path": "playwright-html/data/e3242c7cdc85a53f233f93ced69f79fd51d0d8ef.png",
+        "bytes": 77090,
+        "sha256": "7a4461df00fa37ce32ad2ff8472b7baad657ec5e881b64334fb9784498a5a5c3"
+      },
+      {
+        "path": "playwright-html/data/e39b1859d7f3510b94abb43f68999b7e528bb3ca.zip",
+        "bytes": 489270,
+        "sha256": "1ae24975125d411a574bb3cca0a824dc350105b22747533911ee17efac88e1ec"
+      },
+      {
+        "path": "playwright-html/data/ea2bacce10d6ae04e50955fb6d1c24c4ed2f0348.md",
+        "bytes": 15486,
+        "sha256": "71c3d35d10366a711bc6d94b0814e921e8d61ecf5771a769e9a85ac32a5277bb"
+      },
+      {
+        "path": "playwright-html/data/ec559afd2dde491bdd8df209b8cf61c8ba771e7c.md",
+        "bytes": 27576,
+        "sha256": "30cf8e8dedf2883e4b1840d18c464b10d74eef6e3db1ea81865c79c7bb0b267a"
+      },
+      {
+        "path": "playwright-html/data/ecdea2af47b26634dc3217843d11e4b0f8783bf6.png",
+        "bytes": 127403,
+        "sha256": "60b35a668f8ed105c806d31ea30c9a30e64805d8f6ffc2baf2406529e754ef71"
+      },
+      {
+        "path": "playwright-html/data/f0b1c950785b2ca4700b48b24097340eb51522ef.zip",
+        "bytes": 570220,
+        "sha256": "f9e9fa833aa6e342ea3dd1f715f1e66a75ea018237aef9e674e39b491e449c13"
+      },
+      {
+        "path": "playwright-html/data/f6a020e92bbebb9e52b3748131b12f8c2aaf15e9.zip",
+        "bytes": 475087,
+        "sha256": "c2f96d10d6f268585d9cf31ffe607f435c276b3ac9a3745499f8dba0fcee0b9c"
+      },
+      {
+        "path": "playwright-html/data/f883951bb4d8bcfa23fc8d3255d3f2d870f19f04.md",
+        "bytes": 27661,
+        "sha256": "f5a4a0e371952918613ad3fb47ec649e7e4384d76b84551092ed95dc6dca66dc"
+      },
+      {
+        "path": "playwright-html/data/f91054375167b56bc90780667636640d6b03667c.zip",
+        "bytes": 545406,
+        "sha256": "1d4120ce495ebd9f0ac4394e025683072ee9c76c1fe2c6f06f3aeab5bcddb527"
+      },
+      {
+        "path": "playwright-html/data/fa11b4bf6b8e480252a479d6ca9d1cc3cc0703db.zip",
+        "bytes": 554593,
+        "sha256": "37a7ef48f59e80ab283c9803e8a1622fd3e85003fe4d7fea26819e170048a212"
+      },
+      {
+        "path": "playwright-html/data/fbe4b88ec5d9bd91109114570aaea22e6beb5bca.png",
+        "bytes": 258951,
+        "sha256": "690935aa283ffb34872cc8ca0c61adee740e7a985d3bf6c7a79e786f1610b4ff"
+      },
+      {
+        "path": "playwright-html/data/fce32c98abb5ba2a1e5a1ceaf02cba74cdef9247.md",
+        "bytes": 15476,
+        "sha256": "0fe5c0c78316296efea27d7f34d444e9211e65aa06254c39320935286ff46424"
+      },
+      {
+        "path": "playwright-html/data/fd8cbd42cc02d792dc50970bdd37db730c6488c6.zip",
+        "bytes": 440333,
+        "sha256": "d56cb4684b4322a55edfdf167e92b15f5ebd5d654c7674e711f39dc5cbdbea0f"
+      },
+      {
+        "path": "playwright-html/data/fea039b4c17dfd4d76bc643138a14d456d513a67.md",
+        "bytes": 15487,
+        "sha256": "5c8c1a66882b8a8a9de47ad8f70cebf20f476e5eb63ecea0d0053c283d246346"
+      },
+      {
+        "path": "playwright-html/index.html",
+        "bytes": 2398476,
+        "sha256": "e16b57d19e632619a0b7af74c82d59bace624022971fc9b0920f6e23db1f2954"
+      },
+      {
+        "path": "playwright-html/trace/assets/codeMirrorModule-BEB2e8M3.js",
+        "bytes": 307393,
+        "sha256": "0da75d228abc1d8b940aa04ec086570dace7b2e7b2ccc5f4bc16f05e79bdb7d7"
+      },
+      {
+        "path": "playwright-html/trace/assets/defaultSettingsView-D-g2vrvf.js",
+        "bytes": 667649,
+        "sha256": "554bdef910d18e763118f1221667b809edafba46e29e3f8de4b9dcf21c6b7d79"
+      },
+      {
+        "path": "playwright-html/trace/assets/urlMatch-L3liM589.js",
+        "bytes": 2510,
+        "sha256": "1bc6321e32d11c31a452bc75896f0b344e6153321854d9f1658818be7f845c16"
+      },
+      {
+        "path": "playwright-html/trace/codeMirrorModule.-QdMvsKi.css",
+        "bytes": 6251,
+        "sha256": "20be824a82832b62cc04642d31da3c609fd280b23f1cdcb1e622c4f40aac5ab8"
+      },
+      {
+        "path": "playwright-html/trace/codicon.DCmgc-ay.ttf",
+        "bytes": 80340,
+        "sha256": "0f1d5219934e96e83b8db162d60b4d8c09b5de1e7d38031cbafe4a3c0f2889c9"
+      },
+      {
+        "path": "playwright-html/trace/defaultSettingsView.C8BeHuxd.css",
+        "bytes": 107270,
+        "sha256": "278101b68ab48ee6323a6afbf4e0e629324e10e96902a62a0875643a1bba3d94"
+      },
+      {
+        "path": "playwright-html/trace/index.7-c5LSTW.js",
+        "bytes": 6628,
+        "sha256": "ce1eb956b15739b52a45c9fc2b9a0c529448242426b2b124d5c3167915910ff1"
+      },
+      {
+        "path": "playwright-html/trace/index.B_TqY17P.css",
+        "bytes": 2055,
+        "sha256": "08a212fcacae1866f44f065654afcc4c7d03409c68c74b3315c5bda17a0ca003"
+      },
+      {
+        "path": "playwright-html/trace/index.html",
+        "bytes": 2363,
+        "sha256": "b80661d46bc580d1e7be45c2c2b0e891c466f3f67e52c33e4f111f000f3532c6"
+      },
+      {
+        "path": "playwright-html/trace/manifest.webmanifest",
+        "bytes": 429,
+        "sha256": "d8540500603a32a39fe7e5a0375dc0f9ebafd11118e06a846db7efc608223ab9"
+      },
+      {
+        "path": "playwright-html/trace/playwright-logo.svg",
+        "bytes": 5033,
+        "sha256": "6b0a4367bdeab10995bc239278f04c68c10e48adbec15e799e01909a0d66dcb9"
+      },
+      {
+        "path": "playwright-html/trace/snapshot.B_Jk1wbt.js",
+        "bytes": 650,
+        "sha256": "d4d09e05451d107d8e1a6bbd041405fe518b9fd2833890e4ebaaad83b7f554f5"
+      },
+      {
+        "path": "playwright-html/trace/snapshot.html",
+        "bytes": 389,
+        "sha256": "c608c8899c95c5a74d3f556e20146c3d852b9df85ae2854c659a7cc773c9b727"
+      },
+      {
+        "path": "playwright-html/trace/sw.bundle.js",
+        "bytes": 96737,
+        "sha256": "d1d6fec6687eb3fd93a8990bd9daa3951422695afffae2382f97f10811cf1c30"
+      },
+      {
+        "path": "playwright-html/trace/uiMode.CYwC_gH1.js",
+        "bytes": 38121,
+        "sha256": "c920eaa161f65b6c0dd431a642c4bdf2e6262ae51335c02d155b187f48c0296c"
+      },
+      {
+        "path": "playwright-html/trace/uiMode.CyMfwkXJ.css",
+        "bytes": 54590,
+        "sha256": "fb403cf0b07007bc1d771e29737f7408924da300e2fab8b289a3ef2e8fc08d7b"
+      },
+      {
+        "path": "playwright-html/trace/uiMode.html",
+        "bytes": 727,
+        "sha256": "6de2f5db7f7532c30e8b1381752a1daf23facbdef6bea130cef0cfa5a003eb22"
+      },
+      {
+        "path": "playwright-html/trace/xtermModule.kHJ-D0s7.css",
+        "bytes": 2853,
+        "sha256": "0dd60056134e6a2994a86b59a1e9789b9f04e92924da109aef8c923acaf08ce5"
+      },
+      {
+        "path": "playwright-results/.last-run.json",
+        "bytes": 2987,
+        "sha256": "8145d385861ba9bd7b0f3874fe8e8ff9f5beedde754866aaffef14418c6bff3f"
+      },
+      {
+        "path": "playwright-results/browser-workflow-network-a-a8092-gs-on-allowed-imagery-hosts-desktop/network-credential-query-blocked.png",
+        "bytes": 40768,
+        "sha256": "f9a6acfdbfc86bc9391d70a6feb9f5d7aac4f5465701ee8e02853493c4d764f1"
+      },
+      {
+        "path": "playwright-results/browser-workflow-network-a-a8092-gs-on-allowed-imagery-hosts-mobile-390/network-credential-query-blocked.png",
+        "bytes": 121660,
+        "sha256": "19b7f74b15bc22b2fcb94f8bbef3297bf6812bf81aadd752fd200c150d513380"
+      },
+      {
+        "path": "playwright-results/browser-workflow-network-a-a8092-gs-on-allowed-imagery-hosts-tablet-768/network-credential-query-blocked.png",
+        "bytes": 38347,
+        "sha256": "c5bdb60b86f58710da85c4add44638fa9fd72fe0f28666570e66605bdb1c0d55"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-142d2-d-reopens-honest-provenance-desktop/recorded-reference-storage.json",
+        "bytes": 586512,
+        "sha256": "e802616f76690f6586941286835166f94d8e0acb9bdb453a4ce9f7b430bc74a8"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-142d2-d-reopens-honest-provenance-desktop/recorded-reference-workspace.json",
+        "bytes": 409039,
+        "sha256": "e8bf36fb0c647547d58ad6db8560f42713b9648deebf32bfd1145d48699e148e"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-142d2-d-reopens-honest-provenance-mobile-390/recorded-reference-storage.json",
+        "bytes": 586512,
+        "sha256": "810edc8d5b0f3079588e935312864337f8a3e37b116978284d735396af3f1001"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-142d2-d-reopens-honest-provenance-mobile-390/recorded-reference-workspace.json",
+        "bytes": 409039,
+        "sha256": "180df88027eb82f9ff57201271e0b15ce9d0d98f4a952d33068107236df3cc81"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-142d2-d-reopens-honest-provenance-tablet-768/recorded-reference-storage.json",
+        "bytes": 586512,
+        "sha256": "7dc55c1a8c041e6db319d081f18e43edf3e47f3d5262e4b8ac3537cd218738d8"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-142d2-d-reopens-honest-provenance-tablet-768/recorded-reference-workspace.json",
+        "bytes": 409039,
+        "sha256": "ecf5f6cadbddd952ba35c54ad46f35557b0637178a4d5506c58744e6403a46dc"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-19029-d-reopens-honest-provenance-desktop/recorded-reference-storage.json",
+        "bytes": 597376,
+        "sha256": "35f5448a8406e61619c58b917591bc63d0f74b0867fe913324c859be502f883a"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-19029-d-reopens-honest-provenance-desktop/recorded-reference-workspace.json",
+        "bytes": 418570,
+        "sha256": "0d95f58355667fd5c1de9a8af747464671f2eebac0f52078bed6c903bc6b994b"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-19029-d-reopens-honest-provenance-mobile-390/recorded-reference-storage.json",
+        "bytes": 597376,
+        "sha256": "fa425f5e6fea036f8a115e1df929e2ad1ffe19582c2a3d2af3a5619784442dce"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-19029-d-reopens-honest-provenance-mobile-390/recorded-reference-workspace.json",
+        "bytes": 418570,
+        "sha256": "98ce7aca0ab5015818012d7012253c3b3b3060623c38bc4abe85fd96db3fce70"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-19029-d-reopens-honest-provenance-tablet-768/recorded-reference-storage.json",
+        "bytes": 597376,
+        "sha256": "7e4eddd5f33a99e75298f150d4a531aeb4f42950c31d9360b1e1b50a55ab329c"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-19029-d-reopens-honest-provenance-tablet-768/recorded-reference-workspace.json",
+        "bytes": 418570,
+        "sha256": "0188784d8c5f166b3a3a6f995883881c9a6ec52c6f1acd6f71a5fc4260bfc17b"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-2b322-d-reopens-honest-provenance-desktop/recorded-reference-storage.json",
+        "bytes": 607285,
+        "sha256": "e2be7182423ac267e6113185886da333e5b501d4013dbfdb53896262a1397ed6"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-2b322-d-reopens-honest-provenance-desktop/recorded-reference-workspace.json",
+        "bytes": 427262,
+        "sha256": "aca5115dfdcfe8bfaff671cad71027480f6d615d8c8b9d697d9ee8f1c0d5b694"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-2b322-d-reopens-honest-provenance-mobile-390/recorded-reference-storage.json",
+        "bytes": 607285,
+        "sha256": "73519720155d8916afba092d8a8fdb5680b79f7ed71714090d114d50dbc69c9c"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-2b322-d-reopens-honest-provenance-mobile-390/recorded-reference-workspace.json",
+        "bytes": 427262,
+        "sha256": "b10f623d01f31bd5a712966a80142629625bfa72ccab2172c42dc2bb2111c495"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-2b322-d-reopens-honest-provenance-tablet-768/recorded-reference-storage.json",
+        "bytes": 607285,
+        "sha256": "a53373198cf915031415a88c3aa34b2bf6bafb6693c832c3cee3ed9e7fc47645"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-2b322-d-reopens-honest-provenance-tablet-768/recorded-reference-workspace.json",
+        "bytes": 427262,
+        "sha256": "b9ad1d8f77be3c31142b0fc0a9d8a09fc8d3f111e85849add1040139dee9df22"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-9b798-d-reopens-honest-provenance-desktop/recorded-reference-storage.json",
+        "bytes": 115738,
+        "sha256": "6158e1ad53fe385994facabec74ed1bcad6448b82ce179126340980a10b2f462"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-9b798-d-reopens-honest-provenance-desktop/recorded-reference-workspace.json",
+        "bytes": 88598,
+        "sha256": "f20b86df8fb61e182fb46ee261bea4e2b84ec9d0959bf27e65b293c52700e8e3"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-9b798-d-reopens-honest-provenance-mobile-390/recorded-reference-storage.json",
+        "bytes": 115738,
+        "sha256": "feee7c58896fb97b6f3be7e07ac1db223b2aa3d422c6d7648168a3b2180c082a"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-9b798-d-reopens-honest-provenance-mobile-390/recorded-reference-workspace.json",
+        "bytes": 88598,
+        "sha256": "6e377ea80d11355a5fc5f8d7f232f92012bc746b4f2ed6d6159ab0e5fc7b8152"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-9b798-d-reopens-honest-provenance-tablet-768/recorded-reference-storage.json",
+        "bytes": 115738,
+        "sha256": "e792a6449905071e0cabdb8dcdd2b8b5e55e2d8b37d9953d2bd25ae568869333"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-9b798-d-reopens-honest-provenance-tablet-768/recorded-reference-workspace.json",
+        "bytes": 88598,
+        "sha256": "25768525bf6c3fcfcaf9482465b96a7b45d1babe3e42c11afb1e3f4ce6a38b98"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-bc852-d-reopens-honest-provenance-desktop/recorded-reference-storage.json",
+        "bytes": 607984,
+        "sha256": "65456b9350f68a36f810790886ac700ad87f20ea32bd70d4afb58404ce957612"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-bc852-d-reopens-honest-provenance-desktop/recorded-reference-workspace.json",
+        "bytes": 427892,
+        "sha256": "be514ef04f0c35950c2026f5138833b7efc03b07d459da62509386fd16521fcb"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-bc852-d-reopens-honest-provenance-mobile-390/recorded-reference-storage.json",
+        "bytes": 607984,
+        "sha256": "f2d6c940db376b927678db26e138cb1b6143513281a10ae867123bb50740ce41"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-bc852-d-reopens-honest-provenance-mobile-390/recorded-reference-workspace.json",
+        "bytes": 427892,
+        "sha256": "8d35f3fdd689f55b279d469966498eb807e1412628951b467ffdf27ee3c197b2"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-bc852-d-reopens-honest-provenance-tablet-768/recorded-reference-storage.json",
+        "bytes": 607984,
+        "sha256": "8177b2ca032ee4aac31336ca21d9d1420d32af50e28acb602272d3dd9e874439"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-bc852-d-reopens-honest-provenance-tablet-768/recorded-reference-workspace.json",
+        "bytes": 427892,
+        "sha256": "f07cbff60c7634bd2a64c8e12d6c44a1944e5aff83c2334d853ace0f90f0a653"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c0d54-d-reopens-honest-provenance-desktop/recorded-reference-storage.json",
+        "bytes": 596823,
+        "sha256": "6b229b9b47cac39d68dbcfd1f30deb0830eb35d55b7e9426c637e3367f3b662a"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c0d54-d-reopens-honest-provenance-desktop/recorded-reference-workspace.json",
+        "bytes": 418074,
+        "sha256": "89221fd1af8c1171bdf5d3ac53c90d2f4e776d6c9c2e77bb74f837948f572a0d"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c0d54-d-reopens-honest-provenance-mobile-390/recorded-reference-storage.json",
+        "bytes": 596823,
+        "sha256": "ad079a55b392aa3d08cd4177de3adae1ab24e6a38ed0aa711aca09d330edf3c6"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c0d54-d-reopens-honest-provenance-mobile-390/recorded-reference-workspace.json",
+        "bytes": 418074,
+        "sha256": "85a634b3f8ada8bf4f3eb0a41f8aaacb7e8f2f0d3b94243b8adad93bad78529f"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c0d54-d-reopens-honest-provenance-tablet-768/recorded-reference-storage.json",
+        "bytes": 596823,
+        "sha256": "43799f34b48796064232770e53d4fa68ad6dafaa5c3cf9b8a0418599ae700c63"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c0d54-d-reopens-honest-provenance-tablet-768/recorded-reference-workspace.json",
+        "bytes": 418074,
+        "sha256": "c5a80bf38403c795ad0c29aa467c910acc2b7708f670340f977847677d61ba71"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c2335-d-reopens-honest-provenance-desktop/recorded-reference-storage.json",
+        "bytes": 105276,
+        "sha256": "a2fede196ac9fdb7e465f97f1b78801b29b47de9419149fd0a62c3e7ad1346cd"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c2335-d-reopens-honest-provenance-desktop/recorded-reference-workspace.json",
+        "bytes": 79410,
+        "sha256": "90c34f29fb18edbba2a6f273cb2fefa5bcc7a025ee5d411dace67dba2ca41356"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c2335-d-reopens-honest-provenance-mobile-390/recorded-reference-storage.json",
+        "bytes": 105276,
+        "sha256": "e44425c4c81a251d8fb7fa923a70ff82fbd4034a6c12fd25cf5fb3c99261e24f"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c2335-d-reopens-honest-provenance-mobile-390/recorded-reference-workspace.json",
+        "bytes": 79410,
+        "sha256": "6a6b4b514683415558c8b2f6abe389e3a872d500631c2fd32def2bb2fc382b75"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c2335-d-reopens-honest-provenance-tablet-768/recorded-reference-storage.json",
+        "bytes": 105276,
+        "sha256": "e589ca2519867269404becfd1e9f317b1483f0eaec08908540580b2776e1f6b0"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c2335-d-reopens-honest-provenance-tablet-768/recorded-reference-workspace.json",
+        "bytes": 79410,
+        "sha256": "9bfc1257514b5b29f3076c37b011a6a1609327c90b4b135fe2ba7c118e881829"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c8612-d-reopens-honest-provenance-desktop/recorded-reference-storage.json",
+        "bytes": 586867,
+        "sha256": "a7c748e76c09d4f8f047f238760bf98f10076f41bc70e8134e6bdab135cfc4f8"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c8612-d-reopens-honest-provenance-desktop/recorded-reference-workspace.json",
+        "bytes": 409351,
+        "sha256": "c60b792de90269f3cec0de3e7dfc52894c1702011827f925dcd3547c5abe6937"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c8612-d-reopens-honest-provenance-mobile-390/recorded-reference-storage.json",
+        "bytes": 586867,
+        "sha256": "1faa05677f692f5d3d4976a66200c02c0b9e2d8fc0ba7af147fda71ec795acfa"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c8612-d-reopens-honest-provenance-mobile-390/recorded-reference-workspace.json",
+        "bytes": 409351,
+        "sha256": "94b7d43bed7ae329cc5f4b3f15efb0c91f980cc7f013d23b258aeb83ab3a70d8"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c8612-d-reopens-honest-provenance-tablet-768/recorded-reference-storage.json",
+        "bytes": 586867,
+        "sha256": "97a3bb7d7bf800b234ac3e079a5ba4cec5b08170ddde4fb4564e76352e89efa8"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-c8612-d-reopens-honest-provenance-tablet-768/recorded-reference-workspace.json",
+        "bytes": 409351,
+        "sha256": "186f0865ee949bd7d4b594e6bf17bc16eeef09160fda9ff26367dc7232429841"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-dbc7d-d-reopens-honest-provenance-desktop/recorded-reference-storage.json",
+        "bytes": 94965,
+        "sha256": "b40b09e60ed6434a17736375c71540910a472a7f9762ecf34505c075baef024b"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-dbc7d-d-reopens-honest-provenance-desktop/recorded-reference-workspace.json",
+        "bytes": 70375,
+        "sha256": "4e1a04ea5b5dfb1cc3479e9b46938b9e4c7970162e76c0905060b787688ce08a"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-dbc7d-d-reopens-honest-provenance-mobile-390/recorded-reference-storage.json",
+        "bytes": 94965,
+        "sha256": "af8e7bf56dd2af74ef5f9f093ddb1cec7ae0cb2ffe7eaf6ae04c498f913fa465"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-dbc7d-d-reopens-honest-provenance-mobile-390/recorded-reference-workspace.json",
+        "bytes": 70375,
+        "sha256": "8246a67fd7a1c6d2aeef1735089586b196760196aa0d55692d65d161b27637da"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-dbc7d-d-reopens-honest-provenance-tablet-768/recorded-reference-storage.json",
+        "bytes": 94965,
+        "sha256": "4c17878ca89f173c080bce3d3644a065d6e90d2eda1e7116fd0e7f700b5079ca"
+      },
+      {
+        "path": "playwright-results/unified-workspace-recorded-dbc7d-d-reopens-honest-provenance-tablet-768/recorded-reference-workspace.json",
+        "bytes": 70375,
+        "sha256": "bea57947ec3b66280530b102986ac3adeb71d280e700889863974098d6b3dd21"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-3ccda-il-an-explicit-guarded-Open-desktop/error-context.md",
+        "bytes": 27627,
+        "sha256": "cb80f03ff3dec2be980fb32817f25b1e9f8bf1c377b5906fb4905c6a756f2171"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-3ccda-il-an-explicit-guarded-Open-desktop/test-failed-1.png",
+        "bytes": 76845,
+        "sha256": "2f2cd2ac11d8b8eb76f123a1282f67847077deae3cf1bd3cffa073ccdf28c7f2"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-3ccda-il-an-explicit-guarded-Open-desktop/trace.zip",
+        "bytes": 2078825,
+        "sha256": "eef544963707e73e8520b5698098a8ba0ddc678c5fc6b62e7e2e372980f849b5"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-3ccda-il-an-explicit-guarded-Open-mobile-390/error-context.md",
+        "bytes": 27661,
+        "sha256": "f5a4a0e371952918613ad3fb47ec649e7e4384d76b84551092ed95dc6dca66dc"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-3ccda-il-an-explicit-guarded-Open-mobile-390/test-failed-1.png",
+        "bytes": 205333,
+        "sha256": "4167edb6987004c0d1602c56bdbb1b54451fb60f9c3dc0ffd54da909b4d76063"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-3ccda-il-an-explicit-guarded-Open-mobile-390/trace.zip",
+        "bytes": 3307253,
+        "sha256": "9d5283d847b1b77cc6a4e1f21031991e277f9af7c732b7b411c9d70d9867e70b"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-3ccda-il-an-explicit-guarded-Open-tablet-768/error-context.md",
+        "bytes": 27661,
+        "sha256": "72543c6648b39af49dd20c8ccf7b8675972a925c71e0d8939779d486bd0a5cf6"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-3ccda-il-an-explicit-guarded-Open-tablet-768/test-failed-1.png",
+        "bytes": 72208,
+        "sha256": "29b51ff672649f15d84497450e2ff743748f664207afb1b5077518b5027d8e6e"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-3ccda-il-an-explicit-guarded-Open-tablet-768/trace.zip",
+        "bytes": 3598376,
+        "sha256": "76f70e24e6af2efde81bb466294920d5a441d4a367134d703c6309af40d7f3a6"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-bbfca-il-an-explicit-guarded-Open-desktop/error-context.md",
+        "bytes": 27539,
+        "sha256": "5be8ab36bb5fc502a7bf23f73acf3635ae65a8bf52ae36255deaa48ebdf4b471"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-bbfca-il-an-explicit-guarded-Open-desktop/test-failed-1.png",
+        "bytes": 77090,
+        "sha256": "7a4461df00fa37ce32ad2ff8472b7baad657ec5e881b64334fb9784498a5a5c3"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-bbfca-il-an-explicit-guarded-Open-desktop/trace.zip",
+        "bytes": 2467216,
+        "sha256": "c0d652bc86b2715041b9824515660fe2efe27b705d1bb7da760079c2b5c4e058"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-bbfca-il-an-explicit-guarded-Open-mobile-390/error-context.md",
+        "bytes": 27576,
+        "sha256": "1845e14550d93fe843e7962da40ce0c160fb5b2a2a9499333d849b94d95a75c8"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-bbfca-il-an-explicit-guarded-Open-mobile-390/test-failed-1.png",
+        "bytes": 204559,
+        "sha256": "df207188b4b26f0fdd3ccc07e009d119e09455396c285fb5110033bbee8a878f"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-bbfca-il-an-explicit-guarded-Open-mobile-390/trace.zip",
+        "bytes": 3661906,
+        "sha256": "3816707b5f4c2791c21085ea424943e5bf79796e1a292f8791fa7fc75103eb58"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-bbfca-il-an-explicit-guarded-Open-tablet-768/error-context.md",
+        "bytes": 27576,
+        "sha256": "30cf8e8dedf2883e4b1840d18c464b10d74eef6e3db1ea81865c79c7bb0b267a"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-bbfca-il-an-explicit-guarded-Open-tablet-768/test-failed-1.png",
+        "bytes": 72458,
+        "sha256": "e6b2f0a55b569f7e9b0610df49f43c079c16a595194b564fc9bb9969e051535e"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-bbfca-il-an-explicit-guarded-Open-tablet-768/trace.zip",
+        "bytes": 4141100,
+        "sha256": "0a50bf93c20767ab1cc6a206635270ecd64d5735858b19996c3d341060ce8f5b"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-fcda6-il-an-explicit-guarded-Open-desktop/error-context.md",
+        "bytes": 27627,
+        "sha256": "8a20380caae0438d5fc06a1edc9648bbe879ce5c14e9dbbe5fcf552f334658d3"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-fcda6-il-an-explicit-guarded-Open-desktop/test-failed-1.png",
+        "bytes": 76995,
+        "sha256": "5feca9643c7a17d83cb4016722aa6d17c38e954101a42b69403bd0820262b90b"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-fcda6-il-an-explicit-guarded-Open-desktop/trace.zip",
+        "bytes": 2092029,
+        "sha256": "b24fda987d86264fdfa919a6c31b81d7f1c8a80e6cd6847b0dfdfe4cc88ef1a9"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-fcda6-il-an-explicit-guarded-Open-mobile-390/error-context.md",
+        "bytes": 27661,
+        "sha256": "c83ceee4a6356e0df186fdfcdaafb9d50cf075b76534df2b28e6eff465ba0781"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-fcda6-il-an-explicit-guarded-Open-mobile-390/test-failed-1.png",
+        "bytes": 205852,
+        "sha256": "c53aa7103c75160874f60e1acc8b4805b53082c6c88803e8e35fe71c556a28fa"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-fcda6-il-an-explicit-guarded-Open-mobile-390/trace.zip",
+        "bytes": 3333054,
+        "sha256": "395d5e4227ac4dc5b17e7d459f5464efc88d489fcaa26e2ad44fe47d158c629a"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-fcda6-il-an-explicit-guarded-Open-tablet-768/error-context.md",
+        "bytes": 27661,
+        "sha256": "7692185032569a8c4c589457a2bf31f6788b0f17f2f3017a32d12b34ebec2105"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-fcda6-il-an-explicit-guarded-Open-tablet-768/test-failed-1.png",
+        "bytes": 72369,
+        "sha256": "a7cfd93ff90b367b207213cea1b66d8b536dc0ed6f2eeee7ce10bdf48bb17201"
+      },
+      {
+        "path": "playwright-results/workspace-management-curre-fcda6-il-an-explicit-guarded-Open-tablet-768/trace.zip",
+        "bytes": 3707873,
+        "sha256": "6a6164bf5b6615218e0988ba417449aefc9d6ce614f31fb23d36c0727cc07fa8"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-0a457-text-until-explicit-Discard-desktop/error-context.md",
+        "bytes": 15483,
+        "sha256": "8258f1372405164a016254619f53ce79f0806e9e4282db55bf7b43e5a10d9c63"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-0a457-text-until-explicit-Discard-desktop/test-failed-1.png",
+        "bytes": 82979,
+        "sha256": "b56ddf02859f471228a97f719f5c30675a3fe09fd020b6326f34ce82e3cd30ac"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-0a457-text-until-explicit-Discard-desktop/trace.zip",
+        "bytes": 404550,
+        "sha256": "52a956567d0a229e3027bc62a07e8ecd7e1ac69599e2352620c3f9437afd5645"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-0a457-text-until-explicit-Discard-mobile-390/error-context.md",
+        "bytes": 15480,
+        "sha256": "f04bce4fe296ded168c0338c6d253f1b015f59aad7919819aa09b8883c2e3689"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-0a457-text-until-explicit-Discard-mobile-390/test-failed-1.png",
+        "bytes": 220758,
+        "sha256": "7d4c56863599792ac99b0455796bccfce8e2e15b4e4ee3c8cacbac421bba37ae"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-0a457-text-until-explicit-Discard-mobile-390/trace.zip",
+        "bytes": 708496,
+        "sha256": "c3c7df8d670b996652644a5e12a52e569da2fe777ba0ef4f70d0e418b5a8af72"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-0a457-text-until-explicit-Discard-tablet-768/error-context.md",
+        "bytes": 15480,
+        "sha256": "f04bce4fe296ded168c0338c6d253f1b015f59aad7919819aa09b8883c2e3689"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-0a457-text-until-explicit-Discard-tablet-768/test-failed-1.png",
+        "bytes": 74457,
+        "sha256": "47dc4b37b46f6a5a56e37d9244250cb3a3a552fe810a936edb3dfe15a5d72c13"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-0a457-text-until-explicit-Discard-tablet-768/trace.zip",
+        "bytes": 485343,
+        "sha256": "430fd6b2d62bc8b9991e113bb7f676f943397ca373eb30182a235141a2761d65"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-5a191-hout-fabricated-collections-desktop/error-context.md",
+        "bytes": 15468,
+        "sha256": "64fafb2b514b99483a73133bd546291040ccf880b33f62bcba2a800e96f85864"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-5a191-hout-fabricated-collections-desktop/test-failed-1.png",
+        "bytes": 82979,
+        "sha256": "b56ddf02859f471228a97f719f5c30675a3fe09fd020b6326f34ce82e3cd30ac"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-5a191-hout-fabricated-collections-desktop/trace.zip",
+        "bytes": 314099,
+        "sha256": "645e68d26a687145c38e6279584d19118c10330f866743b28c6f82a3dab8efd4"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-5a191-hout-fabricated-collections-mobile-390/error-context.md",
+        "bytes": 15465,
+        "sha256": "88c5d2fe858b975810840334f5e9e9c840d0cbad7284b1b06b1f7e701785f641"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-5a191-hout-fabricated-collections-mobile-390/test-failed-1.png",
+        "bytes": 220758,
+        "sha256": "7d4c56863599792ac99b0455796bccfce8e2e15b4e4ee3c8cacbac421bba37ae"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-5a191-hout-fabricated-collections-mobile-390/trace.zip",
+        "bytes": 594505,
+        "sha256": "b18181dbd8b808819e2449fa17bd38e05d81fd81d35bf662113d6d7c5a7229e2"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-5a191-hout-fabricated-collections-tablet-768/error-context.md",
+        "bytes": 15465,
+        "sha256": "88c5d2fe858b975810840334f5e9e9c840d0cbad7284b1b06b1f7e701785f641"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-5a191-hout-fabricated-collections-tablet-768/test-failed-1.png",
+        "bytes": 74457,
+        "sha256": "47dc4b37b46f6a5a56e37d9244250cb3a3a552fe810a936edb3dfe15a5d72c13"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-5a191-hout-fabricated-collections-tablet-768/trace.zip",
+        "bytes": 475061,
+        "sha256": "96ced67da9675c47906e83391d7bfb4cabd964294f26fad79795b56ce1ad768c"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-b7e1d-hout-fabricated-collections-desktop/error-context.md",
+        "bytes": 15467,
+        "sha256": "bab9dc7ec87562856a9d0a661e4820b8be206161329bebc95f3738fbc927658f"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-b7e1d-hout-fabricated-collections-desktop/test-failed-1.png",
+        "bytes": 82979,
+        "sha256": "b56ddf02859f471228a97f719f5c30675a3fe09fd020b6326f34ce82e3cd30ac"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-b7e1d-hout-fabricated-collections-desktop/trace.zip",
+        "bytes": 330314,
+        "sha256": "350337ebe2db28ce5ac46e67df0f006d6292ad9870f362ea9c303f021b987adc"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-b7e1d-hout-fabricated-collections-mobile-390/error-context.md",
+        "bytes": 15464,
+        "sha256": "d7b085b2a409a79d1329e5cabedfc959ca65c5a1de65f7bece7ceaaf2433b38f"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-b7e1d-hout-fabricated-collections-mobile-390/test-failed-1.png",
+        "bytes": 220758,
+        "sha256": "7d4c56863599792ac99b0455796bccfce8e2e15b4e4ee3c8cacbac421bba37ae"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-b7e1d-hout-fabricated-collections-mobile-390/trace.zip",
+        "bytes": 643904,
+        "sha256": "0b4238c077fb65ada94381e146fc32273f7889c4c29b92aea781943c6fac9f3c"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-b7e1d-hout-fabricated-collections-tablet-768/error-context.md",
+        "bytes": 15464,
+        "sha256": "d7b085b2a409a79d1329e5cabedfc959ca65c5a1de65f7bece7ceaaf2433b38f"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-b7e1d-hout-fabricated-collections-tablet-768/test-failed-1.png",
+        "bytes": 74457,
+        "sha256": "47dc4b37b46f6a5a56e37d9244250cb3a3a552fe810a936edb3dfe15a5d72c13"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-b7e1d-hout-fabricated-collections-tablet-768/trace.zip",
+        "bytes": 475087,
+        "sha256": "c2f96d10d6f268585d9cf31ffe607f435c276b3ac9a3745499f8dba0fcee0b9c"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-bc637-ted-package-without-records-desktop/error-context.md",
+        "bytes": 15477,
+        "sha256": "8bee3344b9d5d2e7a51a5fb85d38e2add6cffe064f4c427296c457245f0ef028"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-bc637-ted-package-without-records-desktop/test-failed-1.png",
+        "bytes": 82979,
+        "sha256": "b56ddf02859f471228a97f719f5c30675a3fe09fd020b6326f34ce82e3cd30ac"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-bc637-ted-package-without-records-desktop/trace.zip",
+        "bytes": 420468,
+        "sha256": "d02b015bc871eff46543dacc0478cbc83066eea4bd90748d6e3ab9c52b543109"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-bc637-ted-package-without-records-mobile-390/error-context.md",
+        "bytes": 15474,
+        "sha256": "c5e92e89e84c305471d5a1fbb6f32879fa345f9922b2360dde07a703c1b3e149"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-bc637-ted-package-without-records-mobile-390/test-failed-1.png",
+        "bytes": 220758,
+        "sha256": "7d4c56863599792ac99b0455796bccfce8e2e15b4e4ee3c8cacbac421bba37ae"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-bc637-ted-package-without-records-mobile-390/trace.zip",
+        "bytes": 765247,
+        "sha256": "7ffcb2bd0ddfb668698fa0f833ab16f7bde92ec33f2a8107a928c0083d57be5a"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-bc637-ted-package-without-records-tablet-768/error-context.md",
+        "bytes": 15474,
+        "sha256": "c5e92e89e84c305471d5a1fbb6f32879fa345f9922b2360dde07a703c1b3e149"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-bc637-ted-package-without-records-tablet-768/test-failed-1.png",
+        "bytes": 74457,
+        "sha256": "47dc4b37b46f6a5a56e37d9244250cb3a3a552fe810a936edb3dfe15a5d72c13"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-bc637-ted-package-without-records-tablet-768/trace.zip",
+        "bytes": 497612,
+        "sha256": "0dfe423f5fea68fc804f23297b1d1c51feec6f3e1a47bb3ab59014f6459fefa4"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-c1a3d-ted-package-without-records-desktop/error-context.md",
+        "bytes": 15477,
+        "sha256": "8a1b337b18905d10eee5f1d5a33bcc25e6a3eb165188b45466e5f94298af75b8"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-c1a3d-ted-package-without-records-desktop/test-failed-1.png",
+        "bytes": 82979,
+        "sha256": "b56ddf02859f471228a97f719f5c30675a3fe09fd020b6326f34ce82e3cd30ac"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-c1a3d-ted-package-without-records-desktop/trace.zip",
+        "bytes": 401258,
+        "sha256": "795887aef28d782ec36c4be0c9f9f1bfd1ed25154830ed961708238ae2468420"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-c1a3d-ted-package-without-records-mobile-390/error-context.md",
+        "bytes": 15474,
+        "sha256": "300abeb47f309ddfb63b61049a8d495ff953877f068d6f6945bd452a7a269e97"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-c1a3d-ted-package-without-records-mobile-390/test-failed-1.png",
+        "bytes": 220758,
+        "sha256": "7d4c56863599792ac99b0455796bccfce8e2e15b4e4ee3c8cacbac421bba37ae"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-c1a3d-ted-package-without-records-mobile-390/trace.zip",
+        "bytes": 704670,
+        "sha256": "f1d9429776a0ea9eb9dab684081d731a67aa7b021796c53d2be8c512924303bc"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-c1a3d-ted-package-without-records-tablet-768/error-context.md",
+        "bytes": 15474,
+        "sha256": "300abeb47f309ddfb63b61049a8d495ff953877f068d6f6945bd452a7a269e97"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-c1a3d-ted-package-without-records-tablet-768/test-failed-1.png",
+        "bytes": 74457,
+        "sha256": "47dc4b37b46f6a5a56e37d9244250cb3a3a552fe810a936edb3dfe15a5d72c13"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-a-c1a3d-ted-package-without-records-tablet-768/trace.zip",
+        "bytes": 627744,
+        "sha256": "5b6a786cae1cdc90c91f7d8555ec5fbd70ae731e295f78a8796f67b0962a2538"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-0f6e2-opy-and-reloads-Recent-Open-desktop/error-context.md",
+        "bytes": 15486,
+        "sha256": "31cf3cf6a6415027a01c1510338bb4d09177dbf5b46b2fc2abb079a8f7e35613"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-0f6e2-opy-and-reloads-Recent-Open-desktop/test-failed-1.png",
+        "bytes": 82979,
+        "sha256": "b56ddf02859f471228a97f719f5c30675a3fe09fd020b6326f34ce82e3cd30ac"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-0f6e2-opy-and-reloads-Recent-Open-desktop/trace.zip",
+        "bytes": 415752,
+        "sha256": "6a077677125a57918394efe60f448b27471c944aa3156a185a78b791f9a56c53"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-0f6e2-opy-and-reloads-Recent-Open-mobile-390/error-context.md",
+        "bytes": 15483,
+        "sha256": "914e61620fe5a5bdc0a7bdb45382a523ed8d0a951fed898387e51a7261b7b9c9"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-0f6e2-opy-and-reloads-Recent-Open-mobile-390/test-failed-1.png",
+        "bytes": 220758,
+        "sha256": "7d4c56863599792ac99b0455796bccfce8e2e15b4e4ee3c8cacbac421bba37ae"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-0f6e2-opy-and-reloads-Recent-Open-mobile-390/trace.zip",
+        "bytes": 719001,
+        "sha256": "0a62fd49cba776123213537333bc17855f9fd8a1bbc1b482b1d1710e6b61189d"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-0f6e2-opy-and-reloads-Recent-Open-tablet-768/error-context.md",
+        "bytes": 15483,
+        "sha256": "914e61620fe5a5bdc0a7bdb45382a523ed8d0a951fed898387e51a7261b7b9c9"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-0f6e2-opy-and-reloads-Recent-Open-tablet-768/test-failed-1.png",
+        "bytes": 74457,
+        "sha256": "47dc4b37b46f6a5a56e37d9244250cb3a3a552fe810a936edb3dfe15a5d72c13"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-0f6e2-opy-and-reloads-Recent-Open-tablet-768/trace.zip",
+        "bytes": 570220,
+        "sha256": "f9e9fa833aa6e342ea3dd1f715f1e66a75ea018237aef9e674e39b491e449c13"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-fa2e4-opy-and-reloads-Recent-Open-desktop/error-context.md",
+        "bytes": 15487,
+        "sha256": "9a9a975894c8efbcfc9f1aa7ecc35f37bab8b30bd0f30783710c9ef62ff6b22d"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-fa2e4-opy-and-reloads-Recent-Open-desktop/test-failed-1.png",
+        "bytes": 82979,
+        "sha256": "b56ddf02859f471228a97f719f5c30675a3fe09fd020b6326f34ce82e3cd30ac"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-fa2e4-opy-and-reloads-Recent-Open-desktop/trace.zip",
+        "bytes": 390422,
+        "sha256": "ec9fc9b1b2058348ac1adbdeaac9698a2cf006f5f14f534eba41c4f5d288036f"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-fa2e4-opy-and-reloads-Recent-Open-mobile-390/error-context.md",
+        "bytes": 15484,
+        "sha256": "f97177a83e62b2ecfb66adabd23c562ed8a4c1c7e2ab33cae2303952f1a03325"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-fa2e4-opy-and-reloads-Recent-Open-mobile-390/test-failed-1.png",
+        "bytes": 220758,
+        "sha256": "7d4c56863599792ac99b0455796bccfce8e2e15b4e4ee3c8cacbac421bba37ae"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-fa2e4-opy-and-reloads-Recent-Open-mobile-390/trace.zip",
+        "bytes": 716125,
+        "sha256": "ec7b5bf94142eacd96e55b7f34b94e07abc3884956265903f9775ca3d5cef2e8"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-fa2e4-opy-and-reloads-Recent-Open-tablet-768/error-context.md",
+        "bytes": 15484,
+        "sha256": "f97177a83e62b2ecfb66adabd23c562ed8a4c1c7e2ab33cae2303952f1a03325"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-fa2e4-opy-and-reloads-Recent-Open-tablet-768/test-failed-1.png",
+        "bytes": 74457,
+        "sha256": "47dc4b37b46f6a5a56e37d9244250cb3a3a552fe810a936edb3dfe15a5d72c13"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-d-fa2e4-opy-and-reloads-Recent-Open-tablet-768/trace.zip",
+        "bytes": 431350,
+        "sha256": "fa98d440e44dfa9341c3755a7bf8a950bf5e3cac37aac61bf9002a9eac60f6f2"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-8cf1b-opy-and-reloads-Recent-Open-desktop/error-context.md",
+        "bytes": 15487,
+        "sha256": "5c8c1a66882b8a8a9de47ad8f70cebf20f476e5eb63ecea0d0053c283d246346"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-8cf1b-opy-and-reloads-Recent-Open-desktop/test-failed-1.png",
+        "bytes": 82979,
+        "sha256": "b56ddf02859f471228a97f719f5c30675a3fe09fd020b6326f34ce82e3cd30ac"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-8cf1b-opy-and-reloads-Recent-Open-desktop/trace.zip",
+        "bytes": 396779,
+        "sha256": "1baaf995eff7758242b67b5fb8e483f3c7f351a05a6882c45c0bf6724848e011"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-8cf1b-opy-and-reloads-Recent-Open-mobile-390/error-context.md",
+        "bytes": 15484,
+        "sha256": "d8d1f85dcbfc0a2f8f0a70c8a952318e56163cd563388baa03fca1fab030dea4"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-8cf1b-opy-and-reloads-Recent-Open-mobile-390/test-failed-1.png",
+        "bytes": 220758,
+        "sha256": "7d4c56863599792ac99b0455796bccfce8e2e15b4e4ee3c8cacbac421bba37ae"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-8cf1b-opy-and-reloads-Recent-Open-mobile-390/trace.zip",
+        "bytes": 698135,
+        "sha256": "5448327670680246f41a34f79de15f4aa1efce9f9d8f87ff400dd58784905a05"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-8cf1b-opy-and-reloads-Recent-Open-tablet-768/error-context.md",
+        "bytes": 15484,
+        "sha256": "d8d1f85dcbfc0a2f8f0a70c8a952318e56163cd563388baa03fca1fab030dea4"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-8cf1b-opy-and-reloads-Recent-Open-tablet-768/test-failed-1.png",
+        "bytes": 74457,
+        "sha256": "47dc4b37b46f6a5a56e37d9244250cb3a3a552fe810a936edb3dfe15a5d72c13"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-8cf1b-opy-and-reloads-Recent-Open-tablet-768/trace.zip",
+        "bytes": 545406,
+        "sha256": "1d4120ce495ebd9f0ac4394e025683072ee9c76c1fe2c6f06f3aeab5bcddb527"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-ada9c-opy-and-reloads-Recent-Open-desktop/error-context.md",
+        "bytes": 15486,
+        "sha256": "ebcfde1679ab957e7ccf2fa5edebf5c269b9a1261cdcdb0171309961e24b4720"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-ada9c-opy-and-reloads-Recent-Open-desktop/test-failed-1.png",
+        "bytes": 82979,
+        "sha256": "b56ddf02859f471228a97f719f5c30675a3fe09fd020b6326f34ce82e3cd30ac"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-ada9c-opy-and-reloads-Recent-Open-desktop/trace.zip",
+        "bytes": 420829,
+        "sha256": "3ef21dcea84ca22ea21b24a3fc8261de0e49a8ac00b1dd5cedfc29e44b73d14d"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-ada9c-opy-and-reloads-Recent-Open-mobile-390/error-context.md",
+        "bytes": 15483,
+        "sha256": "fc3bd89df66c47df3ecd7083a74bb1d80daa351e6e24c48b6cfe684f58e6d8db"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-ada9c-opy-and-reloads-Recent-Open-mobile-390/test-failed-1.png",
+        "bytes": 220758,
+        "sha256": "7d4c56863599792ac99b0455796bccfce8e2e15b4e4ee3c8cacbac421bba37ae"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-ada9c-opy-and-reloads-Recent-Open-mobile-390/trace.zip",
+        "bytes": 725700,
+        "sha256": "7594f0779796a3e451715c7039b1eede51a3f1ced79e2ffb73c490e8d0888fea"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-ada9c-opy-and-reloads-Recent-Open-tablet-768/error-context.md",
+        "bytes": 15483,
+        "sha256": "fc3bd89df66c47df3ecd7083a74bb1d80daa351e6e24c48b6cfe684f58e6d8db"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-ada9c-opy-and-reloads-Recent-Open-tablet-768/test-failed-1.png",
+        "bytes": 74457,
+        "sha256": "47dc4b37b46f6a5a56e37d9244250cb3a3a552fe810a936edb3dfe15a5d72c13"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-f-ada9c-opy-and-reloads-Recent-Open-tablet-768/trace.zip",
+        "bytes": 554593,
+        "sha256": "37a7ef48f59e80ab283c9803e8a1622fd3e85003fe4d7fea26819e170048a212"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-3f997-opy-and-reloads-Recent-Open-desktop/error-context.md",
+        "bytes": 15488,
+        "sha256": "03f548e4e16565d2e6900b438c8a5b8f6d661c1d59e470643daeb29ada576a99"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-3f997-opy-and-reloads-Recent-Open-desktop/test-failed-1.png",
+        "bytes": 82979,
+        "sha256": "b56ddf02859f471228a97f719f5c30675a3fe09fd020b6326f34ce82e3cd30ac"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-3f997-opy-and-reloads-Recent-Open-desktop/trace.zip",
+        "bytes": 385235,
+        "sha256": "ca223bb3bf54457551843ad6a32fb2f7ad82ab180e17576a6a668cbc72f0488f"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-3f997-opy-and-reloads-Recent-Open-mobile-390/error-context.md",
+        "bytes": 15485,
+        "sha256": "98b8ef70427ebd5bab4ec76b1c1fcb1d1152e523f606cfe393d672ab29a32de5"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-3f997-opy-and-reloads-Recent-Open-mobile-390/test-failed-1.png",
+        "bytes": 220758,
+        "sha256": "7d4c56863599792ac99b0455796bccfce8e2e15b4e4ee3c8cacbac421bba37ae"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-3f997-opy-and-reloads-Recent-Open-mobile-390/trace.zip",
+        "bytes": 754789,
+        "sha256": "39334499f46d0561a0547f0b1875ecf5a3cfff497387c3157b06ca01bb9423f9"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-3f997-opy-and-reloads-Recent-Open-tablet-768/error-context.md",
+        "bytes": 15485,
+        "sha256": "98b8ef70427ebd5bab4ec76b1c1fcb1d1152e523f606cfe393d672ab29a32de5"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-3f997-opy-and-reloads-Recent-Open-tablet-768/test-failed-1.png",
+        "bytes": 74457,
+        "sha256": "47dc4b37b46f6a5a56e37d9244250cb3a3a552fe810a936edb3dfe15a5d72c13"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-3f997-opy-and-reloads-Recent-Open-tablet-768/trace.zip",
+        "bytes": 604973,
+        "sha256": "50bf48021fe5daf8e6577dced3680e294d495530fefd8a011a93c91d53380cde"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-f4530-opy-and-reloads-Recent-Open-desktop/error-context.md",
+        "bytes": 15489,
+        "sha256": "1365bba156d27a408124b132930400fb6846d2fc59b45dfb16dc7937a636a10c"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-f4530-opy-and-reloads-Recent-Open-desktop/test-failed-1.png",
+        "bytes": 82979,
+        "sha256": "b56ddf02859f471228a97f719f5c30675a3fe09fd020b6326f34ce82e3cd30ac"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-f4530-opy-and-reloads-Recent-Open-desktop/trace.zip",
+        "bytes": 440333,
+        "sha256": "d56cb4684b4322a55edfdf167e92b15f5ebd5d654c7674e711f39dc5cbdbea0f"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-f4530-opy-and-reloads-Recent-Open-mobile-390/error-context.md",
+        "bytes": 15486,
+        "sha256": "71c3d35d10366a711bc6d94b0814e921e8d61ecf5771a769e9a85ac32a5277bb"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-f4530-opy-and-reloads-Recent-Open-mobile-390/test-failed-1.png",
+        "bytes": 220758,
+        "sha256": "7d4c56863599792ac99b0455796bccfce8e2e15b4e4ee3c8cacbac421bba37ae"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-f4530-opy-and-reloads-Recent-Open-mobile-390/trace.zip",
+        "bytes": 719921,
+        "sha256": "4f94cb0732fff20bc6ff162e2fafd6112728012d845c0c0326c902ffad3ba020"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-f4530-opy-and-reloads-Recent-Open-tablet-768/error-context.md",
+        "bytes": 15486,
+        "sha256": "71c3d35d10366a711bc6d94b0814e921e8d61ecf5771a769e9a85ac32a5277bb"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-f4530-opy-and-reloads-Recent-Open-tablet-768/test-failed-1.png",
+        "bytes": 74457,
+        "sha256": "47dc4b37b46f6a5a56e37d9244250cb3a3a552fe810a936edb3dfe15a5d72c13"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-p-f4530-opy-and-reloads-Recent-Open-tablet-768/trace.zip",
+        "bytes": 565780,
+        "sha256": "bc9df818fc64aa89a0e048bd7c667c87089cf560795feba89c8ac148d213eeed"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-5e4f8--upgrade-or-any-byte-change-desktop/error-context.md",
+        "bytes": 15468,
+        "sha256": "758a0d55d7451227d262def7d0c6c53e6ab68d7384f08b2108a404d7e6627f50"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-5e4f8--upgrade-or-any-byte-change-desktop/test-failed-1.png",
+        "bytes": 82979,
+        "sha256": "b56ddf02859f471228a97f719f5c30675a3fe09fd020b6326f34ce82e3cd30ac"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-5e4f8--upgrade-or-any-byte-change-desktop/trace.zip",
+        "bytes": 355968,
+        "sha256": "afef9e6b1560881850c42759eb26797ef6679e07596c2cd606797bb26f32fc64"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-5e4f8--upgrade-or-any-byte-change-mobile-390/error-context.md",
+        "bytes": 15465,
+        "sha256": "ef4608ffb4aae43e5ef3b027a6c646b952a44a52174773a99801ed567f3750a8"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-5e4f8--upgrade-or-any-byte-change-mobile-390/test-failed-1.png",
+        "bytes": 220758,
+        "sha256": "7d4c56863599792ac99b0455796bccfce8e2e15b4e4ee3c8cacbac421bba37ae"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-5e4f8--upgrade-or-any-byte-change-mobile-390/trace.zip",
+        "bytes": 588837,
+        "sha256": "2c6796d77d6abe0d19cbb386057406b19e656eeabcd71b984ded006c249931eb"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-5e4f8--upgrade-or-any-byte-change-tablet-768/error-context.md",
+        "bytes": 15465,
+        "sha256": "ef4608ffb4aae43e5ef3b027a6c646b952a44a52174773a99801ed567f3750a8"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-5e4f8--upgrade-or-any-byte-change-tablet-768/test-failed-1.png",
+        "bytes": 74457,
+        "sha256": "47dc4b37b46f6a5a56e37d9244250cb3a3a552fe810a936edb3dfe15a5d72c13"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-5e4f8--upgrade-or-any-byte-change-tablet-768/trace.zip",
+        "bytes": 489270,
+        "sha256": "1ae24975125d411a574bb3cca0a824dc350105b22747533911ee17efac88e1ec"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-desktop/error-context.md",
+        "bytes": 15481,
+        "sha256": "3253604e0e37e78f539de361a44c8bafce624e9ec179ad621670eaf2d650bb6c"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-desktop/test-failed-1.png",
+        "bytes": 82979,
+        "sha256": "b56ddf02859f471228a97f719f5c30675a3fe09fd020b6326f34ce82e3cd30ac"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-desktop/trace.zip",
+        "bytes": 282836,
+        "sha256": "889014ef2c2fdb5080b57d34639eefbbcdf48e317f8187c218d81ecbfe789e26"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-mobile-390/error-context.md",
+        "bytes": 15478,
+        "sha256": "b174765b345bb5b65ccd5636fd041fe55e58149b1829e2ed4f2adfefb531038f"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-mobile-390/test-failed-1.png",
+        "bytes": 220758,
+        "sha256": "7d4c56863599792ac99b0455796bccfce8e2e15b4e4ee3c8cacbac421bba37ae"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-mobile-390/trace.zip",
+        "bytes": 609332,
+        "sha256": "4cbceb5ca61b2052a05ba8ac9dc3ea4421085886b12f42a44b4bb8ee86cbfe41"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-tablet-768/error-context.md",
+        "bytes": 15478,
+        "sha256": "b174765b345bb5b65ccd5636fd041fe55e58149b1829e2ed4f2adfefb531038f"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-tablet-768/test-failed-1.png",
+        "bytes": 74457,
+        "sha256": "47dc4b37b46f6a5a56e37d9244250cb3a3a552fe810a936edb3dfe15a5d72c13"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-5ec57-efore-one-saved-copy-import-tablet-768/trace.zip",
+        "bytes": 378220,
+        "sha256": "eea99fb62974abbe76869bc8fa353fe9d551c85e41060653f4caddc01834da66"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-94431-including-workspace-version-desktop/error-context.md",
+        "bytes": 15476,
+        "sha256": "0fe5c0c78316296efea27d7f34d444e9211e65aa06254c39320935286ff46424"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-94431-including-workspace-version-desktop/test-failed-1.png",
+        "bytes": 82979,
+        "sha256": "b56ddf02859f471228a97f719f5c30675a3fe09fd020b6326f34ce82e3cd30ac"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-94431-including-workspace-version-desktop/trace.zip",
+        "bytes": 423575,
+        "sha256": "b1dfaac8b8aded7377561075d3c82a073ff7ecfb16e96e7eadd36869dc2d90f3"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-94431-including-workspace-version-mobile-390/error-context.md",
+        "bytes": 15473,
+        "sha256": "a63f3bc4b24e31b93b8cc1b7fac774765b483508395d66cc5c2d1a727d15b305"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-94431-including-workspace-version-mobile-390/test-failed-1.png",
+        "bytes": 220758,
+        "sha256": "7d4c56863599792ac99b0455796bccfce8e2e15b4e4ee3c8cacbac421bba37ae"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-94431-including-workspace-version-mobile-390/trace.zip",
+        "bytes": 759648,
+        "sha256": "995721d255b8e5d869b7472e3104e5854275f4bb7cede91c6f0de86ea50418a6"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-94431-including-workspace-version-tablet-768/error-context.md",
+        "bytes": 15473,
+        "sha256": "a63f3bc4b24e31b93b8cc1b7fac774765b483508395d66cc5c2d1a727d15b305"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-94431-including-workspace-version-tablet-768/test-failed-1.png",
+        "bytes": 74457,
+        "sha256": "47dc4b37b46f6a5a56e37d9244250cb3a3a552fe810a936edb3dfe15a5d72c13"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-94431-including-workspace-version-tablet-768/trace.zip",
+        "bytes": 523776,
+        "sha256": "0f0f59402b9595ea3ed6538b3b60519268cdad2926fb55157115d42c0db14e7f"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-9fac9-including-workspace-version-desktop/error-context.md",
+        "bytes": 15474,
+        "sha256": "ccbbee4753637537b24dd0c8e9f05fc6922ad33ef91c240f9d765961e40cdb6d"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-9fac9-including-workspace-version-desktop/test-failed-1.png",
+        "bytes": 82979,
+        "sha256": "b56ddf02859f471228a97f719f5c30675a3fe09fd020b6326f34ce82e3cd30ac"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-9fac9-including-workspace-version-desktop/trace.zip",
+        "bytes": 347771,
+        "sha256": "a19d724348ff728f8bcd70057310801a6c740a9cb58ea020ab9bcb38ca3963a2"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-9fac9-including-workspace-version-mobile-390/error-context.md",
+        "bytes": 15471,
+        "sha256": "dcd4217a06eb8b64568ce5afadef9650890207296efb1ea70bd25187a9a7ed7e"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-9fac9-including-workspace-version-mobile-390/test-failed-1.png",
+        "bytes": 220758,
+        "sha256": "7d4c56863599792ac99b0455796bccfce8e2e15b4e4ee3c8cacbac421bba37ae"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-9fac9-including-workspace-version-mobile-390/trace.zip",
+        "bytes": 602540,
+        "sha256": "2aebed6ae44c270739421eccb77ab085f0c55c3fe6f9fbcbe51c833597ebcdb0"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-9fac9-including-workspace-version-tablet-768/error-context.md",
+        "bytes": 15471,
+        "sha256": "dcd4217a06eb8b64568ce5afadef9650890207296efb1ea70bd25187a9a7ed7e"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-9fac9-including-workspace-version-tablet-768/test-failed-1.png",
+        "bytes": 74457,
+        "sha256": "47dc4b37b46f6a5a56e37d9244250cb3a3a552fe810a936edb3dfe15a5d72c13"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-9fac9-including-workspace-version-tablet-768/trace.zip",
+        "bytes": 436274,
+        "sha256": "e01d3f3963dbcc882277385dc5dfe79fd6e3b1352b24b0ff29b2dfc2f1b590d2"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-desktop/error-context.md",
+        "bytes": 15481,
+        "sha256": "df749a014bdd81de213ebf7f48d30f7b2d9aa3f062206e51224ae561a0ef80c0"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-desktop/test-failed-1.png",
+        "bytes": 82979,
+        "sha256": "b56ddf02859f471228a97f719f5c30675a3fe09fd020b6326f34ce82e3cd30ac"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-desktop/trace.zip",
+        "bytes": 318803,
+        "sha256": "9a30ac79f551ef0081458fd49c58f624d725fcb04a2dd718261e7e6722e6ef1b"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-mobile-390/error-context.md",
+        "bytes": 15478,
+        "sha256": "8417f7eff3e6963a38206b05aa71af9db88a5a5d2aff1564b0620c6aecfce7ca"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-mobile-390/test-failed-1.png",
+        "bytes": 220758,
+        "sha256": "7d4c56863599792ac99b0455796bccfce8e2e15b4e4ee3c8cacbac421bba37ae"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-mobile-390/trace.zip",
+        "bytes": 618048,
+        "sha256": "b98a192140f429270146a204d6c7687330e0db84673db5a6131798f1f05af6ec"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-tablet-768/error-context.md",
+        "bytes": 15478,
+        "sha256": "8417f7eff3e6963a38206b05aa71af9db88a5a5d2aff1564b0620c6aecfce7ca"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-tablet-768/test-failed-1.png",
+        "bytes": 74457,
+        "sha256": "47dc4b37b46f6a5a56e37d9244250cb3a3a552fe810a936edb3dfe15a5d72c13"
+      },
+      {
+        "path": "playwright-results/workspace-package-import-v-ac46c-efore-one-saved-copy-import-tablet-768/trace.zip",
+        "bytes": 386836,
+        "sha256": "09f05e2a791756e813bfc4cabedccf0a46e34219fbe6601035d3f96654c816e2"
+      },
+      {
+        "path": "playwright-results/workspace-startup-resume-o-692b2-s-that-reload-automatically-desktop/error-context.md",
+        "bytes": 19860,
+        "sha256": "41557ef9469af8ed4a5ce17892fd08ea4d7d000d70e9af102b2dfd4c2869c06b"
+      },
+      {
+        "path": "playwright-results/workspace-startup-resume-o-692b2-s-that-reload-automatically-desktop/test-failed-1.png",
+        "bytes": 82979,
+        "sha256": "b56ddf02859f471228a97f719f5c30675a3fe09fd020b6326f34ce82e3cd30ac"
+      },
+      {
+        "path": "playwright-results/workspace-startup-resume-o-692b2-s-that-reload-automatically-desktop/trace.zip",
+        "bytes": 428387,
+        "sha256": "4c6832db3c12e881985500740c4795cc568058a182ba8350b7a371f73a141ce8"
+      },
+      {
+        "path": "playwright-results/workspace-startup-resume-o-692b2-s-that-reload-automatically-mobile-390/error-context.md",
+        "bytes": 19857,
+        "sha256": "a9cc6bc585eb5dd3df5a3804d6b51c877dfebbd7c589e6d6feb4737e28083234"
+      },
+      {
+        "path": "playwright-results/workspace-startup-resume-o-692b2-s-that-reload-automatically-mobile-390/test-failed-1.png",
+        "bytes": 220758,
+        "sha256": "7d4c56863599792ac99b0455796bccfce8e2e15b4e4ee3c8cacbac421bba37ae"
+      },
+      {
+        "path": "playwright-results/workspace-startup-resume-o-692b2-s-that-reload-automatically-mobile-390/trace.zip",
+        "bytes": 713477,
+        "sha256": "0453e68442bf49145ad3e56c9fda5da8fba0069fe7f50d2dd55d7bf1cdd6c911"
+      },
+      {
+        "path": "playwright-results/workspace-startup-resume-o-692b2-s-that-reload-automatically-tablet-768/error-context.md",
+        "bytes": 19857,
+        "sha256": "a9cc6bc585eb5dd3df5a3804d6b51c877dfebbd7c589e6d6feb4737e28083234"
+      },
+      {
+        "path": "playwright-results/workspace-startup-resume-o-692b2-s-that-reload-automatically-tablet-768/test-failed-1.png",
+        "bytes": 74457,
+        "sha256": "47dc4b37b46f6a5a56e37d9244250cb3a3a552fe810a936edb3dfe15a5d72c13"
+      },
+      {
+        "path": "playwright-results/workspace-startup-resume-o-692b2-s-that-reload-automatically-tablet-768/trace.zip",
+        "bytes": 456837,
+        "sha256": "138df17d21990232698c789eed4222ef0b297f076059af6ef63e13fe15400c27"
+      },
+      {
+        "path": "raw.log",
+        "bytes": 237735,
+        "sha256": "c4f50f44bdfe036e2b56294333155264cf4243bf367439847c59725cdc8aed65"
+      }
+    ]
+  },
+  "log": {
+    "sha256": "c4f50f44bdfe036e2b56294333155264cf4243bf367439847c59725cdc8aed65",
+    "bytes": 237735,
+    "hashVerified": true
+  },
+  "automatedAccessibility": {
+    "scans": 18,
+    "details": [
+      {
+        "project": "desktop",
+        "attachment": "sign-in-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0,
+        "incompleteRuleIds": []
+      },
+      {
+        "project": "desktop",
+        "attachment": "customer-home-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0,
+        "incompleteRuleIds": []
+      },
+      {
+        "project": "desktop",
+        "attachment": "project-home-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0,
+        "incompleteRuleIds": []
+      },
+      {
+        "project": "desktop",
+        "attachment": "design-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 2,
+        "incompleteRuleIds": [
+          "aria-prohibited-attr",
+          "color-contrast"
+        ]
+      },
+      {
+        "project": "desktop",
+        "attachment": "survey-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 2,
+        "incompleteRuleIds": [
+          "aria-prohibited-attr",
+          "color-contrast"
+        ]
+      },
+      {
+        "project": "desktop",
+        "attachment": "short-catalog-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 2,
+        "incompleteRuleIds": [
+          "aria-prohibited-attr",
+          "color-contrast"
+        ]
+      },
+      {
+        "project": "tablet-768",
+        "attachment": "sign-in-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0,
+        "incompleteRuleIds": []
+      },
+      {
+        "project": "tablet-768",
+        "attachment": "customer-home-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0,
+        "incompleteRuleIds": []
+      },
+      {
+        "project": "tablet-768",
+        "attachment": "project-home-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0,
+        "incompleteRuleIds": []
+      },
+      {
+        "project": "tablet-768",
+        "attachment": "design-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 2,
+        "incompleteRuleIds": [
+          "aria-prohibited-attr",
+          "color-contrast"
+        ]
+      },
+      {
+        "project": "tablet-768",
+        "attachment": "survey-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 2,
+        "incompleteRuleIds": [
+          "aria-prohibited-attr",
+          "color-contrast"
+        ]
+      },
+      {
+        "project": "tablet-768",
+        "attachment": "short-catalog-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 1,
+        "incompleteRuleIds": [
+          "aria-prohibited-attr"
+        ]
+      },
+      {
+        "project": "mobile-390",
+        "attachment": "sign-in-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0,
+        "incompleteRuleIds": []
+      },
+      {
+        "project": "mobile-390",
+        "attachment": "customer-home-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0,
+        "incompleteRuleIds": []
+      },
+      {
+        "project": "mobile-390",
+        "attachment": "project-home-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 0,
+        "incompleteRuleIds": []
+      },
+      {
+        "project": "mobile-390",
+        "attachment": "design-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 2,
+        "incompleteRuleIds": [
+          "aria-prohibited-attr",
+          "color-contrast"
+        ]
+      },
+      {
+        "project": "mobile-390",
+        "attachment": "survey-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 2,
+        "incompleteRuleIds": [
+          "aria-prohibited-attr",
+          "color-contrast"
+        ]
+      },
+      {
+        "project": "mobile-390",
+        "attachment": "short-catalog-axe.json",
+        "testEngine": {
+          "name": "axe-core",
+          "version": "4.13.0"
+        },
+        "runOnly": {
+          "type": "tag",
+          "values": [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa"
+          ]
+        },
+        "violations": 0,
+        "incomplete": 1,
+        "incompleteRuleIds": [
+          "aria-prohibited-attr"
+        ]
+      }
+    ],
+    "violationsTotal": 0,
+    "incompleteRuleOutcomes": 16,
+    "incompleteRuleIds": [
+      "aria-prohibited-attr",
+      "color-contrast"
+    ],
+    "boundary": "Actual18embeddedAxe4.13scans withdeclaredWCAGtags preserved. Automated0violations/incompleteoutcomes do notqualifyfullWCAG orwhole267workflow."
+  },
+  "failureAnalysis": {
+    "provenance": "Coordinator delivered independentworkflow/mapping stale-navigation verification; no additionalprobeartifact invented. EmbeddedHTML directlyreconciles exactcaseaccounting.",
+    "packageImport": "48executions/16titles use obsoleteglobalRecent expectations; actualRecent is selected-field scoped. These completecases remainfailed/unqualified despite reportednavigation diagnosis.",
+    "management": "9executions/3titles; sourcepreservation assertions pass before obsoleteSourceAchildlocators whileBrowseBselected. Completecases remainfailed.",
+    "startup": "3executions/1title included in sameobsoleteparent/navigation review.",
+    "authorizedCorrection": "Onlyfourexistingwebspecs and existingworkspace-fixtures sharedactualparent navigation, with title identities/assertions/productionguards unchanged per owner authorization.",
+    "boundary": "No fullcase/pass, sourcefix or futuretest-onlyedition qualification inferred; frozen shippingcode remainsR14 and actualaggregatepass staysR14."
+  },
+  "boundary": "Actualcompleted267=207pass60fail, noflaky/skip/unrun. All392artifact hashes/bytes verified. Preservefocused15pass andfreshR14sourcepass separately; wholeQA/twofinalreviews/publication/native/physical acceptance notestablished."
+}

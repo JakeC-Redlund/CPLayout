@@ -21,6 +21,8 @@ Start with [the agent tree protocol](agent-tree-protocol.md) for coordinator/lea
 
 For local CV capability discovery, use the canonical CV repository's `records/governance/portable-cv-skill-catalog.json` and `records/governance/portable-cv-host-compatibility.md` by reference. A source file or plugin cache entry does not prove host invocation or runtime inference. CPLayout imagery review still routes through the imagery mapper and GIS guardian; projected/local `XY` remains canonical, while WGS84 and KML/KMZ styling are input/display or visual interchange only. Packet-declaration validation, independently verified bytes, measured pixels, human review, and device/Google Earth proof are distinct evidence classes.
 
+Current requirements/evidence are maintained once in [workflow-registry.json](workflow-registry.json). The [78-entry capability inventory](skill-capability-inventory.md) records source presence and applicability separately from validation and runtime. The current user delegates decisions; historical human questionnaire instructions do not mandate new forms.
+
 ## Repo-Local Skills
 
 | Skill | Purpose | Primary owner |
@@ -70,7 +72,7 @@ The 2026-09-27 local 12-prompt fixture run emitted 5,575 bytes versus the 25,973
 
 `tools/build_cplayout_context_map.py` generates `.codex/hooks/cplayout_context_map.json`, `docs/agent-context-map.md`, and `docs/agent-governance-summary.md`. The map gives each route and custom agent compact context-pack ids, minimum-read paths, secondary-read paths, validation commands, expected output shape, token budgets, panel weights, and hard vetoes. The Markdown exposes pack `tokenBudget` values for human budget review. It does not include raw file content, ignored reports, local customer artifacts, secrets, absolute machine paths, or extracted PDF bodies.
 
-The prompt triage hook preserves route scoring, then selects at most three compact context-pack IDs and only task-relevant first reads. The subagent-start hook identifies the matching agent and bounded first reads. At runtime, hooks verify authority and selected first-read hashes; `npm run context-map:check` checks full-map freshness. Missing or invalid maps fail open to the durable `AGENTS.md` boundary.
+The prompt triage hook preserves route scoring, then selects at most three compact context-pack IDs and only task-relevant first reads. The subagent-start hook identifies the matching agent and bounded first reads. At runtime, hooks verify authority and selected first-read hashes; `npm run context-map:check` checks full-map freshness. Missing or invalid maps emit a bounded private fallback to the current user task and coordinator assignment; withdrawn instructions are not injected.
 
 Run `npm run context-map:build` after changing routes, hooks, custom agents, repo-local skills, validation records, or indexed docs. Run `npm run context-map:check` or `npm run validate:skills` before reporting success; the check fails when the checked-in JSON or Markdown is stale.
 
@@ -112,10 +114,10 @@ Detailed routing guidance lives in `.agents/skills/cplayout-expert-agent-panels/
 
 `.codex/hooks.json` also registers:
 
-- `SubagentStart` through `.codex/hooks/cplayout_subagent_start.py`, which injects CPLayout boundaries into spawned subagents: read `AGENTS.md`, preserve projected/local `XY`, avoid paid APIs and hidden keys, keep KML/KMZ styling visual-only, and require evidence before runtime proof claims.
+- `SubagentStart` through `.codex/hooks/cplayout_subagent_start.py`, which emits bounded current-task/scope guidance and matching source-hashed first reads; it does not restore withdrawn rules or authorize spawning.
 - `PreToolUse` through `.codex/hooks/cplayout_pre_tool_use.py`, which narrowly denies clearly destructive commands such as `git reset --hard`, `git clean -fd`, force push, and `npm audit fix --force`. Other CPLayout-sensitive patterns receive advisory context rather than a block.
 
-The project-local `Stop` continuation hook is disabled. `.codex/hooks.json` no longer registers `Stop`, and `.codex/hooks/cplayout_stop_multi_agent.py` remains only as a compatibility no-op for already-loaded command references. Subagent accounting is still required by `AGENTS.md` and by the `UserPromptSubmit` coordinator contract, but missing accounting must not create automatic Stop continuation prompts.
+The project-local `Stop` continuation hook is disabled. `.codex/hooks.json` no longer registers `Stop`, and `.codex/hooks/cplayout_stop_multi_agent.py` remains only as a compatibility no-op for already-loaded command references. Subagent accounting follows the current coordinator assignment and bounded advisory context, but missing accounting must not create automatic Stop continuation prompts.
 
 These hooks make missing decisions visible through prompt context, but they do not request another turn at Stop. They are not proof that subagents spawned, that process policy was fully enforced, or that a managed endpoint loaded the scripts.
 

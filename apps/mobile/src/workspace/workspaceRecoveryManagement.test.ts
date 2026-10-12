@@ -15,7 +15,7 @@ import { validateWorkspaceDocument, type WorkspaceDocument } from "../../../../p
 import type { WorkspaceCommand } from "../../../../packages/project-store/src/workspaceCommands";
 import { editableFromSavedDesign, reduceWorkspaceEditable, serializeWorkspaceEditable, workspaceEditableIsDirty } from "./workspaceDocumentAdapters";
 import {
-  WORKSPACE_EDIT_RECOVERY_VERSION, WORKSPACE_EDIT_RECOVERY_V1_VERSION,
+  WORKSPACE_EDIT_RECOVERY_VERSION, WORKSPACE_EDIT_RECOVERY_V1_VERSION, WORKSPACE_EDIT_RECOVERY_V2_VERSION,
   captureWorkspaceRecoveryEditable, emptyWorkspaceEditRecoveryUi, parseWorkspaceEditRecovery,
   resolveWorkspaceEditRecovery, serializeWorkspaceEditRecovery, workspaceRecoveryStableJson,
   type WorkspaceEditRecoveryCandidateV1, type WorkspaceEditRecoveryCandidateV2,
@@ -53,7 +53,7 @@ function loadFrozenReader(): FrozenReader {
 }
 const oldReader = loadFrozenReader();
 function empty(writerId = "management-writer"): Mutable<WorkspaceEditRecoveryCandidateV2> {
-  return clone({ recoveryVersion: WORKSPACE_EDIT_RECOVERY_VERSION, writerId, sequence: 1, capturedAt: now,
+  return clone({ recoveryVersion: WORKSPACE_EDIT_RECOVERY_V2_VERSION, writerId, sequence: 1, capturedAt: now,
     context: { version: 2, catalogVisible: true, catalogSelection: { clientId: null, projectId: null, fieldMapId: null, designId: null },
       workspace: { mode: "design", design: null, layout: null, collectionId: null } }, workspaceRevision: 0,
     editable: null, collections: [], layout: null, controller: { historyPast: [], historyFuture: [], selectedAddress: null },
@@ -177,10 +177,10 @@ test("frozen actual v1 reader remains byte-identical and new default/version uni
   const manifest = JSON.parse(readFileSync(new URL("../../../../tests/fixtures/workspace-edit-recovery-v1-reader.json", import.meta.url), "utf8"));
   assert.equal(manifest.outputSha256, frozenReaderHash); assert.equal(manifest.moduleVersion, WORKSPACE_EDIT_RECOVERY_V1_VERSION);
   assert.equal(oldReader.WORKSPACE_EDIT_RECOVERY_VERSION, "cplayout-unified-edit-recovery-v1");
-  assert.equal(WORKSPACE_EDIT_RECOVERY_VERSION, "cplayout-unified-edit-recovery-v2");
+  assert.equal(WORKSPACE_EDIT_RECOVERY_VERSION, "cplayout-unified-edit-recovery-v3");
   assert.deepEqual(emptyWorkspaceEditRecoveryUi(), oldReader.emptyWorkspaceEditRecoveryUi());
   const input = empty(), current = parseWorkspaceEditRecovery(input), legacy = v1(input);
-  assert.equal(current.recoveryVersion, WORKSPACE_EDIT_RECOVERY_VERSION); assert.equal(legacy.recoveryVersion, WORKSPACE_EDIT_RECOVERY_V1_VERSION);
+  assert.equal(current.recoveryVersion, WORKSPACE_EDIT_RECOVERY_V2_VERSION); assert.equal(legacy.recoveryVersion, WORKSPACE_EDIT_RECOVERY_V1_VERSION);
   assert.equal(parseWorkspaceEditRecovery(serializeWorkspaceEditRecovery(legacy)).recoveryVersion, WORKSPACE_EDIT_RECOVERY_V1_VERSION);
   assert.equal(serializeWorkspaceEditRecovery(legacy), oldReader.serializeWorkspaceEditRecovery(legacy));
 });
@@ -231,9 +231,9 @@ test("actual old reader refuses every v2 envelope before consumer mutation, incl
     const input = empty(); if (kind !== null) input.ui.catalog.form = form(input, kind);
     const raw = serializeWorkspaceEditRecovery(input); let mutations = 0;
     assert.throws(() => { oldReader.parseWorkspaceEditRecovery(raw); mutations++; }, /Unsupported edit recovery version/);
-    assert.equal(mutations, 0); assert.equal(parseWorkspaceEditRecovery(raw).recoveryVersion, WORKSPACE_EDIT_RECOVERY_VERSION);
+    assert.equal(mutations, 0); assert.equal(parseWorkspaceEditRecovery(raw).recoveryVersion, WORKSPACE_EDIT_RECOVERY_V2_VERSION);
   }
-  for (const recoveryVersion of ["cplayout-unified-edit-recovery-v0", "cplayout-unified-edit-recovery-v3", "cplayout-unified-edit-recovery-v2 "])
+  for (const recoveryVersion of ["cplayout-unified-edit-recovery-v0", "cplayout-unified-edit-recovery-v4", "cplayout-unified-edit-recovery-v2 "])
     assert.throws(() => parseWorkspaceEditRecovery({ ...empty(), recoveryVersion }), /Unsupported edit recovery version/);
 });
 
@@ -245,7 +245,7 @@ test("mixed v1/v2 ledger reads and exports preserve exact raw slots and keys wit
     slots: [{ writerId: oldCandidate.writerId, sequence: 1, raw: oldRaw }, { writerId: newCandidate.writerId, sequence: 1, raw: newRaw }] }));
   const f = recoveryStorage(originalLedger), before = new Map(f.values), slots = await f.store.readCandidates();
   assert.equal(WORKSPACE_EDIT_RECOVERY_KEY, "cplayout-unified-edit-recovery-v1"); assert.equal(WORKSPACE_EDIT_RECOVERY_LEDGER_VERSION, "cplayout-unified-edit-recovery-ledger-v1");
-  assert.deepEqual(slots.map(slot => slot.candidate.recoveryVersion), [WORKSPACE_EDIT_RECOVERY_V1_VERSION, WORKSPACE_EDIT_RECOVERY_VERSION]);
+  assert.deepEqual(slots.map(slot => slot.candidate.recoveryVersion), [WORKSPACE_EDIT_RECOVERY_V1_VERSION, WORKSPACE_EDIT_RECOVERY_V2_VERSION]);
   assert.equal(slots[0].raw, oldRaw); assert.equal(slots[1].raw, newRaw);
   assert.equal(await f.store.exportCandidate("legacy-writer"), oldRaw); assert.equal(await f.store.exportCandidate("current-writer"), newRaw);
   assert.equal(await f.store.exportRawLedger(), originalLedger); assert.equal(f.writes(), 0); assert.deepEqual(f.values, before);
@@ -265,7 +265,7 @@ test("opaque mixed-ledger export remains exact even when the old reader refuses 
   const ledgerRaw = formatted(JSON.stringify({ ledgerVersion: WORKSPACE_EDIT_RECOVERY_LEDGER_VERSION, slots: [{ writerId: candidate.writerId, sequence: 1, raw }] }));
   assert.throws(() => oldReader.parseWorkspaceEditRecovery(raw), /Unsupported edit recovery version/);
   const f = recoveryStorage(ledgerRaw); assert.equal(await f.store.exportRawLedger(), ledgerRaw); assert.equal(f.writes(), 0);
-  const futureRaw = ledgerRaw.replace(/cplayout-unified-edit-recovery-v2/g, "cplayout-unified-edit-recovery-v3"), future = recoveryStorage(futureRaw);
+  const futureRaw = ledgerRaw.replace(/cplayout-unified-edit-recovery-v2/g, "cplayout-unified-edit-recovery-v4"), future = recoveryStorage(futureRaw);
   await assert.rejects(future.store.readCandidates()); assert.equal(await future.store.exportRawLedger(), futureRaw); assert.equal(future.writes(), 0);
 });
 

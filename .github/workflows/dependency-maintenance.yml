@@ -1,0 +1,64 @@
+name: Dependency maintenance report
+
+on:
+  schedule:
+    - cron: "17 13 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependency-maintenance-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  report:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CI: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Install exact reviewed lock and postinstall guards
+        run: npm ci
+      - name: Record raw advisories and available stable versions
+        shell: bash
+        run: |
+          mkdir -p reports/dependency-maintenance
+          node --version > reports/dependency-maintenance/node-version.txt
+          npm --version > reports/dependency-maintenance/npm-version.txt
+          git rev-parse HEAD > reports/dependency-maintenance/source-commit.txt
+          set +e
+          npm audit --json > reports/dependency-maintenance/audit.json 2> reports/dependency-maintenance/audit.stderr.txt
+          audit_exit=$?
+          npm outdated --workspaces --long --json > reports/dependency-maintenance/outdated.json 2> reports/dependency-maintenance/outdated.stderr.txt
+          outdated_exit=$?
+          set -e
+          printf '%s\n' "$audit_exit" > reports/dependency-maintenance/audit-exit.txt
+          printf '%s\n' "$outdated_exit" > reports/dependency-maintenance/outdated-exit.txt
+          test "$audit_exit" -le 1
+          test "$outdated_exit" -le 1
+      - name: Verify installed security guard bytes
+        run: node tools/patchDependencySecurity.cjs --check
+      - name: Verify Expo peer compatibility
+        working-directory: apps/mobile
+        run: npx --no-install expo install --check
+      - name: Strictly admit audit graph and installed mitigations
+        run: npm run audit:verified
+      - name: Retain bounded dependency evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dependency-maintenance-${{ github.run_id }}
+          path: |
+            reports/dependency-maintenance/
+            reports/dependency-audit/
+          if-no-files-found: warn
+          retention-days: 14

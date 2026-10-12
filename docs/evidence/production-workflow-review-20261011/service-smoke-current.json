@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-11",
+  "result": "pass",
+  "scope": "Intermediate actual PostgreSQL HTTP gateway smoke, not deployment or full application acceptance.",
+  "logSha256": "61fb4f5dbb5a54327212e86a92910194128a81f6b15c892e00502fdd6d46230b",
+  "observedTest": "actual PostgreSQL gateway authenticates over HTTP and retains exact source through customer archive and restore",
+  "counts": {
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0
+  },
+  "sourceFreezeProvided": false,
+  "boundary": "The retained command log proves this one non-skipped scenario; matching complete final source/aggregate/browser/deployment qualification remains separate."
+}

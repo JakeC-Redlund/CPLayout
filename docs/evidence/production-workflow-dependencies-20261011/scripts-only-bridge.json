@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "checkedOn": "2026-10-11",
+  "baseCommit": "2649d1a9b1f1c55dff2eea4a6fe9faaa54be3824",
+  "scope": "Dependency graph and reviewed guard bytes only; script additions are not accepted application/runtime evidence.",
+  "sourceFingerprint": "47dc2aad0d76001e2622847c02c7b86a886be172ebe7509a8eb3f93d66c7964d",
+  "sourceHashes": {
+    "package.json": "73eb7b3eb390465691bd8a39a501f27466854cd0ff69fced4b41a9c087b4b737",
+    "package-lock.json": "1b7423056c6e14f1081468ed1fc79ab899b78fa7434879d944ecc257f5cf797e",
+    ".nvmrc": "73fb1b615e2043a933be1c0895cde4358036acc28d785692509b822aa53c761f",
+    "apps/mobile/package.json": "032702b0070f02929a0aa592986a2f8cebc8ff809a32fc853361862ded1a41cb",
+    "packages/project-store/package.json": "c6818cfcd7be878ce40061a4706340302b48d7fb0de64aad7f95ce26a6ebce99",
+    "packages/map-adapters/package.json": "c79af936023600ced2e3e00bb4b1eb449475ce66ed8c26ddce1adb39b45a7788",
+    "packages/backup-artifacts/package.json": "c2e2054c755959251992450fe5ea2ee145d7ebc58bc47aeb0a8b50892cdb034a",
+    "tools/patchExpoSqliteOwnership.cjs": "cd68f37d3191aff632a85e2336c279b300169e76ed36c0ff43c1e206661f47b9",
+    "tools/patchExpoSqliteOwnership.test.cjs": "bd0f422f5c3bd4629c472cad67f2e902fcf3a3635e9f87f7ec101d62203a20fb",
+    "tools/patchDependencySecurity.cjs": "85ec33b127e1e4f2167e91a715d8f8dd061e855235a5e73927627a4a82bceeab",
+    "tools/patchDependencySecurity.test.cjs": "f4d8a678757fe6d5851bdda311e0baa7bc545576acca6e00b0b59c4a3ca59c42",
+    "tools/dependencyAudit.cjs": "6cfa981aaf3bfd442d68c0ff8c57e87a837600cbc65816f45c0a428d5cd6a6df",
+    "tools/dependencyAudit.test.cjs": "7bf1c1f7e177be6b986148b7efed2cc33f268b439333660a2a81824261037dff",
+    "patches/expo-sqlite+55.0.20.json": "eee599eda730e5574b46b5f75afc22a3ab0c7c7de85f7c95b351eb786a0f962a",
+    "patches/expo-sqlite+55.0.20.patch": "a9000c0456ed78a4ebcff5fb019e19865ab001c9dfda52ae5c6a0963425964fa",
+    "patches/expo-sqlite+56.0.6.json": "90b3b28361b4727a1181ad9c5242a291fc63019232eedacf858d1c2f28ba77a0",
+    "patches/expo-sqlite+56.0.6.patch": "b1a820952adc5400533e955e7bdd33067d1fb3f948c964fa350fb1a9dfdcdae6",
+    "patches/expo-sqlite+57.0.4.json": "9b5bd98700e992a6d76ddb283740779a975a1f596adf2a84ed849cf96a016ded",
+    "patches/expo-sqlite+57.0.4.patch": "ddc9a6ee0155cd258d1b62c0026bd79ff077b277221f63b99bf7ba972f0c6595",
+    "patches/legacy-sprintf-js-1.0.3-fixture.json": "38994b6dcc470b5447e6e495af43b4f9f946576ada87003aef52e4e7e0ceb927"
+  },
+  "priorEvidence": {
+    "path": "docs/evidence/production-workflow-dependencies-20261011/source-checks.json",
+    "sha256": "fdde12655aa89ca4e0596c17f2bf2ec6df712b53f5a187986ef61e8447001457",
+    "sourceFingerprint": "a5bcf64200eb668976047bde7ff49d0ed3ddd08f6ebe360d4a364e95f4f0e4b6"
+  },
+  "result": "pass",
+  "claim": "Dependency declarations, lock, selected toolchain and installed guard sources are unchanged. Three manifest differences are exact additive test/start/validation script changes; no install lifecycle changed.",
+  "comparisons": [
+    {
+      "path": "package.json",
+      "priorSha256": "49b1399b7edd1c06fe5f84ad06f19bc197d1735bb23466586dcd75fe7c9dcbd0",
+      "currentSha256": "73eb7b3eb390465691bd8a39a501f27466854cd0ff69fced4b41a9c087b4b737",
+      "changedTopLevelKeys": [
+        "scripts"
+      ],
+      "scriptChanges": {
+        "start:service": {
+          "before": null,
+          "after": "tsx tools/serveProductionApp.ts"
+        },
+        "test": {
+          "before": "tsx tools/browserProofRegistry.test.ts && tsx tools/inspectReceiverLog.test.ts && tsx tools/referenceOverlayBuilder.test.ts && tsx tools/pngMetrics.test.ts && tsx tools/androidResources.test.ts && tsx tools/androidFileUiEvidence.test.ts && tsx tools/devServerManager.test.ts && tsx tools/webBuildLease.test.ts && tsx tools/serveStaticWeb.test.ts && tsx tools/receiverCompanion.test.ts && tsx tools/prepareMapLibreAssets.test.ts && tsx tools/metroDependency.test.ts && tsx tools/windowsLauncherScripts.test.ts && tsx tools/generateRealPivotFixtureManifest.test.ts && tsx tools/generateClientKmzAdvisoryReport.test.ts && tsx tools/verifyImageryEvidencePacket.test.ts && tsx tools/roadmapCompletion.test.ts && tsx tools/androidAppReview.test.ts && tsx tools/cornerGpsFltInventory.test.ts && tsx tools/inspectFltLayoutReview.test.ts && npm run test --workspaces --if-present",
+          "after": "tsx tools/browserProofRegistry.test.ts && tsx tools/inspectReceiverLog.test.ts && tsx tools/referenceOverlayBuilder.test.ts && tsx tools/pngMetrics.test.ts && tsx tools/androidResources.test.ts && tsx tools/androidFileUiEvidence.test.ts && tsx tools/devServerManager.test.ts && tsx tools/webBuildLease.test.ts && tsx tools/serveStaticWeb.test.ts && tsx --test tools/serveProductionApp.test.ts tools/syntheticProofIdentity.test.ts && tsx tools/receiverCompanion.test.ts && tsx tools/prepareMapLibreAssets.test.ts && tsx tools/metroDependency.test.ts && tsx tools/windowsLauncherScripts.test.ts && tsx tools/generateRealPivotFixtureManifest.test.ts && tsx tools/generateClientKmzAdvisoryReport.test.ts && tsx tools/verifyImageryEvidencePacket.test.ts && tsx tools/roadmapCompletion.test.ts && tsx tools/androidAppReview.test.ts && tsx tools/cornerGpsFltInventory.test.ts && tsx tools/inspectFltLayoutReview.test.ts && npm run test --workspaces --if-present"
+        },
+        "validate": {
+          "before": "npm run typecheck && npm run test:sqlite-ownership && npm run test:dependency-security && npm test",
+          "after": "npm run typecheck && npm run test:sqlite-ownership && npm run test:dependency-security && npm run test:workflow-status && npm test"
+        }
+      },
+      "method": "Reversing only the listed exact literal script edits reproduces the recorded prior file SHA-256. All non-script JSON fields equal."
+    },
+    {
+      "path": "apps/mobile/package.json",
+      "priorSha256": "13ae8f6e6be58a894b41a2b015a8028f3f31a7c306d3248050dd089f934ccba0",
+      "currentSha256": "032702b0070f02929a0aa592986a2f8cebc8ff809a32fc853361862ded1a41cb",
+      "changedTopLevelKeys": [
+        "scripts"
+      ],
+      "scriptChanges": {
+        "test": {
+          "before": "tsx src/catalogFormRecovery.test.ts && tsx src/components/savedDesignPreviewGeometry.test.ts && tsx src/components/machinePlanComparison.test.ts && tsx src/newDesignDraft.test.ts && tsx src/components/designDraftInputValues.test.ts && tsx src/hooks/useProjectRepository.test.ts && tsx src/projectOpenRequest.test.ts && tsx src/pendingMapDraft.test.ts && tsx src/projectEditorDispatch.test.ts && tsx src/editorSaveCoordinator.test.ts && tsx src/advisory/advisoryJob.test.ts && tsx src/advisory/cornerArmInputs.test.ts && tsx src/advisory/costInputs.test.ts && tsx src/navigation/navigationViewModels.test.ts && tsx src/navigation/projectTreeViewModel.test.ts && tsx src/gnss/webSerialTransport.test.ts && tsx src/gnss/webSerialTransportSafety.test.ts && tsx src/gnss/webSerialSessionOwner.test.ts && tsx src/gnss/captureDraft.test.ts && tsx src/components/fieldMachineInputs.test.ts && tsx src/components/drawingClassificationSelection.test.ts && tsx src/components/layoutSessionViewModel.test.ts && tsx src/navigation/workspaceResume.test.ts && tsx src/gnss/receiverSessionOwner.test.ts && tsx src/gnss/networkReceiverTransport.test.ts && tsx src/components/catalogArchiveImport.test.ts && tsx src/components/draftReceiptReconciliation.test.ts && tsx src/components/fieldReceiptReconciliation.test.ts && tsx src/inputRetention.test.ts && tsx src/components/editorOutputIdentity.test.ts && tsx src/workspace/workspacePresentation.test.ts && tsx src/workspace/workspaceControllerState.test.ts && tsx src/components/FieldDesignInputs.test.ts && tsx src/workspace/workspaceIntegration.test.ts && tsx src/workspace/workspaceFileCommands.test.ts && tsx src/workspace/WorkspaceSurveyPanel.test.ts && tsx src/workspace/WorkspaceCatalog.test.ts && tsx src/workspace/UnifiedDesignPanel.test.ts && tsx src/workspace/WorkspaceDrawingPanel.test.ts && tsx src/workspace/ProjectDesignPanel.test.ts && tsx src/navigation/unifiedWorkspaceResume.test.ts && tsx src/workspace/workspaceStartupResume.test.ts && tsx src/workspace/workspaceEditRecovery.test.ts && tsx src/workspace/workspaceEditRecoveryStore.test.ts && tsx src/workspace/WorkspaceModePanelsRecovery.test.ts && tsx src/workspace/WorkspaceCatalogRecovery.test.ts && tsx src/workspace/workspaceEditRecoveryOwner.test.ts && tsx src/workspace/workspaceRecoveryControllerState.test.ts && tsx src/workspace/workspaceRecoveryParticipants.test.ts && tsx src/workspace/WorkspaceCatalogManagement.test.ts && tsx src/workspace/workspaceRecoveryManagement.test.ts && tsx src/components/catalogFormInitialization.test.ts && tsx src/workspace/workspaceEditRecoveryV3.test.ts && tsx src/auth/authenticatedRepository.test.ts",
+          "after": "tsx src/catalogFormRecovery.test.ts && tsx src/components/savedDesignPreviewGeometry.test.ts && tsx src/components/machinePlanComparison.test.ts && tsx src/newDesignDraft.test.ts && tsx src/components/designDraftInputValues.test.ts && tsx src/hooks/useProjectRepository.test.ts && tsx src/projectOpenRequest.test.ts && tsx src/pendingMapDraft.test.ts && tsx src/projectEditorDispatch.test.ts && tsx src/editorSaveCoordinator.test.ts && tsx src/advisory/advisoryJob.test.ts && tsx src/advisory/cornerArmInputs.test.ts && tsx src/advisory/costInputs.test.ts && tsx src/navigation/navigationViewModels.test.ts && tsx src/navigation/projectTreeViewModel.test.ts && tsx src/gnss/webSerialTransport.test.ts && tsx src/gnss/webSerialTransportSafety.test.ts && tsx src/gnss/webSerialSessionOwner.test.ts && tsx src/gnss/captureDraft.test.ts && tsx src/components/fieldMachineInputs.test.ts && tsx src/components/drawingClassificationSelection.test.ts && tsx src/components/layoutSessionViewModel.test.ts && tsx src/navigation/workspaceResume.test.ts && tsx src/gnss/receiverSessionOwner.test.ts && tsx src/gnss/networkReceiverTransport.test.ts && tsx src/components/catalogArchiveImport.test.ts && tsx src/components/draftReceiptReconciliation.test.ts && tsx src/components/fieldReceiptReconciliation.test.ts && tsx src/inputRetention.test.ts && tsx src/components/editorOutputIdentity.test.ts && tsx src/workspace/workspacePresentation.test.ts && tsx src/workspace/workspaceControllerState.test.ts && tsx src/components/FieldDesignInputs.test.ts && tsx src/workspace/workspaceIntegration.test.ts && tsx src/workspace/workspaceFileCommands.test.ts && tsx src/workspace/WorkspaceSurveyPanel.test.ts && tsx src/workspace/WorkspaceCatalog.test.ts && tsx src/workspace/UnifiedDesignPanel.test.ts && tsx src/workspace/WorkspaceDrawingPanel.test.ts && tsx src/workspace/ProjectDesignPanel.test.ts && tsx src/navigation/unifiedWorkspaceResume.test.ts && tsx src/workspace/workspaceStartupResume.test.ts && tsx src/workspace/workspaceEditRecovery.test.ts && tsx src/workspace/workspaceEditRecoveryStore.test.ts && tsx src/workspace/WorkspaceModePanelsRecovery.test.ts && tsx src/workspace/WorkspaceCatalogRecovery.test.ts && tsx src/workspace/workspaceEditRecoveryOwner.test.ts && tsx src/workspace/workspaceRecoveryControllerState.test.ts && tsx src/workspace/workspaceRecoveryParticipants.test.ts && tsx src/workspace/WorkspaceCatalogManagement.test.ts && tsx src/workspace/workspaceRecoveryManagement.test.ts && tsx src/components/catalogFormInitialization.test.ts && tsx src/workspace/workspaceEditRecoveryV3.test.ts && tsx src/auth/authenticatedRepository.test.ts && tsx --test src/auth/navigationBoundary.test.ts src/auth/authTransition.test.ts src/auth/deniedAccess.test.ts src/workspace/WorkspaceLateralInputs.test.ts src/workspace/CustomerMaintenancePanel.test.ts"
+        }
+      },
+      "method": "Reversing only the listed exact literal script edits reproduces the recorded prior file SHA-256. All non-script JSON fields equal."
+    },
+    {
+      "path": "packages/map-adapters/package.json",
+      "priorSha256": "62297aa8f39d5ecb9ac64efda3a796226a4a5fb53a5aac012d8f51c1949e9612",
+      "currentSha256": "c79af936023600ced2e3e00bb4b1eb449475ce66ed8c26ddce1adb39b45a7788",
+      "changedTopLevelKeys": [
+        "scripts"
+      ],
+      "scriptChanges": {
+        "test": {
+          "before": "tsx src/mapOverlayGeoJson.test.ts && tsx src/referenceOverlayStyle.test.ts && tsx src/mapAttribution.test.ts && tsx src/browserMapInteraction.test.ts && tsx src/projectVertexEditing.test.ts && tsx src/mapTools.test.ts && tsx src/mapInteractionController.test.ts && tsx src/mapViewport.test.ts && tsx src/mapCameraSession.test.ts && tsx src/initialMapCamera.test.ts && tsx src/mapFit.test.ts && tsx src/mapPointerGuard.test.ts && tsx src/vertexDragSession.test.ts && tsx src/svgMapLabels.test.ts && tsx src/designDraftMap.test.ts && tsx src/workspaceMapScene.test.ts && tsx src/workspaceSceneRendering.test.ts && tsx src/useWorkspaceMapCamera.test.ts && tsx src/WorkspaceMapSurface.web.test.ts",
+          "after": "tsx src/mapOverlayGeoJson.test.ts && tsx src/referenceOverlayStyle.test.ts && tsx src/mapAttribution.test.ts && tsx src/browserMapInteraction.test.ts && tsx src/projectVertexEditing.test.ts && tsx src/mapTools.test.ts && tsx src/mapInteractionController.test.ts && tsx src/mapViewport.test.ts && tsx src/mapCameraSession.test.ts && tsx src/initialMapCamera.test.ts && tsx src/mapFit.test.ts && tsx src/mapPointerGuard.test.ts && tsx src/vertexDragSession.test.ts && tsx src/svgMapLabels.test.ts && tsx src/designDraftMap.test.ts && tsx src/workspaceMapScene.test.ts && tsx src/workspaceSceneRendering.test.ts && tsx src/useWorkspaceMapCamera.test.ts && tsx src/WorkspaceMapSurface.web.test.ts && tsx src/workspaceStakeoutScene.test.ts"
+        }
+      },
+      "method": "Reversing only the listed exact literal script edits reproduces the recorded prior file SHA-256. All non-script JSON fields equal."
+    }
+  ],
+  "nonClaims": [
+    "No prior whole application TypeScript result promoted to current source.",
+    "No prior browser result promoted to current source.",
+    "New script targets still require their own actual tests.",
+    "No installed dependency or native/device result was newly exercised by this byte comparison."
+  ]
+}
