@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-12T20:03:19.835011+00:00",
+  "ownedResource": "Root PostgreSQL18.6 reopened only for R18 CAS/source/export/HTTP checks",
+  "pid": 346630,
+  "freshExecutableAndDataDirectoryVerifiedBeforeStop": true,
+  "stopExitCode": 0,
+  "pidAbsent": true,
+  "ownedUnixSocketAbsent": true,
+  "dataRetained": true,
+  "unrelatedSystemPostgresUntouched": true,
+  "priorClosuresRetained": true
+}

@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-12T20:48:37.138158+00:00",
+  "classification": "current_source_publication_evidence_index",
+  "statusAuthority": "docs/workflow-registry.json",
+  "sourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r18.json",
+  "sourceFingerprint": "3c146000b31bd17d3779e9a3c6853297e831a837e5ad21feb298a5a8ae1095d8",
+  "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+  "sourceInputs": 962,
+  "currentEvidence": {
+    "source": "ActualfreshcompleteR18aggregate withownedPG18.6 exit0",
+    "browser": "ActualfreshprotectedR18hosted267pass/0fail/flaky/skip/unrun exactinventory",
+    "service": "CurrentR18export+actualPGHTTP1/1pass",
+    "closingReviews": "ActualwholeR18 ACCEPT2/2,19requirements/23findings/962sourceinputs",
+    "publication": "ObservednormalPR3merge79064/main-origin-hostedparity/statusempty",
+    "runtimeLimits": "NofreshR18hostedpixel/JSsha/manualAxe-detail/native/physical/deployed/human/hosthook claims"
+  },
+  "references": [
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/candidate-source-r18.json",
+      "sha256": "54b24557d7380de463fd0e46d3460de98c3adb296f3fdc1010c3b27b83d1bdbd"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/source-hierarchy-r18-pass.json",
+      "sha256": "97842047b67a2458cb8fe3257829289622a43f2279d5a405377ab82e1b021550"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/hosted-source-and-browser-r18-pass.json",
+      "sha256": "374c756898befaa69f71e5ff071c9d2dcd8c552b96b46a3140695e9d8b0c71d5"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/service-smoke-hierarchy-r18-pass.json",
+      "sha256": "445318b5f99035aa20f40f04480f8d759a20254914d6e5b8997156028780c9b1"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
+      "sha256": "277497b53c473d5182aed6a928830323b741666e2575fbd37bea5e5dc50d7a77"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json",
+      "sha256": "2479a30b385cce584057fcda20a09f3d7799cc9da7bff65badb464f7ec3c5cf5"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/cas-import-revision-correction-scoped-20261012.json",
+      "sha256": "4baf54e2f985d04480cd2b9eca74e08f2d9e85bde1d36704d19653ada5fffec2"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/owned-runtime-r18-closure-20261012.json",
+      "sha256": "4e6cd026a16675b5458d34db12b1bcc6c071358e7658809be891fd66a4025c60"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/owner-preference-preservation-20261012.json",
+      "sha256": "fc86cc6e190596298fa3680a318f576e3dc2295e7d2af92fdaca776a849ec664"
+    },
+    {
+      "path": "docs/evidence/production-workflow-review-20261011/publication-r18-20261012.json",
+      "sha256": "d922156176f1bea2c4502ca5a4e732b4937f9a8c30c6b86d3ceabb3e4fe37089"
+    }
+  ],
+  "metadataSuccessor": {
+    "status": "pending_at_observed_PR3_checkpoint",
+    "plannedPurpose": "Publish this already-observed software checkpoint and current canonical tracker/status. All962 implementation/criteria inputs remain unchanged.",
+    "futureCommitOidClaimed": false,
+    "futureCiSuccessClaimed": false,
+    "boundary": "No self-referential future OID or claim that PR3CI tested this later metadata commit. Successor exact-head CI/main recheck and final branch/worktree cleanup are root-owned remaining operations.",
+    "observedAtCheckpoint": "2026-10-12T20:42:31.450297+00:00",
+    "laterFactsAuthority": "Root retained private final publication evidence and actual live Git/hosted refs; no further tracking commit is required to restate this historical checkpoint."
+  },
+  "remainingOperationalWork": "At observedPR3checkpoint only: rootownedsuccessorCI/mainrecheck/taskcleanup. LaterliveGit/hostedrefs andprivatefinalpublicationproof areauthority; noendlessnewmetadatareceiptcommit.",
+  "boundary": "Currentevidence index only; registry issole liveauthority. Doesnot includeindexownhash orownfuturepublishingOID.",
+  "checkpointObservationCutoff": "2026-10-12T20:42:31.450297+00:00"
+}
