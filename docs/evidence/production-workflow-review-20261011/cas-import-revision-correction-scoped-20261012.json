@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-12T19:42:08.226271+00:00",
+  "classification": "synthetic service/actual PostgreSQL checks",
+  "result": "pass",
+  "reviewFinding": "CAS-IMPORT-REVISION-20261012-01",
+  "automaticReview": "https://github.com/JakeC-Redlund/CPLayout/pull/3#discussion_r4248395731",
+  "fix": "Refuse recovery imports whose source revision is lower than or equal to the locked destination revision, after the existing V3 refusal gate. Preserve the exact source bytes/revision; no rewrite or separate generation migration.",
+  "compatibilityBoundary": "Normal administrator bootstrap constructs v5 at revision4. No public restore path for revision0 is claimed; the tests create a new legacy0 workspace through the actual database adapter as an explicit fixture. Rejected files remain unchanged; do not fabricate a higher source revision.",
+  "caseCoverage": [
+    "equal0 import refusal with unchanged stored TEXT/revision/receipt/audit counts",
+    "actual customer create/delete advances a valid empty destination0\u21922",
+    "lower0 and equal2 imports refuse without side effects/input-hash changes",
+    "distinct unexecuted queued expected0 rejects before higher import",
+    "higher3 CRLF/trailing-whitespace import retains exact TEXT/hash/returned revision",
+    "distinct queued expected0/2 reject after higher import",
+    "historical committed command receipt replays without mutating imported source/revision/receipt/audit counts",
+    "fresh expected3 command accepted",
+    "row-locked concurrent import and command admit exactly one writer, revision6\u21927, one audit and expected receipt count",
+    "existing pending/finalized V3 import refusal and dedicated same-original-field reference path still pass",
+    "legacy v1-v4 initial insertion and exact original-source upgrade retention still pass against PostgreSQL"
+  ],
+  "checks": {
+    "beforeFix": {
+      "exitCode": 1,
+      "bytes": 2241,
+      "sha256": "d7e4daa632fa6938217bd061568b0cbf600031e61118304bd411689962ebf903"
+    },
+    "correctedServiceAndRtk": {
+      "exitCode": 0,
+      "bytes": 1005,
+      "sha256": "8fd0ba97c0eb45534a91c26d9893747b7b157f3b20e847d14514e93c4ae618f9"
+    },
+    "actualPostgresRegression": {
+      "exitCode": 0,
+      "bytes": 227,
+      "sha256": "c9f32525634a7bb6382e8bcd05aa60eeca2a5a9e56e903d5e1852698f4cd7b8d"
+    },
+    "apiTypecheck": {
+      "exitCode": 0,
+      "bytes": 57,
+      "sha256": "a1bccaf51b4db0a04b6ee307c0bea140c6a15cc2613b05a787fa8ec8ddf72f62"
+    }
+  },
+  "sourceHashes": {
+    "apps/api/src/server.ts": "b10ebbc64f013dac5d2dbc1f83a8299d3cda5c56c48a162b9fb8130e1c28c8df",
+    "apps/api/src/server.test.ts": "98abb65f5a4a5934a0c005406dc0a9c311833682b75412c832a7d75690647b30",
+    "apps/api/src/database.test.ts": "a040d1d44e8e1868cb81a33b3728802b82eac0328e8a177b20f53eb742442b4f",
+    "apps/api/src/recoveryImportCasTestFixtures.ts": "0b0c0a8c5293a51e4c9e84f521470f7bd27df329f920b6ec0c70103246b286b0"
+  },
+  "postgres": {
+    "version": "18.6",
+    "ownedPid": 346630,
+    "uniqueTestSchemaDropped": true
+  },
+  "boundary": "Scoped remediation checks only; full R18 census/aggregate/export/267 browser/protected CI and two independent matching closing reviews remain required. R17 all-green CI did not detect this P1 and remains publication-vetoed history. No native/physical/device/deployment/human claim."
+}

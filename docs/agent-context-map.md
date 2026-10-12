@@ -69,7 +69,7 @@ Live workflow authority: `docs/workflow-registry.json` is a pointer only; regist
 ## Source Hashes
 
 - `.agents/skills/cplayout-center-pivot-design-agent/SKILL.md`: `326284bba432248b7ca4df40ddd17ead448b9b89664b0267bb8abe02c27fe4a6`
-- `.agents/skills/cplayout-database-agent/SKILL.md`: `ef8f3e131852cc98ed6daacb0c96a67f21aeacb8a9cd6b2392a800555a57e264`
+- `.agents/skills/cplayout-database-agent/SKILL.md`: `189d1a09bb438fc356e367545c57149c7a1dc6de1c466d7c1e136d35627fedb1`
 - `.agents/skills/cplayout-expert-agent-panels/SKILL.md`: `150443e68710cc3e6cb2ca0eab4a6feddb939e74e495b530268522e654d58a04`
 - `.agents/skills/cplayout-expert-agent-panels/references/agent-prompts.md`: `9e8286e64bc379e5110c5a2259c8f11c3d157ca9a58be04ad4db340896570760`
 - `.agents/skills/cplayout-expert-agent-panels/references/evidence-and-records.md`: `2ea7b9b196d4dc1cfe8700bff832f6892bfd395c5e183ce310036e31a3ca16fd`
@@ -103,7 +103,7 @@ Live workflow authority: `docs/workflow-registry.json` is a pointer only; regist
 - `.codex/hooks/cplayout_stop_multi_agent.py`: `d82868fc5df3922797ac604e6446bba4d031c79df82e7d6cb8fac10629bb5835`
 - `.codex/hooks/cplayout_subagent_start.py`: `b0543b855d6749a8528cc1a4e51f7d9d906942a019da91899e48db7bba1159a7`
 - `AGENTS.md`: `6018745e0e14de3817c3608824e40a46cec62f25d736703b6df454b1d91ca010`
-- `apps/api/src/server.ts`: `3fc7b52d00c926affc4dcd413cd6743d037634860555e4868df171f8c301ce0b`
+- `apps/api/src/server.ts`: `b10ebbc64f013dac5d2dbc1f83a8299d3cda5c56c48a162b9fb8130e1c28c8df`
 - `apps/mobile/App.tsx`: `c8fbe522dfa249af16e877974c907ec8162694b30cff853035ac36c9285db8ad`
 - `apps/mobile/src/auth/AuthProvider.tsx`: `9fef37a2df222f499f56eb45b9d4a0d4bc918225f45c1bbb56f9a7adc0b62855`
 - `apps/mobile/src/auth/AuthenticatedWorkspace.tsx`: `5821bd4549a627c012ddeb0a83386988fae2cb6c4a25f31e687a6731cdf4946d`

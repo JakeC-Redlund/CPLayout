@@ -26,6 +26,7 @@ Preserve CPLayout's offline-first storage split and archive contracts. Database 
 - Do not claim Android, iOS, web SQLite, ZIP sharing, or native MapLibre runtime behavior without the relevant device/browser verification evidence.
 - Before an Expo SDK patch install, inventory exact peers across every workspace manifest, including `packages/backup-artifacts/package.json`, and the SQLite ownership-patch support matrix. Review the coherent Expo/core/JSI/SQLite source and lock together; retain failed peer or core-guard refusals and never bypass guards to complete an install.
 - Recheck installed guards after a clean exact-lock install. Consumed-API and patch-source compatibility, installed-matrix validation, online update discovery and rebuilt native runtime are separate claims; follow `docs/dependency-maintenance.md` and the registry's actual receipts.
+- Service whole-workspace recovery import must strictly advance the locked destination revision after V3 refusal, retaining the reviewed raw file on equal/lower refusal. Never change its revision to force admission or suggest public revision-zero bootstrap: normal V5 bootstrap is revision 4. Legacy database insertion/read/exact-source upgrade are separate paths; use `docs/workflow-maintenance-guide.md` and matching CAS regression receipts.
 
 ## Non-Goals
 

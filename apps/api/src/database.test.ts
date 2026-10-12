@@ -7,6 +7,7 @@ import { migrateDatabase } from "./migrations";
 import { bootstrapAdministrator } from "./bootstrapService";
 import { createApi } from "./server";
 import { emptyWorkspaceDocument, serializeWorkspaceDocument, upgradeWorkspaceDocumentToV2, upgradeWorkspaceDocumentToV3, upgradeWorkspaceDocumentToV4 } from "../../../packages/project-store/src/workspaceDocument";
+import { exerciseRecoveryImportCas } from "./recoveryImportCasTestFixtures";
 
 test("PostgreSQL migrations, guarded bootstrap, two-client CAS, rollback and TEXT source retention", { skip: !process.env.CPLAYOUT_TEST_DATABASE_URL }, async () => {
   const connectionString = process.env.CPLAYOUT_TEST_DATABASE_URL!, schema = `cplayout_test_${randomUUID().replaceAll("-", "")}`;
@@ -53,5 +54,16 @@ test("PostgreSQL migrations, guarded bootstrap, two-client CAS, rollback and TEX
       const saved = await pool.query("SELECT document FROM cplayout_workspaces WHERE id=$1", [id]);
       assert.equal(JSON.parse(saved.rows[0].document)[retainedKey], document);
     }
+    const importWorkspaceId = randomUUID(), importDocument = serializeWorkspaceDocument(emptyWorkspaceDocument());
+    await database.transaction(async transaction => {
+      await transaction.insertWorkspace({ id: importWorkspaceId, name: "Initial legacy import CAS fixture", revision: 0, document: importDocument });
+      await transaction.setMembership(accepted.value.administratorId, importWorkspaceId, ["field:read", "field:write", "catalog:write", "catalog:archive"]);
+    });
+    await exerciseRecoveryImportCas({ api, workspaceId: importWorkspaceId, headers, inspect: async () => {
+      const saved = await pool.query("SELECT revision,document FROM cplayout_workspaces WHERE id=$1", [importWorkspaceId]);
+      const actions = await pool.query("SELECT count(*)::integer AS count FROM cplayout_command_receipts WHERE workspace_id=$1", [importWorkspaceId]);
+      const events = await pool.query("SELECT count(*)::integer AS count FROM cplayout_audit_events WHERE workspace_id=$1", [importWorkspaceId]);
+      return { revision: Number(saved.rows[0].revision), document: saved.rows[0].document, receiptCount: actions.rows[0].count, auditCount: events.rows[0].count };
+    } });
   } finally { await api?.close(); await pool.end(); await host.query(`DROP SCHEMA ${schema} CASCADE`); await host.end(); }
 });

@@ -128,8 +128,11 @@ export async function createApi(options: ApiServerOptions) {
       || previous.fieldDocuments?.length || previous.layoutSessions?.length || previous.surveyCollections?.length || previous.tombstones.length) throw new ServiceError(409, "destination_not_empty", "Import requires an empty destination workspace. Your existing saved work is retained.");
     if (imported.layoutSessions?.some(entry => parseLayoutSessionDocument(entry.document).documentVersion === RTK_LAYOUT_SESSION_DOCUMENT_VERSION))
       throw new ServiceError(422, "layout_reference_import_required", "Import saved RTK Layout maps individually as reference records. Keep the original workspace recovery file.");
+    if (imported.revision <= stored.revision)
+      throw new ServiceError(409, "import_revision_conflict", "This recovery file cannot advance the workspace's saved version safely. Keep the original recovery file.");
     // TEXT bytes, original document revisions and all recovery chains are preserved.
-    // No implicit capability upgrade or merge changes the reviewed import.
+    // A strictly newer revision prevents queued commands from reusing an earlier
+    // CAS generation. No capability upgrade or merge changes the reviewed import.
     await transaction.writeWorkspace({ ...stored, revision: imported.revision, document });
     await transaction.audit(owner.user.id, id, "workspace.import", sourceHash);
     return { workspaceId: id, revision: imported.revision, document, sha256: sourceHash };

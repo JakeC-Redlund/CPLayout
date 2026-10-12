@@ -6,6 +6,8 @@ import { createApi } from "./server";
 import { TestDatabase } from "./testDatabase";
 import { bootstrapAdministrator } from "./bootstrapService";
 import { argonPasswords } from "./passwords";
+import { emptyWorkspaceDocument, serializeWorkspaceDocument } from "../../../packages/project-store/src/workspaceDocument";
+import { exerciseRecoveryImportCas } from "./recoveryImportCasTestFixtures";
 const database = new TestDatabase(), password = randomBytes(24).toString("base64url"), bootstrap = await bootstrapAdministrator(database, { username: "synthetic-admin", displayName: "Test administrator", password, workspaceName: "Synthetic workspace" });
 const signingKey = randomBytes(32), clock = { now: Date.now() }, api = await createApi({ database, signingKey, origin: "http://localhost:19040", secureCookies: false, now: () => clock.now });
 after(() => api.close());
@@ -47,4 +49,17 @@ test("24-hour grant is signed, expires exactly, and logout invalidates server se
   assert.throws(() => verifyOfflineGrant(result.grant, result.verificationKey, { subject: bootstrap.administratorId, workspaceId: bootstrap.workspaceId }, clock.now + 86_400_000), /expired/);
   const logout = await api.inject({ method: "POST", url: "/api/v1/session/logout", headers: headers(owner) }); assert.equal(logout.statusCode, 200);
   assert.equal((await api.inject({ url: "/api/v1/session", headers: headers(owner) })).statusCode, 401);
+});
+test("recovery import preserves exact higher source while refusing lower/equal CAS generations and stale queued commands", async () => {
+  const fixture = new TestDatabase(), setup = await bootstrapAdministrator(fixture, { username: "synthetic-import-admin", displayName: "Synthetic import administrator", password, workspaceName: "Import regression" });
+  const workspaceId = randomUUID(), document = serializeWorkspaceDocument(emptyWorkspaceDocument());
+  await fixture.transaction(async transaction => { await transaction.insertWorkspace({ id: workspaceId, name: "Initial legacy import fixture", revision: 0, document });
+    await transaction.setMembership(setup.administratorId, workspaceId, ["field:read", "field:write", "catalog:write", "catalog:archive"]); });
+  const service = await createApi({ database: fixture, signingKey: randomBytes(32), origin: "http://localhost:19040", secureCookies: false });
+  try {
+    const owner = await service.inject({ method: "POST", url: "/api/v1/session/login", payload: { username: "synthetic-import-admin", password } }); assert.equal(owner.statusCode, 200);
+    await exerciseRecoveryImportCas({ api: service, workspaceId, headers: { cookie: owner.headers["set-cookie"] as string, "x-csrf-token": owner.json().csrfToken },
+      inspect: async () => { const saved = fixture.state.workspaces.find(item => item.id === workspaceId)!;
+        return { revision: saved.revision, document: saved.document, receiptCount: fixture.state.receipts.filter(item => item.workspaceId === workspaceId).length, auditCount: fixture.state.audits.length }; } });
+  } finally { await service.close(); }
 });

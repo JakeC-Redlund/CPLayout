@@ -1040,20 +1040,20 @@
       "source": {
         "root": "workspace",
         "path": ".agents/skills/cplayout-database-agent/SKILL.md",
-        "sha256": "ef8f3e131852cc98ed6daacb0c96a67f21aeacb8a9cd6b2392a800555a57e264",
+        "sha256": "189d1a09bb438fc356e367545c57149c7a1dc6de1c466d7c1e136d35627fedb1",
         "present": true,
         "externalOwner": null
       },
       "applicability": "relevant",
-      "purpose": "Account/policy admission, retained V3 history/ancestry/imports and complete workspace SDK/SQLite peer inventory.",
+      "purpose": "Account/policy admission, retained V3 history/ancestry/imports, monotonic service restore and complete SDK/SQLite peer inventory.",
       "validation": "source_frontmatter_body_quick_validated",
       "runtimeInvocation": "not_measured",
       "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance.",
-      "validationMethod": "skill-creator quick_validate.py exit0 after the bounded SDK patch/peer inventory lesson; source only, not loading/invocation.",
+      "validationMethod": "skill-creator quick_validate.py exit0 after bounded CAS recovery lesson; source only, not loading/invocation.",
       "sourceReview": {
-        "observedAtUtc": "2026-10-12T15:19:59.605761+00:00",
-        "scope": "Existing hierarchy/V3/account/source-retention guidance preserved; bounded SDK patch lesson inventories all workspace exact peers incl backup-artifacts and native Expo/core/JSI/SQLite patch matrix, retains install/guard refusals and requires clean installed checks without runtime inference.",
-        "contractReference": "docs/dependency-maintenance.md",
+        "observedAtUtc": "2026-10-12T19:44:50.006106+00:00",
+        "scope": "Prior hierarchy/V3/account/source-retention/SDK peer guidance preserved. Added implemented service import monotonic CAS rule, exact rejected source preservation and actualV5bootstraprevision4 limitation; legacy insertion/read/upgrade remain distinct.",
+        "contractReference": "docs/workflow-maintenance-guide.md",
         "hostInvocation": "not_measured"
       }
     },
@@ -1217,10 +1217,10 @@
   ],
   "claims": "All67 exposed host and11 workspace entrypoint sources are present and freshly fingerprint-checked. Source validation, reported guidance use, actual host loading/invocation and runtime capability remain separate. The database guidance passed its bounded source validator; other local source-validation receipts remain for unchanged sources.",
   "refresh": {
-    "method": "Read/hash all67 exposed host entrypoint files plus11 current checkout skill sources; update only owned database source and quick-validate that one changed skill.",
+    "method": "Hash all67 exposed host+11 workspace entrypoints without semantic portfolio re-review; update/quick-validate only owned database guidance.",
     "presentSources": 78,
     "localSourcesValidated": 11,
-    "currentValidationScope": "Only the changed database source quick-validated now; other10 local entrypoints unchanged with prior validation records.",
+    "currentValidationScope": "Only changed database source quick-validated now; other10 local entrypoints unchanged with prior validation records.",
     "changedSourceIds": [
       "cplayout-database-agent"
     ],
@@ -1229,6 +1229,6 @@
     "genuineHookExecution": "unknown",
     "hostLoadClaim": "not_established",
     "boundary": "Source-only fingerprint/guidance refresh; no installation, host loading, genuine invocation or equipment/runtime capability measured.",
-    "observedAtUtc": "2026-10-12T15:19:59.605761+00:00"
+    "observedAtUtc": "2026-10-12T19:44:50.006106+00:00"
   }
 }

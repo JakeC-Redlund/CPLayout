@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-12T19:21:20.635401+00:00",
+  "classification": "confirmed_source_and_hosted_review_finding",
+  "claimClass": "source",
+  "result": "fail",
+  "severity": "P1",
+  "findingId": "CAS-IMPORT-REVISION-20261012-01",
+  "sourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r17.json",
+  "sourceFingerprint": "2ecce6cfdefe83a39d25d9028f1e19f3c0419a7f18dc78575b3dcfda1fe97b36",
+  "acceptedCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+  "sourcePath": "apps/api/src/server.ts",
+  "sourceSha256FromR17": "3fc7b52d00c926affc4dcd413cd6743d037634860555e4868df171f8c301ce0b",
+  "currentSourceSha256AtRecord": "3fc7b52d00c926affc4dcd413cd6743d037634860555e4868df171f8c301ce0b",
+  "originalPatternStillPresentAtRecord": true,
+  "primaryReview": {
+    "id": 4248395731,
+    "url": "https://github.com/JakeC-Redlund/CPLayout/pull/3#discussion_r4248395731",
+    "path": "apps/api/src/server.ts",
+    "line": 133,
+    "commitId": "40821521fe8a556bb1c320d66164a5a21ce95763",
+    "createdAt": "2026-10-12T13:11:59Z",
+    "author": "chatgpt-codex-connector[bot]",
+    "verification": "Direct authenticated read-only GitHub API returned this comment identity/path/head; browser primary page and actual current import implementation inspected."
+  },
+  "description": "Whole-workspace import checks destination expectedRevision but writes imported.revision directly. An already-used empty destination can move its operational CAS revision backwards/equal, admitting an unacknowledged old queued command whose expectedRevision now matches the restored value.",
+  "sourceObservation": "Current import retains the reviewed raw input and existing empty-destination/V3 refusal gates. The observed implementation has no strictly increasing incoming revision admission before writeWorkspace; commands compare the same stored revision for CAS.",
+  "reportedCounterexample": {
+    "source": "Coordinator confirmed finding with independent reviewers; this child did not execute or invent a runtime probe.",
+    "sequence": "Create and delete an empty customer advances destination to revision2; importing revision0 can restore0, allowing a previously queued expectedRevision0 command without reconciling intervening import."
+  },
+  "proposedBoundedFix": "After existing V3 gate, refuse incoming revision<=stored revision while retaining exact raw source/destination; separate any later generation-migration design. Decision, implementation and regression tests belong to root and actual reviewers.",
+  "reportedHostedR17Checks": {
+    "source": "Coordinator observed current complete source plus267hosted browser/all5jobs success; public exact-head CI receipt forthcoming.",
+    "status": "passing_CI_does_not_close_this_P1_or_establish_merge",
+    "caseExecutions": 267
+  },
+  "mergeState": {
+    "source": "Coordinator attempted normal protected merge",
+    "status": "blocked_unresolved_required_review_conversation",
+    "reviewUrl": "https://github.com/JakeC-Redlund/CPLayout/pull/3#discussion_r4248395731"
+  },
+  "remediationStatus": "open_root_implementation_and_source_regressions_pending",
+  "boundary": "Verified new source/hosted review P1, not a fabricated probe artifact. Preserve actual successful R17 CI and earlier failures independently. No guard implementation, browser fix, R18 freeze, closed conversation, merge or publication success inferred."
+}

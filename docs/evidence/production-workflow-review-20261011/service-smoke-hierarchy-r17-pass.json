@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "classification": "synthetic",
+  "result": "pass",
+  "sourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r17.json",
+  "sourceFingerprint": "2ecce6cfdefe83a39d25d9028f1e19f3c0419a7f18dc78575b3dcfda1fe97b36",
+  "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+  "sourceDrift": [],
+  "commands": [
+    "npm run export:web",
+    "npm run test:service-smoke"
+  ],
+  "logs": {
+    "export": {
+      "exitCode": 0,
+      "sha256": "33710650b9789914bef79c21d3ce161368949f09a206dc074e47b0c9d9385873",
+      "bytes": 988
+    },
+    "postgresHttpSmoke": {
+      "exitCode": 0,
+      "sha256": "76b7cfdb213322fb06eb1aacaf80907da3710ccdde6b87619dcaf2faa977a010",
+      "bytes": 336
+    }
+  },
+  "serviceCases": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "cancelled": 0
+  },
+  "actualOwnedPostgres": "18.6",
+  "servedExportJavaScript": [
+    {
+      "path": "_expo/static/js/web/index-b67c4c2f67ae97e62412dc25709b5d36.js",
+      "bytes": 6248918,
+      "sha256": "9beab85945fe3c497de838c2d8245930f9e1460ec7907a62e927408bef5257c8"
+    }
+  ],
+  "testedGitBaseCommit": "bfe3ac2319eccf0a34f7933e879f49eaee29ea26",
+  "boundary": "Current R17 export and actual PostgreSQL HTTP gateway test, with unique owned schema cleanup and service closure. This does not claim App browser execution, physical receiver/native device qualification or deployment."
+}
