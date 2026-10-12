@@ -82,7 +82,7 @@
       "authorizationReference": "docs/workflow-registry.json#publicationDirective",
       "owner": "coordinator /root",
       "status": "canonical_main_clean_at_checkpoint_successor_cleanup_pending_at_that_observation",
-      "boundary": "Observedcanonicalmainstatusempty/OIDparity verified; ownmetadata-successor/taskbranch/worktreecleanup pending. Preserveprotectedhistoricaldetachedrecoverytrees underselecteddecision. Historicalqualifiedsource/evidence deletion0unchanged.",
+      "boundary": "At the recorded PR3cutoff, canonical main was clean with verified OID parity; metadata-successor and task branch/worktree cleanup were then pending. Preserve protected historical detached recovery trees under the selected decision. Later live refs/private final proof establish task cleanup; qualified source/evidence deletion remains zero.",
       "ownerInputPreservationReference": "docs/evidence/production-workflow-review-20261011/owner-preference-preservation-20261012.json",
       "selectedDisposition": "Only main refs and clean canonical workspace; retain protected historical detached worktrees pending actual Windows/resource qualification.",
       "canonicalCheckpointReference": "docs/evidence/production-workflow-review-20261011/publication-r18-20261012.json",
@@ -1046,7 +1046,7 @@
         "docs/evidence/production-workflow-review-20261011/final-packet-arrangement.md"
       ],
       "acceptance": "Current clarified customer/field/Survey/official-map and retained-ancestry source/API/App proof against a complete canonical census; responsive/accessibility/failure coverage; two complete independent reviews with no unresolved defects. Historical passes or incomplete scopes do not qualify the new edition.",
-      "nextAction": "Maintain the exact qualifiedR18scope and preserve earlierfailure/deferred/operational boundaries. Metadata successor and finaltaskbranch/worktreecleanup remain root-owned remaining publication work.",
+      "nextAction": "Maintain the exact qualified R18 software/source/browser scope and preserve earlier failure/deferred/operational limits. The PR3cutoff separately recorded successor/task cleanup operations; use later live Git/hosted refs and retained final proof for their actual completion.",
       "dependsOn": [
         "ENTRY-01",
         "FLOW-01",
@@ -1175,7 +1175,7 @@
       ],
       "requiredClaimClass": "publication",
       "currentQualifiedEdition": "R18_source_checkpoint",
-      "qualificationScope": "ObservedPR3protectedsourcecheckpoint merged/syncedat79064..., actualCI98857 andcurrentR18closing2/2/sourceparity/clean canonical confirmed. Separate metadata-successor and finalownworktree/branchcleanup are pending; nofutureOID/successclaim."
+      "qualificationScope": "Observed PR3 protected source checkpoint79064: actualCI at98857, both current R18closing reviews, matching source hashes and clean canonical OID convergence verified. The separate metadata successor/task cleanup were pending at the recorded PR3cutoff only; later live refs/final proof supply those outcomes. No future OID or pass is claimed."
     }
   ],
   "evidence": [
@@ -52424,7 +52424,7 @@
     "acceptedConsecutiveFinalReviews": 2,
     "initialReviewResult": "vetoed",
     "initialReviewReference": "docs/evidence/production-workflow-review-20261011/initial-review.json",
-    "boundary": "CurrentwholeR18finalclosing ACCEPTs2/2 after actual962source/fbecriteria/localaggregate/currenthosted267/protectedCI andCAScorrection. Oldsource-only/intermediate/pendingcounts remain exact history. Sourcecheckpoint merged/synced; metadata successor and ownbranch/worktreecleanup pending.",
+    "boundary": "Current whole R18 closing ACCEPTs2/2 bind actual962 source inputs, unchanged criteria, fresh aggregate/current hosted267 and corrected CAS. Earlier source-only/intermediate/pending counts remain exact history. The source checkpoint was merged and synchronized; successor/task cleanup were pending only at the recorded PR3cutoff. Later live Git/hosted refs and retained final proof establish those outcomes.",
     "secondInitialReviewResult": "vetoed",
     "secondInitialReviewReference": "docs/evidence/production-workflow-review-20261011/second-initial-review.json",
     "priorFinalReviewDisposition": "intermediate_not_accepted_for_clarified_intent",
@@ -53526,8 +53526,9 @@
     "organization": "logical folders over existing database IDs/links; no filesystem migration, copied entities or invented document kinds",
     "liveAdmission": "fresh owned RTK Fixed for live collection, official Layout creation and marking; matched source/provenance/CRS",
     "storedAccess": "authorized offline view/export remains distinct from official creation and live actions",
-    "implementationStatus": "in_progress; owner source qualifications pending",
-    "humanAcceptance": "not_established"
+    "implementationStatus": "R18 customer/project/field/Survey/RTK software source and current served-browser workflow implemented and qualified; source checkpoint79064 published. Current proof is finalReviewPacket/currentPublication; device, physical, deployment and human gates remain separately recorded.",
+    "humanAcceptance": "not_established",
+    "historicalImplementationStatus": "in_progress; owner source qualifications pending"
   },
   "decisions": [
     {
@@ -53829,16 +53830,8 @@
     "surveyRows": "Actualsaved review IDs/included collections; group onlynonreferenceV3maps with exacttarget2ownership and embeddedserializedReview match. Legacy/unmatched/reference maps remain separate.",
     "unreviewed": "Actualcollection IDs/counts remain collections rather than invented saved Surveys.",
     "history": "Exactarchived sourceTEXT and collectionIDs retained; classify missing actualparentchain without fabricated placement.",
-    "qualification": "Latestrootr13sixsourcechecks pass, includingvalidLegacyProject extensionreader; exactrawsource retained. Catalog/controller114sourcecases separate; actual currentApp and complete census still require matching qualification."
-  },
-  "finalScopedSourceReceipts": {
-    "reference": "docs/evidence/production-workflow-review-20261011/final-hierarchy-official-source-receipts.json",
-    "sourceClass": "source",
-    "globalManifest": "not_created",
-    "browserProof": "pending_matching_currentApp",
-    "nativeAdapter": "SQLiteworkspaceV1only; refusesnewerSurvey/RTKworkflow; noV3nativeactivation",
-    "currentReceiver": "Quality4/currentsource-owner/epoch and\u22642secondmonotonic predicate repeatedunderwriter afterawaits, with wallclockchronology asadditionaltampervalidation.",
-    "httpSmokeLatestAddition": "LatestactualPGr13PASS1/1zero skip; retainedSurveyProjectDELETEbeforeANYLayout409+exactDBTEXT/receiptcountunchanged, laterV3workflow/actors/parentlinks. Oldr8HTML/syntheticGGA only; no currentApp proof."
+    "qualification": "Current R18 source/software and declared served-browser scope qualified by the complete962-input manifest, actual267-case protected run and two matching whole closing reviews. Current source/publication references are finalReviewPacket and currentPublication; native/device/physical accuracy remain separately unqualified.",
+    "historicalPreparationQualification": "Latestrootr13sixsourcechecks pass, includingvalidLegacyProject extensionreader; exactrawsource retained. Catalog/controller114sourcecases separate; actual currentApp and complete census still require matching qualification."
   },
   "currentCompleteAggregate": {
     "edition": "R18",
@@ -53931,10 +53924,11 @@
     "status": "R18_source_checkpoint_verified_observed_PR3_cutoff",
     "scope": "Commit/push the reviewed work normally, obtain exact-head protected CI and synchronize main; preserve dirty/recovery work before qualifying disposal of detached worktrees. No deployment or physical qualification implied.",
     "prerequisites": [
-      "Original wholeR15reviews2/2 plus supplementalR16one-test bridge reviews2/2 and freshR16aggregate fulfilled; nextheadprotectedCI/publication pending",
-      "Exact audited changed-path/owner-input staging and preservation receipts",
-      "Protected exact-head CI and actual remote/local OID convergence",
-      "Ownership/recovery qualification before removal of detached worktrees"
+      "R18 complete source validation, actual 267-case protected browser run and both matching whole closing reviews passed before PR3 publication.",
+      "Exact changed-path staging and original owner-input preservation were verified before normal commit/push.",
+      "PR3 was normally protected-merged as79064a5344516ae7714a4b33c1130ddeb34b1ef6; canonical/origin/hosted main OIDs and clean canonical status were verified at2026-10-12T20:42:31.450297+00:00.",
+      "The metadata successor and final owned task branch/worktree cleanup were separate pending operations at that observed PR3 checkpoint; later live refs and retained final proof establish their actual outcome.",
+      "Historical detached recovery worktrees remain preserved; no blanket inactivity or disposal qualification is claimed."
     ],
     "reportedCurrentTopology": {
       "observedAt": "2026-10-12T20:42:31.450297+00:00",
@@ -53971,7 +53965,7 @@
       },
       "normalization": "CRLF to LF and whitespace-only trailing spacing/empty EOF; all non-whitespace content and wording preserved. Original exact bytes retained in verified private recovery copy.",
       "currentDisposition": "Exactoriginalprivatebackup/restore verified; canonicalmainfast-forward nowcontainsnormalizedtracked1578bytes withidenticalnonwhitespace. Canonicalstatusempty at79064observedcheckpoint. Noimplementation/criterion change.",
-      "implementationBoundary": "Owner-input preservation record is outside the 961-path implementation census; all R15 implementation hashes remain unchanged. No code, acceptance criterion, global Git whitespace exemption or attributes change.",
+      "implementationBoundary": "The owner preference is outside the frozen962-input R18 implementation census. The formatting/preservation transition changes no implementation or acceptance criterion; original1622-byte recovery content and normalized1578-byte tracked content remain independently identified.",
       "canonicalTransitionReference": "docs/evidence/production-workflow-review-20261011/publication-r18-20261012.json",
       "historicalPreSyncVerification": "Directly checked canonical/recovery exact byte equality and original hash/length, normalized working-copy hash/length, identical non-whitespace content, LF/trailing whitespace/EOF normalization. Original canonical bytes remain untouched.",
       "canonicalCurrent": {
@@ -53980,9 +53974,10 @@
         "sha256": "4783cef9b653e5d77cbc9352453a5abadab1b387c154b6dabf2fb45b7342c054",
         "status": "tracked_normalized_ownerinput_in_clean_canonical_main",
         "source": "docs/evidence/production-workflow-review-20261011/publication-r18-20261012.json"
-      }
+      },
+      "historicalImplementationBoundary": "Owner-input preservation record is outside the 961-path implementation census; all R15 implementation hashes remain unchanged. No code, acceptance criterion, global Git whitespace exemption or attributes change."
     },
-    "boundary": "Authorization and observed pre-publication state only. No commit, push, branch/worktree cleanup, protected CI, clean-workspace or convergence success claimed.",
+    "boundary": "Actual R18 software publication checkpoint: normal commit/push, successful exact-head protected CI, PR3 merge, clean canonical main and OID convergence are supported by the cited79064checkpoint receipt. Metadata-successor checks/merge and final task cleanup were pending at the stated PR3 observation cutoff; no future success, deployment, native/device, physical accuracy or human acceptance is implied.",
     "currentAttempt": {
       "sourceHead": "98857ded5f3962b8f2cd620f0be6d967361f3d36",
       "pr": 3,
@@ -54029,6 +54024,29 @@
       "worktreeStatus": "Held dirty/recovery work; preservation and qualification pending. Detached worktrees are not additional branches.",
       "temporaryLocalPublicationBranch": "codex/customer-field-rtk-workflow-20261012",
       "boundary": "Coordinator-reported new temporary publication branch exists; final main-only branch cleanup is pending, not already achieved."
+    },
+    "historicalPrepublicationRecord": {
+      "classification": "historical_prepublication_snapshot",
+      "prerequisites": [
+        "Original wholeR15reviews2/2 plus supplementalR16one-test bridge reviews2/2 and freshR16aggregate fulfilled; nextheadprotectedCI/publication pending",
+        "Exact audited changed-path/owner-input staging and preservation receipts",
+        "Protected exact-head CI and actual remote/local OID convergence",
+        "Ownership/recovery qualification before removal of detached worktrees"
+      ],
+      "boundary": "Authorization and observed pre-publication state only. No commit, push, branch/worktree cleanup, protected CI, clean-workspace or convergence success claimed.",
+      "sourceEdition": "R15/R16 before the recorded R18 PR3 publication checkpoint",
+      "qualification": "These original statements describe the earlier pending publication state and are not current R18 outcomes."
+    },
+    "metadataReviewFinding": {
+      "id": "PUBLICATION-METADATA-20261012-01",
+      "severity": "P2",
+      "classification": "publication_authority_metadata",
+      "source": "https://github.com/JakeC-Redlund/CPLayout/pull/10#discussion_r4252268594",
+      "threadId": "PRRT_kwDOSiaib86rnmsu",
+      "status": "contradictory_current_fields_corrected_with_independent_metadata_review",
+      "correctionReference": "docs/evidence/production-workflow-review-20261011/publication-metadata-boundary-correction-20261012.json",
+      "softwareSourceScope": "R18 implementation962/criteria and original23software findings unchanged; this is an additional metadata finding.",
+      "remainingVerification": "Exact-head successor CI and actual live review-thread/final refs are separate gates; no future pass or merge is claimed."
     }
   },
   "currentResourceClosure": {
@@ -54094,5 +54112,14 @@
     "observedAt": "2026-10-12T20:42:31.450297+00:00",
     "status": "verified_source_checkpoint",
     "remaining": "At observedPR3checkpoint only: ordinarymetadata-successor/taskcleanup pending. Rootretainedlaterfinalproof/liveGitrefs recordlateroutcomes; noendlessself-referentialtrackingcommit."
+  },
+  "historicalFinalScopedSourceReceipts": {
+    "reference": "docs/evidence/production-workflow-review-20261011/final-hierarchy-official-source-receipts.json",
+    "sourceClass": "source",
+    "globalManifest": "not_created",
+    "browserProof": "pending_matching_currentApp",
+    "nativeAdapter": "SQLiteworkspaceV1only; refusesnewerSurvey/RTKworkflow; noV3nativeactivation",
+    "currentReceiver": "Quality4/currentsource-owner/epoch and\u22642secondmonotonic predicate repeatedunderwriter afterawaits, with wallclockchronology asadditionaltampervalidation.",
+    "httpSmokeLatestAddition": "LatestactualPGr13PASS1/1zero skip; retainedSurveyProjectDELETEbeforeANYLayout409+exactDBTEXT/receiptcountunchanged, laterV3workflow/actors/parentlinks. Oldr8HTML/syntheticGGA only; no currentApp proof."
   }
 }

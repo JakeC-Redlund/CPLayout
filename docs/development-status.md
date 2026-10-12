@@ -48,12 +48,12 @@ Deferred browser obligations: 960; their semantic contracts remain required. Hoo
 | SKILL-01: Truthful selected capability inventory | verified | governance | Keepownedsource/inventory validation current; recordgenuinehostinvocation onlyfromactualevents. |
 | HOOK-01: Source-bound hook execution qualification | pending | coordinator | Select a changed evidence-backed probe before running; do not repeat unknown unchanged probes. |
 | CLEAN-01: Verified retirement without data loss | verified | governance | Maintain the exact qualifiedR18scope and preserve earlierfailure/deferred/operational boundaries. Metadata successor and finaltaskbranch/worktreecleanup remain root-owned remaining publication work. |
-| QA-01: Complete workflow proof and review | verified | coordinator/independent QA | Maintain the exact qualifiedR18scope and preserve earlierfailure/deferred/operational boundaries. Metadata successor and finaltaskbranch/worktreecleanup remain root-owned remaining publication work. |
+| QA-01: Complete workflow proof and review | verified | coordinator/independent QA | Maintain the exact qualified R18 software/source/browser scope and preserve earlier failure/deferred/operational limits. The PR3cutoff separately recorded successor/task cleanup operations; use later live Git/hosted refs and retained final proof for their actual completion. |
 | PUBLISH-01: Reviewable source publication | verified | coordinator | Verified79064R18sourcecheckpoint. At recordedPR3cutoff rootownedmetadata-onlysuccessor/finaltaskcleanup remainedpending; actuallaterGit/hostedrefs andretainedfinalpublicationproof establishcompletionwithoutanothertrackingcommit. No futureOID/successorpassclaimed. |
 
 ## Independent review and unresolved defects
 
-Accepted consecutive final reviews: 2/2. Initial review: vetoed. CurrentwholeR18finalclosing ACCEPTs2/2 after actual962source/fbecriteria/localaggregate/currenthosted267/protectedCI andCAScorrection. Oldsource-only/intermediate/pendingcounts remain exact history. Sourcecheckpoint merged/synced; metadata successor and ownbranch/worktreecleanup pending.
+Accepted consecutive final reviews: 2/2. Initial review: vetoed. Current whole R18 closing ACCEPTs2/2 bind actual962 source inputs, unchanged criteria, fresh aggregate/current hosted267 and corrected CAS. Earlier source-only/intermediate/pending counts remain exact history. The source checkpoint was merged and synchronized; successor/task cleanup were pending only at the recorded PR3cutoff. Later live Git/hosted refs and retained final proof establish those outcomes.
 
 | Finding | Severity / status | Requirements | Required recheck |
 | --- | --- | --- | --- |
