@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-12T14:54:14.825904+00:00",
+  "ownedResource": "Root-reopened PostgreSQL18.6 for complete R16 source validation",
+  "pidObservedAfterStart": 318873,
+  "executableObservedAfterStart": "/home/cyber/cplayout-toolchains/pgsql18.6/bin/postgres",
+  "dataDirectory": "/home/cyber/cplayout-toolchains/pg-production-test",
+  "stopCommand": "/home/cyber/cplayout-toolchains/pgsql18.6/bin/pg_ctl -D /home/cyber/cplayout-toolchains/pg-production-test -m fast stop",
+  "stopExitCode": 0,
+  "pidAbsent": true,
+  "ownedUnixSocketAbsent": true,
+  "databaseRetained": true,
+  "unrelatedSystemPostgresUntouched": true,
+  "priorResourceClosure": "docs/evidence/production-workflow-review-20261011/owned-runtime-closure-20261012.json",
+  "boundary": "The owner resource was reopened solely for the completed R16 source checks. This records its subsequent shutdown; historical/other-owner resources and private recovery data remain retained."
+}

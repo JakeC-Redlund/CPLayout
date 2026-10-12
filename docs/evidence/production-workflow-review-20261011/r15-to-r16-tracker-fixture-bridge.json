@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-12T13:07:53.651208+00:00",
+  "classification": "one_path_test_fixture_source_bridge",
+  "claimClass": "source",
+  "result": "partial",
+  "priorSourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r15.json",
+  "sourceManifest": "docs/evidence/production-workflow-review-20261011/candidate-source-r16.json",
+  "priorSourceFingerprint": "39cf1a097447da8749b64c3ca1c143a916c4830d8b6ba0a5cd11155e70c60012",
+  "sourceFingerprint": "04c54f0adc5bf306c39d009411f7c188fccad30f241c7c661f851d4fd3f34230",
+  "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+  "canonicalPathCount": 961,
+  "changedPaths": [
+    {
+      "path": "tools/workflowStatus.test.cjs",
+      "beforeSha256": "4c865eb7e2499ae8e8db0e3ca106804995b03cf7114ae4628560073b8fc93c34",
+      "afterSha256": "10db49289edd225e0f32a518888627b40b4110cf1674fdd560d30df35c49807d",
+      "unifiedDiff": "--- R15/tools/workflowStatus.test.cjs\n+++ R16/tools/workflowStatus.test.cjs\n@@ -14,6 +14,11 @@\n   const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'cplayout-workflow-registry-'));\n   try {\n     const registry = original();\n+    // Placeholder fixture sources do not inherit the checkout's verified proofs.\n+    // Each case explicitly qualifies only the requirement it is exercising.\n+    for (const item of registry.requirements) {\n+      if (item.status === 'verified') item.status = 'source_implemented';\n+    }\n     for (const relative of new Set(registry.requirements.flatMap(item => item.sourcePaths))) {\n       fs.mkdirSync(path.dirname(path.join(temp, relative)), { recursive: true });\n       fs.writeFileSync(path.join(temp, relative), 'fixture source\\n');\n@@ -27,6 +32,7 @@\n       fs.mkdirSync(path.dirname(path.join(temp, relative)), { recursive: true });\n       fs.writeFileSync(path.join(temp, relative), 'owned synthetic validator input\\n');\n     }\n+    validateRegistry(registry, temp);\n     return fn(registry, temp);\n   } finally { fs.rmSync(temp, { recursive: true, force: true }); }\n }\n"
+    }
+  ],
+  "byteIdenticalOtherPaths": 960,
+  "sourceDrift": [],
+  "assertions": "Neutralization is confined to a freshly parsed synthetic registry. Its placeholder-source baseline validates before fn; existing cases explicitly promote only their tested requirement. Root real-checkout validation and production validator remain unchanged.",
+  "preservedEvidence": {
+    "actualAggregateR14": "docs/evidence/production-workflow-review-20261011/source-hierarchy-r14-pass.json",
+    "actualBrowserR15": "docs/evidence/production-workflow-review-20261011/full-hierarchy-r15-pass.json",
+    "actualBrowserCases": 267,
+    "browserRerunOnR16": false,
+    "finalReviewR15One": "docs/evidence/production-workflow-review-20261011/final-independent-review-r15-one.json",
+    "finalReviewR15Two": "docs/evidence/production-workflow-review-20261011/final-independent-review-r15-two.json"
+  },
+  "failedCiReference": "docs/evidence/production-workflow-review-20261011/ci-source-r15-registry-fixture-failed.json",
+  "affectedValidation": {
+    "command": "Node24.21.0 --test tools/workflowStatus.test.cjs",
+    "exitCode": 0,
+    "counts": {
+      "selected": 23,
+      "passed": 23,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0
+    },
+    "log": {
+      "originalPath": "/tmp/cplayout-workflow-fixture-r16-scoped.log",
+      "retainedPath": "/home/cyber/cplayout-production-proof-20261011/workflow-fixture-r16-scoped.log",
+      "bytes": 2629,
+      "sha256": "e3325c97e8bb41775d8898dcd81ddc1bfd4644f06e1312f128178d68cfa83a97"
+    },
+    "statusGeneration": {
+      "command": "Node24.21.0 tools/workflowStatus.cjs --write",
+      "exitCode": 0,
+      "requirements": 19,
+      "evidenceRecords": 76
+    },
+    "statusCheck": {
+      "command": "Node24.21.0 tools/workflowStatus.cjs --check",
+      "exitCode": 0,
+      "source": "Coordinator directly verified completed check before starting full aggregate."
+    },
+    "boundary": "Actual local scoped tracker pass and generated pending-status baseline; not a fresh full aggregate/hosted/browser command."
+  },
+  "freshFullSourceAggregate": "pending coordinator execution",
+  "supplementalIndependentReviews": {
+    "required": 2,
+    "accepted": 0
+  },
+  "boundary": "Exact unchanged shipping/browser/criteria bridge proposed. R15 immutable results stay tied to R15; no fresh R16 browser/aggregate or publication success is invented. Current R16 qualification requires affected checks and both actual supplemental reviews."
+}

@@ -14,6 +14,11 @@ function fixture(fn) {
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'cplayout-workflow-registry-'));
   try {
     const registry = original();
+    // Placeholder fixture sources do not inherit the checkout's verified proofs.
+    // Each case explicitly qualifies only the requirement it is exercising.
+    for (const item of registry.requirements) {
+      if (item.status === 'verified') item.status = 'source_implemented';
+    }
     for (const relative of new Set(registry.requirements.flatMap(item => item.sourcePaths))) {
       fs.mkdirSync(path.dirname(path.join(temp, relative)), { recursive: true });
       fs.writeFileSync(path.join(temp, relative), 'fixture source\n');
@@ -27,6 +32,7 @@ function fixture(fn) {
       fs.mkdirSync(path.dirname(path.join(temp, relative)), { recursive: true });
       fs.writeFileSync(path.join(temp, relative), 'owned synthetic validator input\n');
     }
+    validateRegistry(registry, temp);
     return fn(registry, temp);
   } finally { fs.rmSync(temp, { recursive: true, force: true }); }
 }

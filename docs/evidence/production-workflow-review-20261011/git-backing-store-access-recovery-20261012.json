@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-12T14:57:57.514625+00:00",
+  "failure": "Previously registered WSL 9p drvfs H: path returned ENODEV; Git administration was temporarily inaccessible.",
+  "windowsObservation": {
+    "driveLetter": "H",
+    "fileSystem": "NTFS",
+    "healthStatus": "Healthy",
+    "operationalStatus": "OK",
+    "gitPathExists": true
+  },
+  "readOnlyProbe": {
+    "freshDrvfsMountReadable": true,
+    "canonicalMainObserved": "2649d1a9b1f1c55dff2eea4a6fe9faaa54be3824",
+    "worktreeAdministrationReadable": true,
+    "temporaryProbeUnmounted": true
+  },
+  "restoration": {
+    "command": "sudo mount --no-canonicalize -t drvfs H: /mnt/h -o metadata,uid=1001,gid=1001",
+    "exitCode": 0,
+    "activeHeadObserved": "a66c37b2e2181d62ee3ef714a0b84b9e875a7ed3",
+    "canonicalHeadObserved": "2649d1a9b1f1c55dff2eea4a6fe9faaa54be3824",
+    "canonicalOwnerInputExactBackupMatch": true,
+    "existingResourcesKilled": false,
+    "forceUnmountUsed": false,
+    "backingFilesRewritten": false
+  },
+  "boundary": "Fresh access restored; the old channel failure cause is not diagnosed. No physical loss, disk repair, global Windows inactivity, historical-resource closure or Git synchronization is inferred."
+}
