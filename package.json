@@ -72,7 +72,7 @@
     "@playwright/test": "1.64.0",
     "@types/node": "^24.13.3",
     "expo": "57.0.28",
-    "react-native": "0.86.3",
+    "react-native": "0.87.1",
     "tsx": "4.22.4",
     "typescript": "~6.0.3",
     "yaml": "2.9.0"
