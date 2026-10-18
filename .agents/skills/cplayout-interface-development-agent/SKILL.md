@@ -58,13 +58,19 @@ never turn a missing-input status into a numeric zero or a user approval.
 
 ## Workflow intent and records
 
-- Present the current user's logical Customer → Project → Field hierarchy. Home must use the actual authorized customer snapshot, including empty customers; project-derived customer lists lose valid customers. Field machine/map design categories address existing saved documents/machine IDs, and official Layout maps sit under their matched saved Survey. Do not invent copied entities, filesystem folders or document kinds. Browsing and explicit Open remain separate, with retained unfinished work.
-- Check fresh owned RTK Fixed admission for live Survey collection, official Layout creation and marking; stored-map view/export may be offline within authorization. Keep manual/planned provenance, matched Survey/source/CRS and historical unqualified layouts distinct. Source/GUI status lives in the registry; these requirements do not prove physical accuracy. Retained Survey ancestry must survive future delete operations; old orphans show parent unavailable without guessed placement.
-- Distinguish an active V3 RTK Layout from its finalized official measured-station map: every frozen target's latest actual mark needs an entered positive tolerance and within-tolerance result; finalization needs a fresh current lock. Keep original view/export, same-original-field non-official reference import and exact target/Survey IDs; refuse V3 bulk/raw restore without origin proof and cross-field reference import. Copies are empty reference plans. Do not expose metadata-dropping downgrade or reference/finalized-map marking. Current guards and proof status belong in the registry, not dated capability claims in UI.
-- Use only the revision-matched whole-workspace snapshot for field content and exact Review/Layout association, with loading/error/Retry rather than guessed fallback. Retain reopenable empty Drafts and original missing-parent Survey View/source ZIP export without inventing folders. Current SQLite workspace supports V1 only and refuses newer workflow; online manual Save and stored view/export do not prove native live/Layout capability.
-- New customer projects start in optional manual Design with no receiver requirement, may proceed directly to Survey, and require matching saved Survey qualification before Layout marking. Preserve the one mounted workspace/map and immutable targets. Local profile selection is not account authentication.
-- In Survey, direct saved Draft→Field preparation uses the existing Field schema without a completed planning Project/calculation or guessed infrastructure. Known information has one retained owner; measured coordinates come from actual selected observations. Reuse the Survey-owned linear input surface and actual saved path rather than mounting duplicate dirty-input owners. Focused source checks qualify this implementation; served-App, native/device and physical GPS accuracy remain separate.
-- Audit operator labels, settings, import/export, reports and help for developer jargon; keep availability/error wording truthful and actionable. Track source versus actual workflow proof in `docs/workflow-registry.json`; use `docs/operator-workflow-guide.md` only after comparing it with the integrated source.
+For Catalog/Survey/Layout journeys, use the shared
+[workflow records guide](../cplayout-workspace-preflight/references/workflow-records.md)
+and retrieve HIERARCHY-01, FLOW-01, SURVEY-01, LAYOUT-01, ANCESTRY-01,
+RECOVERY-01 and AUTH-01 from `docs/workflow-registry.json` as relevant.
+Keep actual authorized context, one mounted workspace/map, unfinished inputs,
+immutable targets and exact history/source associations. Reuse the Survey-owned
+input surface rather than adding another dirty-input owner.
+
+Audit operator labels, settings, import/export, reports and help for developer
+jargon. Use truthful actionable availability/error wording and compare
+`docs/operator-workflow-guide.md` with integrated source. Current native/version
+support and source-versus-workflow proof belong in the registry, not copied
+capability claims in this skill or the interface.
 
 ## Outputs
 

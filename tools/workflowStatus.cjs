@@ -11,7 +11,7 @@ const SOURCE_ROOTS = ['apps', 'packages', 'tools', 'tests', 'fixtures', 'patches
 const IMPLEMENTATION_ROOTS = new Set(['apps', 'packages', 'tools', 'tests', 'fixtures', 'patches']);
 const CONTEXT_MAP_SOURCE = '.codex/hooks/cplayout_context_map.json';
 const VALIDATOR_DOCUMENTATION_INPUTS = ['docs/agent-context-map.md', 'docs/agent-governance-summary.md', 'docs/examples/cplayout-managed-requirements.toml'];
-const OMIT_SOURCE_DIRS = new Set(['node_modules', 'dist', 'build', '.gradle', '.expo', '.git', '.local', '.cplayout-local', '.cache', '.venv', 'reports', '__pycache__', 'playwright-results', 'playwright-html', 'credentials', 'secrets', 'sessions']);
+const OMIT_SOURCE_DIRS = new Set(['node_modules', 'dist', 'build', '.gradle', '.cxx', '.pytest_cache', '.expo', '.git', '.local', '.cplayout-local', '.cache', '.venv', 'reports', '__pycache__', 'playwright-results', 'playwright-html', 'credentials', 'secrets', 'sessions']);
 const digest = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;

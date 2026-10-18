@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "status": "passed_bounded_equivalence",
+  "baseCommit": "ccb5e7e369efda7a3dfd5dfc2256ab06d0e74119",
+  "sourceFingerprint": "b3cf947004fcc9545d40c233c044fc3eb8a52f5f8c047dc1d2b4bcddcba9be00",
+  "priorSourceFingerprint": "3c146000b31bd17d3779e9a3c6853297e831a837e5ad21feb298a5a8ae1095d8",
+  "changed": [
+    {
+      "path": ".agents/skills/cplayout-database-agent/SKILL.md",
+      "beforeSha256": "189d1a09bb438fc356e367545c57149c7a1dc6de1c466d7c1e136d35627fedb1",
+      "afterSha256": "c3de23237b03843f533d462122340ef5e9bb2cc1789d1af7665bb7ab4526d1ee"
+    },
+    {
+      "path": ".agents/skills/cplayout-interface-development-agent/SKILL.md",
+      "beforeSha256": "b76382b739d4fefc4368f3ec3660251476ad6acfcd66243ab7f6911ebc7b5be7",
+      "afterSha256": "00d7f8191a1b495b325107db60035d70f2fac685ae648822297b6f7b9167b4b4"
+    },
+    {
+      "path": ".agents/skills/cplayout-planning-review/SKILL.md",
+      "beforeSha256": "dc0ac390ce307f66cfaa3391a91059c072b50ab8c729144eb6b7bc86fc688945",
+      "afterSha256": "7829dbdf770c480298594e00279d911ac2b5c559b023602a2a79819c7351c058"
+    },
+    {
+      "path": ".codex/agents/cplayout_center_pivot_designer.toml",
+      "beforeSha256": "132c7886023d0555ddc9b2ad7f70f652d418d408cc3f31a5cf4df1a0688cc616",
+      "afterSha256": "4c32a04410ac4089aed65a952512468bdd2203f39a2e2c07456cc8cd2beca9c2"
+    },
+    {
+      "path": ".codex/agents/cplayout_database_specialist.toml",
+      "beforeSha256": "7b0f9c730b027b1fcc0ced61aa11c07bbf92ccc7c6b0d5cef64e3da19ff71a71",
+      "afterSha256": "721a9bc61fb5a709070ec8ff2bbc59ad7d5355f6d7b9113f149538941682568f"
+    },
+    {
+      "path": ".codex/agents/cplayout_gis_geometry_guardian.toml",
+      "beforeSha256": "dd4019bc29836b29ef5331f91db03d9f7bd729297b390253c7dfe333ed542777",
+      "afterSha256": "008b46b49b55bb87ed2ebc007996107a163e2234ab3bb2011b71be23b69f3dee"
+    },
+    {
+      "path": ".codex/agents/cplayout_imagery_mapper.toml",
+      "beforeSha256": "59b245319868c8f97c0376f97e6f8efc30aa173d232dc0c2e061df6362b49d83",
+      "afterSha256": "37cbe976fd189af4adc93cdaddde7295a9fd6aed0b9087f4d0ec458b84ed61bd"
+    },
+    {
+      "path": ".codex/agents/cplayout_interface_developer.toml",
+      "beforeSha256": "b4b772ece3d715e30ed46e7e784f979815f46373ff262356fd3edb1c445c73db",
+      "afterSha256": "2e98c51bf4cfb71a24d168de1070f10a2003b70e699fc2027feeb8d31581775d"
+    },
+    {
+      "path": ".codex/agents/cplayout_kb_curator.toml",
+      "beforeSha256": "f4de35c7c38715d028504786d91b77356b159c264fdefea2acf3e02b65963f0e",
+      "afterSha256": "44a9b4332f3d34e3234c575e9b0d3596f8c879540ec4413a9dc5b0aa92e9f2f6"
+    },
+    {
+      "path": ".codex/agents/cplayout_qa_validation_reviewer.toml",
+      "beforeSha256": "017ef2d61072a0908d8970792b04ebced3e259f53913c14e27d6f1b459a0981c",
+      "afterSha256": "b73d53d8dd2f54dc1e4f39061619fe0991f33d4b90d0d836396a7e88faeeae3e"
+    },
+    {
+      "path": ".codex/agents/cplayout_runtime_proof_gatekeeper.toml",
+      "beforeSha256": "9bbacf7e1faa1303f98e787aaa8eb388160c835d3e9e25c3d0df0b19199f36fd",
+      "afterSha256": "55540d21dab550c5df0259fcbb141f49d1feb6f637195e17893e228df7f892af"
+    },
+    {
+      "path": ".codex/hooks/cplayout_context_map.json",
+      "beforeSha256": "125d3ad9c750546d87f19bbb604ad130ec37fde1d65addd3840ad29e6f0e5745",
+      "afterSha256": "b045acde8c88c61b9095da253bfbbc20d2939e646f04de30424e2a15aa8afc7b"
+    },
+    {
+      "path": "docs/agent-context-map.md",
+      "beforeSha256": "6bc2481434bff2f02fa734256c5ba57bb2c671cbe9e7bdae6a3c927fd63b2a23",
+      "afterSha256": "813134a7d467401a2d2e9037fd20c2a6d6d0c5e438da651be7ac35319d70bd8b"
+    },
+    {
+      "path": "docs/skill-capability-inventory.json",
+      "beforeSha256": "a210403b0efb289820131ae401fe7ff96ccf4f8966ef431efa11809c75f18121",
+      "afterSha256": "045430032b6aa9c86e0eca627bfd209563787af551da6b039d031f9c7bbbb0b5"
+    },
+    {
+      "path": "docs/skill-capability-inventory.md",
+      "beforeSha256": "c6c77e8ed36ffe0c325589f005f42360e27c6beb528cb9eb19138274e431c911",
+      "afterSha256": "23b022234c5109833443d8c31467822ec3e95515cf35f879803e8c783a866840"
+    },
+    {
+      "path": "tools/workflowStatus.cjs",
+      "beforeSha256": "43635d59f3302f11da9c00b985bd1e1dd2181c75899ee31737e181aa96ef2b88",
+      "afterSha256": "c7cced9dda0a7b241938a6ef2b061f00d79b234351a50c40015a946c7684a568"
+    },
+    {
+      "path": "tools/workflowStatus.test.cjs",
+      "beforeSha256": "10db49289edd225e0f32a518888627b40b4110cf1674fdd560d30df35c49807d",
+      "afterSha256": "5c1aeb23ab1a31e480519e021038b762d5ecec1a9fb739999d009b0fc82d3b78"
+    }
+  ],
+  "added": [
+    ".agents/skills/cplayout-workspace-preflight/references/workflow-records.md"
+  ],
+  "removed": [],
+  "runtimeInputsUnchanged": true,
+  "actualChecks": [
+    {
+      "command": "skill-creator quick_validate.py for three changed local skills",
+      "result": "pass",
+      "count": 3
+    },
+    {
+      "command": "npm run context-map:build && npm run context-map:check",
+      "result": "pass"
+    },
+    {
+      "command": "npm run validate:skills",
+      "result": "pass"
+    },
+    {
+      "command": "node --test tools/workflowStatus.test.cjs before evidence repair",
+      "result": "fail",
+      "passed": 22,
+      "failed": 1,
+      "failure": "Actual current registry source evidence stale; all synthetic tests including changed census case passed"
+    },
+    {
+      "command": "node --test tools/workflowStatus.test.cjs corrective full rerun",
+      "result": "pass",
+      "passed": 23,
+      "failed": 0,
+      "skipped": 0,
+      "elapsedSeconds": 203.741390455
+    },
+    {
+      "command": "node tools/workflowStatus.cjs --write; node tools/workflowStatus.cjs --check; git diff --check",
+      "result": "pass",
+      "requirements": 19,
+      "sourceBoundEvidenceRecords": 94
+    }
+  ],
+  "actualBrowserExecutionEdition": "R18",
+  "newBrowserCommandExecuted": false,
+  "proposal": "Bounded equivalence for unchanged application/browser inputs; source and browser evidence retain distinct classes. PUBLISH-01 becomes pending current local publication; hooks/native/physical/human qualifications unchanged.",
+  "rollbackManifest": "/home/cyber/.local/state/codex-environment/recovery/failure-repair-20261018T191238Z/manifest.json",
+  "acceptanceCriteriaFingerprint": "fbe94cf084f7804b34b74a7c1ae64f66a66d766f91a155e31c9e5f65b376940d",
+  "acceptanceCriteriaUnchanged": true,
+  "reviewedAt": "2026-10-18T19:22:42.166968+00:00",
+  "sourceManifest": "docs/evidence/codex-environment-maintenance-20261018/candidate-source.json",
+  "sourceScopeCount": 963,
+  "independentReviews": [
+    {
+      "id": "codex_toolchain",
+      "weightPercent": 30,
+      "vote": "approve",
+      "sourceFingerprint": "b3cf947004fcc9545d40c233c044fc3eb8a52f5f8c047dc1d2b4bcddcba9be00"
+    },
+    {
+      "id": "instruction_governance",
+      "weightPercent": 20,
+      "vote": "approve",
+      "sourceFingerprint": "b3cf947004fcc9545d40c233c044fc3eb8a52f5f8c047dc1d2b4bcddcba9be00"
+    },
+    {
+      "id": "independent_qa",
+      "weightPercent": 25,
+      "vote": "approve",
+      "sourceFingerprint": "b3cf947004fcc9545d40c233c044fc3eb8a52f5f8c047dc1d2b4bcddcba9be00"
+    }
+  ],
+  "weightedApprovalPercent": 75,
+  "promotionPrerequisites": {
+    "fullTrackerTests": "passed_23_of_23",
+    "statusWriteCheck": "passed"
+  },
+  "boundary": "Independent bounded source and browser-input equivalence; actual source/browser aggregates remain R18. No new browser command, hosted CI, native/device/physical/hook/human acceptance or publication claimed.",
+  "validatedAt": "2026-10-18T19:41:35.113011+00:00"
+}
