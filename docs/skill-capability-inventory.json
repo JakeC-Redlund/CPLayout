@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "reviewedOn": "2026-10-12",
+  "reviewedOn": "2026-10-18",
   "sourceRoots": {
     "r0": "Codex home skills; exact source root supplied by active host catalog",
     "r2": "Versioned curated plugin cache; exact source root supplied by active host catalog",
@@ -1040,22 +1040,30 @@
       "source": {
         "root": "workspace",
         "path": ".agents/skills/cplayout-database-agent/SKILL.md",
-        "sha256": "189d1a09bb438fc356e367545c57149c7a1dc6de1c466d7c1e136d35627fedb1",
+        "sha256": "c3de23237b03843f533d462122340ef5e9bb2cc1789d1af7665bb7ab4526d1ee",
         "present": true,
         "externalOwner": null
       },
       "applicability": "relevant",
       "purpose": "Account/policy admission, retained V3 history/ancestry/imports, monotonic service restore and complete SDK/SQLite peer inventory.",
-      "validation": "source_frontmatter_body_quick_validated",
+      "validation": "passed",
       "runtimeInvocation": "not_measured",
       "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance.",
-      "validationMethod": "skill-creator quick_validate.py exit0 after bounded CAS recovery lesson; source only, not loading/invocation.",
+      "validationMethod": "skill-creator quick_validate.py exit0 on 2026-10-18; source only.",
       "sourceReview": {
-        "observedAtUtc": "2026-10-12T19:44:50.006106+00:00",
-        "scope": "Prior hierarchy/V3/account/source-retention/SDK peer guidance preserved. Added implemented service import monotonic CAS rule, exact rejected source preservation and actualV5bootstraprevision4 limitation; legacy insertion/read/upgrade remain distinct.",
-        "contractReference": "docs/workflow-maintenance-guide.md",
+        "observedAtUtc": "2026-10-18T19:15:57.598770+00:00",
+        "scope": "Owned skill deduplication and shared workflow-records reference reviewed; application source unchanged.",
+        "contractReference": "docs/workflow-acceptance-protocol.md",
         "hostInvocation": "not_measured"
-      }
+      },
+      "sourceReviewHistory": [
+        {
+          "observedAtUtc": "2026-10-12T19:44:50.006106+00:00",
+          "scope": "Prior hierarchy/V3/account/source-retention/SDK peer guidance preserved. Added implemented service import monotonic CAS rule, exact rejected source preservation and actualV5bootstraprevision4 limitation; legacy insertion/read/upgrade remain distinct.",
+          "contractReference": "docs/workflow-maintenance-guide.md",
+          "hostInvocation": "not_measured"
+        }
+      ]
     },
     {
       "id": "cplayout-expert-agent-panels",
@@ -1126,45 +1134,61 @@
       "source": {
         "root": "workspace",
         "path": ".agents/skills/cplayout-interface-development-agent/SKILL.md",
-        "sha256": "b76382b739d4fefc4368f3ec3660251476ad6acfcd66243ab7f6911ebc7b5be7",
+        "sha256": "00d7f8191a1b495b325107db60035d70f2fac685ae648822297b6f7b9167b4b4",
         "present": true,
         "externalOwner": null
       },
       "applicability": "relevant",
       "purpose": "Actualcustomer/field folders, exactReview/RTKstation maps, retainedsourceZIP and truthful host/visual qualification.",
-      "validation": "source_frontmatter_body_quick_validated",
+      "validation": "passed",
       "runtimeInvocation": "not_measured",
       "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance.",
-      "validationMethod": "Finaledited skill-creator quick_validate.py exit0; instruction source only, not loading/invocation.",
+      "validationMethod": "skill-creator quick_validate.py exit0 on 2026-10-18; source only.",
       "sourceReview": {
-        "observedAtUtc": "2026-10-12T05:07:05.780874+00:00",
-        "scope": "Ownedfinalsource contract aligned to frozenmapping/backend receipts: latestpositive-tolerance officialstations, matchedrevisionCatalog/orphanZIP, genericWebguard/V1-onlySQLite and finalread/account/policy/actor admission. Currentproof remainsregistry-linked.",
-        "primarySource": "https://www.w3.org/WAI/WCAG22/Understanding/label-in-name.html",
-        "hostInvocation": "not_measured",
-        "contractReference": "docs/workflow-acceptance-protocol.md"
-      }
+        "observedAtUtc": "2026-10-18T19:15:57.598770+00:00",
+        "scope": "Owned skill deduplication and shared workflow-records reference reviewed; application source unchanged.",
+        "contractReference": "docs/workflow-acceptance-protocol.md",
+        "hostInvocation": "not_measured"
+      },
+      "sourceReviewHistory": [
+        {
+          "observedAtUtc": "2026-10-12T05:07:05.780874+00:00",
+          "scope": "Ownedfinalsource contract aligned to frozenmapping/backend receipts: latestpositive-tolerance officialstations, matchedrevisionCatalog/orphanZIP, genericWebguard/V1-onlySQLite and finalread/account/policy/actor admission. Currentproof remainsregistry-linked.",
+          "primarySource": "https://www.w3.org/WAI/WCAG22/Understanding/label-in-name.html",
+          "hostInvocation": "not_measured",
+          "contractReference": "docs/workflow-acceptance-protocol.md"
+        }
+      ]
     },
     {
       "id": "cplayout-planning-review",
       "source": {
         "root": "workspace",
         "path": ".agents/skills/cplayout-planning-review/SKILL.md",
-        "sha256": "dc0ac390ce307f66cfaa3391a91059c072b50ab8c729144eb6b7bc86fc688945",
+        "sha256": "7829dbdf770c480298594e00279d911ac2b5c559b023602a2a79819c7351c058",
         "present": true,
         "externalOwner": null
       },
       "applicability": "relevant",
       "purpose": "Finalhierarchy/officialmap/reader and sourceproof boundaries with registry-linked acceptance, completecensus and preservedfailedruns.",
-      "validation": "source_frontmatter_body_quick_validated",
+      "validation": "passed",
       "runtimeInvocation": "not_measured",
       "boundary": "Source presence and instruction validation do not prove host loading, callable tools, successful invocation, equipment/runtime capability, rights or product acceptance.",
-      "validationMethod": "Finaledited skill-creator quick_validate.py exit0; instruction source only, not loading/invocation.",
+      "validationMethod": "skill-creator quick_validate.py exit0 on 2026-10-18; source only.",
       "sourceReview": {
-        "observedAtUtc": "2026-10-12T05:07:05.781061+00:00",
-        "scope": "Ownedfinalsource contract aligned to frozenmapping/backend receipts: latestpositive-tolerance officialstations, matchedrevisionCatalog/orphanZIP, genericWebguard/V1-onlySQLite and finalread/account/policy/actor admission. Currentproof remainsregistry-linked.",
+        "observedAtUtc": "2026-10-18T19:15:57.598770+00:00",
+        "scope": "Owned skill deduplication and shared workflow-records reference reviewed; application source unchanged.",
         "contractReference": "docs/workflow-acceptance-protocol.md",
         "hostInvocation": "not_measured"
-      }
+      },
+      "sourceReviewHistory": [
+        {
+          "observedAtUtc": "2026-10-12T05:07:05.781061+00:00",
+          "scope": "Ownedfinalsource contract aligned to frozenmapping/backend receipts: latestpositive-tolerance officialstations, matchedrevisionCatalog/orphanZIP, genericWebguard/V1-onlySQLite and finalread/account/policy/actor admission. Currentproof remainsregistry-linked.",
+          "contractReference": "docs/workflow-acceptance-protocol.md",
+          "hostInvocation": "not_measured"
+        }
+      ]
     },
     {
       "id": "cplayout-qa-validation-agent",
@@ -1215,20 +1239,41 @@
       "validationMethod": "skill-creator quick_validate.py; current local source only, not host invocation/hook execution."
     }
   ],
-  "claims": "All67 exposed host and11 workspace entrypoint sources are present and freshly fingerprint-checked. Source validation, reported guidance use, actual host loading/invocation and runtime capability remain separate. The database guidance passed its bounded source validator; other local source-validation receipts remain for unchanged sources.",
+  "claims": "Host source presence and 67 host fingerprints remain the historical 2026-10-12 observation. On 2026-10-18 three changed owned local skills passed quick validation and other local fingerprints were checked. Shared workflow-records guidance is documentation, not an extra active skill. Source validation does not prove host loading, invocation, hook enforcement or runtime capability.",
   "refresh": {
-    "method": "Hash all67 exposed host+11 workspace entrypoints without semantic portfolio re-review; update/quick-validate only owned database guidance.",
-    "presentSources": 78,
-    "localSourcesValidated": 11,
-    "currentValidationScope": "Only changed database source quick-validated now; other10 local entrypoints unchanged with prior validation records.",
+    "observedAtUtc": "2026-10-18T19:15:57.598770+00:00",
+    "method": "Three changed owned local skills quick-validated; unchanged local hashes checked; host catalog remains the historical 2026-10-12 observation.",
+    "currentValidationScope": "Three changed local skills and shared reference; no host revalidation.",
     "changedSourceIds": [
-      "cplayout-database-agent"
+      "cplayout-database-agent",
+      "cplayout-interface-development-agent",
+      "cplayout-planning-review"
     ],
-    "otherSourceFingerprintsUnchanged": 77,
     "runtimeInvocation": "not_measured",
     "genuineHookExecution": "unknown",
-    "hostLoadClaim": "not_established",
-    "boundary": "Source-only fingerprint/guidance refresh; no installation, host loading, genuine invocation or equipment/runtime capability measured.",
-    "observedAtUtc": "2026-10-12T19:44:50.006106+00:00"
-  }
+    "hostLoadClaim": "not_established"
+  },
+  "refreshHistory": [
+    {
+      "method": "Hash all67 exposed host+11 workspace entrypoints without semantic portfolio re-review; update/quick-validate only owned database guidance.",
+      "presentSources": 78,
+      "localSourcesValidated": 11,
+      "currentValidationScope": "Only changed database source quick-validated now; other10 local entrypoints unchanged with prior validation records.",
+      "changedSourceIds": [
+        "cplayout-database-agent"
+      ],
+      "otherSourceFingerprintsUnchanged": 77,
+      "runtimeInvocation": "not_measured",
+      "genuineHookExecution": "unknown",
+      "hostLoadClaim": "not_established",
+      "boundary": "Source-only fingerprint/guidance refresh; no installation, host loading, genuine invocation or equipment/runtime capability measured.",
+      "observedAtUtc": "2026-10-12T19:44:50.006106+00:00"
+    }
+  ],
+  "claimsHistory": [
+    {
+      "observedOn": "2026-10-12",
+      "claims": "All67 exposed host and11 workspace entrypoint sources are present and freshly fingerprint-checked. Source validation, reported guidance use, actual host loading/invocation and runtime capability remain separate. The database guidance passed its bounded source validator; other local source-validation receipts remain for unchanged sources."
+    }
+  ]
 }

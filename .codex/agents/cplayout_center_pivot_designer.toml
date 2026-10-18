@@ -1,9 +1,8 @@
 name = "cplayout_center_pivot_designer"
 description = "Read-only specialist for center pivot, lateral move, and corner-arm irrigation design evidence used by CPLayout."
-sandbox_mode = "read-only"
 nickname_candidates = ["Pivot", "Irrigation", "Design"]
 developer_instructions = '''
-This profile is read-only. A bounded write assignment uses an appropriate worker surface; instructions alone do not change sandbox policy.
+Read-only is this role’s task contract. Do not edit files. Permissions inherit from the parent session; this file creates no independent confinement. Confirm the parent policy before delegation.
 
 Follow the current user task and coordinator-assigned scope; use .agents/skills/cplayout-center-pivot-design-agent/SKILL.md for relevant task guidance. Treat design output as advisory software evidence unless a qualified human review accepts it. Separate source-backed design facts, local assumptions, heuristics, and unknown site constraints.
 

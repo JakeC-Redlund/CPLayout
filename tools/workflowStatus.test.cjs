@@ -221,7 +221,7 @@ test('all regular fixture/native inputs are covered while credential stores rema
     assert.equal(protectedReads, 0);
   } finally { fs.readFileSync = read; }
 }));
-test('clean-clone census parity excludes only generated MapLibre assets while retaining canonical vendor and fixture inputs', () => fixture((registry, temp) => {
+test('clean-clone census parity excludes generated dependencies and compiler caches while retaining canonical inputs', () => fixture((registry, temp) => {
   const baseline = wholeImplementationPaths(registry, temp);
   const generated = ['LICENSE.txt', 'manifest.json', 'maplibre-gl-shared.mjs', 'maplibre-gl-worker.mjs'];
   const directory = path.join(temp, 'apps/mobile/public/maplibre/6.14.0'); fs.mkdirSync(directory, { recursive: true });
@@ -229,7 +229,12 @@ test('clean-clone census parity excludes only generated MapLibre assets while re
   assert.deepEqual(wholeImplementationPaths(registry, temp), baseline);
   fs.rmSync(path.join(temp, 'apps/mobile/public/maplibre'), { recursive: true });
   assert.deepEqual(wholeImplementationPaths(registry, temp), baseline);
-  const canonical = ['tools/vendor/toolkit.whl', 'apps/mobile/public/advisory-overlay-notices.txt', 'tests/fixtures/new.kml'];
+  for (const relative of ['apps/mobile/android/app/.cxx/Debug/compiler.cpp', 'tools/local-ml-companion/.pytest_cache/v/cache/nodeids']) {
+    fs.mkdirSync(path.dirname(path.join(temp, relative)), { recursive: true });
+    fs.writeFileSync(path.join(temp, relative), 'generated cache; not a canonical input\n');
+  }
+  assert.deepEqual(wholeImplementationPaths(registry, temp), baseline);
+  const canonical = ['tools/vendor/toolkit.whl', 'apps/mobile/public/advisory-overlay-notices.txt', 'tests/fixtures/new.kml', 'apps/mobile/android/gradlew', 'apps/mobile/android/app/proguard-rules.pro'];
   for (const relative of canonical) { fs.mkdirSync(path.dirname(path.join(temp, relative)), { recursive: true }); fs.writeFileSync(path.join(temp, relative), 'owned canonical source input\n'); }
   const current = wholeImplementationPaths(registry, temp);
   for (const relative of canonical) assert(current.includes(relative), relative);

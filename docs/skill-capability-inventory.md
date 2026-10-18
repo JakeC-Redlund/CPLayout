@@ -1,6 +1,6 @@
 # Skill capability inventory
 
-Source fingerprints refreshed 2026-10-12: all 67 exposed host entrypoints and 11 CPLayout sources are present; only the owned database skill changed and was quick-validated for the SDK peer/patch and monotonic recovery-import lessons. Other 77 source fingerprints are unchanged, including the other 10 local skills with their prior validation records. Six CV entries are symlinks owned by the separate canonical CV repository. Source presence, instruction validation, reported guidance use and actual host/runtime invocation are different claims. Unexposed plugin-cache helpers/templates are not additional active skills.
+The 67 host entrypoints and 11 workspace sources were inventoried on 2026-10-12; host observations remain historical. On 2026-10-18 the three changed owned database, interface and planning skills passed quick validation, and unchanged local fingerprints were checked. Their shared workflow-records reference is task documentation, not another active skill. Six CV entries remain symlinks owned by their separate repository. Source presence, source validation and actual host invocation remain separate claims.
 
 Relevant skills support this task; conditional skills need a selected applicable lane; unrelated skills remain installed for their proper domain and are not deletion candidates. The requested image/Resolve splash lane is conditional later polish and cannot delay business workflow completion. No Resolve connection/render or cloud/GPU capability is proved by this inventory.
 
