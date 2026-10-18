@@ -943,7 +943,7 @@
         "docs/dependency-maintenance.md"
       ],
       "acceptance": "Daily security/outdated reports and weekly grouped npm/actions PR configuration; exact-head CI/independent compatibility review precede coordinator merge.",
-      "nextAction": "Retain R18 runtime/browser proof and this bounded equivalence; current local maintenance publication remains pending. Runtime, native/device, physical, hook and human acceptance keep their separate boundaries.",
+      "nextAction": "Observe actual scheduled dependency/security workflow runs and retain their hosted execution evidence; complete the reviewed maintenance publication.",
       "dependsOn": [
         "DEP-01"
       ],
@@ -52463,7 +52463,7 @@
       "result": "pass",
       "reference": "docs/evidence/codex-environment-maintenance-20261018/bounded-equivalence.json",
       "observedOn": "2026-10-18",
-      "commit": "ccb5e7e369efda7a3dfd5dfc2256ab06d0e74119",
+      "commit": "b5a1a4a7a7058079321b9c2ce701d88fae6b9563",
       "sourceFingerprint": "b3cf947004fcc9545d40c233c044fc3eb8a52f5f8c047dc1d2b4bcddcba9be00",
       "sourceManifest": "docs/evidence/codex-environment-maintenance-20261018/candidate-source.json",
       "sourceScope": [
@@ -53449,7 +53449,7 @@
       "result": "pass",
       "reference": "docs/evidence/codex-environment-maintenance-20261018/bounded-equivalence.json",
       "observedOn": "2026-10-18",
-      "commit": "ccb5e7e369efda7a3dfd5dfc2256ab06d0e74119",
+      "commit": "b5a1a4a7a7058079321b9c2ce701d88fae6b9563",
       "sourceFingerprint": "b3cf947004fcc9545d40c233c044fc3eb8a52f5f8c047dc1d2b4bcddcba9be00",
       "sourceManifest": "docs/evidence/codex-environment-maintenance-20261018/candidate-source.json",
       "sourceScope": [
