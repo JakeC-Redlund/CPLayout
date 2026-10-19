@@ -54,6 +54,15 @@ class PromptTriageTests(unittest.TestCase):
                 self.assertFalse(triage.has_explicit_multi_agent_request(prompt))
                 self.assertEqual(triage.subagent_decision(prompt, matches)[0], "not useful")
 
+    def test_plain_gis_mapping_and_crs_transforms_route_to_current_gis_scope(self) -> None:
+        for prompt in ("Update GIS mapping with basemaps and feature selection.",
+                       "Review CRS transforms and GeoJSON feature editing."):
+            with self.subTest(prompt=prompt):
+                self.assertIn("cplayout_gis_geometry_guardian", self.route_ids(prompt))
+        self.assertNotIn("cplayout_gis_geometry_guardian", self.route_ids("Improve a glossary and customer names."))
+        prompt = "No agents; review GIS mapping and CRS transforms."
+        self.assertEqual(triage.subagent_decision(prompt, triage.match_routes(prompt))[0], "not useful")
+
     def route_ids(self, prompt: str) -> list[str]:
         return [match.route.route_id for match in triage.match_routes(prompt)]
 

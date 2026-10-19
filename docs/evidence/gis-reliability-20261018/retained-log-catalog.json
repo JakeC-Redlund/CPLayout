@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 1,
+  "observedOn": "2026-10-18",
+  "records": [
+    {
+      "name": "baseline-validate.log",
+      "sha256": "de5b63428d7063f3a4bfb6bdb9c745c9b99629de94f05a9d0b677f0397c7d85c",
+      "bytes": 306088,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/baseline-validate.log"
+    },
+    {
+      "name": "baseline-audit.log",
+      "sha256": "4f02914c0ee2f65cee064b54aac3967af86628ab366c87919afa821fe4b4b20b",
+      "bytes": 510,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/baseline-audit.log"
+    },
+    {
+      "name": "baseline-browser-discovery.log",
+      "sha256": "30129f5a971a4cec1d08fe4d7a7b98bfc796012b4b4f1f21ef05aaee5ed346d5",
+      "bytes": 42194,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/baseline-browser-discovery.log"
+    },
+    {
+      "name": "install-baseline.log",
+      "sha256": "0629ad4a8a761638c1e3fb2a2dfad47aab961ed3eb8bf9105e6ab1abaddd08a1",
+      "bytes": 658,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/install-baseline.log"
+    },
+    {
+      "name": "candidate-proj4-core.log",
+      "sha256": "98b79e62c588f2013fac75a40c61845d48feb79f4ceaee38b78b717017d21685",
+      "bytes": 57096,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/candidate-proj4-core.log"
+    },
+    {
+      "name": "restore-proj4.log",
+      "sha256": "db6664136b0c4e666e3d5d606c3f1277aaa2efb2c3456a8636ea0774a84b22e6",
+      "bytes": 423,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/restore-proj4.log"
+    },
+    {
+      "name": "before-import-regressions-executed.log",
+      "sha256": "5b7c748f2a34715f49ec57fdc1930dec2193cd040f69757d2ee4444de128eae7",
+      "bytes": 34315,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/before-import-regressions-executed.log"
+    },
+    {
+      "name": "before-tile-counterprobe-executed.log",
+      "sha256": "d95184bec0a5a04516779946c5dbcc595a4f03f339f0288287efba08a29a7f7b",
+      "bytes": 7725,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/before-tile-counterprobe-executed.log"
+    },
+    {
+      "name": "after-tile-counterprobe-executed.log",
+      "sha256": "4da62fcc765e1a35d6fab225adf37dc0e6d166e29ed424534ec77a8c1f6788b0",
+      "bytes": 645,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/after-tile-counterprobe-executed.log"
+    },
+    {
+      "name": "before-pmtiles-regression.log",
+      "sha256": "141a5df3f0ad0a72a984b9d75d487eabcd399d48916f48235ab77a02c94f2445",
+      "bytes": 1364,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/before-pmtiles-regression.log"
+    },
+    {
+      "name": "prefixed-kml-before.log",
+      "sha256": "102dcb1a251432f9535b6622db3db57cf82fb7a9e4ef7ba5bda775df1b6051f5",
+      "bytes": 177,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/prefixed-kml-before.log"
+    },
+    {
+      "name": "prefixed-kml-after.log",
+      "sha256": "17ad9a776076908eeb17b245ff734cc396a66df85fd3f03a833a4718ae24d5e6",
+      "bytes": 268,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/prefixed-kml-after.log"
+    },
+    {
+      "name": "candidate-validate.log",
+      "sha256": "cbb4941a99416bb64571cdf1534f33ae1fa0b379598942269b6cec98c4c37c1e",
+      "bytes": 311759,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/candidate-validate.log"
+    },
+    {
+      "name": "full-current-browser.log",
+      "sha256": "ac5cdbb54048f60f92dbf817e90d74b4d03788909b84108724fb4f575754313f",
+      "bytes": 57570,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/full-current-browser.log"
+    },
+    {
+      "name": "gis-baseline-generation.log",
+      "sha256": "81a215c7d7e5189feec16917722f9415fe8caee77809b941bf66a03bd7d34cea",
+      "bytes": 59166,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/gis-baseline-generation.log"
+    },
+    {
+      "name": "gis-baseline-generation-r2.log",
+      "sha256": "721b98f1bf1c31a709530e9abb13c6c108f8c1c6e570f87ee1d92d2308395217",
+      "bytes": 31419,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/gis-baseline-generation-r2.log"
+    },
+    {
+      "name": "gis-baseline-generation-r3.log",
+      "sha256": "078fab95e7d5fb90eeef713bfba5bc32c5f514f565229d9c350f2accd703093e",
+      "bytes": 6967,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/gis-baseline-generation-r3.log"
+    },
+    {
+      "name": "candidate-typecheck.log",
+      "sha256": "1b1e3c530671f9b18f5836a0d319d22404651737e623e95af4f29ef2e050eaff",
+      "bytes": 226,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/candidate-typecheck.log"
+    },
+    {
+      "name": "candidate-typecheck-rerun.log",
+      "sha256": "74c892cb9c8a697ae90c6578d2cbfce2ba84e8b59265bf69b7f70851fc57baa8",
+      "bytes": 660,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/candidate-typecheck-rerun.log"
+    },
+    {
+      "name": "candidate-inventory-r3.log",
+      "sha256": "2c9ed173ca08799cec4f6a57d7bd05483db5833e47a7389071b6609f05c4d4ea",
+      "bytes": 3553,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/candidate-inventory-r3.log"
+    },
+    {
+      "name": "candidate-inventory-r3-rerun.log",
+      "sha256": "87aa2fb74287dec57a79edfd15ff8a58e49a2d1022055fd6398edfbb7360e372",
+      "bytes": 1790,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/candidate-inventory-r3-rerun.log"
+    },
+    {
+      "name": "final-visual-review-contracts.log",
+      "sha256": "bd0dd11b1bb2f35a89e8a9b7bff4a4bc9a552cb5a1ad4f2529d319912d70023d",
+      "bytes": 11230,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/final-visual-review-contracts.log"
+    },
+    {
+      "name": "final-visual-review-contracts-rerun.log",
+      "sha256": "e9e1134f7ff07ebf762ef30d9f05ed67102425e38a89fd2d0c69ea7daf80a0a0",
+      "bytes": 8629,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/final-visual-review-contracts-rerun.log"
+    },
+    {
+      "name": "font-environment-run.log",
+      "sha256": "9fbaed32e0726943302a5c8ddb9701f99de9d1cbc30d4e248be59d12f327dbb3",
+      "bytes": 12891,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/font-environment-run.log"
+    },
+    {
+      "name": "font-environment-rerun.log",
+      "sha256": "fa2ab15a2384b54a0a9d9f157dd7f776b76c799e737aed4c4c2af46f38f79cc6",
+      "bytes": 319,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/font-environment-rerun.log"
+    },
+    {
+      "name": "font-environment-leaftext.log",
+      "sha256": "5fac45f96b1f26e3cca02e6cb08c14aecfd136e2a0f7dbebeb63d14c2177b1d3",
+      "bytes": 319,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/font-environment-leaftext.log"
+    },
+    {
+      "name": "launcher-start.log",
+      "sha256": "9b84c3ebec737c127532f51723a352f337e762898361acd476b10b472cd56db6",
+      "bytes": 310,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/launcher-start.log"
+    },
+    {
+      "name": "launcher-start-rerun.log",
+      "sha256": "8cfeca15a44c0e7f560279857bdc4b9a04c944ba8c37a1a81718872809b0268a",
+      "bytes": 314,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/launcher-start-rerun.log"
+    },
+    {
+      "name": "visible-edge-run.log",
+      "sha256": "76b5e8b9d58f7c21160798958b466c9be912bb21e257837c8a2baaafeb652c26",
+      "bytes": 371,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-run.log"
+    },
+    {
+      "name": "edge-cleanup.log",
+      "sha256": "c015e20b143b38443a57ad0a2053805bf369a769e3962c9131c26d3561646ab9",
+      "bytes": 326,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/edge-cleanup.log"
+    },
+    {
+      "name": "launcher-stop.log",
+      "sha256": "82d1d03343c81abb67292d4911c06cad11ceb0e2309e44b8fdcd4ebab3d8f478",
+      "bytes": 146,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/launcher-stop.log"
+    },
+    {
+      "name": "isolated-bounds-run.log",
+      "sha256": "0ad273bf9f75e63365b3ebc3e74b3d9cc119f838036e7b5977f7f3b6c9f686fc",
+      "bytes": 220,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/isolated-bounds-run.log"
+    }
+  ],
+  "boundary": "Actual retained private logs; file names do not imply acceptance. Edition/result dispositions are in execution.json and the workflow registry. Raw logs and traces remain local, compact bindings are durable."
+}

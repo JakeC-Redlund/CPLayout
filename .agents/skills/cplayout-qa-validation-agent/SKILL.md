@@ -16,6 +16,7 @@ Use this skill when a CPLayout task needs an independent validation or acceptanc
 5. Do not treat advisory hooks, generated context maps, TypeScript compile, browser proof, or artifact export correctness as native/runtime proof.
 6. For browser UI validation, prefer the repo-owned launcher for manual/static checks: `npm run ui:test:start -- --no-open`, then use the exact printed URL for Playwright evidence and clean up with `npm run ui:test:stop`. Use `npm run ui:test:status` before stopping or diagnosing ports, and never kill unknown listeners as validation cleanup.
 7. Return findings by severity, validation commands run or still needed, evidence paths, exact server URL when used, cleanup status, audit status, and residual risk.
+8. Before browser discovery/export, verify package-relative installed versions, required modules and installed mitigation bytes against the selected lock. Classify GIS cases by required renderer; report captured PNGs, inspected figures, image-comparison assertions and accessibility scans separately. Bind figures to the served/exported bytes and retain successful scene summaries as well as failures.
 
 ## Common Gates
 

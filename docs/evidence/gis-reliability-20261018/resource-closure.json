@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-18T23:25:23.999Z",
+  "result": "pass",
+  "ownedPorts": {
+    "9248": "connection-refused",
+    "9250": "connection-refused",
+    "9251": "connection-refused",
+    "19019": "connection-refused",
+    "19020": "connection-refused",
+    "19186": "connection-refused",
+    "42151": "connection-refused"
+  },
+  "proofBuildLeasePresent": false,
+  "legacyRecovery": {
+    "schemaVersion": 1,
+    "observedAt": "2026-10-18T23:24:52.989Z",
+    "stateFile": "/tmp/cplayout-dev-server-manager-XpOOmD/.cplayout-local/servers/ui-test-42151.json",
+    "stateSha256": "4c35afb62391f70140cf5798f058071349efa51908019836217af5aa2c3a1e8a",
+    "originalState": {
+      "app": "cplayout",
+      "manager": "tools/devServerManager.ts",
+      "version": 1,
+      "mode": "ui-test",
+      "pid": 246781,
+      "port": 42151,
+      "url": "http://127.0.0.1:42151",
+      "startedAt": "2026-06-12T00:00:00.000Z",
+      "cwd": "/tmp/cplayout-dev-server-manager-XpOOmD",
+      "command": [
+        "npx",
+        "tsx",
+        "tools/serveStaticWeb.ts",
+        "apps/mobile/dist",
+        "42151"
+      ],
+      "logPath": "/tmp/cplayout-dev-server-manager-XpOOmD/.cplayout-local/logs/test.log",
+      "processStartIdentity": "1912391"
+    },
+    "result": "verified-stopped",
+    "portFree": true,
+    "method": "Existing manager rechecks process-group members, exactcwd/argv/start identity and actual health before signalling; no manual/broad kill."
+  },
+  "windowsProfilesRetained": [
+    "C:\\Users\\cyber\\AppData\\Local\\CPLayout\\gis-review-20261018-9248",
+    "C:\\Users\\cyber\\AppData\\Local\\CPLayout\\gis-review-20261018-9250",
+    "C:\\Users\\cyber\\AppData\\Local\\CPLayout\\gis-review-20261018-9251"
+  ],
+  "boundary": "Owned review/proof resources only. Unrelated listeners, profiles and processes untouched. Failed orphan case safely stopped via existing exact identity/health verifier; actual isolated test then passed."
+}

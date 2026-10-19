@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-19T00:04:50.923397+00:00",
+  "sourceFingerprint": "e977f099f7b3466b5a7f93938f48472dc4e5bfc6b203f727459c3b751ea5fe7d",
+  "sourcePathsMatched": 984,
+  "sourceMirror": "/home/cyber/.local/share/cplayout/gis-20261018/candidate",
+  "reviewMirror": "/home/cyber/.local/share/cplayout/gis-20261018/visible-review-r3",
+  "exportFingerprint": "8ca7cd9eb12a59441892ad3d77f2cf1cb611c98ecdc85b517e0f59e5c9ff4d24",
+  "exportAssetHashes": {
+    "_expo/static/css/maplibre-gl-dc3f9f1339c2c312db0e4c8f314a98f9.css": "8a592f3c86f1cc56b48622cdbab9c10e9702a4b89d4fba27154335d837158d8e",
+    "_expo/static/js/web/index-3b4f35dc1782c70e9e26a7c1f9745b5c.js": "42f3a478fc0305e4719cb3cce57ebfd61522ee789f6972cd6715069262e76f75",
+    "advisory-overlay-notices.txt": "43bf8151ad3e4a817be4cb4462ac63cb985ce370937959c9291be0d75edcd4b0",
+    "index.html": "ee664e7071918e4dd5093e2c72b1ad054ca3c29d5c92c53cb671edd5cf9a4849",
+    "maplibre/6.15.0/LICENSE.txt": "ee5fc05a0677eaf69601d2c7db0d9ecd6cc27c3abc1d0733bc9ed34707cf8ef2",
+    "maplibre/6.15.0/manifest.json": "cb4d3aa0eb92782da6b8f7ca24d33e408ffcbb27987f514a6944820a959ef5a7",
+    "maplibre/6.15.0/maplibre-gl-shared.mjs": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "maplibre/6.15.0/maplibre-gl-worker.mjs": "1c69066368331aae63967ed24a9affcf962cf55fcc6d8f532a8b040f736dbcfa",
+    "metadata.json": "aa5f19cc84d41c0f8c70ececb2bc82e863227ea1e121632aca879eb616056991"
+  },
+  "result": "pass",
+  "boundary": "Exact frozen source and completed production-export bytes copied without another export. Served-response identity still requires actual Edge observations."
+}

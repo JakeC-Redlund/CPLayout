@@ -1,0 +1,15 @@
+{
+  "sourceHashes": {
+    "package-lock.json": "9d362a6e5f8c0a8e26199d9ea278a02cda194f569218e17ede0d520d1712dbb0",
+    "packages/core/src/index.ts": "61c4d5aa60b6a6a509bcc5e2286b4d855d3e0b57357de2d69dcf0af391b22bb0",
+    "packages/core/src/mapTilePackages.ts": "cf5e73c49f11c03765c705c188dc8568784e0b03987943f8c2afda103f13d91f",
+    "packages/core/src/referenceOverlays.ts": "b22eccc5e98934dcf96384264e03376ae313d2e474deccccc9fe6359ec00fe33",
+    "packages/core/src/settings.ts": "388b98a0649394c8613616ef963e75156c5cb671f091fb49ab316c0eea336604",
+    "packages/core/src/types.ts": "e2f354282de054e8fa49be660fb96becceac050e2ed4d4fbe8cad1e5f7de1e8b",
+    "packages/map-adapters/src/mapWorkbenchStyle.ts": "b062529179a71894a551a6dd59097b0f280c2c664a2a285f8680963e7710a957",
+    "packages/map-adapters/src/referenceOverlayStyle.ts": "e1cb29e072584e29ac2055710b6318df6aa7d68b743144e86c841d1a0414387d",
+    "tools/pngMetrics.ts": "997c058c9a555479709ae6a2e7bbba84f061f22a422aa13ec48794f9a3e7b81f"
+  },
+  "sourceFingerprint": "9d07d5677900ba4cf60a0815994f2cddf4668e24da94a7f4020427990d5ff2df",
+  "boundary": "Only actual bounds-probe source inputs, original probe manifest/hash retained separately."
+}

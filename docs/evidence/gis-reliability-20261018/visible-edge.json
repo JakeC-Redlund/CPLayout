@@ -1,0 +1,114 @@
+{
+  "result": "pass",
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Edg/155.0.4283.62",
+    "revision": "@aa3a7406ba8c53a83536df539f07124d73c899bd",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0",
+    "jsVersion": "15.5.9.7"
+  },
+  "sourceHarnessSha256": "41da9fdd330a8aa004e40a472257cf4bb151c2a5f8ddb56ad162c0d6823464f9",
+  "url": "http://127.0.0.1:19020",
+  "checks": [
+    {
+      "viewport": {
+        "width": 1366,
+        "height": 900
+      },
+      "window": {
+        "windowId": 1329774804,
+        "bounds": {
+          "left": 20,
+          "top": 20,
+          "width": 1374,
+          "height": 985,
+          "windowState": "normal"
+        }
+      },
+      "png": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r2/edge-1366x900.png",
+      "sha256": "bec8285539d15867483f481c0189ea074c5f02986b78b133f12248c814266358"
+    },
+    {
+      "viewport": {
+        "width": 768,
+        "height": 900
+      },
+      "window": {
+        "windowId": 1329774804,
+        "bounds": {
+          "left": 20,
+          "top": 20,
+          "width": 776,
+          "height": 985,
+          "windowState": "normal"
+        }
+      },
+      "png": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r2/edge-768x900.png",
+      "sha256": "a6407bc1b83866dbe5cbaa39af0b6d11c1e5dbbae144f31bd25170f3562d75eb"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "window": {
+        "windowId": 1329774804,
+        "bounds": {
+          "left": 20,
+          "top": 20,
+          "width": 516,
+          "height": 929,
+          "windowState": "normal"
+        }
+      },
+      "png": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r2/edge-390x844.png",
+      "sha256": "41a8c80e10d988162f040e25dd3c14cfa1d031c0c36db69e3d847a36d485b8bd"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 500
+      },
+      "window": {
+        "windowId": 1329774804,
+        "bounds": {
+          "left": 20,
+          "top": 20,
+          "width": 516,
+          "height": 585,
+          "windowState": "normal"
+        }
+      },
+      "png": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r2/edge-390x500.png",
+      "sha256": "7414cd4668538b0b189ba034aa64853e9e40a2ef316f7f3e0935849fe0916e0e"
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "window": {
+        "windowId": 1329774804,
+        "bounds": {
+          "left": 20,
+          "top": 20,
+          "width": 852,
+          "height": 475,
+          "windowState": "normal"
+        }
+      },
+      "png": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r2/edge-844x390.png",
+      "sha256": "49ed86655f3d73ac34a03fa9037b549d7f46faaf6898d38293cb012db4950503"
+    }
+  ],
+  "syntheticOnly": true,
+  "boundary": "Visible Windows Edge actual MapLibre and retained source across five viewports; no native/device/field/package rendering claim.",
+  "sourceEdition": {
+    "fullCensusFingerprint": "5533a09c8cb22fbb7422b4bfe7595e3b043dbd04decddf662911da7c6a342e73",
+    "exportFingerprint": "f5181b298ff4fbfecb612da26ad5578f68eeb9d43b36bb8cbe59017fa6f626c3",
+    "copyManifest": "visible-export.json",
+    "classification": "scoped-source fingerprint in raw bindings; full984census independently bound to exact exported copy"
+  },
+  "retainedFiguresRoot": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r2",
+  "rawBindingsRoot": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r2/bindings"
+}

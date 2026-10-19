@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "result": "pass",
+  "sourceFingerprint": "bbcca1602574285fae3b0f2e34e56e2c60a074546629515dbaad2455907b0305",
+  "counts": {
+    "files": 35,
+    "uniqueCases": 417,
+    "currentExecutions": 291,
+    "deferredExecutions": 960,
+    "allExecutions": 1251
+  },
+  "actualTuples": 291,
+  "expectedTuples": 291,
+  "tupleSetsEqual": true,
+  "passed": 291,
+  "failed": 0,
+  "skipped": 0,
+  "retries": 0,
+  "durationMs": 970980.3139999999,
+  "reportSha256": "07f1975bc86ffb31404c69a40929f71fab8c4bf446db1c8b97377779deb15eae",
+  "htmlSha256": "06ac4b49767e6728172a1d5cbb4a4f4881367fc2ab2dbf3ea28a4cea693f7296",
+  "inventorySha256": "f93040e28fdea5426dfb54074550d4330f8d04a92e408b9b6140433ffd7e77b1",
+  "disposition": "Intermediate edition blocked by later confirmed namespace conversion loss. Retained actual291pass does not qualify repairedsource."
+}

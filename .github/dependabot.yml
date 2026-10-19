@@ -24,7 +24,7 @@ updates:
         patterns: ["fflate", "jsonc-parser", "zod"]
         update-types: [minor, patch]
       compiler-browser-tools:
-        patterns: ["typescript", "tsx", "@types/*", "@playwright/test"]
+        patterns: ["typescript", "tsx", "@types/*", "@playwright/test", "@axe-core/*", "axe-core"]
         update-types: [minor, patch]
       security-fixes:
         applies-to: security-updates

@@ -55,6 +55,7 @@ export function buildReferenceOverlayStyleParts(
   };
   if (source.url) vectorSource.url = source.url;
   if (source.tiles) vectorSource.tiles = source.tiles;
+  if (source.bounds) vectorSource.bounds = source.bounds;
   const sources: StyleSpecification["sources"] = {
     [REFERENCE_OVERLAY_SOURCE_ID]: vectorSource as StyleSpecification["sources"][string],
   };

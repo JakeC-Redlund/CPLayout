@@ -38,6 +38,7 @@ tools/local-ml-companion/**/*.safetensors
 *.log
 *.tmp
 *.png
+!/tests/web/gis-visual.spec.ts-snapshots/**/*.png
 !/apps/mobile/android/app/src/main/res/drawable-*/splashscreen_logo.png
 *.zip
 *.py[cod]

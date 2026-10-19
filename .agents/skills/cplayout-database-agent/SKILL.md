@@ -13,8 +13,8 @@ Preserve CPLayout's offline-first storage split and archive contracts. Database 
 
 1. Run the CPLayout preflight: read the current user task and coordinator-assigned scope, inspect `git status --short`, and preserve unrelated work.
 2. Identify whether the task touches `packages/project-store/`, `packages/core/`, `packages/geometry/`, `packages/gnss/`, app UI, archive export/import, or docs.
-3. Keep native persistence through `packages/project-store/src/projectRepository.native.ts` and Expo SQLite.
-4. Keep web MVP persistence through `packages/project-store/src/projectRepository.ts` until Expo SQLite web WASM and COOP/COEP deployment are intentionally configured and verified.
+3. For legacy project persistence, use `packages/project-store/src/projectRepository.native.ts` and Expo SQLite. Select the authenticated workspace repository for the current account-bound App; see the authenticated service section below.
+4. Legacy web project persistence uses `packages/project-store/src/projectRepository.ts`. Keep it distinct from authenticated workspace persistence and from any future explicitly qualified Expo SQLite web WASM deployment.
 5. Keep project ZIP packages round-tripping through `packages/project-store/src/projectArchive.ts` and validating through `packages/core/src/projectDocument.ts`.
 6. Coordinate interface changes with `$cplayout-interface-development-agent` and design/pivot data with `$cplayout-center-pivot-design-agent`.
 

@@ -18,6 +18,7 @@ Build and review CPLayout interfaces as offline-first work surfaces for repeated
 5. For browser UI checks, use the repo-owned launcher commands: `npm run ui:test:start -- --no-open` for a fresh static export and local test server, `npm run ui:test:status` to inspect launcher-owned state, and `npm run ui:test:stop` to clean up. Use `npm run dev:web:smart` only when live reload is needed, and use the exact URL printed by the launcher for Playwright screenshots.
 6. Coordinate persistence and CRUD changes with `$cplayout-database-agent`.
 7. Coordinate irrigation-design scoring, terminology, and field constraints with `$cplayout-center-pivot-design-agent`.
+8. Verify the installed/locked dependency edition before export and discovery. GIS proof must state whether it requires MapLibre, SVG, or either renderer. Preserve geometry-byte and camera assertions alongside reviewed visual baselines; a captured screenshot or an Axe scan alone does not establish visual regression acceptance.
 
 ## UI Standards
 

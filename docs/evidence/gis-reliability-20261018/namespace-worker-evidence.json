@@ -1,0 +1,183 @@
+{
+  "schemaVersion": 1,
+  "observedOn": "2026-10-18",
+  "purpose": "Compact evidence from the import worker namespace counterprobes and focused checks actually executed in this chat.",
+  "evidenceClass": "Node source and focused executable regression evidence",
+  "custody": {
+    "rawLogFilesAvailable": false,
+    "toolOutputOnly": true,
+    "description": "Results below are transcribed from actual exec_command outputs and identified by their returned chunk IDs. No raw logs were copied and no reconstructed console log is supplied. The original tool invocations remain the source for complete command stdin and output.",
+    "newTestsRunForThisPacket": false,
+    "canonicalOrCandidateSourceModifiedForThisPacket": false
+  },
+  "sourceSnapshots": {
+    "afterKmlNamespaceGuard": {
+      "measurementChunkId": "6a45a0",
+      "projectKmlSha256": "c55e6683e47a6b83f9426ae4ea2f0b69644402699651c6970dbd63942027308f",
+      "drawingProjectEditsTestSha256": "7e519e6458964ff5a0dd0408de0d25059c65acc5405311b4fff4f1389d83f9aa",
+      "binding": "Measured after the first namespace guard; production projectKml.ts remained unchanged through the GX before probes. New GX regressions were added before the GX repair."
+    },
+    "afterKmlAndGxNamespaceGuards": {
+      "measurementChunkId": "524d14",
+      "projectKmlSha256": "9ae8f487804313c5f656d81c00cf9f4e48269eadcaae0676f902f8d95f770d15",
+      "drawingProjectEditsTestSha256": "2418f775c56f96bc0a910d7a5443f6bb936c0c2ac0b0d068e7182d7ad2b23b1c",
+      "binding": "Final worker source/test hashes printed by the same successful command that ran core typecheck and scoped diff checking."
+    }
+  },
+  "runs": [
+    {
+      "chunkId": "81acb8",
+      "phase": "Initial KML alias regression run before production repair",
+      "command": "node_modules/.bin/tsx --test --test-name-pattern='converter-unsupported|namespace refusal' packages/core/src/drawingProjectEdits.test.ts",
+      "cwd": "/mnt/h/CPLayout",
+      "exitCode": 1,
+      "tests": 10,
+      "passed": 0,
+      "failed": 10,
+      "qualification": "Nine intended alias refusal cases failed. The positive GX control also failed because its initial two-coordinate Track fixture was converted to Point by the retained converter; the fixture was corrected to three coordinates before the next run. Production source was not changed for that correction."
+    },
+    {
+      "chunkId": "31ec7d",
+      "phase": "Corrected KML alias regressions before production repair",
+      "command": "node_modules/.bin/tsx --test --test-name-pattern='converter-unsupported|namespace refusal' packages/core/src/drawingProjectEdits.test.ts",
+      "cwd": "/mnt/h/CPLayout",
+      "exitCode": 1,
+      "tests": 10,
+      "passed": 1,
+      "failed": 9,
+      "outputWasTruncated": true,
+      "missingExpectedException": [
+        "mixed prefixed hole",
+        "subtree prefix alias",
+        "prefixed geometry sibling",
+        "prefixed point",
+        "prefixed metadata"
+      ],
+      "existingGenericRefusalDidNotMatchActionableNamespaceRefusal": [
+        "prefixed outer boundary",
+        "prefixed ring",
+        "prefixed coordinates",
+        "fully prefixed KML"
+      ],
+      "positiveControl": "Default namespace declarations, foreign extensions and a supported three-coordinate gx:Track passed.",
+      "beforeSourceHash": null,
+      "hashLimit": "No fresh pre-repair source hash was printed by this invocation; do not infer one from the later repaired source."
+    },
+    {
+      "chunkId": "d34055",
+      "phase": "After KML namespace guard, before GX structural alias guard",
+      "command": "node_modules/.bin/tsx packages/core/src/drawingProjectEdits.test.ts && node_modules/.bin/tsx packages/core/src/projectKml.test.ts",
+      "cwd": "/mnt/h/CPLayout",
+      "exitCode": 0,
+      "drawingProjectEdits": {
+        "tests": 48,
+        "passed": 48,
+        "failed": 0
+      },
+      "projectKmlLegacySuite": "passed",
+      "sourceSnapshot": "afterKmlNamespaceGuard"
+    },
+    {
+      "chunkId": "a8751a",
+      "phase": "After KML namespace guard checks",
+      "command": "npm run typecheck --workspace @cplayout/core && git diff --check -- packages/core/src/projectKml.ts packages/core/src/drawingProjectEdits.test.ts",
+      "cwd": "/mnt/h/CPLayout",
+      "exitCode": 0,
+      "coreTypecheck": "passed",
+      "scopedDiffCheck": "passed"
+    },
+    {
+      "chunkId": "e555cb",
+      "phase": "Actual GX Track alias counterprobe after the KML namespace guard and before the GX repair",
+      "command": "node --require tsx/cjs",
+      "stdinCustody": "The exact inline heredoc script is retained only in the original chat tool invocation. No separate script or full log file was saved.",
+      "cwd": "/mnt/h/CPLayout",
+      "exitCode": 0,
+      "sourceSnapshot": "afterKmlNamespaceGuard",
+      "fixture": "Same bare KML triangle boundary and three-coordinate Linear Move Path Track, with gx or t bound to http://www.google.com/kml/ext/2.2.",
+      "observations": [
+        {
+          "prefix": "gx",
+          "importedBoundary": true,
+          "boundaryVertices": 3,
+          "importedMapFeatureCount": 1,
+          "skippedFeatureCount": 0,
+          "inputUnchanged": true,
+          "sourceUnchanged": true
+        },
+        {
+          "prefix": "t",
+          "importedBoundary": true,
+          "boundaryVertices": 3,
+          "importedMapFeatureCount": 0,
+          "skippedFeatureCount": 1,
+          "inputUnchanged": true,
+          "sourceUnchanged": true
+        }
+      ],
+      "finding": "The KML namespace guard alone did not protect GX structural prefix aliases; t:Track was silently omitted."
+    },
+    {
+      "chunkId": "0bb984",
+      "phase": "GX structural alias regressions before GX repair",
+      "command": "node_modules/.bin/tsx --test --test-name-pattern='unsupported GX|retains supported GX' packages/core/src/drawingProjectEdits.test.ts",
+      "cwd": "/mnt/h/CPLayout",
+      "exitCode": 1,
+      "tests": 3,
+      "passed": 1,
+      "failed": 2,
+      "sourceSnapshot": "afterKmlNamespaceGuard",
+      "failures": [
+        {
+          "structure": "Track",
+          "actual": "Missing expected exception."
+        },
+        {
+          "structure": "MultiTrack",
+          "actual": "Missing expected exception."
+        }
+      ],
+      "positiveControl": "Standard gx and unprefixed Track/MultiTrack, gx and aliased t coordinate elements, and foreign Track extension behavior passed."
+    },
+    {
+      "chunkId": "8d130a",
+      "phase": "After both KML namespace and GX structural alias guards",
+      "command": "node_modules/.bin/tsx packages/core/src/drawingProjectEdits.test.ts && node_modules/.bin/tsx packages/core/src/projectKml.test.ts",
+      "cwd": "/mnt/h/CPLayout",
+      "exitCode": 0,
+      "sourceSnapshot": "afterKmlAndGxNamespaceGuards",
+      "drawingProjectEdits": {
+        "tests": 51,
+        "passed": 51,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "projectKmlLegacySuite": "passed",
+      "assertions": [
+        "Namespace-aware actionable refusal before caller-state admission",
+        "Original caller state remains unchanged",
+        "GX Track and MultiTrack aliases refuse before conversion",
+        "Standard gx and unprefixed structural forms still import",
+        "Coordinate aliases remain supported",
+        "Foreign extension behavior remains intact"
+      ]
+    },
+    {
+      "chunkId": "524d14",
+      "phase": "Final worker typecheck, diff check and source fingerprints",
+      "command": "npm run typecheck --workspace @cplayout/core && git diff --check -- packages/core/src/projectKml.ts packages/core/src/drawingProjectEdits.test.ts && sha256sum packages/core/src/projectKml.ts packages/core/src/drawingProjectEdits.test.ts",
+      "cwd": "/mnt/h/CPLayout",
+      "exitCode": 0,
+      "sourceSnapshot": "afterKmlAndGxNamespaceGuards",
+      "coreTypecheck": "passed",
+      "scopedDiffCheck": "passed"
+    }
+  ],
+  "claimLimits": [
+    "This is focused source/Node regression evidence; it does not establish browser, native/device, Google Earth, field, managed hook or publication acceptance.",
+    "No complete aggregate validation or browser qualification was executed or claimed by this worker packet.",
+    "Namespace handling is explicit refusal of converter-unsupported structures, not namespace rewriting or full KML/GX support.",
+    "Final integrated source and broader acceptance remain coordinator-owned."
+  ]
+}

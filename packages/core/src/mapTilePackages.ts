@@ -95,6 +95,7 @@ export interface MapLibreTileSourceDescriptor {
   maxzoom: number;
   scheme: "xyz" | "tms";
   attribution: string;
+  bounds?: [number, number, number, number];
 }
 
 export type TileRuntimeTarget = "svg_mvp" | "web_maplibre_gl_js" | "native_maplibre_rn" | "android_maplibre_rn" | "ios_maplibre_rn";
@@ -146,7 +147,10 @@ export function validateMapPackageManifest(input: unknown): MapPackageManifest {
 }
 
 export function mapPackageHasRenderableSource(manifest: MapPackageManifest): boolean {
-  return tileSourceUrls(manifest).length > 0 && tileSourceUrls(manifest).every(isLocalTileSourceUrl);
+  return (manifest.tileContentType === "raster"
+    ? manifest.imageryProvenance?.offlineCopyAllowed === true
+    : manifest.imageryProvenance?.offlineCopyAllowed !== false)
+    && tileSourceUrls(manifest).length > 0 && tileSourceUrls(manifest).every(isLocalTileSourceUrl);
 }
 
 export function toMapLibreTileSourceDescriptor(manifest: MapPackageManifest): MapLibreTileSourceDescriptor | null {
@@ -161,6 +165,7 @@ export function toMapLibreTileSourceDescriptor(manifest: MapPackageManifest): Ma
     maxzoom: parsed.maxZoom,
     scheme: parsed.tileScheme,
     attribution: parsed.attribution,
+    bounds: mapPackageBounds(parsed),
   };
 }
 
@@ -180,6 +185,13 @@ export function describeTilePackageReadiness(
     };
   }
 
+  if (parsed.imageryProvenance?.offlineCopyAllowed === false) {
+    return { target, canRender: false, requiresAdapter: false, reason: "This package's recorded source policy does not allow offline copying or offline rendering." };
+  }
+  if (parsed.tileContentType === "raster" && !parsed.imageryProvenance) {
+    return { target, canRender: false, requiresAdapter: false, reason: "Local raster source configuration requires provenance explicitly allowing offline copying; retained metadata remains available for review." };
+  }
+
   const tileUrls = tileSourceUrls(parsed);
   if (tileUrls.some(isLogicalMapPackageUrl)) {
     return {
@@ -187,6 +199,13 @@ export function describeTilePackageReadiness(
       canRender: false,
       requiresAdapter: false,
       reason: "Map package files are unavailable on this device. Import the map archive to view its tiles.",
+      sourceKind: "generated_tilejson_or_template",
+    };
+  }
+  if (target === "web_maplibre_gl_js" && tileUrls.some((url) => classifyMapTileSourceUrl(url).kind === "file")) {
+    return {
+      target, canRender: false, requiresAdapter: true,
+      reason: "Browser MapLibre file:// tile transport requires an explicit browser adapter; expose the admitted package through a loopback tile service first.",
       sourceKind: "generated_tilejson_or_template",
     };
   }
@@ -211,12 +230,12 @@ export function describeTilePackageReadiness(
   }
 
   if (target === "web_maplibre_gl_js" && parsed.packageType === "pmtiles" && parsed.uri.startsWith("pmtiles://")) {
-    if (!isLocalTileSourceUrl(parsed.uri)) {
+    if (classifyMapTileSourceUrl(parsed.uri.slice("pmtiles://".length)).kind !== "loopback_http") {
       return {
         target,
         canRender: false,
         requiresAdapter: false,
-        reason: "PMTiles URIs must point to local app-readable files or localhost tile services before this offline-first app marks them renderable.",
+        reason: "PMTiles URIs must point to local localhost tile services in this browser; browser file:// transport requires a separately qualified adapter.",
         sourceKind: "raw_pmtiles_archive",
       };
     }
@@ -233,6 +252,7 @@ export function describeTilePackageReadiness(
         maxzoom: parsed.maxZoom,
         scheme: parsed.tileScheme,
         attribution: parsed.attribution,
+        bounds: mapPackageBounds(parsed),
       },
       sourceKind: "raw_pmtiles_archive",
     };
@@ -524,6 +544,18 @@ function resolveSelectedAerialImageryPackage({
     };
   }
 
+  if (parsed.imageryProvenance?.offlineCopyAllowed !== true) {
+    return {
+      ...base,
+      ...metadata,
+      status: "unavailable",
+      canRender: false,
+      reason: parsed.imageryProvenance?.offlineCopyAllowed === false
+        ? "The selected imagery source policy does not allow offline copying or offline rendering."
+        : "Local aerial imagery requires source provenance that explicitly permits offline copying; retained metadata remains available for review.",
+    };
+  }
+
   if (parsed.imageryProvenance?.keyedService !== undefined && parsed.imageryProvenance.keyedService !== false) {
     return {
       ...base,
@@ -584,30 +616,43 @@ function aerialImageryTargetLabel(target: TileRuntimeTarget): string {
   return "selected map surface";
 }
 
-function isLocalTileSourceUrl(value: string): boolean {
-  const trimmed = value.trim();
-  const lower = trimmed.toLowerCase();
-  if (lower.startsWith("pmtiles://")) return isLocalTileSourceUrl(trimmed.slice("pmtiles://".length));
-  if (
-    lower.startsWith("file://")
-    || lower.startsWith("asset://")
-    || lower.startsWith("content://")
-    || lower.startsWith("app://")
-    || lower.startsWith("blob:")
-    || lower.startsWith("data:")
-    || lower.startsWith("/")
-    || lower.startsWith("./")
-    || lower.startsWith("../")
-  ) {
-    return true;
-  }
+export interface ClassifiedMapTileUrl {
+  kind: "file" | "loopback_http" | "logical_package" | "unsupported";
+  url?: string;
+}
+
+/** Classify transport only. Package admission separately proves resource containment and existence. */
+export function classifyMapTileSourceUrl(value: string, resolutionBase?: string): ClassifiedMapTileUrl {
+  const unsupported: ClassifiedMapTileUrl = { kind: "unsupported" };
+  if (resolutionBase && classifyMapTileSourceUrl(resolutionBase).kind === "unsupported") return unsupported;
+  if (resolutionBase && value.startsWith("./")) return classifyMapTileSourceUrl(value.slice(2), resolutionBase);
+  if (!value || value !== value.trim() || /[\\\u0000-\u0020\u007f]/.test(value) || value.startsWith("//")) return unsupported;
+  // Inspect before URL normalization, which otherwise hides traversal and encoded separators.
+  let decoded: string;
+  try { decoded = decodeURIComponent(value); } catch { return unsupported; }
+  if (/%(?:2e|2f|5c|25)/i.test(decoded) || /[\\\u0000-\u001f\u007f]/.test(decoded)
+    || /(?:^|\/)\.{1,2}(?:\/|[?#]|$)/.test(decoded) || /%2f|%5c/i.test(value)) return unsupported;
   try {
-    const parsed = new URL(trimmed);
-    return (parsed.protocol === "http:" || parsed.protocol === "https:")
-      && (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1" || parsed.hostname === "::1");
-  } catch {
-    return false;
-  }
+    const parsed = resolutionBase ? new URL(value, resolutionBase) : new URL(value);
+    if (parsed.username || parsed.password || parsed.hash) return unsupported;
+    if (parsed.protocol === "file:" && !parsed.host) return { kind: "file", url: parsed.href };
+    if (parsed.protocol === "app:" && parsed.hostname === "map-packages" && !parsed.port && !parsed.search) {
+      return { kind: "logical_package", url: parsed.href };
+    }
+    if ((parsed.protocol === "http:" || parsed.protocol === "https:")
+      && ["localhost", "127.0.0.1", "[::1]"].includes(parsed.hostname)) return { kind: "loopback_http", url: parsed.href };
+  } catch { /* Unsupported or unresolved relative reference. */ }
+  return unsupported;
+}
+
+function isLocalTileSourceUrl(value: string): boolean {
+  const classification = classifyMapTileSourceUrl(value);
+  return classification.kind === "file" || classification.kind === "loopback_http";
+}
+
+function mapPackageBounds(manifest: MapPackageManifest): [number, number, number, number] {
+  const bounds = manifest.boundsWgs84;
+  return [bounds.minLongitude, bounds.minLatitude, bounds.maxLongitude, bounds.maxLatitude];
 }
 
 function isLogicalMapPackageUrl(value: string): boolean {

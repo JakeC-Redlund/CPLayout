@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "observedOn": "2026-10-18",
+  "baseCommit": "b5a1a4a7a7058079321b9c2ce701d88fae6b9563",
+  "branch": "codex/gis-reliability-20261018",
+  "baseline": {
+    "aggregate": "pass",
+    "audit": {
+      "high": 16,
+      "moderate": 0,
+      "admission": "admitted-local-mitigations"
+    },
+    "browserDiscovery": "pass"
+  },
+  "selectedPackages": {
+    "maplibreGl": "6.15.0",
+    "pmtiles": "4.5.0",
+    "playwright": "1.64.1",
+    "axePlaywright": "4.14.0",
+    "proj4": "2.20.8",
+    "expo": "57.0.28",
+    "reactNative": "0.86.3",
+    "maplibreReactNative": "11.5.0"
+  },
+  "rejectedCandidate": {
+    "package": "proj4",
+    "version": "2.22.0",
+    "reason": "Frozen reader library changed: proj4",
+    "boundary": "Original reader and library fingerprints retained."
+  },
+  "qualification": "repaired_source_final_checks_in_progress",
+  "firstVisualRun": {
+    "tests": 15,
+    "passed": 0,
+    "failed": 15,
+    "classification": "Harness metadata/text/setup errors; preserved, no baseline accepted"
+  },
+  "recovery": {
+    "location": "/home/cyber/.local/state/cplayout/gis-20261018",
+    "originalInstallation": ".cplayout-local/recovery-install-gis-20261018",
+    "sourceStayedOnH": true
+  },
+  "logs": [
+    {
+      "name": "install-baseline.log",
+      "sha256": "0629ad4a8a761638c1e3fb2a2dfad47aab961ed3eb8bf9105e6ab1abaddd08a1",
+      "bytes": 658
+    },
+    {
+      "name": "baseline-validate.log",
+      "sha256": "de5b63428d7063f3a4bfb6bdb9c745c9b99629de94f05a9d0b677f0397c7d85c",
+      "bytes": 306088
+    },
+    {
+      "name": "baseline-audit.log",
+      "sha256": "4f02914c0ee2f65cee064b54aac3967af86628ab366c87919afa821fe4b4b20b",
+      "bytes": 510
+    },
+    {
+      "name": "baseline-checks.json",
+      "sha256": "c24d09f729bde7d7b73eecf470d4da4a49de9da21b97f577460f6f32824aab3d",
+      "bytes": 1235
+    },
+    {
+      "name": "candidate-map-typecheck.log",
+      "sha256": "6d0bb5341fd7e287819266a62c299fd6ede4dccd9d016af0a0eb18982895a39f",
+      "bytes": 66
+    },
+    {
+      "name": "candidate-map-tests.log",
+      "sha256": "bf29ba98cf3dd40d22ab6f57253c136580fb9867541d41b206200fe53f1535db",
+      "bytes": 24307
+    },
+    {
+      "name": "candidate-pmtiles-contract.log",
+      "sha256": "8f10bf16035860c2fded957fe168a16f0ca936c3dff7b68bd8e43ade80a16f42",
+      "bytes": 552
+    },
+    {
+      "name": "candidate-proj4-core.log",
+      "sha256": "98b79e62c588f2013fac75a40c61845d48feb79f4ceaee38b78b717017d21685",
+      "bytes": 57096
+    },
+    {
+      "name": "candidate-typecheck.log",
+      "sha256": "1b1e3c530671f9b18f5836a0d319d22404651737e623e95af4f29ef2e050eaff",
+      "bytes": 226
+    },
+    {
+      "name": "candidate-typecheck-rerun.log",
+      "sha256": "74c892cb9c8a697ae90c6578d2cbfce2ba84e8b59265bf69b7f70851fc57baa8",
+      "bytes": 660
+    },
+    {
+      "name": "canonical-identity.json",
+      "sha256": "00e217b55d11ac1e825516a35d618f660c6ad1657f2637b2b1a01c3830dfc2bc",
+      "bytes": 4164
+    },
+    {
+      "name": "canonical-dependency-links.json",
+      "sha256": "ad2f995fee50f4a1b41ee530b5565ea1b9b3b1e0a150c477bb9728fafaf4ae9b",
+      "bytes": 539
+    },
+    {
+      "name": "gis-baseline-generation.log",
+      "sha256": "81a215c7d7e5189feec16917722f9415fe8caee77809b941bf66a03bd7d34cea",
+      "bytes": 59166
+    }
+  ],
+  "boundary": "Earlier passing intermediate editions remain historical. Repaired fullbrowser and serializedaggregate not yet complete; no final acceptance claimed.",
+  "sourceFingerprint": "5533a09c8cb22fbb7422b4bfe7595e3b043dbd04decddf662911da7c6a342e73",
+  "namespaceRepair": "51 focused drawing/import cases pass; earlier filled-hole/omitted-track loss repaired before converter",
+  "repairedFirstAggregate": {
+    "result": "fail",
+    "reason": "unchanged legacy orphan-process cleanup returned unknown; exact transient cause inconclusive",
+    "next": "owned cleanup and isolated+complete serialized rerun after browser"
+  },
+  "onlineExpoCheck": {
+    "result": "fail",
+    "reference": "expo-online-advisory.json",
+    "decision": "retain frozen cohort by two independent weighted reviews; coherent SDKpatch packet pending"
+  }
+}

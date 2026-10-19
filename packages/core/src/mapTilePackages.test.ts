@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 
 import {
   describeTilePackageReadiness,
+  classifyMapTileSourceUrl,
   listAerialImageryCandidates,
   resolveAerialImagerySource,
   resolveAerialReferenceImagerySource,
@@ -58,6 +59,7 @@ assert.equal(parsed.imageryProvenance?.sourceResolutionMeters, 1);
 
 const source = toMapLibreTileSourceDescriptor(parsed);
 assert.ok(source);
+assert.deepEqual(source.bounds, [-105.21, 40.01, -105.11, 40.11]);
 assert.equal(source.type, "raster");
 assert.equal(source.scheme, "xyz");
 assert.deepEqual(source.tiles, packageManifest.tileUrlTemplates);
@@ -261,5 +263,30 @@ assert.throws(
   }),
   /Invalid input|keyedService/,
 );
+
+for (const unsafe of ["//tiles.example.invalid/{z}/{x}/{y}.png", "http://user:pass@localhost/{z}/{x}/{y}.png", "file:///offline/../private/{z}/{x}/{y}.png", "content://unverified/{z}/{x}/{y}.png", "app://unregistered/{z}/{x}/{y}.png", "data:image/png;base64,eA==", "../tiles/{z}/{x}/{y}.png", "pmtiles://file:///offline/{z}/{x}/{y}.png"]) {
+  const unsafePackage = { ...packageManifest, tileJsonUrl: undefined, tileUrlTemplates: [unsafe] };
+  assert.equal(describeTilePackageReadiness(unsafePackage, "web_maplibre_gl_js").canRender, false, unsafe);
+  assert.equal(describeTilePackageReadiness(unsafePackage, "android_maplibre_rn").canRender, false, unsafe);
+}
+assert.equal(classifyMapTileSourceUrl("./tiles/{z}/{x}/{y}.png").kind, "unsupported", "Relative references require an explicit resolution base");
+assert.equal(classifyMapTileSourceUrl("./tiles/{z}/{x}/{y}.png", "app://map-packages/fixture/tilejson.json").kind, "logical_package");
+assert.equal(classifyMapTileSourceUrl("//tiles.example.invalid/{z}/{x}/{y}.png", "http://localhost/").kind, "unsupported");
+assert.equal(classifyMapTileSourceUrl("http://[::1]:8765/tiles/{z}/{x}/{y}.png").kind, "loopback_http");
+assert.equal(classifyMapTileSourceUrl("file://remote-host/private/map.png").kind, "unsupported");
+assert.equal(classifyMapTileSourceUrl("file:///offline/%2e%2e/private/map.png").kind, "unsupported");
+const installedFileSource = { ...packageManifest, tileJsonUrl: "file:///documents/runtime-tilejson.json", tileUrlTemplates: ["file:///documents/tiles/{z}/{x}/{y}.png"] };
+assert.equal(describeTilePackageReadiness(installedFileSource, "web_maplibre_gl_js").canRender, false, "Browser file transport requires an explicit adapter");
+assert.equal(describeTilePackageReadiness(installedFileSource, "android_maplibre_rn").canRender, true, "Native file source configuration remains separate from device proof");
+assert.equal(describeTilePackageReadiness({ ...webPmtiles, uri: "pmtiles://file:///offline/field.pmtiles" }, "web_maplibre_gl_js").canRender, false);
+for (const imageryProvenance of [undefined, { ...packageManifest.imageryProvenance!, offlineCopyAllowed: false }]) {
+  const unqualified = { ...packageManifest, imageryProvenance };
+  const before = JSON.stringify(unqualified);
+  assert.equal(toMapLibreTileSourceDescriptor(unqualified), null);
+  assert.equal(describeTilePackageReadiness(unqualified, "web_maplibre_gl_js").canRender, false);
+  assert.equal(resolveAerialImagerySource({ mapPackages: [unqualified], preferences: { mode: "manual", sourcePackageId: unqualified.id }, target: "web_maplibre_gl_js" }).canRender, false);
+  assert.deepEqual(listAerialImageryCandidates({ mapPackages: [unqualified], target: "web_maplibre_gl_js" }), []);
+  assert.equal(JSON.stringify(unqualified), before, "Readiness keeps unqualified metadata unchanged");
+}
 
 console.log("map tile package tests passed");

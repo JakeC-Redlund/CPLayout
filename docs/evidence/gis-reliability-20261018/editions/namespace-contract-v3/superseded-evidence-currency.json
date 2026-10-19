@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-19T00:04:10.967Z",
+  "newSourceFingerprint": "e977f099f7b3466b5a7f93938f48472dc4e5bfc6b203f727459c3b751ea5fe7d",
+  "method": "Actual evidenceCurrency evaluated against hash-matched native successor source; original manifest and outcome references remain intact.",
+  "records": {
+    "E-GIS-20261018-AGGREGATE": {
+      "status": "stale",
+      "changedPaths": [
+        ".agents/skills/cplayout-gis-geometry-guard-agent/SKILL.md",
+        ".codex/hooks/cplayout_context_map.json",
+        "docs/agent-context-map.md",
+        "docs/agent-source-ledger.md",
+        "docs/skill-capability-inventory.json",
+        "packages/core/src/drawingProjectEdits.test.ts",
+        "packages/core/src/projectKml.ts"
+      ]
+    },
+    "E-GIS-20261018-BROWSER291": {
+      "status": "stale",
+      "changedPaths": [
+        ".agents/skills/cplayout-gis-geometry-guard-agent/SKILL.md",
+        ".codex/hooks/cplayout_context_map.json",
+        "docs/agent-context-map.md",
+        "docs/agent-source-ledger.md",
+        "docs/skill-capability-inventory.json",
+        "packages/core/src/drawingProjectEdits.test.ts",
+        "packages/core/src/projectKml.ts"
+      ]
+    },
+    "E-GIS-20261018-REVIEW-ONE": {
+      "status": "stale",
+      "changedPaths": [
+        ".agents/skills/cplayout-gis-geometry-guard-agent/SKILL.md",
+        ".codex/hooks/cplayout_context_map.json",
+        "docs/agent-context-map.md",
+        "docs/agent-source-ledger.md",
+        "docs/skill-capability-inventory.json",
+        "packages/core/src/drawingProjectEdits.test.ts",
+        "packages/core/src/projectKml.ts"
+      ]
+    },
+    "E-GIS-20261018-REVIEW-TWO": {
+      "status": "stale",
+      "changedPaths": [
+        ".agents/skills/cplayout-gis-geometry-guard-agent/SKILL.md",
+        ".codex/hooks/cplayout_context_map.json",
+        "docs/agent-context-map.md",
+        "docs/agent-source-ledger.md",
+        "docs/skill-capability-inventory.json",
+        "packages/core/src/drawingProjectEdits.test.ts",
+        "packages/core/src/projectKml.ts"
+      ]
+    },
+    "E-GIS-20261018-EXPO-ONLINE": {
+      "status": "stale",
+      "changedPaths": [
+        ".agents/skills/cplayout-gis-geometry-guard-agent/SKILL.md",
+        ".codex/hooks/cplayout_context_map.json",
+        "docs/agent-context-map.md",
+        "docs/agent-source-ledger.md",
+        "docs/skill-capability-inventory.json",
+        "packages/core/src/drawingProjectEdits.test.ts",
+        "packages/core/src/projectKml.ts"
+      ]
+    }
+  }
+}

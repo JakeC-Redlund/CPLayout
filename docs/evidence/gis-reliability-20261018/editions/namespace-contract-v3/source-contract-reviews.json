@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-19T00:01:17.659674+00:00",
+  "sourceSha256": {
+    "packages/core/src/projectKml.ts": "9a9b2354358a44dd29e49e03f83b23b2f6987155a579c3c565cb1d8620ce7ace",
+    "packages/core/src/drawingProjectEdits.test.ts": "aef40a57265b6bdaf1f0db1f376811d9b65cd27dde3c9882399de1c735eb2885"
+  },
+  "contractSha256": "509a50ad795615821573e49768f71544f25e92e2084d4a9d59108dcbe7ec0102",
+  "reviews": [
+    {
+      "reviewer": "/root/kml_contract_audit",
+      "result": "accept_bounded_source_contract",
+      "method": "Independent read-only converter/guard/test contract comparison and hash verification; no tests executed.",
+      "findings": "First/all/direct and short-circuit consumer parity, strict foreign ancestry without named-Style escape, root/GX namespace and mixed coord handling, operative fallback refusals and positive controls accepted."
+    },
+    {
+      "reviewer": "/root/gis_architecture",
+      "result": "accept_bounded_source_contract",
+      "method": "Independent read-only exact guard/test/converter/lock and46artifact hash verification; worker command/log results read; no tests executed.",
+      "findings": "All27 negative fixtures and positive controls cover selected namespace/consumer/containment classes;19 actual paired negative probes refuse while5 controls remain admitted."
+    }
+  ],
+  "boundary": "Source contract readiness only; no final edition, aggregate, browser, native/device or field acceptance."
+}

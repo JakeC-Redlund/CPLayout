@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "sourceFingerprint": "e977f099f7b3466b5a7f93938f48472dc4e5bfc6b203f727459c3b751ea5fe7d",
+  "initialFullRun": "first-browser-failure.json",
+  "initialTraceSha256": "e2ea5c021c01470fe7530ccaa77a804309fa1e975d20fd2126a5b79f0f77ab40",
+  "independentInvestigator": "/root/browser_failure_review",
+  "observedFailure": "Explicit RTK chronology refusal; Layout mode and newer unsaved name retained; no open/saved session visible.",
+  "traceTiming": {
+    "actionMonotonicMs": 357272.688,
+    "afterMonotonicMs": 357642.15,
+    "actionWallMs": 1792368590291,
+    "afterWallMs": 1792368593204,
+    "monotonicDeltaMs": 369.462,
+    "wallDeltaMs": 2913,
+    "differenceMs": 2543.538
+  },
+  "sourceContract": "Receiver fixture fixes performance.now(), not Date. Capture receipt and later command creation use wall-clock Date; officialLayout chronology refuses future capture or age>2000ms. Source validation precedes durable Layout insertion.",
+  "unknowns": [
+    "Actual command capture/creation timestamp pair is absent; predicate side and underlying clock discrepancy cause unconfirmed.",
+    "Failure screenshot/source review is not an independently captured after-failure durable-byte comparison."
+  ],
+  "unchangedFocusedDiagnostic": {
+    "argv": [
+      "node_modules/.bin/playwright",
+      "test",
+      "tests/web/unified-workspace.spec.ts",
+      "--project=tablet-768",
+      "--grep=unequal Field machines freeze",
+      "--repeat-each=3",
+      "--workers=1"
+    ],
+    "cwd": "/home/cyber/.local/share/cplayout/gis-20261018/candidate",
+    "sourceFingerprint": "e977f099f7b3466b5a7f93938f48472dc4e5bfc6b203f727459c3b751ea5fe7d",
+    "startedAt": "2026-10-19T00:23:12.698818+00:00",
+    "endedAt": "2026-10-19T00:24:24.071081+00:00",
+    "exitCode": 0,
+    "sourceHashesUnchangedAfterRun": true,
+    "changedPathsAfterRun": [],
+    "logSha256": "273e2cdc76c79e4953e27fd7a32c18e9eb65d3f752dcc8c92521212a61372402",
+    "boundary": "Unchanged isolated diagnostic repeats only. Does not erase initial complete-run failure or replace fresh complete current291 proof.",
+    "passed": 3,
+    "failed": 0,
+    "retries": 0
+  },
+  "decision": "Keep guard/assertions/source unchanged; require fresh complete291requalification.",
+  "boundary": "Observed chronology refusal and three actual successful repeats; no inferred host clock repair, production fix, field accuracy or erasure of original failure."
+}

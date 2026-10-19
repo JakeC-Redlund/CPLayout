@@ -1,0 +1,236 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-18T23:59:39.104495+00:00",
+  "owner": "/root/import_fixes",
+  "scope": "Pinned togeojson KML consumer namespace/containment fidelity; not full KML schema validation",
+  "sourceSha256": {
+    "/mnt/h/CPLayout/packages/core/src/projectKml.ts": "9a9b2354358a44dd29e49e03f83b23b2f6987155a579c3c565cb1d8620ce7ace",
+    "/mnt/h/CPLayout/packages/core/src/drawingProjectEdits.test.ts": "aef40a57265b6bdaf1f0db1f376811d9b65cd27dde3c9882399de1c735eb2885",
+    "/mnt/h/CPLayout/node_modules/@tmcw/togeojson/dist/togeojson.cjs": "50d434ae991b8342dddbd81c6e2d433e380e9dd300d62631be801588137a312c",
+    "/mnt/h/CPLayout/package-lock.json": "9d362a6e5f8c0a8e26199d9ea278a02cda194f569218e17ede0d520d1712dbb0"
+  },
+  "converter": {
+    "package": "@tmcw/togeojson",
+    "installedVersion": "7.1.2",
+    "entry": "dist/togeojson.cjs",
+    "activeApi": "kml(document) with default skipNullGeometry:false",
+    "excludedApi": "kmlWithFolders; its Folder/FOLDER_PROPS path is unused"
+  },
+  "namespaces": {
+    "kml": "http://www.opengis.net/kml/2.2",
+    "gx": "http://www.google.com/kml/ext/2.2",
+    "rootAdmission": "unprefixed local name kml with exact KML2.2 URI, or directly tested unqualified no-namespace form; no arbitrary root URI/old earth.google.com URI support inferred",
+    "standardRootReset": "Consumed bare KML names must match the root namespace; xmlns=\"\" inside standard KML root refuses",
+    "kmlPrefixes": "All elements with actual KML2.2 namespace and a prefix refuse explicitly before conversion; no XML rewriting",
+    "gxAliases": "Known GX structural/read names Track/MultiTrack/LatLonQuad/altitudeMode with actual GX URI and unsupported QName refuse even if omitted by fixed converter names. Track/MultiTrack/altitudeMode bare recognized forms retained, LatLonQuad requires gx: prefix. Unknown foreign/GX extension names are not blanket rejected.",
+    "gxLiteralWrongUri": "Active literal gx:Track/gx:MultiTrack/gx:LatLonQuad/gx:altitudeMode must bind actual GX URI",
+    "legacyTrack": "Active bare Track/MultiTrack may bind root namespace or actual GX; homogeneous bare coord may bind root namespace or actual GX; positive fixtures prove root KML2.2 and wholly noNS legacy forms",
+    "gxCoords": "Active tracks inspect all localName=coord descendants regardless prefix. Actual GX namespace aliases supported; bare rootnamespace coord retained. Foreign coordinate URI refuses. Mixed bare and prefixed coord forms refuse because converter would prefer bare bucket and omit observations."
+  },
+  "queryContract": [
+    {
+      "scope": "document",
+      "selection": "ALL literal descendants",
+      "names": [
+        "Style",
+        "StyleMap",
+        "SimpleField",
+        "Placemark",
+        "GroundOverlay",
+        "NetworkLink"
+      ],
+      "effects": "Style extraction/id, StyleMap first styleUrl, schema attributes; features invoke geometry and metadata below."
+    },
+    {
+      "scope": "Placemark plus recursion in recognized MultiGeometry/MultiTrack/gx:MultiTrack",
+      "selection": "DIRECT child literal tagName switch",
+      "names": [
+        "MultiGeometry",
+        "MultiTrack",
+        "gx:MultiTrack",
+        "Point",
+        "LineString",
+        "LinearRing",
+        "Polygon",
+        "Track",
+        "gx:Track"
+      ],
+      "effects": "Point/LineString/LinearRing read FIRST literal coordinates. Polygon reads ALL literal descendant LinearRing, each FIRST coordinates. Recognized tracks use coord buckets and ALL when only when observations exist. Ignored foreign t:Track does not trigger geometry/coord/when reads."
+    },
+    {
+      "scope": "Placemark/GroundOverlay/NetworkLink",
+      "selection": "FIRST literal descendant for each",
+      "names": [
+        "name",
+        "address",
+        "visibility",
+        "open",
+        "phoneNumber",
+        "description",
+        "styleUrl",
+        "ExtendedData",
+        "TimeSpan",
+        "TimeStamp",
+        "PolyStyle",
+        "LineStyle",
+        "LabelStyle",
+        "IconStyle"
+      ],
+      "effects": "Description extra CDATA logic selects same first description."
+    },
+    {
+      "scope": "selected PolyStyle/LineStyle/LabelStyle/IconStyle",
+      "selection": "FIRST literal descendant for each",
+      "mapping": {
+        "PolyStyle": [
+          "color",
+          "fill",
+          "outline"
+        ],
+        "LineStyle": [
+          "color",
+          "width"
+        ],
+        "LabelStyle": [
+          "color",
+          "scale"
+        ],
+        "IconStyle": [
+          "color",
+          "scale",
+          "heading",
+          "hotSpot",
+          "Icon"
+        ],
+        "Icon": [
+          "href"
+        ]
+      },
+      "effects": "Global Style nodes also invoke these helpers."
+    },
+    {
+      "scope": "selected ExtendedData",
+      "selection": "ALL literal descendant Data/SimpleData; each Data FIRST value",
+      "names": [
+        "Data",
+        "SimpleData",
+        "value"
+      ]
+    },
+    {
+      "scope": "selected TimeSpan/TimeStamp",
+      "selection": "FIRST literal descendant for each",
+      "mapping": {
+        "TimeSpan": [
+          "begin",
+          "end"
+        ],
+        "TimeStamp": [
+          "when"
+        ]
+      }
+    },
+    {
+      "scope": "GroundOverlay",
+      "selection": "FIRST gx:LatLonQuad then FIRST coordinates on overlay; otherwise FIRST LatLonBox then FIRST numeric fields",
+      "names": [
+        "gx:LatLonQuad",
+        "coordinates",
+        "LatLonBox",
+        "north",
+        "west",
+        "east",
+        "south",
+        "rotation"
+      ],
+      "effects": "Also FIRST Icon/href; metadata/style helpers always execute with default skipNullGeometry:false."
+    },
+    {
+      "scope": "NetworkLink",
+      "selection": "FIRST Region; if present FIRST LatLonAltBox on Region and FIRST Lod on NetworkLink; FIRST Link on NetworkLink",
+      "mapping": {
+        "LatLonAltBox": [
+          "north",
+          "west",
+          "east",
+          "south",
+          "altitudeMode (FIRST; short-circuits gx:altitudeMode fallback)"
+        ],
+        "Lod": [
+          "minLodPixels",
+          "maxLodPixels",
+          "minFadeExtent",
+          "maxFadeExtent"
+        ],
+        "Link": [
+          "href",
+          "refreshMode",
+          "refreshInterval",
+          "viewRefreshMode",
+          "viewRefreshTime",
+          "viewBoundScale",
+          "viewFormat",
+          "httpQuery"
+        ],
+        "NetworkLink": [
+          "refreshVisibility",
+          "flyToView",
+          "Icon (then href)"
+        ]
+      },
+      "effects": "All listed child fields FIRST literal descendants; common metadata/style also read."
+    },
+    {
+      "scope": "CPLayout raw polygon admission",
+      "selection": "ALL document literal Polygon; DIRECT bare outerBoundaryIs/innerBoundaryIs; ALL descendant LinearRing and coordinates",
+      "effects": "Additional active reads independent of converter feature reachability; ring/order/count/coordinate constraints remain."
+    }
+  ],
+  "attributes": {
+    "unqualifiedLiteral": [
+      "id",
+      "name",
+      "type",
+      "x",
+      "y",
+      "xunits",
+      "yunits"
+    ],
+    "semantics": "XML default namespace does not bind unprefixed attributes. Guard does not reject arbitrary prefixed attributes by localname.",
+    "cascadingStyle": "Converter global Style without own truthy id reads immediate parent when localName=CascadingStyle and then literal kml:id or id. No authoritative namespace support was established; refuse this operative fallback with actionable explicit Style id instruction. If own Style id exists, fallback is not refused, but foreign ancestor containment still independently refuses consumed Style."
+  },
+  "containment": "Every actually consumed node must have only rootnamespace or actualGX ancestors through root. No named-Style escape exists. Thus globally discovered explicit-ID KML Style under foreign wrapper refuses, as do coordinates/name/global features under foreign wrapper. Inert foreign-prefixed Style/Point/coord/Track extensions remain ignored when no active converter/raw helper selects them.",
+  "firstMatchCompatibility": "The collector selects only FIRST matches for get1/get/val1/num1/getMulti, ALL for $/global/raw reads, DIRECT children for geometry switch. Later ignored foreign name/coordinates and ignored foreign t:Track are positive controls, not false refusals.",
+  "atomicity": "Guard runs before converter and before import/reducer mutation. New negative fixtures freeze initial caller state and assert unchanged identity/exact JSON after refusal; original input string is retained by caller; no XML normalization/rewriting is performed.",
+  "fixtures": {
+    "manifest": "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-complete-fixtures.json",
+    "manifestSha256": "2eb6619893f8df309591a0902f6fb814d2602b97afee7384f95e1be7beeb91b3",
+    "negativeCount": 27,
+    "beforeExecutedNegativeCount": 26,
+    "newSupplementaryContainmentFixture": "qualified global Style inside foreign wrapper added after baseline run; no failing-before claim for this supplementary fixture",
+    "positiveCoverage": "Standard2.2/noNS roots; bare legacy Track/coord; actualGX homogeneous bare coords; standardgx Track/MultiTrack and gx/t coord aliases; ignored foreign t:Track with when; later ignored foreign name/coordinates; foreign-prefixed inert CascadingStyle/Style/Point/coord; existing default namespace declarations/foreign polygon extensions."
+  },
+  "sources": [
+    {
+      "url": "https://developers.google.com/kml/documentation/kmlreference",
+      "reviewedDate": "2026-10-18",
+      "use": "Official KML2.2/GX namespace identity and extension contract; no CascadingStyle entry found."
+    },
+    {
+      "url": "https://developers.google.com/kml/schema/kml22gx.xsd",
+      "reviewedDate": "2026-10-18",
+      "use": "GX namespace schema; no CascadingStyle entry found."
+    },
+    {
+      "path": "/mnt/h/CPLayout/node_modules/@tmcw/togeojson/dist/togeojson.cjs",
+      "sha256": "50d434ae991b8342dddbd81c6e2d433e380e9dd300d62631be801588137a312c",
+      "use": "Actual installed helper/query/switch and attribute contract; independently audited by GIS architecture/converter auditor."
+    }
+  ],
+  "limitations": [
+    "Pinned converter query contract must be re-reviewed if converter version/source changes.",
+    "This is consumer namespace/containment fidelity, not full KML/XSD/schema validation, XML canonicalization, altitude support, Google Earth visual proof, or native/browser acceptance.",
+    "No project schema change or coordinate mutation policy expansion.",
+    "Scope intentionally conservative: actualKML prefixes/known unsupported GX aliases and operative CascadingStyle fallback explicitly refuse instead of implementing new support."
+  ]
+}

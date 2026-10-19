@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "before": {
+    "admitted": true,
+    "boundaryVertices": 3,
+    "items": [
+      {
+        "id": "field",
+        "name": "Field",
+        "classification": "field_boundary",
+        "geometryType": "Polygon",
+        "selected": true
+      }
+    ],
+    "sourceUnchanged": true
+  },
+  "after": {
+    "refused": true,
+    "error": "Error: The current converter cannot retain namespace-prefixed KML elements (k:innerBoundaryIs). Export a copy using the default KML namespace and unprefixed KML element names, and preserve the complete original input.",
+    "sourceUnchanged": true
+  },
+  "beforeLogSha256": "102dcb1a251432f9535b6622db3db57cf82fb7a9e4ef7ba5bda775df1b6051f5",
+  "afterLogSha256": "17ad9a776076908eeb17b245ff734cc396a66df85fd3f03a833a4718ae24d5e6",
+  "classification": "actual-node-public-import-counterprobe",
+  "boundary": "Input and caller state retained both times; earlier converter silently filled a hole, corrected admission refuses unsupported namespace-prefixed KML before conversion."
+}

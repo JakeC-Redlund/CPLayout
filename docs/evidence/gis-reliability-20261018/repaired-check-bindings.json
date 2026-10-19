@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "sourceFingerprint": "5533a09c8cb22fbb7422b4bfe7595e3b043dbd04decddf662911da7c6a342e73",
+  "records": [
+    {
+      "name": "repaired-import-focused.log",
+      "sha256": "e3498d557e85c76c00ac57b38a4a3f2de007652d0e0c48adc21185181f49ea60",
+      "bytes": 9912,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/repaired-import-focused.log"
+    },
+    {
+      "name": "repaired-governance.log",
+      "sha256": "7a39f67097ac77a60536627209c4d59cad0ed73d6bb346dbf602273a5fb6f30d",
+      "bytes": 184,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/repaired-governance.log"
+    },
+    {
+      "name": "repaired-skills.log",
+      "sha256": "b1dffc63061a3ecc0340ee9708e65b8240cba4aa45bb48508aeb73e67d04670d",
+      "bytes": 2914,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/repaired-skills.log"
+    },
+    {
+      "name": "repaired-audit.log",
+      "sha256": "5d3ce7bf53a53cd4cf2ecc1efbaed0384056955c5a718bd4d4e898df5f322e75",
+      "bytes": 514,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/repaired-audit.log"
+    },
+    {
+      "name": "repaired-all-discovery.json",
+      "sha256": "31a19ce7887a882936227d213190aa5e14edcf70f631fc41c7674b148f64a14d",
+      "bytes": 824960,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/repaired-all-discovery.json"
+    },
+    {
+      "name": "repaired-all-discovery.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/repaired-all-discovery.stderr.log"
+    },
+    {
+      "name": "repaired-inventory-check.log",
+      "sha256": "4f8006143c9e3c0c881c1a1b5ec740fdd753bb4c24cffe546ec62443edaab0a3",
+      "bytes": 87,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/repaired-inventory-check.log"
+    },
+    {
+      "name": "repaired-canonical-identity.json",
+      "sha256": "00e217b55d11ac1e825516a35d618f660c6ad1657f2637b2b1a01c3830dfc2bc",
+      "bytes": 4164,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/repaired-canonical-identity.json"
+    },
+    {
+      "name": "repaired-canonical-native-mitigations.log",
+      "sha256": "aaddaa843e32b40205ff8f586a999e73b14edaa79b31fa5e1813bcd2d40177ed",
+      "bytes": 158,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/repaired-canonical-native-mitigations.log"
+    },
+    {
+      "name": "repaired-canonical-cohort.log",
+      "sha256": "68bb4012aff052fa4ea72c03fa149a1e5231b6033c2fdb21b340344b889d5fac",
+      "bytes": 82,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/repaired-canonical-cohort.log"
+    },
+    {
+      "name": "repaired-canonical-expo.log",
+      "sha256": "33dbe561bccddbd3f8026c903c0ebfe94af5a8dd7321825b53770fc697b649c8",
+      "bytes": 321,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/repaired-canonical-expo.log"
+    },
+    {
+      "name": "repaired-validate.log",
+      "sha256": "2b4b7b7f61ac383a6c106b3e40958b4e32b9fbfa438356c5101a827b2cda27c4",
+      "bytes": 16814,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/repaired-validate.log"
+    },
+    {
+      "name": "visible-edge-r2-run.log",
+      "sha256": "f1094cf245639d6008b297e77bacf5ad6783150e81648dfcbe4950a635727a8b",
+      "bytes": 374,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r2-run.log"
+    },
+    {
+      "name": "launcher-r2-start.log",
+      "sha256": "fb0e54b6340098a88def05d8e08e8c0ee632e10676cd63aed67c55c361544623",
+      "bytes": 317,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/launcher-r2-start.log"
+    },
+    {
+      "name": "launcher-r2-stop.log",
+      "sha256": "a30ea8e6994957fc139d266f8b358452a5804d9e13fe1a3aaf776d679f63e888",
+      "bytes": 146,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/launcher-r2-stop.log"
+    },
+    {
+      "name": "edge-r2-cleanup.log",
+      "sha256": "14bc1d8ff8863abd24d492f4e05c1ca13fd089063cb02dbb59ee7f05d3aad79e",
+      "bytes": 33,
+      "retainedAt": "/home/cyber/.local/state/cplayout/gis-20261018/edge-r2-cleanup.log"
+    }
+  ],
+  "boundary": "Actual completed focused/identity/governance/discovery/audit/visible-review checks and failed firstaggregate. Complete finalbrowser/serializedaggregate are recorded separately when finished."
+}

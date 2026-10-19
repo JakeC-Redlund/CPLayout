@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-19T02:47:28.436Z",
+  "result": "pass",
+  "sourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
+  "censusPaths": 984,
+  "canonicalAndNativeMatched": true,
+  "unchangedPredecessorReceipts": 29,
+  "finalReviews": 2,
+  "workflowProjection": "native matching-source check passed and exact status bytes copied to canonical",
+  "boundary": "Handoff identity/source/preservation binding; actual e977 executions remain separately identified by explicit formatting equivalence. Protected CI/publication not yet observed."
+}

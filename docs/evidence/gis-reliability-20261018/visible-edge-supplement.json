@@ -1,0 +1,784 @@
+{
+  "schemaVersion": 1,
+  "sourceFingerprint": "5533a09c8cb22fbb7422b4bfe7595e3b043dbd04decddf662911da7c6a342e73",
+  "result": "pass",
+  "reflow320": {
+    "classification": "synthetic-browser-only",
+    "url": "http://127.0.0.1:19020",
+    "endpoint": "http://127.0.0.1:9251",
+    "startedAt": "2026-10-18T23:14:42.630Z",
+    "scriptSha256": "1e18e8dcee955a3de3e611b822a5faebb7c706ee7dfa9bce92f0671de95d744a",
+    "failures": [],
+    "checks": [
+      {
+        "pass": true,
+        "detail": "Owned profile browser default zoom starts at100%"
+      },
+      {
+        "pass": true,
+        "detail": "320CSSpx actual innerWidth"
+      },
+      {
+        "pass": true,
+        "detail": "320CSSpx no document horizontal overflow"
+      },
+      {
+        "pass": true,
+        "detail": "320CSSpx all common control boxes inside viewport"
+      },
+      {
+        "pass": true,
+        "detail": "Natural Tab Design to Survey at320CSSpx"
+      },
+      {
+        "pass": true,
+        "detail": "Natural Tab skips unavailable Layout and reaches Save"
+      },
+      {
+        "pass": true,
+        "detail": "Natural Tab reaches File"
+      },
+      {
+        "pass": true,
+        "detail": "Escape closes File menu and returns focus"
+      },
+      {
+        "pass": true,
+        "detail": "320CSSpx keyboard and reflow preserve exact source bytes"
+      },
+      {
+        "pass": true,
+        "detail": "Browser settings API accepts and reads back default zoom200%"
+      },
+      {
+        "pass": true,
+        "detail": "Actual browser layout viewport halves at200% for same native window"
+      },
+      {
+        "pass": true,
+        "detail": "No CSS zoom or pinch scale substituted for browser zoom"
+      },
+      {
+        "pass": true,
+        "detail": "200% browserzoom no document horizontal overflow"
+      },
+      {
+        "pass": true,
+        "detail": "200% browserzoom common control boxes inside viewport"
+      },
+      {
+        "pass": true,
+        "detail": "200% browserzoom and Fit preserve exact source bytes"
+      },
+      {
+        "pass": true,
+        "detail": "No page errors"
+      },
+      {
+        "pass": true,
+        "detail": "No unexpected external network requests"
+      }
+    ],
+    "priorFailure": "../receipt.json",
+    "sourceEdition": {
+      "manifest": "/home/cyber/.local/state/cplayout/gis-20261018/repaired-source.json",
+      "coordinatorFingerprint": "5533a09c8cb22fbb7422b4bfe7595e3b043dbd04decddf662911da7c6a342e73"
+    },
+    "method": "stdin execution; explicit relative-URL resolution; no source/harness file edited",
+    "zoomApi": {
+      "url": "edge://settings/appearance",
+      "getDefaultZoom": "function",
+      "setDefaultZoom": "function"
+    },
+    "originalZoom": 1,
+    "browser": {
+      "protocolVersion": "1.3",
+      "product": "Edg/155.0.4283.62",
+      "revision": "@aa3a7406ba8c53a83536df539f07124d73c899bd",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0",
+      "jsVersion": "15.5.9.7"
+    },
+    "beforeSourceSha256": "9511448aaabb5b32b9bae7431d6c7bff1ec34697c1e410df9c72c3ae00cbc553",
+    "reflow320": {
+      "metrics": {
+        "innerWidth": 320,
+        "innerHeight": 844,
+        "outerWidth": 1265,
+        "outerHeight": 1532,
+        "dpr": 1,
+        "visualViewport": {
+          "width": 320,
+          "height": 844,
+          "scale": 1
+        },
+        "cssZoom": "1",
+        "scrollWidth": 320,
+        "scrollHeight": 844,
+        "visibility": "visible",
+        "fonts": "loaded"
+      },
+      "controls": [
+        {
+          "label": "Customers & projects",
+          "box": {
+            "x": 10,
+            "y": 137,
+            "width": 48,
+            "height": 48
+          },
+          "within": true
+        },
+        {
+          "label": "Design mode",
+          "box": {
+            "x": 63,
+            "y": 142.5,
+            "width": 66.65625,
+            "height": 37
+          },
+          "within": true
+        },
+        {
+          "label": "Survey mode",
+          "box": {
+            "x": 129.65625,
+            "y": 142.5,
+            "width": 66.015625,
+            "height": 37
+          },
+          "within": true
+        },
+        {
+          "label": "Layout mode",
+          "box": {
+            "x": 195.671875,
+            "y": 142.5,
+            "width": 65.703125,
+            "height": 37
+          },
+          "within": true
+        },
+        {
+          "label": "Undo",
+          "box": {
+            "x": 10,
+            "y": 189,
+            "width": 48,
+            "height": 48
+          },
+          "within": true
+        },
+        {
+          "label": "Redo",
+          "box": {
+            "x": 62,
+            "y": 189,
+            "width": 48,
+            "height": 48
+          },
+          "within": true
+        },
+        {
+          "label": "Save",
+          "box": {
+            "x": 114,
+            "y": 189,
+            "width": 48,
+            "height": 48
+          },
+          "within": true
+        },
+        {
+          "label": "File menu",
+          "box": {
+            "x": 166,
+            "y": 189,
+            "width": 42.609375,
+            "height": 48
+          },
+          "within": true
+        },
+        {
+          "label": "Receiver",
+          "box": {
+            "x": 212.609375,
+            "y": 189,
+            "width": 48,
+            "height": 48
+          },
+          "within": true
+        },
+        {
+          "label": "Show tools",
+          "box": {
+            "x": 10,
+            "y": 241,
+            "width": 48,
+            "height": 48
+          },
+          "within": true
+        }
+      ],
+      "png": {
+        "path": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r2-supplement/attempt-02/edge-reflow-320x844.png",
+        "sha256": "504a3013f6f494c4a0c6ddcca53503f47fd9b0d6479683d75d5c5e146e6874e5",
+        "width": 320,
+        "height": 844
+      }
+    },
+    "browserZoom200": {
+      "api": {
+        "setResult": true,
+        "readback": 2
+      },
+      "baseline": {
+        "innerWidth": 1366,
+        "innerHeight": 900,
+        "outerWidth": 1374,
+        "outerHeight": 985,
+        "dpr": 1,
+        "visualViewport": {
+          "width": 1366,
+          "height": 900,
+          "scale": 1
+        },
+        "cssZoom": "1",
+        "scrollWidth": 1366,
+        "scrollHeight": 900,
+        "visibility": "visible",
+        "fonts": "loaded"
+      },
+      "doubled": {
+        "innerWidth": 683,
+        "innerHeight": 450,
+        "outerWidth": 1374,
+        "outerHeight": 985,
+        "dpr": 2,
+        "visualViewport": {
+          "width": 683,
+          "height": 450,
+          "scale": 1
+        },
+        "cssZoom": "1",
+        "scrollWidth": 683,
+        "scrollHeight": 450,
+        "visibility": "visible",
+        "fonts": "loaded"
+      },
+      "controls": [
+        {
+          "label": "Customers & projects",
+          "box": {
+            "x": 10,
+            "y": 91,
+            "width": 48,
+            "height": 48
+          },
+          "within": true
+        },
+        {
+          "label": "Design mode",
+          "box": {
+            "x": 63,
+            "y": 96.25,
+            "width": 66.65625,
+            "height": 37.5
+          },
+          "within": true
+        },
+        {
+          "label": "Survey mode",
+          "box": {
+            "x": 129.65625,
+            "y": 96.25,
+            "width": 66.0078125,
+            "height": 37.5
+          },
+          "within": true
+        },
+        {
+          "label": "Layout mode",
+          "box": {
+            "x": 195.6640625,
+            "y": 96.25,
+            "width": 65.703125,
+            "height": 37.5
+          },
+          "within": true
+        },
+        {
+          "label": "Undo",
+          "box": {
+            "x": 266.3671875,
+            "y": 91,
+            "width": 48,
+            "height": 48
+          },
+          "within": true
+        },
+        {
+          "label": "Redo",
+          "box": {
+            "x": 318.3671875,
+            "y": 91,
+            "width": 48,
+            "height": 48
+          },
+          "within": true
+        },
+        {
+          "label": "Save",
+          "box": {
+            "x": 370.3671875,
+            "y": 91,
+            "width": 48,
+            "height": 48
+          },
+          "within": true
+        },
+        {
+          "label": "File menu",
+          "box": {
+            "x": 422.3671875,
+            "y": 91,
+            "width": 42.609375,
+            "height": 48
+          },
+          "within": true
+        },
+        {
+          "label": "Receiver",
+          "box": {
+            "x": 468.9765625,
+            "y": 91,
+            "width": 48,
+            "height": 48
+          },
+          "within": true
+        },
+        {
+          "label": "Show tools",
+          "box": {
+            "x": 520.9765625,
+            "y": 91,
+            "width": 48,
+            "height": 48
+          },
+          "within": true
+        }
+      ],
+      "png": {
+        "path": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r2-supplement/attempt-02/edge-browser-zoom-200.png",
+        "sha256": "0c3aebd270ff9761ea962cfdc56451fae5e187f140c94181f569ecf89f43fee8",
+        "width": 1350,
+        "height": 859
+      }
+    },
+    "pageErrors": [],
+    "unexpectedRequests": [],
+    "afterSourceSha256": "9511448aaabb5b32b9bae7431d6c7bff1ec34697c1e410df9c72c3ae00cbc553",
+    "zoomRestore": {
+      "setResult": true,
+      "readback": 1,
+      "expected": 1
+    },
+    "finishedAt": "2026-10-18T23:14:52.472Z",
+    "result": "pass",
+    "cleanup": {
+      "ownPagesClosed": true,
+      "profileDefaultZoomRestored": true,
+      "browserAndServerLeftOwnedByCoordinator": true
+    }
+  },
+  "browserZoom200": {
+    "classification": "synthetic-browser-only",
+    "url": "http://127.0.0.1:19020",
+    "scriptSha256": "13fb6392f74412cdaf0c615c277dc29e64bffea5cd4c97cbaa279d232aa04452",
+    "method": "Actual browser default page zoom; stable native metrics and full compositor capture without clip",
+    "failures": [],
+    "zoomApi": {
+      "origin": "edge://settings/appearance",
+      "get": "chrome.settingsPrivate.getDefaultZoom",
+      "set": "chrome.settingsPrivate.setDefaultZoom"
+    },
+    "baseline": {
+      "innerWidth": 1350,
+      "innerHeight": 859,
+      "outerWidth": 1374,
+      "outerHeight": 985,
+      "dpr": 1,
+      "visualViewport": {
+        "width": 1350,
+        "height": 859,
+        "scale": 1
+      },
+      "cssZoom": "1",
+      "scrollWidth": 1350,
+      "visibility": "visible"
+    },
+    "beforeSourceSha256": "9511448aaabb5b32b9bae7431d6c7bff1ec34697c1e410df9c72c3ae00cbc553",
+    "setZoom": true,
+    "zoomReadback": 2,
+    "zoomed": {
+      "innerWidth": 675,
+      "innerHeight": 429,
+      "outerWidth": 1374,
+      "outerHeight": 985,
+      "dpr": 2,
+      "visualViewport": {
+        "width": 675,
+        "height": 429.5,
+        "scale": 1
+      },
+      "cssZoom": "1",
+      "scrollWidth": 675,
+      "visibility": "visible"
+    },
+    "controls": [
+      {
+        "label": "Customers & projects",
+        "within": true
+      },
+      {
+        "label": "Design mode",
+        "within": true
+      },
+      {
+        "label": "Survey mode",
+        "within": true
+      },
+      {
+        "label": "Layout mode",
+        "within": true
+      },
+      {
+        "label": "Undo",
+        "within": true
+      },
+      {
+        "label": "Redo",
+        "within": true
+      },
+      {
+        "label": "Save",
+        "within": true
+      },
+      {
+        "label": "File menu",
+        "within": true
+      },
+      {
+        "label": "Receiver",
+        "within": true
+      },
+      {
+        "label": "Show tools",
+        "within": true
+      }
+    ],
+    "layoutMetrics": {
+      "layoutViewport": {
+        "pageX": 0,
+        "pageY": 0,
+        "clientWidth": 1350,
+        "clientHeight": 859
+      },
+      "visualViewport": {
+        "offsetX": 0,
+        "offsetY": 0,
+        "pageX": 0,
+        "pageY": 0,
+        "clientWidth": 1350,
+        "clientHeight": 859,
+        "scale": 1,
+        "zoom": 2
+      },
+      "contentSize": {
+        "x": 0,
+        "y": 0,
+        "width": 1350,
+        "height": 859
+      },
+      "cssLayoutViewport": {
+        "pageX": 0,
+        "pageY": 0,
+        "clientWidth": 675,
+        "clientHeight": 429
+      },
+      "cssVisualViewport": {
+        "offsetX": 0,
+        "offsetY": 0,
+        "pageX": 0,
+        "pageY": 0,
+        "clientWidth": 675,
+        "clientHeight": 429.5,
+        "scale": 1,
+        "zoom": 2
+      },
+      "cssContentSize": {
+        "x": 0,
+        "y": 0,
+        "width": 675,
+        "height": 429
+      }
+    },
+    "png": {
+      "path": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r2-supplement/attempt-05/edge-browser-zoom-200-full.png",
+      "sha256": "85614639a175947ee515c3176f99b3cf487488235d3a120f446e6e69aab71f48",
+      "width": 1350,
+      "height": 859
+    },
+    "afterSourceSha256": "9511448aaabb5b32b9bae7431d6c7bff1ec34697c1e410df9c72c3ae00cbc553",
+    "observed": [
+      {
+        "url": "http://127.0.0.1:19020/_expo/static/js/web/index-118f47951214f51ead5e860b59cdc13d.js",
+        "sha256": "1bba5b20a2ceac64baec527db07fb03c9b7edaef6ea898099b3d24a87a60e954"
+      },
+      {
+        "url": "http://127.0.0.1:19020/maplibre/6.15.0/maplibre-gl-worker.mjs",
+        "sha256": "1c69066368331aae63967ed24a9affcf962cf55fcc6d8f532a8b040f736dbcfa"
+      }
+    ],
+    "exportFingerprint": "f5181b298ff4fbfecb612da26ad5578f68eeb9d43b36bb8cbe59017fa6f626c3",
+    "browser": {
+      "protocolVersion": "1.3",
+      "product": "Edg/155.0.4283.62",
+      "revision": "@aa3a7406ba8c53a83536df539f07124d73c899bd",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0",
+      "jsVersion": "15.5.9.7"
+    },
+    "pageErrors": [],
+    "unexpectedRequests": [],
+    "restoreSet": true,
+    "restoredZoom": 1,
+    "result": "pass",
+    "cleanup": {
+      "ownPagesClosed": true,
+      "browserZoomRestored": true,
+      "browserAndServerLeftOwnedByCoordinator": true
+    }
+  },
+  "independentFigureReviewer": "/root/visual_testing",
+  "failedAttempts": [
+    {
+      "path": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r2-supplement/receipt.json",
+      "sha256": "4399d3ab5a16008d45fb2a88a4496bad3f316171345f11a9c7cce264987c22d7",
+      "receipt": {
+        "classification": "synthetic-browser-only",
+        "url": "http://127.0.0.1:19020",
+        "endpoint": "http://127.0.0.1:9251",
+        "startedAt": "2026-10-18T23:13:57.697Z",
+        "scriptSha256": "09e1e9578513a01a9080d904699ec32fcce3103e0e961c3dfd42a2741033b43a",
+        "failures": [
+          "page.goto: Protocol error (Page.navigate): Cannot navigate to invalid URL\nCall log:\n\u001b[2m  - navigating to \"/\", waiting until \"load\"\u001b[22m\n\n    at openGisFixture (/home/cyber/.local/share/cplayout/gis-20261018/candidate/tests/web/gis-fixture.ts:53:14)\n    at main ([stdin]:27:113)"
+        ],
+        "checks": [
+          {
+            "pass": true,
+            "detail": "Fresh owned profile browser default zoom starts at100%"
+          }
+        ],
+        "priorProbes": [
+          {
+            "endpoint": 9250,
+            "result": "failed",
+            "detail": "Own incognito edge://settings/appearance navigation reported target closed; next CDP connection refused. No zoom API invoked."
+          }
+        ],
+        "sourceEdition": {
+          "manifest": "/home/cyber/.local/state/cplayout/gis-20261018/repaired-source.json",
+          "coordinatorFingerprint": "5533a09c8cb22fbb7422b4bfe7595e3b043dbd04decddf662911da7c6a342e73"
+        },
+        "method": "stdin execution; no source/harness file edited",
+        "zoomApi": {
+          "url": "edge://settings/appearance",
+          "getDefaultZoom": "function",
+          "setDefaultZoom": "function"
+        },
+        "originalZoom": 1,
+        "zoomRestore": {
+          "setResult": true,
+          "readback": 1,
+          "expected": 1
+        },
+        "finishedAt": "2026-10-18T23:14:00.551Z",
+        "result": "fail",
+        "cleanup": {
+          "ownPagesClosed": true,
+          "profileDefaultZoomRestored": true,
+          "browserAndServerLeftOwnedByCoordinator": true
+        }
+      }
+    },
+    {
+      "path": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r2-supplement/attempt-03/receipt.json",
+      "sha256": "5715aa20059907933783828677cf2a2db5f737d29b1dc89177e9bb2a90220937",
+      "receipt": {
+        "classification": "synthetic-browser-only",
+        "url": "http://127.0.0.1:19020",
+        "scriptSha256": "543849d36c5ace77fda5d812541a5fc612882c476601152960fc772c9cfd5a5d",
+        "purpose": "Full-viewport capture refinement; prior zoom/reflow probe retained",
+        "failures": [
+          "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 1366\nReceived: 1350\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n    at captureRawStack (/home/cyber/.local/share/cplayout/gis-20261018/candidate/node_modules/playwright-core/lib/coreBundle.js:9282:17)\n    at callMatcherAsStep (/home/cyber/.local/share/cplayout/gis-20261018/candidate/node_modules/playwright/lib/matchers/expect.js:13316:57)\n    at Object.toBe (/home/cyber/.local/share/cplayout/gis-20261018/candidate/node_modules/playwright/lib/matchers/expect.js:13308:23)\n    at main ([stdin]:11:484)"
+        ],
+        "restoreSet": true,
+        "restoredZoom": 1,
+        "result": "fail",
+        "cleanup": {
+          "ownPagesClosed": true,
+          "browserZoomRestored": true,
+          "browserAndServerLeftOwnedByCoordinator": true
+        }
+      }
+    },
+    {
+      "path": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r2-supplement/attempt-04/receipt.json",
+      "sha256": "990c6374cb3b7ea092167c3f3b2100c458e0f2147a03957ff7bf7bfc00c056a6",
+      "receipt": {
+        "classification": "synthetic-browser-only",
+        "url": "http://127.0.0.1:19020",
+        "scriptSha256": "9a499809e650d6b0394c59f35c4d6d44228dbca19e9a23d1e0c40d7ccb14fcf9",
+        "method": "Actual browser default page zoom; measured stable native client viewport; no CSS/DPR/pinch zoom substitution",
+        "failures": [
+          "Error: expect(received).toBeLessThanOrEqual(expected)\n\nExpected: <= 1\nReceived:    675\n    at captureRawStack (/home/cyber/.local/share/cplayout/gis-20261018/candidate/node_modules/playwright-core/lib/coreBundle.js:9282:17)\n    at callMatcherAsStep (/home/cyber/.local/share/cplayout/gis-20261018/candidate/node_modules/playwright/lib/matchers/expect.js:13316:57)\n    at Object.toBeLessThanOrEqual (/home/cyber/.local/share/cplayout/gis-20261018/candidate/node_modules/playwright/lib/matchers/expect.js:13308:23)\n    at main ([stdin]:13:541)"
+        ],
+        "baseline": {
+          "innerWidth": 1350,
+          "innerHeight": 859,
+          "outerWidth": 1374,
+          "outerHeight": 985,
+          "dpr": 1,
+          "visualViewport": {
+            "width": 1350,
+            "height": 859,
+            "scale": 1
+          },
+          "cssZoom": "1",
+          "scrollWidth": 1350,
+          "visibility": "visible"
+        },
+        "beforeSourceSha256": "9511448aaabb5b32b9bae7431d6c7bff1ec34697c1e410df9c72c3ae00cbc553",
+        "setZoom": true,
+        "zoomReadback": 2,
+        "zoomed": {
+          "innerWidth": 675,
+          "innerHeight": 429,
+          "outerWidth": 1374,
+          "outerHeight": 985,
+          "dpr": 2,
+          "visualViewport": {
+            "width": 675,
+            "height": 429.5,
+            "scale": 1
+          },
+          "cssZoom": "1",
+          "scrollWidth": 675,
+          "visibility": "visible"
+        },
+        "controls": [
+          {
+            "label": "Customers & projects",
+            "within": true
+          },
+          {
+            "label": "Design mode",
+            "within": true
+          },
+          {
+            "label": "Survey mode",
+            "within": true
+          },
+          {
+            "label": "Layout mode",
+            "within": true
+          },
+          {
+            "label": "Undo",
+            "within": true
+          },
+          {
+            "label": "Redo",
+            "within": true
+          },
+          {
+            "label": "Save",
+            "within": true
+          },
+          {
+            "label": "File menu",
+            "within": true
+          },
+          {
+            "label": "Receiver",
+            "within": true
+          },
+          {
+            "label": "Show tools",
+            "within": true
+          }
+        ],
+        "layoutMetrics": {
+          "layoutViewport": {
+            "pageX": 0,
+            "pageY": 0,
+            "clientWidth": 1350,
+            "clientHeight": 859
+          },
+          "visualViewport": {
+            "offsetX": 0,
+            "offsetY": 0,
+            "pageX": 0,
+            "pageY": 0,
+            "clientWidth": 1350,
+            "clientHeight": 859,
+            "scale": 1,
+            "zoom": 2
+          },
+          "contentSize": {
+            "x": 0,
+            "y": 0,
+            "width": 1350,
+            "height": 859
+          },
+          "cssLayoutViewport": {
+            "pageX": 0,
+            "pageY": 0,
+            "clientWidth": 675,
+            "clientHeight": 429
+          },
+          "cssVisualViewport": {
+            "offsetX": 0,
+            "offsetY": 0,
+            "pageX": 0,
+            "pageY": 0,
+            "clientWidth": 675,
+            "clientHeight": 429.5,
+            "scale": 1,
+            "zoom": 2
+          },
+          "cssContentSize": {
+            "x": 0,
+            "y": 0,
+            "width": 675,
+            "height": 429
+          }
+        },
+        "png": {
+          "path": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r2-supplement/attempt-04/edge-browser-zoom-200-full.png",
+          "sha256": "989b51a3f31382f90fd5310d09e1619e6af9e4861d851706acff54fe6650ed0f",
+          "width": 675,
+          "height": 429
+        },
+        "restoreSet": true,
+        "restoredZoom": 1,
+        "result": "fail",
+        "cleanup": {
+          "ownPagesClosed": true,
+          "browserZoomRestored": true,
+          "browserAndServerLeftOwnedByCoordinator": true
+        }
+      }
+    }
+  ],
+  "boundary": "Actual synthetic Windows Edge reflow/keyboard/browser-zoom checks. Source/export bindings preserved in raw receipts; no OS font pixel parity, aerial-data fidelity, native/device or field claim."
+}

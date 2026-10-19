@@ -1,5 +1,4 @@
-import { refreshInheritedDrawingMetadata } from "./drawingProjectMutation";
-import { projectDataKey } from "./projectDataComparison";
+import { admitProjectGeometryImport } from "./projectGeometryImport";
 import { snapshotJsonValue } from "./jsonDataSnapshot";
 import { PivotProjectSchema } from "./projectDocument";
 import type { ObstacleZone, PivotProject, SourceConfidence, SurveyPoint, XY } from "./types";
@@ -47,25 +46,44 @@ export function importProjectedGeoJsonToProject(project: PivotProject, input: st
 
   let fieldBoundary: XY[] | null = null;
   const obstacles: ObstacleZone[] = [];
+  const usedObstacleIds = new Set(project.obstacles.map(item => item.id));
+  const declaredObstacleIds = new Set<string>(geoJson.features.flatMap(feature => {
+    if (!isRecord(feature) || !isRecord(feature.properties) || feature.properties.id === undefined) return [];
+    return [String(feature.properties.id)];
+  }));
+  const reserveObstacleId = (base: string): string => {
+    let id = base;
+    for (let suffix = 2; usedObstacleIds.has(id); suffix++) {
+      id = `${base}-${suffix}`;
+      while (declaredObstacleIds.has(id)) id = `${base}-${++suffix}`;
+    }
+    usedObstacleIds.add(id);
+    return id;
+  };
 
   for (const rawFeature of geoJson.features) {
-    if (!isRecord(rawFeature) || !isRecord(rawFeature.geometry)) continue;
+    if (!isRecord(rawFeature)) continue;
     const properties = isRecord(rawFeature.properties) ? rawFeature.properties : {};
     const layerType = String(properties.layerType ?? properties.role ?? properties.kind ?? "").toLowerCase();
+    const isBoundary = layerType === "field_boundary" || layerType === "boundary";
+    const kind = obstacleKindFromLayer(layerType);
+    if (!isBoundary && !kind) continue;
+    if (!isRecord(rawFeature.geometry)) throw new Error(`GeoJSON ${layerType} must contain polygon geometry.`);
     const rings = outerRingsFromGeometry(rawFeature.geometry);
-    if (rings.length === 0) continue;
 
-    if (layerType === "field_boundary" || layerType === "boundary") {
+    if (isBoundary) {
+      if (fieldBoundary || rings.length !== 1) {
+        throw new Error("GeoJSON field boundary must be a single polygon ring from one boundary feature. Select one boundary and preserve the complete original input.");
+      }
       fieldBoundary = rings[0];
       continue;
     }
 
-    const kind = obstacleKindFromLayer(layerType);
     if (kind) {
       rings.forEach((ring, index) => {
         const name = String(properties.name ?? properties.label ?? `${kind} import ${obstacles.length + 1}`);
         obstacles.push({
-          id: String(properties.id ?? `${kind}-import-${project.obstacles.length + obstacles.length + 1}-${index + 1}`),
+          id: reserveObstacleId(String(properties.id ?? `${kind}-import-${project.obstacles.length + obstacles.length + 1}-${index + 1}`)),
           name,
           kind,
           polygon: ring,
@@ -87,11 +105,7 @@ export function importProjectedGeoJsonToProject(project: PivotProject, input: st
     fieldBoundary: fieldBoundary ?? project.fieldBoundary,
     obstacles: [...project.obstacles, ...obstacles],
   };
-  if (fieldBoundary && projectDataKey(fieldBoundary) !== projectDataKey(project.fieldBoundary)) {
-    delete candidate.fieldBoundaryCaptureEvidence;
-  }
-  // Refresh inherited capture times before admission, including vertex-count changes.
-  const nextProject = PivotProjectSchema.parse(refreshInheritedDrawingMetadata(project, candidate));
+  const nextProject = admitProjectGeometryImport(project, candidate);
 
   return {
     project: nextProject,
@@ -145,29 +159,37 @@ function readGeoJsonProjectCrs(geoJson: RecordLike): string | null {
 }
 
 function outerRingsFromGeometry(geometry: RecordLike): XY[][] {
-  if (geometry.type === "Polygon" && Array.isArray(geometry.coordinates)) {
-    const ring = ringFromCoordinates(geometry.coordinates[0]);
-    return ring ? [ring] : [];
+  if (!Array.isArray(geometry.coordinates) || geometry.coordinates.length === 0) {
+    throw new Error("GeoJSON polygon coordinates must contain a nonempty ring.");
   }
-  if (geometry.type === "MultiPolygon" && Array.isArray(geometry.coordinates)) {
-    return geometry.coordinates
-      .map((polygon) => Array.isArray(polygon) ? ringFromCoordinates(polygon[0]) : null)
-      .filter((ring): ring is XY[] => Boolean(ring));
+  if (geometry.type === "Polygon") {
+    return [singleRingFromPolygon(geometry.coordinates)];
   }
-  return [];
+  if (geometry.type === "MultiPolygon") {
+    return geometry.coordinates.map(singleRingFromPolygon);
+  }
+  throw new Error("GeoJSON boundary and obstacle features require Polygon or MultiPolygon geometry.");
 }
 
-function ringFromCoordinates(coordinates: unknown): XY[] | null {
-  if (!Array.isArray(coordinates)) return null;
+function singleRingFromPolygon(coordinates: unknown): XY[] {
+  if (!Array.isArray(coordinates) || coordinates.length !== 1) {
+    throw new Error("GeoJSON polygons must contain a single outer ring. Polygon holes cannot be retained; provide supported geometry and preserve the complete original input.");
+  }
+  return ringFromCoordinates(coordinates[0]);
+}
+
+function ringFromCoordinates(coordinates: unknown): XY[] {
+  if (!Array.isArray(coordinates)) throw new Error("GeoJSON polygon ring coordinates must be an array.");
   const ring = coordinates.map((coordinate) => {
-    if (!Array.isArray(coordinate) || coordinate.length < 2) return null;
+    if (!Array.isArray(coordinate) || coordinate.length !== 2) return null;
     const [x, y] = coordinate;
     return typeof x === "number" && typeof y === "number" && Number.isFinite(x) && Number.isFinite(y) ? { x, y } : null;
   });
-  if (ring.some((point) => point === null)) return null;
+  if (ring.some((point) => point === null)) throw new Error("GeoJSON polygon coordinates must be finite projected XY pairs; additional dimensions cannot be retained.");
   const points = ring as XY[];
   const normalized = removeClosingDuplicate(points);
-  return normalized.length >= 3 ? normalized : null;
+  if (normalized.length < 3) throw new Error("GeoJSON polygon ring must contain at least three vertices.");
+  return normalized;
 }
 
 function removeClosingDuplicate(points: XY[]): XY[] {

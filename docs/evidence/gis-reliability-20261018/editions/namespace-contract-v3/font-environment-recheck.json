@@ -1,0 +1,11 @@
+{
+  "result": "pass",
+  "observedAt": "2026-10-19T00:07:59.040335+00:00",
+  "sourceFingerprint": "e977f099f7b3466b5a7f93938f48472dc4e5bfc6b203f727459c3b751ea5fe7d",
+  "availableFontSetCount": 78,
+  "sameAvailablePaths": true,
+  "allFontBytesUnchanged": true,
+  "originalReceipt": "../../local-font-environment.json",
+  "fontSetFingerprint": "ac5208155ee692c83f4786e0e05618a5cda09296f02a3fd92c9511a29750dbcb",
+  "boundary": "Fresh actual local fontconfig inventory and78font hashes match original environment. No font redistribution or hosted/Windows pixel parity inferred."
+}

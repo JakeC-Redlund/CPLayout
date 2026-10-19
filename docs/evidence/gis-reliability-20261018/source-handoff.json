@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-18T23:32:36.321Z",
+  "sourceFingerprint": "5533a09c8cb22fbb7422b4bfe7595e3b043dbd04decddf662911da7c6a342e73",
+  "paths": 984,
+  "canonicalAndNativeScopeEqual": true,
+  "drift": [],
+  "guardObservation": "/home/cyber/.local/state/cplayout/gis-20261018/handoff-volume-guard.json",
+  "guardSha256": "a00a0b59be93b149949768c82df8c6349e8117f4fd1a52a7a89bfd77c6b0b5a9",
+  "boundary": "Full selected public984source census; authority projections/generated dependency assets/private runtime stores separately qualified."
+}

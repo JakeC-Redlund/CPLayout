@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 
 import { defaultAppSettings, resolveReferenceOverlaySource, type MapPackageManifest } from "@cplayout/core";
 import { buildReferenceOverlayStyleParts, REFERENCE_OVERLAY_SOURCE_ID } from "./referenceOverlayStyle";
+import { buildWorkbenchStyle, rasterStyleSourceFromTileDescriptor } from "./mapWorkbenchStyle";
 
 const settings = defaultAppSettings();
 const vectorPackage: MapPackageManifest = {
@@ -41,6 +42,12 @@ const ready = resolveReferenceOverlaySource({
 });
 const parts = buildReferenceOverlayStyleParts(ready, { ...settings.referenceOverlay, mode: "manual", sourcePackageId: vectorPackage.id });
 assert.equal(parts.sources[REFERENCE_OVERLAY_SOURCE_ID]?.type, "vector");
+assert.deepEqual((parts.sources[REFERENCE_OVERLAY_SOURCE_ID] as { bounds?: number[] }).bounds, [-125, 24, -66, 50]);
+const rasterDescriptor = { ...ready.source!, type: "raster" as const };
+const imagery = rasterStyleSourceFromTileDescriptor(rasterDescriptor);
+assert.deepEqual(imagery.bounds, [-125, 24, -66, 50]);
+const rasterStyle = buildWorkbenchStyle(imagery, { type: "FeatureCollection", features: [] }, { ...ready, canRender: false }, settings.referenceOverlay);
+assert.deepEqual((rasterStyle.sources.imagery as { bounds?: number[] }).bounds, [-125, 24, -66, 50]);
 assert.deepEqual(parts.layers.map((layer) => layer.id), [
   "reference-borders",
   "reference-roads-casing",

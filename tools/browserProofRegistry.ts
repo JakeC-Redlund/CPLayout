@@ -1,13 +1,19 @@
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { GIS_PROOF_CASES, GIS_PACKAGE_PROOF_CASES, type GisRendererRequirement } from "../tests/web/gis-proof-cases";
 
 export type BrowserProofScope = "current" | "all" | "deferred";
 export type BrowserProofCategory = "current-app" | "platform" | "mixed" | "deferred-legacy";
-export interface BrowserProofEntry { readonly file: string; readonly category: BrowserProofCategory; readonly coverageGap: string | null; readonly currentTitles?: readonly string[] }
+export interface BrowserProofEntry { readonly file: string; readonly category: BrowserProofCategory; readonly coverageGap: string | null; readonly currentTitles?: readonly string[];
+  readonly rendererRequirements?: Readonly<Record<string, GisRendererRequirement>> }
 const debt = "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App.";
 const entry = (file: string, category: BrowserProofCategory, coverageGap: string | null = null): BrowserProofEntry => ({ file, category, coverageGap });
 export const BROWSER_PROOF_REGISTRY: readonly BrowserProofEntry[] = [
+  { file: "gis-visual.spec.ts", category: "current-app", coverageGap: null,
+    rendererRequirements: Object.fromEntries(GIS_PROOF_CASES.map(item => [item.title, item.renderer])) },
+  { file: "gis-package.spec.ts", category: "current-app", coverageGap: null,
+    rendererRequirements: Object.fromEntries(GIS_PACKAGE_PROOF_CASES.map(item => [item.title, item.renderer])) },
   ...["production-accessibility.spec.ts", "production-auth-workflow.spec.ts", "unified-workspace.spec.ts", "workspace-package-import.spec.ts", "workspace-startup-resume.spec.ts", "workspace-edit-recovery.spec.ts", "workspace-management.spec.ts"].map(file => entry(file, "current-app")),
   ...["workspace-storage.spec.ts", "workspace-drafts.spec.ts", "editor-save-lifecycle.spec.ts"].map(file => entry(file, "platform")),
   { file: "maplibre-runtime.spec.ts", category: "mixed", coverageGap: debt, currentTitles: ["MapLibre attribution rejects consecutive unsafe attributes"] },
@@ -46,7 +52,8 @@ export function browserProofSelection(scope: BrowserProofScope = resolveBrowserP
   if (!entries.length || !grep.length) fail("empty selection is not permitted.");
   return { testMatch: entries.map(e => `**/${e.file}`), grep };
 }
-export interface BrowserProofCase { title: string; line: number; column: number; projects: string[]; disposition: "current" | "deferred"; coverageGap: string | null }
+export interface BrowserProofCase { title: string; line: number; column: number; projects: string[]; disposition: "current" | "deferred"; coverageGap: string | null;
+  rendererRequirement?: GisRendererRequirement }
 export interface BrowserProofFile { file: string; sha256: string; category: BrowserProofCategory; coverageGap: string | null; cases: BrowserProofCase[] }
 export interface BrowserProofInventory { inventoryVersion: "cplayout-browser-proof-inventory-v1"; claim: string; projects: string[];
   discoveryFingerprint: string; counts: { files: number; uniqueCases: number; currentExecutions: number; deferredExecutions: number; allExecutions: number }; files: BrowserProofFile[] }
@@ -101,7 +108,8 @@ export function buildBrowserProofInventory(root: string, report: unknown): Brows
   const files = [...BROWSER_PROOF_REGISTRY].sort((a, b) => a.file.localeCompare(b.file)).map(e => ({ file: `tests/web/${e.file}`,
     sha256: sha(readFileSync(join(root, "tests/web", e.file))), category: e.category, coverageGap: e.coverageGap,
     cases: discovered.filter(c => c.file === e.file).map(c => ({ title: c.title, line: c.line, column: c.column, projects: c.projects,
-      disposition: current(e, c.title) ? "current" as const : "deferred" as const, coverageGap: current(e, c.title) ? null : debt })) }));
+      disposition: current(e, c.title) ? "current" as const : "deferred" as const, coverageGap: current(e, c.title) ? null : debt,
+      ...(e.rendererRequirements ? { rendererRequirement: e.rendererRequirements[c.title] } : {}) })) }));
   const cases = files.flatMap(f => f.cases);
   const executions = (disposition?: BrowserProofCase["disposition"]) => cases.filter(c => !disposition || c.disposition === disposition).reduce((n, c) => n + c.projects.length, 0);
   const inventory: BrowserProofInventory = { inventoryVersion: "cplayout-browser-proof-inventory-v1", claim: "Discovery and scoped coverage accounting only; deferred contracts are neither retired nor verified.",
@@ -121,6 +129,7 @@ export function assertBrowserProofInventory(root: string, inventory: BrowserProo
     if (f.category !== e.category || f.coverageGap !== e.coverageGap || sha(readFileSync(join(root, f.file))) !== f.sha256) fail(`classification/hash drift: ${f.file}`);
     if (!Array.isArray(f.cases) || !f.cases.length) fail(`empty cases: ${f.file}`);
     for (const title of e.currentTitles ?? []) if (!f.cases.some(c => c.title === title)) fail(`required mixed title disappeared: ${f.file}: ${title}`);
+    if (e.rendererRequirements && JSON.stringify(Object.keys(e.rendererRequirements).sort()) !== JSON.stringify(f.cases.map(c => c.title).sort())) fail(`GIS renderer case classification drift: ${f.file}`);
     for (const c of f.cases) {
       const key = JSON.stringify([f.file, c.title, c.line, c.column]);
       if (!c.title || !Number.isSafeInteger(c.line) || c.line < 1 || !Number.isSafeInteger(c.column) || c.column < 1 || seen.has(key)
@@ -128,11 +137,12 @@ export function assertBrowserProofInventory(root: string, inventory: BrowserProo
       seen.add(key);
       const admitted = current(e, c.title);
       if (c.disposition !== (admitted ? "current" : "deferred") || c.coverageGap !== (admitted ? null : debt)) fail(`case coverage drift: ${f.file}`);
+      if (c.rendererRequirement !== e.rendererRequirements?.[c.title]) fail(`renderer requirement drift: ${f.file}: ${c.title}`);
       all += c.projects.length; if (admitted) active += c.projects.length;
     }
   }
   if (inventory.discoveryFingerprint !== sha(JSON.stringify(discoveryFromInventory(inventory)))) fail("title/line discovery fingerprint drift.");
-  if (JSON.stringify(inventory.counts) !== JSON.stringify({ files: 33, uniqueCases: 409, currentExecutions: 267, deferredExecutions: 960, allExecutions: 1227 })
-    || all !== 1227 || active !== 267 || seen.size !== 409) fail("reviewed counts drift; a complete deliberate inventory update is required.");
+  if (JSON.stringify(inventory.counts) !== JSON.stringify({ files: 35, uniqueCases: 417, currentExecutions: 291, deferredExecutions: 960, allExecutions: 1251 })
+    || all !== 1251 || active !== 291 || seen.size !== 417) fail("reviewed counts drift; a complete deliberate inventory update is required.");
   if (discovery && JSON.stringify(parseFullBrowserDiscovery(discovery)) !== JSON.stringify(discoveryFromInventory(inventory))) fail("fresh discovery title/line drift.");
 }

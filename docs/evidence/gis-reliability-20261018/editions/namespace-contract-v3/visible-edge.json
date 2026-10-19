@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 1,
+  "result": "pass",
+  "scope": "Five responsive Edge viewports,320CSSpxreflow/naturalTab/Escape,and separate fresh native-window200%browserzoom. This is bounded browser evidence,not a final source/wholeedition acceptance vote.",
+  "classification": "synthetic-browser-only",
+  "createdAt": "2026-10-19T00:10:55.291883+00:00",
+  "url": "http://127.0.0.1:19018",
+  "cdp": "http://127.0.0.1:9252",
+  "sourceFingerprint": "e977f099f7b3466b5a7f93938f48472dc4e5bfc6b203f727459c3b751ea5fe7d",
+  "sourcePathsMatchedBefore": {
+    "paths": 984,
+    "mirrors": 2,
+    "mismatches": []
+  },
+  "sourcePathsMatchedAfter": {
+    "paths": 984,
+    "mirrors": 2,
+    "mismatches": []
+  },
+  "exportFingerprint": "8ca7cd9eb12a59441892ad3d77f2cf1cb611c98ecdc85b517e0f59e5c9ff4d24",
+  "servedExportBytesMatched": true,
+  "genuineZoomVerified": true,
+  "savedSourceUnchanged": true,
+  "savedSourceBeforeSha256": "9511448aaabb5b32b9bae7431d6c7bff1ec34697c1e410df9c72c3ae00cbc553",
+  "savedSourceAfterSha256": "9511448aaabb5b32b9bae7431d6c7bff1ec34697c1e410df9c72c3ae00cbc553",
+  "figures": [
+    {
+      "name": "edge-1366x900",
+      "path": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r3/edge-1366x900.png",
+      "sha256": "bec8285539d15867483f481c0189ea074c5f02986b78b133f12248c814266358",
+      "width": 1366,
+      "height": 900
+    },
+    {
+      "name": "edge-768x900",
+      "path": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r3/edge-768x900.png",
+      "sha256": "a6407bc1b83866dbe5cbaa39af0b6d11c1e5dbbae144f31bd25170f3562d75eb",
+      "width": 768,
+      "height": 900
+    },
+    {
+      "name": "edge-390x844",
+      "path": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r3/edge-390x844.png",
+      "sha256": "41a8c80e10d988162f040e25dd3c14cfa1d031c0c36db69e3d847a36d485b8bd",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "name": "edge-390x500",
+      "path": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r3/edge-390x500.png",
+      "sha256": "7414cd4668538b0b189ba034aa64853e9e40a2ef316f7f3e0935849fe0916e0e",
+      "width": 390,
+      "height": 500
+    },
+    {
+      "name": "edge-844x390",
+      "path": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r3/edge-844x390.png",
+      "sha256": "49ed86655f3d73ac34a03fa9037b549d7f46faaf6898d38293cb012db4950503",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "name": "edge-reflow-320x844",
+      "path": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r3/edge-reflow-320x844.png",
+      "sha256": "504a3013f6f494c4a0c6ddcca53503f47fd9b0d6479683d75d5c5e146e6874e5",
+      "width": 320,
+      "height": 844
+    },
+    {
+      "path": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r3/zoom-diagnostic-02/edge-browser-zoom-200.png",
+      "sha256": "85614639a175947ee515c3176f99b3cf487488235d3a120f446e6e69aab71f48",
+      "width": 1350,
+      "height": 859
+    }
+  ],
+  "figureReview": {
+    "method": "Every listed PNG inspected with view_image at original dimensions; dimensions andSHA256 independently checked.",
+    "blockingDefectsWithinRequestedScope": [],
+    "limits": [
+      "Map-only background pixels are synthetic intercepted raster,not actualaerial data.",
+      "Compactidentity ellipsis and initially hidden scrollable legend content are visible; not full accessibility proof.",
+      "No crossplatform pixel/font parity,native/device/field/wholeedition claim."
+    ]
+  },
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Edg/155.0.4283.62",
+    "revision": "@aa3a7406ba8c53a83536df539f07124d73c899bd",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0",
+    "jsVersion": "15.5.9.7"
+  },
+  "skills": {
+    "computerVision": {
+      "path": "/mnt/c/Users/cyber/.codex/skills/computer-vision/SKILL.md",
+      "sha256": "fd7ae785002b39f24bb2f30ba12edba81cf7f0c3913ebc6b73c848f2500ada58"
+    },
+    "qa": {
+      "path": "/mnt/h/CPLayout/.agents/skills/cplayout-qa-validation-agent/SKILL.md",
+      "sha256": "1ea4763049acd82fbd9f9dc6e1a6fb4d11543ce031bfe25f75101be4c057c8ec"
+    },
+    "interface": {
+      "path": "/mnt/h/CPLayout/.agents/skills/cplayout-interface-development-agent/SKILL.md",
+      "sha256": "ad62bd37bfaf3c3b65d1f2ff2311ae1db6828849d34f7c8e688fe8a4f4a1ffac"
+    }
+  },
+  "phaseReceipts": {
+    "fiveAnd320": "receipt.json",
+    "native200": "zoom-diagnostic-02/receipt.json",
+    "retainedBelow320Diagnostic": "sequence-diagnostic-03/receipt.json"
+  },
+  "retainedFailures": [
+    {
+      "path": "receipt.json",
+      "result": "fail",
+      "reason": "Combined probe retained320CSSpx viewport emulation; applying genuine200%browserzoom yielded160CSSpx rather than intended native-window viewport."
+    },
+    {
+      "path": "sequence-diagnostic-03/receipt.json",
+      "kind": "Observedproductlimitation belowrequested320CSSpxscope",
+      "viewportWidth": 160,
+      "scrollWidth": 210,
+      "maxScrollLeft": 50.5,
+      "offending": [
+        {
+          "tag": "DIV",
+          "id": "workspace-mode-toggle",
+          "right": 210.3671875,
+          "text": "DesignSurveyLayout"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "workspace-mode-layout",
+          "right": 209.3671875,
+          "text": "Layout"
+        },
+        {
+          "tag": "DIV",
+          "id": null,
+          "right": 196.3671875,
+          "text": "Layout"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "workspace-map-fit",
+          "right": 188.546875,
+          "text": "Fit"
+        },
+        {
+          "tag": "DIV",
+          "id": null,
+          "right": 177.546875,
+          "text": "Fit"
+        }
+      ],
+      "screenshot": {
+        "path": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r3/sequence-diagnostic-03/after-sequence-zoom200.png",
+        "sha256": "424cbd48e2bba12611ecfc76b575d897efed7215d0eabb7c7d68d0d2d0499c51",
+        "width": 1350,
+        "height": 859
+      },
+      "sourcePreserved": true,
+      "resolution": "Preserved as actual160CSSpxclipping; no sourcechange,no rounding tolerance/no relabeling originalfailure. Correct fresh-native200%proof is separate."
+    }
+  ],
+  "native200Metrics": {
+    "baseline": {
+      "innerWidth": 1350,
+      "innerHeight": 859,
+      "outerWidth": 1374,
+      "outerHeight": 985,
+      "dpr": 1,
+      "visualViewport": {
+        "width": 1350,
+        "height": 859,
+        "scale": 1
+      },
+      "cssZoom": "1",
+      "scrollWidth": 1350,
+      "clientWidth": 1350,
+      "rootBox": {
+        "x": 0,
+        "y": 0,
+        "width": 1350,
+        "height": 859,
+        "top": 0,
+        "right": 1350,
+        "bottom": 859,
+        "left": 0
+      },
+      "maxScrollLeft": 0,
+      "overflowElements": []
+    },
+    "zoomed": {
+      "innerWidth": 675,
+      "innerHeight": 429,
+      "outerWidth": 1374,
+      "outerHeight": 985,
+      "dpr": 2,
+      "visualViewport": {
+        "width": 675,
+        "height": 429.5,
+        "scale": 1
+      },
+      "cssZoom": "1",
+      "scrollWidth": 675,
+      "clientWidth": 675,
+      "rootBox": {
+        "x": 0,
+        "y": 0,
+        "width": 675,
+        "height": 429.5,
+        "top": 0,
+        "right": 675,
+        "bottom": 429.5,
+        "left": 0
+      },
+      "maxScrollLeft": 0,
+      "overflowElements": []
+    },
+    "cdpZoom": 2
+  },
+  "pageErrors": {
+    "fiveAnd320": [],
+    "native200": []
+  },
+  "unexpectedOutbound": {
+    "fiveAnd320": [],
+    "native200": []
+  },
+  "cleanup": {
+    "ownPagesClosed": true,
+    "browserZoomRestored": true,
+    "windowRestored": true,
+    "browserAndServerRemainCoordinatorOwned": true
+  },
+  "sourceEdits": false,
+  "exportsOrLaunches": false,
+  "aggregateGisEvidenceWritten": false
+}

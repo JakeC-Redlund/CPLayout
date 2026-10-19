@@ -1,13 +1,23 @@
 # Imagery Provider And Tool Policy Ledger
 
 Date: 2026-05-28
-Last updated: 2026-06-03
+Last updated: 2026-10-18
 
 ## Decision
 
 CPLayout uses open-source client software and free/no-cost, attribution-visible imagery paths. Offline NAIP-style raster packages are the production U.S. farm-scale aerial imagery path. Live imagery is an optional connected preview only. Neither path may become canonical geometry, a bulk downloader, a hidden-key integration, or a cloud telemetry path.
 
 The v1 built-in live provider remains USGS The National Map Imagery Only and is labeled as connected preview. Custom open XYZ/WMTS templates are allowed only when the operator supplies a fixed tile URL template, attribution, license text, and no credentials. Reference overlays prefer local vector packages; when none are available and browser live reference sources are enabled, public no-key USGS TNM Imagery Topo may be used for roads, administrative boundaries, and labels. OpenLayers stays deferred until browser-side raster reprojection into arbitrary projected views is needed.
+
+## Source refresh — 2026-10-18
+
+The retrieved USGS Imagery Only service metadata advertises Web Mercator (EPSG:3857), 256-pixel mixed-format tiles, product-specific acquisition years, and a June 2024 refresh notice. It also identifies restricted Alaska imagery. Endpoint availability and service export capabilities do not establish rights to copy every covered product. Retain attribution, acquisition/product identity, CRS and source-specific offline permission in package provenance.
+
+The retrieved USGS NAIP product page distinguishes historical 1-metre imagery from the 2018 0.6-metre standard and optional 0.3-metre products. It describes NAD83/UTM quarter quads and WGS84/Web Mercator post-2013 JPEG2000 products. Inspect each actual source dataset before preprocessing; pixel resolution does not qualify survey accuracy or authorize a datum operation in CPLayout.
+
+Primary retrievals: [USGS service metadata](https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer?f=pjson), [USGS NAIP](https://www.usgs.gov/centers/eros/science/usgs-eros-archive-aerial-photography-national-agriculture-imagery-program-naip), [OSMF raster tile policy](https://operations.osmfoundation.org/policies/tiles/). OSMF public raster tiles prohibit bulk/offline fetching, including automated viewport harvesting; synthetic local fixtures are used for GIS proof.
+
+Raw archive transport remains platform-specific. PMTiles browser protocol support and configured TileJSON descriptors do not establish native file access, current App integration or device rendering. Offline raster admission requires explicit copying permission and a validated package-contained resource graph. Missing provenance remains unqualified; rejected packages and original metadata remain available for recovery.
 
 ## Local Facts
 
@@ -35,7 +45,7 @@ The v1 built-in live provider remains USGS The National Map Imagery Only and is 
 | Copernicus Sentinel | Offline/preprocessed source lane or explicit custom source with required notices. | Copernicus data access terms: https://www.copernicus.eu/en/terms-use/how-access-data |
 | OpenAerialMap or user-owned tiles | Allowed as custom open imagery when attribution/license are supplied and credential-free. | OAM legal page: https://openaerialmap.org/legal/ |
 | OpenStreetMap public raster tiles | Excluded for CPLayout live imagery and offline/bulk use. | OSMF tile policy restricts bulk download and prefetch patterns. https://operations.osmfoundation.org/policies/tiles/ |
-| Google, Bing, paid Mapbox, paid Esri/ArcGIS, keyed trial providers | Excluded. | Repo hard constraint in `AGENTS.md`; no paid maps, hidden keys, or trial-only SDKs. |
+| Google, Bing, paid Mapbox, paid Esri/ArcGIS, keyed trial providers | Excluded. | Current selected architecture and task-selected GIS/preflight skills; no paid maps, hidden keys, or trial-only SDKs. |
 | Google Earth Pro screenshots | Local companion design-review evidence only when attribution remains visible. Do not cache imagery as a dataset, embed Google Earth imagery in CPLayout, bulk mine screenshots, or treat screenshot-derived CV as survey data. | Google Geo Guidelines require proper attribution and restrict commercial/promotional use; Google Maps/Earth terms prohibit bulk feeds, mass download, and substitute mapping datasets. https://about.google/brand-resource-center/products-and-services/geo-guidelines/ and https://maps.google.com/help/terms_maps-earth/ |
 
 ## Tool Ledger

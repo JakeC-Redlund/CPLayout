@@ -1,0 +1,285 @@
+{
+  "sourceFingerprint": "5533a09c8cb22fbb7422b4bfe7595e3b043dbd04decddf662911da7c6a342e73",
+  "aggregate": {
+    "schemaVersion": 1,
+    "command": [
+      "npm",
+      "run",
+      "validate"
+    ],
+    "cwd": "/home/cyber/.local/share/cplayout/gis-20261018/candidate",
+    "startedAt": "2026-10-18T23:25:37.062041+00:00",
+    "endedAt": "2026-10-18T23:40:03.855244+00:00",
+    "sourceFingerprint": "5533a09c8cb22fbb7422b4bfe7595e3b043dbd04decddf662911da7c6a342e73",
+    "exitCode": 0,
+    "logSha256": "438260da6ae2415b1ca311f6550abd508807308bca8af39d46f8e07b252e1304",
+    "logBytes": 313058,
+    "execution": "serialized after actual browser completion and owned-resource cleanup; no source edits"
+  },
+  "browser": {
+    "command": "PLAYWRIGHT_BROWSERS_PATH=<native task browsers> CPLAYOUT_TEST_SIGNING_SEED=<private synthetic seed file> CPLAYOUT_WEB_PROOF_PORT=19186 npm run proof:web -- --workers=3",
+    "sessionId": 43162,
+    "exitCode": 0,
+    "passed": 291,
+    "seconds": 993.184667,
+    "logSha256": "287633f19fd4074d1c4f1a691d8bdcd28e8e9a118051957170186e4cacfe7be9"
+  },
+  "isolatedLauncher": {
+    "command": "node_modules/.bin/tsx tools/devServerManager.test.ts",
+    "sessionId": 8073,
+    "exitCode": 0,
+    "logSha256": "80d4c804f7d3d6d62d49202e6a1650141bec54cea5bf05210fe0605aefa25704"
+  },
+  "firstAggregate": {
+    "command": "npm run validate",
+    "sessionId": 80476,
+    "exitCode": 1,
+    "logSha256": "2b4b7b7f61ac383a6c106b3e40958b4e32b9fbfa438356c5101a827b2cda27c4",
+    "reason": "Unchanged legacy orphan cleanup safety refusal; exact cause inconclusive. Existing manager recovery and isolated/full serialized retries retained."
+  },
+  "schemaVersion": 1,
+  "observedOn": "2026-10-18",
+  "sourceManifest": "final-source.json",
+  "baseCommit": "b5a1a4a7a7058079321b9c2ce701d88fae6b9563",
+  "branch": "codex/gis-reliability-20261018",
+  "checks": [
+    {
+      "name": "focused imports and immutable references,84tests",
+      "exitCode": 0,
+      "logSha256": "e3498d557e85c76c00ac57b38a4a3f2de007652d0e0c48adc21185181f49ea60",
+      "file": "repaired-import-focused.log"
+    },
+    {
+      "name": "governance,85tests",
+      "exitCode": 0,
+      "logSha256": "7a39f67097ac77a60536627209c4d59cad0ed73d6bb346dbf602273a5fb6f30d",
+      "file": "repaired-governance.log"
+    },
+    {
+      "name": "owned skill validation",
+      "exitCode": 0,
+      "logSha256": "b1dffc63061a3ecc0340ee9708e65b8240cba4aa45bb48508aeb73e67d04670d",
+      "file": "repaired-skills.log"
+    },
+    {
+      "name": "complete1251 browser discovery/inventory admission",
+      "exitCode": 0,
+      "logSha256": "4f8006143c9e3c0c881c1a1b5ec740fdd753bb4c24cffe546ec62443edaab0a3",
+      "file": "repaired-inventory-check.log"
+    },
+    {
+      "name": "canonical consumed package/worker identity",
+      "exitCode": 0,
+      "logSha256": "00e217b55d11ac1e825516a35d618f660c6ad1657f2637b2b1a01c3830dfc2bc",
+      "file": "repaired-canonical-identity.json"
+    },
+    {
+      "name": "native dependency owner security/SQLite bytes with matching canonical lock",
+      "exitCode": 0,
+      "logSha256": "aaddaa843e32b40205ff8f586a999e73b14edaa79b31fa5e1813bcd2d40177ed",
+      "file": "repaired-canonical-native-mitigations.log"
+    },
+    {
+      "name": "canonical installed Expo/RN/Metro cohort",
+      "exitCode": 0,
+      "logSha256": "68bb4012aff052fa4ea72c03fa149a1e5231b6033c2fdb21b340344b889d5fac",
+      "file": "repaired-canonical-cohort.log"
+    },
+    {
+      "name": "raw audit and installed mitigation admission",
+      "exitCode": 0,
+      "logSha256": "5d3ce7bf53a53cd4cf2ecc1efbaed0384056955c5a718bd4d4e898df5f322e75",
+      "file": "repaired-audit.log"
+    }
+  ],
+  "aggregateSkipped": [
+    "\ufe63 PostgreSQL migrations, guarded bootstrap, two-client CAS, rollback and TEXT source retention (1.200593ms) # SKIP"
+  ],
+  "declaredVsActualTooling": {
+    "nodeActual": "24.14.1",
+    "npmActual": "11.17.0",
+    "npmDeclared": "11.19.0",
+    "scope": "LocalNode24 only; noNode20/hosted/native/toolchain qualification"
+  },
+  "rawAudit": {
+    "high": 16,
+    "moderate": 0,
+    "admission": "admitted-local-mitigations",
+    "zeroAudit": false
+  },
+  "onlineExpo": {
+    "result": "fail",
+    "reference": "expo-online-advisory.json",
+    "decision": "sdk57-retention-decision.json"
+  },
+  "selectedPackages": {
+    "maplibreGl": "6.15.0",
+    "pmtiles": "4.5.0",
+    "playwright": "1.64.1",
+    "axePlaywright": "4.14.0",
+    "proj4": "2.20.8",
+    "expo": "57.0.28",
+    "reactNative": "0.86.3",
+    "maplibreReactNative": "11.5.0"
+  },
+  "rejectedCandidate": {
+    "proj4": "2.22.0",
+    "reason": "Frozen reader library changed: proj4",
+    "historicalFingerprintsChanged": false
+  },
+  "actualDependencyIdentity": {
+    "schemaVersion": 1,
+    "claim": "Installed package and generated-asset identity only; no renderer/device proof.",
+    "lockSha256": "9d362a6e5f8c0a8e26199d9ea278a02cda194f569218e17ede0d520d1712dbb0",
+    "node": "v24.14.1",
+    "packages": [
+      {
+        "consumer": ".",
+        "name": "expo",
+        "declared": "57.0.28",
+        "installed": "57.0.28",
+        "locked": "57.0.28",
+        "metadataSha256": "13c2b2895346e4652b4b8a660914841a1605ed21551d514321e90bc4531caf9c"
+      },
+      {
+        "consumer": ".",
+        "name": "react-native",
+        "declared": "0.86.3",
+        "installed": "0.86.3",
+        "locked": "0.86.3",
+        "metadataSha256": "416224a4e7caf2ee1f8f9bead8508d0b608feed745371ce0a8f0e2cafa16d144"
+      },
+      {
+        "consumer": ".",
+        "name": "proj4",
+        "declared": "2.20.8",
+        "installed": "2.20.8",
+        "locked": "2.20.8",
+        "metadataSha256": "6ed1ebc7d23e1b15e229c39d4ec33461fe0d895fa3e4b05adc0368f32449c6b8"
+      },
+      {
+        "consumer": ".",
+        "name": "@playwright/test",
+        "declared": "1.64.1",
+        "installed": "1.64.1",
+        "locked": "1.64.1",
+        "metadataSha256": "6b1c8bb530059f2555530e8dcc1b3803565237e17598683b3766c0fa313b3fd6"
+      },
+      {
+        "consumer": ".",
+        "name": "@axe-core/playwright",
+        "declared": "4.14.0",
+        "installed": "4.14.0",
+        "locked": "4.14.0",
+        "metadataSha256": "8bede892b9021c7e0f9f14175277276c80de635a4aa7a4dbf75d5bee3dc18e9a"
+      },
+      {
+        "consumer": "apps/mobile",
+        "name": "expo",
+        "declared": "57.0.28",
+        "installed": "57.0.28",
+        "locked": "57.0.28",
+        "metadataSha256": "13c2b2895346e4652b4b8a660914841a1605ed21551d514321e90bc4531caf9c"
+      },
+      {
+        "consumer": "apps/mobile",
+        "name": "react-native",
+        "declared": "0.86.3",
+        "installed": "0.86.3",
+        "locked": "0.86.3",
+        "metadataSha256": "416224a4e7caf2ee1f8f9bead8508d0b608feed745371ce0a8f0e2cafa16d144"
+      },
+      {
+        "consumer": "apps/mobile",
+        "name": "@maplibre/maplibre-react-native",
+        "declared": "11.5.0",
+        "installed": "11.5.0",
+        "locked": "11.5.0",
+        "metadataSha256": "13cad2ed700ffbc475cbf90050a7a1322add8fc2a8ba1c9ec958f89f771607e4"
+      },
+      {
+        "consumer": "apps/mobile",
+        "name": "expo-sqlite",
+        "declared": "57.0.4",
+        "installed": "57.0.4",
+        "locked": "57.0.4",
+        "metadataSha256": "dfbcb74ec3dae858221cde06efa60f09b838f56f79260c97b806d339a5fa00ec"
+      },
+      {
+        "consumer": "packages/map-adapters",
+        "name": "maplibre-gl",
+        "declared": "6.15.0",
+        "installed": "6.15.0",
+        "locked": "6.15.0",
+        "metadataSha256": "aa2c307c0a3efd8da11ebace266ca2e39c433f9d19efa1b67b3ede9f7904e559"
+      },
+      {
+        "consumer": "packages/map-adapters",
+        "name": "pmtiles",
+        "declared": "4.5.0",
+        "installed": "4.5.0",
+        "locked": "4.5.0",
+        "metadataSha256": "5c1f63156b0f76dcda943273176ebbd77ebef73b138602c53ddba22e06c708e4"
+      },
+      {
+        "consumer": "packages/map-adapters",
+        "name": "@maplibre/maplibre-react-native",
+        "declared": "11.5.0",
+        "installed": "11.5.0",
+        "locked": "11.5.0",
+        "metadataSha256": "13cad2ed700ffbc475cbf90050a7a1322add8fc2a8ba1c9ec958f89f771607e4"
+      },
+      {
+        "consumer": "packages/core",
+        "name": "proj4",
+        "declared": "2.20.8",
+        "installed": "2.20.8",
+        "locked": "2.20.8",
+        "metadataSha256": "6ed1ebc7d23e1b15e229c39d4ec33461fe0d895fa3e4b05adc0368f32449c6b8"
+      },
+      {
+        "consumer": "packages/core",
+        "name": "@xmldom/xmldom",
+        "declared": "0.9.12",
+        "installed": "0.9.12",
+        "locked": "0.9.12",
+        "metadataSha256": "b61c2dd342e0e1abb800302ec62c0b06ae7a07cd9b907c88428ff80100f64c6a"
+      },
+      {
+        "consumer": "apps/api",
+        "name": "argon2",
+        "declared": "0.45.1",
+        "installed": "0.45.1",
+        "locked": "0.45.1",
+        "metadataSha256": "f2b47d7fbbdcf9095bbd15d0ce493498b1887427f0451a99507fb3f2ed40f0f9"
+      }
+    ],
+    "workerAssets": {
+      "version": "6.15.0",
+      "manifestSha256": "cb4d3aa0eb92782da6b8f7ca24d33e408ffcbb27987f514a6944820a959ef5a7",
+      "verified": true
+    },
+    "errors": []
+  },
+  "visualEvidence": {
+    "baselines": "baseline-review.json",
+    "localFonts": "local-font-environment.json",
+    "bindings": "browser-figures.json",
+    "visibleEdge": "visible-edge.json",
+    "genuineZoomAndReflow": "visible-edge-supplement.json",
+    "bounds": "isolated-bounds.json"
+  },
+  "recovery": {
+    "privateRoot": "/home/cyber/.local/state/cplayout/gis-20261018",
+    "archiveSha256": "45650a5bf608e8ef10ea6c4e76c3dd2f6306060eb021f1e31543983631b19723",
+    "precedingDriftedInstallation": ".cplayout-local/recovery-install-gis-20261018",
+    "qualifiedBaselineProof": "/home/cyber/.local/share/cplayout/gis-20261018/proof",
+    "nativeSelectedEnvironment": "/home/cyber/.local/share/cplayout/gis-20261018/runtime",
+    "projectSchemaMigration": false
+  },
+  "modelAndReasoning": {
+    "choice": "Frozen-edition continuation kept the active root session and existing bounded review-agent settings; no model/effort override was selected in these followups",
+    "runtimeIdentity": "Not inferred from configured catalog or source profiles"
+  },
+  "boundary": "Actual local984-source/selected-dependency and synthetic browser software evidence. Online Expo updater recommendation remains failed. PostgreSQL test skipped withoutservice. App portable-package resolver, raw native archives/native MapLibre, offlineglyphs, physicaldevice/field/GoogleEarth, truehookloader, hostedpixelparity/CI andpublication remain separately unqualified."
+}

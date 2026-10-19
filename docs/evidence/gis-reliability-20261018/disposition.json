@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "sourceFingerprint": "5533a09c8cb22fbb7422b4bfe7595e3b043dbd04decddf662911da7c6a342e73",
+  "status": "completed_execution_blocked_by_confirmed_namespace_contract_loss",
+  "aggregate": "actual_exit0",
+  "browser": "actual291pass",
+  "reviewAcceptance": "0_of_2",
+  "reason": "Executed source-bound counterprobes confirm foreign QName/namespace collisions and mixedGX coord-selection loss; complete contract repair and successor qualification required.",
+  "preservation": "Existing completed source/execution/browser/figure/export receipt paths and bytes remain immutable; successor records receive a separate edition directory and ledger IDs."
+}

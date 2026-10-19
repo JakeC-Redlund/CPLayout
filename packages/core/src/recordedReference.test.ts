@@ -19,7 +19,9 @@ import { createProjectEditorState, reduceProjectEditorState, type ProjectEditorA
 import { createDesignDraftEditorState, reduceDesignDraftEditorState } from "./designDraftEditor";
 import { createFieldDesignEditorState, reduceFieldDesignEditorState } from "./fieldDesignEditor";
 import { SurveyPointSchema } from "./surveyPointSchema";
-import { projectLonLatToXy } from "./coordinates";
+import { projectLonLatToXy, projectXyToLonLat } from "./coordinates";
+import { importGoogleEarthKmlToProject } from "./projectKml";
+import { importProjectedGeoJsonToProject } from "./projectImports";
 import type { GnssCaptureEvidenceV2 } from "./gnssEvidence";
 import type { OperationalFixedGgaEvidence } from "./operationalGnssEvidence";
 import type { ProjectMapFeature, SurveyPoint } from "./types";
@@ -685,4 +687,32 @@ test("validated origin-free Project history retains exact snapshots while blank 
   historyOnly.mapFeatures = historyOnly.mapFeatures!.filter(feature => !feature.kind.startsWith("reference_"));
   assert.throws(() => mergeRetainedReferenceOrigins(initial.project, historyOnly), /exact.*authority/i);
   assert.equal(JSON.stringify(initial.project), source);
+});
+
+test("geometry-only KML and projected GeoJSON imports preserve immutable recorded reference origins across admission, undo, redo and reopen", () => {
+  const source = parseProjectDocument(apply("project").document);
+  const initial = createProjectEditorState(source);
+  const boundary = initial.project.fieldBoundary.map(point => ({ x: point.x + 2, y: point.y + 3 }));
+  const positions = [...boundary, boundary[0]];
+  const coordinates = positions.map(point => { const p = projectXyToLonLat(point, initial.project.projectCrs); return `${p.longitude},${p.latitude},0`; }).join(" ");
+  const kml = `<kml xmlns="http://www.opengis.net/kml/2.2"><Placemark><name>Boundary</name><Polygon><outerBoundaryIs><LinearRing><coordinates>${coordinates}</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark></kml>`;
+  const geoJson = { type: "FeatureCollection", properties: { projectCrs: initial.project.projectCrs }, features: [
+    { type: "Feature", properties: { layerType: "field_boundary" }, geometry: { type: "Polygon", coordinates: [positions.map(point => [point.x, point.y])] } },
+  ] };
+  const sourceBytes = serializeProjectDocument(initial.project);
+  for (const candidate of [importGoogleEarthKmlToProject(initial.project, kml).project, importProjectedGeoJsonToProject(initial.project, geoJson).project]) {
+    const next = reduceProjectEditorState(initial, { type: "apply_project_import", project: candidate });
+    assert.equal(next.lastError, null);
+    assert.deepEqual(next.project.mapFeatures, initial.project.mapFeatures);
+    assert.deepEqual(next.project.drawingMetadata, initial.project.drawingMetadata);
+    assertRecordedReferenceHistory(initial.project.drawingMetadata!.records, next.project.drawingMetadata!.records);
+    const undone = reduceProjectEditorState(next, { type: "undo" });
+    assert.equal(undone.lastError, null);
+    assert.deepEqual(undone.project, initial.project);
+    assert.deepEqual(reduceProjectEditorState(undone, { type: "redo" }).project, next.project);
+    const reopened = parseProjectDocument(serializeProjectDocument(next.project));
+    assert.deepEqual(reopened.drawingMetadata, initial.project.drawingMetadata);
+    assert.deepEqual(reopened.mapFeatures, initial.project.mapFeatures);
+  }
+  assert.equal(serializeProjectDocument(initial.project), sourceBytes);
 });
