@@ -160,6 +160,15 @@ class ContextMapTests(unittest.TestCase):
             with self.subTest(relpath=relpath), self.assertRaises(ValueError):
                 builder._require_relpath(relpath)
 
+    def test_gis_pack_selects_current_platform_surfaces_and_tile_admission(self) -> None:
+        pack = next(pack for pack in self.context_map["contextPacks"] if pack["id"] == "gis_geometry_guardrails")
+        self.assertIn("packages/map-adapters/src/workspaceSceneRendering.ts", pack["readFirstPaths"])
+        for path in ("packages/map-adapters/src/WorkspaceMapSurface.web.tsx",
+                     "packages/map-adapters/src/WorkspaceMapSurface.native.tsx",
+                     "packages/core/src/mapTilePackages.ts",
+                     "packages/project-store/src/mapPackageArchive.ts"):
+            self.assertIn(path, pack["secondaryPaths"])
+
     def test_generated_doc_does_not_union_leaf_first_reads(self) -> None:
         self.assertNotIn("## Route Read Guidance", CONTEXT_DOC_PATH.read_text(encoding="utf-8"))
 

@@ -14,9 +14,10 @@ Use this skill before non-trivial CPLayout edits.
 3. Confirm current package paths before editing: mobile code lives in `apps/mobile/`; shared logic lives in `packages/core/`, `packages/geometry/`, `packages/gnss/`, `packages/map-adapters/`, and `packages/project-store/`.
 4. Preserve the offline-first/no-cost boundary: no paid maps, cloud backend, hidden keys, or trial-only SDKs.
 5. Preserve data boundaries: projected/local `XY` is canonical project geometry; WGS84 is input/display unless a schema change explicitly says otherwise.
-6. Preserve runtime gates: web MVP persistence uses browser local storage; native SQLite, ZIP sharing, native MapLibre, and raw PMTiles/MBTiles rendering are not production-verified without device/emulator evidence.
+6. Distinguish authenticated workspace persistence (`apps/mobile/src/auth/authenticatedRepository.ts`) from the legacy browser-local project repository. Native SQLite, ZIP sharing, native MapLibre, and raw PMTiles/MBTiles rendering require their own current device/emulator evidence.
 7. Select validation before editing. Default to `npm run validate`, `git diff --check`, and `npm audit`; add web screenshot checks for visible UI changes and Android checks only when native verification is in scope.
 8. For local browser UI server launches, prefer the repo-owned commands: `npm run ui:test:start -- --no-open` for static export checks, `npm run ui:test:status` for current launcher state, `npm run ui:test:stop` for cleanup, and `npm run dev:web:smart` only for Expo live reload. Do not kill unknown port listeners; use status output and the exact printed URL.
+9. Before export or browser discovery, compare package-relative installed versions with the reviewed lock, check required modules and installed patch bytes, and preserve failed checks. Use a hash-bound proof mirror when restoring dependencies; canonical sources stay on H:, while environments and caches stay on their native filesystem. A passing fixture suite cannot qualify a different installed graph.
 
 ## Output Expectations
 

@@ -1,0 +1,1138 @@
+{
+  "schemaVersion": "cplayout-isolated-maplibre-bounds-v1",
+  "status": "passed",
+  "startedAt": "2026-10-18T22:59:38.451Z",
+  "classification": "isolated-actual-browser-adapter-library-qualification",
+  "workspace": "/home/cyber/.local/share/cplayout/gis-20261018/candidate",
+  "scope": {
+    "appNavigation": false,
+    "portablePackageResolver": false,
+    "nativeFileIntegration": false,
+    "nativeDevice": false,
+    "boundConsumers": [
+      "production raster imagery source",
+      "production vector reference-overlay source"
+    ],
+    "excluded": [
+      "offline label/font parity",
+      "current App portable app:// package rendering",
+      "native rendering",
+      "field accuracy"
+    ]
+  },
+  "source": {
+    "scope": "Named production descriptor/style helpers and reviewed lock; not the whole App or workspace graph",
+    "files": {
+      "packages/core/src/mapTilePackages.ts": "cf5e73c49f11c03765c705c188dc8568784e0b03987943f8c2afda103f13d91f",
+      "packages/core/src/settings.ts": "388b98a0649394c8613616ef963e75156c5cb671f091fb49ab316c0eea336604",
+      "packages/core/src/types.ts": "e2f354282de054e8fa49be660fb96becceac050e2ed4d4fbe8cad1e5f7de1e8b",
+      "packages/core/src/referenceOverlays.ts": "b22eccc5e98934dcf96384264e03376ae313d2e474deccccc9fe6359ec00fe33",
+      "packages/core/src/index.ts": "61c4d5aa60b6a6a509bcc5e2286b4d855d3e0b57357de2d69dcf0af391b22bb0",
+      "packages/map-adapters/src/mapWorkbenchStyle.ts": "b062529179a71894a551a6dd59097b0f280c2c664a2a285f8680963e7710a957",
+      "packages/map-adapters/src/referenceOverlayStyle.ts": "e1cb29e072584e29ac2055710b6318df6aa7d68b743144e86c841d1a0414387d",
+      "tools/pngMetrics.ts": "997c058c9a555479709ae6a2e7bbba84f061f22a422aa13ec48794f9a3e7b81f",
+      "package-lock.json": "9d362a6e5f8c0a8e26199d9ea278a02cda194f569218e17ede0d520d1712dbb0"
+    },
+    "fingerprint": "ba0cd3406d855c2de5d3b75421b36b3a5302d97aac528107fd6e0e097a11070e",
+    "harnessSha256": "6c2e1fc5232789312fe805ee46e50532427023a1fe86f24be30f7db501998c5e"
+  },
+  "runtime": {
+    "node": "v24.14.1",
+    "os": {
+      "platform": "linux",
+      "release": "6.6.87.2-microsoft-standard-WSL2",
+      "arch": "x64"
+    },
+    "playwright": "1.64.1",
+    "expectedChromiumMajor": 156,
+    "launch": {
+      "headless": true,
+      "args": [
+        "--use-angle=swiftshader",
+        "--enable-unsafe-swiftshader"
+      ],
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "deviceScaleFactor": 1
+    },
+    "browserExecutable": "/home/cyber/.cache/cplayout/gis-20261018/browsers/chromium-1248/chrome-linux64/chrome",
+    "browserExecutableSha256": "377a9fc07b495c3b8d0ab8ec1fdfd153641759f9756fea34d8dfce4de82f5025",
+    "maplibre": "6.15.0",
+    "distribution": "official ESM; no UMD distribution present",
+    "browserVersion": "156.0.8078.4"
+  },
+  "assets": {
+    "maplibre-gl.mjs": {
+      "sha256": "41198b23679a7d8892183408bbef2eabdc74745beb90261f6be0f660b7aeb2fd",
+      "bytes": 1098062,
+      "requests": 1
+    },
+    "maplibre-gl-worker.mjs": {
+      "sha256": "1c69066368331aae63967ed24a9affcf962cf55fcc6d8f532a8b040f736dbcfa",
+      "bytes": 518806,
+      "requests": 1
+    },
+    "maplibre-gl-shared.mjs": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "requests": 0
+    },
+    "maplibre-gl.css": {
+      "sha256": "a90798a1953017790e590f7e1bd35ff103a8a4263972cb47290b78adf86f8c20",
+      "bytes": 71596,
+      "requests": 1
+    },
+    "LICENSE.txt": {
+      "sha256": "ee5fc05a0677eaf69601d2c7db0d9ecd6cc27c3abc1d0733bc9ed34707cf8ef2",
+      "bytes": 5984,
+      "requests": 0
+    }
+  },
+  "requests": [
+    {
+      "phase": "bounded-inside",
+      "source": "raster",
+      "z": 15,
+      "x": 6826,
+      "y": 12327,
+      "url": "http://127.0.0.1:43433/raster/15/6826/12327.png",
+      "extent": [
+        -105.00732421875,
+        40.64730356252251,
+        -104.996337890625,
+        40.65563874006117
+      ],
+      "intersectsAdmittedBounds": true
+    },
+    {
+      "phase": "bounded-inside",
+      "source": "raster",
+      "z": 15,
+      "x": 6826,
+      "y": 12328,
+      "url": "http://127.0.0.1:43433/raster/15/6826/12328.png",
+      "extent": [
+        -105.00732421875,
+        40.638967343817235,
+        -104.996337890625,
+        40.64730356252251
+      ],
+      "intersectsAdmittedBounds": true
+    },
+    {
+      "phase": "bounded-inside",
+      "source": "raster",
+      "z": 15,
+      "x": 6826,
+      "y": 12326,
+      "url": "http://127.0.0.1:43433/raster/15/6826/12326.png",
+      "extent": [
+        -105.00732421875,
+        40.65563874006117,
+        -104.996337890625,
+        40.66397287638687
+      ],
+      "intersectsAdmittedBounds": true
+    },
+    {
+      "phase": "bounded-inside",
+      "source": "raster",
+      "z": 15,
+      "x": 6827,
+      "y": 12327,
+      "url": "http://127.0.0.1:43433/raster/15/6827/12327.png",
+      "extent": [
+        -104.996337890625,
+        40.64730356252251,
+        -104.9853515625,
+        40.65563874006117
+      ],
+      "intersectsAdmittedBounds": true
+    },
+    {
+      "phase": "bounded-inside",
+      "source": "raster",
+      "z": 15,
+      "x": 6825,
+      "y": 12326,
+      "url": "http://127.0.0.1:43433/raster/15/6825/12326.png",
+      "extent": [
+        -105.018310546875,
+        40.65563874006117,
+        -105.00732421875,
+        40.66397287638687
+      ],
+      "intersectsAdmittedBounds": true
+    },
+    {
+      "phase": "bounded-inside",
+      "source": "raster",
+      "z": 15,
+      "x": 6828,
+      "y": 12327,
+      "url": "http://127.0.0.1:43433/raster/15/6828/12327.png",
+      "extent": [
+        -104.9853515625,
+        40.64730356252251,
+        -104.974365234375,
+        40.65563874006117
+      ],
+      "intersectsAdmittedBounds": true
+    },
+    {
+      "phase": "bounded-inside",
+      "source": "raster",
+      "z": 15,
+      "x": 6825,
+      "y": 12327,
+      "url": "http://127.0.0.1:43433/raster/15/6825/12327.png",
+      "extent": [
+        -105.018310546875,
+        40.64730356252251,
+        -105.00732421875,
+        40.65563874006117
+      ],
+      "intersectsAdmittedBounds": true
+    },
+    {
+      "phase": "bounded-inside",
+      "source": "raster",
+      "z": 15,
+      "x": 6828,
+      "y": 12328,
+      "url": "http://127.0.0.1:43433/raster/15/6828/12328.png",
+      "extent": [
+        -104.9853515625,
+        40.638967343817235,
+        -104.974365234375,
+        40.64730356252251
+      ],
+      "intersectsAdmittedBounds": true
+    },
+    {
+      "phase": "bounded-inside",
+      "source": "raster",
+      "z": 15,
+      "x": 6827,
+      "y": 12328,
+      "url": "http://127.0.0.1:43433/raster/15/6827/12328.png",
+      "extent": [
+        -104.996337890625,
+        40.638967343817235,
+        -104.9853515625,
+        40.64730356252251
+      ],
+      "intersectsAdmittedBounds": true
+    },
+    {
+      "phase": "bounded-inside",
+      "source": "raster",
+      "z": 15,
+      "x": 6824,
+      "y": 12327,
+      "url": "http://127.0.0.1:43433/raster/15/6824/12327.png",
+      "extent": [
+        -105.029296875,
+        40.64730356252251,
+        -105.018310546875,
+        40.65563874006117
+      ],
+      "intersectsAdmittedBounds": true
+    },
+    {
+      "phase": "bounded-inside",
+      "source": "raster",
+      "z": 15,
+      "x": 6825,
+      "y": 12328,
+      "url": "http://127.0.0.1:43433/raster/15/6825/12328.png",
+      "extent": [
+        -105.018310546875,
+        40.638967343817235,
+        -105.00732421875,
+        40.64730356252251
+      ],
+      "intersectsAdmittedBounds": true
+    },
+    {
+      "phase": "bounded-inside",
+      "source": "raster",
+      "z": 15,
+      "x": 6828,
+      "y": 12326,
+      "url": "http://127.0.0.1:43433/raster/15/6828/12326.png",
+      "extent": [
+        -104.9853515625,
+        40.65563874006117,
+        -104.974365234375,
+        40.66397287638687
+      ],
+      "intersectsAdmittedBounds": true
+    },
+    {
+      "phase": "bounded-inside",
+      "source": "raster",
+      "z": 15,
+      "x": 6827,
+      "y": 12326,
+      "url": "http://127.0.0.1:43433/raster/15/6827/12326.png",
+      "extent": [
+        -104.996337890625,
+        40.65563874006117,
+        -104.9853515625,
+        40.66397287638687
+      ],
+      "intersectsAdmittedBounds": true
+    },
+    {
+      "phase": "bounded-inside",
+      "source": "raster",
+      "z": 15,
+      "x": 6824,
+      "y": 12328,
+      "url": "http://127.0.0.1:43433/raster/15/6824/12328.png",
+      "extent": [
+        -105.029296875,
+        40.638967343817235,
+        -105.018310546875,
+        40.64730356252251
+      ],
+      "intersectsAdmittedBounds": true
+    },
+    {
+      "phase": "bounded-inside",
+      "source": "raster",
+      "z": 15,
+      "x": 6824,
+      "y": 12326,
+      "url": "http://127.0.0.1:43433/raster/15/6824/12326.png",
+      "extent": [
+        -105.029296875,
+        40.65563874006117,
+        -105.018310546875,
+        40.66397287638687
+      ],
+      "intersectsAdmittedBounds": true
+    },
+    {
+      "phase": "bounded-inside",
+      "source": "vector",
+      "z": 14,
+      "x": 3413,
+      "y": 6163,
+      "url": "http://127.0.0.1:43433/vector/14/3413/6163.pbf",
+      "extent": [
+        -105.00732421875,
+        40.64730356252251,
+        -104.9853515625,
+        40.66397287638687
+      ],
+      "intersectsAdmittedBounds": true
+    },
+    {
+      "phase": "bounded-inside",
+      "source": "vector",
+      "z": 14,
+      "x": 3413,
+      "y": 6164,
+      "url": "http://127.0.0.1:43433/vector/14/3413/6164.pbf",
+      "extent": [
+        -105.00732421875,
+        40.6306300839918,
+        -104.9853515625,
+        40.64730356252251
+      ],
+      "intersectsAdmittedBounds": true
+    },
+    {
+      "phase": "bounded-inside",
+      "source": "vector",
+      "z": 14,
+      "x": 3412,
+      "y": 6163,
+      "url": "http://127.0.0.1:43433/vector/14/3412/6163.pbf",
+      "extent": [
+        -105.029296875,
+        40.64730356252251,
+        -105.00732421875,
+        40.66397287638687
+      ],
+      "intersectsAdmittedBounds": true
+    },
+    {
+      "phase": "bounded-inside",
+      "source": "vector",
+      "z": 14,
+      "x": 3412,
+      "y": 6164,
+      "url": "http://127.0.0.1:43433/vector/14/3412/6164.pbf",
+      "extent": [
+        -105.029296875,
+        40.6306300839918,
+        -105.00732421875,
+        40.64730356252251
+      ],
+      "intersectsAdmittedBounds": true
+    },
+    {
+      "phase": "bounded-inside",
+      "source": "vector",
+      "z": 14,
+      "x": 3414,
+      "y": 6163,
+      "url": "http://127.0.0.1:43433/vector/14/3414/6163.pbf",
+      "extent": [
+        -104.9853515625,
+        40.64730356252251,
+        -104.96337890625,
+        40.66397287638687
+      ],
+      "intersectsAdmittedBounds": true
+    },
+    {
+      "phase": "bounded-inside",
+      "source": "vector",
+      "z": 14,
+      "x": 3414,
+      "y": 6164,
+      "url": "http://127.0.0.1:43433/vector/14/3414/6164.pbf",
+      "extent": [
+        -104.9853515625,
+        40.6306300839918,
+        -104.96337890625,
+        40.64730356252251
+      ],
+      "intersectsAdmittedBounds": true
+    },
+    {
+      "phase": "unbounded-counterprobe",
+      "source": "raster",
+      "z": 15,
+      "x": 22755,
+      "y": 18242,
+      "url": "http://127.0.0.1:43433/raster/15/22755/18242.png",
+      "extent": [
+        69.993896484375,
+        -20.004322295998712,
+        70.0048828125,
+        -19.993998469485494
+      ],
+      "intersectsAdmittedBounds": false
+    },
+    {
+      "phase": "unbounded-counterprobe",
+      "source": "raster",
+      "z": 15,
+      "x": 22755,
+      "y": 18243,
+      "url": "http://127.0.0.1:43433/raster/15/22755/18243.png",
+      "extent": [
+        69.993896484375,
+        -20.014645445341362,
+        70.0048828125,
+        -20.004322295998712
+      ],
+      "intersectsAdmittedBounds": false
+    },
+    {
+      "phase": "unbounded-counterprobe",
+      "source": "raster",
+      "z": 15,
+      "x": 22756,
+      "y": 18242,
+      "url": "http://127.0.0.1:43433/raster/15/22756/18242.png",
+      "extent": [
+        70.0048828125,
+        -20.004322295998712,
+        70.015869140625,
+        -19.993998469485494
+      ],
+      "intersectsAdmittedBounds": false
+    },
+    {
+      "phase": "unbounded-counterprobe",
+      "source": "raster",
+      "z": 15,
+      "x": 22754,
+      "y": 18242,
+      "url": "http://127.0.0.1:43433/raster/15/22754/18242.png",
+      "extent": [
+        69.98291015625,
+        -20.004322295998712,
+        69.993896484375,
+        -19.993998469485494
+      ],
+      "intersectsAdmittedBounds": false
+    },
+    {
+      "phase": "unbounded-counterprobe",
+      "source": "raster",
+      "z": 15,
+      "x": 22755,
+      "y": 18241,
+      "url": "http://127.0.0.1:43433/raster/15/22755/18241.png",
+      "extent": [
+        69.993896484375,
+        -19.993998469485494,
+        70.0048828125,
+        -19.983673966092493
+      ],
+      "intersectsAdmittedBounds": false
+    },
+    {
+      "phase": "unbounded-counterprobe",
+      "source": "raster",
+      "z": 15,
+      "x": 22756,
+      "y": 18243,
+      "url": "http://127.0.0.1:43433/raster/15/22756/18243.png",
+      "extent": [
+        70.0048828125,
+        -20.014645445341362,
+        70.015869140625,
+        -20.004322295998712
+      ],
+      "intersectsAdmittedBounds": false
+    },
+    {
+      "phase": "unbounded-counterprobe",
+      "source": "raster",
+      "z": 15,
+      "x": 22754,
+      "y": 18243,
+      "url": "http://127.0.0.1:43433/raster/15/22754/18243.png",
+      "extent": [
+        69.98291015625,
+        -20.014645445341362,
+        69.993896484375,
+        -20.004322295998712
+      ],
+      "intersectsAdmittedBounds": false
+    },
+    {
+      "phase": "unbounded-counterprobe",
+      "source": "raster",
+      "z": 15,
+      "x": 22756,
+      "y": 18241,
+      "url": "http://127.0.0.1:43433/raster/15/22756/18241.png",
+      "extent": [
+        70.0048828125,
+        -19.993998469485494,
+        70.015869140625,
+        -19.983673966092493
+      ],
+      "intersectsAdmittedBounds": false
+    },
+    {
+      "phase": "unbounded-counterprobe",
+      "source": "raster",
+      "z": 15,
+      "x": 22754,
+      "y": 18241,
+      "url": "http://127.0.0.1:43433/raster/15/22754/18241.png",
+      "extent": [
+        69.98291015625,
+        -19.993998469485494,
+        69.993896484375,
+        -19.983673966092493
+      ],
+      "intersectsAdmittedBounds": false
+    },
+    {
+      "phase": "unbounded-counterprobe",
+      "source": "raster",
+      "z": 15,
+      "x": 22757,
+      "y": 18242,
+      "url": "http://127.0.0.1:43433/raster/15/22757/18242.png",
+      "extent": [
+        70.015869140625,
+        -20.004322295998712,
+        70.02685546875,
+        -19.993998469485494
+      ],
+      "intersectsAdmittedBounds": false
+    },
+    {
+      "phase": "unbounded-counterprobe",
+      "source": "raster",
+      "z": 15,
+      "x": 22753,
+      "y": 18242,
+      "url": "http://127.0.0.1:43433/raster/15/22753/18242.png",
+      "extent": [
+        69.971923828125,
+        -20.004322295998712,
+        69.98291015625,
+        -19.993998469485494
+      ],
+      "intersectsAdmittedBounds": false
+    },
+    {
+      "phase": "unbounded-counterprobe",
+      "source": "raster",
+      "z": 15,
+      "x": 22757,
+      "y": 18241,
+      "url": "http://127.0.0.1:43433/raster/15/22757/18241.png",
+      "extent": [
+        70.015869140625,
+        -19.993998469485494,
+        70.02685546875,
+        -19.983673966092493
+      ],
+      "intersectsAdmittedBounds": false
+    },
+    {
+      "phase": "unbounded-counterprobe",
+      "source": "raster",
+      "z": 15,
+      "x": 22757,
+      "y": 18243,
+      "url": "http://127.0.0.1:43433/raster/15/22757/18243.png",
+      "extent": [
+        70.015869140625,
+        -20.014645445341362,
+        70.02685546875,
+        -20.004322295998712
+      ],
+      "intersectsAdmittedBounds": false
+    },
+    {
+      "phase": "unbounded-counterprobe",
+      "source": "raster",
+      "z": 15,
+      "x": 22753,
+      "y": 18243,
+      "url": "http://127.0.0.1:43433/raster/15/22753/18243.png",
+      "extent": [
+        69.971923828125,
+        -20.014645445341362,
+        69.98291015625,
+        -20.004322295998712
+      ],
+      "intersectsAdmittedBounds": false
+    },
+    {
+      "phase": "unbounded-counterprobe",
+      "source": "raster",
+      "z": 15,
+      "x": 22753,
+      "y": 18241,
+      "url": "http://127.0.0.1:43433/raster/15/22753/18241.png",
+      "extent": [
+        69.971923828125,
+        -19.993998469485494,
+        69.98291015625,
+        -19.983673966092493
+      ],
+      "intersectsAdmittedBounds": false
+    },
+    {
+      "phase": "unbounded-counterprobe",
+      "source": "vector",
+      "z": 14,
+      "x": 11377,
+      "y": 9121,
+      "url": "http://127.0.0.1:43433/vector/14/11377/9121.pbf",
+      "extent": [
+        69.98291015625,
+        -20.014645445341362,
+        70.0048828125,
+        -19.993998469485494
+      ],
+      "intersectsAdmittedBounds": false
+    },
+    {
+      "phase": "unbounded-counterprobe",
+      "source": "vector",
+      "z": 14,
+      "x": 11378,
+      "y": 9121,
+      "url": "http://127.0.0.1:43433/vector/14/11378/9121.pbf",
+      "extent": [
+        70.0048828125,
+        -20.014645445341362,
+        70.02685546875,
+        -19.993998469485494
+      ],
+      "intersectsAdmittedBounds": false
+    },
+    {
+      "phase": "unbounded-counterprobe",
+      "source": "vector",
+      "z": 14,
+      "x": 11377,
+      "y": 9120,
+      "url": "http://127.0.0.1:43433/vector/14/11377/9120.pbf",
+      "extent": [
+        69.98291015625,
+        -19.993998469485494,
+        70.0048828125,
+        -19.973348786110602
+      ],
+      "intersectsAdmittedBounds": false
+    },
+    {
+      "phase": "unbounded-counterprobe",
+      "source": "vector",
+      "z": 14,
+      "x": 11378,
+      "y": 9120,
+      "url": "http://127.0.0.1:43433/vector/14/11378/9120.pbf",
+      "extent": [
+        70.0048828125,
+        -19.993998469485494,
+        70.02685546875,
+        -19.973348786110602
+      ],
+      "intersectsAdmittedBounds": false
+    },
+    {
+      "phase": "unbounded-counterprobe",
+      "source": "vector",
+      "z": 14,
+      "x": 11376,
+      "y": 9120,
+      "url": "http://127.0.0.1:43433/vector/14/11376/9120.pbf",
+      "extent": [
+        69.9609375,
+        -19.993998469485494,
+        69.98291015625,
+        -19.973348786110602
+      ],
+      "intersectsAdmittedBounds": false
+    },
+    {
+      "phase": "unbounded-counterprobe",
+      "source": "vector",
+      "z": 14,
+      "x": 11376,
+      "y": 9121,
+      "url": "http://127.0.0.1:43433/vector/14/11376/9121.pbf",
+      "extent": [
+        69.9609375,
+        -20.014645445341362,
+        69.98291015625,
+        -19.993998469485494
+      ],
+      "intersectsAdmittedBounds": false
+    }
+  ],
+  "unexpectedNetwork": [],
+  "pageErrors": [],
+  "mapErrors": [],
+  "assertions": [
+    "Actual Chromium major is 156",
+    "Actual browser loads selected MapLibre 6.15.0 ESM",
+    "Actual raster and vector style sources retain exact finite production bounds",
+    "Actual bounded inside view requests raster tiles",
+    "Actual bounded inside view requests vector tiles",
+    "Every bounded inside raster/vector request intersects admitted geographic bounds",
+    "Actual locally served MapLibre worker was requested",
+    "Actual MapLibre attribution names synthetic raster and vector sources",
+    "Actual raster pixels paint the center region: hiding only imagery changes mean grayscale by more than 15",
+    "Actual far camera does not intersect admitted bounds",
+    "Far camera issues zero raster/vector requests with production bounds",
+    "Unbounded positive counterprobe requests far raster tiles",
+    "Unbounded positive counterprobe requests far vector tiles",
+    "Counterprobe far requests are outside admitted bounds",
+    "No actual MapLibre source/style/worker error occurred",
+    "No page execution error occurred",
+    "No external or unknown network resource was requested",
+    "Production source and lock bytes stayed frozen throughout actual browser execution"
+  ],
+  "screenshots": {
+    "bounded-inside-painted": {
+      "path": "bounded-inside-painted.png",
+      "sha256": "46eab45d2031e148d6d0dbd4c6a1f0b7159ae212dade122ac472ed4a6b2a845d",
+      "metrics": {
+        "width": 80,
+        "height": 80,
+        "sampleCount": 6400,
+        "nonBlankPixelRatio": 1,
+        "grayMean": 96.084375,
+        "grayVariance": 80.99288085937769,
+        "minGray": 87,
+        "maxGray": 105
+      }
+    },
+    "bounded-inside-imagery-hidden": {
+      "path": "bounded-inside-imagery-hidden.png",
+      "sha256": "cf56b2b77714b72a02d913e04adbc37a806ebc1edf90fc3815bf5e57d60b3e93",
+      "metrics": {
+        "width": 80,
+        "height": 80,
+        "sampleCount": 6400,
+        "nonBlankPixelRatio": 1,
+        "grayMean": 217,
+        "grayVariance": 0,
+        "minGray": 217,
+        "maxGray": 217
+      }
+    },
+    "bounded-outside": {
+      "path": "bounded-outside.png",
+      "sha256": "cf56b2b77714b72a02d913e04adbc37a806ebc1edf90fc3815bf5e57d60b3e93",
+      "metrics": {
+        "width": 80,
+        "height": 80,
+        "sampleCount": 6400,
+        "nonBlankPixelRatio": 1,
+        "grayMean": 217,
+        "grayVariance": 0,
+        "minGray": 217,
+        "maxGray": 217
+      }
+    },
+    "unbounded-counterprobe": {
+      "path": "unbounded-counterprobe.png",
+      "sha256": "5a43eb42b6a9011559bc0f92ed355e66f168a79d3fbeac222b5154b4b7efa224",
+      "metrics": {
+        "width": 80,
+        "height": 80,
+        "sampleCount": 6400,
+        "nonBlankPixelRatio": 1,
+        "grayMean": 95.94375,
+        "grayVariance": 80.9968359375016,
+        "minGray": 87,
+        "maxGray": 105
+      }
+    }
+  },
+  "cleanup": {
+    "contextClosed": true,
+    "browserDisconnected": true,
+    "serverListening": false
+  },
+  "synthetic": {
+    "attribution": "CPLayout generated fixture; no captured imagery",
+    "bounds": [
+      -105.02,
+      40.635,
+      -104.98,
+      40.665
+    ],
+    "center": [
+      -105,
+      40.65
+    ],
+    "farCenter": [
+      70,
+      -20
+    ],
+    "png": {
+      "sha256": "e66aed6f5b6cfe8c6966c2a530ae21b841e5d3d602100b63efb8c6ed049b5929",
+      "bytes": 1353
+    },
+    "vector": {
+      "sha256": "c4ad10cc04e0eaedc013dab7fa956c67eb2651bee35074afb820d897d68cb161",
+      "bytes": 64,
+      "layers": [
+        "roads",
+        "borders"
+      ]
+    }
+  },
+  "server": {
+    "origin": "http://127.0.0.1:43433",
+    "host": "127.0.0.1",
+    "port": 43433,
+    "harnessPid": 237716
+  },
+  "sources": {
+    "manifests": {
+      "raster": {
+        "id": "isolated-raster-bounds",
+        "name": "Synthetic raster bounds",
+        "packageType": "raster_tiles",
+        "tileContentType": "raster",
+        "uri": "http://127.0.0.1:43433/raster/",
+        "minZoom": 12,
+        "maxZoom": 16,
+        "tileScheme": "xyz",
+        "boundsWgs84": {
+          "minLongitude": -105.02,
+          "minLatitude": 40.635,
+          "maxLongitude": -104.98,
+          "maxLatitude": 40.665
+        },
+        "tileUrlTemplates": [
+          "http://127.0.0.1:43433/raster/{z}/{x}/{y}.png"
+        ],
+        "installStatus": "available",
+        "attribution": "CPLayout Synthetic raster tiles",
+        "licenseText": "Generated synthetic test pixels; offline copying permitted.",
+        "importedAt": "2026-10-18T12:00:00.000Z",
+        "imageryProvenance": {
+          "providerId": "cplayout-generated-fixture",
+          "providerName": "CPLayout generated raster",
+          "accessedAt": "2026-10-18T12:00:00.000Z",
+          "attribution": "CPLayout Synthetic raster tiles",
+          "licenseText": "Generated synthetic test pixels; offline copying permitted.",
+          "offlineCopyAllowed": true,
+          "keyedService": false
+        }
+      },
+      "vector": {
+        "id": "isolated-vector-bounds",
+        "name": "Synthetic vector bounds",
+        "packageType": "raster_tiles",
+        "tileContentType": "vector",
+        "uri": "http://127.0.0.1:43433/vector/",
+        "minZoom": 12,
+        "maxZoom": 16,
+        "tileScheme": "xyz",
+        "boundsWgs84": {
+          "minLongitude": -105.02,
+          "minLatitude": 40.635,
+          "maxLongitude": -104.98,
+          "maxLatitude": 40.665
+        },
+        "tileUrlTemplates": [
+          "http://127.0.0.1:43433/vector/{z}/{x}/{y}.pbf"
+        ],
+        "installStatus": "available",
+        "attribution": "CPLayout Synthetic vector tiles",
+        "licenseText": "Generated synthetic test pixels; offline copying permitted.",
+        "importedAt": "2026-10-18T12:00:00.000Z",
+        "imageryProvenance": {
+          "providerId": "cplayout-generated-fixture",
+          "providerName": "CPLayout generated raster",
+          "accessedAt": "2026-10-18T12:00:00.000Z",
+          "attribution": "CPLayout Synthetic raster tiles",
+          "licenseText": "Generated synthetic test pixels; offline copying permitted.",
+          "offlineCopyAllowed": true,
+          "keyedService": false
+        },
+        "vectorOverlay": {
+          "schema": "cplayout_reference_v1",
+          "sourceLayers": {
+            "roads": "roads",
+            "roadLabels": "road_labels",
+            "borders": "borders",
+            "places": "places"
+          }
+        }
+      }
+    },
+    "descriptors": {
+      "raster": {
+        "id": "isolated-raster-bounds",
+        "type": "raster",
+        "tiles": [
+          "http://127.0.0.1:43433/raster/{z}/{x}/{y}.png"
+        ],
+        "minzoom": 12,
+        "maxzoom": 16,
+        "scheme": "xyz",
+        "attribution": "CPLayout Synthetic raster tiles",
+        "bounds": [
+          -105.02,
+          40.635,
+          -104.98,
+          40.665
+        ]
+      },
+      "vector": {
+        "id": "isolated-vector-bounds",
+        "type": "vector",
+        "tiles": [
+          "http://127.0.0.1:43433/vector/{z}/{x}/{y}.pbf"
+        ],
+        "minzoom": 12,
+        "maxzoom": 16,
+        "scheme": "xyz",
+        "attribution": "CPLayout Synthetic vector tiles",
+        "bounds": [
+          -105.02,
+          40.635,
+          -104.98,
+          40.665
+        ]
+      }
+    },
+    "productionStyleSha256": "7cfe0b77aeb60a3b9687d7d8f5cde0660d4d5fa3cf3ab07bcc9ecabe2618accf",
+    "probeStyleSha256": "a3b6d251d8ee9f9550d7eabe8802508b44169fd76202c40c879532e56a293f1a",
+    "omittedSymbolLayers": [
+      "reference-road-labels",
+      "reference-place-labels"
+    ]
+  },
+  "inside": {
+    "version": "6.15.0",
+    "center": [
+      -105,
+      40.65
+    ],
+    "zoom": 14,
+    "bounds": [
+      [
+        -105.01931190490696,
+        40.63990563503248
+      ],
+      [
+        -104.98068809509246,
+        40.66009283820972
+      ]
+    ],
+    "sources": {
+      "reference-overlay": {
+        "type": "vector",
+        "minzoom": 12,
+        "maxzoom": 16,
+        "scheme": "xyz",
+        "attribution": "CPLayout Synthetic vector tiles",
+        "tiles": [
+          "http://127.0.0.1:43433/vector/{z}/{x}/{y}.pbf"
+        ],
+        "bounds": [
+          -105.02,
+          40.635,
+          -104.98,
+          40.665
+        ]
+      },
+      "layout": {
+        "type": "geojson",
+        "data": {
+          "type": "FeatureCollection",
+          "features": []
+        }
+      },
+      "imagery": {
+        "type": "raster",
+        "tileSize": 256,
+        "minzoom": 12,
+        "maxzoom": 16,
+        "scheme": "xyz",
+        "attribution": "CPLayout Synthetic raster tiles",
+        "tiles": [
+          "http://127.0.0.1:43433/raster/{z}/{x}/{y}.png"
+        ],
+        "bounds": [
+          -105.02,
+          40.635,
+          -104.98,
+          40.665
+        ]
+      }
+    },
+    "failures": []
+  },
+  "credits": "CPLayout Synthetic vector tiles | CPLayout Synthetic raster tiles",
+  "outside": {
+    "version": "6.15.0",
+    "center": [
+      70,
+      -20
+    ],
+    "zoom": 14,
+    "bounds": [
+      [
+        69.98068809509348,
+        -20.0125009455232
+      ],
+      [
+        70.01931190490797,
+        -19.98749806167018
+      ]
+    ],
+    "sources": {
+      "reference-overlay": {
+        "type": "vector",
+        "minzoom": 12,
+        "maxzoom": 16,
+        "scheme": "xyz",
+        "attribution": "CPLayout Synthetic vector tiles",
+        "tiles": [
+          "http://127.0.0.1:43433/vector/{z}/{x}/{y}.pbf"
+        ],
+        "bounds": [
+          -105.02,
+          40.635,
+          -104.98,
+          40.665
+        ]
+      },
+      "layout": {
+        "type": "geojson",
+        "data": {
+          "type": "FeatureCollection",
+          "features": []
+        }
+      },
+      "imagery": {
+        "type": "raster",
+        "tileSize": 256,
+        "minzoom": 12,
+        "maxzoom": 16,
+        "scheme": "xyz",
+        "attribution": "CPLayout Synthetic raster tiles",
+        "tiles": [
+          "http://127.0.0.1:43433/raster/{z}/{x}/{y}.png"
+        ],
+        "bounds": [
+          -105.02,
+          40.635,
+          -104.98,
+          40.665
+        ]
+      }
+    },
+    "failures": []
+  },
+  "unboundedCounterprobe": {
+    "version": "6.15.0",
+    "center": [
+      70,
+      -20
+    ],
+    "zoom": 14,
+    "bounds": [
+      [
+        69.98068809509348,
+        -20.0125009455232
+      ],
+      [
+        70.01931190490797,
+        -19.98749806167018
+      ]
+    ],
+    "sources": {
+      "reference-overlay": {
+        "type": "vector",
+        "minzoom": 12,
+        "maxzoom": 16,
+        "scheme": "xyz",
+        "attribution": "CPLayout Synthetic vector tiles",
+        "tiles": [
+          "http://127.0.0.1:43433/vector/{z}/{x}/{y}.pbf"
+        ]
+      },
+      "layout": {
+        "type": "geojson",
+        "data": {
+          "type": "FeatureCollection",
+          "features": []
+        }
+      },
+      "imagery": {
+        "type": "raster",
+        "tileSize": 256,
+        "minzoom": 12,
+        "maxzoom": 16,
+        "scheme": "xyz",
+        "attribution": "CPLayout Synthetic raster tiles",
+        "tiles": [
+          "http://127.0.0.1:43433/raster/{z}/{x}/{y}.png"
+        ]
+      }
+    },
+    "failures": []
+  },
+  "completedAt": "2026-10-18T22:59:41.224Z"
+}

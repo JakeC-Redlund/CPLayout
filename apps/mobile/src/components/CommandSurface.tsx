@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import {
   Modal,
   Platform,
@@ -110,6 +110,16 @@ export function CommandMenu({
   sheetScrollMaxHeight: number;
   sheetWidth: number;
 }): React.JSX.Element {
+  const trigger = useRef<View>(null), restoreFocus = useRef(false);
+  const close = () => { restoreFocus.current = true; onClose(); };
+  useLayoutEffect(() => {
+    if (!open && restoreFocus.current) { restoreFocus.current = false; trigger.current?.focus(); }
+  }, [open]);
+  const onKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
+    // A nested control which handled Escape keeps ownership of that key.
+    if (!open || event.defaultPrevented || event.key !== "Escape") return;
+    event.preventDefault(); event.stopPropagation(); close();
+  };
   const panel = (
     <CommandMenuPanel
       menu={menu}
@@ -122,8 +132,9 @@ export function CommandMenu({
   );
 
   return (
-    <View style={styles.menuAnchor}>
+    <View style={styles.menuAnchor} testID={`command-menu-${menu.id}-owner`} {...(Platform.OS === "web" ? { onKeyDown } : {})}>
       <Pressable
+        ref={trigger}
         accessibilityLabel={`${menu.label} menu`}
         accessibilityRole="button"
         accessibilityState={{ expanded: open }}
@@ -136,13 +147,13 @@ export function CommandMenu({
         <Text style={[styles.menuButtonText, open && styles.menuButtonTextOpen]}>{menu.label}</Text>
       </Pressable>
       {sheetMode && open ? (
-        <Modal animationType="fade" onRequestClose={onClose} transparent visible>
+        <Modal animationType="fade" onRequestClose={close} transparent visible>
           <View style={[styles.sheetBackdrop, { height: sheetHeight, maxWidth: sheetWidth, width: sheetWidth }]}>
-            <Pressable accessibilityLabel={`Close ${menu.label} menu backdrop`} accessibilityRole="button" onPress={onClose} style={styles.sheetScrim} testID={`command-menu-${menu.id}-backdrop`} />
+            <Pressable accessibilityLabel={`Close ${menu.label} menu backdrop`} accessibilityRole="button" onPress={close} style={styles.sheetScrim} testID={`command-menu-${menu.id}-backdrop`} />
             <View accessibilityViewIsModal style={[styles.sheetPanel, { maxHeight: sheetMaxHeight, maxWidth: sheetWidth, width: sheetWidth }]} testID={`command-menu-${menu.id}-panel`}>
               <View style={styles.sheetHeader}>
                 <Text style={styles.sheetTitle}>{menu.label}</Text>
-                <Pressable accessibilityLabel={`Close ${menu.label} menu`} accessibilityRole="button" onPress={onClose} style={styles.closeButton} testID={`command-menu-${menu.id}-close`}>
+                <Pressable accessibilityLabel={`Close ${menu.label} menu`} accessibilityRole="button" onPress={close} style={styles.closeButton} testID={`command-menu-${menu.id}-close`}>
                   <Text style={styles.closeButtonText}>Close</Text>
                 </Pressable>
               </View>

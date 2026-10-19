@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "sourcePath": "/mnt/h/CPLayout/packages/core/src/drawingProjectEdits.test.ts",
+  "sourceSha256": "aef40a57265b6bdaf1f0db1f376811d9b65cd27dde3c9882399de1c735eb2885",
+  "method": "TypeScript AST extraction and evaluation of only the named pure fixture declarations; no tests invoked",
+  "declarations": [
+    "namespaceOuter",
+    "namespaceHole",
+    "namespaceRing",
+    "namespacePolygon",
+    "gxStructureKml",
+    "namespaceCollisionFixtures"
+  ],
+  "fixtures": [
+    {
+      "id": "foreign first coordinates",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" ><Document><Placemark><name>Pump location</name><Point><coordinates xmlns=\"urn:foreign\">-106,41</coordinates><coordinates>-105,40</coordinates></Point></Placemark></Document></kml>",
+      "inputSha256": "d22846986c9e20bf3edf1dfa127ac17d0a73b10994692f55c5e282f89369b270"
+    },
+    {
+      "id": "foreign literal Point",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" ><Document><Placemark><name>Pump location</name><Point xmlns=\"urn:foreign\"><coordinates xmlns=\"http://www.opengis.net/kml/2.2\">-106,41</coordinates></Point></Placemark></Document></kml>",
+      "inputSha256": "0ea1b49a21c4f13e9453c7566d1cf97e1c553d019b58b6a3e6d5df314491540e"
+    },
+    {
+      "id": "foreign literal Placemark",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" ><Document><Placemark xmlns=\"urn:foreign\"><name xmlns=\"http://www.opengis.net/kml/2.2\">Pump location</name><Point xmlns=\"http://www.opengis.net/kml/2.2\"><coordinates>-106,41</coordinates></Point></Placemark></Document></kml>",
+      "inputSha256": "d49db040537b03b24c245047a3888ec545f60afbf7670cd4238317b6ba070367"
+    },
+    {
+      "id": "foreign descendant name",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" ><Document><Placemark><f:review xmlns:f=\"urn:foreign\"><name xmlns=\"urn:foreign\">Control</name></f:review><name>Pump location</name><Point><coordinates>-105,40,0</coordinates></Point></Placemark></Document></kml>",
+      "inputSha256": "fe16289557f1e2d43ceaedb7c5e3a3fea2cdc33e82858d1de7859d7334d42de6"
+    },
+    {
+      "id": "qualified coordinates inside foreign wrapper",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" ><Document><Placemark><name>Pump location</name><Point><f:review xmlns:f=\"urn:foreign\"><coordinates>-106,41</coordinates></f:review><coordinates>-105,40</coordinates></Point></Placemark></Document></kml>",
+      "inputSha256": "21d49364d15337ecbcd33997fb93a35ad354b9ac44fa7ab226c03e04f1a46bc4"
+    },
+    {
+      "id": "qualified coord inside foreign wrapper",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:gx=\"http://www.google.com/kml/ext/2.2\" xmlns:t=\"http://www.google.com/kml/ext/2.2\"><Document><Placemark><name>Boundary</name><Polygon><outerBoundaryIs><LinearRing><coordinates>-104,40,0 -103.999,40,0 -104,40.001,0 -104,40,0</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark><Placemark><name>Linear Move Path</name><gx:Track><f:review xmlns:f=\"urn:foreign\"><gx:coord>-106 41 0</gx:coord></f:review><when>2026-10-18T10:00:00Z</when><gx:coord>-104 40 0</gx:coord><when>2026-10-18T10:00:01Z</when><gx:coord>-104.001 40.001 0</gx:coord><when>2026-10-18T10:00:02Z</when><gx:coord>-104.002 40.001 0</gx:coord></gx:Track></Placemark></Document></kml>",
+      "inputSha256": "5145a692f1a863c203d26d1db56b93a9079abd2a74f7ba77fc409405480923f1"
+    },
+    {
+      "id": "qualified Placemark inside foreign wrapper",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" ><Document><f:review xmlns:f=\"urn:foreign\"><Placemark><name>Pump location</name><Point><coordinates>-105,40,0</coordinates></Point></Placemark></f:review></Document></kml>",
+      "inputSha256": "641da412d041f42c6b54af31a853cb90e8dc679bd1dccee7abcec713dfe95e80"
+    },
+    {
+      "id": "qualified name inside foreign wrapper",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" ><Document><Placemark><f:review xmlns:f=\"urn:foreign\"><name>Control</name></f:review><name>Pump location</name><Point><coordinates>-105,40,0</coordinates></Point></Placemark></Document></kml>",
+      "inputSha256": "4b95a3a31c262204025b0a86dcd1272ced226566ea1c2117b588ace105017878"
+    },
+    {
+      "id": "foreign Data metadata",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" ><Document><Placemark><name>Pump location</name><ExtendedData><Data xmlns=\"urn:foreign\" name=\"id\"><value>foreign-id</value></Data></ExtendedData><Point><coordinates>-105,40,0</coordinates></Point></Placemark></Document></kml>",
+      "inputSha256": "de6c593f5c40b78164ee3a8023d9f5b39514630490303ceca923988d7604cd6a"
+    },
+    {
+      "id": "qualified global Style inside foreign wrapper",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" ><Document><f:review xmlns:f=\"urn:foreign\"><Style id=\"chosen\"><LineStyle><color>ff0000ff</color></LineStyle></Style></f:review><Placemark><name>Pump location</name><styleUrl>#chosen</styleUrl><Point><coordinates>-105,40,0</coordinates></Point></Placemark></Document></kml>",
+      "inputSha256": "7101d26a1027d387c77dc185c44d401b2a28d381e158344e8064a0752f6bed3b"
+    },
+    {
+      "id": "foreign global Style",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" ><Document><Style xmlns=\"urn:foreign\" id=\"chosen\"><LineStyle xmlns=\"http://www.opengis.net/kml/2.2\"><color>ff0000ff</color></LineStyle></Style><Placemark><name>Pump location</name><styleUrl>#chosen</styleUrl><Point><coordinates>-105,40,0</coordinates></Point></Placemark></Document></kml>",
+      "inputSha256": "be73034545ee13fea2c91fc60735807252d5195efa223225db48578e35c5a1dc"
+    },
+    {
+      "id": "foreign global schema field",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" ><Document><Schema><SimpleField xmlns=\"urn:foreign\" name=\"rank\" type=\"int\"/></Schema><Placemark><name>Pump location</name><ExtendedData><SchemaData><SimpleData name=\"rank\">7</SimpleData></SchemaData></ExtendedData><Point><coordinates>-105,40,0</coordinates></Point></Placemark></Document></kml>",
+      "inputSha256": "a76fbef816d3582a8b8311150fe86e7988b28934ddafa067a3369bb682aed7f3"
+    },
+    {
+      "id": "foreign default root",
+      "input": "<kml xmlns=\"urn:foreign\" ><Document><Placemark><name>Pump location</name><Point><coordinates>-105,40,0</coordinates></Point></Placemark></Document></kml>",
+      "inputSha256": "9cfcfc43ba98718b98f09ac5b6acc3b05617c3239ff416e05316c9d2fc9b2d97"
+    },
+    {
+      "id": "non-KML root name",
+      "input": "<other xmlns=\"http://www.opengis.net/kml/2.2\" ><Document><Placemark><name>Pump location</name><Point><coordinates>-105,40,0</coordinates></Point></Placemark></Document></other>",
+      "inputSha256": "b9b0ed5da72095ea1018f2a6109bea95ecb9142f313f7382f9bd9eec7ea134fe"
+    },
+    {
+      "id": "unqualified namespace reset",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" ><Document><Placemark><name>Pump location</name><Point><coordinates xmlns=\"\">-106,41</coordinates><coordinates>-105,40</coordinates></Point></Placemark></Document></kml>",
+      "inputSha256": "9222681aab930ad0895863165fe767f5f604c9168e89af7e4c8549156307fd3c"
+    },
+    {
+      "id": "wrong URI gx Track",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:gx=\"urn:foreign\" xmlns:t=\"http://www.google.com/kml/ext/2.2\"><Document><Placemark><name>Boundary</name><Polygon><outerBoundaryIs><LinearRing><coordinates>-104,40,0 -103.999,40,0 -104,40.001,0 -104,40,0</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark><Placemark><name>Linear Move Path</name><gx:Track><when>2026-10-18T10:00:00Z</when><gx:coord>-104 40 0</gx:coord><when>2026-10-18T10:00:01Z</when><gx:coord>-104.001 40.001 0</gx:coord><when>2026-10-18T10:00:02Z</when><gx:coord>-104.002 40.001 0</gx:coord></gx:Track></Placemark></Document></kml>",
+      "inputSha256": "ca8db77760ad9f56dc384dbd23f4d70b055f591d8a5cb1ad0e181e1795710dcc"
+    },
+    {
+      "id": "wrong URI gx MultiTrack",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:gx=\"http://www.google.com/kml/ext/2.2\" xmlns:t=\"http://www.google.com/kml/ext/2.2\"><Document><Placemark><name>Boundary</name><Polygon><outerBoundaryIs><LinearRing><coordinates>-104,40,0 -103.999,40,0 -104,40.001,0 -104,40,0</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark><Placemark><name>Linear Move Path</name><gx:MultiTrack xmlns:gx=\"urn:foreign\"><gx:Track xmlns:gx=\"http://www.google.com/kml/ext/2.2\"><when>2026-10-18T10:00:00Z</when><gx:coord>-104 40 0</gx:coord><when>2026-10-18T10:00:01Z</when><gx:coord>-104.001 40.001 0</gx:coord><when>2026-10-18T10:00:02Z</when><gx:coord>-104.002 40.001 0</gx:coord></gx:Track></gx:MultiTrack></Placemark></Document></kml>",
+      "inputSha256": "58e163c93caabc455e5f72f54020b8c945a80ef50e53ef8d6355a5bc9f49a429"
+    },
+    {
+      "id": "foreign wildcard coord",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:gx=\"http://www.google.com/kml/ext/2.2\" xmlns:t=\"http://www.google.com/kml/ext/2.2\"><Document><Placemark><name>Boundary</name><Polygon><outerBoundaryIs><LinearRing><coordinates>-104,40,0 -103.999,40,0 -104,40.001,0 -104,40,0</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark><Placemark><name>Linear Move Path</name><gx:Track xmlns:f=\"urn:foreign\"><f:coord>-106 41 0</f:coord><when>2026-10-18T10:00:00Z</when><gx:coord>-104 40 0</gx:coord><when>2026-10-18T10:00:01Z</when><gx:coord>-104.001 40.001 0</gx:coord><when>2026-10-18T10:00:02Z</when><gx:coord>-104.002 40.001 0</gx:coord></gx:Track></Placemark></Document></kml>",
+      "inputSha256": "c9d513711c246e5be514987c4b3338fa6f1667f2c1b6708dce162f1570e5130b"
+    },
+    {
+      "id": "foreign bare coord precedence",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:gx=\"http://www.google.com/kml/ext/2.2\" xmlns:t=\"http://www.google.com/kml/ext/2.2\"><Document><Placemark><name>Boundary</name><Polygon><outerBoundaryIs><LinearRing><coordinates>-104,40,0 -103.999,40,0 -104,40.001,0 -104,40,0</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark><Placemark><name>Linear Move Path</name><gx:Track><coord xmlns=\"urn:foreign\">-106 41 0</coord><when>2026-10-18T10:00:00Z</when><gx:coord>-104 40 0</gx:coord><when>2026-10-18T10:00:01Z</when><gx:coord>-104.001 40.001 0</gx:coord><when>2026-10-18T10:00:02Z</when><gx:coord>-104.002 40.001 0</gx:coord></gx:Track></Placemark></Document></kml>",
+      "inputSha256": "199b660b7b593a2e21637390cdb3a7e54cb1b9dbd78beff6c67bead9843af295"
+    },
+    {
+      "id": "mixed valid GX coordinate forms",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:gx=\"http://www.google.com/kml/ext/2.2\"><Document><Placemark><name>Control</name><gx:Track xmlns=\"http://www.google.com/kml/ext/2.2\"><coord>-106 41 0</coord><gx:coord>-105 40 0</gx:coord><gx:coord>-105.001 40.001 0</gx:coord><gx:coord>-105.002 40.001 0</gx:coord></gx:Track></Placemark></Document></kml>",
+      "inputSha256": "b2497f06c5e0bd4c82fe1944ca64f99b3c2753a95c6fc174780205745d00b101"
+    },
+    {
+      "id": "mixed legacy and prefixed coordinates",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:gx=\"http://www.google.com/kml/ext/2.2\"><Document><Placemark><name>Control</name><gx:Track><coord>-106 41 0</coord><gx:coord>-105 40 0</gx:coord><gx:coord>-105.001 40.001 0</gx:coord><gx:coord>-105.002 40.001 0</gx:coord></gx:Track></Placemark></Document></kml>",
+      "inputSha256": "f76df055efe43891bb61a9bbdfe6af18be0cd75ca6ebdd88c0fd3dac0510ad37"
+    },
+    {
+      "id": "operative foreign CascadingStyle",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" ><Document><f:CascadingStyle xmlns:f=\"urn:foreign\" id=\"chosen\"><Style><LineStyle><color>ff0000ff</color></LineStyle></Style></f:CascadingStyle><Placemark><name>Pump location</name><styleUrl>#chosen</styleUrl><Point><coordinates>-105,40,0</coordinates></Point></Placemark></Document></kml>",
+      "inputSha256": "50306c6df2b27da6ce2e6fb4883e2378dd1c871a119db6feaef82efbaf437f9f"
+    },
+    {
+      "id": "operative wrong URI kml id",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:gx=\"http://www.google.com/kml/ext/2.2\"><Document><gx:CascadingStyle xmlns:kml=\"urn:foreign\" kml:id=\"chosen\"><Style><LineStyle><color>ff0000ff</color></LineStyle></Style></gx:CascadingStyle><Placemark><name>Pump location</name><styleUrl>#chosen</styleUrl><Point><coordinates>-105,40,0</coordinates></Point></Placemark></Document></kml>",
+      "inputSha256": "9d4d779d3fd4827f5539daa5683236f929f64dda29aa47ed15855206ac32bb9c"
+    },
+    {
+      "id": "wrong URI gx LatLonQuad",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:gx=\"urn:foreign\"><Document><Placemark><name>Boundary</name><Polygon><outerBoundaryIs><LinearRing><coordinates>-104,40,0 -103.999,40,0 -104,40.001,0 -104,40,0</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark><GroundOverlay><name>Building</name><gx:LatLonQuad><coordinates>-104,40,0 -103.999,40,0 -104,40.001,0 -104,40,0</coordinates></gx:LatLonQuad></GroundOverlay></Document></kml>",
+      "inputSha256": "87b8be16bafeac62505e3f3298a7fce71c4ee6750c13504803126e6db11f777a"
+    },
+    {
+      "id": "unsupported GX LatLonQuad alias",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:t=\"http://www.google.com/kml/ext/2.2\"><Document><Placemark><name>Boundary</name><Polygon><outerBoundaryIs><LinearRing><coordinates>-104,40,0 -103.999,40,0 -104,40.001,0 -104,40,0</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark><GroundOverlay><name>Building</name><t:LatLonQuad><coordinates>-104,40,0 -103.999,40,0 -104,40.001,0 -104,40,0</coordinates></t:LatLonQuad></GroundOverlay></Document></kml>",
+      "inputSha256": "4b30801fa8a4370aff7b3761749960b39b1a0d9a28b091b919ddccf7cb01887b"
+    },
+    {
+      "id": "wrong URI gx altitudeMode",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:gx=\"urn:foreign\"><Document><Placemark><name>Boundary</name><Polygon><outerBoundaryIs><LinearRing><coordinates>-104,40,0 -103.999,40,0 -104,40.001,0 -104,40,0</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark><NetworkLink><name>Building</name><Region><LatLonAltBox><north>40.001</north><south>40</south><east>-104</east><west>-104.001</west><gx:altitudeMode>absolute</gx:altitudeMode></LatLonAltBox></Region></NetworkLink></Document></kml>",
+      "inputSha256": "4fdaa16e731947fe00022ee171c2a7016870c25d303ac8c41b5c18284e15b1db"
+    },
+    {
+      "id": "unsupported GX altitudeMode alias",
+      "input": "<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:t=\"http://www.google.com/kml/ext/2.2\"><Document><Placemark><name>Boundary</name><Polygon><outerBoundaryIs><LinearRing><coordinates>-104,40,0 -103.999,40,0 -104,40.001,0 -104,40,0</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark><NetworkLink><name>Building</name><Region><LatLonAltBox><north>40.001</north><south>40</south><east>-104</east><west>-104.001</west><t:altitudeMode>absolute</t:altitudeMode></LatLonAltBox></Region></NetworkLink></Document></kml>",
+      "inputSha256": "7a6550368ec23bd0dd7de2babced4c3ab2e0c979032e66ac43f61720618951f3"
+    }
+  ]
+}

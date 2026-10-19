@@ -6,13 +6,13 @@
     "tablet-768",
     "mobile-390"
   ],
-  "discoveryFingerprint": "24128a2593a83e3b64330068b92a4c5c8961a71b61e3ca9a15e1ee323fcc01af",
+  "discoveryFingerprint": "27d3876fe291fda43151b503e6c9a392b0ee01893388546fa208a5172afe22db",
   "counts": {
-    "files": 33,
-    "uniqueCases": 409,
-    "currentExecutions": 267,
+    "files": 35,
+    "uniqueCases": 417,
+    "currentExecutions": 291,
     "deferredExecutions": 960,
-    "allExecutions": 1227
+    "allExecutions": 1251
   },
   "files": [
     {
@@ -2344,6 +2344,126 @@
           ],
           "disposition": "deferred",
           "coverageGap": "Removed legacy App navigation/editor entrypoints require migration; these semantic contracts remain unverified in the current App."
+        }
+      ]
+    },
+    {
+      "file": "tests/web/gis-package.spec.ts",
+      "sha256": "5ed991a144b55b861ef517e52beb4161dd840bc252bd33ee16fa759e0f1c415c",
+      "category": "current-app",
+      "coverageGap": null,
+      "cases": [
+        {
+          "title": "GL required: denied offline raster package issues no package requests and preserves source metadata",
+          "line": 79,
+          "column": 31,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null,
+          "rendererRequirement": "maplibre-required"
+        },
+        {
+          "title": "GL required: portable permitted GIS package stays unresolved while synthetic live fallback preserves metadata",
+          "line": 79,
+          "column": 31,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null,
+          "rendererRequirement": "maplibre-required"
+        },
+        {
+          "title": "GL required: raster package without provenance stays unqualified while fallback preserves metadata",
+          "line": 79,
+          "column": 31,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null,
+          "rendererRequirement": "maplibre-required"
+        }
+      ]
+    },
+    {
+      "file": "tests/web/gis-visual.spec.ts",
+      "sha256": "73c8ad6c2cbf7cc6d4663ba3b19e1a6fb1cf1efcd93da736b7964fd55277b3a3",
+      "category": "current-app",
+      "coverageGap": null,
+      "cases": [
+        {
+          "title": "GL required: actual GIS journey loads local workers and preserves camera ownership and exact XY",
+          "line": 60,
+          "column": 1,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null,
+          "rendererRequirement": "maplibre-required"
+        },
+        {
+          "title": "GL required: drawing and undo remain live while synthetic raster requests are delayed",
+          "line": 95,
+          "column": 1,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null,
+          "rendererRequirement": "maplibre-required"
+        },
+        {
+          "title": "SVG required: induced graphics loss retains pending drawing, camera and saved source",
+          "line": 118,
+          "column": 1,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null,
+          "rendererRequirement": "svg-required"
+        },
+        {
+          "title": "Renderer independent: GIS controls compare visually and support natural Tab and Escape focus return",
+          "line": 143,
+          "column": 1,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null,
+          "rendererRequirement": "renderer-independent"
+        },
+        {
+          "title": "Renderer independent: short portrait and landscape retain drawing clearance and reachable controls",
+          "line": 166,
+          "column": 1,
+          "projects": [
+            "desktop",
+            "tablet-768",
+            "mobile-390"
+          ],
+          "disposition": "current",
+          "coverageGap": null,
+          "rendererRequirement": "renderer-independent"
         }
       ]
     },

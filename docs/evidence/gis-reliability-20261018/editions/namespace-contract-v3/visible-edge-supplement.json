@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "result": "pass",
+  "sourceFingerprint": "e977f099f7b3466b5a7f93938f48472dc4e5bfc6b203f727459c3b751ea5fe7d",
+  "exportFingerprint": "8ca7cd9eb12a59441892ad3d77f2cf1cb611c98ecdc85b517e0f59e5c9ff4d24",
+  "url": "http://127.0.0.1:19018",
+  "servedExportBytesMatched": true,
+  "genuineZoomVerified": true,
+  "savedSourceUnchanged": true,
+  "phaseReceipts": {
+    "fiveAnd320": {
+      "path": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r3/receipt.json",
+      "sha256": "214f43d99e1dc226cc5d7f8a0005af69b30075ba654f41d01b35860e9c38f326"
+    },
+    "native200": {
+      "path": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r3/zoom-diagnostic-02/receipt.json",
+      "sha256": "af3f94a971e96ce85ebbb9c9ae269f117875488bd5d180b00d39ff8a622ae2fe"
+    },
+    "retainedBelow320Diagnostic": {
+      "path": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r3/sequence-diagnostic-03/receipt.json",
+      "sha256": "26add1a18c9595d578925dc9852bc52fe31245f1d8da43def5a1ee7d32c2dbae"
+    }
+  },
+  "native200Metrics": {
+    "baseline": {
+      "innerWidth": 1350,
+      "innerHeight": 859,
+      "outerWidth": 1374,
+      "outerHeight": 985,
+      "dpr": 1,
+      "visualViewport": {
+        "width": 1350,
+        "height": 859,
+        "scale": 1
+      },
+      "cssZoom": "1",
+      "scrollWidth": 1350,
+      "clientWidth": 1350,
+      "rootBox": {
+        "x": 0,
+        "y": 0,
+        "width": 1350,
+        "height": 859,
+        "top": 0,
+        "right": 1350,
+        "bottom": 859,
+        "left": 0
+      },
+      "maxScrollLeft": 0,
+      "overflowElements": []
+    },
+    "zoomed": {
+      "innerWidth": 675,
+      "innerHeight": 429,
+      "outerWidth": 1374,
+      "outerHeight": 985,
+      "dpr": 2,
+      "visualViewport": {
+        "width": 675,
+        "height": 429.5,
+        "scale": 1
+      },
+      "cssZoom": "1",
+      "scrollWidth": 675,
+      "clientWidth": 675,
+      "rootBox": {
+        "x": 0,
+        "y": 0,
+        "width": 675,
+        "height": 429.5,
+        "top": 0,
+        "right": 675,
+        "bottom": 429.5,
+        "left": 0
+      },
+      "maxScrollLeft": 0,
+      "overflowElements": []
+    },
+    "cdpZoom": 2
+  },
+  "retainedFailures": [
+    {
+      "path": "receipt.json",
+      "result": "fail",
+      "reason": "Combined probe retained320CSSpx viewport emulation; applying genuine200%browserzoom yielded160CSSpx rather than intended native-window viewport."
+    },
+    {
+      "path": "sequence-diagnostic-03/receipt.json",
+      "kind": "Observedproductlimitation belowrequested320CSSpxscope",
+      "viewportWidth": 160,
+      "scrollWidth": 210,
+      "maxScrollLeft": 50.5,
+      "offending": [
+        {
+          "tag": "DIV",
+          "id": "workspace-mode-toggle",
+          "right": 210.3671875,
+          "text": "DesignSurveyLayout"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "workspace-mode-layout",
+          "right": 209.3671875,
+          "text": "Layout"
+        },
+        {
+          "tag": "DIV",
+          "id": null,
+          "right": 196.3671875,
+          "text": "Layout"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "workspace-map-fit",
+          "right": 188.546875,
+          "text": "Fit"
+        },
+        {
+          "tag": "DIV",
+          "id": null,
+          "right": 177.546875,
+          "text": "Fit"
+        }
+      ],
+      "screenshot": {
+        "path": "/home/cyber/.local/state/cplayout/gis-20261018/visible-edge-r3/sequence-diagnostic-03/after-sequence-zoom200.png",
+        "sha256": "424cbd48e2bba12611ecfc76b575d897efed7215d0eabb7c7d68d0d2d0499c51",
+        "width": 1350,
+        "height": 859
+      },
+      "sourcePreserved": true,
+      "resolution": "Preserved as actual160CSSpxclipping; no sourcechange,no rounding tolerance/no relabeling originalfailure. Correct fresh-native200%proof is separate."
+    }
+  ],
+  "figureReference": "visible-edge.json",
+  "boundary": "Fresh five-viewports, separate320CSSpx reflow/keyboard and genuine native1350\u2192675CSSpx200%zoom pass. Original combined emulation/zoom failure retained; diagnostic observes160CSSpx controls clipping below selected320minimum. No sourcefix/general accessibility/zoom parity/native/field claim."
+}

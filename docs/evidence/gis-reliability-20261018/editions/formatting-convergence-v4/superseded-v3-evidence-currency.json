@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-19T02:41:05.646Z",
+  "records": {
+    "E-GIS3-20261018-AGGREGATE": {
+      "status": "stale",
+      "changedPaths": [
+        ".codex/hooks/cplayout_context_map.json",
+        "docs/agent-context-map.md",
+        "docs/agent-source-ledger.md"
+      ]
+    },
+    "E-GIS3-20261018-BROWSER291": {
+      "status": "stale",
+      "changedPaths": [
+        ".codex/hooks/cplayout_context_map.json",
+        "docs/agent-context-map.md",
+        "docs/agent-source-ledger.md"
+      ]
+    },
+    "E-GIS3-20261018-BROWSER-FIRST": {
+      "status": "stale",
+      "changedPaths": [
+        ".codex/hooks/cplayout_context_map.json",
+        "docs/agent-context-map.md",
+        "docs/agent-source-ledger.md"
+      ]
+    },
+    "E-GIS3-20261018-REVIEW-ONE": {
+      "status": "stale",
+      "changedPaths": [
+        ".codex/hooks/cplayout_context_map.json",
+        "docs/agent-context-map.md",
+        "docs/agent-source-ledger.md"
+      ]
+    },
+    "E-GIS3-20261018-REVIEW-TWO": {
+      "status": "stale",
+      "changedPaths": [
+        ".codex/hooks/cplayout_context_map.json",
+        "docs/agent-context-map.md",
+        "docs/agent-source-ledger.md"
+      ]
+    }
+  },
+  "boundary": "Actual three-document/hash-binding drift after e977 executions; original outcomes/manifests/scopes unchanged. Bounded successor may qualify reuse only through explicit equivalence and final independent reviews."
+}

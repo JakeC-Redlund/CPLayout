@@ -20,6 +20,7 @@ export interface RasterImageryStyleSource {
   tileSize: number;
   tiles?: string[];
   url?: string;
+  bounds?: [number, number, number, number];
 }
 
 export function buildWorkbenchStyle(
@@ -55,6 +56,7 @@ export function buildWorkbenchStyle(
     };
     if (imagery.url) source.url = imagery.url;
     if (imagery.tiles) source.tiles = imagery.tiles.map(toMapLibreTileTemplate);
+    if (imagery.bounds) source.bounds = imagery.bounds;
     sources.imagery = source as StyleSpecification["sources"][string];
     layers.push({
       id: "imagery",
@@ -189,6 +191,7 @@ export function rasterStyleSourceFromTileDescriptor(source: MapLibreTileSourceDe
     tileSize: 256,
     tiles: source.tiles,
     url: source.url,
+    bounds: source.bounds,
   };
 }
 

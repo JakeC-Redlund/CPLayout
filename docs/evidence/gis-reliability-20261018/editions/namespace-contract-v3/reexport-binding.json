@@ -1,0 +1,10 @@
+{
+  "result": "pass",
+  "observedAt": "2026-10-19T00:27:04.889194+00:00",
+  "sourceFingerprint": "e977f099f7b3466b5a7f93938f48472dc4e5bfc6b203f727459c3b751ea5fe7d",
+  "exportFingerprint": "8ca7cd9eb12a59441892ad3d77f2cf1cb611c98ecdc85b517e0f59e5c9ff4d24",
+  "actualAssets": 9,
+  "allReexportBytesEqualVisibleCopy": true,
+  "visibleExportReference": "visible-export.json",
+  "boundary": "Fresh07 proof re-export is byte-identical in all9assets to actual Edge-reviewed source-bound copy; no new visual execution inferred."
+}

@@ -267,7 +267,8 @@ export function ProjectFilesPanel({
       setPendingBpfImport(null);
       setSelectedBpfImportItemIds([]);
       const googleEarthFile = readGoogleEarthKmlFile(file);
-      const result = onPreviewGoogleEarthKml(googleEarthFile.kmlText);
+      // Discover every selectable item before applying strict selected-geometry admission.
+      const result = onPreviewGoogleEarthKml(googleEarthFile.kmlText, []);
       setPendingKmlImport({
         sourceProject: project,
         filename: googleEarthFile.filename,
@@ -367,7 +368,7 @@ export function ProjectFilesPanel({
   }
 
   function applyPendingKmlImport(): void {
-    if (!pendingKmlImport || appliedKmlImport.current === pendingKmlImport) return;
+    if (!pendingKmlImport || appliedKmlImport.current === pendingKmlImport || selectedKmlImportItemIds.length === 0) return;
     if (pendingKmlImport.sourceProject !== project) {
       setStatus({ tone: "warning", text: "The project changed after this preview. Cancel and import again before applying." });
       return;
@@ -564,7 +565,7 @@ export function ProjectFilesPanel({
             ))}
           </View>
           <View style={styles.actionRow}>
-            <FileAction accessibilityLabel="Apply KML KMZ import" icon={<Upload size={18} color="#ffffff" />} label="Apply Import" primary onPress={applyPendingKmlImport} testID="files-action-apply-kml-kmz-import" />
+            <FileAction accessibilityLabel="Apply KML KMZ import" icon={<Upload size={18} color="#ffffff" />} label="Apply Import" primary disabled={selectedKmlImportItemIds.length === 0} onPress={applyPendingKmlImport} testID="files-action-apply-kml-kmz-import" />
             <FileAction accessibilityLabel="Cancel KML KMZ import" icon={<Trash2 size={18} color="#254234" />} label="Cancel" onPress={cancelPendingKmlImport} testID="files-action-cancel-kml-kmz-import" />
           </View>
         </View>

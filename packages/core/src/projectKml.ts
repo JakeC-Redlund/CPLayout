@@ -6,7 +6,7 @@ import { DOMParser, XMLSerializer } from "@xmldom/xmldom";
 import { projectLonLatToXy, projectXyToLonLat } from "./coordinates";
 import { assertMetricCalculationCrs, qualifyProjectCrs } from "./crsQualification";
 import { normalizeCrsName } from "./units";
-import { PivotProjectSchema } from "./projectDocument";
+import { admitProjectGeometryImport } from "./projectGeometryImport";
 import type { LayoutResult, MultiPolygonXY, ObstacleZone, PivotProject, ProjectMapFeature, ProjectMapFeatureKind, SourceConfidence, SurveyPoint, XY } from "./types";
 
 const OBSTACLE_KINDS = ["road", "ditch", "fence", "building", "canal", "tree", "exclusion"] as const;
@@ -35,6 +35,8 @@ const MAP_FEATURE_KINDS = [
 ] as const;
 const CONFIDENCES = ["rtk_fixed", "rtk_float", "dgps", "autonomous_gps", "imagery_digitized", "imported_cad", "user_estimated", "optimized"] as const;
 const KML_NAMESPACE = "http://www.opengis.net/kml/2.2";
+const GX_NAMESPACE = "http://www.google.com/kml/ext/2.2";
+const GX_LITERAL_CONSUMERS = new Set(["Track", "MultiTrack", "LatLonQuad", "altitudeMode"]);
 
 interface GoogleEarthStyleDefinition {
   id: string;
@@ -327,15 +329,30 @@ export function importGoogleEarthKmlToProject(
 
   const selectedItemIds = options.selectedItemIds ? new Set(options.selectedItemIds) : null;
   const classified: ClassifiedCandidate[] = [];
-  let hasBoundaryCandidate = false;
-  let fieldBoundaryAssigned = false;
+  const usedItemIds = new Set<string>();
+  const reservedItemIds = new Set([...polygonCandidates, ...pointCandidates, ...lineCandidates]
+    .map((candidate, index) => candidateItemId(candidate.properties, candidate.name, index + 1)));
+  const nextItemId = (properties: Record<string, unknown>, name: string) => {
+    const preferred = candidateItemId(properties, name, classified.length + 1);
+    let itemId = preferred;
+    let suffix = 2;
+    while (usedItemIds.has(itemId)) {
+      itemId = `${preferred}-${suffix++}`;
+      while (reservedItemIds.has(itemId)) itemId = `${preferred}-${suffix++}`;
+    }
+    usedItemIds.add(itemId);
+    return itemId;
+  };
 
   for (const candidate of polygonCandidates) {
-    const itemId = candidateItemId(candidate.properties, candidate.name, classified.length + 1);
+    const itemId = nextItemId(candidate.properties, candidate.name);
     if (isLayoutResultCandidate(candidate.properties)) {
       skippedFeatureCount += 1;
       continue;
     }
+    const geometryWarning = candidate.holeCount > 0
+      ? `KML polygon "${candidate.name}" contains inner rings (holes) that cannot be retained. Provide a single outer ring or exclude this item, and preserve the complete original input.` : undefined;
+    if (geometryWarning && selectedByDefault(itemId, selectedItemIds)) throw new Error(geometryWarning);
     const mapFeatureKind = explicitMapFeatureKindFromProperties(candidate.properties) ?? polygonMapFeatureKindFromName(candidate.name);
     if (mapFeatureKind) {
       classified.push({
@@ -346,35 +363,25 @@ export function importGoogleEarthKmlToProject(
           featureKind: mapFeatureKind,
           geometryType: "Polygon",
           selected: selectedByDefault(itemId, selectedItemIds),
-          warning: itemWarning(
-            candidate.holeCount > 0 ? `${candidate.holeCount} inner ring${candidate.holeCount === 1 ? "" : "s"} ignored.` : undefined,
-            mapFeatureImportWarning(mapFeatureKind),
-          ),
+          warning: itemWarning(geometryWarning, mapFeatureImportWarning(mapFeatureKind)),
         },
         kind: "map_feature",
         feature: mapFeatureFromPolygon(project, candidate, itemId, mapFeatureKind),
       });
     } else if (isBoundaryCandidate(candidate.properties, candidate.name)) {
-      hasBoundaryCandidate = true;
       const selected = selectedByDefault(itemId, selectedItemIds);
-      if (fieldBoundaryAssigned && selected) {
-        skippedFeatureCount += 1;
-        warnings.push(`Skipped duplicate boundary placemark "${candidate.name}".`);
-      } else {
-        if (selected) fieldBoundaryAssigned = true;
-        classified.push({
-          item: {
-            id: itemId,
-            name: candidate.name,
-            classification: "field_boundary",
-            geometryType: "Polygon",
-            selected,
-            warning: candidate.holeCount > 0 ? `${candidate.holeCount} inner ring${candidate.holeCount === 1 ? "" : "s"} ignored.` : undefined,
-          },
-          kind: "field_boundary",
-          ring: candidate.ring,
-        });
-      }
+      classified.push({
+        item: {
+          id: itemId,
+          name: candidate.name,
+          classification: "field_boundary",
+          geometryType: "Polygon",
+          selected,
+          warning: geometryWarning,
+        },
+        kind: "field_boundary",
+        ring: candidate.ring,
+      });
     } else {
       classified.push({
         item: {
@@ -383,7 +390,7 @@ export function importGoogleEarthKmlToProject(
           classification: "obstacle",
           geometryType: "Polygon",
           selected: selectedByDefault(itemId, selectedItemIds),
-          warning: candidate.holeCount > 0 ? `${candidate.holeCount} inner ring${candidate.holeCount === 1 ? "" : "s"} ignored.` : undefined,
+          warning: geometryWarning,
         },
         kind: "obstacle",
         candidate,
@@ -391,25 +398,8 @@ export function importGoogleEarthKmlToProject(
     }
   }
 
-  if (!hasBoundaryCandidate && polygonCandidates.length > 0) {
-    const firstPolygon = classified.find((candidate): candidate is Extract<ClassifiedCandidate, { kind: "obstacle" }> => candidate.kind === "obstacle");
-    if (firstPolygon) {
-      classified.splice(classified.indexOf(firstPolygon), 1, {
-        item: {
-          ...firstPolygon.item,
-          classification: "field_boundary",
-          selected: selectedByDefault(firstPolygon.item.id, selectedItemIds),
-          warning: `No explicit field_boundary metadata found; "${firstPolygon.item.name}" is selected as the field boundary.`,
-        },
-        kind: "field_boundary",
-        ring: firstPolygon.candidate.ring,
-      });
-      warnings.push(`No explicit field_boundary metadata found; imported "${firstPolygon.item.name}" as the field boundary.`);
-    }
-  }
-
   for (const candidate of pointCandidates) {
-    const itemId = candidateItemId(candidate.properties, candidate.name, classified.length + 1);
+    const itemId = nextItemId(candidate.properties, candidate.name);
     const mapFeatureKind = mapFeatureKindFromProperties(candidate.properties, candidate.name);
     if (mapFeatureKind) {
       classified.push({
@@ -423,7 +413,7 @@ export function importGoogleEarthKmlToProject(
           warning: mapFeatureImportWarning(mapFeatureKind),
         },
         kind: "map_feature",
-        feature: mapFeatureFromPoint(project, candidate, itemId, mapFeatureKind),
+        feature: mapFeatureFromPoint(candidate, itemId, mapFeatureKind),
       });
     } else {
       const role = pointRoleFromProperties(candidate.properties, candidate.name);
@@ -445,7 +435,7 @@ export function importGoogleEarthKmlToProject(
   }
 
   for (const candidate of lineCandidates) {
-    const itemId = candidateItemId(candidate.properties, candidate.name, classified.length + 1);
+    const itemId = nextItemId(candidate.properties, candidate.name);
     const mapFeatureKind = mapFeatureKindFromProperties(candidate.properties, candidate.name) ?? lineMapFeatureKindFromName(candidate.name);
     if (isPolygonLineCandidate(candidate.properties, candidate.name) && candidate.source === "closed_linestring") {
       const polygonCandidate: PolygonCandidate = {
@@ -497,13 +487,30 @@ export function importGoogleEarthKmlToProject(
     }
   }
 
+  // Classify closed boundary lines before considering the legacy first-polygon fallback.
+  if (!classified.some(candidate => candidate.kind === "field_boundary")) {
+    const firstPolygon = classified.find((candidate): candidate is Extract<ClassifiedCandidate, { kind: "obstacle" }> => candidate.kind === "obstacle");
+    if (firstPolygon) {
+      classified.splice(classified.indexOf(firstPolygon), 1, {
+        item: {
+          ...firstPolygon.item,
+          classification: "field_boundary",
+          selected: selectedByDefault(firstPolygon.item.id, selectedItemIds),
+          warning: itemWarning(firstPolygon.item.warning, `No explicit field_boundary metadata found; "${firstPolygon.item.name}" is selected as the field boundary.`),
+        },
+        kind: "field_boundary",
+        ring: firstPolygon.candidate.ring,
+      });
+      warnings.push(`No explicit field_boundary metadata found; imported "${firstPolygon.item.name}" as the field boundary.`);
+    }
+  }
+
   let fieldBoundary: XY[] | null = null;
   const selectedClassified = classified.filter((candidate) => candidate.item.selected);
   for (const candidate of selectedClassified) {
     if (candidate.kind !== "field_boundary") continue;
     if (fieldBoundary) {
-      skippedFeatureCount += 1;
-      warnings.push(`Skipped duplicate selected boundary placemark "${candidate.item.name}".`);
+      throw new Error("KML field boundary must be a single polygon ring from one boundary item. Select one boundary item or provide a single-component boundary, and preserve the complete original input.");
     } else {
       fieldBoundary = candidate.ring;
     }
@@ -516,9 +523,6 @@ export function importGoogleEarthKmlToProject(
       existingObstacleIds,
       readStringProperty(candidate.properties, ["id", "@id"]) ?? `${kind}-kml-${project.obstacles.length + index + 1}`,
     );
-    if (candidate.holeCount > 0) {
-      warnings.push(`Ignored ${candidate.holeCount} inner ring${candidate.holeCount === 1 ? "" : "s"} in "${candidate.name}".`);
-    }
     if (candidate.source === "closed_linestring") {
       warnings.push(`Imported closed LineString "${candidate.name}" as a polygon ring.`);
     }
@@ -553,11 +557,13 @@ export function importGoogleEarthKmlToProject(
       notes: readStringProperty(candidate.properties, ["description", "notes"]) ?? undefined,
     };
   });
+  const existingMapFeatureIds = new Set((project.mapFeatures ?? []).map(feature => feature.id));
   const mapFeatures = selectedClassified
     .filter((candidate): candidate is Extract<ClassifiedCandidate, { kind: "map_feature" }> => candidate.kind === "map_feature")
-    .map((candidate) => candidate.feature);
+    // Reserve only admitted features, across all geometry kinds, without changing discovery item IDs.
+    .map(({ feature }) => ({ ...feature, id: uniqueId(existingMapFeatureIds, feature.id) }));
 
-  const nextProject = PivotProjectSchema.parse({
+  const nextProject = admitProjectGeometryImport(project, {
     ...project,
     fieldBoundary: fieldBoundary ?? project.fieldBoundary,
     obstacles: [...project.obstacles, ...obstacles],
@@ -979,11 +985,186 @@ function parseGoogleEarthKml(kmlText: string): FeatureCollection {
     throw new Error("KML XML could not be parsed: invalid XML");
   }
 
+  assertKmlElementNamesRetained(document);
+  assertKmlPolygonRingsRetained(document);
   const geoJson = kmlToGeoJson(document) as FeatureCollection;
   if (!geoJson || geoJson.type !== "FeatureCollection" || !Array.isArray(geoJson.features)) {
     throw new Error("KML import did not convert to a GeoJSON FeatureCollection.");
   }
   return geoJson;
+}
+
+/** Validate the converter's actual namespace/query contract, without rewriting XML or claiming full schema validation. */
+function assertKmlElementNamesRetained(document: XmlDocument): void {
+  const root = document.documentElement;
+  const baseNamespace = root?.namespaceURI ?? "";
+  if (root?.localName !== "kml" || (baseNamespace !== KML_NAMESPACE && baseNamespace !== "")) {
+    throw new Error("KML import has an unsupported KML root name or namespace. Export a copy with a KML 2.2 root (or the retained unqualified legacy form), and preserve the complete original input.");
+  }
+  const elements = Array.from(document.getElementsByTagNameNS("*", "*"));
+  const { consumed, tracks, coords } = collectKmlConverterConsumers(document);
+  const wrongNamespace = (element: XmlElement): never => {
+    throw new Error(`KML import cannot retain unsupported XML namespace "${element.namespaceURI ?? "(none)"}" for ${element.tagName}. Export a copy using the supported KML/GX namespaces, and preserve the complete original input.`);
+  };
+  for (const element of elements) {
+    const namespace = element.namespaceURI ?? "", localName = element.localName ?? element.tagName;
+    if (element.prefix && namespace === KML_NAMESPACE) {
+      throw new Error(`The current converter cannot retain namespace-prefixed KML elements (${element.tagName}). Export a copy using the default KML namespace and unprefixed KML element names, and preserve the complete original input.`);
+    }
+    if (namespace === GX_NAMESPACE && GX_LITERAL_CONSUMERS.has(localName)) {
+      const bareSupported = element.tagName === element.localName && element.localName !== "LatLonQuad";
+      if (element.tagName !== `gx:${element.localName}` && !bareSupported) {
+        if (element.localName === "Track" || element.localName === "MultiTrack") {
+          throw new Error(`The current converter cannot retain namespace aliases for GX Track/MultiTrack elements (${element.tagName}). Export a copy using the supported gx prefix for these structures, and preserve the complete original input.`);
+        }
+        throw new Error(`KML import cannot retain unsupported GX element names (${element.tagName}). Export a copy using the supported gx prefix, and preserve the complete original input.`);
+      }
+    }
+    if (!consumed.has(element)) continue;
+    if (element.prefix === "gx" && GX_LITERAL_CONSUMERS.has(localName)) {
+      if (namespace !== GX_NAMESPACE) wrongNamespace(element);
+    } else if (element.tagName === "Track" || element.tagName === "MultiTrack") {
+      if (namespace !== baseNamespace && namespace !== GX_NAMESPACE) wrongNamespace(element);
+    } else if (coords.has(element)) {
+      if (namespace !== GX_NAMESPACE && !(element.tagName === "coord" && namespace === baseNamespace)) wrongNamespace(element);
+    } else if (namespace !== baseNamespace && !(element.tagName === "altitudeMode" && namespace === GX_NAMESPACE)) {
+      wrongNamespace(element);
+    }
+    const parent = element.parentNode?.nodeType === 1 ? element.parentNode as XmlElement : null;
+    if (element.tagName === "Style" && !element.getAttribute("id") && parent?.localName === "CascadingStyle") {
+      throw new Error("KML import cannot qualify the converter's operative CascadingStyle parent-id fallback. Export a copy with explicit ids on ordinary KML Style elements, and preserve the complete original input.");
+    }
+    // Literal descendant/global queries can consume correctly named payload hidden inside foreign XML.
+    let ancestor = element.parentNode?.nodeType === 1 ? element.parentNode as XmlElement : null;
+    while (ancestor) {
+      if ((ancestor.namespaceURI ?? "") !== baseNamespace && ancestor.namespaceURI !== GX_NAMESPACE) wrongNamespace(ancestor);
+      ancestor = ancestor.parentNode?.nodeType === 1 ? ancestor.parentNode as XmlElement : null;
+    }
+  }
+  for (const track of tracks) {
+    const coords = Array.from(track.getElementsByTagNameNS("*", "coord"));
+    const bareCount = coords.filter(element => element.tagName === "coord").length;
+    if (bareCount > 0 && bareCount < coords.length) {
+      throw new Error("KML import cannot retain mixed GX coordinate forms: the converter would discard prefixed observations when a bare coord exists. Export a copy with one consistent coord form, and preserve the complete original input.");
+    }
+  }
+}
+
+/** Mirror the pinned converter's active first/all/direct-child reads; ignored extension payload is not a consumer. */
+function collectKmlConverterConsumers(document: XmlDocument): { consumed: Set<XmlElement>; tracks: Set<XmlElement>; coords: Set<XmlElement> } {
+  const consumed = new Set<XmlElement>(), tracks = new Set<XmlElement>(), coords = new Set<XmlElement>();
+  const all = (node: XmlDocument | XmlElement, name: string): XmlElement[] => {
+    const matches = Array.from(node.getElementsByTagName(name));
+    for (const match of matches) consumed.add(match);
+    return matches;
+  };
+  const first = (node: XmlElement, name: string): XmlElement | null => {
+    const match = node.getElementsByTagName(name)[0] ?? null;
+    if (match) consumed.add(match);
+    return match;
+  };
+  const fields = (node: XmlElement, names: string[]) => { for (const name of names) first(node, name); };
+  const children = (node: XmlElement) => Array.from(node.childNodes).filter((child): child is XmlElement => child.nodeType === 1);
+  const iconHref = (node: XmlElement) => { const icon = first(node, "Icon"); if (icon) first(icon, "href"); };
+  const style = (node: XmlElement) => {
+    for (const [name, names] of [
+      ["PolyStyle", ["color", "fill", "outline"]], ["LineStyle", ["color", "width"]],
+      ["LabelStyle", ["color", "scale"]], ["IconStyle", ["color", "scale", "heading", "hotSpot"]],
+    ] as const) {
+      const selected = first(node, name);
+      if (selected) { fields(selected, [...names]); if (name === "IconStyle") iconHref(selected); }
+    }
+  };
+  const metadata = (node: XmlElement) => {
+    fields(node, ["name", "address", "visibility", "open", "phoneNumber", "description", "styleUrl"]);
+    style(node);
+    const data = first(node, "ExtendedData");
+    if (data) { for (const entry of all(data, "Data")) first(entry, "value"); all(data, "SimpleData"); }
+    const span = first(node, "TimeSpan");
+    if (span) fields(span, ["begin", "end"]);
+    const stamp = first(node, "TimeStamp");
+    if (stamp) first(stamp, "when");
+  };
+  const geometry = (node: XmlElement): void => {
+    for (const child of children(node)) {
+      switch (child.tagName) {
+        case "MultiGeometry": case "MultiTrack": case "gx:MultiTrack":
+          consumed.add(child); geometry(child); break;
+        case "Point": case "LineString": case "LinearRing":
+          consumed.add(child); first(child, "coordinates"); break;
+        case "Polygon":
+          consumed.add(child);
+          for (const ring of all(child, "LinearRing")) first(ring, "coordinates");
+          break;
+        case "Track": case "gx:Track": {
+          consumed.add(child); tracks.add(child);
+          // Inspect both buckets: gxCoords prefers bare coord and otherwise reads every namespace.
+          const observations = Array.from(child.getElementsByTagNameNS("*", "coord"));
+          for (const observation of observations) { consumed.add(observation); coords.add(observation); }
+          if (observations.length > 0) all(child, "when");
+          break;
+        }
+      }
+    }
+  };
+  for (const node of all(document, "Style")) style(node);
+  for (const node of all(document, "StyleMap")) first(node, "styleUrl");
+  all(document, "SimpleField");
+  for (const node of all(document, "Placemark")) { geometry(node); metadata(node); }
+  for (const node of all(document, "GroundOverlay")) {
+    if (first(node, "gx:LatLonQuad")) first(node, "coordinates");
+    else { const box = first(node, "LatLonBox"); if (box) fields(box, ["north", "west", "east", "south", "rotation"]); }
+    metadata(node); iconHref(node);
+  }
+  for (const node of all(document, "NetworkLink")) {
+    const region = first(node, "Region");
+    if (region) {
+      const box = first(region, "LatLonAltBox");
+      if (box) { fields(box, ["north", "west", "east", "south"]); if (!first(box, "altitudeMode")) first(box, "gx:altitudeMode"); }
+      const lod = first(node, "Lod");
+      if (lod) fields(lod, ["minLodPixels", "maxLodPixels", "minFadeExtent", "maxFadeExtent"]);
+    }
+    metadata(node); iconHref(node); fields(node, ["refreshVisibility", "flyToView"]);
+    const link = first(node, "Link");
+    if (link) fields(link, ["href", "refreshMode", "refreshInterval", "viewRefreshMode", "viewRefreshTime", "viewBoundScale", "viewFormat", "httpQuery"]);
+  }
+  // CPLayout's pre-conversion polygon checks additionally read all these nodes, even if no feature selects them.
+  for (const polygon of all(document, "Polygon")) {
+    for (const boundary of children(polygon).filter(child => child.tagName === "outerBoundaryIs" || child.tagName === "innerBoundaryIs")) consumed.add(boundary);
+    for (const ring of all(polygon, "LinearRing")) all(ring, "coordinates");
+  }
+  return { consumed, tracks, coords };
+}
+
+/** togeojson omits short rings and can reinterpret an inner-only polygon as an exterior. */
+function assertKmlPolygonRingsRetained(document: XmlDocument): void {
+  const children = (element: XmlElement) => Array.from(element.childNodes)
+    .filter((child): child is XmlElement => child.nodeType === 1);
+  for (const polygon of Array.from(document.getElementsByTagName("Polygon"))) {
+    const boundaries = children(polygon).filter(child => child.tagName === "outerBoundaryIs" || child.tagName === "innerBoundaryIs");
+    const outer = boundaries.filter(boundary => boundary.tagName === "outerBoundaryIs");
+    if (outer.length !== 1 || boundaries[0] !== outer[0]
+      || polygon.getElementsByTagName("LinearRing").length !== boundaries.length) {
+      throw new Error("KML polygon must contain one outer boundary followed by its inner rings. Preserve the complete original input and repair the polygon before importing.");
+    }
+    for (const boundary of boundaries) {
+      const rings = children(boundary).filter(child => child.tagName === "LinearRing");
+      if (rings.length !== 1 || rings[0].getElementsByTagName("coordinates").length !== 1) {
+        throw new Error("KML polygon boundary must contain one LinearRing with one coordinates element; ambiguous ring data cannot be retained.");
+      }
+      const text = rings[0].getElementsByTagName("coordinates")[0].textContent?.trim() ?? "";
+      const positions = text ? text.split(/\s+/).map(tuple => tuple.split(",").map(value => value.trim() ? Number(value) : NaN)) : [];
+      if (positions.some(position => position.length < 2 || position.length > 3 || !position.every(Number.isFinite)
+        || position[0] < -180 || position[0] > 180 || position[1] < -90 || position[1] > 90)) {
+        throw new Error("KML polygon ring contains invalid WGS84 coordinates. Preserve the complete original input and repair the ring before importing.");
+      }
+      const first = positions[0], last = positions.at(-1);
+      const closed = first && last && first[0] === last[0] && first[1] === last[1];
+      if (positions.length - (closed ? 1 : 0) < 3) {
+        throw new Error("KML polygon ring must contain at least three vertices before conversion; short rings cannot be discarded from an import.");
+      }
+    }
+  }
 }
 
 function extractCandidatesFromGeometry(
@@ -993,6 +1174,8 @@ function extractCandidatesFromGeometry(
   projectCrs: string,
   warnings: string[],
 ): { polygons: PolygonCandidate[]; points: PointCandidate[]; lines: LineCandidate[]; skipped: number } {
+  // Derived layout output is intentionally non-importable; do not reinterpret it as project geometry.
+  if (isLayoutResultCandidate(properties)) return { polygons: [], points: [], lines: [], skipped: 1 };
   if (!geometry) return { polygons: [], points: [], lines: [], skipped: 1 };
   switch (geometry.type) {
     case "Polygon":
@@ -1077,9 +1260,9 @@ function polygonCandidatesFromCoordinates(
   warnings: string[],
 ): PolygonCandidate[] {
   const outerRing = coordinates[0];
-  if (!outerRing) return [];
+  if (!outerRing) throw new Error(`KML polygon "${name}" must contain a valid outer ring. Preserve the complete original input and repair its coordinates before importing.`);
   const ring = ringFromPositions(outerRing, projectCrs, name, warnings);
-  if (!ring) return [];
+  if (!ring) throw new Error(`KML polygon "${name}" contains invalid coordinates or too few ring vertices. Preserve the complete original input and repair the polygon before importing.`);
   return [{ ring, name, properties, holeCount: Math.max(0, coordinates.length - 1), source }];
 }
 
@@ -1289,13 +1472,12 @@ function pointRoleFromProperties(properties: Record<string, unknown>, name: stri
 }
 
 function mapFeatureFromPoint(
-  project: PivotProject,
   candidate: PointCandidate,
   id: string,
   kind: ProjectMapFeatureKind,
 ): ProjectMapFeature {
   return {
-    id: uniqueId(new Set((project.mapFeatures ?? []).map((feature) => feature.id)), readStringProperty(candidate.properties, ["id", "@id"]) ?? id),
+    id: readStringProperty(candidate.properties, ["id", "@id"]) ?? id,
     name: candidate.name,
     kind,
     geometry: { type: "Point", point: candidate.projected },
@@ -1312,7 +1494,7 @@ function mapFeatureFromLine(
   kind: ProjectMapFeatureKind,
 ): ProjectMapFeature {
   return {
-    id: uniqueId(new Set((project.mapFeatures ?? []).map((feature) => feature.id)), readStringProperty(candidate.properties, ["id", "@id"]) ?? id),
+    id: readStringProperty(candidate.properties, ["id", "@id"]) ?? id,
     name: candidate.name,
     kind,
     geometry: { type: "LineString", vertices: candidate.vertices },
@@ -1358,7 +1540,7 @@ function mapFeatureFromPolygon(
         vertices: candidate.ring,
       };
   return {
-    id: uniqueId(new Set((project.mapFeatures ?? []).map((feature) => feature.id)), readStringProperty(candidate.properties, ["id", "@id"]) ?? id),
+    id: readStringProperty(candidate.properties, ["id", "@id"]) ?? id,
     name: candidate.name,
     kind,
     geometry,

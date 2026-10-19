@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-19T04:41:35.707039+00:00",
+  "sourceFingerprint": "4402cc5e519c0eb1eaf0ab2046001a4236804c225ce4b08584e56ee00043f450",
+  "sourceManifest": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/source.json",
+  "sourcePaths": 985,
+  "result": "accept_bounded_software_current_browser_protected_source_checkpoint",
+  "protectedCommit": "d0412070131c114624cf26f28dd32e295d8c450c",
+  "runId": 39197212013,
+  "finalReviews": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/closing-reviews.json",
+  "acceptedFinalReviews": 2,
+  "boundary": "Actual complete protected hosted qualification of the frozen recovery source with two subsequent independent final closing reviews. Local bounded checks and prior complete editions remain distinct; no native/device/power-loss/multiprocess/field/human acceptance.",
+  "preservation": "Original actual passes/failures, source manifests, intermediate blocked recovery attempt, chronology cause followup, audit admissions, failed Expo recommendation and960deferred obligations unchanged. No new Windows/device/native-rendering/App-resolver/field/human claims."
+}

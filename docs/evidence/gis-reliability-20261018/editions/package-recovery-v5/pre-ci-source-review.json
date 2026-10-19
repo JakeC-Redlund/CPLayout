@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-19T03:56:37.191997+00:00",
+  "coordinatorSourceFingerprint": "4402cc5e519c0eb1eaf0ab2046001a4236804c225ce4b08584e56ee00043f450",
+  "sourceManifest": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/source.json",
+  "coordinatorVerifiedReviewedHashesMatchFrozenManifest": true,
+  "reviews": [
+    {
+      "reviewer": "/root/gis_architecture",
+      "reviewScope": "package_recovery_source_delta_pre_ci",
+      "result": "accept_bounded_pre_ci_delta",
+      "reviewedSourceHashes": {
+        "packages/project-store/src/mapPackageArchiveInstallCore.ts": "8ca3196c8417d6b3c70985150521108596236d1ccb75237026e4a2904de10b52",
+        "packages/project-store/src/mapPackageArchiveInstall.native.ts": "76a2909aa490cea7f5f3c1cfaed54ebd0a724b49c60a5518b0277f206df898b1",
+        "packages/project-store/src/mapPackageArchive.test.ts": "04c90463d8bfa4a64815b40fd8be72ea5ff500f3afe9086e5216b60ab341acbb",
+        "packages/project-store/src/mapPackageArchiveRecovery.test.ts": "4712aa51c9cb4a23730e2b1feec5e30c3922ab3ca3430d5a67c32237945e6a5b"
+      },
+      "sourceFingerprintClaim": "Four corrected implementation/test source hashes independently reviewed; whole-edition CI and closing acceptance explicitly pending. Historicalae8 source/43-case packet not qualified.",
+      "confirmed": "All existing unrecorded active destinations refuse replacement before writes; plain-ID refusal and recorded new-source positive control; consumer source/runtime manifests remain separate; all3 regression log hashes independently reopened.",
+      "boundary": "Independent source/proof review only, no reviewer tests or GitHub actions. Native device/power-loss/multiprocess/App resolver remain unqualified."
+    }
+  ],
+  "acceptedFinalReviews": 0,
+  "boundary": "Pre-CI source review scoped to exact4hashes, not a substitute for two matching post-CI closing reviews of the complete source/proof packet."
+}

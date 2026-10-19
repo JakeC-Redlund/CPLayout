@@ -1,0 +1,1087 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-19T03:23:45.691736+00:00",
+  "result": "pass_protected_source_checkpoint",
+  "repository": "JakeC-Redlund/CPLayout",
+  "pullRequest": "https://github.com/JakeC-Redlund/CPLayout/pull/12",
+  "headCommit": "62462a15bbf4de8ed3dba373ff2adffc94d9afd4",
+  "baseCommitAtObservation": "84947f38b913f3ee859526ad0e65c5d2af1107d4",
+  "runId": 39191798726,
+  "runUrl": "https://github.com/JakeC-Redlund/CPLayout/actions/runs/39191798726",
+  "runConclusion": "success",
+  "sourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
+  "sourceManifest": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/source.json",
+  "browserPassed": 291,
+  "jobs": [
+    {
+      "name": "source",
+      "databaseId": 117866028127,
+      "url": "https://github.com/JakeC-Redlund/CPLayout/actions/runs/39191798726/job/117866028127",
+      "status": "completed",
+      "conclusion": "success",
+      "logSha256": "897a329c5d96c6a166cede38ae58a535d8c683271c84a94a9380f69aeb82f79d",
+      "logBytes": 633864,
+      "PostgreSQLRuntimeTestExecuted": true,
+      "observedToolVersions": {
+        "node": "v24.21.0",
+        "npm": "11.19.0",
+        "yarn": "1.22.22"
+      },
+      "PostgreSQLHTTPSmokeStep": "success",
+      "mitigationAdmissionStep": "success"
+    },
+    {
+      "name": "web (3/3)",
+      "databaseId": 117870221290,
+      "url": "https://github.com/JakeC-Redlund/CPLayout/actions/runs/39191798726/job/117870221290",
+      "status": "completed",
+      "conclusion": "success",
+      "logSha256": "7d9db4ff33e4b95cd91d21ae3cfc1e5199f9a713f5b5d303f6b5e9dfc86bb8a5",
+      "logBytes": 81968,
+      "browserPassed": 97
+    },
+    {
+      "name": "web (2/3)",
+      "databaseId": 117870221325,
+      "url": "https://github.com/JakeC-Redlund/CPLayout/actions/runs/39191798726/job/117870221325",
+      "status": "completed",
+      "conclusion": "success",
+      "logSha256": "60d4a3f6cca4cd9775ebb62cbb7ac3fa8295802a389fd257e2924c40bc3c2674",
+      "logBytes": 81965,
+      "browserPassed": 97
+    },
+    {
+      "name": "web (1/3)",
+      "databaseId": 117870221363,
+      "url": "https://github.com/JakeC-Redlund/CPLayout/actions/runs/39191798726/job/117870221363",
+      "status": "completed",
+      "conclusion": "success",
+      "logSha256": "f9c98638462efc5eda2bffdc2c76848ac259b03907dadf96779a852947dbfa9c",
+      "logBytes": 81562,
+      "browserPassed": 97
+    },
+    {
+      "name": "cplayout-required",
+      "databaseId": 117873930071,
+      "url": "https://github.com/JakeC-Redlund/CPLayout/actions/runs/39191798726/job/117873930071",
+      "status": "completed",
+      "conclusion": "success",
+      "logSha256": "2fbe619f868c156ad26ef96f48479725662bef5f319df63af16002ffd2c0a1e8",
+      "logBytes": 3652
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 12161685563,
+      "name": "gis-browser-evidence-shard-3",
+      "sizeBytes": 494896,
+      "digest": "sha256:ba79e74981c67be815a419b850d45bcfeffc11e21b72b206c14ecc5bf0c85827",
+      "expired": false
+    },
+    {
+      "id": 12161133099,
+      "name": "gis-browser-evidence-shard-2",
+      "sizeBytes": 569571,
+      "digest": "sha256:df9e0af4fa70957c4375461d35315ed148bcd132a1d6ac2b75efd1d403a128c5",
+      "expired": false
+    },
+    {
+      "id": 12161017714,
+      "name": "gis-browser-evidence-shard-1",
+      "sizeBytes": 611164,
+      "digest": "sha256:21360b4751e992e1aa6c404ac1dfbb6e436f0a0dfca21da480405e2d5cab2839",
+      "expired": false
+    },
+    {
+      "id": 12160478939,
+      "name": "dependency-audit",
+      "sizeBytes": 3243,
+      "digest": "sha256:65df8fbceef2c0044776260ccfc410eadd98f03731699a0020392bf8da99802d",
+      "expired": false
+    }
+  ],
+  "protection": {
+    "strict": true,
+    "requiredContext": "cplayout-required",
+    "adminsEnforced": true,
+    "requiredGitHubApprovals": 0
+  },
+  "boundary": "Actual exact-head protected PR source checkpoint with three passing browser shards, PostgreSQL-backed source/smoke and mitigation admission. Local historical failures/skips remain recorded. No production deployment, device/field/hook/GoogleEarth/human acceptance. Merge and canonical synchronization are unobserved at this receipt cutoff and require later live checks; do not infer them.",
+  "artifactInspection": {
+    "schemaVersion": 1,
+    "observedAt": "2026-10-19T03:28:23.790879+00:00",
+    "runId": 39191798726,
+    "headCommit": "62462a15bbf4de8ed3dba373ff2adffc94d9afd4",
+    "sourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
+    "result": "pass",
+    "GISExecutions": [
+      {
+        "tuple": {
+          "project": "desktop",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "Renderer independent: short portrait and landscape retain drawing clearance and reachable controls"
+        },
+        "resultSha256": "3e606dd71d3c3f4b42909467a25333d9d1ee60cc37026559e4bff7d8ffa79a2f",
+        "sourceFingerprint": "4f19134e370592c80331d343792879994b494b9dc2d9b77686c0e173902bb974"
+      },
+      {
+        "tuple": {
+          "project": "desktop",
+          "file": "tests/web/gis-package.spec.ts",
+          "title": "GL required: portable permitted GIS package stays unresolved while synthetic live fallback preserves metadata"
+        },
+        "resultSha256": "5b05a09ed64fae1448ad86d7626efb6b87275834617d8c41f238401c7af5336a",
+        "sourceFingerprint": "4f19134e370592c80331d343792879994b494b9dc2d9b77686c0e173902bb974"
+      },
+      {
+        "tuple": {
+          "project": "desktop",
+          "file": "tests/web/gis-package.spec.ts",
+          "title": "GL required: raster package without provenance stays unqualified while fallback preserves metadata"
+        },
+        "resultSha256": "4b2e83eb31e698b294168fe14a1df77f243fb1c1d817381f1f02616befaa9fa7",
+        "sourceFingerprint": "4f19134e370592c80331d343792879994b494b9dc2d9b77686c0e173902bb974"
+      },
+      {
+        "tuple": {
+          "project": "desktop",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "Renderer independent: GIS controls compare visually and support natural Tab and Escape focus return"
+        },
+        "resultSha256": "f15e137148e613d94957de91c6df391d21973dce58540903d056b74261500570",
+        "sourceFingerprint": "4f19134e370592c80331d343792879994b494b9dc2d9b77686c0e173902bb974"
+      },
+      {
+        "tuple": {
+          "project": "desktop",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "GL required: drawing and undo remain live while synthetic raster requests are delayed"
+        },
+        "resultSha256": "f661283c662d7e1efeb8c472fc56a1095f6d1426caaa892f8243c54fe06d1a79",
+        "sourceFingerprint": "4f19134e370592c80331d343792879994b494b9dc2d9b77686c0e173902bb974"
+      },
+      {
+        "tuple": {
+          "project": "desktop",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "SVG required: induced graphics loss retains pending drawing, camera and saved source"
+        },
+        "resultSha256": "d6a5c8b118ce077ad942ce236bf97799b784390600fef4920ab92d50d75cf10b",
+        "sourceFingerprint": "4f19134e370592c80331d343792879994b494b9dc2d9b77686c0e173902bb974"
+      },
+      {
+        "tuple": {
+          "project": "desktop",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "GL required: actual GIS journey loads local workers and preserves camera ownership and exact XY"
+        },
+        "resultSha256": "5b036f6603a67e13caabfc83c66ae7e28e844638de7a50a10f7abfdc838ed14a",
+        "sourceFingerprint": "4f19134e370592c80331d343792879994b494b9dc2d9b77686c0e173902bb974"
+      },
+      {
+        "tuple": {
+          "project": "desktop",
+          "file": "tests/web/gis-package.spec.ts",
+          "title": "GL required: denied offline raster package issues no package requests and preserves source metadata"
+        },
+        "resultSha256": "50de3db20206c5f2d61c33b23296d33737fdc79aa86333bda72c961f93791683",
+        "sourceFingerprint": "4f19134e370592c80331d343792879994b494b9dc2d9b77686c0e173902bb974"
+      },
+      {
+        "tuple": {
+          "project": "tablet-768",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "GL required: actual GIS journey loads local workers and preserves camera ownership and exact XY"
+        },
+        "resultSha256": "609c12969e36216e911c71d7030d591dde365c18f9ec3bc1b0d1d0d7affd499d",
+        "sourceFingerprint": "4f19134e370592c80331d343792879994b494b9dc2d9b77686c0e173902bb974"
+      },
+      {
+        "tuple": {
+          "project": "tablet-768",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "Renderer independent: GIS controls compare visually and support natural Tab and Escape focus return"
+        },
+        "resultSha256": "cc3615191dd94e3b7b2e02e44b9ef9196f591752741cc683f1b4840fe8f715d9",
+        "sourceFingerprint": "4f19134e370592c80331d343792879994b494b9dc2d9b77686c0e173902bb974"
+      },
+      {
+        "tuple": {
+          "project": "tablet-768",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "GL required: drawing and undo remain live while synthetic raster requests are delayed"
+        },
+        "resultSha256": "1b0683dae92a2702d98c82864503a0eb1fb6ee2502845429a627e7f790495ad2",
+        "sourceFingerprint": "4f19134e370592c80331d343792879994b494b9dc2d9b77686c0e173902bb974"
+      },
+      {
+        "tuple": {
+          "project": "tablet-768",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "Renderer independent: short portrait and landscape retain drawing clearance and reachable controls"
+        },
+        "resultSha256": "cb1536c2d600a23704b733ac61f3b39d40bc67a33a38e9683ee7b300c23cd4a0",
+        "sourceFingerprint": "4f19134e370592c80331d343792879994b494b9dc2d9b77686c0e173902bb974"
+      },
+      {
+        "tuple": {
+          "project": "tablet-768",
+          "file": "tests/web/gis-package.spec.ts",
+          "title": "GL required: denied offline raster package issues no package requests and preserves source metadata"
+        },
+        "resultSha256": "c727c690756aec046515bebc343c3ce3a4af21bce2b1ba74a3ff4fbc84f7201b",
+        "sourceFingerprint": "4f19134e370592c80331d343792879994b494b9dc2d9b77686c0e173902bb974"
+      },
+      {
+        "tuple": {
+          "project": "tablet-768",
+          "file": "tests/web/gis-package.spec.ts",
+          "title": "GL required: raster package without provenance stays unqualified while fallback preserves metadata"
+        },
+        "resultSha256": "ad346040e7f249da2252bfb3e87e166618a386437879434a8a4aed88997c3c75",
+        "sourceFingerprint": "4f19134e370592c80331d343792879994b494b9dc2d9b77686c0e173902bb974"
+      },
+      {
+        "tuple": {
+          "project": "tablet-768",
+          "file": "tests/web/gis-package.spec.ts",
+          "title": "GL required: portable permitted GIS package stays unresolved while synthetic live fallback preserves metadata"
+        },
+        "resultSha256": "d173815792ee835ed0170a08407d47357006b2709d6d9c486214b7ca9310ecc8",
+        "sourceFingerprint": "4f19134e370592c80331d343792879994b494b9dc2d9b77686c0e173902bb974"
+      },
+      {
+        "tuple": {
+          "project": "tablet-768",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "SVG required: induced graphics loss retains pending drawing, camera and saved source"
+        },
+        "resultSha256": "82ad7b159ba55a7b629d3fed18ab47b89662e2428e7b6a06cedacaf48cc63374",
+        "sourceFingerprint": "4f19134e370592c80331d343792879994b494b9dc2d9b77686c0e173902bb974"
+      },
+      {
+        "tuple": {
+          "project": "mobile-390",
+          "file": "tests/web/gis-package.spec.ts",
+          "title": "GL required: raster package without provenance stays unqualified while fallback preserves metadata"
+        },
+        "resultSha256": "42cf66e9286a14d1d3ff1eb2bc0cdccdbe9cda289256696c2589f325ffeac87e",
+        "sourceFingerprint": "4f19134e370592c80331d343792879994b494b9dc2d9b77686c0e173902bb974"
+      },
+      {
+        "tuple": {
+          "project": "mobile-390",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "GL required: actual GIS journey loads local workers and preserves camera ownership and exact XY"
+        },
+        "resultSha256": "201967d20f9bf8ddf7f631ab2fc57f801f2b9c1b64d42471bef1ba1c7f1c87b3",
+        "sourceFingerprint": "4f19134e370592c80331d343792879994b494b9dc2d9b77686c0e173902bb974"
+      },
+      {
+        "tuple": {
+          "project": "mobile-390",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "Renderer independent: GIS controls compare visually and support natural Tab and Escape focus return"
+        },
+        "resultSha256": "f11f11c1ccb1fc96e99f15e742b102ab49a5b31ce5b884de7a3fc57d371f31d3",
+        "sourceFingerprint": "4f19134e370592c80331d343792879994b494b9dc2d9b77686c0e173902bb974"
+      },
+      {
+        "tuple": {
+          "project": "mobile-390",
+          "file": "tests/web/gis-package.spec.ts",
+          "title": "GL required: denied offline raster package issues no package requests and preserves source metadata"
+        },
+        "resultSha256": "552f88727116873a227c703a9697a2a03acd0562198a529408c785e53217e28a",
+        "sourceFingerprint": "4f19134e370592c80331d343792879994b494b9dc2d9b77686c0e173902bb974"
+      },
+      {
+        "tuple": {
+          "project": "mobile-390",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "SVG required: induced graphics loss retains pending drawing, camera and saved source"
+        },
+        "resultSha256": "6b17e973262daf01e1c907ec7f69769ae142d24e0efcdac59e2ed0fa4df9f3eb",
+        "sourceFingerprint": "4f19134e370592c80331d343792879994b494b9dc2d9b77686c0e173902bb974"
+      },
+      {
+        "tuple": {
+          "project": "mobile-390",
+          "file": "tests/web/gis-package.spec.ts",
+          "title": "GL required: portable permitted GIS package stays unresolved while synthetic live fallback preserves metadata"
+        },
+        "resultSha256": "0c5c384bfa0e33ab4ed896552c24373cb07ac9a8123f36d93e478ee7bdabd0c8",
+        "sourceFingerprint": "4f19134e370592c80331d343792879994b494b9dc2d9b77686c0e173902bb974"
+      },
+      {
+        "tuple": {
+          "project": "mobile-390",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "GL required: drawing and undo remain live while synthetic raster requests are delayed"
+        },
+        "resultSha256": "082146f58807df935718cf24824ec6df7461a166459e74d25c8e577e74f31575",
+        "sourceFingerprint": "4f19134e370592c80331d343792879994b494b9dc2d9b77686c0e173902bb974"
+      },
+      {
+        "tuple": {
+          "project": "mobile-390",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "Renderer independent: short portrait and landscape retain drawing clearance and reachable controls"
+        },
+        "resultSha256": "54e617b9cfe01dd843880ab356db3d9761204a6dab4d8ac8adc8820fa3e9025a",
+        "sourceFingerprint": "4f19134e370592c80331d343792879994b494b9dc2d9b77686c0e173902bb974"
+      }
+    ],
+    "GISExecutedTuplesEqualConfigured24": true,
+    "captures": [
+      {
+        "binding": "gis-browser-evidence-shard-1/088a657944002b2472cc/short-390x500.json",
+        "bindingSha256": "408f5c4f0af0d73fa5d7c6624f484fe85b4feb58ddace723353ddbf2ed3e3f85",
+        "tuple": {
+          "project": "desktop",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "Renderer independent: short portrait and landscape retain drawing clearance and reachable controls",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 2
+        },
+        "requirement": "renderer-independent",
+        "renderer": "maplibre",
+        "png": {
+          "path": "short-390x500.png",
+          "sha256": "5e2fb6495457dd5b72162b2e774fc3ef031f56aa5d63fa40ded7d5c649304361",
+          "width": 390,
+          "height": 201
+        },
+        "dom": {
+          "path": "short-390x500.html",
+          "sha256": "e60da25c3e205cda5fc0de2f48186c1a443c0dffbad9af6782243fd901253579"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-1/088a657944002b2472cc/short-844x390.json",
+        "bindingSha256": "63a02a8f3a13f44f8d34d516d4d1c15c22d7478d2dddef0e6aa90425df473623",
+        "tuple": {
+          "project": "desktop",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "Renderer independent: short portrait and landscape retain drawing clearance and reachable controls",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 2
+        },
+        "requirement": "renderer-independent",
+        "renderer": "maplibre",
+        "png": {
+          "path": "short-844x390.png",
+          "sha256": "c88977ae37f8d547fa92e2eaba10d3f4e6286636af20cd148051da6f572f7338",
+          "width": 844,
+          "height": 183
+        },
+        "dom": {
+          "path": "short-844x390.html",
+          "sha256": "e9d817725208676ea09367ecffd609d7e28909c10ee3b49d38a4b6e078f46e32"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-1/0d098b6410a1a3ac693d/portable-package-permitted.json",
+        "bindingSha256": "0416ddfb27c3c5e8b25ac83c2ed8bdc92414952e6ba9a53b53c5d64c592a1215",
+        "tuple": {
+          "project": "desktop",
+          "file": "tests/web/gis-package.spec.ts",
+          "title": "GL required: portable permitted GIS package stays unresolved while synthetic live fallback preserves metadata",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 1
+        },
+        "requirement": "maplibre-required",
+        "renderer": "maplibre",
+        "png": {
+          "path": "portable-package-permitted.png",
+          "sha256": "22ad8978318caedcc25ac42e3b22d7975dbd90dffe98517763acdfa831919e05",
+          "width": 1366,
+          "height": 715
+        },
+        "dom": {
+          "path": "portable-package-permitted.html",
+          "sha256": "bb74415ddbbbada4112ea827968b1dd10827f60d1fdee80a7e2f82ea70b3c299"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-1/3799a58f1f90df0b044a/portable-package-missing-provenance.json",
+        "bindingSha256": "1acfd3056ac977a3b5db53d12d880451f08d34dd65a5631172ecbebcb67cc18d",
+        "tuple": {
+          "project": "desktop",
+          "file": "tests/web/gis-package.spec.ts",
+          "title": "GL required: raster package without provenance stays unqualified while fallback preserves metadata",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 1
+        },
+        "requirement": "maplibre-required",
+        "renderer": "maplibre",
+        "png": {
+          "path": "portable-package-missing-provenance.png",
+          "sha256": "22ad8978318caedcc25ac42e3b22d7975dbd90dffe98517763acdfa831919e05",
+          "width": 1366,
+          "height": 715
+        },
+        "dom": {
+          "path": "portable-package-missing-provenance.html",
+          "sha256": "bb74415ddbbbada4112ea827968b1dd10827f60d1fdee80a7e2f82ea70b3c299"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-1/567868406f4ae79262aa/gis-controls-keyboard.json",
+        "bindingSha256": "0b9eb8e6131a477423587e399b12aafc9d0c575a95e8a3e22d3547a3cc10c8cb",
+        "tuple": {
+          "project": "desktop",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "Renderer independent: GIS controls compare visually and support natural Tab and Escape focus return",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 2
+        },
+        "requirement": "renderer-independent",
+        "renderer": "maplibre",
+        "png": {
+          "path": "gis-controls-keyboard.png",
+          "sha256": "22ad8978318caedcc25ac42e3b22d7975dbd90dffe98517763acdfa831919e05",
+          "width": 1366,
+          "height": 715
+        },
+        "dom": {
+          "path": "gis-controls-keyboard.html",
+          "sha256": "bb74415ddbbbada4112ea827968b1dd10827f60d1fdee80a7e2f82ea70b3c299"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-1/5cb882dda6b96ea16b94/delayed-tiles-editable.json",
+        "bindingSha256": "f89b1fdf6bcb286a768c8991905d48c1e8f457a5981439c93a4420e85e23ebdc",
+        "tuple": {
+          "project": "desktop",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "GL required: drawing and undo remain live while synthetic raster requests are delayed",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 2
+        },
+        "requirement": "maplibre-required",
+        "renderer": "maplibre",
+        "png": {
+          "path": "delayed-tiles-editable.png",
+          "sha256": "ca1749eb133a0fcf82d3c1f4baca0ae9179d55abc0ff6cacbcdce6f60cde1651",
+          "width": 1366,
+          "height": 683
+        },
+        "dom": {
+          "path": "delayed-tiles-editable.html",
+          "sha256": "91e80e2ca7a65837b4b0d77274a6b54787d7a6b1c7b853026d9750e42baaca76"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-1/781ef1871f1deb6ef4cf/induced-svg-recovery.json",
+        "bindingSha256": "446d8373effca522d39791d7e292e4aad0ec848dca519a264367605f6e0dfb72",
+        "tuple": {
+          "project": "desktop",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "SVG required: induced graphics loss retains pending drawing, camera and saved source",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 2
+        },
+        "requirement": "svg-required",
+        "renderer": "svg",
+        "png": {
+          "path": "induced-svg-recovery.png",
+          "sha256": "b5f63560dd2b182b93209d32888aedf195411b92697497f5178c29143a66b40a",
+          "width": 1366,
+          "height": 683
+        },
+        "dom": {
+          "path": "induced-svg-recovery.html",
+          "sha256": "e9b7c27e1bc8948f1aa0f9f5750735100b64c56c56f4172ccdd57194c38ebd43"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-1/8c4d67a27d57ea07c418/actual-maplibre-reopened.json",
+        "bindingSha256": "f8b7f90af71b1febfd3a544a38da78a2674ffa1a86add5bdb77509e1a6cc292f",
+        "tuple": {
+          "project": "desktop",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "GL required: actual GIS journey loads local workers and preserves camera ownership and exact XY",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 2
+        },
+        "requirement": "maplibre-required",
+        "renderer": "maplibre",
+        "png": {
+          "path": "actual-maplibre-reopened.png",
+          "sha256": "22ad8978318caedcc25ac42e3b22d7975dbd90dffe98517763acdfa831919e05",
+          "width": 1366,
+          "height": 715
+        },
+        "dom": {
+          "path": "actual-maplibre-reopened.html",
+          "sha256": "bb74415ddbbbada4112ea827968b1dd10827f60d1fdee80a7e2f82ea70b3c299"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-1/8c4d67a27d57ea07c418/actual-maplibre.json",
+        "bindingSha256": "93290e18743de0ab3be366d0b21dc2d0dbd3c765af9a65b57abf9147a29d905a",
+        "tuple": {
+          "project": "desktop",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "GL required: actual GIS journey loads local workers and preserves camera ownership and exact XY",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 2
+        },
+        "requirement": "maplibre-required",
+        "renderer": "maplibre",
+        "png": {
+          "path": "actual-maplibre.png",
+          "sha256": "ea223c4282a64ff141972c0602085da5323e3b3d5fcc1409d40e49d9f7f3bab7",
+          "width": 1366,
+          "height": 715
+        },
+        "dom": {
+          "path": "actual-maplibre.html",
+          "sha256": "b70c7781f17c8ea08421b295c06d3edc152e2db6d50ae058c5ff549d07df49ed"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-1/e4deead9c031c4efcf1e/portable-package-denied.json",
+        "bindingSha256": "693317390ce9ad21cd9766d1e37fd267f87c952a73e055ce35683830ee5c83eb",
+        "tuple": {
+          "project": "desktop",
+          "file": "tests/web/gis-package.spec.ts",
+          "title": "GL required: denied offline raster package issues no package requests and preserves source metadata",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 1
+        },
+        "requirement": "maplibre-required",
+        "renderer": "maplibre",
+        "png": {
+          "path": "portable-package-denied.png",
+          "sha256": "22ad8978318caedcc25ac42e3b22d7975dbd90dffe98517763acdfa831919e05",
+          "width": 1366,
+          "height": 715
+        },
+        "dom": {
+          "path": "portable-package-denied.html",
+          "sha256": "bb74415ddbbbada4112ea827968b1dd10827f60d1fdee80a7e2f82ea70b3c299"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-2/152a31f446fac40a4681/actual-maplibre-reopened.json",
+        "bindingSha256": "1ecbbd912c7508f9981c2b0bd5d0f1540672dcd587d5101653bafefc6f2a79c3",
+        "tuple": {
+          "project": "tablet-768",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "GL required: actual GIS journey loads local workers and preserves camera ownership and exact XY",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 2
+        },
+        "requirement": "maplibre-required",
+        "renderer": "maplibre",
+        "png": {
+          "path": "actual-maplibre-reopened.png",
+          "sha256": "a4ad27d8d1e523e44f8755059c73dbba98a6a6a2db774d5f36b914fc92af87b9",
+          "width": 768,
+          "height": 725
+        },
+        "dom": {
+          "path": "actual-maplibre-reopened.html",
+          "sha256": "de899ae079d554ab20c04cfe612c32c751bdf3489c7e34c5b169ca31da331533"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-2/152a31f446fac40a4681/actual-maplibre.json",
+        "bindingSha256": "33be1b685447e71b09174a071d63d4d0fb5eb8fcde8aa9588062443a76194ff4",
+        "tuple": {
+          "project": "tablet-768",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "GL required: actual GIS journey loads local workers and preserves camera ownership and exact XY",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 2
+        },
+        "requirement": "maplibre-required",
+        "renderer": "maplibre",
+        "png": {
+          "path": "actual-maplibre.png",
+          "sha256": "b358e46482287851d19562a4ce29b54682a2d13a85fc7015764f4265d17eb012",
+          "width": 768,
+          "height": 725
+        },
+        "dom": {
+          "path": "actual-maplibre.html",
+          "sha256": "78f3d2081167378c15e26c2d9f20fdbd11dc6b6fcfc111127fcc1b657443fee6"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-2/374c512a2c8bb2090a57/gis-controls-keyboard.json",
+        "bindingSha256": "c5f726f0d532902583366d1841f8f6f40b47d2007bc2fae0092443fcc48d5ab6",
+        "tuple": {
+          "project": "tablet-768",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "Renderer independent: GIS controls compare visually and support natural Tab and Escape focus return",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 2
+        },
+        "requirement": "renderer-independent",
+        "renderer": "maplibre",
+        "png": {
+          "path": "gis-controls-keyboard.png",
+          "sha256": "a4ad27d8d1e523e44f8755059c73dbba98a6a6a2db774d5f36b914fc92af87b9",
+          "width": 768,
+          "height": 725
+        },
+        "dom": {
+          "path": "gis-controls-keyboard.html",
+          "sha256": "de899ae079d554ab20c04cfe612c32c751bdf3489c7e34c5b169ca31da331533"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-2/74e5e469f4d3c1576c6a/delayed-tiles-editable.json",
+        "bindingSha256": "7b67a2a6ed23054993f40122eb998d50aeed66f7c208bc0f389f0794d2901fc2",
+        "tuple": {
+          "project": "tablet-768",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "GL required: drawing and undo remain live while synthetic raster requests are delayed",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 2
+        },
+        "requirement": "maplibre-required",
+        "renderer": "maplibre",
+        "png": {
+          "path": "delayed-tiles-editable.png",
+          "sha256": "515bc0fb6215bcfd38c358fdbd9c165bae184554410b8e0914fee7618ee777ac",
+          "width": 768,
+          "height": 693
+        },
+        "dom": {
+          "path": "delayed-tiles-editable.html",
+          "sha256": "cafb7533665368b6e2205d772c962c8d028674b9cba6f76640cdd4c9c1aa1dd8"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-2/9e102684de737953798f/short-390x500.json",
+        "bindingSha256": "3d491bebc64863eb13aae11fdc11dcbace522366553626c1eeb36f41ffc7ed4e",
+        "tuple": {
+          "project": "tablet-768",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "Renderer independent: short portrait and landscape retain drawing clearance and reachable controls",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 2
+        },
+        "requirement": "renderer-independent",
+        "renderer": "maplibre",
+        "png": {
+          "path": "short-390x500.png",
+          "sha256": "53a41aaa17cd961fbf849e26e9fae8fe0288904c4e723c0cf24739d8413468f5",
+          "width": 390,
+          "height": 201
+        },
+        "dom": {
+          "path": "short-390x500.html",
+          "sha256": "68501b43992a346c5ef6c97ff7ba2d2794d2b4a916d2144750861f118faceb7c"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-2/9e102684de737953798f/short-844x390.json",
+        "bindingSha256": "2baf6dce555929ac549aee3e098eeca3e4a2af3d302995c5f4f999071d1c9668",
+        "tuple": {
+          "project": "tablet-768",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "Renderer independent: short portrait and landscape retain drawing clearance and reachable controls",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 2
+        },
+        "requirement": "renderer-independent",
+        "renderer": "maplibre",
+        "png": {
+          "path": "short-844x390.png",
+          "sha256": "d8514a58c4e442d492fe16acbfee134b021b038782bfb6a63046b7a3ecc4d556",
+          "width": 844,
+          "height": 183
+        },
+        "dom": {
+          "path": "short-844x390.html",
+          "sha256": "694fc76cc4c3aa8f575446ddba427ec49e34b1dee72d7f5885a1e98aa0e42904"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-2/af08c5a0600c1931f81c/portable-package-denied.json",
+        "bindingSha256": "81b25fab178f39f4c7d7cc7b64c32c9672db5055fae2e996f8d6499c0001f54a",
+        "tuple": {
+          "project": "tablet-768",
+          "file": "tests/web/gis-package.spec.ts",
+          "title": "GL required: denied offline raster package issues no package requests and preserves source metadata",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 1
+        },
+        "requirement": "maplibre-required",
+        "renderer": "maplibre",
+        "png": {
+          "path": "portable-package-denied.png",
+          "sha256": "a4ad27d8d1e523e44f8755059c73dbba98a6a6a2db774d5f36b914fc92af87b9",
+          "width": 768,
+          "height": 725
+        },
+        "dom": {
+          "path": "portable-package-denied.html",
+          "sha256": "96e003e60188fc24d8e1a1834f0d1e44de587897b4972c4fec4323c102f2efe9"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-2/b0b9f97d36cab5c7155e/portable-package-missing-provenance.json",
+        "bindingSha256": "fac9bc5c1ec188c1959daf6d360485aac3245b2d75d07af4bd35334c9acac23a",
+        "tuple": {
+          "project": "tablet-768",
+          "file": "tests/web/gis-package.spec.ts",
+          "title": "GL required: raster package without provenance stays unqualified while fallback preserves metadata",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 1
+        },
+        "requirement": "maplibre-required",
+        "renderer": "maplibre",
+        "png": {
+          "path": "portable-package-missing-provenance.png",
+          "sha256": "a4ad27d8d1e523e44f8755059c73dbba98a6a6a2db774d5f36b914fc92af87b9",
+          "width": 768,
+          "height": 725
+        },
+        "dom": {
+          "path": "portable-package-missing-provenance.html",
+          "sha256": "96e003e60188fc24d8e1a1834f0d1e44de587897b4972c4fec4323c102f2efe9"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-2/b24f0835e1a08677cdcd/portable-package-permitted.json",
+        "bindingSha256": "217d1f2a40fb5be63419fe17691455c8af435f0d94820c4e5e4dfcff02523e27",
+        "tuple": {
+          "project": "tablet-768",
+          "file": "tests/web/gis-package.spec.ts",
+          "title": "GL required: portable permitted GIS package stays unresolved while synthetic live fallback preserves metadata",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 1
+        },
+        "requirement": "maplibre-required",
+        "renderer": "maplibre",
+        "png": {
+          "path": "portable-package-permitted.png",
+          "sha256": "a4ad27d8d1e523e44f8755059c73dbba98a6a6a2db774d5f36b914fc92af87b9",
+          "width": 768,
+          "height": 725
+        },
+        "dom": {
+          "path": "portable-package-permitted.html",
+          "sha256": "96e003e60188fc24d8e1a1834f0d1e44de587897b4972c4fec4323c102f2efe9"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-2/ecad5567d65715c7d330/induced-svg-recovery.json",
+        "bindingSha256": "6708827265006c885a83029007408d31f0903f23c2820ae8e70ac34fb273bb80",
+        "tuple": {
+          "project": "tablet-768",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "SVG required: induced graphics loss retains pending drawing, camera and saved source",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 2
+        },
+        "requirement": "svg-required",
+        "renderer": "svg",
+        "png": {
+          "path": "induced-svg-recovery.png",
+          "sha256": "248ce039b055009840d83129125bfde83f55bf50bae8be25eadbb6d3f7578e2f",
+          "width": 768,
+          "height": 693
+        },
+        "dom": {
+          "path": "induced-svg-recovery.html",
+          "sha256": "bcecdde3b88b0eefef05f4605ed430187665e19fde2f34b0d6093e91db0a4bed"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-3/00edf60466ae248922b9/portable-package-missing-provenance.json",
+        "bindingSha256": "88a8371e5426e5b8662c5379a71777a9cdf60c6a0b5c956a2685dd3895e31097",
+        "tuple": {
+          "project": "mobile-390",
+          "file": "tests/web/gis-package.spec.ts",
+          "title": "GL required: raster package without provenance stays unqualified while fallback preserves metadata",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 1
+        },
+        "requirement": "maplibre-required",
+        "renderer": "maplibre",
+        "png": {
+          "path": "portable-package-missing-provenance.png",
+          "sha256": "177e41ea253021910d889b835f72e86e8afcadf1bd3ca8c3e6d599933ce78ff7",
+          "width": 390,
+          "height": 593
+        },
+        "dom": {
+          "path": "portable-package-missing-provenance.html",
+          "sha256": "8216c73680429a787608c94f29d7a820305f0458463dda5033da9785b35fee4d"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-3/3b210455cc92e2484a0f/actual-maplibre-reopened.json",
+        "bindingSha256": "526ef98bda72e7590c55b8e90eb27d66e0e2855a40b27fd01af2aed82f9b0b4a",
+        "tuple": {
+          "project": "mobile-390",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "GL required: actual GIS journey loads local workers and preserves camera ownership and exact XY",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 2
+        },
+        "requirement": "maplibre-required",
+        "renderer": "maplibre",
+        "png": {
+          "path": "actual-maplibre-reopened.png",
+          "sha256": "177e41ea253021910d889b835f72e86e8afcadf1bd3ca8c3e6d599933ce78ff7",
+          "width": 390,
+          "height": 593
+        },
+        "dom": {
+          "path": "actual-maplibre-reopened.html",
+          "sha256": "c52d82b1415507920c60fef715fa9b219297b3ad4c7f360ec09b930622c41733"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-3/3b210455cc92e2484a0f/actual-maplibre.json",
+        "bindingSha256": "2e1c863aed419871a45750340c777a4310929cbf932902610994a957efb6e61c",
+        "tuple": {
+          "project": "mobile-390",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "GL required: actual GIS journey loads local workers and preserves camera ownership and exact XY",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 2
+        },
+        "requirement": "maplibre-required",
+        "renderer": "maplibre",
+        "png": {
+          "path": "actual-maplibre.png",
+          "sha256": "c58bead3f70be451be175596e2fbcaeeb3343344a791c3e592089862d10a1e1e",
+          "width": 390,
+          "height": 593
+        },
+        "dom": {
+          "path": "actual-maplibre.html",
+          "sha256": "cc7ab662edfa26b42491448e2aaf0d9083d6187b6eda9d7f6cce583085124f29"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-3/402f3c90e0f73382708a/gis-controls-keyboard.json",
+        "bindingSha256": "ef0b08c0f7262c9803b10aa38f606968d87f86c98bf0eac6200e4207545867ab",
+        "tuple": {
+          "project": "mobile-390",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "Renderer independent: GIS controls compare visually and support natural Tab and Escape focus return",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 2
+        },
+        "requirement": "renderer-independent",
+        "renderer": "maplibre",
+        "png": {
+          "path": "gis-controls-keyboard.png",
+          "sha256": "177e41ea253021910d889b835f72e86e8afcadf1bd3ca8c3e6d599933ce78ff7",
+          "width": 390,
+          "height": 593
+        },
+        "dom": {
+          "path": "gis-controls-keyboard.html",
+          "sha256": "9c354e3519b08a83adf9b9416976c3245e1308f941d004db6df589fdeb1f8fc9"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-3/568e58c48ceba7376d2c/portable-package-denied.json",
+        "bindingSha256": "5e555dfa40dea4103c51beb505138127fdb7a3381990aa2b9b2c2285872d28b8",
+        "tuple": {
+          "project": "mobile-390",
+          "file": "tests/web/gis-package.spec.ts",
+          "title": "GL required: denied offline raster package issues no package requests and preserves source metadata",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 1
+        },
+        "requirement": "maplibre-required",
+        "renderer": "maplibre",
+        "png": {
+          "path": "portable-package-denied.png",
+          "sha256": "177e41ea253021910d889b835f72e86e8afcadf1bd3ca8c3e6d599933ce78ff7",
+          "width": 390,
+          "height": 593
+        },
+        "dom": {
+          "path": "portable-package-denied.html",
+          "sha256": "8216c73680429a787608c94f29d7a820305f0458463dda5033da9785b35fee4d"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-3/7af3601188700c9c6e9d/induced-svg-recovery.json",
+        "bindingSha256": "739018b86eb484a341d76dd06ae6e85723c31bdce28379a83279627f49dfad44",
+        "tuple": {
+          "project": "mobile-390",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "SVG required: induced graphics loss retains pending drawing, camera and saved source",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 2
+        },
+        "requirement": "svg-required",
+        "renderer": "svg",
+        "png": {
+          "path": "induced-svg-recovery.png",
+          "sha256": "de9b44aaf151c1f3d4dc6e8872bf2206c977e9ea37d967a7c81372b1d0922a4b",
+          "width": 390,
+          "height": 545
+        },
+        "dom": {
+          "path": "induced-svg-recovery.html",
+          "sha256": "63309d2906c7deb72e907ea81006b8500a2b818b20df98a4d4189bb476af42dd"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-3/80eccf71f1c574917fae/portable-package-permitted.json",
+        "bindingSha256": "434b8d261b1f2f1320a20e0ad56334947aa8b80b36c0988760ff91ab9d3ad302",
+        "tuple": {
+          "project": "mobile-390",
+          "file": "tests/web/gis-package.spec.ts",
+          "title": "GL required: portable permitted GIS package stays unresolved while synthetic live fallback preserves metadata",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 1
+        },
+        "requirement": "maplibre-required",
+        "renderer": "maplibre",
+        "png": {
+          "path": "portable-package-permitted.png",
+          "sha256": "177e41ea253021910d889b835f72e86e8afcadf1bd3ca8c3e6d599933ce78ff7",
+          "width": 390,
+          "height": 593
+        },
+        "dom": {
+          "path": "portable-package-permitted.html",
+          "sha256": "8216c73680429a787608c94f29d7a820305f0458463dda5033da9785b35fee4d"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-3/b0721f5e4edac8d3d7da/delayed-tiles-editable.json",
+        "bindingSha256": "2ce747bef668a94abd82e116bb927d4d77d87639698c96ae1cfeab5d70ee9c37",
+        "tuple": {
+          "project": "mobile-390",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "GL required: drawing and undo remain live while synthetic raster requests are delayed",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 2
+        },
+        "requirement": "maplibre-required",
+        "renderer": "maplibre",
+        "png": {
+          "path": "delayed-tiles-editable.png",
+          "sha256": "0dcbbd2fe0f6cde1de0eaeb7a0711ac4c39ba59b1879776c5a3c374630f078b7",
+          "width": 390,
+          "height": 545
+        },
+        "dom": {
+          "path": "delayed-tiles-editable.html",
+          "sha256": "b6c2b4edde77d9aa14d1d5b1137c6a29a2e071008fc1450a54da9a51bfcf52de"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-3/bfe499fdd2ec3a0a1406/short-390x500.json",
+        "bindingSha256": "435c3d5a6a11308a03d5a31f5c08cd603744a00366ea8daf7ed957cb9721dd81",
+        "tuple": {
+          "project": "mobile-390",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "Renderer independent: short portrait and landscape retain drawing clearance and reachable controls",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 2
+        },
+        "requirement": "renderer-independent",
+        "renderer": "maplibre",
+        "png": {
+          "path": "short-390x500.png",
+          "sha256": "2ab65ed73af69785be55ab9e2a1f048c8db68a0dbb93e6c9cf5fe513c3db4427",
+          "width": 390,
+          "height": 201
+        },
+        "dom": {
+          "path": "short-390x500.html",
+          "sha256": "27a3a5db2c0edd540d299185f50476625ea43745485b097f185b98f2c382ee35"
+        }
+      },
+      {
+        "binding": "gis-browser-evidence-shard-3/bfe499fdd2ec3a0a1406/short-844x390.json",
+        "bindingSha256": "dcf895c25391e2fdc0f07c755ac8d40674a550cbfabded7b116b4ab8b2b9b1e0",
+        "tuple": {
+          "project": "mobile-390",
+          "file": "tests/web/gis-visual.spec.ts",
+          "title": "Renderer independent: short portrait and landscape retain drawing clearance and reachable controls",
+          "retry": 0,
+          "repeatEachIndex": 0,
+          "workerIndex": 2
+        },
+        "requirement": "renderer-independent",
+        "renderer": "maplibre",
+        "png": {
+          "path": "short-844x390.png",
+          "sha256": "6fcc0dbe09960fb7c33580e2032b3e5a5b4bb0858b1a674450b27981c2c6db88",
+          "width": 844,
+          "height": 183
+        },
+        "dom": {
+          "path": "short-844x390.html",
+          "sha256": "a7edae38f7dc7d2fd42b3a73e40d7710713d1b0f32f7d62332bcdf6dfef970dd"
+        }
+      }
+    ],
+    "pngDomHashesReopened": 60,
+    "scopedSourcePathsMatched": 621,
+    "runtimeBoundServedAssetHashes": {
+      "/_expo/static/js/web/index-c975e637c5212ecb07587d6c8d9ff90a.js": "e5eb8c8f888d687d3d51b81cae5f0c70a49390b06930c832f0d67785989b238c",
+      "/_expo/static/css/maplibre-gl-dc3f9f1339c2c312db0e4c8f314a98f9.css": "8a592f3c86f1cc56b48622cdbab9c10e9702a4b89d4fba27154335d837158d8e",
+      "/maplibre/6.15.0/maplibre-gl-worker.mjs": "1c69066368331aae63967ed24a9affcf962cf55fcc6d8f532a8b040f736dbcfa",
+      "/maplibre/6.15.0/maplibre-gl-shared.mjs": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "/maplibre/6.15.0/LICENSE.txt": "ee5fc05a0677eaf69601d2c7db0d9ecd6cc27c3abc1d0733bc9ed34707cf8ef2",
+      "/_expo/static/js/web/index-fda545e1f9732dd58255c321e6054006.js": "cd90b4e5ad7caa0a0d116fd7aaa0bef24f8fe7a47dc36d76034418abfffef9b4",
+      "/_expo/static/js/web/index-a7edacf0aa5258252af8904a50aa6204.js": "1131346566ed874c62051473095cf6adba8164858de85a74a7d05fcd9fac2d98"
+    },
+    "nativeExportAssetBytesAlsoMatched": [
+      "/_expo/static/css/maplibre-gl-dc3f9f1339c2c312db0e4c8f314a98f9.css",
+      "/maplibre/6.15.0/LICENSE.txt",
+      "/maplibre/6.15.0/maplibre-gl-shared.mjs",
+      "/maplibre/6.15.0/maplibre-gl-worker.mjs"
+    ],
+    "rawAuditCounts": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 16,
+      "critical": 0,
+      "total": 16
+    },
+    "mitigationAdmission": "admitted-local-mitigations",
+    "auditDecisionSha256": "ff2bf1db556b245b31cc46e81883dfebb1e34d3edc4af12c9e50eaaa9eccc752",
+    "boundary": "Downloaded actual protected-CI compact artifacts:24 unique GIS executions,30 capture bindings/60PNG+DOM and621 scoped source hashes reopened. Served/export hash equality is runtime binding; only listed existing native asset bytes were independently reopened. Nine exact control/noise assertions passed in test jobs; their raw repeat-noise attachments are absent from successful-CI uploads, so no reopened CI noise measurement claim. Earlier complete local9noise receipts remain retained."
+  }
+}

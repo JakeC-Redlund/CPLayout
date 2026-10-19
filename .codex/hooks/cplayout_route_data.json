@@ -1057,6 +1057,14 @@
         {
           "term": "frozen layout target",
           "weight": 12
+        },
+        {
+          "term": "GIS mapping",
+          "weight": 12
+        },
+        {
+          "term": "CRS transforms",
+          "weight": 12
         }
       ],
       "negativeKeywords": [

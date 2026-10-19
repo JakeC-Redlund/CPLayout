@@ -1,5 +1,12 @@
 # CPLayout Agent Known Gaps
 
+## GIS reliability packet — 2026-10-18
+
+Source counterprobes found stale boundary capture associations, lossy imported topology, duplicate imported IDs, nested external TileJSON references, conflicting tile-coordinate metadata, missing copy-policy admission, and browser filesystem readiness without an adapter. Focused regressions and bounded repairs are integrated; final source/browser qualification belongs to the workflow registry. Original failed/stale receipts remain historical evidence.
+
+The active unified native surface is SVG. Native MapLibre integration, raw native tile archives, imported aerial rendering, offline MapLibre label/glyph parity and physical CRS/field accuracy retain separate requirements and runtime proof. Proj4 2.22.0 candidate qualification was refused by the frozen legacy-reader library identity gate; 2.20.8 remains selected. Do not update historical reader hashes merely to pass an upgrade.
+
+
 ## Current source and proof gaps — 2026-10-11
 
 Use [workflow-registry.json](workflow-registry.json) for current requirement/status IDs and exact evidence. The current request resumes improvement with delegated independent decisions; old pause and mandatory questionnaire directions are historical.

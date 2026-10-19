@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-19T03:55:57.718573+00:00",
+  "records": {
+    "E-GIS4-20261018-AGGREGATE": {
+      "status": "stale",
+      "changedPaths": [
+        "packages/project-store/src/mapPackageArchive.test.ts",
+        "packages/project-store/src/mapPackageArchiveInstall.native.ts",
+        "packages/project-store/src/mapPackageArchiveInstallCore.ts"
+      ]
+    },
+    "E-GIS4-20261018-BROWSER291": {
+      "status": "stale",
+      "changedPaths": [
+        "packages/project-store/src/mapPackageArchive.test.ts",
+        "packages/project-store/src/mapPackageArchiveInstall.native.ts",
+        "packages/project-store/src/mapPackageArchiveInstallCore.ts"
+      ]
+    },
+    "E-GIS4-20261018-BROWSER-FIRST": {
+      "status": "stale",
+      "changedPaths": [
+        "packages/project-store/src/mapPackageArchive.test.ts",
+        "packages/project-store/src/mapPackageArchiveInstall.native.ts",
+        "packages/project-store/src/mapPackageArchiveInstallCore.ts"
+      ]
+    },
+    "E-GIS4-20261018-REVIEW-ONE": {
+      "status": "stale",
+      "changedPaths": [
+        "packages/project-store/src/mapPackageArchive.test.ts",
+        "packages/project-store/src/mapPackageArchiveInstall.native.ts",
+        "packages/project-store/src/mapPackageArchiveInstallCore.ts"
+      ]
+    },
+    "E-GIS4-20261018-REVIEW-TWO": {
+      "status": "stale",
+      "changedPaths": [
+        "packages/project-store/src/mapPackageArchive.test.ts",
+        "packages/project-store/src/mapPackageArchiveInstall.native.ts",
+        "packages/project-store/src/mapPackageArchiveInstallCore.ts"
+      ]
+    },
+    "E-GIS4-20261018-PUBLICATION": {
+      "status": "stale",
+      "changedPaths": [
+        "packages/project-store/src/mapPackageArchive.test.ts",
+        "packages/project-store/src/mapPackageArchiveInstall.native.ts",
+        "packages/project-store/src/mapPackageArchiveInstallCore.ts"
+      ]
+    }
+  },
+  "preserved": [
+    "Original first full browser chronology refusal and unresolved timestamp/cause",
+    "960 deferred browser obligations",
+    "Failed online Expo recommendation and retained cohort",
+    "Raw16high/0moderate audit admitted only through verified mitigations",
+    "Prior complete local and hosted source/browser/Edge receipts and independent votes",
+    "Native/device/field/GoogleEarth/App logical-package resolver/glyph/hook limitations"
+  ],
+  "boundary": "Historical classification records source drift; it does not reverse an observed pass or erase an observed failure. No old execution is relabeled as a successor run."
+}

@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "result": "pass",
+  "observedAt": "2026-10-19T02:36:21.242032+00:00",
+  "sourceFingerprint": "e977f099f7b3466b5a7f93938f48472dc4e5bfc6b203f727459c3b751ea5fe7d",
+  "phase": "after-aggregate",
+  "ports": {
+    "19187": {
+      "state": "connection-refused",
+      "code": 111
+    },
+    "19188": {
+      "state": "connection-refused",
+      "code": 111
+    },
+    "19189": {
+      "state": "connection-refused",
+      "code": 111
+    },
+    "19018": {
+      "state": "connection-refused",
+      "code": 111
+    },
+    "9252": {
+      "state": "connection-refused",
+      "code": 111
+    }
+  },
+  "buildLeasesAbsent": {
+    "candidate": true,
+    "visible-review-r3": true
+  },
+  "visibleCleanup": {
+    "result": "pass",
+    "observedAt": "2026-10-19T00:13:50.048588+00:00",
+    "ports": {
+      "19018": {
+        "state": "connection_refused",
+        "code": 111
+      },
+      "9252": {
+        "state": "connection_refused",
+        "code": 111
+      }
+    },
+    "edgeClose": {
+      "result": "Browser.close accepted",
+      "port": 9252,
+      "product": "Edg/155.0.4283.62",
+      "closedAt": "2026-10-19T00:12:40.177Z",
+      "priorGuardRefusal": "First cleanup guard expected Chrome branding; actual Edge returned Edg/155.0.4283.62. No close command was sent before correcting the exact observed identity."
+    },
+    "launcherStopLogSha256": "54ed55c33da19fc2deceafd96e5a24b673bed5215fac6e771fdcb15026c43a7c",
+    "boundary": "Visible lane only; main Linux browser proof19187 is independently active and will be closed before aggregate."
+  },
+  "edgeCloseReceiptSha256": "284fe715a44c104ade097c1c5b52276cb46f2372ab886dcbe02751f5dfb1947a",
+  "launcherStopLogSha256": "54ed55c33da19fc2deceafd96e5a24b673bed5215fac6e771fdcb15026c43a7c",
+  "historicalClosure": "../../resource-closure.json",
+  "boundary": "Fresh connection refusal on all three owned successor review/proof ports, absent proof leases and verified owned launcher/Edge stop. Profiles/recovery retained; no unknown process killed and no unrelated listener claim."
+}

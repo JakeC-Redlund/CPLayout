@@ -1,0 +1,208 @@
+{
+  "result": "source_review_blocked_not_accepted",
+  "sourceFingerprint": "ae8f8ef7e939ef1aaaec508280cb2165b29b90d6f8b733d11413e51a54869ac9",
+  "sourceManifest": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/initial-recovery-source.json",
+  "regressionEvidence": {
+    "at": "2026-10-19T03:45:19.632336+00:00",
+    "assignmentBase": "62462a15bbf4de8ed3dba373ff2adffc94d9afd4",
+    "headObservedAtReceipt": "2a314f076d5995e47dade72a18db10e9019121e5",
+    "claimClass": "source/unit-contract with actual native module and simulated Expo filesystem; not device, power-loss durability, multiprocess locking or render readiness",
+    "ownedPaths": {
+      "packages/project-store/src/mapPackageArchiveInstallCore.ts": "3ffe484e848d54ba31cc524e3c3976e21fde4baab53e81b3239a68bac0a779be",
+      "packages/project-store/src/mapPackageArchiveInstall.native.ts": "76a2909aa490cea7f5f3c1cfaed54ebd0a724b49c60a5518b0277f206df898b1",
+      "packages/project-store/src/mapPackageArchive.test.ts": "04c90463d8bfa4a64815b40fd8be72ea5ff500f3afe9086e5216b60ab341acbb",
+      "packages/project-store/src/mapPackageArchiveRecovery.test.ts": "d80696a6d306f6366f277b6814f536d7116dbb66513c834032d3dc4e08eb9779"
+    },
+    "unchangedAdmissionSource": {
+      "packages/project-store/src/mapPackageArchive.ts": "6b1208a3cba334fb8eb4fffcd43f9674839ee772f655454bc0b94e3ce3c2b6e9"
+    },
+    "lockSha256": "9d362a6e5f8c0a8e26199d9ea278a02cda194f569218e17ede0d520d1712dbb0",
+    "node": "v24.14.1",
+    "npm": "11.17.0",
+    "expoFileSystemVersion": "57.0.7",
+    "apiVerification": {
+      "observation": "Directory.move returns Promise<void> and native AsyncFunction; Directory.moveSync returns void and native Function on Android/iOS 57.0.7. Adapter now calls moveSync.",
+      "files": {
+        "/home/cyber/.local/share/cplayout/gis-20261018/runtime/node_modules/expo-file-system/build/internal/NativeFileSystem.types.d.ts": "34fb5d2ca94d3fd4cc87a20b08d2d811b02a42b2e0ffc46c6fdfb95071399016",
+        "/home/cyber/.local/share/cplayout/gis-20261018/runtime/node_modules/expo-file-system/src/internal/NativeFileSystem.types.ts": "267780c3440bb0327e83ef8168e1ea3883633b1556655e93ad3d9a70a067e166",
+        "/home/cyber/.local/share/cplayout/gis-20261018/runtime/node_modules/expo-file-system/android/src/main/java/expo/modules/filesystem/FileSystemModule.kt": "0b5da5e5ccddfbcd60bc1ff6b12e6cfcb3b002ca0d97bf68eafff50186dfdbcd",
+        "/home/cyber/.local/share/cplayout/gis-20261018/runtime/node_modules/expo-file-system/ios/FileSystemModule.swift": "2c9ea852ccaf3d0d14813d9728f5ca8da064c7d9a37549143e06d704fc390240"
+      }
+    },
+    "failingBefore": {
+      "command": "node_modules/.bin/tsx /home/cyber/.local/state/cplayout/gis-20261018/runs/09-package-recovery/before-execution/mapPackageArchive.test.ts",
+      "exitCode": 1,
+      "passed": 25,
+      "failed": 18,
+      "transcript": "/home/cyber/.local/state/cplayout/gis-20261018/runs/09-package-recovery/before.log",
+      "transcriptSha256": "517cce4231849df734a55b759fc74a738fe20ff55d47d607648f8fbde323cf44",
+      "originalNativeAndCore": {
+        "packages/project-store/src/mapPackageArchiveInstallCore.ts": "5e91736114b745e2ccdc453e2b2717f44c972a47fb67306341cb40bcb5439320",
+        "packages/project-store/src/mapPackageArchiveInstall.native.ts": "b9f42412a9367d099b3576d5098eda5edb8c90ae42ee32b17d815d931e62d7a4"
+      },
+      "method": "Same final 43-case test harness loads preserved original native/core files through constrained memory Expo bridge. Existing converter/admission module is unchanged. No new-export absence is used as a regression."
+    },
+    "passingAfter": {
+      "command": "node_modules/.bin/tsx packages/project-store/src/mapPackageArchive.test.ts",
+      "cwd": "/mnt/h/CPLayout",
+      "exitCode": 0,
+      "nativeContractPassed": 43,
+      "nativeContractFailed": 0,
+      "existingArchiveAssertions": "passed (suite emits no numeric assertion count)",
+      "transcript": "/home/cyber/.local/state/cplayout/gis-20261018/runs/09-package-recovery/after.log",
+      "transcriptSha256": "7efac70ed6c2b57d609bdacff4c0b4dd203cc706f44b1af7521e0e99df0a4d6b"
+    },
+    "otherChecks": [
+      {
+        "command": "node_modules/.bin/tsc -p packages/project-store/tsconfig.json",
+        "exitCode": 0,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": "git diff --check",
+        "exitCode": 0
+      }
+    ],
+    "selectedBehavior": [
+      "Safe raw legacy IDs remain in place and use ephemeral runtime URLs; no migration or synthesized manifest is written. Existing originals retained; only derived runtime TileJSON sidecar may be written after full admission.",
+      "Current/backup editions with recorded manifests must match normalized requested metadata, including identity/provenance/policy. Encoded-only unrecorded ambiguous locations refuse.",
+      "Absent active directory restores fully admitted unique paired prior transaction (historical backups retained), or sole prior when no pending exists. Pending is never activated. Multiple/unpaired/unsafe/invalid entries refuse without mutation.",
+      "Valid active edition remains authoritative; invalid active cannot silently select a prior edition. Failed restore and derived-sidecar writes preserve originals and permit retry.",
+      "Installation refuses reserved internal transaction identities, same-path different recorded identity/unrecorded encoded collisions, and later encoded-ID replacement while safe raw legacy exists."
+    ],
+    "limits": [
+      "No device/emulator filesystem or native map rendering exercised.",
+      "JS-turn serialization is not multiprocess locking or a power-loss/atomic-filesystem guarantee.",
+      "Legacy encoded-ID migration is deferred; explicit later encoded installation refuses until the raw legacy edition is inspected/reconciled through a separately qualified protocol.",
+      "Current authenticated App package resolver/native renderer integration remains outside this scope.",
+      "Root owns aggregate checks, source freeze, independent integration acceptance and Git/CI publication."
+    ],
+    "preservedPriorAttemptLogs": {
+      "initial-41-before.log": "53e3f2e0893d5f9f192ec211b015a4df94334472ea8c906908de13cb3217a4b1",
+      "initial-41-after.log": "592376afec3ccb1b530f4e0d8234e6eb57fc017afa0cef09b297b3805c0db49c",
+      "initial-41-typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "affectedChecks": {
+    "sourceFingerprint": "ae8f8ef7e939ef1aaaec508280cb2165b29b90d6f8b733d11413e51a54869ac9",
+    "sourcePaths": 985,
+    "commands": [
+      {
+        "name": "project-store-tests",
+        "argv": [
+          "npm",
+          "test",
+          "-w",
+          "@cplayout/project-store"
+        ],
+        "cwd": "/home/cyber/.local/share/cplayout/gis-20261018/candidate",
+        "startedAt": "2026-10-19T03:47:18.651021+00:00",
+        "finishedAt": "2026-10-19T03:49:52.022549+00:00",
+        "exitCode": 0,
+        "sourceFingerprint": "ae8f8ef7e939ef1aaaec508280cb2165b29b90d6f8b733d11413e51a54869ac9",
+        "sourceUnchangedAfter": true,
+        "log": "/home/cyber/.local/state/cplayout/gis-20261018/runs/09-package-recovery/check-project-store-tests.log",
+        "logBytes": 77038,
+        "logSha256": "20a74cfe15f3a24024fb22f86a3282f138e0ead26dba641899fb79eb9c8335e8"
+      },
+      {
+        "name": "all-typechecks",
+        "argv": [
+          "npm",
+          "run",
+          "typecheck"
+        ],
+        "cwd": "/home/cyber/.local/share/cplayout/gis-20261018/candidate",
+        "startedAt": "2026-10-19T03:49:52.101439+00:00",
+        "finishedAt": "2026-10-19T03:50:29.846995+00:00",
+        "exitCode": 0,
+        "sourceFingerprint": "ae8f8ef7e939ef1aaaec508280cb2165b29b90d6f8b733d11413e51a54869ac9",
+        "sourceUnchangedAfter": true,
+        "log": "/home/cyber/.local/state/cplayout/gis-20261018/runs/09-package-recovery/check-all-typechecks.log",
+        "logBytes": 660,
+        "logSha256": "74c892cb9c8a697ae90c6578d2cbfce2ba84e8b59265bf69b7f70851fc57baa8"
+      },
+      {
+        "name": "context-map",
+        "argv": [
+          "npm",
+          "run",
+          "context-map:check"
+        ],
+        "cwd": "/home/cyber/.local/share/cplayout/gis-20261018/candidate",
+        "startedAt": "2026-10-19T03:50:29.930573+00:00",
+        "finishedAt": "2026-10-19T03:50:30.091159+00:00",
+        "exitCode": 0,
+        "sourceFingerprint": "ae8f8ef7e939ef1aaaec508280cb2165b29b90d6f8b733d11413e51a54869ac9",
+        "sourceUnchangedAfter": true,
+        "log": "/home/cyber/.local/state/cplayout/gis-20261018/runs/09-package-recovery/check-context-map.log",
+        "logBytes": 118,
+        "logSha256": "cf0524310319d026dded2161af9395c1def74041048b20861fdcee87b1502123"
+      },
+      {
+        "name": "skills",
+        "argv": [
+          "npm",
+          "run",
+          "validate:skills"
+        ],
+        "cwd": "/home/cyber/.local/share/cplayout/gis-20261018/candidate",
+        "startedAt": "2026-10-19T03:50:30.161536+00:00",
+        "finishedAt": "2026-10-19T03:50:33.323559+00:00",
+        "exitCode": 0,
+        "sourceFingerprint": "ae8f8ef7e939ef1aaaec508280cb2165b29b90d6f8b733d11413e51a54869ac9",
+        "sourceUnchangedAfter": true,
+        "log": "/home/cyber/.local/state/cplayout/gis-20261018/runs/09-package-recovery/check-skills.log",
+        "logBytes": 2993,
+        "logSha256": "e5cd453c1e5a4a5131af3752fd4d3dc981f980a0ecaecfb78b7af31b0583b31d"
+      },
+      {
+        "name": "browser-inventory",
+        "argv": [
+          "npm",
+          "run",
+          "proof:inventory"
+        ],
+        "cwd": "/home/cyber/.local/share/cplayout/gis-20261018/candidate",
+        "startedAt": "2026-10-19T03:50:33.394320+00:00",
+        "finishedAt": "2026-10-19T03:50:33.612050+00:00",
+        "exitCode": 0,
+        "sourceFingerprint": "ae8f8ef7e939ef1aaaec508280cb2165b29b90d6f8b733d11413e51a54869ac9",
+        "sourceUnchangedAfter": true,
+        "log": "/home/cyber/.local/state/cplayout/gis-20261018/runs/09-package-recovery/check-browser-inventory.log",
+        "logBytes": 164,
+        "logSha256": "4966775e8517f50f1c5ca204fe0fe99f8f97a0f961a28ec7d38b36d4607cb57c"
+      },
+      {
+        "name": "gis-dependency-identity",
+        "argv": [
+          "npm",
+          "run",
+          "gis:identity"
+        ],
+        "cwd": "/home/cyber/.local/share/cplayout/gis-20261018/candidate",
+        "startedAt": "2026-10-19T03:50:33.681468+00:00",
+        "finishedAt": "2026-10-19T03:50:33.803903+00:00",
+        "exitCode": 0,
+        "sourceFingerprint": "ae8f8ef7e939ef1aaaec508280cb2165b29b90d6f8b733d11413e51a54869ac9",
+        "sourceUnchangedAfter": true,
+        "log": "/home/cyber/.local/state/cplayout/gis-20261018/runs/09-package-recovery/check-gis-dependency-identity.log",
+        "logBytes": 4244,
+        "logSha256": "34686467d35f79d8a2765861aa1bc0561b621ea6c8ef96011310428930fdb4e0"
+      }
+    ],
+    "unchangedAfterAll": true,
+    "boundary": "Actual bounded affected-source checks on the frozen native mirror. No whole validate, browser or device run inferred from these commands. Fresh exact-head protected complete source/browser qualification remains separate."
+  },
+  "blockingReview": {
+    "observedAt": "2026-10-19T03:50:48.922262+00:00",
+    "reviewer": "/root/gis_architecture",
+    "reviewScope": "package_recovery_source_delta_pre_ci",
+    "sourceFingerprint": "ae8f8ef7e939ef1aaaec508280cb2165b29b90d6f8b733d11413e51a54869ac9",
+    "result": "request_changes",
+    "finding": "Unrecorded plain-ID legacy active destination can be moved to a backup that startup refuses for missing manifest after interrupted replacement. Require prewrite refusal until separately qualified durable migration; preserve in-place legacy reads.",
+    "method": "Independent source review; no executed reproduction in reviewerturn. Worker regression execution separately follows.",
+    "disposition": "Prior43-case source/memory proofs preserved; no final acceptance or hosted successor check credited."
+  },
+  "boundary": "Initial native recovery candidate passed its43-case memory harness and bounded checks but independent review found the plain-ID legacy replacement interruption gap. Preserved as intermediate evidence, never accepted or published as a protected source checkpoint."
+}

@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "reviewer": "/root/visual_testing",
+  "authorship": "Independent of visual implementation",
+  "decision": "approve nine control-region baseline images",
+  "observedOn": "2026-10-18",
+  "run": {
+    "tests": 24,
+    "passed": 24,
+    "failed": 0,
+    "sourceFingerprint": "e7740f084e8063f5ee9868904db91a616548d177e0c1d31d25691e1c8375e927",
+    "lockSha256": "9d362a6e5f8c0a8e26199d9ea278a02cda194f569218e17ede0d520d1712dbb0"
+  },
+  "pngHashes": {
+    "linux/desktop/gis-common-controls.png": "997d84c1428dba351b2fae22e65c2be8f1fd10adca280d487af2cd3bf4b2f8e2",
+    "linux/desktop/gis-controls-390x500.png": "d1ba2db595b4d689c4230bc4c79c3da70afe4078e7834c83fa180e0382c73df7",
+    "linux/desktop/gis-controls-844x390.png": "6770e9603d71de7b0331df488107786938a6dbddbfbb6e7df2d6b1927e334521",
+    "linux/mobile-390/gis-common-controls.png": "3ffe7ad3f16aa3215bc0060d0f096a7d3eb3836e8549b4fe313b1952c1f58b27",
+    "linux/mobile-390/gis-controls-390x500.png": "d1ba2db595b4d689c4230bc4c79c3da70afe4078e7834c83fa180e0382c73df7",
+    "linux/mobile-390/gis-controls-844x390.png": "6770e9603d71de7b0331df488107786938a6dbddbfbb6e7df2d6b1927e334521",
+    "linux/tablet-768/gis-common-controls.png": "3927648d67f477e46d79cad17de96a449118603a0581f11ac89969fdf63ca4d1",
+    "linux/tablet-768/gis-controls-390x500.png": "d1ba2db595b4d689c4230bc4c79c3da70afe4078e7834c83fa180e0382c73df7",
+    "linux/tablet-768/gis-controls-844x390.png": "6770e9603d71de7b0331df488107786938a6dbddbfbb6e7df2d6b1927e334521"
+  },
+  "noise": {
+    "sets": 9,
+    "capturesPerSet": 3,
+    "observedByteDifference": 0,
+    "comparisonMaxDiffPixels": 0,
+    "threshold": 0
+  },
+  "reviewedMapImages": 7,
+  "hashVerifiedCapturedImages": 30,
+  "limitations": [
+    "Toolbar ROI images do not cover focus appearance outside that region. Tab/focus return have separate assertions.",
+    "r3 clearance proved a120px vertical line near viewport edge; final assertion strengthening requires usable width.",
+    "Map PNGs show intercepted synthetic uniform tiles with source attribution UI; preserve synthetic captions and sidecars.",
+    "No whole-edition/accessibility/native/device/field acceptance."
+  ],
+  "sourceEvidence": "Private preserved runs/03-gis24-pass, plus completed reviewer report in this task."
+}

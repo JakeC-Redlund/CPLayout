@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "observedOn": "2026-10-18",
+  "reviewer": "/root/browser_failure_review",
+  "reviewScope": "changed_untracked_publishable_files_and_synthetic_baseline_figures",
+  "result": "accept_inspected_scope",
+  "sourceFingerprint": "e977f099f7b3466b5a7f93938f48472dc4e5bfc6b203f727459c3b751ea5fe7d",
+  "observations": {
+    "untrackedFilesAtInspection": 68,
+    "untrackedTypes": {
+      "ts": 10,
+      "json": 45,
+      "cjs": 3,
+      "md": 1,
+      "png": 9
+    },
+    "evidenceFilesAtInspection": 46,
+    "evidenceBytesAtInspection": 1792408,
+    "privateRuntimeArtifactsFound": false,
+    "credentialPatternHits": 0,
+    "distinctBaselineFiguresVisuallyInspected": 5,
+    "baselineFiles": 9
+  },
+  "knownFreshnessItem": "Browser-pending report prose identified and updated by coordinator; aggregate and final review/generation still require actual results.",
+  "boundary": "Read-only file-selection and bounded accidental-disclosure check; not final source/proof acceptance or comprehensive secret audit. Counts are inspection-time inventory, not a final staged-file count. Raw logs/traces/browser profiles/signing seed/native dependencies excluded. No tests, exports, servers, edits or staging by reviewer."
+}

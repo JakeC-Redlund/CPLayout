@@ -23,7 +23,11 @@ export default defineConfig({
   },
   forbidOnly: Boolean(process.env.CI),
   fullyParallel: false,
+  // Leave at least fifteen minutes for install/export and failure artifact
+  // custody inside the hosted web job's sixty-minute limit.
+  globalTimeout: 45 * 60_000,
   outputDir: "reports/continuous-improvement/playwright-results",
+  snapshotPathTemplate: "{testDir}/{testFileName}-snapshots/{platform}/{projectName}/{arg}{ext}",
   projects: [
     {
       name: "desktop",

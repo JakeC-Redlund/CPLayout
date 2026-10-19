@@ -24,3 +24,11 @@ Use this skill when a CPLayout task touches coordinate systems, geometry authori
 - PMTiles/MBTiles: keep raw archive rendering behind local protocol, conversion, or tile-serving adapter proof.
 - TileJSON: treat as source metadata/template wiring, not proof that native rendering works.
 - Imagery/KML: keep evidence and visual metadata separate from canonical geometry mutation.
+
+## Current map and import review
+
+- Start active workspace rendering at `packages/map-adapters/src/workspaceSceneRendering.ts` and `WorkspaceMapSurface.web.tsx` / `WorkspaceMapSurface.native.tsx`. Inspect legacy `MapSurface` and `NativeMapWorkbenchSurface` only when that separate lane is selected. Installed native dependencies do not establish the renderer chosen by the current App.
+- Boundary imports must preserve the complete supported topology or refuse before mutation. Changed geometry cannot inherit capture associations from the old boundary; preserve unchanged geometry and immutable reference history.
+- Validate XML structure by namespace URI and local name before conversion. A converter may silently omit valid namespace aliases; refuse unsupported forms atomically with an actionable explanation, preserve the original input, and test supported aliases separately. Do not infer complete conversion from a successful parse. Audit the retained converter’s actual qualified-name, wildcard, descendant and attribute lookup rules before freezing a repair. Cover foreign-namespace collisions, foreign-wrapper containment, default-namespace resets and mixed coordinate-selection precedence with failing-before/passing-after cases and supported-form controls. Keep conversion-fidelity admission distinct from full schema validation.
+- For offline packages, inspect nested TileJSON resources and resolved transports as well as the manifest. Reject hidden network references and package traversal, honor offline-copy restrictions, retain attribution/bounds, and keep runtime paths out of portable metadata.
+- Classify browser evidence as MapLibre-required, SVG-required, or renderer-independent. A fallback pass cannot qualify MapLibre rendering; screenshots and imagery do not qualify measured geometry.

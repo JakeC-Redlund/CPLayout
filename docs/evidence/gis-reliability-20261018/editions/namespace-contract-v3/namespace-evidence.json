@@ -1,0 +1,1068 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-18T23:59:39.109427+00:00",
+  "sourceSha256": {
+    "/mnt/h/CPLayout/packages/core/src/projectKml.ts": "9a9b2354358a44dd29e49e03f83b23b2f6987155a579c3c565cb1d8620ce7ace",
+    "/mnt/h/CPLayout/packages/core/src/drawingProjectEdits.test.ts": "aef40a57265b6bdaf1f0db1f376811d9b65cd27dde3c9882399de1c735eb2885",
+    "/mnt/h/CPLayout/node_modules/@tmcw/togeojson/dist/togeojson.cjs": "50d434ae991b8342dddbd81c6e2d433e380e9dd300d62631be801588137a312c",
+    "/mnt/h/CPLayout/package-lock.json": "9d362a6e5f8c0a8e26199d9ea278a02cda194f569218e17ede0d520d1712dbb0"
+  },
+  "contractPath": "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-contract.json",
+  "contractSha256": "509a50ad795615821573e49768f71544f25e92e2084d4a9d59108dcbe7ec0102",
+  "fixtureManifestSha256": "2eb6619893f8df309591a0902f6fb814d2602b97afee7384f95e1be7beeb91b3",
+  "baseline": {
+    "productionSourceSha256": "9ae8f487804313c5f656d81c00cf9f4e48269eadcaae0676f902f8d95f770d15",
+    "regressionBefore": {
+      "commandFile": "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-regressions-complete-before-command.json",
+      "executedNegativeFailures": 26,
+      "positivePasses": 1,
+      "toolOutputId": "fbcefc"
+    },
+    "beforeAdditionalSourceQualification": "The additional probe raw log lacks inline source hash; its actual source edition was recorded in the worker execution session alongside the surrounding 9ae8 baseline runs. Do not describe it as independently inline-bound.",
+    "toolOutputIds": {
+      "mainBefore": "38d7fb",
+      "additionalBefore": "a95d96",
+      "containmentBefore": "254e32"
+    }
+  },
+  "failedAttempts": [
+    {
+      "log": "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-import-tests-after.log",
+      "actualResult": "77 pass /1 fail; broad guard incorrectly refused existing ignored foreign t:Track control",
+      "toolOutputId": "bd4922"
+    },
+    {
+      "log": "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-core-typecheck-attempt1-failed.log",
+      "actualExitCode": 2,
+      "actualResult": "Two nullable localName TS2345 errors; fixed via local fallback, final typecheck passes",
+      "toolOutputId": "dd2985"
+    }
+  ],
+  "pairedDirectProbes": [
+    {
+      "stem": "namespace-collision",
+      "beforeCount": 15,
+      "beforeAdmitted": 15,
+      "afterCount": 15,
+      "afterAdmitted": 5,
+      "comparisons": [
+        {
+          "id": "valid-kml-point",
+          "before": {
+            "id": "valid-kml-point",
+            "inputSha256": "def70e573e39f1e95b1917069a0b08576ce3d26d11fbd904c85262eb93198671",
+            "admitted": true,
+            "importedBoundary": false,
+            "importedMapFeatureCount": 1,
+            "importedSurveyPointCount": 0,
+            "skippedFeatureCount": 0,
+            "features": [
+              {
+                "id": "pump-location",
+                "kind": "pump_location",
+                "geometryType": "Point",
+                "lonLat": {
+                  "longitude": -105.00000000000001,
+                  "latitude": 40
+                }
+              }
+            ],
+            "survey": [],
+            "sourceUnchanged": true
+          },
+          "after": {
+            "id": "valid-kml-point",
+            "inputSha256": "def70e573e39f1e95b1917069a0b08576ce3d26d11fbd904c85262eb93198671",
+            "admitted": true,
+            "importedBoundary": false,
+            "importedMapFeatureCount": 1,
+            "importedSurveyPointCount": 0,
+            "skippedFeatureCount": 0,
+            "features": [
+              {
+                "id": "pump-location",
+                "kind": "pump_location",
+                "geometryType": "Point",
+                "lonLat": {
+                  "longitude": -105.00000000000001,
+                  "latitude": 40
+                }
+              }
+            ],
+            "survey": [],
+            "sourceUnchanged": true
+          }
+        },
+        {
+          "id": "legacy-unqualified-root",
+          "before": {
+            "id": "legacy-unqualified-root",
+            "inputSha256": "63b00bc4a3205bdeef91a54e122d6e94deb685054e7ceedeb985caa18195571d",
+            "admitted": true,
+            "importedBoundary": false,
+            "importedMapFeatureCount": 1,
+            "importedSurveyPointCount": 0,
+            "skippedFeatureCount": 0,
+            "features": [
+              {
+                "id": "pump-location",
+                "kind": "pump_location",
+                "geometryType": "Point",
+                "lonLat": {
+                  "longitude": -105.00000000000001,
+                  "latitude": 40
+                }
+              }
+            ],
+            "survey": [],
+            "sourceUnchanged": true
+          },
+          "after": {
+            "id": "legacy-unqualified-root",
+            "inputSha256": "63b00bc4a3205bdeef91a54e122d6e94deb685054e7ceedeb985caa18195571d",
+            "admitted": true,
+            "importedBoundary": false,
+            "importedMapFeatureCount": 1,
+            "importedSurveyPointCount": 0,
+            "skippedFeatureCount": 0,
+            "features": [
+              {
+                "id": "pump-location",
+                "kind": "pump_location",
+                "geometryType": "Point",
+                "lonLat": {
+                  "longitude": -105.00000000000001,
+                  "latitude": 40
+                }
+              }
+            ],
+            "survey": [],
+            "sourceUnchanged": true
+          }
+        },
+        {
+          "id": "foreign-coordinates-first",
+          "before": {
+            "id": "foreign-coordinates-first",
+            "inputSha256": "792211e37d6e6a29a24d63cab8abf0ab3bc9377075c2980bda18112a77f40758",
+            "admitted": true,
+            "importedBoundary": false,
+            "importedMapFeatureCount": 1,
+            "importedSurveyPointCount": 0,
+            "skippedFeatureCount": 0,
+            "features": [
+              {
+                "id": "pump-location",
+                "kind": "pump_location",
+                "geometryType": "Point",
+                "lonLat": {
+                  "longitude": -106,
+                  "latitude": 40.99999999999999
+                }
+              }
+            ],
+            "survey": [],
+            "sourceUnchanged": true
+          },
+          "after": {
+            "id": "foreign-coordinates-first",
+            "inputSha256": "792211e37d6e6a29a24d63cab8abf0ab3bc9377075c2980bda18112a77f40758",
+            "admitted": false,
+            "error": "KML import cannot retain unsupported XML namespace \"urn:foreign\" for coordinates. Export a copy using the supported KML/GX namespaces, and preserve the complete original input.",
+            "sourceUnchanged": true
+          }
+        },
+        {
+          "id": "foreign-point-literal",
+          "before": {
+            "id": "foreign-point-literal",
+            "inputSha256": "68933a70f404b1c077fac3c09d11a0304246c7e733e579c27e9b38346a3561f4",
+            "admitted": true,
+            "importedBoundary": false,
+            "importedMapFeatureCount": 1,
+            "importedSurveyPointCount": 0,
+            "skippedFeatureCount": 0,
+            "features": [
+              {
+                "id": "pump-location",
+                "kind": "pump_location",
+                "geometryType": "Point",
+                "lonLat": {
+                  "longitude": -106,
+                  "latitude": 40.99999999999999
+                }
+              }
+            ],
+            "survey": [],
+            "sourceUnchanged": true
+          },
+          "after": {
+            "id": "foreign-point-literal",
+            "inputSha256": "68933a70f404b1c077fac3c09d11a0304246c7e733e579c27e9b38346a3561f4",
+            "admitted": false,
+            "error": "KML import cannot retain unsupported XML namespace \"urn:foreign\" for Point. Export a copy using the supported KML/GX namespaces, and preserve the complete original input.",
+            "sourceUnchanged": true
+          }
+        },
+        {
+          "id": "foreign-placemark-literal",
+          "before": {
+            "id": "foreign-placemark-literal",
+            "inputSha256": "5e785d459238f1376b96e08b0732bb5e121684ecaa09b43cd5121c409285192d",
+            "admitted": true,
+            "importedBoundary": false,
+            "importedMapFeatureCount": 1,
+            "importedSurveyPointCount": 0,
+            "skippedFeatureCount": 0,
+            "features": [
+              {
+                "id": "pump-location",
+                "kind": "pump_location",
+                "geometryType": "Point",
+                "lonLat": {
+                  "longitude": -106,
+                  "latitude": 40.99999999999999
+                }
+              }
+            ],
+            "survey": [],
+            "sourceUnchanged": true
+          },
+          "after": {
+            "id": "foreign-placemark-literal",
+            "inputSha256": "5e785d459238f1376b96e08b0732bb5e121684ecaa09b43cd5121c409285192d",
+            "admitted": false,
+            "error": "KML import cannot retain unsupported XML namespace \"urn:foreign\" for Placemark. Export a copy using the supported KML/GX namespaces, and preserve the complete original input.",
+            "sourceUnchanged": true
+          }
+        },
+        {
+          "id": "foreign-name-shadow",
+          "before": {
+            "id": "foreign-name-shadow",
+            "inputSha256": "f51ecd0e334ca0b421c242932228c83f192760c976afd5367d65e8973bf77251",
+            "admitted": true,
+            "importedBoundary": false,
+            "importedMapFeatureCount": 0,
+            "importedSurveyPointCount": 1,
+            "skippedFeatureCount": 0,
+            "features": [],
+            "survey": [
+              {
+                "label": "Control",
+                "lonLat": {
+                  "longitude": -105.00000000000001,
+                  "latitude": 40
+                }
+              }
+            ],
+            "sourceUnchanged": true
+          },
+          "after": {
+            "id": "foreign-name-shadow",
+            "inputSha256": "f51ecd0e334ca0b421c242932228c83f192760c976afd5367d65e8973bf77251",
+            "admitted": false,
+            "error": "KML import cannot retain unsupported XML namespace \"urn:foreign\" for name. Export a copy using the supported KML/GX namespaces, and preserve the complete original input.",
+            "sourceUnchanged": true
+          }
+        },
+        {
+          "id": "foreign-data-literal",
+          "before": {
+            "id": "foreign-data-literal",
+            "inputSha256": "9a9774b7816666558e79caa332ee48913cf63d5cbf7e17fb482d90999ce574df",
+            "admitted": true,
+            "importedBoundary": false,
+            "importedMapFeatureCount": 1,
+            "importedSurveyPointCount": 0,
+            "skippedFeatureCount": 0,
+            "features": [
+              {
+                "id": "foreign-injected-id",
+                "kind": "pump_location",
+                "geometryType": "Point",
+                "lonLat": {
+                  "longitude": -105.00000000000001,
+                  "latitude": 40
+                }
+              }
+            ],
+            "survey": [],
+            "sourceUnchanged": true
+          },
+          "after": {
+            "id": "foreign-data-literal",
+            "inputSha256": "9a9774b7816666558e79caa332ee48913cf63d5cbf7e17fb482d90999ce574df",
+            "admitted": false,
+            "error": "KML import cannot retain unsupported XML namespace \"urn:foreign\" for Data. Export a copy using the supported KML/GX namespaces, and preserve the complete original input.",
+            "sourceUnchanged": true
+          }
+        },
+        {
+          "id": "foreign-default-root",
+          "before": {
+            "id": "foreign-default-root",
+            "inputSha256": "4bf72fc6b7c5e01208629107c6a911fe54b205debab09cbee302cd1a0ee8d1a8",
+            "admitted": true,
+            "importedBoundary": false,
+            "importedMapFeatureCount": 1,
+            "importedSurveyPointCount": 0,
+            "skippedFeatureCount": 0,
+            "features": [
+              {
+                "id": "pump-location",
+                "kind": "pump_location",
+                "geometryType": "Point",
+                "lonLat": {
+                  "longitude": -105.00000000000001,
+                  "latitude": 40
+                }
+              }
+            ],
+            "survey": [],
+            "sourceUnchanged": true
+          },
+          "after": {
+            "id": "foreign-default-root",
+            "inputSha256": "4bf72fc6b7c5e01208629107c6a911fe54b205debab09cbee302cd1a0ee8d1a8",
+            "admitted": false,
+            "error": "KML import has an unsupported KML root name or namespace. Export a copy with a KML 2.2 root (or the retained unqualified legacy form), and preserve the complete original input.",
+            "sourceUnchanged": true
+          }
+        },
+        {
+          "id": "wrong-uri-gx-track",
+          "before": {
+            "id": "wrong-uri-gx-track",
+            "inputSha256": "deb569a8f56d5e2bffa3781c3e5e5f4a15caea1a864bf53213b5ac6c812f7d58",
+            "admitted": true,
+            "importedBoundary": true,
+            "importedMapFeatureCount": 1,
+            "importedSurveyPointCount": 0,
+            "skippedFeatureCount": 0,
+            "features": [
+              {
+                "id": "linear-move-path",
+                "kind": "linear_move_path",
+                "geometryType": "LineString",
+                "vertices": 3
+              }
+            ],
+            "survey": [],
+            "sourceUnchanged": true
+          },
+          "after": {
+            "id": "wrong-uri-gx-track",
+            "inputSha256": "deb569a8f56d5e2bffa3781c3e5e5f4a15caea1a864bf53213b5ac6c812f7d58",
+            "admitted": false,
+            "error": "KML import cannot retain unsupported XML namespace \"urn:foreign\" for gx:Track. Export a copy using the supported KML/GX namespaces, and preserve the complete original input.",
+            "sourceUnchanged": true
+          }
+        },
+        {
+          "id": "wrong-uri-gx-multitrack",
+          "before": {
+            "id": "wrong-uri-gx-multitrack",
+            "inputSha256": "8faee27c632bd34806620c5a18dbd3fb2fb6121f1e31e9221a86e3b83a2ed7b1",
+            "admitted": true,
+            "importedBoundary": true,
+            "importedMapFeatureCount": 1,
+            "importedSurveyPointCount": 0,
+            "skippedFeatureCount": 0,
+            "features": [
+              {
+                "id": "linear-move-path",
+                "kind": "linear_move_path",
+                "geometryType": "LineString",
+                "vertices": 3
+              }
+            ],
+            "survey": [],
+            "sourceUnchanged": true
+          },
+          "after": {
+            "id": "wrong-uri-gx-multitrack",
+            "inputSha256": "8faee27c632bd34806620c5a18dbd3fb2fb6121f1e31e9221a86e3b83a2ed7b1",
+            "admitted": false,
+            "error": "KML import cannot retain unsupported XML namespace \"urn:foreign\" for gx:MultiTrack. Export a copy using the supported KML/GX namespaces, and preserve the complete original input.",
+            "sourceUnchanged": true
+          }
+        },
+        {
+          "id": "foreign-prefixed-coord-wildcard",
+          "before": {
+            "id": "foreign-prefixed-coord-wildcard",
+            "inputSha256": "810223930af6bc2400603756032c3ab75d8051aca22918e90361e041884ce030",
+            "admitted": true,
+            "importedBoundary": true,
+            "importedMapFeatureCount": 1,
+            "importedSurveyPointCount": 0,
+            "skippedFeatureCount": 0,
+            "features": [
+              {
+                "id": "linear-move-path",
+                "kind": "linear_move_path",
+                "geometryType": "LineString",
+                "vertices": 4
+              }
+            ],
+            "survey": [],
+            "sourceUnchanged": true
+          },
+          "after": {
+            "id": "foreign-prefixed-coord-wildcard",
+            "inputSha256": "810223930af6bc2400603756032c3ab75d8051aca22918e90361e041884ce030",
+            "admitted": false,
+            "error": "KML import cannot retain unsupported XML namespace \"urn:foreign\" for f:coord. Export a copy using the supported KML/GX namespaces, and preserve the complete original input.",
+            "sourceUnchanged": true
+          }
+        },
+        {
+          "id": "foreign-unprefixed-coord-shadow",
+          "before": {
+            "id": "foreign-unprefixed-coord-shadow",
+            "inputSha256": "c261d967ec2a55ddcaec10d8216969e29bf7008522f4d1df7ba3a355d93a13b0",
+            "admitted": true,
+            "importedBoundary": true,
+            "importedMapFeatureCount": 0,
+            "importedSurveyPointCount": 1,
+            "skippedFeatureCount": 0,
+            "features": [],
+            "survey": [
+              {
+                "label": "Control",
+                "lonLat": {
+                  "longitude": -106,
+                  "latitude": 40.99999999999999
+                }
+              }
+            ],
+            "sourceUnchanged": true
+          },
+          "after": {
+            "id": "foreign-unprefixed-coord-shadow",
+            "inputSha256": "c261d967ec2a55ddcaec10d8216969e29bf7008522f4d1df7ba3a355d93a13b0",
+            "admitted": false,
+            "error": "KML import cannot retain unsupported XML namespace \"urn:foreign\" for coord. Export a copy using the supported KML/GX namespaces, and preserve the complete original input.",
+            "sourceUnchanged": true
+          }
+        },
+        {
+          "id": "legacy-bare-track-coord",
+          "before": {
+            "id": "legacy-bare-track-coord",
+            "inputSha256": "11ccc3bf102689f46c534f1348fc5466035d6480a80278430d259e1032ba5a9c",
+            "admitted": true,
+            "importedBoundary": true,
+            "importedMapFeatureCount": 1,
+            "importedSurveyPointCount": 0,
+            "skippedFeatureCount": 0,
+            "features": [
+              {
+                "id": "linear-move-path",
+                "kind": "linear_move_path",
+                "geometryType": "LineString",
+                "vertices": 3
+              }
+            ],
+            "survey": [],
+            "sourceUnchanged": true
+          },
+          "after": {
+            "id": "legacy-bare-track-coord",
+            "inputSha256": "11ccc3bf102689f46c534f1348fc5466035d6480a80278430d259e1032ba5a9c",
+            "admitted": true,
+            "importedBoundary": true,
+            "importedMapFeatureCount": 1,
+            "importedSurveyPointCount": 0,
+            "skippedFeatureCount": 0,
+            "features": [
+              {
+                "id": "linear-move-path",
+                "kind": "linear_move_path",
+                "geometryType": "LineString",
+                "vertices": 3
+              }
+            ],
+            "survey": [],
+            "sourceUnchanged": true
+          }
+        },
+        {
+          "id": "legacy-no-namespace-track-coord",
+          "before": {
+            "id": "legacy-no-namespace-track-coord",
+            "inputSha256": "bf63c54394267d69b3bba3f562bb5f5c893c446a1fe9071bf0316aef0b5c40a6",
+            "admitted": true,
+            "importedBoundary": true,
+            "importedMapFeatureCount": 1,
+            "importedSurveyPointCount": 0,
+            "skippedFeatureCount": 0,
+            "features": [
+              {
+                "id": "linear-move-path",
+                "kind": "linear_move_path",
+                "geometryType": "LineString",
+                "vertices": 3
+              }
+            ],
+            "survey": [],
+            "sourceUnchanged": true
+          },
+          "after": {
+            "id": "legacy-no-namespace-track-coord",
+            "inputSha256": "bf63c54394267d69b3bba3f562bb5f5c893c446a1fe9071bf0316aef0b5c40a6",
+            "admitted": true,
+            "importedBoundary": true,
+            "importedMapFeatureCount": 1,
+            "importedSurveyPointCount": 0,
+            "skippedFeatureCount": 0,
+            "features": [
+              {
+                "id": "linear-move-path",
+                "kind": "linear_move_path",
+                "geometryType": "LineString",
+                "vertices": 3
+              }
+            ],
+            "survey": [],
+            "sourceUnchanged": true
+          }
+        },
+        {
+          "id": "harmless-foreign-prefixed-extension",
+          "before": {
+            "id": "harmless-foreign-prefixed-extension",
+            "inputSha256": "e1d00209277c1fd85b5349085176394ece6e89139d192ae6027db74d35812676",
+            "admitted": true,
+            "importedBoundary": false,
+            "importedMapFeatureCount": 1,
+            "importedSurveyPointCount": 0,
+            "skippedFeatureCount": 0,
+            "features": [
+              {
+                "id": "pump-location",
+                "kind": "pump_location",
+                "geometryType": "Point",
+                "lonLat": {
+                  "longitude": -105.00000000000001,
+                  "latitude": 40
+                }
+              }
+            ],
+            "survey": [],
+            "sourceUnchanged": true
+          },
+          "after": {
+            "id": "harmless-foreign-prefixed-extension",
+            "inputSha256": "e1d00209277c1fd85b5349085176394ece6e89139d192ae6027db74d35812676",
+            "admitted": true,
+            "importedBoundary": false,
+            "importedMapFeatureCount": 1,
+            "importedSurveyPointCount": 0,
+            "skippedFeatureCount": 0,
+            "features": [
+              {
+                "id": "pump-location",
+                "kind": "pump_location",
+                "geometryType": "Point",
+                "lonLat": {
+                  "longitude": -105.00000000000001,
+                  "latitude": 40
+                }
+              }
+            ],
+            "survey": [],
+            "sourceUnchanged": true
+          }
+        }
+      ]
+    },
+    {
+      "stem": "namespace-collision-additional",
+      "beforeCount": 5,
+      "beforeAdmitted": 5,
+      "afterCount": 5,
+      "afterAdmitted": 0,
+      "comparisons": [
+        {
+          "id": "unqualified-coordinate-reset",
+          "before": {
+            "id": "unqualified-coordinate-reset",
+            "admitted": true,
+            "importedMapFeatureCount": 1,
+            "importedSurveyPointCount": 0,
+            "feature": {
+              "id": "pump-location",
+              "name": "Pump location",
+              "kind": "pump_location",
+              "geometry": {
+                "type": "Point",
+                "point": {
+                  "x": 415897.86555489205,
+                  "y": 4539238.589374565
+                }
+              },
+              "confidence": "imagery_digitized",
+              "properties": {
+                "name": "Pump location"
+              }
+            },
+            "survey": {
+              "id": "road-draft",
+              "label": "Road digitized from imagery",
+              "role": "obstacle",
+              "projected": {
+                "x": 501114,
+                "y": 4506620
+              },
+              "observedAt": "2026-05-19T09:00:00-06:00",
+              "source": "manual",
+              "confidence": "imagery_digitized",
+              "notes": "Planning-grade until field checked."
+            }
+          },
+          "after": {
+            "id": "unqualified-coordinate-reset",
+            "admitted": false,
+            "error": "KML import cannot retain unsupported XML namespace \"(none)\" for coordinates. Export a copy using the supported KML/GX namespaces, and preserve the complete original input."
+          }
+        },
+        {
+          "id": "mixed-correct-gx-coordinate-forms",
+          "before": {
+            "id": "mixed-correct-gx-coordinate-forms",
+            "admitted": true,
+            "importedMapFeatureCount": 0,
+            "importedSurveyPointCount": 1,
+            "survey": {
+              "id": "kml-point-3",
+              "label": "Control",
+              "role": "control",
+              "projected": {
+                "x": 415897.86555489205,
+                "y": 4539238.589374565
+              },
+              "wgs84": {
+                "longitude": -106,
+                "latitude": 41
+              },
+              "observedAt": "2026-10-18T23:45:58.730Z",
+              "source": "imported",
+              "confidence": "imagery_digitized"
+            }
+          },
+          "after": {
+            "id": "mixed-correct-gx-coordinate-forms",
+            "admitted": false,
+            "error": "KML import cannot retain mixed GX coordinate forms: the converter would discard prefixed observations when a bare coord exists. Export a copy with one consistent coord form, and preserve the complete original input."
+          }
+        },
+        {
+          "id": "mixed-legacy-and-gx-coordinate-forms",
+          "before": {
+            "id": "mixed-legacy-and-gx-coordinate-forms",
+            "admitted": true,
+            "importedMapFeatureCount": 0,
+            "importedSurveyPointCount": 1,
+            "survey": {
+              "id": "kml-point-3",
+              "label": "Control",
+              "role": "control",
+              "projected": {
+                "x": 415897.86555489205,
+                "y": 4539238.589374565
+              },
+              "wgs84": {
+                "longitude": -106,
+                "latitude": 41
+              },
+              "observedAt": "2026-10-18T23:45:58.732Z",
+              "source": "imported",
+              "confidence": "imagery_digitized"
+            }
+          },
+          "after": {
+            "id": "mixed-legacy-and-gx-coordinate-forms",
+            "admitted": false,
+            "error": "KML import cannot retain mixed GX coordinate forms: the converter would discard prefixed observations when a bare coord exists. Export a copy with one consistent coord form, and preserve the complete original input."
+          }
+        },
+        {
+          "id": "foreign-cascading-style-parent",
+          "before": {
+            "id": "foreign-cascading-style-parent",
+            "admitted": true,
+            "importedMapFeatureCount": 1,
+            "importedSurveyPointCount": 0,
+            "feature": {
+              "id": "pump-location",
+              "name": "Pump location",
+              "kind": "pump_location",
+              "geometry": {
+                "type": "Point",
+                "point": {
+                  "x": 500000,
+                  "y": 4427757.218738374
+                }
+              },
+              "confidence": "imagery_digitized",
+              "properties": {
+                "name": "Pump location",
+                "styleUrl": "#chosen",
+                "stroke-opacity": 1,
+                "stroke": "#ff0000"
+              }
+            },
+            "survey": {
+              "id": "road-draft",
+              "label": "Road digitized from imagery",
+              "role": "obstacle",
+              "projected": {
+                "x": 501114,
+                "y": 4506620
+              },
+              "observedAt": "2026-05-19T09:00:00-06:00",
+              "source": "manual",
+              "confidence": "imagery_digitized",
+              "notes": "Planning-grade until field checked."
+            }
+          },
+          "after": {
+            "id": "foreign-cascading-style-parent",
+            "admitted": false,
+            "error": "KML import cannot qualify the converter's operative CascadingStyle parent-id fallback. Export a copy with explicit ids on ordinary KML Style elements, and preserve the complete original input."
+          }
+        },
+        {
+          "id": "foreign-kml-id-attribute",
+          "before": {
+            "id": "foreign-kml-id-attribute",
+            "admitted": true,
+            "importedMapFeatureCount": 1,
+            "importedSurveyPointCount": 0,
+            "feature": {
+              "id": "pump-location",
+              "name": "Pump location",
+              "kind": "pump_location",
+              "geometry": {
+                "type": "Point",
+                "point": {
+                  "x": 500000,
+                  "y": 4427757.218738374
+                }
+              },
+              "confidence": "imagery_digitized",
+              "properties": {
+                "name": "Pump location",
+                "styleUrl": "#chosen",
+                "stroke-opacity": 1,
+                "stroke": "#ff0000"
+              }
+            },
+            "survey": {
+              "id": "road-draft",
+              "label": "Road digitized from imagery",
+              "role": "obstacle",
+              "projected": {
+                "x": 501114,
+                "y": 4506620
+              },
+              "observedAt": "2026-05-19T09:00:00-06:00",
+              "source": "manual",
+              "confidence": "imagery_digitized",
+              "notes": "Planning-grade until field checked."
+            }
+          },
+          "after": {
+            "id": "foreign-kml-id-attribute",
+            "admitted": false,
+            "error": "KML import cannot qualify the converter's operative CascadingStyle parent-id fallback. Export a copy with explicit ids on ordinary KML Style elements, and preserve the complete original input."
+          }
+        }
+      ]
+    },
+    {
+      "stem": "namespace-collision-containment",
+      "beforeCount": 4,
+      "beforeAdmitted": 4,
+      "afterCount": 4,
+      "afterAdmitted": 0,
+      "comparisons": [
+        {
+          "id": "correct-namespace-coordinate-in-foreign-wrapper",
+          "before": {
+            "id": "correct-namespace-coordinate-in-foreign-wrapper",
+            "admitted": true,
+            "importedMapFeatureCount": 1,
+            "importedSurveyPointCount": 0,
+            "features": [
+              {
+                "geometryType": "Point",
+                "lonLat": {
+                  "longitude": -106,
+                  "latitude": 40.99999999999999
+                }
+              }
+            ],
+            "sourceUnchanged": true
+          },
+          "after": {
+            "id": "correct-namespace-coordinate-in-foreign-wrapper",
+            "admitted": false,
+            "error": "KML import cannot retain unsupported XML namespace \"urn:foreign\" for f:review. Export a copy using the supported KML/GX namespaces, and preserve the complete original input.",
+            "sourceUnchanged": true
+          }
+        },
+        {
+          "id": "correct-namespace-coord-in-foreign-wrapper",
+          "before": {
+            "id": "correct-namespace-coord-in-foreign-wrapper",
+            "admitted": true,
+            "importedMapFeatureCount": 1,
+            "importedSurveyPointCount": 0,
+            "features": [
+              {
+                "geometryType": "LineString",
+                "vertices": 4
+              }
+            ],
+            "sourceUnchanged": true
+          },
+          "after": {
+            "id": "correct-namespace-coord-in-foreign-wrapper",
+            "admitted": false,
+            "error": "KML import cannot retain unsupported XML namespace \"urn:foreign\" for f:review. Export a copy using the supported KML/GX namespaces, and preserve the complete original input.",
+            "sourceUnchanged": true
+          }
+        },
+        {
+          "id": "correct-namespace-global-feature-in-foreign-wrapper",
+          "before": {
+            "id": "correct-namespace-global-feature-in-foreign-wrapper",
+            "admitted": true,
+            "importedMapFeatureCount": 1,
+            "importedSurveyPointCount": 0,
+            "features": [
+              {
+                "geometryType": "Point",
+                "lonLat": {
+                  "longitude": -105.00000000000001,
+                  "latitude": 40
+                }
+              }
+            ],
+            "sourceUnchanged": true
+          },
+          "after": {
+            "id": "correct-namespace-global-feature-in-foreign-wrapper",
+            "admitted": false,
+            "error": "KML import cannot retain unsupported XML namespace \"urn:foreign\" for f:review. Export a copy using the supported KML/GX namespaces, and preserve the complete original input.",
+            "sourceUnchanged": true
+          }
+        },
+        {
+          "id": "correct-namespace-name-in-foreign-wrapper",
+          "before": {
+            "id": "correct-namespace-name-in-foreign-wrapper",
+            "admitted": true,
+            "importedMapFeatureCount": 0,
+            "importedSurveyPointCount": 1,
+            "features": [],
+            "sourceUnchanged": true
+          },
+          "after": {
+            "id": "correct-namespace-name-in-foreign-wrapper",
+            "admitted": false,
+            "error": "KML import cannot retain unsupported XML namespace \"urn:foreign\" for f:review. Export a copy using the supported KML/GX namespaces, and preserve the complete original input.",
+            "sourceUnchanged": true
+          }
+        }
+      ]
+    }
+  ],
+  "finalFocusedChecks": {
+    "drawingImportTests": "79/79 pass (51 retained plus27 negative fixtures plus1 combined positive control)",
+    "legacyProjectKmlSuite": "project KML tests passed; this script does not print a numeric test count",
+    "coreTypecheck": "exit0",
+    "scopedDiffcheck": "exit0",
+    "directCounterprobes": "19 previously admitted negative cases now refuse;5 controls remain admitted",
+    "toolOutputId": "febc59",
+    "commands": [
+      {
+        "argv": [
+          "node",
+          "--require",
+          "tsx/cjs",
+          "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-additional-counterprobe.cjs"
+        ],
+        "cwd": "/mnt/h/CPLayout",
+        "exitCode": 0,
+        "sourceSha256": {
+          "/mnt/h/CPLayout/packages/core/src/projectKml.ts": "9a9b2354358a44dd29e49e03f83b23b2f6987155a579c3c565cb1d8620ce7ace",
+          "/mnt/h/CPLayout/packages/core/src/drawingProjectEdits.test.ts": "aef40a57265b6bdaf1f0db1f376811d9b65cd27dde3c9882399de1c735eb2885",
+          "/mnt/h/CPLayout/node_modules/@tmcw/togeojson/dist/togeojson.cjs": "50d434ae991b8342dddbd81c6e2d433e380e9dd300d62631be801588137a312c",
+          "/mnt/h/CPLayout/package-lock.json": "9d362a6e5f8c0a8e26199d9ea278a02cda194f569218e17ede0d520d1712dbb0"
+        },
+        "logSha256": "331d7374f0d9cb4d71071f35eade1a878f3267d44ec7f4fb4f14dd330dae4925",
+        "path": "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-additional-final-command.json"
+      },
+      {
+        "argv": [
+          "node",
+          "--require",
+          "tsx/cjs",
+          "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-containment-counterprobe.cjs"
+        ],
+        "cwd": "/mnt/h/CPLayout",
+        "exitCode": 0,
+        "sourceSha256": {
+          "/mnt/h/CPLayout/packages/core/src/projectKml.ts": "9a9b2354358a44dd29e49e03f83b23b2f6987155a579c3c565cb1d8620ce7ace",
+          "/mnt/h/CPLayout/packages/core/src/drawingProjectEdits.test.ts": "aef40a57265b6bdaf1f0db1f376811d9b65cd27dde3c9882399de1c735eb2885",
+          "/mnt/h/CPLayout/node_modules/@tmcw/togeojson/dist/togeojson.cjs": "50d434ae991b8342dddbd81c6e2d433e380e9dd300d62631be801588137a312c",
+          "/mnt/h/CPLayout/package-lock.json": "9d362a6e5f8c0a8e26199d9ea278a02cda194f569218e17ede0d520d1712dbb0"
+        },
+        "logSha256": "4f381111c7a3accc0e2705626c6d56c4e8a242643b2d33b814e69b3afd1e4c64",
+        "path": "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-containment-final-command.json"
+      },
+      {
+        "argv": [
+          "npm",
+          "run",
+          "typecheck",
+          "--workspace",
+          "@cplayout/core"
+        ],
+        "cwd": "/mnt/h/CPLayout",
+        "exitCode": 0,
+        "sourceSha256": {
+          "/mnt/h/CPLayout/packages/core/src/projectKml.ts": "9a9b2354358a44dd29e49e03f83b23b2f6987155a579c3c565cb1d8620ce7ace",
+          "/mnt/h/CPLayout/packages/core/src/drawingProjectEdits.test.ts": "aef40a57265b6bdaf1f0db1f376811d9b65cd27dde3c9882399de1c735eb2885",
+          "/mnt/h/CPLayout/node_modules/@tmcw/togeojson/dist/togeojson.cjs": "50d434ae991b8342dddbd81c6e2d433e380e9dd300d62631be801588137a312c",
+          "/mnt/h/CPLayout/package-lock.json": "9d362a6e5f8c0a8e26199d9ea278a02cda194f569218e17ede0d520d1712dbb0"
+        },
+        "logSha256": "14061b45377cb2e29180c62454bda11c58fd6dea27ea56f88a55e9b09ac62039",
+        "path": "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-core-typecheck-final-command.json"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check",
+          "--",
+          "packages/core/src/projectKml.ts",
+          "packages/core/src/drawingProjectEdits.test.ts"
+        ],
+        "cwd": "/mnt/h/CPLayout",
+        "exitCode": 0,
+        "sourceSha256": {
+          "/mnt/h/CPLayout/packages/core/src/projectKml.ts": "9a9b2354358a44dd29e49e03f83b23b2f6987155a579c3c565cb1d8620ce7ace",
+          "/mnt/h/CPLayout/packages/core/src/drawingProjectEdits.test.ts": "aef40a57265b6bdaf1f0db1f376811d9b65cd27dde3c9882399de1c735eb2885",
+          "/mnt/h/CPLayout/node_modules/@tmcw/togeojson/dist/togeojson.cjs": "50d434ae991b8342dddbd81c6e2d433e380e9dd300d62631be801588137a312c",
+          "/mnt/h/CPLayout/package-lock.json": "9d362a6e5f8c0a8e26199d9ea278a02cda194f569218e17ede0d520d1712dbb0"
+        },
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path": "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-diffcheck-final-command.json"
+      },
+      {
+        "argv": [
+          "node",
+          "--require",
+          "tsx/cjs",
+          "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-counterprobe.cjs"
+        ],
+        "cwd": "/mnt/h/CPLayout",
+        "exitCode": 0,
+        "sourceSha256": {
+          "/mnt/h/CPLayout/packages/core/src/projectKml.ts": "9a9b2354358a44dd29e49e03f83b23b2f6987155a579c3c565cb1d8620ce7ace",
+          "/mnt/h/CPLayout/packages/core/src/drawingProjectEdits.test.ts": "aef40a57265b6bdaf1f0db1f376811d9b65cd27dde3c9882399de1c735eb2885",
+          "/mnt/h/CPLayout/node_modules/@tmcw/togeojson/dist/togeojson.cjs": "50d434ae991b8342dddbd81c6e2d433e380e9dd300d62631be801588137a312c",
+          "/mnt/h/CPLayout/package-lock.json": "9d362a6e5f8c0a8e26199d9ea278a02cda194f569218e17ede0d520d1712dbb0"
+        },
+        "logSha256": "5b653d9e865f9ca10d2ad6bf8661cb51aba82afc4536692436749e1eb57bfcd6",
+        "path": "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-final-command.json"
+      },
+      {
+        "argv": [
+          "node_modules/.bin/tsx",
+          "packages/core/src/drawingProjectEdits.test.ts"
+        ],
+        "cwd": "/mnt/h/CPLayout",
+        "exitCode": 0,
+        "sourceSha256": {
+          "/mnt/h/CPLayout/packages/core/src/projectKml.ts": "9a9b2354358a44dd29e49e03f83b23b2f6987155a579c3c565cb1d8620ce7ace",
+          "/mnt/h/CPLayout/packages/core/src/drawingProjectEdits.test.ts": "aef40a57265b6bdaf1f0db1f376811d9b65cd27dde3c9882399de1c735eb2885",
+          "/mnt/h/CPLayout/node_modules/@tmcw/togeojson/dist/togeojson.cjs": "50d434ae991b8342dddbd81c6e2d433e380e9dd300d62631be801588137a312c",
+          "/mnt/h/CPLayout/package-lock.json": "9d362a6e5f8c0a8e26199d9ea278a02cda194f569218e17ede0d520d1712dbb0"
+        },
+        "logSha256": "f2aa4de855715c0f08ac092c0012d466f9341af1b938771b1f80353014572f2a",
+        "path": "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-import-tests-final-command.json"
+      },
+      {
+        "argv": [
+          "node_modules/.bin/tsx",
+          "packages/core/src/projectKml.test.ts"
+        ],
+        "cwd": "/mnt/h/CPLayout",
+        "exitCode": 0,
+        "sourceSha256": {
+          "/mnt/h/CPLayout/packages/core/src/projectKml.ts": "9a9b2354358a44dd29e49e03f83b23b2f6987155a579c3c565cb1d8620ce7ace",
+          "/mnt/h/CPLayout/packages/core/src/drawingProjectEdits.test.ts": "aef40a57265b6bdaf1f0db1f376811d9b65cd27dde3c9882399de1c735eb2885",
+          "/mnt/h/CPLayout/node_modules/@tmcw/togeojson/dist/togeojson.cjs": "50d434ae991b8342dddbd81c6e2d433e380e9dd300d62631be801588137a312c",
+          "/mnt/h/CPLayout/package-lock.json": "9d362a6e5f8c0a8e26199d9ea278a02cda194f569218e17ede0d520d1712dbb0"
+        },
+        "logSha256": "83b9d67a0339390fb7f7d4d978354bcde2d6971fa8ccba5099b447e2a50a2961",
+        "path": "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-kml-tests-final-command.json"
+      }
+    ]
+  },
+  "independentReview": "Pending matching-edition source contract dispositions; root owns successor qualification. No aggregate/browser/device rerun claimed by worker.",
+  "artifactsSha256": {
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-additional-after-command.json": "bdf11125abcb56f5ac8dda23a4dc9611531133072c17e6d1564189608c383f13",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-additional-after.log": "331d7374f0d9cb4d71071f35eade1a878f3267d44ec7f4fb4f14dd330dae4925",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-additional-before.log": "4a624b74a92d5b09410bca55c98ef681c076986717be8b699766a223e0cfeb3b",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-additional-counterprobe.cjs": "9555530ae5020496c619976db09e45f950b6aae50e3e10cac225add762593c49",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-additional-final-command.json": "15b139c3fbdb61ff586f709f8c137a267d3ee18a5c6c41d223d099793515bbe9",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-additional-final.log": "331d7374f0d9cb4d71071f35eade1a878f3267d44ec7f4fb4f14dd330dae4925",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-after-command.json": "153c1df4348a256891e151728cc802a58c3308e905df7e3b34d673086897d76c",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-after.log": "8b8d65d0ce886e009f548c3f1d5bf3fc324943aa0e37664e694eeef50afca45d",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-before-command.json": "966295a94c1377c5198fc0b1eda09ed3d963fa8d445ba1dcc6bea4baa0827bb6",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-before.log": "a7675d9c6d848942dcfa896decddc6bae456cf1be475d838a36f5f6f6932920c",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-complete-fixtures.json": "2eb6619893f8df309591a0902f6fb814d2602b97afee7384f95e1be7beeb91b3",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-containment-after-command.json": "f7f4e05ebf180573705b131f3861b37ea15bb7a4a640ee0ee0a87b4d41645ce6",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-containment-after.log": "4f381111c7a3accc0e2705626c6d56c4e8a242643b2d33b814e69b3afd1e4c64",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-containment-before-command.json": "5e141e556657ddd6a62889c79fb151cd39f4437af2e0f31e53f839d8d7fbbcae",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-containment-before.log": "ce7b0a6a0cdd3d6a9f3ed10ad08f0007efd380783e59838e0c0a285f9af6ad92",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-containment-counterprobe.cjs": "04a0b9842c527e286f3e047460649f5c92335f0107276a6f5b38cd297bc2aa9c",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-containment-final-command.json": "9539e6f067955e663103559e767e3d5061ba3a71575898d801c5d14607bb0fb5",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-containment-final.log": "4f381111c7a3accc0e2705626c6d56c4e8a242643b2d33b814e69b3afd1e4c64",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-contract.json": "509a50ad795615821573e49768f71544f25e92e2084d4a9d59108dcbe7ec0102",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-core-typecheck-attempt1-failed-command.json": "4f89fefe120eddd2dab85cea951b2a79706d9a2c081dcd402690dd48ef5f4bc9",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-core-typecheck-attempt1-failed.log": "c5ad98cee2624e8966f663dab506dd99f4505684fa8ec5c580f3bcbd61811555",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-core-typecheck-final-command.json": "60a3ef28ac932300625b433fdafc7b5289cc3c41e40b8205158c554e7533b372",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-core-typecheck-final.log": "14061b45377cb2e29180c62454bda11c58fd6dea27ea56f88a55e9b09ac62039",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-counterprobe.cjs": "08e043f849e77aa9b5b95727494b062ac414be2fd713d78667a62f1879d5217a",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-diffcheck-final-command.json": "70cec182a0ad31dcfa8a69ea1bba2ae41b9e7507eaf2135b509fcf83e62c4f66",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-diffcheck-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-extract-fixtures.cjs": "97bcd1d0f426c8eba6e2563c245a9f7db1396cf64df24d30280f794d86c600f6",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-final-command.json": "fe1b1a1bee9f5c354a4f9dbaa70297d0aeda8e2d11eaabe6b4b32aee9efb1bb5",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-final.log": "5b653d9e865f9ca10d2ad6bf8661cb51aba82afc4536692436749e1eb57bfcd6",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-fixtures.json": "13a4420c866797fcf412574485ec749c412e840a018fa9b0832cbf918a02081a",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-import-tests-after-command.json": "7cf236fc89203c1d5858de35b2304680c191c4b5a9ec1cbc996bf9ed6135deac",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-import-tests-after.log": "a6457ffddd6749ce9ee94919d0053f953d7567572411a87500b7ccd313029f6f",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-import-tests-final-command.json": "ab7bb73443a28c1b0396f9fdb642fc4fdc2351de1aa56cd29fe880f059f4e4f2",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-import-tests-final.log": "f2aa4de855715c0f08ac092c0012d466f9341af1b938771b1f80353014572f2a",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-import-tests-scoped-after-command.json": "c4144150338421de64543af3e0c44959bfbbb0f0bfb6112dca36d039b83549e5",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-import-tests-scoped-after.log": "e2ff527ec2af8ff8c3d6abb8c8f1793bbc17dabb80ba5c941004ae4412956230",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-kml-tests-after-command.json": "55ad71dea6ca603e52ade03243a912d6e5fcd90288bb414d4ae105f100201308",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-kml-tests-after.log": "83b9d67a0339390fb7f7d4d978354bcde2d6971fa8ccba5099b447e2a50a2961",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-kml-tests-final-command.json": "543eb0a40e2188e8d087be4d15e55f283b98cdaf3062e8b93e99ae5eebf67586",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-kml-tests-final.log": "83b9d67a0339390fb7f7d4d978354bcde2d6971fa8ccba5099b447e2a50a2961",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-regressions-before-command.json": "6ee4531cabc5d3d7cf2317b4d689086f7f91f34550bf118b5777865d8fffb153",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-regressions-before.log": "4538371ef30f78d73d40bd76acee2a34856e0e07bfa5cdb73ede33b123f76227",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-regressions-complete-before-command.json": "770538f925fb8ff8af34ba471a8c083650d82479136c74efc4146d05c8b2bf24",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-regressions-complete-before.log": "3fecfe229131fff12c2c94a7df2d28e7c6040c1d203d569236304ab0d323e6e4",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-run-focused-final.py": "17e461bc5f2c3eec943b935f20db224c77f2d6de17fb76857d1e7f63834b4dfa",
+    "/home/cyber/.local/state/cplayout/gis-20261018/namespace-collision-write-packet.py": "4275636491dad79bcff404ab26001c125c52173ce694c2fd73f0a689c7b78773"
+  }
+}

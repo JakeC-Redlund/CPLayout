@@ -1,5 +1,7 @@
 # Native Map Tile Adapter Design
 
+Current source review (2026-10-18): the unified native `WorkspaceMapSurface.native.tsx` renders projected SVG. The separate native MapLibre workbench and historical proof harness are distinct lanes. Dependency installation, generated TileJSON descriptors and browser rendering do not establish current unified native integration or a device pass. New offline package admission validates nested resources and matching tile semantics; runtime file transport still needs its platform proof.
+
 MapLibre React Native is installed/configured in the workspace, including the mobile Expo plugin and package dependencies. The generated TileJSON/tile-template adapter path is the supported native descriptor shape. A prior local Android run recorded raster TileJSON/template proof-panel evidence, but the ignored `reports/native-maplibre/latest.json` artifact is mutable and is no longer a stable raster proof reference after the vector harness replaced it. The current `reports/native-maplibre/latest.json` validates Android vector TileJSON/template rendering through `VectorSource` on Samsung SM-P613 with positive tile requests. Neither path proves raw PMTiles/MBTiles archive rendering, imported raster/aerial package rendering, or iOS behavior.
 
 Current installed state:

@@ -1,0 +1,3473 @@
+{
+  "schemaVersion": 1,
+  "result": "pass",
+  "sourceFingerprint": "5533a09c8cb22fbb7422b4bfe7595e3b043dbd04decddf662911da7c6a342e73",
+  "counts": {
+    "files": 35,
+    "uniqueCases": 417,
+    "currentExecutions": 291,
+    "deferredExecutions": 960,
+    "allExecutions": 1251
+  },
+  "actualTuples": 291,
+  "expectedTuples": 291,
+  "tupleSetsEqual": true,
+  "passed": 291,
+  "failed": 0,
+  "skipped": 0,
+  "retries": 0,
+  "durationMs": 993184.667,
+  "reportStats": {
+    "total": 291,
+    "expected": 291,
+    "unexpected": 0,
+    "flaky": 0,
+    "skipped": 0,
+    "ok": true
+  },
+  "reportSha256": "370f708f2334d670193ee358ef94b6d617f4c213f65fe2a7781e1f3d075c32f6",
+  "htmlSha256": "2341688253110431ac2dfb7e263a9f99303689b2ee4148430e6fba168369d303",
+  "inventorySha256": "f93040e28fdea5426dfb54074550d4330f8d04a92e408b9b6140433ffd7e77b1",
+  "executions": [
+    {
+      "file": "browser-workflow.spec.ts",
+      "title": "text clipping probe distinguishes visible overflow from trailing wrap whitespace",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 753,
+      "startedAt": "2026-10-18T23:07:11.665Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "browser-workflow.spec.ts",
+      "title": "network allowlist blocks credential query strings on allowed imagery hosts",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 1293,
+      "startedAt": "2026-10-18T23:07:13.321Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "browser-workflow.spec.ts",
+      "title": "text clipping probe distinguishes visible overflow from trailing wrap whitespace",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 341,
+      "startedAt": "2026-10-18T23:12:54.654Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "browser-workflow.spec.ts",
+      "title": "network allowlist blocks credential query strings on allowed imagery hosts",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 1079,
+      "startedAt": "2026-10-18T23:12:55.111Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "browser-workflow.spec.ts",
+      "title": "text clipping probe distinguishes visible overflow from trailing wrap whitespace",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 349,
+      "startedAt": "2026-10-18T23:18:35.935Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "browser-workflow.spec.ts",
+      "title": "network allowlist blocks credential query strings on allowed imagery hosts",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 1180,
+      "startedAt": "2026-10-18T23:18:36.386Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "editor-save-lifecycle.spec.ts",
+      "title": "StrictMode initialization and effect replay keep the initial session active through saves and rerenders",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 1285,
+      "startedAt": "2026-10-18T23:07:11.526Z",
+      "workerIndex": 1
+    },
+    {
+      "file": "editor-save-lifecycle.spec.ts",
+      "title": "StrictMode same-ID replacement isolates a delayed save receipt and feedback",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 900,
+      "startedAt": "2026-10-18T23:07:13.852Z",
+      "workerIndex": 1
+    },
+    {
+      "file": "editor-save-lifecycle.spec.ts",
+      "title": "an accepted save may finish after unmount without reviving feedback or rebasing a remount",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 817,
+      "startedAt": "2026-10-18T23:07:14.772Z",
+      "workerIndex": 1
+    },
+    {
+      "file": "editor-save-lifecycle.spec.ts",
+      "title": "StrictMode initialization and effect replay keep the initial session active through saves and rerenders",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 818,
+      "startedAt": "2026-10-18T23:12:56.469Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "editor-save-lifecycle.spec.ts",
+      "title": "StrictMode same-ID replacement isolates a delayed save receipt and feedback",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 1014,
+      "startedAt": "2026-10-18T23:12:57.307Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "editor-save-lifecycle.spec.ts",
+      "title": "an accepted save may finish after unmount without reviving feedback or rebasing a remount",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 1239,
+      "startedAt": "2026-10-18T23:12:58.341Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "editor-save-lifecycle.spec.ts",
+      "title": "StrictMode initialization and effect replay keep the initial session active through saves and rerenders",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 1006,
+      "startedAt": "2026-10-18T23:18:37.904Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "editor-save-lifecycle.spec.ts",
+      "title": "StrictMode same-ID replacement isolates a delayed save receipt and feedback",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 919,
+      "startedAt": "2026-10-18T23:18:38.926Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "editor-save-lifecycle.spec.ts",
+      "title": "an accepted save may finish after unmount without reviving feedback or rebasing a remount",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 1054,
+      "startedAt": "2026-10-18T23:18:39.871Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "gis-package.spec.ts",
+      "title": "GL required: portable permitted GIS package stays unresolved while synthetic live fallback preserves metadata",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 9260,
+      "startedAt": "2026-10-18T23:11:29.558Z",
+      "workerIndex": 3
+    },
+    {
+      "file": "gis-package.spec.ts",
+      "title": "GL required: denied offline raster package issues no package requests and preserves source metadata",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 9720,
+      "startedAt": "2026-10-18T23:11:39.057Z",
+      "workerIndex": 3
+    },
+    {
+      "file": "gis-package.spec.ts",
+      "title": "GL required: raster package without provenance stays unqualified while fallback preserves metadata",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 9609,
+      "startedAt": "2026-10-18T23:11:48.791Z",
+      "workerIndex": 3
+    },
+    {
+      "file": "gis-package.spec.ts",
+      "title": "GL required: portable permitted GIS package stays unresolved while synthetic live fallback preserves metadata",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 7648,
+      "startedAt": "2026-10-18T23:17:22.190Z",
+      "workerIndex": 8
+    },
+    {
+      "file": "gis-package.spec.ts",
+      "title": "GL required: denied offline raster package issues no package requests and preserves source metadata",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 7221,
+      "startedAt": "2026-10-18T23:17:30.110Z",
+      "workerIndex": 8
+    },
+    {
+      "file": "gis-package.spec.ts",
+      "title": "GL required: raster package without provenance stays unqualified while fallback preserves metadata",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 8193,
+      "startedAt": "2026-10-18T23:17:38.976Z",
+      "workerIndex": 8
+    },
+    {
+      "file": "gis-package.spec.ts",
+      "title": "GL required: portable permitted GIS package stays unresolved while synthetic live fallback preserves metadata",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 7048,
+      "startedAt": "2026-10-18T23:23:05.334Z",
+      "workerIndex": 13
+    },
+    {
+      "file": "gis-package.spec.ts",
+      "title": "GL required: denied offline raster package issues no package requests and preserves source metadata",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6897,
+      "startedAt": "2026-10-18T23:23:12.493Z",
+      "workerIndex": 13
+    },
+    {
+      "file": "gis-package.spec.ts",
+      "title": "GL required: raster package without provenance stays unqualified while fallback preserves metadata",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6653,
+      "startedAt": "2026-10-18T23:23:21.351Z",
+      "workerIndex": 13
+    },
+    {
+      "file": "gis-visual.spec.ts",
+      "title": "GL required: actual GIS journey loads local workers and preserves camera ownership and exact XY",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 12444,
+      "startedAt": "2026-10-18T23:12:01.146Z",
+      "workerIndex": 4
+    },
+    {
+      "file": "gis-visual.spec.ts",
+      "title": "GL required: drawing and undo remain live while synthetic raster requests are delayed",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 10820,
+      "startedAt": "2026-10-18T23:12:13.684Z",
+      "workerIndex": 4
+    },
+    {
+      "file": "gis-visual.spec.ts",
+      "title": "SVG required: induced graphics loss retains pending drawing, camera and saved source",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 12317,
+      "startedAt": "2026-10-18T23:12:24.518Z",
+      "workerIndex": 4
+    },
+    {
+      "file": "gis-visual.spec.ts",
+      "title": "Renderer independent: GIS controls compare visually and support natural Tab and Escape focus return",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6157,
+      "startedAt": "2026-10-18T23:12:38.687Z",
+      "workerIndex": 4
+    },
+    {
+      "file": "gis-visual.spec.ts",
+      "title": "Renderer independent: short portrait and landscape retain drawing clearance and reachable controls",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 8381,
+      "startedAt": "2026-10-18T23:12:44.858Z",
+      "workerIndex": 4
+    },
+    {
+      "file": "gis-visual.spec.ts",
+      "title": "GL required: actual GIS journey loads local workers and preserves camera ownership and exact XY",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 11406,
+      "startedAt": "2026-10-18T23:17:48.207Z",
+      "workerIndex": 9
+    },
+    {
+      "file": "gis-visual.spec.ts",
+      "title": "GL required: drawing and undo remain live while synthetic raster requests are delayed",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 8004,
+      "startedAt": "2026-10-18T23:17:59.749Z",
+      "workerIndex": 9
+    },
+    {
+      "file": "gis-visual.spec.ts",
+      "title": "SVG required: induced graphics loss retains pending drawing, camera and saved source",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 10316,
+      "startedAt": "2026-10-18T23:18:07.766Z",
+      "workerIndex": 9
+    },
+    {
+      "file": "gis-visual.spec.ts",
+      "title": "Renderer independent: GIS controls compare visually and support natural Tab and Escape focus return",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5978,
+      "startedAt": "2026-10-18T23:18:19.837Z",
+      "workerIndex": 9
+    },
+    {
+      "file": "gis-visual.spec.ts",
+      "title": "Renderer independent: short portrait and landscape retain drawing clearance and reachable controls",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 9128,
+      "startedAt": "2026-10-18T23:18:25.826Z",
+      "workerIndex": 9
+    },
+    {
+      "file": "gis-visual.spec.ts",
+      "title": "GL required: actual GIS journey loads local workers and preserves camera ownership and exact XY",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 8492,
+      "startedAt": "2026-10-18T23:23:28.972Z",
+      "workerIndex": 14
+    },
+    {
+      "file": "gis-visual.spec.ts",
+      "title": "GL required: drawing and undo remain live while synthetic raster requests are delayed",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5786,
+      "startedAt": "2026-10-18T23:23:37.562Z",
+      "workerIndex": 14
+    },
+    {
+      "file": "gis-visual.spec.ts",
+      "title": "SVG required: induced graphics loss retains pending drawing, camera and saved source",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5930,
+      "startedAt": "2026-10-18T23:23:43.359Z",
+      "workerIndex": 14
+    },
+    {
+      "file": "gis-visual.spec.ts",
+      "title": "Renderer independent: GIS controls compare visually and support natural Tab and Escape focus return",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 4249,
+      "startedAt": "2026-10-18T23:23:49.304Z",
+      "workerIndex": 14
+    },
+    {
+      "file": "gis-visual.spec.ts",
+      "title": "Renderer independent: short portrait and landscape retain drawing clearance and reachable controls",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6450,
+      "startedAt": "2026-10-18T23:23:55.670Z",
+      "workerIndex": 14
+    },
+    {
+      "file": "maplibre-runtime.spec.ts",
+      "title": "MapLibre attribution rejects consecutive unsafe attributes",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 1067,
+      "startedAt": "2026-10-18T23:07:11.596Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "maplibre-runtime.spec.ts",
+      "title": "MapLibre attribution rejects consecutive unsafe attributes",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 691,
+      "startedAt": "2026-10-18T23:12:59.572Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "maplibre-runtime.spec.ts",
+      "title": "MapLibre attribution rejects consecutive unsafe attributes",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 563,
+      "startedAt": "2026-10-18T23:18:40.974Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "production-accessibility.spec.ts",
+      "title": "operator sign-in, Home, Design and Survey stay keyboard reachable and pass automated accessibility checks",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 11905,
+      "startedAt": "2026-10-18T23:07:13.866Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "production-accessibility.spec.ts",
+      "title": "operator sign-in, Home, Design and Survey stay keyboard reachable and pass automated accessibility checks",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 10207,
+      "startedAt": "2026-10-18T23:13:00.098Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "production-accessibility.spec.ts",
+      "title": "operator sign-in, Home, Design and Survey stay keyboard reachable and pass automated accessibility checks",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 9540,
+      "startedAt": "2026-10-18T23:18:41.731Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "real username/password sign-in rejects anonymous API access and retains the workspace when visiting Home",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 8297,
+      "startedAt": "2026-10-18T23:07:14.793Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "new customer and project open Design without GPS or fabricated coordinate and machine data",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 10284,
+      "startedAt": "2026-10-18T23:07:25.897Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "Survey-first project skips manual Design and still requires actual survey evidence before Layout",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 4871,
+      "startedAt": "2026-10-18T23:07:36.193Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "Survey-first recorded boundary and pivot progress through fresh field review to an immutable marked Layout without invented infrastructure",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 94879,
+      "startedAt": "2026-10-18T23:07:41.077Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "Support cannot read field data through the server even with a supplied workspace membership",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 2103,
+      "startedAt": "2026-10-18T23:09:24.451Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "prepared offline reload verifies the signed grant and rejects tampering while retaining exact field data",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5200,
+      "startedAt": "2026-10-18T23:09:26.570Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "short narrow sign-in keeps focused credentials, submit and help reachable without horizontal overflow",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 1736,
+      "startedAt": "2026-10-18T23:09:31.781Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "service denial preserves unfinished customer modal before hiding it for renewed sign-in",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 3282,
+      "startedAt": "2026-10-18T23:09:33.529Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "cold service session denial prevents subsequent offline grant revival while retaining exact work",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5137,
+      "startedAt": "2026-10-18T23:09:36.822Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "post-login device quota reconciles service identity and then isolates a read-only operator account",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5199,
+      "startedAt": "2026-10-18T23:09:44.655Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "actual Catalog customer archive and restore retain field history through an acknowledged status-read failure",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6262,
+      "startedAt": "2026-10-18T23:09:49.867Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "two actual App pages serialize sign-out response cookies before a newer username/password sign-in",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 3688,
+      "startedAt": "2026-10-18T23:09:56.138Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "real username/password sign-in rejects anonymous API access and retains the workspace when visiting Home",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6721,
+      "startedAt": "2026-10-18T23:13:00.659Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "new customer and project open Design without GPS or fabricated coordinate and machine data",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 11556,
+      "startedAt": "2026-10-18T23:13:09.292Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "Survey-first project skips manual Design and still requires actual survey evidence before Layout",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 4124,
+      "startedAt": "2026-10-18T23:13:20.867Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "Survey-first recorded boundary and pivot progress through fresh field review to an immutable marked Layout without invented infrastructure",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 93560,
+      "startedAt": "2026-10-18T23:13:25.006Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "Support cannot read field data through the server even with a supplied workspace membership",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 1657,
+      "startedAt": "2026-10-18T23:15:03.015Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "prepared offline reload verifies the signed grant and rejects tampering while retaining exact field data",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 4976,
+      "startedAt": "2026-10-18T23:15:04.683Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "short narrow sign-in keeps focused credentials, submit and help reachable without horizontal overflow",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 1653,
+      "startedAt": "2026-10-18T23:15:09.672Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "service denial preserves unfinished customer modal before hiding it for renewed sign-in",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 3514,
+      "startedAt": "2026-10-18T23:15:11.335Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "cold service session denial prevents subsequent offline grant revival while retaining exact work",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5084,
+      "startedAt": "2026-10-18T23:15:14.863Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "post-login device quota reconciles service identity and then isolates a read-only operator account",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 4998,
+      "startedAt": "2026-10-18T23:15:21.486Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "actual Catalog customer archive and restore retain field history through an acknowledged status-read failure",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 7031,
+      "startedAt": "2026-10-18T23:15:26.496Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "two actual App pages serialize sign-out response cookies before a newer username/password sign-in",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 3679,
+      "startedAt": "2026-10-18T23:15:33.540Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "real username/password sign-in rejects anonymous API access and retains the workspace when visiting Home",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6526,
+      "startedAt": "2026-10-18T23:18:52.994Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "new customer and project open Design without GPS or fabricated coordinate and machine data",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 12123,
+      "startedAt": "2026-10-18T23:18:59.539Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "Survey-first project skips manual Design and still requires actual survey evidence before Layout",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 4173,
+      "startedAt": "2026-10-18T23:19:11.680Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "Survey-first recorded boundary and pivot progress through fresh field review to an immutable marked Layout without invented infrastructure",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 88529,
+      "startedAt": "2026-10-18T23:19:15.867Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "Support cannot read field data through the server even with a supplied workspace membership",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 1717,
+      "startedAt": "2026-10-18T23:20:49.644Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "prepared offline reload verifies the signed grant and rejects tampering while retaining exact field data",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5151,
+      "startedAt": "2026-10-18T23:20:51.369Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "short narrow sign-in keeps focused credentials, submit and help reachable without horizontal overflow",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 1650,
+      "startedAt": "2026-10-18T23:20:56.527Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "service denial preserves unfinished customer modal before hiding it for renewed sign-in",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 2927,
+      "startedAt": "2026-10-18T23:20:58.186Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "cold service session denial prevents subsequent offline grant revival while retaining exact work",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 4360,
+      "startedAt": "2026-10-18T23:21:03.452Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "post-login device quota reconciles service identity and then isolates a read-only operator account",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 4018,
+      "startedAt": "2026-10-18T23:21:07.825Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "actual Catalog customer archive and restore retain field history through an acknowledged status-read failure",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5289,
+      "startedAt": "2026-10-18T23:21:11.853Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "production-auth-workflow.spec.ts",
+      "title": "two actual App pages serialize sign-out response cookies before a newer username/password sign-in",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 3200,
+      "startedAt": "2026-10-18T23:21:17.149Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "empty default App creates explicit customer/project/first field/CRS and opens an actual empty Draft",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6857,
+      "startedAt": "2026-10-18T23:07:16.044Z",
+      "workerIndex": 1
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "Draft map clicks classify inline and save/reopen exact ordered geometry, labels and digitized times",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6068,
+      "startedAt": "2026-10-18T23:07:25.710Z",
+      "workerIndex": 1
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "Design/Survey retain one map and unfinished input while missing Survey review blocks Layout without changing source",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5956,
+      "startedAt": "2026-10-18T23:07:31.789Z",
+      "workerIndex": 1
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "calculation is preview only and explicit completion creates a separate saved child before explicit Open",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 4947,
+      "startedAt": "2026-10-18T23:07:37.767Z",
+      "workerIndex": 1
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "task tabs retire held map gestures and retain malformed input, caret and independent scroll positions",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 4576,
+      "startedAt": "2026-10-18T23:07:42.726Z",
+      "workerIndex": 1
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "unequal Field machines freeze an exact selected Layout target and observations survive save, later design edit and reopen",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 29712,
+      "startedAt": "2026-10-18T23:07:47.313Z",
+      "workerIndex": 1
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "Survey retains immutable evidence through mode changes and clear/Undo, then applies a real line while disconnected",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6592,
+      "startedAt": "2026-10-18T23:08:19.907Z",
+      "workerIndex": 1
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "common Save shows unapplied inputs, refuses without storage error, and File copy exports exact applied source",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 4557,
+      "startedAt": "2026-10-18T23:08:26.507Z",
+      "workerIndex": 1
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "Layout common Save names its session while hidden Design input and newer names remain separate",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 9686,
+      "startedAt": "2026-10-18T23:08:31.078Z",
+      "workerIndex": 1
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "unreviewed Design refuses new Layout while explicit Catalog Open preserves a historical saved target",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5093,
+      "startedAt": "2026-10-18T23:08:43.670Z",
+      "workerIndex": 1
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded Point reference applies in actual draft while disconnected and reopens honest provenance",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 13765,
+      "startedAt": "2026-10-18T23:08:48.783Z",
+      "workerIndex": 1
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded LineString reference applies in actual draft while disconnected and reopens honest provenance",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 12440,
+      "startedAt": "2026-10-18T23:09:02.557Z",
+      "workerIndex": 1
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded Polygon reference applies in actual draft while disconnected and reopens honest provenance",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 14185,
+      "startedAt": "2026-10-18T23:09:17.721Z",
+      "workerIndex": 1
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded Point reference applies in actual project while disconnected and reopens honest provenance",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 16940,
+      "startedAt": "2026-10-18T23:09:31.915Z",
+      "workerIndex": 1
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded LineString reference applies in actual project while disconnected and reopens honest provenance",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 24450,
+      "startedAt": "2026-10-18T23:09:51.549Z",
+      "workerIndex": 1
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded Polygon reference applies in actual project while disconnected and reopens honest provenance",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 21404,
+      "startedAt": "2026-10-18T23:10:16.013Z",
+      "workerIndex": 1
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded Point reference applies in actual field while disconnected and reopens honest provenance",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 15566,
+      "startedAt": "2026-10-18T23:10:40.036Z",
+      "workerIndex": 1
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded LineString reference applies in actual field while disconnected and reopens honest provenance",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 14393,
+      "startedAt": "2026-10-18T23:10:54.742Z",
+      "workerIndex": 1
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded Polygon reference applies in actual field while disconnected and reopens honest provenance",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 16672,
+      "startedAt": "2026-10-18T23:11:09.147Z",
+      "workerIndex": 1
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "empty default App creates explicit customer/project/first field/CRS and opens an actual empty Draft",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5997,
+      "startedAt": "2026-10-18T23:13:12.256Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "Draft map clicks classify inline and save/reopen exact ordered geometry, labels and digitized times",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6843,
+      "startedAt": "2026-10-18T23:13:18.269Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "Design/Survey retain one map and unfinished input while missing Survey review blocks Layout without changing source",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5605,
+      "startedAt": "2026-10-18T23:13:25.127Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "calculation is preview only and explicit completion creates a separate saved child before explicit Open",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 4550,
+      "startedAt": "2026-10-18T23:13:30.748Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "task tabs retire held map gestures and retain malformed input, caret and independent scroll positions",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 4586,
+      "startedAt": "2026-10-18T23:13:35.313Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "unequal Field machines freeze an exact selected Layout target and observations survive save, later design edit and reopen",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 32178,
+      "startedAt": "2026-10-18T23:13:41.353Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "Survey retains immutable evidence through mode changes and clear/Undo, then applies a real line while disconnected",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 8926,
+      "startedAt": "2026-10-18T23:14:15.028Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "common Save shows unapplied inputs, refuses without storage error, and File copy exports exact applied source",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 4971,
+      "startedAt": "2026-10-18T23:14:23.964Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "Layout common Save names its session while hidden Design input and newer names remain separate",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6702,
+      "startedAt": "2026-10-18T23:14:28.950Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "unreviewed Design refuses new Layout while explicit Catalog Open preserves a historical saved target",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 4368,
+      "startedAt": "2026-10-18T23:14:35.670Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded Point reference applies in actual draft while disconnected and reopens honest provenance",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 14605,
+      "startedAt": "2026-10-18T23:14:40.048Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded LineString reference applies in actual draft while disconnected and reopens honest provenance",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 11199,
+      "startedAt": "2026-10-18T23:14:56.173Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded Polygon reference applies in actual draft while disconnected and reopens honest provenance",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 12897,
+      "startedAt": "2026-10-18T23:15:07.387Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded Point reference applies in actual project while disconnected and reopens honest provenance",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 17431,
+      "startedAt": "2026-10-18T23:15:21.821Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded LineString reference applies in actual project while disconnected and reopens honest provenance",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 21256,
+      "startedAt": "2026-10-18T23:15:39.266Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded Polygon reference applies in actual project while disconnected and reopens honest provenance",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 23704,
+      "startedAt": "2026-10-18T23:16:02.113Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded Point reference applies in actual field while disconnected and reopens honest provenance",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 16783,
+      "startedAt": "2026-10-18T23:16:25.838Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded LineString reference applies in actual field while disconnected and reopens honest provenance",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 17716,
+      "startedAt": "2026-10-18T23:16:44.174Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded Polygon reference applies in actual field while disconnected and reopens honest provenance",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 16133,
+      "startedAt": "2026-10-18T23:17:03.474Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "empty default App creates explicit customer/project/first field/CRS and opens an actual empty Draft",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5847,
+      "startedAt": "2026-10-18T23:19:23.870Z",
+      "workerIndex": 11
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "Draft map clicks classify inline and save/reopen exact ordered geometry, labels and digitized times",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5606,
+      "startedAt": "2026-10-18T23:19:29.875Z",
+      "workerIndex": 11
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "Design/Survey retain one map and unfinished input while missing Survey review blocks Layout without changing source",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5342,
+      "startedAt": "2026-10-18T23:19:35.493Z",
+      "workerIndex": 11
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "calculation is preview only and explicit completion creates a separate saved child before explicit Open",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 3849,
+      "startedAt": "2026-10-18T23:19:40.846Z",
+      "workerIndex": 11
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "task tabs retire held map gestures and retain malformed input, caret and independent scroll positions",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 4555,
+      "startedAt": "2026-10-18T23:19:44.705Z",
+      "workerIndex": 11
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "unequal Field machines freeze an exact selected Layout target and observations survive save, later design edit and reopen",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 29291,
+      "startedAt": "2026-10-18T23:19:49.272Z",
+      "workerIndex": 11
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "Survey retains immutable evidence through mode changes and clear/Undo, then applies a real line while disconnected",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6613,
+      "startedAt": "2026-10-18T23:20:20.316Z",
+      "workerIndex": 11
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "common Save shows unapplied inputs, refuses without storage error, and File copy exports exact applied source",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 4504,
+      "startedAt": "2026-10-18T23:20:28.724Z",
+      "workerIndex": 11
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "Layout common Save names its session while hidden Design input and newer names remain separate",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 7270,
+      "startedAt": "2026-10-18T23:20:33.243Z",
+      "workerIndex": 11
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "unreviewed Design refuses new Layout while explicit Catalog Open preserves a historical saved target",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 4450,
+      "startedAt": "2026-10-18T23:20:40.527Z",
+      "workerIndex": 11
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded Point reference applies in actual draft while disconnected and reopens honest provenance",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 9627,
+      "startedAt": "2026-10-18T23:20:44.991Z",
+      "workerIndex": 11
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded LineString reference applies in actual draft while disconnected and reopens honest provenance",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 10010,
+      "startedAt": "2026-10-18T23:20:54.641Z",
+      "workerIndex": 11
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded Polygon reference applies in actual draft while disconnected and reopens honest provenance",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 10245,
+      "startedAt": "2026-10-18T23:21:06.994Z",
+      "workerIndex": 11
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded Point reference applies in actual project while disconnected and reopens honest provenance",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 14279,
+      "startedAt": "2026-10-18T23:21:17.253Z",
+      "workerIndex": 11
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded LineString reference applies in actual project while disconnected and reopens honest provenance",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 17517,
+      "startedAt": "2026-10-18T23:21:31.544Z",
+      "workerIndex": 11
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded Polygon reference applies in actual project while disconnected and reopens honest provenance",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 19335,
+      "startedAt": "2026-10-18T23:21:50.710Z",
+      "workerIndex": 11
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded Point reference applies in actual field while disconnected and reopens honest provenance",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 14219,
+      "startedAt": "2026-10-18T23:22:12.212Z",
+      "workerIndex": 11
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded LineString reference applies in actual field while disconnected and reopens honest provenance",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 16549,
+      "startedAt": "2026-10-18T23:22:26.442Z",
+      "workerIndex": 11
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "recorded Polygon reference applies in actual field while disconnected and reopens honest provenance",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 18180,
+      "startedAt": "2026-10-18T23:22:44.806Z",
+      "workerIndex": 11
+    },
+    {
+      "file": "workspace-drafts.spec.ts",
+      "title": "draft repository persists missing inputs across tabs and reloads with revision and deletion protection",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 2344,
+      "startedAt": "2026-10-18T23:07:28.771Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-drafts.spec.ts",
+      "title": "draft repository persists missing inputs across tabs and reloads with revision and deletion protection",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 2052,
+      "startedAt": "2026-10-18T23:13:59.013Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-drafts.spec.ts",
+      "title": "draft repository persists missing inputs across tabs and reloads with revision and deletion protection",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 2019,
+      "startedAt": "2026-10-18T23:19:37.983Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "draft actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 12379,
+      "startedAt": "2026-10-18T23:07:31.266Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "project actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 13411,
+      "startedAt": "2026-10-18T23:07:43.661Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "field actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 9834,
+      "startedAt": "2026-10-18T23:07:59.952Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "actual hidden-Catalog raw edit checkpoints automatically and reload Restore returns its exact unfinished input",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 8819,
+      "startedAt": "2026-10-18T23:08:09.796Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "actual Catalog-only unfinished customer form checkpoints and reload Restore preserves invalid fields and errors without records",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 4509,
+      "startedAt": "2026-10-18T23:08:18.630Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "actual checkpoint Export and conditional Discard preserve exact candidate bytes and every durable source",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5126,
+      "startedAt": "2026-10-18T23:08:23.152Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "actual corrupt-checkpoint refusal keeps exact opaque ledger Export available without normalization or source writes",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6265,
+      "startedAt": "2026-10-18T23:08:28.288Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "actual Review refuses a changed saved source while retaining the checkpoint and newer design exact",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 7649,
+      "startedAt": "2026-10-18T23:08:37.471Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "actual Restore refuses a connected synthetic receiver and never reconnects it implicitly",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 9003,
+      "startedAt": "2026-10-18T23:08:45.138Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "draft actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 9588,
+      "startedAt": "2026-10-18T23:14:01.593Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "project actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 11664,
+      "startedAt": "2026-10-18T23:14:11.197Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "field actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 8406,
+      "startedAt": "2026-10-18T23:14:24.362Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "actual hidden-Catalog raw edit checkpoints automatically and reload Restore returns its exact unfinished input",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 8786,
+      "startedAt": "2026-10-18T23:14:32.777Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "actual Catalog-only unfinished customer form checkpoints and reload Restore preserves invalid fields and errors without records",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6039,
+      "startedAt": "2026-10-18T23:14:41.575Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "actual checkpoint Export and conditional Discard preserve exact candidate bytes and every durable source",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 7884,
+      "startedAt": "2026-10-18T23:14:49.133Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "actual corrupt-checkpoint refusal keeps exact opaque ledger Export available without normalization or source writes",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5184,
+      "startedAt": "2026-10-18T23:14:57.028Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "actual Review refuses a changed saved source while retaining the checkpoint and newer design exact",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5763,
+      "startedAt": "2026-10-18T23:15:02.224Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "actual Restore refuses a connected synthetic receiver and never reconnects it implicitly",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 7625,
+      "startedAt": "2026-10-18T23:15:07.999Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "draft actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 11523,
+      "startedAt": "2026-10-18T23:19:40.339Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "project actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 10792,
+      "startedAt": "2026-10-18T23:19:53.620Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "field actual File Review/Restore recovers raw inputs, history, independent camera and Survey/Layout while preserving exact sources",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 10349,
+      "startedAt": "2026-10-18T23:20:04.431Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "actual hidden-Catalog raw edit checkpoints automatically and reload Restore returns its exact unfinished input",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 9127,
+      "startedAt": "2026-10-18T23:20:14.793Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "actual Catalog-only unfinished customer form checkpoints and reload Restore preserves invalid fields and errors without records",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 4313,
+      "startedAt": "2026-10-18T23:20:23.931Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "actual checkpoint Export and conditional Discard preserve exact candidate bytes and every durable source",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5405,
+      "startedAt": "2026-10-18T23:20:30.037Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "actual corrupt-checkpoint refusal keeps exact opaque ledger Export available without normalization or source writes",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5398,
+      "startedAt": "2026-10-18T23:20:35.454Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "actual Review refuses a changed saved source while retaining the checkpoint and newer design exact",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5751,
+      "startedAt": "2026-10-18T23:20:40.866Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-edit-recovery.spec.ts",
+      "title": "actual Restore refuses a connected synthetic receiver and never reconnects it implicitly",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 8722,
+      "startedAt": "2026-10-18T23:20:46.630Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "retained Survey with unavailable original folders remains readable and exports its exact source without inventing parents",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 2542,
+      "startedAt": "2026-10-18T23:08:54.177Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "draft applied title synchronizes its saved list name only on ordinary Save and preserves field/history/targets",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 12082,
+      "startedAt": "2026-10-18T23:08:56.733Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "project applied title synchronizes its saved list name only on ordinary Save and preserves field/history/targets",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 9816,
+      "startedAt": "2026-10-18T23:09:11.545Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "field applied title synchronizes its saved list name only on ordinary Save and preserves field/history/targets",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 10045,
+      "startedAt": "2026-10-18T23:09:21.379Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "draft File Rename focuses its retained raw name from collapsed tools without a duplicate File form",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5373,
+      "startedAt": "2026-10-18T23:09:31.447Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "field File Rename focuses its retained raw name from collapsed tools without a duplicate File form",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6133,
+      "startedAt": "2026-10-18T23:09:36.832Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "current-field New in design keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 13207,
+      "startedAt": "2026-10-18T23:09:45.662Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "current-field New in survey keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 18387,
+      "startedAt": "2026-10-18T23:09:58.887Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "current-field New in layout keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 13025,
+      "startedAt": "2026-10-18T23:10:19.894Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "early customer entry keeps an emptied required name, validates it and preserves all saved design work",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 8176,
+      "startedAt": "2026-10-18T23:10:32.934Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "field container Rename is metadata-only, reachable on a short viewport and checkpointed as recovery v2",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6860,
+      "startedAt": "2026-10-18T23:10:41.126Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "invalid field rename reloads through File Review/Restore as its original rename form and requires Recheck",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 12658,
+      "startedAt": "2026-10-18T23:10:47.997Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "retained Survey with unavailable original folders remains readable and exports its exact source without inventing parents",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 2313,
+      "startedAt": "2026-10-18T23:15:15.657Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "draft applied title synchronizes its saved list name only on ordinary Save and preserves field/history/targets",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 9429,
+      "startedAt": "2026-10-18T23:15:17.986Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "project applied title synchronizes its saved list name only on ordinary Save and preserves field/history/targets",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 10492,
+      "startedAt": "2026-10-18T23:15:28.951Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "field applied title synchronizes its saved list name only on ordinary Save and preserves field/history/targets",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 9730,
+      "startedAt": "2026-10-18T23:15:39.455Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "draft File Rename focuses its retained raw name from collapsed tools without a duplicate File form",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 7084,
+      "startedAt": "2026-10-18T23:15:49.197Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "field File Rename focuses its retained raw name from collapsed tools without a duplicate File form",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6868,
+      "startedAt": "2026-10-18T23:15:57.870Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "current-field New in design keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 14829,
+      "startedAt": "2026-10-18T23:16:04.755Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "current-field New in survey keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 15422,
+      "startedAt": "2026-10-18T23:16:19.598Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "current-field New in layout keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 14301,
+      "startedAt": "2026-10-18T23:16:36.573Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "early customer entry keeps an emptied required name, validates it and preserves all saved design work",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 7408,
+      "startedAt": "2026-10-18T23:16:50.885Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "field container Rename is metadata-only, reachable on a short viewport and checkpointed as recovery v2",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 7561,
+      "startedAt": "2026-10-18T23:16:58.304Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "invalid field rename reloads through File Review/Restore as its original rename form and requires Recheck",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 10229,
+      "startedAt": "2026-10-18T23:17:07.447Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "retained Survey with unavailable original folders remains readable and exports its exact source without inventing parents",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 2023,
+      "startedAt": "2026-10-18T23:20:55.382Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "draft applied title synchronizes its saved list name only on ordinary Save and preserves field/history/targets",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 7723,
+      "startedAt": "2026-10-18T23:20:57.418Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "project applied title synchronizes its saved list name only on ordinary Save and preserves field/history/targets",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 8108,
+      "startedAt": "2026-10-18T23:21:07.480Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "field applied title synchronizes its saved list name only on ordinary Save and preserves field/history/targets",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 7781,
+      "startedAt": "2026-10-18T23:21:15.599Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "draft File Rename focuses its retained raw name from collapsed tools without a duplicate File form",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5162,
+      "startedAt": "2026-10-18T23:21:23.391Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "field File Rename focuses its retained raw name from collapsed tools without a duplicate File form",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5251,
+      "startedAt": "2026-10-18T23:21:28.562Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "current-field New in design keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 11506,
+      "startedAt": "2026-10-18T23:21:35.462Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "current-field New in survey keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 11749,
+      "startedAt": "2026-10-18T23:21:46.978Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "current-field New in layout keeps Browse B and dirty Source A until an explicit guarded Open",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 13222,
+      "startedAt": "2026-10-18T23:21:58.739Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "early customer entry keeps an emptied required name, validates it and preserves all saved design work",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6259,
+      "startedAt": "2026-10-18T23:22:14.109Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "field container Rename is metadata-only, reachable on a short viewport and checkpointed as recovery v2",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 7549,
+      "startedAt": "2026-10-18T23:22:20.376Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-management.spec.ts",
+      "title": "invalid field rename reloads through File Review/Restore as its original rename form and requires Recheck",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 11724,
+      "startedAt": "2026-10-18T23:22:27.934Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "draft actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 21899,
+      "startedAt": "2026-10-18T23:09:59.855Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "draft actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 15413,
+      "startedAt": "2026-10-18T23:10:24.376Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "project actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 17503,
+      "startedAt": "2026-10-18T23:10:39.807Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "project actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 14301,
+      "startedAt": "2026-10-18T23:10:56.452Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "field actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 14515,
+      "startedAt": "2026-10-18T23:11:10.769Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "field actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 20166,
+      "startedAt": "2026-10-18T23:11:26.551Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual JSON package without Survey history imports without fabricated collections",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 15814,
+      "startedAt": "2026-10-18T23:11:46.732Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual ZIP package without Survey history imports without fabricated collections",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 20228,
+      "startedAt": "2026-10-18T23:12:04.275Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v1 actual package prepares the retained Field/Layout/Survey chain before one saved-copy import",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 16027,
+      "startedAt": "2026-10-18T23:12:24.524Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v2 actual package prepares the retained Field/Layout/Survey chain before one saved-copy import",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 14886,
+      "startedAt": "2026-10-18T23:12:42.398Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v3 actual storage Prepare refuses wrong CRS without an upgrade or any byte change",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5730,
+      "startedAt": "2026-10-18T23:12:57.295Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual upload of unknown replacement retires previously admitted package without records",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 11788,
+      "startedAt": "2026-10-18T23:13:03.037Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual upload of corrupt replacement retires previously admitted package without records",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 11399,
+      "startedAt": "2026-10-18T23:13:16.740Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v3 actual complete upload refuses mismatched CRS atomically including workspace version",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5396,
+      "startedAt": "2026-10-18T23:13:28.152Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v4 actual complete upload refuses mismatched CRS atomically including workspace version",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 8376,
+      "startedAt": "2026-10-18T23:13:33.565Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual saved-copy Open refuses dirty current input and retains raw text until explicit Discard",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 13675,
+      "startedAt": "2026-10-18T23:13:43.393Z",
+      "workerIndex": 0
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "draft actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 17196,
+      "startedAt": "2026-10-18T23:15:37.243Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "draft actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 18793,
+      "startedAt": "2026-10-18T23:15:56.028Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "project actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 20138,
+      "startedAt": "2026-10-18T23:16:14.836Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "project actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 17645,
+      "startedAt": "2026-10-18T23:16:36.527Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "field actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 15968,
+      "startedAt": "2026-10-18T23:16:54.183Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "field actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 15582,
+      "startedAt": "2026-10-18T23:17:11.737Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual JSON package without Survey history imports without fabricated collections",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 15395,
+      "startedAt": "2026-10-18T23:17:27.329Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual ZIP package without Survey history imports without fabricated collections",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 17266,
+      "startedAt": "2026-10-18T23:17:44.368Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v1 actual package prepares the retained Field/Layout/Survey chain before one saved-copy import",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 16002,
+      "startedAt": "2026-10-18T23:18:01.651Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v2 actual package prepares the retained Field/Layout/Survey chain before one saved-copy import",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 16126,
+      "startedAt": "2026-10-18T23:18:19.405Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v3 actual storage Prepare refuses wrong CRS without an upgrade or any byte change",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5218,
+      "startedAt": "2026-10-18T23:18:35.541Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual upload of unknown replacement retires previously admitted package without records",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 10293,
+      "startedAt": "2026-10-18T23:18:40.771Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual upload of corrupt replacement retires previously admitted package without records",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 11607,
+      "startedAt": "2026-10-18T23:18:52.766Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v3 actual complete upload refuses mismatched CRS atomically including workspace version",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6187,
+      "startedAt": "2026-10-18T23:19:04.386Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v4 actual complete upload refuses mismatched CRS atomically including workspace version",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 9445,
+      "startedAt": "2026-10-18T23:19:10.590Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual saved-copy Open refuses dirty current input and retains raw text until explicit Discard",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 14623,
+      "startedAt": "2026-10-18T23:19:21.760Z",
+      "workerIndex": 6
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "draft actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 14625,
+      "startedAt": "2026-10-18T23:21:20.371Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "draft actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 15101,
+      "startedAt": "2026-10-18T23:21:36.642Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "project actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 16119,
+      "startedAt": "2026-10-18T23:21:51.753Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "project actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 16839,
+      "startedAt": "2026-10-18T23:22:10.023Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "field actual JSON download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 16193,
+      "startedAt": "2026-10-18T23:22:26.874Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "field actual ZIP download uploads retained history to distinct saved copy and reloads Recent/Open",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 15838,
+      "startedAt": "2026-10-18T23:22:44.883Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual JSON package without Survey history imports without fabricated collections",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 13582,
+      "startedAt": "2026-10-18T23:23:00.735Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual ZIP package without Survey history imports without fabricated collections",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 14172,
+      "startedAt": "2026-10-18T23:23:14.328Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v1 actual package prepares the retained Field/Layout/Survey chain before one saved-copy import",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 11008,
+      "startedAt": "2026-10-18T23:23:30.458Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v2 actual package prepares the retained Field/Layout/Survey chain before one saved-copy import",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 12905,
+      "startedAt": "2026-10-18T23:23:41.479Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v3 actual storage Prepare refuses wrong CRS without an upgrade or any byte change",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5161,
+      "startedAt": "2026-10-18T23:23:56.501Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual upload of unknown replacement retires previously admitted package without records",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 7695,
+      "startedAt": "2026-10-18T23:24:01.671Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual upload of corrupt replacement retires previously admitted package without records",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 7266,
+      "startedAt": "2026-10-18T23:24:09.375Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v3 actual complete upload refuses mismatched CRS atomically including workspace version",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 4526,
+      "startedAt": "2026-10-18T23:24:16.649Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "v4 actual complete upload refuses mismatched CRS atomically including workspace version",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5798,
+      "startedAt": "2026-10-18T23:24:21.187Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "workspace-package-import.spec.ts",
+      "title": "actual saved-copy Open refuses dirty current input and retains raw text until explicit Discard",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 9339,
+      "startedAt": "2026-10-18T23:24:28.970Z",
+      "workerIndex": 10
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "draft automatically reloads the exact saved design, Survey collection and immutable histories",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5572,
+      "startedAt": "2026-10-18T23:10:59.800Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "project automatically reloads the exact saved design, Survey collection and immutable histories",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6364,
+      "startedAt": "2026-10-18T23:11:05.383Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "field automatically reloads the exact saved design, Survey collection and immutable histories",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6094,
+      "startedAt": "2026-10-18T23:11:11.757Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "dual-subject startup retains the exact Layout target and acknowledges Layout and Design saves separately",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 10275,
+      "startedAt": "2026-10-18T23:11:17.862Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "Browse remains separate from Open and startup restores catalog selection and visibility after source reset",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 9696,
+      "startedAt": "2026-10-18T23:11:29.402Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "Layout-only startup opens without an editable design and preserves frozen geometry",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 8358,
+      "startedAt": "2026-10-18T23:11:39.109Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "Layout-only startup keeps archived collection disabled and preserves frozen geometry",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 8511,
+      "startedAt": "2026-10-18T23:11:47.480Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "absent/malformed startup hints fall back without preference or workspace-byte writes",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 8608,
+      "startedAt": "2026-10-18T23:11:57.719Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "deleted/foreign startup hints fall back without preference or workspace-byte writes",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 9861,
+      "startedAt": "2026-10-18T23:12:06.341Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "operator Open, mode, collection, Browse and catalog visibility publish accepted hints that reload automatically",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 21876,
+      "startedAt": "2026-10-18T23:12:16.222Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "dirty input Open refusal keeps the previous accepted hint and saved source exact",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 8827,
+      "startedAt": "2026-10-18T23:12:39.959Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "externally deleted destination Open refusal keeps the previous accepted hint and saved source exact",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 9225,
+      "startedAt": "2026-10-18T23:12:48.802Z",
+      "workerIndex": 2
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "draft automatically reloads the exact saved design, Survey collection and immutable histories",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6909,
+      "startedAt": "2026-10-18T23:17:17.703Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "project automatically reloads the exact saved design, Survey collection and immutable histories",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 9281,
+      "startedAt": "2026-10-18T23:17:24.623Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "field automatically reloads the exact saved design, Survey collection and immutable histories",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 9343,
+      "startedAt": "2026-10-18T23:17:33.925Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "dual-subject startup retains the exact Layout target and acknowledges Layout and Design saves separately",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 15580,
+      "startedAt": "2026-10-18T23:17:44.923Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "Browse remains separate from Open and startup restores catalog selection and visibility after source reset",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 13070,
+      "startedAt": "2026-10-18T23:18:00.516Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "Layout-only startup opens without an editable design and preserves frozen geometry",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 9605,
+      "startedAt": "2026-10-18T23:18:15.340Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "Layout-only startup keeps archived collection disabled and preserves frozen geometry",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 8701,
+      "startedAt": "2026-10-18T23:18:24.980Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "absent/malformed startup hints fall back without preference or workspace-byte writes",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 7241,
+      "startedAt": "2026-10-18T23:18:33.693Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "deleted/foreign startup hints fall back without preference or workspace-byte writes",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 7651,
+      "startedAt": "2026-10-18T23:18:40.946Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "operator Open, mode, collection, Browse and catalog visibility publish accepted hints that reload automatically",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 12580,
+      "startedAt": "2026-10-18T23:18:50.293Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "dirty input Open refusal keeps the previous accepted hint and saved source exact",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 8919,
+      "startedAt": "2026-10-18T23:19:02.889Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "externally deleted destination Open refusal keeps the previous accepted hint and saved source exact",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 8594,
+      "startedAt": "2026-10-18T23:19:11.821Z",
+      "workerIndex": 7
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "draft automatically reloads the exact saved design, Survey collection and immutable histories",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6368,
+      "startedAt": "2026-10-18T23:22:39.684Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "project automatically reloads the exact saved design, Survey collection and immutable histories",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 7584,
+      "startedAt": "2026-10-18T23:22:47.866Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "field automatically reloads the exact saved design, Survey collection and immutable histories",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 7012,
+      "startedAt": "2026-10-18T23:22:55.460Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "dual-subject startup retains the exact Layout target and acknowledges Layout and Design saves separately",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 11693,
+      "startedAt": "2026-10-18T23:23:02.484Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "Browse remains separate from Open and startup restores catalog selection and visibility after source reset",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 8832,
+      "startedAt": "2026-10-18T23:23:14.191Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "Layout-only startup opens without an editable design and preserves frozen geometry",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 6309,
+      "startedAt": "2026-10-18T23:23:24.980Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "Layout-only startup keeps archived collection disabled and preserves frozen geometry",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 7465,
+      "startedAt": "2026-10-18T23:23:31.302Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "absent/malformed startup hints fall back without preference or workspace-byte writes",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 7292,
+      "startedAt": "2026-10-18T23:23:38.779Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "deleted/foreign startup hints fall back without preference or workspace-byte writes",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 7507,
+      "startedAt": "2026-10-18T23:23:46.082Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "operator Open, mode, collection, Browse and catalog visibility publish accepted hints that reload automatically",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 9592,
+      "startedAt": "2026-10-18T23:23:55.707Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "dirty input Open refusal keeps the previous accepted hint and saved source exact",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 4916,
+      "startedAt": "2026-10-18T23:24:05.309Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-startup-resume.spec.ts",
+      "title": "externally deleted destination Open refusal keeps the previous accepted hint and saved source exact",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5198,
+      "startedAt": "2026-10-18T23:24:10.233Z",
+      "workerIndex": 12
+    },
+    {
+      "file": "workspace-storage.spec.ts",
+      "title": "workspace foundation serializes two browser tabs and rejects stale saves",
+      "project": "desktop",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 1027,
+      "startedAt": "2026-10-18T23:11:27.305Z",
+      "workerIndex": 1
+    },
+    {
+      "file": "workspace-storage.spec.ts",
+      "title": "workspace foundation serializes two browser tabs and rejects stale saves",
+      "project": "tablet-768",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 876,
+      "startedAt": "2026-10-18T23:17:19.812Z",
+      "workerIndex": 5
+    },
+    {
+      "file": "workspace-storage.spec.ts",
+      "title": "workspace foundation serializes two browser tabs and rejects stale saves",
+      "project": "mobile-390",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 998,
+      "startedAt": "2026-10-18T23:23:03.178Z",
+      "workerIndex": 11
+    }
+  ],
+  "gisExecutions": [
+    {
+      "tuple": {
+        "project": "mobile-390",
+        "file": "tests/web/gis-visual.spec.ts",
+        "title": "GL required: drawing and undo remain live while synthetic raster requests are delayed",
+        "retry": 0,
+        "repeatEachIndex": 0,
+        "workerIndex": 14
+      },
+      "status": "passed",
+      "rendererRequirement": "maplibre-required",
+      "sourceFingerprint": "1658adeab1829ea96f228c7afb92bc058bbb1d2ea6730443fe19aeacdc774b46",
+      "receiptSha256": "cc897ccb2323494e7155bd3df296a46af9fc5d6ca6be0953d98d6f1914f3df3a"
+    },
+    {
+      "tuple": {
+        "project": "tablet-768",
+        "file": "tests/web/gis-package.spec.ts",
+        "title": "GL required: portable permitted GIS package stays unresolved while synthetic live fallback preserves metadata",
+        "retry": 0,
+        "repeatEachIndex": 0,
+        "workerIndex": 8
+      },
+      "status": "passed",
+      "rendererRequirement": "maplibre-required",
+      "sourceFingerprint": "1658adeab1829ea96f228c7afb92bc058bbb1d2ea6730443fe19aeacdc774b46",
+      "receiptSha256": "9a6a04f516ad6a05361577e37ca7bccd83c1b27ae9f49d5fd4f9d27ed622ff8e"
+    },
+    {
+      "tuple": {
+        "project": "tablet-768",
+        "file": "tests/web/gis-visual.spec.ts",
+        "title": "SVG required: induced graphics loss retains pending drawing, camera and saved source",
+        "retry": 0,
+        "repeatEachIndex": 0,
+        "workerIndex": 9
+      },
+      "status": "passed",
+      "rendererRequirement": "svg-required",
+      "sourceFingerprint": "1658adeab1829ea96f228c7afb92bc058bbb1d2ea6730443fe19aeacdc774b46",
+      "receiptSha256": "7cab3944bc3382e0dd1f5444a9e32e0640ca97a0ccf5ed0f24dca6d4c936dc62"
+    },
+    {
+      "tuple": {
+        "project": "desktop",
+        "file": "tests/web/gis-visual.spec.ts",
+        "title": "SVG required: induced graphics loss retains pending drawing, camera and saved source",
+        "retry": 0,
+        "repeatEachIndex": 0,
+        "workerIndex": 4
+      },
+      "status": "passed",
+      "rendererRequirement": "svg-required",
+      "sourceFingerprint": "1658adeab1829ea96f228c7afb92bc058bbb1d2ea6730443fe19aeacdc774b46",
+      "receiptSha256": "a46887ee913a929430083e45a799d9fe00e595a2761de4d105a77e222f288561"
+    },
+    {
+      "tuple": {
+        "project": "mobile-390",
+        "file": "tests/web/gis-package.spec.ts",
+        "title": "GL required: raster package without provenance stays unqualified while fallback preserves metadata",
+        "retry": 0,
+        "repeatEachIndex": 0,
+        "workerIndex": 13
+      },
+      "status": "passed",
+      "rendererRequirement": "maplibre-required",
+      "sourceFingerprint": "1658adeab1829ea96f228c7afb92bc058bbb1d2ea6730443fe19aeacdc774b46",
+      "receiptSha256": "e57bd679ce609489851f97026582f0954430dbd7d7d4354cf6e34c86c8162c7a"
+    },
+    {
+      "tuple": {
+        "project": "tablet-768",
+        "file": "tests/web/gis-visual.spec.ts",
+        "title": "GL required: drawing and undo remain live while synthetic raster requests are delayed",
+        "retry": 0,
+        "repeatEachIndex": 0,
+        "workerIndex": 9
+      },
+      "status": "passed",
+      "rendererRequirement": "maplibre-required",
+      "sourceFingerprint": "1658adeab1829ea96f228c7afb92bc058bbb1d2ea6730443fe19aeacdc774b46",
+      "receiptSha256": "583e4756a300ebfba638616d75a9727bb351ac41d0cb7fd7be960482fe6b3346"
+    },
+    {
+      "tuple": {
+        "project": "desktop",
+        "file": "tests/web/gis-visual.spec.ts",
+        "title": "Renderer independent: GIS controls compare visually and support natural Tab and Escape focus return",
+        "retry": 0,
+        "repeatEachIndex": 0,
+        "workerIndex": 4
+      },
+      "status": "passed",
+      "rendererRequirement": "renderer-independent",
+      "sourceFingerprint": "1658adeab1829ea96f228c7afb92bc058bbb1d2ea6730443fe19aeacdc774b46",
+      "receiptSha256": "633b45aa5d3a68e99c28a7717b39a32b3c62fdbdaa132a475c6709c10566c5ae"
+    },
+    {
+      "tuple": {
+        "project": "desktop",
+        "file": "tests/web/gis-package.spec.ts",
+        "title": "GL required: denied offline raster package issues no package requests and preserves source metadata",
+        "retry": 0,
+        "repeatEachIndex": 0,
+        "workerIndex": 3
+      },
+      "status": "passed",
+      "rendererRequirement": "maplibre-required",
+      "sourceFingerprint": "1658adeab1829ea96f228c7afb92bc058bbb1d2ea6730443fe19aeacdc774b46",
+      "receiptSha256": "2f61b95e109d205670f06b50f311f16dad14006e776adeaa208f369a8592970d"
+    },
+    {
+      "tuple": {
+        "project": "tablet-768",
+        "file": "tests/web/gis-visual.spec.ts",
+        "title": "Renderer independent: GIS controls compare visually and support natural Tab and Escape focus return",
+        "retry": 0,
+        "repeatEachIndex": 0,
+        "workerIndex": 9
+      },
+      "status": "passed",
+      "rendererRequirement": "renderer-independent",
+      "sourceFingerprint": "1658adeab1829ea96f228c7afb92bc058bbb1d2ea6730443fe19aeacdc774b46",
+      "receiptSha256": "8b1161e7123fa999360c1a0a696250f06526da24a616bdd04e5fefaf88c44713"
+    },
+    {
+      "tuple": {
+        "project": "mobile-390",
+        "file": "tests/web/gis-visual.spec.ts",
+        "title": "GL required: actual GIS journey loads local workers and preserves camera ownership and exact XY",
+        "retry": 0,
+        "repeatEachIndex": 0,
+        "workerIndex": 14
+      },
+      "status": "passed",
+      "rendererRequirement": "maplibre-required",
+      "sourceFingerprint": "1658adeab1829ea96f228c7afb92bc058bbb1d2ea6730443fe19aeacdc774b46",
+      "receiptSha256": "45c507777b68c3ae5822ab5a8fb91b66f7fc521a5acafabc02c09e4d9316fea4"
+    },
+    {
+      "tuple": {
+        "project": "desktop",
+        "file": "tests/web/gis-package.spec.ts",
+        "title": "GL required: raster package without provenance stays unqualified while fallback preserves metadata",
+        "retry": 0,
+        "repeatEachIndex": 0,
+        "workerIndex": 3
+      },
+      "status": "passed",
+      "rendererRequirement": "maplibre-required",
+      "sourceFingerprint": "1658adeab1829ea96f228c7afb92bc058bbb1d2ea6730443fe19aeacdc774b46",
+      "receiptSha256": "953d55fbe822ed3c08ef95c233c8d1c3baf53c83cd5b93083672df8e84877356"
+    },
+    {
+      "tuple": {
+        "project": "tablet-768",
+        "file": "tests/web/gis-package.spec.ts",
+        "title": "GL required: raster package without provenance stays unqualified while fallback preserves metadata",
+        "retry": 0,
+        "repeatEachIndex": 0,
+        "workerIndex": 8
+      },
+      "status": "passed",
+      "rendererRequirement": "maplibre-required",
+      "sourceFingerprint": "1658adeab1829ea96f228c7afb92bc058bbb1d2ea6730443fe19aeacdc774b46",
+      "receiptSha256": "4191b4c958e8b85bc73a6f26192ad36c1786a8baa52a3489123480b7916fdcdb"
+    },
+    {
+      "tuple": {
+        "project": "desktop",
+        "file": "tests/web/gis-visual.spec.ts",
+        "title": "GL required: actual GIS journey loads local workers and preserves camera ownership and exact XY",
+        "retry": 0,
+        "repeatEachIndex": 0,
+        "workerIndex": 4
+      },
+      "status": "passed",
+      "rendererRequirement": "maplibre-required",
+      "sourceFingerprint": "1658adeab1829ea96f228c7afb92bc058bbb1d2ea6730443fe19aeacdc774b46",
+      "receiptSha256": "33588f0117c60c66834552d1fb95ff0c5182f428b91d445e8fc0059b168238b9"
+    },
+    {
+      "tuple": {
+        "project": "desktop",
+        "file": "tests/web/gis-visual.spec.ts",
+        "title": "GL required: drawing and undo remain live while synthetic raster requests are delayed",
+        "retry": 0,
+        "repeatEachIndex": 0,
+        "workerIndex": 4
+      },
+      "status": "passed",
+      "rendererRequirement": "maplibre-required",
+      "sourceFingerprint": "1658adeab1829ea96f228c7afb92bc058bbb1d2ea6730443fe19aeacdc774b46",
+      "receiptSha256": "052eddfe11d254a410de2d9c908b5377ddc7ea7bc0454cbcdfb67433364521dd"
+    },
+    {
+      "tuple": {
+        "project": "tablet-768",
+        "file": "tests/web/gis-visual.spec.ts",
+        "title": "Renderer independent: short portrait and landscape retain drawing clearance and reachable controls",
+        "retry": 0,
+        "repeatEachIndex": 0,
+        "workerIndex": 9
+      },
+      "status": "passed",
+      "rendererRequirement": "renderer-independent",
+      "sourceFingerprint": "1658adeab1829ea96f228c7afb92bc058bbb1d2ea6730443fe19aeacdc774b46",
+      "receiptSha256": "563d4cc9b6edda3be77c6566d01a567899345a58a8188e34cc0f89ae6e206d64"
+    },
+    {
+      "tuple": {
+        "project": "mobile-390",
+        "file": "tests/web/gis-package.spec.ts",
+        "title": "GL required: denied offline raster package issues no package requests and preserves source metadata",
+        "retry": 0,
+        "repeatEachIndex": 0,
+        "workerIndex": 13
+      },
+      "status": "passed",
+      "rendererRequirement": "maplibre-required",
+      "sourceFingerprint": "1658adeab1829ea96f228c7afb92bc058bbb1d2ea6730443fe19aeacdc774b46",
+      "receiptSha256": "8b51ce789f886d2cbfce89453d944f4edd997cab414fa8c4c38e0073b365d231"
+    },
+    {
+      "tuple": {
+        "project": "mobile-390",
+        "file": "tests/web/gis-package.spec.ts",
+        "title": "GL required: portable permitted GIS package stays unresolved while synthetic live fallback preserves metadata",
+        "retry": 0,
+        "repeatEachIndex": 0,
+        "workerIndex": 13
+      },
+      "status": "passed",
+      "rendererRequirement": "maplibre-required",
+      "sourceFingerprint": "1658adeab1829ea96f228c7afb92bc058bbb1d2ea6730443fe19aeacdc774b46",
+      "receiptSha256": "ba0a809281c3c198987b04b725c17bf2fa7a0ac6c37b7ccc615371a243193927"
+    },
+    {
+      "tuple": {
+        "project": "desktop",
+        "file": "tests/web/gis-package.spec.ts",
+        "title": "GL required: portable permitted GIS package stays unresolved while synthetic live fallback preserves metadata",
+        "retry": 0,
+        "repeatEachIndex": 0,
+        "workerIndex": 3
+      },
+      "status": "passed",
+      "rendererRequirement": "maplibre-required",
+      "sourceFingerprint": "1658adeab1829ea96f228c7afb92bc058bbb1d2ea6730443fe19aeacdc774b46",
+      "receiptSha256": "5dbe5fe54e016887d63d2ac96d2c3c8c821592ca5a456cc26df4e3eaf46d430a"
+    },
+    {
+      "tuple": {
+        "project": "mobile-390",
+        "file": "tests/web/gis-visual.spec.ts",
+        "title": "Renderer independent: GIS controls compare visually and support natural Tab and Escape focus return",
+        "retry": 0,
+        "repeatEachIndex": 0,
+        "workerIndex": 14
+      },
+      "status": "passed",
+      "rendererRequirement": "renderer-independent",
+      "sourceFingerprint": "1658adeab1829ea96f228c7afb92bc058bbb1d2ea6730443fe19aeacdc774b46",
+      "receiptSha256": "d7ce419c4d32d7ab2cb184b2293c2b6105679a1d7c48c0bcc82cd76e226a1dda"
+    },
+    {
+      "tuple": {
+        "project": "tablet-768",
+        "file": "tests/web/gis-package.spec.ts",
+        "title": "GL required: denied offline raster package issues no package requests and preserves source metadata",
+        "retry": 0,
+        "repeatEachIndex": 0,
+        "workerIndex": 8
+      },
+      "status": "passed",
+      "rendererRequirement": "maplibre-required",
+      "sourceFingerprint": "1658adeab1829ea96f228c7afb92bc058bbb1d2ea6730443fe19aeacdc774b46",
+      "receiptSha256": "c0b9b801b2bdc6f87da3a5535de662cfac06725acc0283bf14d0d4489462816a"
+    },
+    {
+      "tuple": {
+        "project": "mobile-390",
+        "file": "tests/web/gis-visual.spec.ts",
+        "title": "Renderer independent: short portrait and landscape retain drawing clearance and reachable controls",
+        "retry": 0,
+        "repeatEachIndex": 0,
+        "workerIndex": 14
+      },
+      "status": "passed",
+      "rendererRequirement": "renderer-independent",
+      "sourceFingerprint": "1658adeab1829ea96f228c7afb92bc058bbb1d2ea6730443fe19aeacdc774b46",
+      "receiptSha256": "7ef3fbf3e9a4c7105a935bbd2c091d52fd8032355b4aea3f1baa5e7e11954073"
+    },
+    {
+      "tuple": {
+        "project": "desktop",
+        "file": "tests/web/gis-visual.spec.ts",
+        "title": "Renderer independent: short portrait and landscape retain drawing clearance and reachable controls",
+        "retry": 0,
+        "repeatEachIndex": 0,
+        "workerIndex": 4
+      },
+      "status": "passed",
+      "rendererRequirement": "renderer-independent",
+      "sourceFingerprint": "1658adeab1829ea96f228c7afb92bc058bbb1d2ea6730443fe19aeacdc774b46",
+      "receiptSha256": "d4fadfda0a8d4122ef58a04a0467e660694e0674a636743a52d7243a1fd2db81"
+    },
+    {
+      "tuple": {
+        "project": "mobile-390",
+        "file": "tests/web/gis-visual.spec.ts",
+        "title": "SVG required: induced graphics loss retains pending drawing, camera and saved source",
+        "retry": 0,
+        "repeatEachIndex": 0,
+        "workerIndex": 14
+      },
+      "status": "passed",
+      "rendererRequirement": "svg-required",
+      "sourceFingerprint": "1658adeab1829ea96f228c7afb92bc058bbb1d2ea6730443fe19aeacdc774b46",
+      "receiptSha256": "df9f671c061d3cfe46632372966456679af52702c18de13703bbcfcd8e0c900c"
+    },
+    {
+      "tuple": {
+        "project": "tablet-768",
+        "file": "tests/web/gis-visual.spec.ts",
+        "title": "GL required: actual GIS journey loads local workers and preserves camera ownership and exact XY",
+        "retry": 0,
+        "repeatEachIndex": 0,
+        "workerIndex": 9
+      },
+      "status": "passed",
+      "rendererRequirement": "maplibre-required",
+      "sourceFingerprint": "1658adeab1829ea96f228c7afb92bc058bbb1d2ea6730443fe19aeacdc774b46",
+      "receiptSha256": "f894d9924b99e5743126d8344d6116a644f9b7450b276439b0669ab694734806"
+    }
+  ],
+  "visualNoise": [
+    {
+      "project": "desktop",
+      "region": "gis-common-controls",
+      "algorithm": "three consecutive exact PNG captures",
+      "captures": [
+        {
+          "sha256": "997d84c1428dba351b2fae22e65c2be8f1fd10adca280d487af2cd3bf4b2f8e2",
+          "bytes": 10767
+        },
+        {
+          "sha256": "997d84c1428dba351b2fae22e65c2be8f1fd10adca280d487af2cd3bf4b2f8e2",
+          "bytes": 10767
+        },
+        {
+          "sha256": "997d84c1428dba351b2fae22e65c2be8f1fd10adca280d487af2cd3bf4b2f8e2",
+          "bytes": 10767
+        }
+      ],
+      "chosenMaxDiffPixels": 0,
+      "chosenThreshold": 0
+    },
+    {
+      "project": "desktop",
+      "region": "gis-controls-390x500",
+      "algorithm": "three consecutive exact PNG captures",
+      "captures": [
+        {
+          "sha256": "d1ba2db595b4d689c4230bc4c79c3da70afe4078e7834c83fa180e0382c73df7",
+          "bytes": 6271
+        },
+        {
+          "sha256": "d1ba2db595b4d689c4230bc4c79c3da70afe4078e7834c83fa180e0382c73df7",
+          "bytes": 6271
+        },
+        {
+          "sha256": "d1ba2db595b4d689c4230bc4c79c3da70afe4078e7834c83fa180e0382c73df7",
+          "bytes": 6271
+        }
+      ],
+      "chosenMaxDiffPixels": 0,
+      "chosenThreshold": 0
+    },
+    {
+      "project": "desktop",
+      "region": "gis-controls-844x390",
+      "algorithm": "three consecutive exact PNG captures",
+      "captures": [
+        {
+          "sha256": "6770e9603d71de7b0331df488107786938a6dbddbfbb6e7df2d6b1927e334521",
+          "bytes": 6026
+        },
+        {
+          "sha256": "6770e9603d71de7b0331df488107786938a6dbddbfbb6e7df2d6b1927e334521",
+          "bytes": 6026
+        },
+        {
+          "sha256": "6770e9603d71de7b0331df488107786938a6dbddbfbb6e7df2d6b1927e334521",
+          "bytes": 6026
+        }
+      ],
+      "chosenMaxDiffPixels": 0,
+      "chosenThreshold": 0
+    },
+    {
+      "project": "tablet-768",
+      "region": "gis-common-controls",
+      "algorithm": "three consecutive exact PNG captures",
+      "captures": [
+        {
+          "sha256": "3927648d67f477e46d79cad17de96a449118603a0581f11ac89969fdf63ca4d1",
+          "bytes": 5985
+        },
+        {
+          "sha256": "3927648d67f477e46d79cad17de96a449118603a0581f11ac89969fdf63ca4d1",
+          "bytes": 5985
+        },
+        {
+          "sha256": "3927648d67f477e46d79cad17de96a449118603a0581f11ac89969fdf63ca4d1",
+          "bytes": 5985
+        }
+      ],
+      "chosenMaxDiffPixels": 0,
+      "chosenThreshold": 0
+    },
+    {
+      "project": "tablet-768",
+      "region": "gis-controls-390x500",
+      "algorithm": "three consecutive exact PNG captures",
+      "captures": [
+        {
+          "sha256": "d1ba2db595b4d689c4230bc4c79c3da70afe4078e7834c83fa180e0382c73df7",
+          "bytes": 6271
+        },
+        {
+          "sha256": "d1ba2db595b4d689c4230bc4c79c3da70afe4078e7834c83fa180e0382c73df7",
+          "bytes": 6271
+        },
+        {
+          "sha256": "d1ba2db595b4d689c4230bc4c79c3da70afe4078e7834c83fa180e0382c73df7",
+          "bytes": 6271
+        }
+      ],
+      "chosenMaxDiffPixels": 0,
+      "chosenThreshold": 0
+    },
+    {
+      "project": "tablet-768",
+      "region": "gis-controls-844x390",
+      "algorithm": "three consecutive exact PNG captures",
+      "captures": [
+        {
+          "sha256": "6770e9603d71de7b0331df488107786938a6dbddbfbb6e7df2d6b1927e334521",
+          "bytes": 6026
+        },
+        {
+          "sha256": "6770e9603d71de7b0331df488107786938a6dbddbfbb6e7df2d6b1927e334521",
+          "bytes": 6026
+        },
+        {
+          "sha256": "6770e9603d71de7b0331df488107786938a6dbddbfbb6e7df2d6b1927e334521",
+          "bytes": 6026
+        }
+      ],
+      "chosenMaxDiffPixels": 0,
+      "chosenThreshold": 0
+    },
+    {
+      "project": "mobile-390",
+      "region": "gis-common-controls",
+      "algorithm": "three consecutive exact PNG captures",
+      "captures": [
+        {
+          "sha256": "3ffe7ad3f16aa3215bc0060d0f096a7d3eb3836e8549b4fe313b1952c1f58b27",
+          "bytes": 6250
+        },
+        {
+          "sha256": "3ffe7ad3f16aa3215bc0060d0f096a7d3eb3836e8549b4fe313b1952c1f58b27",
+          "bytes": 6250
+        },
+        {
+          "sha256": "3ffe7ad3f16aa3215bc0060d0f096a7d3eb3836e8549b4fe313b1952c1f58b27",
+          "bytes": 6250
+        }
+      ],
+      "chosenMaxDiffPixels": 0,
+      "chosenThreshold": 0
+    },
+    {
+      "project": "mobile-390",
+      "region": "gis-controls-390x500",
+      "algorithm": "three consecutive exact PNG captures",
+      "captures": [
+        {
+          "sha256": "d1ba2db595b4d689c4230bc4c79c3da70afe4078e7834c83fa180e0382c73df7",
+          "bytes": 6271
+        },
+        {
+          "sha256": "d1ba2db595b4d689c4230bc4c79c3da70afe4078e7834c83fa180e0382c73df7",
+          "bytes": 6271
+        },
+        {
+          "sha256": "d1ba2db595b4d689c4230bc4c79c3da70afe4078e7834c83fa180e0382c73df7",
+          "bytes": 6271
+        }
+      ],
+      "chosenMaxDiffPixels": 0,
+      "chosenThreshold": 0
+    },
+    {
+      "project": "mobile-390",
+      "region": "gis-controls-844x390",
+      "algorithm": "three consecutive exact PNG captures",
+      "captures": [
+        {
+          "sha256": "6770e9603d71de7b0331df488107786938a6dbddbfbb6e7df2d6b1927e334521",
+          "bytes": 6026
+        },
+        {
+          "sha256": "6770e9603d71de7b0331df488107786938a6dbddbfbb6e7df2d6b1927e334521",
+          "bytes": 6026
+        },
+        {
+          "sha256": "6770e9603d71de7b0331df488107786938a6dbddbfbb6e7df2d6b1927e334521",
+          "bytes": 6026
+        }
+      ],
+      "chosenMaxDiffPixels": 0,
+      "chosenThreshold": 0
+    }
+  ],
+  "boundary": "Actual current synthetic browser execution only. No native/device/field/GoogleEarth/hostedCI/publication claim. Source edition may remain blocked by separately recorded counterexamples."
+}

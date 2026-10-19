@@ -1,0 +1,19 @@
+{
+  "sourceFingerprint": "5533a09c8cb22fbb7422b4bfe7595e3b043dbd04decddf662911da7c6a342e73",
+  "sourceCount": 984,
+  "exportHashes": {
+    "_expo/static/css/maplibre-gl-dc3f9f1339c2c312db0e4c8f314a98f9.css": "8a592f3c86f1cc56b48622cdbab9c10e9702a4b89d4fba27154335d837158d8e",
+    "_expo/static/js/web/index-118f47951214f51ead5e860b59cdc13d.js": "1bba5b20a2ceac64baec527db07fb03c9b7edaef6ea898099b3d24a87a60e954",
+    "advisory-overlay-notices.txt": "43bf8151ad3e4a817be4cb4462ac63cb985ce370937959c9291be0d75edcd4b0",
+    "index.html": "e39c419cb08039e7818eb5ddd171ea5bd1be98523434da438c233bc45cc847d6",
+    "maplibre/6.15.0/LICENSE.txt": "ee5fc05a0677eaf69601d2c7db0d9ecd6cc27c3abc1d0733bc9ed34707cf8ef2",
+    "maplibre/6.15.0/manifest.json": "cb4d3aa0eb92782da6b8f7ca24d33e408ffcbb27987f514a6944820a959ef5a7",
+    "maplibre/6.15.0/maplibre-gl-shared.mjs": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "maplibre/6.15.0/maplibre-gl-worker.mjs": "1c69066368331aae63967ed24a9affcf962cf55fcc6d8f532a8b040f736dbcfa",
+    "metadata.json": "aa5f19cc84d41c0f8c70ececb2bc82e863227ea1e121632aca879eb616056991"
+  },
+  "exportFingerprint": "f5181b298ff4fbfecb612da26ad5578f68eeb9d43b36bb8cbe59017fa6f626c3",
+  "source": "/home/cyber/.local/share/cplayout/gis-20261018/candidate",
+  "servedReviewCopy": "/home/cyber/.local/share/cplayout/gis-20261018/visible-review-r2",
+  "method": "Immutable copy of running final proof export with all984 frozen source paths matched; dependencies linked to native candidate; no second export."
+}

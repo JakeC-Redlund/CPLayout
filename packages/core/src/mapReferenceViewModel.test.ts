@@ -55,6 +55,15 @@ const raster: MapPackageManifest = {
   attribution: "Operator supplied imagery",
   licenseText: "Licensed for local use",
   importedAt: "2026-09-12T00:00:00.000Z",
+  imageryProvenance: {
+    providerId: "synthetic-local-aerial",
+    providerName: "CPLayout synthetic test fixture",
+    accessedAt: "2026-10-18T00:00:00.000Z",
+    attribution: "CPLayout synthetic test imagery",
+    licenseText: "Generated test fixture; permitted for offline test use.",
+    offlineCopyAllowed: true,
+    keyedService: false,
+  },
 };
 const mapPackages = [raster];
 const before = JSON.stringify({ settings, mapPackages });
@@ -65,6 +74,9 @@ assert.equal(local.aerial.localAerial.attribution, raster.attribution);
 assert.equal(local.runtimeLabel, null);
 assert.equal(local.evidenceLabel, "Reference only");
 assert.equal(JSON.stringify({ settings, mapPackages }), before);
+const unqualifiedLocal = buildMapReferenceViewModel({ ...input, mapPackages: [{ ...raster, imageryProvenance: undefined }], target: "android_maplibre_rn" });
+assert.equal(unqualifiedLocal.aerial.localAerial.canRender, false);
+assert.equal(unqualifiedLocal.aerial.sourceKind, "online_provider");
 const preview = buildMapReferenceViewModel({ ...input, mapPackages, surface: "online_preview" });
 assert.equal(preview.aerial.sourceKind, "online_provider");
 assert.equal(preview.aerial.autoFallback, false);

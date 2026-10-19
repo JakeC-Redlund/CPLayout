@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "observedOn": "2026-10-18",
+  "decision": "Retain selected exact-lock Expo57.0.28 cohort; separate coherent SDK57 patch review",
+  "alternatives": [
+    "Retain with explicit online advisory and pending coherent review",
+    "Expand frozen GIS packet to change SDK peers, mitigation matrix and native cohort"
+  ],
+  "weights": {
+    "compatibility": 0.3,
+    "preservation": 0.25,
+    "contextEfficiency": 0.2,
+    "reproducibleProof": 0.15,
+    "maintainability": 0.1
+  },
+  "independentReviews": [
+    {
+      "reviewer": "/root/governance_review",
+      "retain": [
+        4,
+        5,
+        4,
+        4,
+        4
+      ],
+      "expand": [
+        2,
+        3,
+        2,
+        1,
+        3
+      ],
+      "weightedRetain": 4.25,
+      "weightedExpand": 2.25
+    },
+    {
+      "reviewer": "/root/gis_architecture",
+      "retain": [
+        5,
+        5,
+        5,
+        4,
+        4
+      ],
+      "expand": [
+        3,
+        3,
+        1,
+        2,
+        2
+      ],
+      "weightedRetain": 4.75,
+      "weightedExpand": 2.35
+    }
+  ],
+  "boundary": "Review judgments, not runtime measurements or human acceptance. Online check remains failed. No peer/guard bypass and no selected lock change; candidate local-contract refusal does not prove upstream incompatibility."
+}
