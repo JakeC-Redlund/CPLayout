@@ -15,6 +15,7 @@ import {
 } from "./mapPackageArchive";
 import { rehydrateInstalledMapPackageManifestsAsync } from "./mapPackageArchiveInstall";
 import { installMapPackageArchiveWithStorage, type MapPackageArchiveStorage } from "./mapPackageArchiveInstallCore";
+import { runMapPackageRecoveryTests } from "./mapPackageArchiveRecovery.test";
 
 const packageId = "naip-local-aerial";
 const prefix = mapPackageLogicalUrlPrefix(packageId);
@@ -150,6 +151,7 @@ class MemoryStorage implements MapPackageArchiveStorage {
   failPromotion = false;
   directoryUri(name: string) { return `file:///packages/${name}`; }
   exists(name: string) { return this.directories.has(name); }
+  readFiles(name: string) { return structuredClone(this.directories.get(name)!); }
   writeFiles(name: string, files: Record<string, Uint8Array>) {
     this.operations.push(`write ${name}`);
     this.directories.set(name, structuredClone(files));
@@ -242,7 +244,8 @@ assert.throws(
 );
 
 void rehydrateInstalledMapPackageManifestsAsync([parsed.manifest, runtimeManifest])
-  .then((runtimeManifests) => {
+  .then(async (runtimeManifests) => {
     assert.deepEqual(runtimeManifests, []);
+    await runMapPackageRecoveryTests(parsed.manifest, archive);
     console.log("map package archive tests passed");
-  });
+  }).catch((error) => { console.error(error); process.exitCode = 1; });

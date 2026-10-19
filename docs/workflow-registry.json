@@ -14,18 +14,12 @@
     "verification": "The preceding 1118-file edition has aggregate exit 0, 225/225 selected browser passes and six matching Edge figures. Source fingerprint ed96c68a374b62e069a28b6b094daa0bb6a660d2df9b290c38cefeeab295d223; served bundle cf00eb7aa9b6c3a0e20d16db93071ec8d38ca3d733555c0b4118a1193e5b9449. These qualify that checkpoint, not later changes or complete production readiness."
   },
   "candidate": {
-    "status": "Bounded GIS software/current browser accepted; separate runtime/update packets pending",
-    "baseCommit": "b5a1a4a7a7058079321b9c2ce701d88fae6b9563",
-    "sourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
-    "sourceManifest": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/source.json",
-    "actualBrowserExecutionEdition": "GIS3-20261018-e977f099f7b3",
-    "newBrowserCommandExecuted": true,
-    "equivalenceReference": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/software-equivalence.json",
-    "boundary": "Local e977 executions and exact final formatting equivalence remain preserved; subsequent fresh hosted source/browser execution on final1d95 passed at the recorded protected head. Human/native/field/GoogleEarth/hook/deployment acceptance remains separate.",
-    "newLocalBrowserCommandExecuted": false,
-    "newHostedBrowserCommandExecuted": true,
-    "actualHostedBrowserCommit": "62462a15bbf4de8ed3dba373ff2adffc94d9afd4",
-    "hostedProofReference": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/publication-checkpoint.json"
+    "status": "package_recovery_source_implemented_qualification_pending",
+    "baseCommit": "2a314f076d5995e47dade72a18db10e9019121e5",
+    "sourceFingerprint": "4402cc5e519c0eb1eaf0ab2046001a4236804c225ce4b08584e56ee00043f450",
+    "sourceManifest": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/source.json",
+    "newBrowserCommandExecuted": false,
+    "boundary": "Behavioral native installer/recovery repair, not formatting equivalence. Earlier complete source/browser/Edge receipts remain actual at their original edition. Fresh exact-head complete source/browser qualification and final independent reviews are pending at this packet cutoff."
   },
   "dependencyHealth": {
     "rawAudit": {
@@ -35,8 +29,8 @@
     },
     "canonicalInstalledPatches": "verified_native_runtime_owner_with_canonical_lock_and_consumer_binding",
     "isolatedInstalledPatches": "verified_exact_selected_lock",
-    "currentQualifiedSourceEdition": "GIS4-20261018-1d95c62541c9",
-    "summary": "Selected exact-lock GIS graph and installed mitigations passed local qualification; subsequent protected hosted source/PostgreSQL HTTP and three browser shards (291 passes) passed at62462a1 on observed Node24.21.0/npm11.19.0. Raw16high/0moderate findings remain admitted through verified mitigations; online Expo update recommendation failed. Node20/native/device and general hosted/Windows font/runtime parity remain unqualified.",
+    "currentQualifiedSourceEdition": "GIS5-20261018-4402cc5e519c_qualification_pending",
+    "summary": "Dependency lock is byte-identical to the historical protected1d95 checkpoint; prior verified installed mitigation observations are retained at their original scope. Native package-recovery successor full source/browser qualification is pending. Historical local/hosted versions and passes remain retained. Raw16high/0moderate admitted mitigation findings, failed online Expo recommendation, and Node20/native/device/general Windows font/runtime parity limits remain.",
     "onlineExpoCheck": {
       "result": "fail",
       "reference": "docs/evidence/gis-reliability-20261018/expo-online-advisory.json",
@@ -57,8 +51,8 @@
         "deferredExecutions": 960,
         "allExecutions": 1251
       },
-      "qualification": "Actual current291 tuples match inventory;24GIS executions and9zero-noise exact comparisons.960 deferred obligations unchanged.",
-      "runtimeAcceptance": "actual_e977_current291_final_formatting_equivalence_two_reviews",
+      "qualification": "Prior actual291 tests and24GIS executions retained; selection counts unchanged only after fresh inventory check. No successor browser passing result yet.",
+      "runtimeAcceptance": "package_recovery_successor_qualification_pending",
       "inventorySha256": "f93040e28fdea5426dfb54074550d4330f8d04a92e408b9b6140433ffd7e77b1",
       "discoveryReference": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/software-equivalence.json"
     },
@@ -125,38 +119,38 @@
     {
       "id": "P0",
       "title": "Verify baseline, preserve work and consolidate tracking",
-      "status": "verified",
-      "qualificationScope": "Assigned source/current-synthetic-browser scope only; explicit feature/device/physical/hook/update/publication obligations remain separate."
+      "status": "source_implemented",
+      "qualificationScope": "Source correction implemented; complete matching successor qualification pending. Historical checkpoints retain their exact scope."
     },
     {
       "id": "P1",
       "title": "Authenticated customer-first Customer → Project → Field navigation",
-      "status": "verified",
-      "qualificationScope": "Assigned source/current-synthetic-browser scope only; explicit feature/device/physical/hook/update/publication obligations remain separate."
+      "status": "source_implemented",
+      "qualificationScope": "Source correction implemented; complete matching successor qualification pending. Historical checkpoints retain their exact scope."
     },
     {
       "id": "P2",
       "title": "Field designs, matched Survey, retained ancestry and RTK-qualified official maps",
-      "status": "verified",
-      "qualificationScope": "Assigned source/current-synthetic-browser scope only; explicit feature/device/physical/hook/update/publication obligations remain separate."
+      "status": "source_implemented",
+      "qualificationScope": "Source correction implemented; complete matching successor qualification pending. Historical checkpoints retain their exact scope."
     },
     {
       "id": "P3",
       "title": "Operator language, guides and responsive accessibility",
-      "status": "verified",
-      "qualificationScope": "Assigned source/current-synthetic-browser scope only; explicit feature/device/physical/hook/update/publication obligations remain separate."
+      "status": "source_implemented",
+      "qualificationScope": "Source correction implemented; complete matching successor qualification pending. Historical checkpoints retain their exact scope."
     },
     {
       "id": "P4",
       "title": "Stable dependency maintenance and truthful skill/hook records",
       "status": "in_progress",
-      "qualificationScope": "Assigned source/current-synthetic-browser scope only; explicit feature/device/physical/hook/update/publication obligations remain separate."
+      "qualificationScope": "Source correction implemented; complete matching successor qualification pending. Historical checkpoints retain their exact scope."
     },
     {
       "id": "P5",
       "title": "Complete clarified-source census, workflow proof, independent reviews and publication",
-      "status": "verified",
-      "qualificationScope": "Complete software/source checkpoint, matching reviews and exact-head protected publication only; canonical merge/sync live handoff and separate operational gates remain distinct."
+      "status": "in_progress",
+      "qualificationScope": "Source correction implemented; complete matching successor qualification pending. Historical checkpoints retain their exact scope."
     }
   ],
   "requirements": [
@@ -165,7 +159,7 @@
       "title": "One canonical tracker",
       "phase": "P0",
       "owner": "governance",
-      "status": "verified",
+      "status": "source_implemented",
       "sourcePaths": [
         "docs/unified-workspace-refocus-2026-10-10.md",
         "docs/workflow-registry.json",
@@ -176,7 +170,7 @@
         "docs/workflow-maintenance-guide.md"
       ],
       "acceptance": "Deterministic current projection; exact archived status bytes; independent evidence classes and dependency references validated.",
-      "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+      "nextAction": "Complete exact-head protected aggregate/browser CI and matching independent closing reviews; retain earlier failures and separate runtime/device/field/hook/App-resolver obligations.",
       "dependsOn": [],
       "evidenceIds": [
         "E-GOVERNANCE-SOURCE-FINAL",
@@ -213,9 +207,9 @@
         "docs/workflow-maintenance-guide.md"
       ],
       "requiredClaimClass": "source",
-      "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+      "qualificationScope": "Successor native package-recovery correction has bounded local source tests; complete matching protected source/browser execution and two final closing reviews remain pending. Prior1d95 checkpoint preserved as historical scope.",
       "priorQualifiedEdition": "R18",
-      "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+      "currentQualifiedEdition": "GIS5-20261018-4402cc5e519c_qualification_pending",
       "priorQualifiedByFinalReviews": [
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
@@ -228,7 +222,7 @@
       "title": "Customer-first entry and project/field selection",
       "phase": "P1",
       "owner": "interface",
-      "status": "verified",
+      "status": "source_implemented",
       "sourcePaths": [
         "apps/mobile/src/workspace/WorkspaceCatalog.tsx",
         "apps/mobile/src/workspace/UnifiedWorkspaceEntry.tsx",
@@ -237,7 +231,7 @@
         "apps/api/src/server.ts"
       ],
       "acceptance": "Real Sign in precedes customer-first Home. Include actual zero-project customers; select their projects and fields, browse without replacing work, explicitly Open, and create/edit permitted customers/projects while preserving unfinished context.",
-      "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+      "nextAction": "Complete exact-head protected aggregate/browser CI and matching independent closing reviews; retain earlier failures and separate runtime/device/field/hook/App-resolver obligations.",
       "dependsOn": [
         "AUTH-01"
       ],
@@ -275,9 +269,9 @@
         "E-GIS4-20261018-BROWSER291"
       ],
       "requiredClaimClass": "browser",
-      "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+      "qualificationScope": "Successor native package-recovery correction has bounded local source tests; complete matching protected source/browser execution and two final closing reviews remain pending. Prior1d95 checkpoint preserved as historical scope.",
       "priorQualifiedEdition": "R18",
-      "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+      "currentQualifiedEdition": "GIS5-20261018-4402cc5e519c_qualification_pending",
       "priorQualifiedByFinalReviews": [
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
@@ -290,7 +284,7 @@
       "title": "Truthful account sign-in and shared service",
       "phase": "P1",
       "owner": "coordinator/backend",
-      "status": "verified",
+      "status": "source_implemented",
       "sourcePaths": [
         "apps/api/src/server.ts",
         "packages/auth-client/src/apiClient.ts",
@@ -298,7 +292,7 @@
         "apps/mobile/src/auth/accessOwnership.ts"
       ],
       "acceptance": "Actual server authentication/authorization and durable customer/project service preserve cache/recovery/import contracts. Additive catalog-metadata reads one authorized workspace snapshot under its rowlock, including empty customers/archive inheritance/revision and actual principalId/policyRevision; SDK validates captured account/policy before publication and mismatch uses the preserving account_changed path. Existing project endpoint remains compatible; actor attribution is final-lock bound.",
-      "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+      "nextAction": "Complete exact-head protected aggregate/browser CI and matching independent closing reviews; retain earlier failures and separate runtime/device/field/hook/App-resolver obligations.",
       "dependsOn": [],
       "evidenceIds": [
         "E-INDEPENDENT-REVIEW-INITIAL",
@@ -334,9 +328,9 @@
         "E-GIS4-20261018-BROWSER291"
       ],
       "requiredClaimClass": "browser",
-      "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+      "qualificationScope": "Successor native package-recovery correction has bounded local source tests; complete matching protected source/browser execution and two final closing reviews remain pending. Prior1d95 checkpoint preserved as historical scope.",
       "priorQualifiedEdition": "R18",
-      "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+      "currentQualifiedEdition": "GIS5-20261018-4402cc5e519c_qualification_pending",
       "priorQualifiedByFinalReviews": [
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
@@ -349,7 +343,7 @@
       "title": "Logical customer/project/field folders and actual field content",
       "phase": "P1",
       "owner": "interface/backend/domain",
-      "status": "verified",
+      "status": "source_implemented",
       "sourcePaths": [
         "apps/mobile/src/auth/AuthenticatedWorkspace.tsx",
         "apps/mobile/src/workspace/WorkspaceCatalog.tsx",
@@ -361,7 +355,7 @@
         "packages/project-store/src/workspaceFieldContents.test.ts"
       ],
       "acceptance": "One authorized customer snapshot includes empty customers. Actual customer→project→field links determine logical folders. Machine/map-design categories address existing saved document/machine content without copied entities or invented types; field Surveys identify their saved review/included collections and official maps appear only under the actual matched Survey. Historical parent-unavailable/unqualified records remain distinct and readable/exportable.",
-      "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+      "nextAction": "Complete exact-head protected aggregate/browser CI and matching independent closing reviews; retain earlier failures and separate runtime/device/field/hook/App-resolver obligations.",
       "dependsOn": [
         "AUTH-01",
         "ENTRY-01"
@@ -431,9 +425,9 @@
         "boundary": "Projection/sourcechecks only; currentApp/global/native/physical/finalreview separate."
       },
       "requiredClaimClass": "browser",
-      "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+      "qualificationScope": "Successor native package-recovery correction has bounded local source tests; complete matching protected source/browser execution and two final closing reviews remain pending. Prior1d95 checkpoint preserved as historical scope.",
       "priorQualifiedEdition": "R18",
-      "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+      "currentQualifiedEdition": "GIS5-20261018-4402cc5e519c_qualification_pending",
       "priorQualifiedByFinalReviews": [
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
@@ -446,7 +440,7 @@
       "title": "Optional Design and required Survey",
       "phase": "P2",
       "owner": "domain",
-      "status": "verified",
+      "status": "source_implemented",
       "sourcePaths": [
         "apps/mobile/src/workspace/useWorkspaceController.ts",
         "apps/mobile/src/workspace/workspaceControllerState.ts",
@@ -454,7 +448,7 @@
         "packages/core/src/surveyDraftField.ts"
       ],
       "acceptance": "New project opens Design; manual drawing needs no receiver; direct Survey entry allowed; Layout requires matching saved Survey qualification.",
-      "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+      "nextAction": "Complete exact-head protected aggregate/browser CI and matching independent closing reviews; retain earlier failures and separate runtime/device/field/hook/App-resolver obligations.",
       "dependsOn": [
         "HIERARCHY-01"
       ],
@@ -484,9 +478,9 @@
         "E-GIS4-20261018-BROWSER291"
       ],
       "requiredClaimClass": "browser",
-      "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+      "qualificationScope": "Successor native package-recovery correction has bounded local source tests; complete matching protected source/browser execution and two final closing reviews remain pending. Prior1d95 checkpoint preserved as historical scope.",
       "priorQualifiedEdition": "R18",
-      "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+      "currentQualifiedEdition": "GIS5-20261018-4402cc5e519c_qualification_pending",
       "priorQualifiedByFinalReviews": [
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
@@ -499,13 +493,13 @@
       "title": "Manual field and machine geometry",
       "phase": "P2",
       "owner": "domain/interface",
-      "status": "verified",
+      "status": "source_implemented",
       "sourcePaths": [
         "apps/mobile/src/workspace/WorkspaceDrawingPanel.tsx",
         "packages/core/src/draftDrawingWorkflow.ts"
       ],
       "acceptance": "Interactive map accepts manual boundaries and relevant lines/points with purpose, undo, persistence and no GNSS requirement.",
-      "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+      "nextAction": "Complete exact-head protected aggregate/browser CI and matching independent closing reviews; retain earlier failures and separate runtime/device/field/hook/App-resolver obligations.",
       "dependsOn": [
         "FLOW-01"
       ],
@@ -530,9 +524,9 @@
         "E-GIS4-20261018-BROWSER291"
       ],
       "requiredClaimClass": "browser",
-      "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+      "qualificationScope": "Successor native package-recovery correction has bounded local source tests; complete matching protected source/browser execution and two final closing reviews remain pending. Prior1d95 checkpoint preserved as historical scope.",
       "priorQualifiedEdition": "R18",
-      "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+      "currentQualifiedEdition": "GIS5-20261018-4402cc5e519c_qualification_pending",
       "priorQualifiedByFinalReviews": [
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
@@ -545,7 +539,7 @@
       "title": "Receiver collection and qualification",
       "phase": "P2",
       "owner": "domain",
-      "status": "verified",
+      "status": "source_implemented",
       "sourcePaths": [
         "packages/core/src/surveyCollection.ts",
         "apps/mobile/src/workspace/WorkspaceModePanels.tsx",
@@ -554,7 +548,7 @@
         "packages/project-store/src/workspaceCommands.ts"
       ],
       "acceptance": "Field Survey anchors the actual saved review and included collections/source revision. Live collection requires fresh owned RTK Fixed receiver epochs and admitted actual CRS; manual/planned points retain their separate provenance.",
-      "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+      "nextAction": "Complete exact-head protected aggregate/browser CI and matching independent closing reviews; retain earlier failures and separate runtime/device/field/hook/App-resolver obligations.",
       "dependsOn": [
         "FLOW-01"
       ],
@@ -584,9 +578,9 @@
         "E-GIS4-20261018-BROWSER291"
       ],
       "requiredClaimClass": "browser",
-      "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+      "qualificationScope": "Successor native package-recovery correction has bounded local source tests; complete matching protected source/browser execution and two final closing reviews remain pending. Prior1d95 checkpoint preserved as historical scope.",
       "priorQualifiedEdition": "R18",
-      "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+      "currentQualifiedEdition": "GIS5-20261018-4402cc5e519c_qualification_pending",
       "priorQualifiedByFinalReviews": [
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
@@ -599,7 +593,7 @@
       "title": "Official Layout maps under matched Survey with RTK admission",
       "phase": "P2",
       "owner": "domain",
-      "status": "verified",
+      "status": "source_implemented",
       "sourcePaths": [
         "apps/mobile/src/workspace/WorkspaceModePanels.tsx",
         "apps/mobile/src/workspace/useWorkspaceController.ts",
@@ -615,7 +609,7 @@
         "packages/project-store/src/webWorkspaceStore.ts"
       ],
       "acceptance": "V3 RTK Layout creation, live marking and finalization each require fresh owned Fixed final admission with matched Survey/source/revision/CRS. Official finalization binds every immutable target to an actual within-tolerance station and exact observations. Preserve creation/finalization/reference metadata in all writers; noV3→V2 downgrade. Original authorized GET/view/export remains; V3bulk/raw import without service/workspace/account origin proof refuses, same-original-field dedicated reference import retains exact target/review IDs/raw source without inherited finalization, and cross-field reference import refuses. Planned targets/manual provenance remain distinct from measured stations and physical qualification.",
-      "nextAction": "Requalify changed source inputs; retain separately pending runtime, deferred-browser and publication obligations. Retain initial RTK chronology refusal and investigate timing diagnostics without weakening admission.",
+      "nextAction": "Complete exact-head protected aggregate/browser CI and matching independent closing reviews; retain earlier failures and separate runtime/device/field/hook/App-resolver obligations.",
       "dependsOn": [
         "SURVEY-01",
         "ANCESTRY-01"
@@ -654,9 +648,9 @@
         "E-GIS4-20261018-BROWSER-FIRST"
       ],
       "requiredClaimClass": "browser",
-      "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+      "qualificationScope": "Successor native package-recovery correction has bounded local source tests; complete matching protected source/browser execution and two final closing reviews remain pending. Prior1d95 checkpoint preserved as historical scope.",
       "priorQualifiedEdition": "R18",
-      "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+      "currentQualifiedEdition": "GIS5-20261018-4402cc5e519c_qualification_pending",
       "priorQualifiedByFinalReviews": [
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
@@ -669,7 +663,7 @@
       "title": "Retain ancestors referenced by saved Survey evidence",
       "phase": "P2",
       "owner": "domain/store/interface",
-      "status": "verified",
+      "status": "source_implemented",
       "sourcePaths": [
         "packages/project-store/src/workspaceDocument.ts",
         "packages/project-store/src/workspaceCommands.ts",
@@ -680,7 +674,7 @@
         "packages/project-store/src/workspaceFieldContents.test.ts"
       ],
       "acceptance": "Future ancestor deletion refuses whenever active or archived retained Survey evidence references its field. Preserve original saved owner/collection/point bytes and schemas; historical orphans remain readable/exportable with parent unavailable, without guessed placement or cascade deletion.",
-      "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+      "nextAction": "Complete exact-head protected aggregate/browser CI and matching independent closing reviews; retain earlier failures and separate runtime/device/field/hook/App-resolver obligations.",
       "dependsOn": [
         "HIERARCHY-01",
         "SURVEY-01",
@@ -754,9 +748,9 @@
         "boundary": "Projection/sourcechecks only; currentApp/global/native/physical/finalreview separate."
       },
       "requiredClaimClass": "browser",
-      "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+      "qualificationScope": "Successor native package-recovery correction has bounded local source tests; complete matching protected source/browser execution and two final closing reviews remain pending. Prior1d95 checkpoint preserved as historical scope.",
       "priorQualifiedEdition": "R18",
-      "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+      "currentQualifiedEdition": "GIS5-20261018-4402cc5e519c_qualification_pending",
       "priorQualifiedByFinalReviews": [
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
@@ -769,7 +763,7 @@
       "title": "Preserve current and unfinished work",
       "phase": "P2",
       "owner": "coordinator/QA",
-      "status": "verified",
+      "status": "source_implemented",
       "sourcePaths": [
         "apps/mobile/src/workspace/workspaceEditRecovery.ts",
         "apps/mobile/src/workspace/workspaceEditRecoveryStore.ts",
@@ -780,7 +774,7 @@
         "packages/project-store/src/webWorkspaceStore.ts"
       ],
       "acceptance": "Mode/context changes retain raw input, camera, history, saved identity and conflicts; restoration never silently saves/reconnects. All shared writers retain officialV3creation/finalization/reference metadata and exact source history; authenticated receipt actors remain bound to admitted account/policy after nested/awaited locks.",
-      "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+      "nextAction": "Complete exact-head protected aggregate/browser CI and matching independent closing reviews; retain earlier failures and separate runtime/device/field/hook/App-resolver obligations.",
       "dependsOn": [],
       "evidenceIds": [
         "E-BASELINE-SOURCE",
@@ -817,9 +811,9 @@
         "E-GIS4-20261018-BROWSER291"
       ],
       "requiredClaimClass": "browser",
-      "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+      "qualificationScope": "Successor native package-recovery correction has bounded local source tests; complete matching protected source/browser execution and two final closing reviews remain pending. Prior1d95 checkpoint preserved as historical scope.",
       "priorQualifiedEdition": "R18",
-      "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+      "currentQualifiedEdition": "GIS5-20261018-4402cc5e519c_qualification_pending",
       "priorQualifiedByFinalReviews": [
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
@@ -832,13 +826,13 @@
       "title": "Production operator wording",
       "phase": "P3",
       "owner": "interface",
-      "status": "verified",
+      "status": "source_implemented",
       "sourcePaths": [
         "apps/mobile/src/workspace/UnifiedWorkspace.tsx",
         "docs/operator-workflow-guide.md"
       ],
       "acceptance": "All operator surfaces use clear business language; availability and errors remain actionable; developer diagnostics stay outside ordinary flow.",
-      "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+      "nextAction": "Complete exact-head protected aggregate/browser CI and matching independent closing reviews; retain earlier failures and separate runtime/device/field/hook/App-resolver obligations.",
       "dependsOn": [],
       "evidenceIds": [
         "E-INDEPENDENT-REVIEW-SECOND",
@@ -883,9 +877,9 @@
         "E-GIS4-20261018-BROWSER291"
       ],
       "requiredClaimClass": "browser",
-      "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+      "qualificationScope": "Successor native package-recovery correction has bounded local source tests; complete matching protected source/browser execution and two final closing reviews remain pending. Prior1d95 checkpoint preserved as historical scope.",
       "priorQualifiedEdition": "R18",
-      "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+      "currentQualifiedEdition": "GIS5-20261018-4402cc5e519c_qualification_pending",
       "priorQualifiedByFinalReviews": [
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
@@ -898,7 +892,7 @@
       "title": "Guides, sources and delegated review",
       "phase": "P3",
       "owner": "governance",
-      "status": "verified",
+      "status": "source_implemented",
       "sourcePaths": [
         "docs/operator-workflow-guide.md",
         "docs/agent-tree-protocol.md",
@@ -909,7 +903,7 @@
         "docs/workflow-acceptance-protocol.md"
       ],
       "acceptance": "One current guide accurately states customer→project→field/content→matched Survey/official Layout hierarchy, optional Design, RTK admission, retained ancestors and source/browser/native/field/publication boundaries; historical questionnaires are not new gates.",
-      "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+      "nextAction": "Complete exact-head protected aggregate/browser CI and matching independent closing reviews; retain earlier failures and separate runtime/device/field/hook/App-resolver obligations.",
       "dependsOn": [
         "HIERARCHY-01",
         "FLOW-01",
@@ -939,9 +933,9 @@
         "E-GIS4-20261018-REVIEW-TWO"
       ],
       "requiredClaimClass": "source",
-      "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+      "qualificationScope": "Successor native package-recovery correction has bounded local source tests; complete matching protected source/browser execution and two final closing reviews remain pending. Prior1d95 checkpoint preserved as historical scope.",
       "priorQualifiedEdition": "R18",
-      "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+      "currentQualifiedEdition": "GIS5-20261018-4402cc5e519c_qualification_pending",
       "priorQualifiedByFinalReviews": [
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
@@ -954,7 +948,7 @@
       "title": "Installed mitigation and compatible updates",
       "phase": "P4",
       "owner": "coordinator",
-      "status": "verified",
+      "status": "source_implemented",
       "sourcePaths": [
         "tools/patchDependencySecurity.cjs",
         "tools/dependencyAudit.cjs",
@@ -965,7 +959,7 @@
         "packages/map-adapters/package.json"
       ],
       "acceptance": "Exact-lock install and installed target checks pass; raw audit and local mitigations recorded separately; compatible updates run full affected checks.",
-      "nextAction": "Qualify coherent Expo57 patches across backup peer, compiler matrix and installed guards; preserve failed online update recommendation and retained reviewed cohort.",
+      "nextAction": "Complete exact-head protected aggregate/browser CI and matching independent closing reviews; retain earlier failures and separate runtime/device/field/hook/App-resolver obligations.",
       "dependsOn": [],
       "evidenceIds": [
         "E-CANONICAL-SECURITY-GAP",
@@ -989,9 +983,9 @@
         "E-GIS4-20261018-AGGREGATE"
       ],
       "requiredClaimClass": "source",
-      "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+      "qualificationScope": "Successor native package-recovery correction has bounded local source tests; complete matching protected source/browser execution and two final closing reviews remain pending. Prior1d95 checkpoint preserved as historical scope.",
       "priorQualifiedEdition": "R18",
-      "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+      "currentQualifiedEdition": "GIS5-20261018-4402cc5e519c_qualification_pending",
       "priorQualifiedByFinalReviews": [
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
@@ -1004,14 +998,14 @@
       "title": "Recurring dependency reports and update PRs",
       "phase": "P4",
       "owner": "governance",
-      "status": "verified",
+      "status": "source_implemented",
       "sourcePaths": [
         ".github/dependabot.yml",
         ".github/workflows/dependency-maintenance.yml",
         "docs/dependency-maintenance.md"
       ],
       "acceptance": "Daily security/outdated reports and weekly grouped npm/actions PR configuration; exact-head CI/independent compatibility review precede coordinator merge.",
-      "nextAction": "Observe actual scheduled dependency/security workflow runs and retain their hosted execution evidence; current source and PR checks do not prove scheduler activation.",
+      "nextAction": "Complete exact-head protected aggregate/browser CI and matching independent closing reviews; retain earlier failures and separate runtime/device/field/hook/App-resolver obligations.",
       "dependsOn": [
         "DEP-01"
       ],
@@ -1031,9 +1025,9 @@
         "E-GIS4-20261018-AGGREGATE"
       ],
       "requiredClaimClass": "source",
-      "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+      "qualificationScope": "Successor native package-recovery correction has bounded local source tests; complete matching protected source/browser execution and two final closing reviews remain pending. Prior1d95 checkpoint preserved as historical scope.",
       "priorQualifiedEdition": "R18",
-      "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+      "currentQualifiedEdition": "GIS5-20261018-4402cc5e519c_qualification_pending",
       "priorQualifiedByFinalReviews": [
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
@@ -1046,7 +1040,7 @@
       "title": "Truthful selected capability inventory",
       "phase": "P4",
       "owner": "governance",
-      "status": "verified",
+      "status": "source_implemented",
       "sourcePaths": [
         "docs/skill-capability-inventory.json",
         "docs/skill-capability-inventory.md",
@@ -1055,7 +1049,7 @@
         ".agents/skills/cplayout-database-agent/SKILL.md"
       ],
       "acceptance": "All 67 exposed host plus 11 local skill sources documented; source presence, validation and actual invocation remain distinct.",
-      "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+      "nextAction": "Complete exact-head protected aggregate/browser CI and matching independent closing reviews; retain earlier failures and separate runtime/device/field/hook/App-resolver obligations.",
       "dependsOn": [],
       "evidenceIds": [
         "E-GOVERNANCE-SOURCE-FINAL",
@@ -1074,9 +1068,9 @@
         "E-GIS4-20261018-AGGREGATE"
       ],
       "requiredClaimClass": "source",
-      "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+      "qualificationScope": "Successor native package-recovery correction has bounded local source tests; complete matching protected source/browser execution and two final closing reviews remain pending. Prior1d95 checkpoint preserved as historical scope.",
       "priorQualifiedEdition": "R18",
-      "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+      "currentQualifiedEdition": "GIS5-20261018-4402cc5e519c_qualification_pending",
       "priorQualifiedByFinalReviews": [
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
@@ -1107,13 +1101,13 @@
       "title": "Verified retirement without data loss",
       "phase": "P0",
       "owner": "governance",
-      "status": "verified",
+      "status": "source_implemented",
       "sourcePaths": [
         "docs/workflow-retirement-manifest.json",
         "docs/workflow-maintenance-guide.md"
       ],
       "acceptance": "Reference/provenance/ownership/recovery checks precede retirement; no existing source deletion qualifies; frozen readers and failed/deferred proof preserved.",
-      "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+      "nextAction": "Complete exact-head protected aggregate/browser CI and matching independent closing reviews; retain earlier failures and separate runtime/device/field/hook/App-resolver obligations.",
       "dependsOn": [],
       "evidenceIds": [
         "E-FINAL-INDEPENDENT-REVIEW-R15-ONE",
@@ -1136,9 +1130,9 @@
         "E-GIS4-20261018-REVIEW-TWO"
       ],
       "requiredClaimClass": "source",
-      "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+      "qualificationScope": "Successor native package-recovery correction has bounded local source tests; complete matching protected source/browser execution and two final closing reviews remain pending. Prior1d95 checkpoint preserved as historical scope.",
       "priorQualifiedEdition": "R18",
-      "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+      "currentQualifiedEdition": "GIS5-20261018-4402cc5e519c_qualification_pending",
       "priorQualifiedByFinalReviews": [
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
@@ -1151,7 +1145,7 @@
       "title": "Complete workflow proof and review",
       "phase": "P5",
       "owner": "coordinator/independent QA",
-      "status": "verified",
+      "status": "source_implemented",
       "sourcePaths": [
         "docs/checkpoints/2026-10-11-unified-workspace-pause.md",
         "docs/workflow-registry.json",
@@ -1167,7 +1161,7 @@
         "docs/evidence/production-workflow-review-20261011/final-packet-arrangement.md"
       ],
       "acceptance": "Current clarified customer/field/Survey/official-map and retained-ancestry source/API/App proof against a complete canonical census; responsive/accessibility/failure coverage; two complete independent reviews with no unresolved defects. Historical passes or incomplete scopes do not qualify the new edition.",
-      "nextAction": "Preserve full passes and the first chronology-refusal trace; investigate diagnostics without weakening RTK chronology. Retain960deferred and separate device/field/deployment/hook acceptance.",
+      "nextAction": "Complete exact-head protected aggregate/browser CI and matching independent closing reviews; retain earlier failures and separate runtime/device/field/hook/App-resolver obligations.",
       "dependsOn": [
         "ENTRY-01",
         "FLOW-01",
@@ -1270,9 +1264,9 @@
         "docs/evidence/production-workflow-review-20261011/final-packet-arrangement.md"
       ],
       "requiredClaimClass": "browser",
-      "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+      "qualificationScope": "Successor native package-recovery correction has bounded local source tests; complete matching protected source/browser execution and two final closing reviews remain pending. Prior1d95 checkpoint preserved as historical scope.",
       "priorQualifiedEdition": "R18",
-      "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+      "currentQualifiedEdition": "GIS5-20261018-4402cc5e519c_qualification_pending",
       "priorQualifiedByFinalReviews": [
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
         "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
@@ -1285,14 +1279,14 @@
       "title": "Reviewable source publication",
       "phase": "P5",
       "owner": "coordinator",
-      "status": "verified",
+      "status": "in_progress",
       "sourcePaths": [
         ".github/workflows/cplayout-required.yml",
         "docs/workflow-registry.json",
         "docs/workflow-acceptance-protocol.md"
       ],
       "acceptance": "Review exact changed paths, commit/push normally, require exact-head protected CI and independent review; current checkpoint never relabeled production release.",
-      "nextAction": "Complete the latest metadata-head protected checks, merge PR12 under protection, fast-forward canonical main and retire only the merged task branch; record actual convergence. Retain source publication separately from deployment and field acceptance.",
+      "nextAction": "Push reviewed recovery successor normally, require matching protected CI and two closing reviews, record actual checkpoint, then require metadata-head CI, resolve addressed threads, merge and synchronize main.",
       "dependsOn": [
         "QA-01"
       ],
@@ -1309,8 +1303,8 @@
         "docs/workflow-acceptance-protocol.md"
       ],
       "requiredClaimClass": "publication",
-      "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9_protected_checkpoint_62462a1",
-      "qualificationScope": "Actual source checkpoint pushed and exact-head protected CI succeeded at recorded commit; independent matching source reviews retained. No deployment or device/field/human acceptance.",
+      "currentQualifiedEdition": "GIS5-20261018-4402cc5e519c_publication_pending",
+      "qualificationScope": "Historical1d95 checkpoint actually published; recovery successor protected checks, final reviews, merge and main synchronization pending.",
       "historicalQualificationScope": "Observed PR3 protected source checkpoint79064: actualCI at98857, both current R18closing reviews, matching source hashes and clean canonical OID convergence verified. The separate metadata successor/task cleanup were pending at the recorded PR3cutoff only; later live refs/final proof supply those outcomes. No future OID or pass is claimed.",
       "priorQualifiedEdition": "R18_source_checkpoint"
     },
@@ -1319,7 +1313,7 @@
       "title": "GIS imports, offline package admission and explicit renderer proof",
       "phase": "P2",
       "owner": "coordinator",
-      "status": "verified",
+      "status": "source_implemented",
       "sourcePaths": [
         "packages/core/src/projectGeometryImport.ts",
         "packages/core/src/projectImports.ts",
@@ -1346,7 +1340,7 @@
         "tools/pmtilesIntegration.test.ts"
       ],
       "acceptance": "Supported canonical XY imports preserve complete topology or refuse atomically; changed boundary provenance is cleared without rewriting immutable references. Offline raster resources remain package-contained, copy policy and attribution are enforced, bounds reach renderer descriptors, and separately classified MapLibre/SVG/browser visual proof preserves geometry and camera. Native runtime, raw native PMTiles/MBTiles and label parity require separate packets.",
-      "nextAction": "Preserve converter-fidelity and topology refusals; select separately recorded App resolver/native/glyph packets before claiming their runtime capabilities.",
+      "nextAction": "Complete exact-head protected aggregate/browser CI and matching independent closing reviews; retain earlier failures and separate runtime/device/field/hook/App-resolver obligations.",
       "dependsOn": [
         "DRAW-01",
         "RECOVERY-01",
@@ -1363,8 +1357,8 @@
         "E-GIS4-20261018-REVIEW-TWO"
       ],
       "requiredClaimClass": "browser",
-      "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
-      "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9"
+      "qualificationScope": "Successor native package-recovery correction has bounded local source tests; complete matching protected source/browser execution and two final closing reviews remain pending. Prior1d95 checkpoint preserved as historical scope.",
+      "currentQualifiedEdition": "GIS5-20261018-4402cc5e519c_qualification_pending"
     }
   ],
   "evidence": [
@@ -67547,7 +67541,7 @@
       "reference": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/software-equivalence.json",
       "observedOn": "2026-10-18",
       "commit": "b5a1a4a7a7058079321b9c2ce701d88fae6b9563",
-      "edition": "candidate",
+      "edition": "historical",
       "boundary": "Bounded final 984-path source equivalence to actual e977 serialized validate exit0, with one-LF documentation correction/two generated hash substitutions and affected checks. No new whole aggregate on final formatting fingerprint; one unconfigured PostgreSQL skip retained.",
       "sourceManifest": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/source.json",
       "sourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
@@ -68544,7 +68538,20 @@
         "DEP-02",
         "SKILL-01",
         "CLEAN-01"
-      ]
+      ],
+      "retirement": {
+        "observedOn": "2026-10-18",
+        "reason": "Native package compatibility and interrupted-swap behavior changed after actual protected 1d95 checkpoint. Original results, source manifests, references and failure scopes retained; successor requires fresh qualification.",
+        "currencyAtRetirement": {
+          "status": "stale",
+          "changedPaths": [
+            "packages/project-store/src/mapPackageArchive.test.ts",
+            "packages/project-store/src/mapPackageArchiveInstall.native.ts",
+            "packages/project-store/src/mapPackageArchiveInstallCore.ts"
+          ]
+        },
+        "reference": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/retirement.json"
+      }
     },
     {
       "id": "E-GIS4-20261018-BROWSER291",
@@ -68553,7 +68560,7 @@
       "reference": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/software-equivalence.json",
       "observedOn": "2026-10-18",
       "commit": "b5a1a4a7a7058079321b9c2ce701d88fae6b9563",
-      "edition": "candidate",
+      "edition": "historical",
       "boundary": "Bounded equivalence to actual e977 current291 tuples,24GIS executions,9 exact baseline/noise sets; all App/dependency/browser/fixture/automation bytes unchanged. No new whole browser run on formatting fingerprint.960 deferred obligations unchanged.",
       "sourceManifest": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/source.json",
       "sourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
@@ -69556,7 +69563,20 @@
         "UI-01",
         "QA-01",
         "GIS-01"
-      ]
+      ],
+      "retirement": {
+        "observedOn": "2026-10-18",
+        "reason": "Native package compatibility and interrupted-swap behavior changed after actual protected 1d95 checkpoint. Original results, source manifests, references and failure scopes retained; successor requires fresh qualification.",
+        "currencyAtRetirement": {
+          "status": "stale",
+          "changedPaths": [
+            "packages/project-store/src/mapPackageArchive.test.ts",
+            "packages/project-store/src/mapPackageArchiveInstall.native.ts",
+            "packages/project-store/src/mapPackageArchiveInstallCore.ts"
+          ]
+        },
+        "reference": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/retirement.json"
+      }
     },
     {
       "id": "E-GIS4-20261018-BROWSER-FIRST",
@@ -69565,7 +69585,7 @@
       "reference": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/software-equivalence.json",
       "observedOn": "2026-10-18",
       "commit": "b5a1a4a7a7058079321b9c2ce701d88fae6b9563",
-      "edition": "candidate",
+      "edition": "historical",
       "boundary": "Retained first e977 complete run290pass/1explicitRTKchronologyrefusal remains relevant under exact unchanged browser/product-source equivalence. Three unchanged isolated repeats pass; original failure/trace and unresolved timestamp-pair/cause remain current evidence. Later passing execution does not erase this result.",
       "sourceManifest": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/source.json",
       "sourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
@@ -70558,7 +70578,20 @@
       "requirementIds": [
         "QA-01",
         "LAYOUT-01"
-      ]
+      ],
+      "retirement": {
+        "observedOn": "2026-10-18",
+        "reason": "Native package compatibility and interrupted-swap behavior changed after actual protected 1d95 checkpoint. Original results, source manifests, references and failure scopes retained; successor requires fresh qualification.",
+        "currencyAtRetirement": {
+          "status": "stale",
+          "changedPaths": [
+            "packages/project-store/src/mapPackageArchive.test.ts",
+            "packages/project-store/src/mapPackageArchiveInstall.native.ts",
+            "packages/project-store/src/mapPackageArchiveInstallCore.ts"
+          ]
+        },
+        "reference": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/retirement.json"
+      }
     },
     {
       "id": "E-GIS4-20261018-REVIEW-ONE",
@@ -70567,7 +70600,7 @@
       "reference": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/independent-reviews.json",
       "observedOn": "2026-10-18",
       "commit": "b5a1a4a7a7058079321b9c2ce701d88fae6b9563",
-      "edition": "candidate",
+      "edition": "historical",
       "boundary": "Independent matching-source and actual-proof acceptance of bounded software/current synthetic browser edition.",
       "sourceManifest": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/source.json",
       "sourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
@@ -71566,7 +71599,20 @@
         "CLEAN-01",
         "QA-01",
         "GIS-01"
-      ]
+      ],
+      "retirement": {
+        "observedOn": "2026-10-18",
+        "reason": "Native package compatibility and interrupted-swap behavior changed after actual protected 1d95 checkpoint. Original results, source manifests, references and failure scopes retained; successor requires fresh qualification.",
+        "currencyAtRetirement": {
+          "status": "stale",
+          "changedPaths": [
+            "packages/project-store/src/mapPackageArchive.test.ts",
+            "packages/project-store/src/mapPackageArchiveInstall.native.ts",
+            "packages/project-store/src/mapPackageArchiveInstallCore.ts"
+          ]
+        },
+        "reference": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/retirement.json"
+      }
     },
     {
       "id": "E-GIS4-20261018-REVIEW-TWO",
@@ -71575,7 +71621,7 @@
       "reference": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/independent-reviews.json",
       "observedOn": "2026-10-18",
       "commit": "b5a1a4a7a7058079321b9c2ce701d88fae6b9563",
-      "edition": "candidate",
+      "edition": "historical",
       "boundary": "Independent matching-source and actual-proof acceptance of bounded software/current synthetic browser edition.",
       "sourceManifest": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/source.json",
       "sourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
@@ -72574,7 +72620,20 @@
         "CLEAN-01",
         "QA-01",
         "GIS-01"
-      ]
+      ],
+      "retirement": {
+        "observedOn": "2026-10-18",
+        "reason": "Native package compatibility and interrupted-swap behavior changed after actual protected 1d95 checkpoint. Original results, source manifests, references and failure scopes retained; successor requires fresh qualification.",
+        "currencyAtRetirement": {
+          "status": "stale",
+          "changedPaths": [
+            "packages/project-store/src/mapPackageArchive.test.ts",
+            "packages/project-store/src/mapPackageArchiveInstall.native.ts",
+            "packages/project-store/src/mapPackageArchiveInstallCore.ts"
+          ]
+        },
+        "reference": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/retirement.json"
+      }
     },
     {
       "id": "E-GIS4-20261018-PUBLICATION",
@@ -72583,7 +72642,7 @@
       "reference": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/publication-checkpoint.json",
       "observedOn": "2026-10-18",
       "commit": "62462a15bbf4de8ed3dba373ff2adffc94d9afd4",
-      "edition": "candidate",
+      "edition": "historical",
       "sourceManifest": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/source.json",
       "sourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
       "sourceScope": [
@@ -73575,15 +73634,28 @@
       "requirementIds": [
         "PUBLISH-01"
       ],
-      "boundary": "Actual pushed exact-head protected PR checkpoint: source, three browser shards totaling291 passes and cplayout-required succeed, with PostgreSQL-backed source/HTTP smoke and mitigation admission. Two final source/equivalence reviews retained. Merge and canonical synchronization were unobserved at receipt cutoff; deployment/device/field/hook/human acceptance remain separate."
+      "boundary": "Actual pushed exact-head protected PR checkpoint: source, three browser shards totaling291 passes and cplayout-required succeed, with PostgreSQL-backed source/HTTP smoke and mitigation admission. Two final source/equivalence reviews retained. Merge and canonical synchronization were unobserved at receipt cutoff; deployment/device/field/hook/human acceptance remain separate.",
+      "retirement": {
+        "observedOn": "2026-10-18",
+        "reason": "Native package compatibility and interrupted-swap behavior changed after actual protected 1d95 checkpoint. Original results, source manifests, references and failure scopes retained; successor requires fresh qualification.",
+        "currencyAtRetirement": {
+          "status": "stale",
+          "changedPaths": [
+            "packages/project-store/src/mapPackageArchive.test.ts",
+            "packages/project-store/src/mapPackageArchiveInstall.native.ts",
+            "packages/project-store/src/mapPackageArchiveInstallCore.ts"
+          ]
+        },
+        "reference": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/retirement.json"
+      }
     }
   ],
   "reviewRounds": {
     "requiredConsecutivePassingFinalReviews": 2,
-    "acceptedConsecutiveFinalReviews": 2,
-    "initialReviewResult": "request_changes_namespace_contract_loss_preserved_and_corrected",
-    "acceptedFinalReviewEdition": "GIS4-20261018-1d95c62541c9",
-    "boundary": "Two independent matching-source/proof reviews accept bounded software/current browser classes only."
+    "acceptedConsecutiveFinalReviews": 0,
+    "initialReviewResult": "package_recovery_findings_corrected_qualification_pending",
+    "acceptedFinalReviewEdition": "pending_GIS5-20261018-4402cc5e519c",
+    "boundary": "Pre-CI source/delta reviews are intermediate; closing reviews must bind actual matching complete source/browser proof."
   },
   "reviewFindings": [
     {
@@ -74481,7 +74553,67 @@
       "verificationRequired": "Preserve strict chronology and original failure; unchanged focused3repeat and complete291 requalification. Do not infer exact wall-clock cause or durable-byte equality from screenshot alone.",
       "diagnosticReference": "docs/evidence/gis-reliability-20261018/editions/namespace-contract-v3/chronology-diagnostic.json",
       "currentPassingExecution": "docs/evidence/gis-reliability-20261018/editions/namespace-contract-v3/current-browser.json",
-      "boundary": "Actual chronology refusal and unchanged reruns are distinct; no sourcefix or exact clock cause claimed, guard retained."
+      "boundary": "Actual chronology refusal and unchanged reruns are distinct; no sourcefix or exact clock cause claimed, guard retained.",
+      "successorApplicability": "App/browser sources unchanged by native package repair; original refusal remains an unresolved diagnostic observation at its actual earlier edition. It is not a newly executed successor failure."
+    },
+    {
+      "id": "GIS-PACKAGE-LEGACY-20261018-01",
+      "description": "Legacy raw-ID directory lookup compatibility",
+      "severity": "P2",
+      "status": "corrected_local_source_qualification_pending",
+      "observedOn": "2026-10-18",
+      "requirements": [
+        "GIS-01",
+        "QA-01"
+      ],
+      "verificationRequired": "Preserved failing-before/passing-after native-adapter memory regressions, complete matching protected aggregate/browser CI and two matching final independent closing reviews. No installed-device durability inference.",
+      "reference": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/correction.json",
+      "boundary": "Confirmed source defect with targeted regressions; complete successor CI and closing acceptance pending. Native runtime not established."
+    },
+    {
+      "id": "GIS-PACKAGE-SWAP-20261018-02",
+      "description": "Startup recovery after interrupted active-to-backup rename",
+      "severity": "P2",
+      "status": "corrected_local_source_qualification_pending",
+      "observedOn": "2026-10-18",
+      "requirements": [
+        "GIS-01",
+        "QA-01",
+        "RECOVERY-01"
+      ],
+      "verificationRequired": "Preserved failing-before/passing-after native-adapter memory regressions, complete matching protected aggregate/browser CI and two matching final independent closing reviews. No installed-device durability inference.",
+      "reference": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/correction.json",
+      "boundary": "Confirmed source defect with targeted regressions; complete successor CI and closing acceptance pending. Native runtime not established."
+    },
+    {
+      "id": "GIS-NATIVE-MOVE-20261018-03",
+      "description": "Pinned native synchronous adapter called asynchronous move",
+      "severity": "P2",
+      "status": "corrected_local_source_qualification_pending",
+      "observedOn": "2026-10-18",
+      "requirements": [
+        "GIS-01",
+        "QA-01",
+        "RECOVERY-01"
+      ],
+      "verificationRequired": "Preserved failing-before/passing-after native-adapter memory regressions, complete matching protected aggregate/browser CI and two matching final independent closing reviews. No installed-device durability inference.",
+      "reference": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/correction.json",
+      "boundary": "Confirmed source defect with targeted regressions; complete successor CI and closing acceptance pending. Native runtime not established."
+    },
+    {
+      "id": "GIS-PACKAGE-PLAIN-LEGACY-20261018-04",
+      "description": "Initial recovery repair still admitted replacement of an unrecorded plain-ID legacy edition whose backup could not qualify after interruption",
+      "severity": "P2",
+      "status": "corrected_local_source_qualification_pending",
+      "observedOn": "2026-10-18",
+      "requirements": [
+        "GIS-01",
+        "QA-01",
+        "RECOVERY-01"
+      ],
+      "verificationRequired": "Preserved failing-before/passing-after native-adapter memory regressions, complete matching protected aggregate/browser CI and two matching final independent closing reviews. No installed-device durability inference.",
+      "reference": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/correction.json",
+      "boundary": "Confirmed source defect with targeted regressions; complete successor CI and closing acceptance pending. Native runtime not established."
     }
   ],
   "intentRevision": {
@@ -74808,21 +74940,18 @@
     "historicalPreparationQualification": "Latestrootr13sixsourcechecks pass, includingvalidLegacyProject extensionreader; exactrawsource retained. Catalog/controller114sourcecases separate; actual currentApp and complete census still require matching qualification."
   },
   "currentCompleteAggregate": {
-    "edition": "GIS3-20261018-e977f099f7b3",
-    "result": "pass",
-    "sourceFingerprint": "e977f099f7b3466b5a7f93938f48472dc4e5bfc6b203f727459c3b751ea5fe7d",
-    "qualifiedFinalSourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
-    "reference": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/software-equivalence.json",
-    "boundary": "Actual e977 serialized exit0, qualified for final formatting source only through explicit bounded equivalence; no new whole aggregate. Unconfigured PostgreSQL runtime skip retained.",
-    "environment": "local_native_mirror_earlier_execution"
+    "edition": "GIS5-20261018-4402cc5e519c",
+    "result": "unknown",
+    "sourceFingerprint": "4402cc5e519c0eb1eaf0ab2046001a4236804c225ce4b08584e56ee00043f450",
+    "reference": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/correction.json",
+    "boundary": "Successor qualification pending; prior actual outcomes preserved in dated edition history and immutable receipts."
   },
   "currentFocusedBrowser": {
-    "edition": "GIS3-20261018-e977f099f7b3",
-    "qualifiedFinalSourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
-    "result": "pass",
-    "GISExecutions": 24,
-    "reference": "docs/evidence/gis-reliability-20261018/editions/namespace-contract-v3/current-browser.json",
-    "boundary": "Included in actual291 run, not additional debt migration."
+    "edition": "GIS5-20261018-4402cc5e519c",
+    "result": "unknown",
+    "sourceFingerprint": "4402cc5e519c0eb1eaf0ab2046001a4236804c225ce4b08584e56ee00043f450",
+    "reference": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/correction.json",
+    "boundary": "Successor qualification pending; prior actual outcomes preserved in dated edition history and immutable receipts."
   },
   "productionDiffReceipt": {
     "status": "local_uncommitted_reviewable_branch",
@@ -74830,42 +74959,38 @@
     "boundary": "No push, PR, hosted exact-head CI or publication performed in this task."
   },
   "currentFullBrowserObservation": {
-    "edition": "GIS3-20261018-e977f099f7b3",
-    "result": "pass",
-    "executed": 291,
-    "sourceFingerprint": "e977f099f7b3466b5a7f93938f48472dc4e5bfc6b203f727459c3b751ea5fe7d",
-    "qualifiedFinalSourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
-    "reference": "docs/evidence/gis-reliability-20261018/editions/namespace-contract-v3/current-browser.json",
-    "environment": "local_native_mirror_earlier_execution"
+    "edition": "GIS5-20261018-4402cc5e519c",
+    "result": "unknown",
+    "sourceFingerprint": "4402cc5e519c0eb1eaf0ab2046001a4236804c225ce4b08584e56ee00043f450",
+    "reference": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/correction.json",
+    "boundary": "Successor qualification pending; prior actual outcomes preserved in dated edition history and immutable receipts."
   },
   "currentAffectedBrowser": {
-    "edition": "GIS3-20261018-e977f099f7b3",
-    "qualifiedFinalSourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
-    "result": "pass",
-    "GISExecutions": 24,
-    "reference": "docs/evidence/gis-reliability-20261018/editions/namespace-contract-v3/current-browser.json",
-    "boundary": "Included in actual291 run, not additional debt migration."
+    "edition": "GIS5-20261018-4402cc5e519c",
+    "result": "unknown",
+    "sourceFingerprint": "4402cc5e519c0eb1eaf0ab2046001a4236804c225ce4b08584e56ee00043f450",
+    "reference": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/correction.json",
+    "boundary": "Successor qualification pending; prior actual outcomes preserved in dated edition history and immutable receipts."
   },
   "currentVisibleBrowser": {
-    "edition": "GIS3-20261018-e977f099f7b3",
-    "result": "pass",
-    "sourceFingerprint": "e977f099f7b3466b5a7f93938f48472dc4e5bfc6b203f727459c3b751ea5fe7d",
-    "qualifiedFinalSourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
-    "reference": "docs/evidence/gis-reliability-20261018/editions/namespace-contract-v3/visible-edge.json",
-    "url": "http://127.0.0.1:19018",
-    "boundary": "Actual owned Windows Edge five-viewports, source/export/served binding and cleanup."
+    "edition": "GIS5-20261018-4402cc5e519c",
+    "result": "unknown",
+    "sourceFingerprint": "4402cc5e519c0eb1eaf0ab2046001a4236804c225ce4b08584e56ee00043f450",
+    "reference": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/correction.json",
+    "boundary": "No new visible Windows Edge execution for this native recovery successor. Original five-viewport/320reflow/native200percent figures and limitations remain actual at their historical edition; no general pixel/runtime parity inferred."
   },
   "currentLayoutVisualSupplement": {
-    "edition": "GIS3-20261018-e977f099f7b3",
-    "qualifiedFinalSourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
-    "reference": "docs/evidence/gis-reliability-20261018/editions/namespace-contract-v3/visible-edge-supplement.json",
-    "boundary": "Fresh five-viewports, separate320CSSpx reflow/keyboard and genuine native1350→675CSSpx200%zoom pass. Original combined emulation/zoom failure retained; diagnostic observes160CSSpx controls clipping below selected320minimum. No sourcefix/general accessibility/zoom parity/native/field claim."
+    "edition": "GIS5-20261018-4402cc5e519c",
+    "result": "unknown",
+    "sourceFingerprint": "4402cc5e519c0eb1eaf0ab2046001a4236804c225ce4b08584e56ee00043f450",
+    "reference": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/correction.json",
+    "boundary": "No new visible Windows Edge execution for this native recovery successor. Original five-viewport/320reflow/native200percent figures and limitations remain actual at their historical edition; no general pixel/runtime parity inferred."
   },
   "finalReviewPacket": {
-    "edition": "GIS4-20261018-1d95c62541c9",
-    "acceptedFinalReviews": 2,
-    "sourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
-    "reference": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/independent-reviews.json"
+    "edition": "GIS5-20261018-4402cc5e519c",
+    "acceptedFinalReviews": 0,
+    "sourceFingerprint": "4402cc5e519c0eb1eaf0ab2046001a4236804c225ce4b08584e56ee00043f450",
+    "reference": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/correction.json"
   },
   "publicationDirective": {
     "status": "authorized_GIS_commit_push_merge_sync",
@@ -74902,29 +75027,17 @@
   },
   "completedSourceEdition": {
     "sourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
+    "status": "historical_predecessor",
     "sourceManifest": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/source.json",
-    "scope": "Final software source with earlier local e977 execution under exact formatting equivalence and subsequent fresh protected hosted source/browser checkpoint. Operational runtime/release gates remain separate."
+    "scope": "Actual previous protected source/browser checkpoint; successor qualification pending."
   },
   "currentPublication": {
-    "edition": "GIS4-20261018-1d95c62541c9_protected_checkpoint_62462a1",
-    "status": "protected_source_checkpoint_published",
-    "sourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
-    "commit": "62462a15bbf4de8ed3dba373ff2adffc94d9afd4",
+    "edition": "GIS5-20261018-4402cc5e519c",
+    "status": "successor_qualification_pending_merge_sync",
+    "sourceFingerprint": "4402cc5e519c0eb1eaf0ab2046001a4236804c225ce4b08584e56ee00043f450",
     "pullRequest": "https://github.com/JakeC-Redlund/CPLayout/pull/12",
-    "runUrl": "https://github.com/JakeC-Redlund/CPLayout/actions/runs/39191798726",
-    "reference": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/publication-checkpoint.json",
-    "observedAt": "2026-10-19T03:23:45.691736+00:00",
-    "gitTaskAtReceiptCutoff": {
-      "status": "pending_merge_and_sync",
-      "observedAt": "2026-10-19T03:23:45.691736+00:00",
-      "nextAction": "Complete the latest metadata-head protected checks, merge PR12 under protection, fast-forward canonical main and retire only the merged task branch; record actual convergence. Retain source publication separately from deployment and field acceptance."
-    },
-    "canonicalObservationAtReceiptCutoff": {
-      "mainCommit": "84947f38b913f3ee859526ad0e65c5d2af1107d4",
-      "merge": "not_yet_observed",
-      "synchronization": "not_yet_observed"
-    },
-    "boundary": "This is an exact dated publication checkpoint, not a prediction of a later merge. Live protected checks and canonical Git refs are rechecked during final merge/synchronization handoff. No production release inferred."
+    "reference": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/correction.json",
+    "boundary": "Earlier publication checkpoint remains actual historical success. No new protected CI, merge or synchronization outcome inferred."
   },
   "historicalFinalScopedSourceReceipts": {
     "reference": "docs/evidence/production-workflow-review-20261011/final-hierarchy-official-source-receipts.json",
@@ -75513,8 +75626,8 @@
     }
   },
   "gisImplementation": {
-    "reference": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/software-equivalence.json",
-    "status": "bounded_software_browser_accepted",
+    "reference": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/correction.json",
+    "status": "package_recovery_source_implemented_qualification_pending",
     "retainedProj4": "2.20.8",
     "rejectedProj4": "2.22.0",
     "nativeRenderer": "SVG active unified surface; separate native MapLibre proof lane",
@@ -75536,7 +75649,7 @@
       "genuine hook runtime loader",
       "publication"
     ],
-    "sourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
+    "sourceFingerprint": "4402cc5e519c0eb1eaf0ab2046001a4236804c225ce4b08584e56ee00043f450",
     "followUpPackets": [
       {
         "id": "GIS-RESOLVER",
@@ -75648,14 +75761,15 @@
       "onlineExpoCheck": "failed_update_recommendation_preserved",
       "appPackageResolver": "separate_unimplemented_feature",
       "actualNativeRenderer": "unified SVG; legacy MapLibre lane separate",
-      "PostgreSQLRuntime": "Local aggregate skip retained without service. Actual hosted source PostgreSQL runtime and PostgreSQL HTTP smoke passed in protected run 39191798726; no deployment or installed-device inference.",
-      "NodeQualification": "Local Node24.14.1/npm11.17 retained; hosted setup versions directly observed: {\"node\": \"v24.21.0\", \"npm\": \"11.19.0\", \"yarn\": \"1.22.22\"}. No untested Node20 qualification.",
-      "fontEnvironment": "Local78font hashes retained; hosted exact control-image assertions passed. No rehashed hosted font inventory or general Windows/full-scene pixel parity claim.",
+      "PostgreSQLRuntime": "Historical preceding1d95 checkpoint62462a1 only; successor qualification pending. Local aggregate skip retained without service. Actual hosted source PostgreSQL runtime and PostgreSQL HTTP smoke passed in protected run 39191798726; no deployment or installed-device inference.",
+      "NodeQualification": "Historical preceding1d95 checkpoint62462a1 only; successor qualification pending. Local Node24.14.1/npm11.17 retained; hosted setup versions directly observed: {\"node\": \"v24.21.0\", \"npm\": \"11.19.0\", \"yarn\": \"1.22.22\"}. No untested Node20 qualification.",
+      "fontEnvironment": "Historical preceding1d95 checkpoint62462a1 only; successor qualification pending. Local78font hashes retained; hosted exact control-image assertions passed. No rehashed hosted font inventory or general Windows/full-scene pixel parity claim.",
       "hookRuntime": "unknown;Stopdisabled",
-      "publication": "Pushed source checkpoint and exact-head protected CI verified at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4; dated receipt cutoff precedes canonical merge/sync, which requires live final-handoff checks.",
+      "publication": "Previous protected source checkpoint preserved; successor exact-head qualification, closing reviews, merge and canonical convergence pending.",
       "RTKchronology": "First same-source full run290/1refusal; unchanged3diagnostic repeats and latestfull291pass. Exact initial timestamp pair/cause unconfirmed; no guard/source repair selected.",
       "below320CSS": "Actual160CSSpx clipping during retained-emulation200%diagnostic, below selected320minimum. Separate320reflow and fresh native1350→675CSSpx200%zoom pass; no general zoom/accessibility parity.",
-      "CIcompactEvidence": "Actual downloaded artifacts retain24GIS results,30captures/60PNG-DOM hashes and621scoped sources. Nine exact control/noise assertions passed; successful CI upload omits raw repeat-noise attachments, while complete local9measurement receipts remain retained."
+      "CIcompactEvidence": "Historical preceding1d95 checkpoint62462a1 only; successor qualification pending. Actual downloaded artifacts retain24GIS results,30captures/60PNG-DOM hashes and621scoped sources. Nine exact control/noise assertions passed; successful CI upload omits raw repeat-noise attachments, while complete local9measurement receipts remain retained.",
+      "packageRecovery": "Confirmed raw-ID legacy lookup, interrupted swap and async native move findings corrected under new bounded source packet; no installed-device/process-kill durability proof."
     }
   },
   "gisEditionHistory": {
@@ -75894,6 +76008,1555 @@
           "decision": "docs/evidence/gis-reliability-20261018/sdk57-retention-decision.json"
         }
       }
+    },
+    "1d95_protected_checkpoint_before_package_recovery": {
+      "candidate": {
+        "status": "Bounded GIS software/current browser accepted; separate runtime/update packets pending",
+        "baseCommit": "b5a1a4a7a7058079321b9c2ce701d88fae6b9563",
+        "sourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
+        "sourceManifest": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/source.json",
+        "actualBrowserExecutionEdition": "GIS3-20261018-e977f099f7b3",
+        "newBrowserCommandExecuted": true,
+        "equivalenceReference": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/software-equivalence.json",
+        "boundary": "Local e977 executions and exact final formatting equivalence remain preserved; subsequent fresh hosted source/browser execution on final1d95 passed at the recorded protected head. Human/native/field/GoogleEarth/hook/deployment acceptance remains separate.",
+        "newLocalBrowserCommandExecuted": false,
+        "newHostedBrowserCommandExecuted": true,
+        "actualHostedBrowserCommit": "62462a15bbf4de8ed3dba373ff2adffc94d9afd4",
+        "hostedProofReference": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/publication-checkpoint.json"
+      },
+      "requirements": [
+        {
+          "id": "GOV-01",
+          "title": "One canonical tracker",
+          "phase": "P0",
+          "owner": "governance",
+          "status": "verified",
+          "sourcePaths": [
+            "docs/unified-workspace-refocus-2026-10-10.md",
+            "docs/workflow-registry.json",
+            "tools/workflowStatus.cjs",
+            "tools/workflowStatus.test.cjs",
+            "docs/workflow-acceptance-protocol.md",
+            "docs/production-workflow-improvement-plan.md",
+            "docs/workflow-maintenance-guide.md"
+          ],
+          "acceptance": "Deterministic current projection; exact archived status bytes; independent evidence classes and dependency references validated.",
+          "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+          "dependsOn": [],
+          "evidenceIds": [
+            "E-GOVERNANCE-SOURCE-FINAL",
+            "E-SOURCE-R2-INTERMEDIATE",
+            "E-SOURCE-R4-PASS",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-ONE",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-TWO",
+            "E-SOURCE-HIERARCHY-R16-PASS",
+            "E-SUPPLEMENTAL-R16-REVIEW-ONE",
+            "E-SUPPLEMENTAL-R16-REVIEW-TWO",
+            "E-SOURCE-HIERARCHY-R18-PASS",
+            "E-FINAL-CLOSING-REVIEW-R18-ONE",
+            "E-FINAL-CLOSING-REVIEW-R18-TWO",
+            "E-INSTRUCTION-MAINTENANCE-20261018-SOURCE",
+            "E-GIS-20261018-AGGREGATE",
+            "E-GIS-20261018-REVIEW-ONE",
+            "E-GIS-20261018-REVIEW-TWO",
+            "E-GIS3-20261018-AGGREGATE",
+            "E-GIS3-20261018-REVIEW-ONE",
+            "E-GIS3-20261018-REVIEW-TWO",
+            "E-GIS4-20261018-AGGREGATE",
+            "E-GIS4-20261018-REVIEW-ONE",
+            "E-GIS4-20261018-REVIEW-TWO"
+          ],
+          "authorityReferencePaths": [
+            "docs/workflow-registry.json"
+          ],
+          "verificationSourcePaths": [
+            "docs/unified-workspace-refocus-2026-10-10.md",
+            "tools/workflowStatus.cjs",
+            "tools/workflowStatus.test.cjs",
+            "docs/workflow-acceptance-protocol.md",
+            "docs/production-workflow-improvement-plan.md",
+            "docs/workflow-maintenance-guide.md"
+          ],
+          "requiredClaimClass": "source",
+          "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+          "priorQualifiedEdition": "R18",
+          "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+          "priorQualifiedByFinalReviews": [
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
+          ],
+          "qualifiedByBoundedEquivalence": "docs/evidence/codex-environment-maintenance-20261018/bounded-equivalence.json",
+          "priorGisQualification": "Unchanged R18 application/browser inputs and acceptance criteria, plus independently reviewed instruction/role/inventory/census maintenance with affected source checks. No fresh whole-application aggregate or browser execution."
+        },
+        {
+          "id": "ENTRY-01",
+          "title": "Customer-first entry and project/field selection",
+          "phase": "P1",
+          "owner": "interface",
+          "status": "verified",
+          "sourcePaths": [
+            "apps/mobile/src/workspace/WorkspaceCatalog.tsx",
+            "apps/mobile/src/workspace/UnifiedWorkspaceEntry.tsx",
+            "apps/mobile/src/auth/AuthenticatedWorkspace.tsx",
+            "packages/auth-client/src/apiClient.ts",
+            "apps/api/src/server.ts"
+          ],
+          "acceptance": "Real Sign in precedes customer-first Home. Include actual zero-project customers; select their projects and fields, browse without replacing work, explicitly Open, and create/edit permitted customers/projects while preserving unfinished context.",
+          "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+          "dependsOn": [
+            "AUTH-01"
+          ],
+          "evidenceIds": [
+            "E-INDEPENDENT-REVIEW-INITIAL",
+            "E-BROWSER-INTERRUPTED",
+            "E-DESKTOP-REVIEW-31",
+            "E-CRITICAL-R2-FAILED",
+            "E-CRITICAL-R3-FAILED",
+            "E-CRITICAL-R3-UNITS-RENAME",
+            "E-CRITICAL-R4-PASS",
+            "E-BROWSER-R5-INTERRUPTED",
+            "E-VISIBLE-EDGE-R5-FAILED",
+            "E-HOME-R7-FOCUSED",
+            "E-R4-R7-BOUNDED-SOURCE",
+            "E-BROWSER-R7-FOUNDATION",
+            "E-EDGE-R8-FOUNDATION",
+            "E-R7-R8-LITERAL-FOUNDATION",
+            "E-FINAL-CATALOG-SOURCE",
+            "E-CRITICAL-HIERARCHY-R14-PASS",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-ONE",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-TWO",
+            "E-FULL-HIERARCHY-R15-PASS",
+            "E-SOURCE-HIERARCHY-R16-PASS",
+            "E-SUPPLEMENTAL-R16-REVIEW-ONE",
+            "E-SUPPLEMENTAL-R16-REVIEW-TWO",
+            "E-R15-R16-BROWSER-SCOPE-ACCEPTED",
+            "E-SOURCE-HIERARCHY-R18-PASS",
+            "E-FINAL-CLOSING-REVIEW-R18-ONE",
+            "E-FINAL-CLOSING-REVIEW-R18-TWO",
+            "E-HOSTED-R18-SOURCE-BROWSER-PASS",
+            "E-INSTRUCTION-MAINTENANCE-20261018-BROWSER-BRIDGE",
+            "E-GIS-20261018-BROWSER291",
+            "E-GIS3-20261018-BROWSER291",
+            "E-GIS4-20261018-BROWSER291"
+          ],
+          "requiredClaimClass": "browser",
+          "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+          "priorQualifiedEdition": "R18",
+          "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+          "priorQualifiedByFinalReviews": [
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
+          ],
+          "qualifiedByBoundedEquivalence": "docs/evidence/codex-environment-maintenance-20261018/bounded-equivalence.json",
+          "priorGisQualification": "Unchanged R18 application/browser inputs and acceptance criteria, plus independently reviewed instruction/role/inventory/census maintenance with affected source checks. No fresh whole-application aggregate or browser execution."
+        },
+        {
+          "id": "AUTH-01",
+          "title": "Truthful account sign-in and shared service",
+          "phase": "P1",
+          "owner": "coordinator/backend",
+          "status": "verified",
+          "sourcePaths": [
+            "apps/api/src/server.ts",
+            "packages/auth-client/src/apiClient.ts",
+            "apps/mobile/src/auth/AuthenticatedWorkspace.tsx",
+            "apps/mobile/src/auth/accessOwnership.ts"
+          ],
+          "acceptance": "Actual server authentication/authorization and durable customer/project service preserve cache/recovery/import contracts. Additive catalog-metadata reads one authorized workspace snapshot under its rowlock, including empty customers/archive inheritance/revision and actual principalId/policyRevision; SDK validates captured account/policy before publication and mismatch uses the preserving account_changed path. Existing project endpoint remains compatible; actor attribution is final-lock bound.",
+          "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+          "dependsOn": [],
+          "evidenceIds": [
+            "E-INDEPENDENT-REVIEW-INITIAL",
+            "E-INDEPENDENT-REVIEW-SECOND",
+            "E-SERVICE-SMOKE-CURRENT",
+            "E-BROWSER-R1-FAILED",
+            "E-SOURCE-R2-INTERMEDIATE",
+            "E-SOURCE-R4-PASS",
+            "E-OFFICIAL-INTERMEDIATE-REVIEW",
+            "E-OFFICIAL-CHRONOLOGY-SOURCE",
+            "E-FINAL-AUTH-READ-SOURCE",
+            "E-FINAL-OPERATOR-COPY-SOURCE",
+            "E-HTTP-PG-R12-SOURCE",
+            "E-AUTH-READ-BEFORE-FIX-FAILED",
+            "E-HTTP-PG-R13-SOURCE",
+            "E-CRITICAL-HIERARCHY-R14-PASS",
+            "E-SERVICE-SMOKE-HIERARCHY-R14-PASS",
+            "E-SERVICE-SMOKE-HIERARCHY-R15-PASS",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-ONE",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-TWO",
+            "E-FULL-HIERARCHY-R15-PASS",
+            "E-SOURCE-HIERARCHY-R16-PASS",
+            "E-SUPPLEMENTAL-R16-REVIEW-ONE",
+            "E-SUPPLEMENTAL-R16-REVIEW-TWO",
+            "E-R15-R16-BROWSER-SCOPE-ACCEPTED",
+            "E-SOURCE-HIERARCHY-R18-PASS",
+            "E-FINAL-CLOSING-REVIEW-R18-ONE",
+            "E-FINAL-CLOSING-REVIEW-R18-TWO",
+            "E-HOSTED-R18-SOURCE-BROWSER-PASS",
+            "E-INSTRUCTION-MAINTENANCE-20261018-BROWSER-BRIDGE",
+            "E-GIS-20261018-BROWSER291",
+            "E-GIS3-20261018-BROWSER291",
+            "E-GIS4-20261018-BROWSER291"
+          ],
+          "requiredClaimClass": "browser",
+          "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+          "priorQualifiedEdition": "R18",
+          "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+          "priorQualifiedByFinalReviews": [
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
+          ],
+          "qualifiedByBoundedEquivalence": "docs/evidence/codex-environment-maintenance-20261018/bounded-equivalence.json",
+          "priorGisQualification": "Unchanged R18 application/browser inputs and acceptance criteria, plus independently reviewed instruction/role/inventory/census maintenance with affected source checks. No fresh whole-application aggregate or browser execution."
+        },
+        {
+          "id": "HIERARCHY-01",
+          "title": "Logical customer/project/field folders and actual field content",
+          "phase": "P1",
+          "owner": "interface/backend/domain",
+          "status": "verified",
+          "sourcePaths": [
+            "apps/mobile/src/auth/AuthenticatedWorkspace.tsx",
+            "apps/mobile/src/workspace/WorkspaceCatalog.tsx",
+            "packages/auth-client/src/apiClient.ts",
+            "apps/api/src/server.ts",
+            "packages/project-store/src/workspaceDocument.ts",
+            "packages/project-store/src/projectRepositoryTypes.ts",
+            "packages/project-store/src/workspaceFieldContents.ts",
+            "packages/project-store/src/workspaceFieldContents.test.ts"
+          ],
+          "acceptance": "One authorized customer snapshot includes empty customers. Actual customer→project→field links determine logical folders. Machine/map-design categories address existing saved document/machine content without copied entities or invented types; field Surveys identify their saved review/included collections and official maps appear only under the actual matched Survey. Historical parent-unavailable/unqualified records remain distinct and readable/exportable.",
+          "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+          "dependsOn": [
+            "AUTH-01",
+            "ENTRY-01"
+          ],
+          "evidenceIds": [
+            "E-FINAL-CATALOG-SOURCE",
+            "E-FINAL-FIELD-PROJECTION-SOURCE",
+            "E-WIDER-269-FAILED",
+            "E-CRITICAL-HIERARCHY-R14-PASS",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-ONE",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-TWO",
+            "E-FULL-HIERARCHY-R15-PASS",
+            "E-SOURCE-HIERARCHY-R16-PASS",
+            "E-SUPPLEMENTAL-R16-REVIEW-ONE",
+            "E-SUPPLEMENTAL-R16-REVIEW-TWO",
+            "E-R15-R16-BROWSER-SCOPE-ACCEPTED",
+            "E-SOURCE-HIERARCHY-R18-PASS",
+            "E-FINAL-CLOSING-REVIEW-R18-ONE",
+            "E-FINAL-CLOSING-REVIEW-R18-TWO",
+            "E-HOSTED-R18-SOURCE-BROWSER-PASS",
+            "E-INSTRUCTION-MAINTENANCE-20261018-BROWSER-BRIDGE",
+            "E-GIS-20261018-BROWSER291",
+            "E-GIS3-20261018-BROWSER291",
+            "E-GIS4-20261018-BROWSER291"
+          ],
+          "sourceObservationHistory": [
+            {
+              "sourcePaths": [
+                "packages/project-store/src/workspaceFieldContents.ts",
+                "packages/project-store/src/workspaceFieldContents.test.ts"
+              ],
+              "sourceHashes": {
+                "packages/project-store/src/workspaceFieldContents.ts": "44527789bd18fb5868f6d7abf8a43f6780bc75d74744e3a09c9b9f4eedede03e",
+                "packages/project-store/src/workspaceFieldContents.test.ts": "c9d20f7a4d97866dcab8224b6dfb1da5cae30c917a11397d3f260689b70e5809"
+              },
+              "classification": "source",
+              "tests": {
+                "passed": 5,
+                "failed": 0,
+                "skipped": 0,
+                "cancelled": 0
+              },
+              "logSha256": "741eba192a8fe089510d006e01052298aa4e03e3d60cb49ca1c3f9d8af6c32a3",
+              "provenance": "Coordinator-owned /tmp/cplayout-field-contents-tests-r11.log directly inspected and hashed by governance; root delivered source ownership/results.",
+              "priorAttempt": "Coordinator reports priorr10threepassed/twofixtureassertionfailures retained; not an observedUIdefect.",
+              "boundary": "Logical projection source checks only. Actor-ownedasyncCatalog/categoryUI/quarantine export and currentApp proof are separate; no finalmanifest/globalsource/browser/native/physical/review acceptance."
+            }
+          ],
+          "sourceObservation": {
+            "sourcePaths": [
+              "packages/project-store/src/workspaceFieldContents.ts",
+              "packages/project-store/src/workspaceFieldContents.test.ts"
+            ],
+            "sourceHashes": {
+              "packages/project-store/src/workspaceFieldContents.ts": "4a7e17a8ee7dae7750c5eb109e70d6930ced741df3915a5eaa911e73502853c2",
+              "packages/project-store/src/workspaceFieldContents.test.ts": "d8768cb7d1cc29505261f2a7efd6d8f6533105b30a57f256eea89d0dba07ca3f"
+            },
+            "classification": "source",
+            "tests": {
+              "passed": 6,
+              "failed": 0,
+              "skipped": 0,
+              "cancelled": 0
+            },
+            "logSha256": "ee5a7b2735f90842ae9ac3fada53495bcd14a57d2eefd27494794431d1350b0f",
+            "provenance": "Directlyverified latestrootr13log; prior5case/r12negative retained in record/history.",
+            "boundary": "Projection/sourcechecks only; currentApp/global/native/physical/finalreview separate."
+          },
+          "requiredClaimClass": "browser",
+          "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+          "priorQualifiedEdition": "R18",
+          "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+          "priorQualifiedByFinalReviews": [
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
+          ],
+          "qualifiedByBoundedEquivalence": "docs/evidence/codex-environment-maintenance-20261018/bounded-equivalence.json",
+          "priorGisQualification": "Unchanged R18 application/browser inputs and acceptance criteria, plus independently reviewed instruction/role/inventory/census maintenance with affected source checks. No fresh whole-application aggregate or browser execution."
+        },
+        {
+          "id": "FLOW-01",
+          "title": "Optional Design and required Survey",
+          "phase": "P2",
+          "owner": "domain",
+          "status": "verified",
+          "sourcePaths": [
+            "apps/mobile/src/workspace/useWorkspaceController.ts",
+            "apps/mobile/src/workspace/workspaceControllerState.ts",
+            "packages/core/src/surveyCollection.ts",
+            "packages/core/src/surveyDraftField.ts"
+          ],
+          "acceptance": "New project opens Design; manual drawing needs no receiver; direct Survey entry allowed; Layout requires matching saved Survey qualification.",
+          "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+          "dependsOn": [
+            "HIERARCHY-01"
+          ],
+          "evidenceIds": [
+            "E-INDEPENDENT-REVIEW-INITIAL",
+            "E-BROWSER-INTERRUPTED",
+            "E-DESKTOP-REVIEW-31",
+            "E-OPTIONAL-DESIGN-DECISION",
+            "E-DIRECT-SURVEY-SOURCE",
+            "E-SOURCE-R2-INTERMEDIATE",
+            "E-SOURCE-R4-PASS",
+            "E-BROWSER-R7-FOUNDATION",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-ONE",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-TWO",
+            "E-FULL-HIERARCHY-R15-PASS",
+            "E-SOURCE-HIERARCHY-R16-PASS",
+            "E-SUPPLEMENTAL-R16-REVIEW-ONE",
+            "E-SUPPLEMENTAL-R16-REVIEW-TWO",
+            "E-R15-R16-BROWSER-SCOPE-ACCEPTED",
+            "E-SOURCE-HIERARCHY-R18-PASS",
+            "E-FINAL-CLOSING-REVIEW-R18-ONE",
+            "E-FINAL-CLOSING-REVIEW-R18-TWO",
+            "E-HOSTED-R18-SOURCE-BROWSER-PASS",
+            "E-INSTRUCTION-MAINTENANCE-20261018-BROWSER-BRIDGE",
+            "E-GIS-20261018-BROWSER291",
+            "E-GIS3-20261018-BROWSER291",
+            "E-GIS4-20261018-BROWSER291"
+          ],
+          "requiredClaimClass": "browser",
+          "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+          "priorQualifiedEdition": "R18",
+          "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+          "priorQualifiedByFinalReviews": [
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
+          ],
+          "qualifiedByBoundedEquivalence": "docs/evidence/codex-environment-maintenance-20261018/bounded-equivalence.json",
+          "priorGisQualification": "Unchanged R18 application/browser inputs and acceptance criteria, plus independently reviewed instruction/role/inventory/census maintenance with affected source checks. No fresh whole-application aggregate or browser execution."
+        },
+        {
+          "id": "DRAW-01",
+          "title": "Manual field and machine geometry",
+          "phase": "P2",
+          "owner": "domain/interface",
+          "status": "verified",
+          "sourcePaths": [
+            "apps/mobile/src/workspace/WorkspaceDrawingPanel.tsx",
+            "packages/core/src/draftDrawingWorkflow.ts"
+          ],
+          "acceptance": "Interactive map accepts manual boundaries and relevant lines/points with purpose, undo, persistence and no GNSS requirement.",
+          "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+          "dependsOn": [
+            "FLOW-01"
+          ],
+          "evidenceIds": [
+            "E-DIRECT-SURVEY-SOURCE",
+            "E-SOURCE-R2-INTERMEDIATE",
+            "E-SOURCE-R4-PASS",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-ONE",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-TWO",
+            "E-FULL-HIERARCHY-R15-PASS",
+            "E-SOURCE-HIERARCHY-R16-PASS",
+            "E-SUPPLEMENTAL-R16-REVIEW-ONE",
+            "E-SUPPLEMENTAL-R16-REVIEW-TWO",
+            "E-R15-R16-BROWSER-SCOPE-ACCEPTED",
+            "E-SOURCE-HIERARCHY-R18-PASS",
+            "E-FINAL-CLOSING-REVIEW-R18-ONE",
+            "E-FINAL-CLOSING-REVIEW-R18-TWO",
+            "E-HOSTED-R18-SOURCE-BROWSER-PASS",
+            "E-INSTRUCTION-MAINTENANCE-20261018-BROWSER-BRIDGE",
+            "E-GIS-20261018-BROWSER291",
+            "E-GIS3-20261018-BROWSER291",
+            "E-GIS4-20261018-BROWSER291"
+          ],
+          "requiredClaimClass": "browser",
+          "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+          "priorQualifiedEdition": "R18",
+          "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+          "priorQualifiedByFinalReviews": [
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
+          ],
+          "qualifiedByBoundedEquivalence": "docs/evidence/codex-environment-maintenance-20261018/bounded-equivalence.json",
+          "priorGisQualification": "Unchanged R18 application/browser inputs and acceptance criteria, plus independently reviewed instruction/role/inventory/census maintenance with affected source checks. No fresh whole-application aggregate or browser execution."
+        },
+        {
+          "id": "SURVEY-01",
+          "title": "Receiver collection and qualification",
+          "phase": "P2",
+          "owner": "domain",
+          "status": "verified",
+          "sourcePaths": [
+            "packages/core/src/surveyCollection.ts",
+            "apps/mobile/src/workspace/WorkspaceModePanels.tsx",
+            "packages/core/src/surveyReview.ts",
+            "packages/project-store/src/productionWorkflow.ts",
+            "packages/project-store/src/workspaceCommands.ts"
+          ],
+          "acceptance": "Field Survey anchors the actual saved review and included collections/source revision. Live collection requires fresh owned RTK Fixed receiver epochs and admitted actual CRS; manual/planned points retain their separate provenance.",
+          "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+          "dependsOn": [
+            "FLOW-01"
+          ],
+          "evidenceIds": [
+            "E-BASELINE-SOURCE",
+            "E-OPTIONAL-DESIGN-DECISION",
+            "E-DIRECT-SURVEY-SOURCE",
+            "E-SOURCE-R2-INTERMEDIATE",
+            "E-SOURCE-R4-PASS",
+            "E-BROWSER-R7-FOUNDATION",
+            "E-FINAL-V3-STORE-SOURCE",
+            "E-CRITICAL-HIERARCHY-R14-PASS",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-ONE",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-TWO",
+            "E-FULL-HIERARCHY-R15-PASS",
+            "E-SOURCE-HIERARCHY-R16-PASS",
+            "E-SUPPLEMENTAL-R16-REVIEW-ONE",
+            "E-SUPPLEMENTAL-R16-REVIEW-TWO",
+            "E-R15-R16-BROWSER-SCOPE-ACCEPTED",
+            "E-SOURCE-HIERARCHY-R18-PASS",
+            "E-FINAL-CLOSING-REVIEW-R18-ONE",
+            "E-FINAL-CLOSING-REVIEW-R18-TWO",
+            "E-HOSTED-R18-SOURCE-BROWSER-PASS",
+            "E-INSTRUCTION-MAINTENANCE-20261018-BROWSER-BRIDGE",
+            "E-GIS-20261018-BROWSER291",
+            "E-GIS3-20261018-BROWSER291",
+            "E-GIS4-20261018-BROWSER291"
+          ],
+          "requiredClaimClass": "browser",
+          "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+          "priorQualifiedEdition": "R18",
+          "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+          "priorQualifiedByFinalReviews": [
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
+          ],
+          "qualifiedByBoundedEquivalence": "docs/evidence/codex-environment-maintenance-20261018/bounded-equivalence.json",
+          "priorGisQualification": "Unchanged R18 application/browser inputs and acceptance criteria, plus independently reviewed instruction/role/inventory/census maintenance with affected source checks. No fresh whole-application aggregate or browser execution."
+        },
+        {
+          "id": "LAYOUT-01",
+          "title": "Official Layout maps under matched Survey with RTK admission",
+          "phase": "P2",
+          "owner": "domain",
+          "status": "verified",
+          "sourcePaths": [
+            "apps/mobile/src/workspace/WorkspaceModePanels.tsx",
+            "apps/mobile/src/workspace/useWorkspaceController.ts",
+            "packages/core/src/fieldLayoutTarget.ts",
+            "packages/core/src/layoutSession.ts",
+            "packages/project-store/src/productionWorkflow.ts",
+            "packages/project-store/src/workspaceCommands.ts",
+            "packages/core/src/officialLayout.ts",
+            "packages/project-store/src/sqliteWorkspaceStore.ts",
+            "packages/project-store/src/projectRepository.ts",
+            "apps/api/src/server.ts",
+            "apps/mobile/src/auth/authenticatedRepository.ts",
+            "packages/project-store/src/webWorkspaceStore.ts"
+          ],
+          "acceptance": "V3 RTK Layout creation, live marking and finalization each require fresh owned Fixed final admission with matched Survey/source/revision/CRS. Official finalization binds every immutable target to an actual within-tolerance station and exact observations. Preserve creation/finalization/reference metadata in all writers; noV3→V2 downgrade. Original authorized GET/view/export remains; V3bulk/raw import without service/workspace/account origin proof refuses, same-original-field dedicated reference import retains exact target/review IDs/raw source without inherited finalization, and cross-field reference import refuses. Planned targets/manual provenance remain distinct from measured stations and physical qualification.",
+          "nextAction": "Requalify changed source inputs; retain separately pending runtime, deferred-browser and publication obligations. Retain initial RTK chronology refusal and investigate timing diagnostics without weakening admission.",
+          "dependsOn": [
+            "SURVEY-01",
+            "ANCESTRY-01"
+          ],
+          "evidenceIds": [
+            "E-BASELINE-SOURCE",
+            "E-INDEPENDENT-REVIEW-INITIAL",
+            "E-SOURCE-R2-INTERMEDIATE",
+            "E-SOURCE-R4-PASS",
+            "E-BROWSER-R7-FOUNDATION",
+            "E-OFFICIAL-INTERMEDIATE-REVIEW",
+            "E-OFFICIAL-CHRONOLOGY-SOURCE",
+            "E-FINAL-V3-STORE-SOURCE",
+            "E-FINAL-AUTH-READ-SOURCE",
+            "E-HTTP-PG-R12-SOURCE",
+            "E-HTTP-PG-R13-SOURCE",
+            "E-CRITICAL-HIERARCHY-R14-PASS",
+            "E-SERVICE-SMOKE-HIERARCHY-R14-PASS",
+            "E-SERVICE-SMOKE-HIERARCHY-R15-PASS",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-ONE",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-TWO",
+            "E-FULL-HIERARCHY-R15-PASS",
+            "E-SOURCE-HIERARCHY-R16-PASS",
+            "E-SUPPLEMENTAL-R16-REVIEW-ONE",
+            "E-SUPPLEMENTAL-R16-REVIEW-TWO",
+            "E-R15-R16-BROWSER-SCOPE-ACCEPTED",
+            "E-SOURCE-HIERARCHY-R18-PASS",
+            "E-FINAL-CLOSING-REVIEW-R18-ONE",
+            "E-FINAL-CLOSING-REVIEW-R18-TWO",
+            "E-HOSTED-R18-SOURCE-BROWSER-PASS",
+            "E-INSTRUCTION-MAINTENANCE-20261018-BROWSER-BRIDGE",
+            "E-GIS-20261018-BROWSER291",
+            "E-GIS3-20261018-BROWSER291",
+            "E-GIS3-20261018-BROWSER-FIRST",
+            "E-GIS4-20261018-BROWSER291",
+            "E-GIS4-20261018-BROWSER-FIRST"
+          ],
+          "requiredClaimClass": "browser",
+          "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+          "priorQualifiedEdition": "R18",
+          "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+          "priorQualifiedByFinalReviews": [
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
+          ],
+          "qualifiedByBoundedEquivalence": "docs/evidence/codex-environment-maintenance-20261018/bounded-equivalence.json",
+          "priorGisQualification": "Unchanged R18 application/browser inputs and acceptance criteria, plus independently reviewed instruction/role/inventory/census maintenance with affected source checks. No fresh whole-application aggregate or browser execution."
+        },
+        {
+          "id": "ANCESTRY-01",
+          "title": "Retain ancestors referenced by saved Survey evidence",
+          "phase": "P2",
+          "owner": "domain/store/interface",
+          "status": "verified",
+          "sourcePaths": [
+            "packages/project-store/src/workspaceDocument.ts",
+            "packages/project-store/src/workspaceCommands.ts",
+            "packages/core/src/surveyCollection.ts",
+            "packages/core/src/surveyReview.ts",
+            "apps/mobile/src/workspace/WorkspaceCatalog.tsx",
+            "packages/project-store/src/workspaceFieldContents.ts",
+            "packages/project-store/src/workspaceFieldContents.test.ts"
+          ],
+          "acceptance": "Future ancestor deletion refuses whenever active or archived retained Survey evidence references its field. Preserve original saved owner/collection/point bytes and schemas; historical orphans remain readable/exportable with parent unavailable, without guessed placement or cascade deletion.",
+          "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+          "dependsOn": [
+            "HIERARCHY-01",
+            "SURVEY-01",
+            "RECOVERY-01"
+          ],
+          "evidenceIds": [
+            "E-FINAL-CATALOG-SOURCE",
+            "E-FINAL-V3-STORE-SOURCE",
+            "E-FINAL-FIELD-PROJECTION-SOURCE",
+            "E-HTTP-PG-R13-SOURCE",
+            "E-CRITICAL-HIERARCHY-R14-PASS",
+            "E-SERVICE-SMOKE-HIERARCHY-R14-PASS",
+            "E-SERVICE-SMOKE-HIERARCHY-R15-PASS",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-ONE",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-TWO",
+            "E-FULL-HIERARCHY-R15-PASS",
+            "E-SOURCE-HIERARCHY-R16-PASS",
+            "E-SUPPLEMENTAL-R16-REVIEW-ONE",
+            "E-SUPPLEMENTAL-R16-REVIEW-TWO",
+            "E-R15-R16-BROWSER-SCOPE-ACCEPTED",
+            "E-SOURCE-HIERARCHY-R18-PASS",
+            "E-FINAL-CLOSING-REVIEW-R18-ONE",
+            "E-FINAL-CLOSING-REVIEW-R18-TWO",
+            "E-HOSTED-R18-SOURCE-BROWSER-PASS",
+            "E-INSTRUCTION-MAINTENANCE-20261018-BROWSER-BRIDGE",
+            "E-GIS-20261018-BROWSER291",
+            "E-GIS3-20261018-BROWSER291",
+            "E-GIS4-20261018-BROWSER291"
+          ],
+          "sourceObservationHistory": [
+            {
+              "sourcePaths": [
+                "packages/project-store/src/workspaceFieldContents.ts",
+                "packages/project-store/src/workspaceFieldContents.test.ts"
+              ],
+              "sourceHashes": {
+                "packages/project-store/src/workspaceFieldContents.ts": "44527789bd18fb5868f6d7abf8a43f6780bc75d74744e3a09c9b9f4eedede03e",
+                "packages/project-store/src/workspaceFieldContents.test.ts": "c9d20f7a4d97866dcab8224b6dfb1da5cae30c917a11397d3f260689b70e5809"
+              },
+              "classification": "source",
+              "tests": {
+                "passed": 5,
+                "failed": 0,
+                "skipped": 0,
+                "cancelled": 0
+              },
+              "logSha256": "741eba192a8fe089510d006e01052298aa4e03e3d60cb49ca1c3f9d8af6c32a3",
+              "provenance": "Coordinator-owned /tmp/cplayout-field-contents-tests-r11.log directly inspected and hashed by governance; root delivered source ownership/results.",
+              "priorAttempt": "Coordinator reports priorr10threepassed/twofixtureassertionfailures retained; not an observedUIdefect.",
+              "boundary": "Logical projection source checks only. Actor-ownedasyncCatalog/categoryUI/quarantine export and currentApp proof are separate; no finalmanifest/globalsource/browser/native/physical/review acceptance."
+            }
+          ],
+          "sourceObservation": {
+            "sourcePaths": [
+              "packages/project-store/src/workspaceFieldContents.ts",
+              "packages/project-store/src/workspaceFieldContents.test.ts"
+            ],
+            "sourceHashes": {
+              "packages/project-store/src/workspaceFieldContents.ts": "4a7e17a8ee7dae7750c5eb109e70d6930ced741df3915a5eaa911e73502853c2",
+              "packages/project-store/src/workspaceFieldContents.test.ts": "d8768cb7d1cc29505261f2a7efd6d8f6533105b30a57f256eea89d0dba07ca3f"
+            },
+            "classification": "source",
+            "tests": {
+              "passed": 6,
+              "failed": 0,
+              "skipped": 0,
+              "cancelled": 0
+            },
+            "logSha256": "ee5a7b2735f90842ae9ac3fada53495bcd14a57d2eefd27494794431d1350b0f",
+            "provenance": "Directlyverified latestrootr13log; prior5case/r12negative retained in record/history.",
+            "boundary": "Projection/sourcechecks only; currentApp/global/native/physical/finalreview separate."
+          },
+          "requiredClaimClass": "browser",
+          "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+          "priorQualifiedEdition": "R18",
+          "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+          "priorQualifiedByFinalReviews": [
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
+          ],
+          "qualifiedByBoundedEquivalence": "docs/evidence/codex-environment-maintenance-20261018/bounded-equivalence.json",
+          "priorGisQualification": "Unchanged R18 application/browser inputs and acceptance criteria, plus independently reviewed instruction/role/inventory/census maintenance with affected source checks. No fresh whole-application aggregate or browser execution."
+        },
+        {
+          "id": "RECOVERY-01",
+          "title": "Preserve current and unfinished work",
+          "phase": "P2",
+          "owner": "coordinator/QA",
+          "status": "verified",
+          "sourcePaths": [
+            "apps/mobile/src/workspace/workspaceEditRecovery.ts",
+            "apps/mobile/src/workspace/workspaceEditRecoveryStore.ts",
+            "packages/project-store/src/workspaceDocument.ts",
+            "packages/project-store/src/projectRepository.ts",
+            "packages/project-store/src/sqliteWorkspaceStore.ts",
+            "apps/mobile/src/auth/authenticatedRepository.ts",
+            "packages/project-store/src/webWorkspaceStore.ts"
+          ],
+          "acceptance": "Mode/context changes retain raw input, camera, history, saved identity and conflicts; restoration never silently saves/reconnects. All shared writers retain officialV3creation/finalization/reference metadata and exact source history; authenticated receipt actors remain bound to admitted account/policy after nested/awaited locks.",
+          "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+          "dependsOn": [],
+          "evidenceIds": [
+            "E-BASELINE-SOURCE",
+            "E-BASELINE-BROWSER",
+            "E-INDEPENDENT-REVIEW-INITIAL",
+            "E-INDEPENDENT-REVIEW-SECOND",
+            "E-BROWSER-R1-FAILED",
+            "E-CRITICAL-R2-FAILED",
+            "E-SOURCE-R2-INTERMEDIATE",
+            "E-CRITICAL-R3-FAILED",
+            "E-CRITICAL-R3-UNITS-RENAME",
+            "E-CRITICAL-R4-PASS",
+            "E-SOURCE-R4-PASS",
+            "E-BROWSER-R7-FOUNDATION",
+            "E-OFFICIAL-INTERMEDIATE-REVIEW",
+            "E-OFFICIAL-CHRONOLOGY-SOURCE",
+            "E-FINAL-V3-STORE-SOURCE",
+            "E-FINAL-AUTH-READ-SOURCE",
+            "E-AUTH-READ-BEFORE-FIX-FAILED",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-ONE",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-TWO",
+            "E-FULL-HIERARCHY-R15-PASS",
+            "E-SOURCE-HIERARCHY-R16-PASS",
+            "E-SUPPLEMENTAL-R16-REVIEW-ONE",
+            "E-SUPPLEMENTAL-R16-REVIEW-TWO",
+            "E-R15-R16-BROWSER-SCOPE-ACCEPTED",
+            "E-SOURCE-HIERARCHY-R18-PASS",
+            "E-FINAL-CLOSING-REVIEW-R18-ONE",
+            "E-FINAL-CLOSING-REVIEW-R18-TWO",
+            "E-HOSTED-R18-SOURCE-BROWSER-PASS",
+            "E-INSTRUCTION-MAINTENANCE-20261018-BROWSER-BRIDGE",
+            "E-GIS-20261018-BROWSER291",
+            "E-GIS3-20261018-BROWSER291",
+            "E-GIS4-20261018-BROWSER291"
+          ],
+          "requiredClaimClass": "browser",
+          "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+          "priorQualifiedEdition": "R18",
+          "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+          "priorQualifiedByFinalReviews": [
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
+          ],
+          "qualifiedByBoundedEquivalence": "docs/evidence/codex-environment-maintenance-20261018/bounded-equivalence.json",
+          "priorGisQualification": "Unchanged R18 application/browser inputs and acceptance criteria, plus independently reviewed instruction/role/inventory/census maintenance with affected source checks. No fresh whole-application aggregate or browser execution."
+        },
+        {
+          "id": "UI-01",
+          "title": "Production operator wording",
+          "phase": "P3",
+          "owner": "interface",
+          "status": "verified",
+          "sourcePaths": [
+            "apps/mobile/src/workspace/UnifiedWorkspace.tsx",
+            "docs/operator-workflow-guide.md"
+          ],
+          "acceptance": "All operator surfaces use clear business language; availability and errors remain actionable; developer diagnostics stay outside ordinary flow.",
+          "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+          "dependsOn": [],
+          "evidenceIds": [
+            "E-INDEPENDENT-REVIEW-SECOND",
+            "E-BROWSER-INTERRUPTED",
+            "E-DESKTOP-REVIEW-31",
+            "E-ACCESSIBILITY-FIRST-CURRENT",
+            "E-FOCUSED-FINAL-CODE-FAILURE",
+            "E-BROWSER-R1-FAILED",
+            "E-CRITICAL-R2-FAILED",
+            "E-CRITICAL-R3-FAILED",
+            "E-CRITICAL-R3-UNITS-RENAME",
+            "E-CRITICAL-R4-PASS",
+            "E-BROWSER-R4-FAILED",
+            "E-R4-R5-SOURCE-EQUIVALENCE",
+            "E-CRITICAL-R5-PASS",
+            "E-BROWSER-R5-INTERRUPTED",
+            "E-VISIBLE-EDGE-R5-FAILED",
+            "E-HOME-R7-FOCUSED",
+            "E-R4-R7-BOUNDED-SOURCE",
+            "E-BROWSER-R7-FOUNDATION",
+            "E-EDGE-R8-FOUNDATION",
+            "E-R7-R8-LITERAL-FOUNDATION",
+            "E-FINAL-CATALOG-SOURCE",
+            "E-FINAL-OPERATOR-COPY-SOURCE",
+            "E-WIDER-269-FAILED",
+            "E-HIERARCHY-R14-SCOPED-SOURCE",
+            "E-CRITICAL-HIERARCHY-R14-PASS",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-ONE",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-TWO",
+            "E-FULL-HIERARCHY-R15-PASS",
+            "E-SOURCE-HIERARCHY-R16-PASS",
+            "E-SUPPLEMENTAL-R16-REVIEW-ONE",
+            "E-SUPPLEMENTAL-R16-REVIEW-TWO",
+            "E-R15-R16-BROWSER-SCOPE-ACCEPTED",
+            "E-SOURCE-HIERARCHY-R18-PASS",
+            "E-FINAL-CLOSING-REVIEW-R18-ONE",
+            "E-FINAL-CLOSING-REVIEW-R18-TWO",
+            "E-HOSTED-R18-SOURCE-BROWSER-PASS",
+            "E-INSTRUCTION-MAINTENANCE-20261018-BROWSER-BRIDGE",
+            "E-GIS-20261018-BROWSER291",
+            "E-GIS3-20261018-BROWSER291",
+            "E-GIS4-20261018-BROWSER291"
+          ],
+          "requiredClaimClass": "browser",
+          "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+          "priorQualifiedEdition": "R18",
+          "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+          "priorQualifiedByFinalReviews": [
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
+          ],
+          "qualifiedByBoundedEquivalence": "docs/evidence/codex-environment-maintenance-20261018/bounded-equivalence.json",
+          "priorGisQualification": "Unchanged R18 application/browser inputs and acceptance criteria, plus independently reviewed instruction/role/inventory/census maintenance with affected source checks. No fresh whole-application aggregate or browser execution."
+        },
+        {
+          "id": "DOC-01",
+          "title": "Guides, sources and delegated review",
+          "phase": "P3",
+          "owner": "governance",
+          "status": "verified",
+          "sourcePaths": [
+            "docs/operator-workflow-guide.md",
+            "docs/agent-tree-protocol.md",
+            "docs/agent-source-ledger.md",
+            "docs/production-workflow-improvement-plan.md",
+            "docs/unified-workspace-refocus-2026-10-10.md",
+            "docs/workflow-maintenance-guide.md",
+            "docs/workflow-acceptance-protocol.md"
+          ],
+          "acceptance": "One current guide accurately states customer→project→field/content→matched Survey/official Layout hierarchy, optional Design, RTK admission, retained ancestors and source/browser/native/field/publication boundaries; historical questionnaires are not new gates.",
+          "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+          "dependsOn": [
+            "HIERARCHY-01",
+            "FLOW-01",
+            "SURVEY-01",
+            "LAYOUT-01",
+            "ANCESTRY-01",
+            "UI-01"
+          ],
+          "evidenceIds": [
+            "E-FINAL-INDEPENDENT-REVIEW-R15-ONE",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-TWO",
+            "E-SOURCE-HIERARCHY-R16-PASS",
+            "E-SUPPLEMENTAL-R16-REVIEW-ONE",
+            "E-SUPPLEMENTAL-R16-REVIEW-TWO",
+            "E-SOURCE-HIERARCHY-R18-PASS",
+            "E-FINAL-CLOSING-REVIEW-R18-ONE",
+            "E-FINAL-CLOSING-REVIEW-R18-TWO",
+            "E-INSTRUCTION-MAINTENANCE-20261018-SOURCE",
+            "E-GIS-20261018-AGGREGATE",
+            "E-GIS-20261018-REVIEW-ONE",
+            "E-GIS-20261018-REVIEW-TWO",
+            "E-GIS3-20261018-AGGREGATE",
+            "E-GIS3-20261018-REVIEW-ONE",
+            "E-GIS3-20261018-REVIEW-TWO",
+            "E-GIS4-20261018-AGGREGATE",
+            "E-GIS4-20261018-REVIEW-ONE",
+            "E-GIS4-20261018-REVIEW-TWO"
+          ],
+          "requiredClaimClass": "source",
+          "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+          "priorQualifiedEdition": "R18",
+          "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+          "priorQualifiedByFinalReviews": [
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
+          ],
+          "qualifiedByBoundedEquivalence": "docs/evidence/codex-environment-maintenance-20261018/bounded-equivalence.json",
+          "priorGisQualification": "Unchanged R18 application/browser inputs and acceptance criteria, plus independently reviewed instruction/role/inventory/census maintenance with affected source checks. No fresh whole-application aggregate or browser execution."
+        },
+        {
+          "id": "DEP-01",
+          "title": "Installed mitigation and compatible updates",
+          "phase": "P4",
+          "owner": "coordinator",
+          "status": "verified",
+          "sourcePaths": [
+            "tools/patchDependencySecurity.cjs",
+            "tools/dependencyAudit.cjs",
+            "docs/dependency-upgrade-plan.md",
+            "tools/gisDependencyIdentity.cjs",
+            "tools/gisDependencyIdentity.test.cjs",
+            "tools/pmtilesIntegration.test.ts",
+            "packages/map-adapters/package.json"
+          ],
+          "acceptance": "Exact-lock install and installed target checks pass; raw audit and local mitigations recorded separately; compatible updates run full affected checks.",
+          "nextAction": "Qualify coherent Expo57 patches across backup peer, compiler matrix and installed guards; preserve failed online update recommendation and retained reviewed cohort.",
+          "dependsOn": [],
+          "evidenceIds": [
+            "E-CANONICAL-SECURITY-GAP",
+            "E-CANDIDATE-DEPENDENCIES",
+            "E-CANDIDATE-DEPENDENCY-GRAPH-BRIDGE",
+            "E-SOURCE-R2-INTERMEDIATE",
+            "E-SOURCE-R4-PASS",
+            "E-R14-ADDITIONAL-SOURCE-CHECKS",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-ONE",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-TWO",
+            "E-SOURCE-HIERARCHY-R16-PASS",
+            "E-SUPPLEMENTAL-R16-REVIEW-ONE",
+            "E-SUPPLEMENTAL-R16-REVIEW-TWO",
+            "E-SOURCE-HIERARCHY-R18-PASS",
+            "E-FINAL-CLOSING-REVIEW-R18-ONE",
+            "E-FINAL-CLOSING-REVIEW-R18-TWO",
+            "E-INSTRUCTION-MAINTENANCE-20261018-SOURCE",
+            "E-GIS-20261018-AGGREGATE",
+            "E-GIS-20261018-EXPO-ONLINE",
+            "E-GIS3-20261018-AGGREGATE",
+            "E-GIS4-20261018-AGGREGATE"
+          ],
+          "requiredClaimClass": "source",
+          "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+          "priorQualifiedEdition": "R18",
+          "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+          "priorQualifiedByFinalReviews": [
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
+          ],
+          "qualifiedByBoundedEquivalence": "docs/evidence/codex-environment-maintenance-20261018/bounded-equivalence.json",
+          "priorGisQualification": "Unchanged R18 application/browser inputs and acceptance criteria, plus independently reviewed instruction/role/inventory/census maintenance with affected source checks. No fresh whole-application aggregate or browser execution."
+        },
+        {
+          "id": "DEP-02",
+          "title": "Recurring dependency reports and update PRs",
+          "phase": "P4",
+          "owner": "governance",
+          "status": "verified",
+          "sourcePaths": [
+            ".github/dependabot.yml",
+            ".github/workflows/dependency-maintenance.yml",
+            "docs/dependency-maintenance.md"
+          ],
+          "acceptance": "Daily security/outdated reports and weekly grouped npm/actions PR configuration; exact-head CI/independent compatibility review precede coordinator merge.",
+          "nextAction": "Observe actual scheduled dependency/security workflow runs and retain their hosted execution evidence; current source and PR checks do not prove scheduler activation.",
+          "dependsOn": [
+            "DEP-01"
+          ],
+          "evidenceIds": [
+            "E-CI-PRIMARY-CONFIGURATION",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-ONE",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-TWO",
+            "E-SOURCE-HIERARCHY-R16-PASS",
+            "E-SUPPLEMENTAL-R16-REVIEW-ONE",
+            "E-SUPPLEMENTAL-R16-REVIEW-TWO",
+            "E-SOURCE-HIERARCHY-R18-PASS",
+            "E-FINAL-CLOSING-REVIEW-R18-ONE",
+            "E-FINAL-CLOSING-REVIEW-R18-TWO",
+            "E-INSTRUCTION-MAINTENANCE-20261018-SOURCE",
+            "E-GIS-20261018-AGGREGATE",
+            "E-GIS3-20261018-AGGREGATE",
+            "E-GIS4-20261018-AGGREGATE"
+          ],
+          "requiredClaimClass": "source",
+          "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+          "priorQualifiedEdition": "R18",
+          "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+          "priorQualifiedByFinalReviews": [
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
+          ],
+          "qualifiedByBoundedEquivalence": "docs/evidence/codex-environment-maintenance-20261018/bounded-equivalence.json",
+          "priorGisQualification": "Unchanged R18 application/browser inputs and acceptance criteria, plus independently reviewed instruction/role/inventory/census maintenance with affected source checks. No fresh whole-application aggregate or browser execution."
+        },
+        {
+          "id": "SKILL-01",
+          "title": "Truthful selected capability inventory",
+          "phase": "P4",
+          "owner": "governance",
+          "status": "verified",
+          "sourcePaths": [
+            "docs/skill-capability-inventory.json",
+            "docs/skill-capability-inventory.md",
+            ".agents/skills/cplayout-interface-development-agent/SKILL.md",
+            ".agents/skills/cplayout-planning-review/SKILL.md",
+            ".agents/skills/cplayout-database-agent/SKILL.md"
+          ],
+          "acceptance": "All 67 exposed host plus 11 local skill sources documented; source presence, validation and actual invocation remain distinct.",
+          "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+          "dependsOn": [],
+          "evidenceIds": [
+            "E-GOVERNANCE-SOURCE-FINAL",
+            "E-R14-ADDITIONAL-SOURCE-CHECKS",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-ONE",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-TWO",
+            "E-SOURCE-HIERARCHY-R16-PASS",
+            "E-SUPPLEMENTAL-R16-REVIEW-ONE",
+            "E-SUPPLEMENTAL-R16-REVIEW-TWO",
+            "E-SOURCE-HIERARCHY-R18-PASS",
+            "E-FINAL-CLOSING-REVIEW-R18-ONE",
+            "E-FINAL-CLOSING-REVIEW-R18-TWO",
+            "E-INSTRUCTION-MAINTENANCE-20261018-SOURCE",
+            "E-GIS-20261018-AGGREGATE",
+            "E-GIS3-20261018-AGGREGATE",
+            "E-GIS4-20261018-AGGREGATE"
+          ],
+          "requiredClaimClass": "source",
+          "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+          "priorQualifiedEdition": "R18",
+          "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+          "priorQualifiedByFinalReviews": [
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
+          ],
+          "qualifiedByBoundedEquivalence": "docs/evidence/codex-environment-maintenance-20261018/bounded-equivalence.json",
+          "priorGisQualification": "Unchanged R18 application/browser inputs and acceptance criteria, plus independently reviewed instruction/role/inventory/census maintenance with affected source checks. No fresh whole-application aggregate or browser execution."
+        },
+        {
+          "id": "HOOK-01",
+          "title": "Source-bound hook execution qualification",
+          "phase": "P4",
+          "owner": "coordinator",
+          "status": "pending",
+          "sourcePaths": [
+            ".codex/hooks.json",
+            "docs/governance-refocus-2026-10-10.md"
+          ],
+          "acceptance": "Only supported source-bound probes establish actual event execution; Stop remains disabled; private failure paths are bounded.",
+          "nextAction": "Select a changed evidence-backed probe before running; do not repeat unknown unchanged probes.",
+          "dependsOn": [],
+          "evidenceIds": [
+            "E-HOOK-EXECUTION"
+          ],
+          "qualificationScope": "Configuredsource reviewed; Stopdisabled/genuinehosthookexecution unknown."
+        },
+        {
+          "id": "CLEAN-01",
+          "title": "Verified retirement without data loss",
+          "phase": "P0",
+          "owner": "governance",
+          "status": "verified",
+          "sourcePaths": [
+            "docs/workflow-retirement-manifest.json",
+            "docs/workflow-maintenance-guide.md"
+          ],
+          "acceptance": "Reference/provenance/ownership/recovery checks precede retirement; no existing source deletion qualifies; frozen readers and failed/deferred proof preserved.",
+          "nextAction": "Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt.",
+          "dependsOn": [],
+          "evidenceIds": [
+            "E-FINAL-INDEPENDENT-REVIEW-R15-ONE",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-TWO",
+            "E-SOURCE-HIERARCHY-R16-PASS",
+            "E-SUPPLEMENTAL-R16-REVIEW-ONE",
+            "E-SUPPLEMENTAL-R16-REVIEW-TWO",
+            "E-SOURCE-HIERARCHY-R18-PASS",
+            "E-FINAL-CLOSING-REVIEW-R18-ONE",
+            "E-FINAL-CLOSING-REVIEW-R18-TWO",
+            "E-INSTRUCTION-MAINTENANCE-20261018-SOURCE",
+            "E-GIS-20261018-AGGREGATE",
+            "E-GIS-20261018-REVIEW-ONE",
+            "E-GIS-20261018-REVIEW-TWO",
+            "E-GIS3-20261018-AGGREGATE",
+            "E-GIS3-20261018-REVIEW-ONE",
+            "E-GIS3-20261018-REVIEW-TWO",
+            "E-GIS4-20261018-AGGREGATE",
+            "E-GIS4-20261018-REVIEW-ONE",
+            "E-GIS4-20261018-REVIEW-TWO"
+          ],
+          "requiredClaimClass": "source",
+          "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+          "priorQualifiedEdition": "R18",
+          "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+          "priorQualifiedByFinalReviews": [
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
+          ],
+          "qualifiedByBoundedEquivalence": "docs/evidence/codex-environment-maintenance-20261018/bounded-equivalence.json",
+          "priorGisQualification": "Unchanged R18 application/browser inputs and acceptance criteria, plus independently reviewed instruction/role/inventory/census maintenance with affected source checks. No fresh whole-application aggregate or browser execution."
+        },
+        {
+          "id": "QA-01",
+          "title": "Complete workflow proof and review",
+          "phase": "P5",
+          "owner": "coordinator/independent QA",
+          "status": "verified",
+          "sourcePaths": [
+            "docs/checkpoints/2026-10-11-unified-workspace-pause.md",
+            "docs/workflow-registry.json",
+            "tools/browserProofRegistry.ts",
+            "tools/browserProofRegistry.test.ts",
+            "playwright.config.ts",
+            "tests/web/browser-proof-inventory.json",
+            "tools/workflowStatus.cjs",
+            "docs/workflow-acceptance-protocol.md",
+            "apps/mobile/App.tsx",
+            "apps/api/src/server.ts",
+            "apps/mobile/src/auth/authenticatedRepository.ts",
+            "docs/evidence/production-workflow-review-20261011/final-packet-arrangement.md"
+          ],
+          "acceptance": "Current clarified customer/field/Survey/official-map and retained-ancestry source/API/App proof against a complete canonical census; responsive/accessibility/failure coverage; two complete independent reviews with no unresolved defects. Historical passes or incomplete scopes do not qualify the new edition.",
+          "nextAction": "Preserve full passes and the first chronology-refusal trace; investigate diagnostics without weakening RTK chronology. Retain960deferred and separate device/field/deployment/hook acceptance.",
+          "dependsOn": [
+            "ENTRY-01",
+            "FLOW-01",
+            "UI-01",
+            "DOC-01",
+            "DEP-01",
+            "SKILL-01",
+            "AUTH-01",
+            "HIERARCHY-01",
+            "SURVEY-01",
+            "LAYOUT-01",
+            "ANCESTRY-01",
+            "RECOVERY-01",
+            "GIS-01"
+          ],
+          "evidenceIds": [
+            "E-INDEPENDENT-REVIEW-INITIAL",
+            "E-BROWSER-INVENTORY-DRIFT",
+            "E-INDEPENDENT-REVIEW-SECOND",
+            "E-BROWSER-INTERRUPTED",
+            "E-DESKTOP-REVIEW-31",
+            "E-ACCESSIBILITY-FIRST-CURRENT",
+            "E-SERVICE-SMOKE-CURRENT",
+            "E-OPTIONAL-DESIGN-DECISION",
+            "E-DIRECT-SURVEY-SOURCE",
+            "E-FOCUSED-FINAL-CODE-FAILURE",
+            "E-BROWSER-R1-FAILED",
+            "E-CRITICAL-R2-FAILED",
+            "E-SOURCE-R2-INTERMEDIATE",
+            "E-CRITICAL-R3-FAILED",
+            "E-CRITICAL-R3-UNITS-RENAME",
+            "E-CRITICAL-R4-PASS",
+            "E-SOURCE-R4-PASS",
+            "E-BROWSER-R4-FAILED",
+            "E-R4-R5-SOURCE-EQUIVALENCE",
+            "E-CRITICAL-R5-PASS",
+            "E-BROWSER-R5-INTERRUPTED",
+            "E-VISIBLE-EDGE-R5-FAILED",
+            "E-HOME-R7-FOCUSED",
+            "E-R4-R7-BOUNDED-SOURCE",
+            "E-BROWSER-R7-FOUNDATION",
+            "E-EDGE-R8-FOUNDATION",
+            "E-R7-R8-LITERAL-FOUNDATION",
+            "E-OFFICIAL-INTERMEDIATE-REVIEW",
+            "E-OFFICIAL-CHRONOLOGY-SOURCE",
+            "E-WIDER-269-FAILED",
+            "E-AUTH-READ-BEFORE-FIX-FAILED",
+            "E-SOURCE-HIERARCHY-R10-PASS",
+            "E-CRITICAL-HIERARCHY-R10-FAILED",
+            "E-HIERARCHY-R10-R11-BRIDGE",
+            "E-CRITICAL-HIERARCHY-R11-FAILED",
+            "E-HIERARCHY-R11-R12-BRIDGE",
+            "E-CRITICAL-HIERARCHY-R12-FAILED",
+            "E-HIERARCHY-R12-R13-BRIDGE",
+            "E-CRITICAL-HIERARCHY-R13-FAILED",
+            "E-R13-CORRECTION-FACTS",
+            "E-HIERARCHY-R14-SCOPED-SOURCE",
+            "E-SOURCE-HIERARCHY-R14-PASS",
+            "E-R14-ADDITIONAL-SOURCE-CHECKS",
+            "E-FULL-HIERARCHY-R14-FAILED",
+            "E-HIERARCHY-R14-R15-TEST-BRIDGE",
+            "E-FULL-HIERARCHY-R15-PASS",
+            "E-LAYOUT-FIT-R15-OBSERVER-PASS",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-ONE",
+            "E-FINAL-INDEPENDENT-REVIEW-R15-TWO",
+            "E-SOURCE-HIERARCHY-R16-PASS",
+            "E-SUPPLEMENTAL-R16-REVIEW-ONE",
+            "E-SUPPLEMENTAL-R16-REVIEW-TWO",
+            "E-R15-R16-BROWSER-SCOPE-ACCEPTED",
+            "E-SOURCE-HIERARCHY-R18-PASS",
+            "E-FINAL-CLOSING-REVIEW-R18-ONE",
+            "E-FINAL-CLOSING-REVIEW-R18-TWO",
+            "E-HOSTED-R18-SOURCE-BROWSER-PASS",
+            "E-INSTRUCTION-MAINTENANCE-20261018-BROWSER-BRIDGE",
+            "E-GIS-20261018-BROWSER291",
+            "E-GIS3-20261018-BROWSER291",
+            "E-GIS3-20261018-REVIEW-ONE",
+            "E-GIS3-20261018-REVIEW-TWO",
+            "E-GIS3-20261018-BROWSER-FIRST",
+            "E-GIS4-20261018-BROWSER291",
+            "E-GIS4-20261018-REVIEW-ONE",
+            "E-GIS4-20261018-REVIEW-TWO",
+            "E-GIS4-20261018-BROWSER-FIRST"
+          ],
+          "authorityReferencePaths": [
+            "docs/checkpoints/2026-10-11-unified-workspace-pause.md",
+            "docs/workflow-registry.json"
+          ],
+          "verificationCoverage": "whole_candidate_implementation",
+          "verificationSourcePaths": [
+            "tools/browserProofRegistry.ts",
+            "tools/browserProofRegistry.test.ts",
+            "playwright.config.ts",
+            "tests/web/browser-proof-inventory.json",
+            "tools/workflowStatus.cjs",
+            "docs/workflow-acceptance-protocol.md",
+            "apps/mobile/App.tsx",
+            "apps/api/src/server.ts",
+            "apps/mobile/src/auth/authenticatedRepository.ts",
+            "docs/evidence/production-workflow-review-20261011/final-packet-arrangement.md"
+          ],
+          "requiredClaimClass": "browser",
+          "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+          "priorQualifiedEdition": "R18",
+          "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9",
+          "priorQualifiedByFinalReviews": [
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-one.json",
+            "docs/evidence/production-workflow-review-20261011/final-independent-closing-review-r18-two.json"
+          ],
+          "qualifiedByBoundedEquivalence": "docs/evidence/codex-environment-maintenance-20261018/bounded-equivalence.json",
+          "priorGisQualification": "Unchanged R18 application/browser inputs and acceptance criteria, plus independently reviewed instruction/role/inventory/census maintenance with affected source checks. No fresh whole-application aggregate or browser execution."
+        },
+        {
+          "id": "PUBLISH-01",
+          "title": "Reviewable source publication",
+          "phase": "P5",
+          "owner": "coordinator",
+          "status": "verified",
+          "sourcePaths": [
+            ".github/workflows/cplayout-required.yml",
+            "docs/workflow-registry.json",
+            "docs/workflow-acceptance-protocol.md"
+          ],
+          "acceptance": "Review exact changed paths, commit/push normally, require exact-head protected CI and independent review; current checkpoint never relabeled production release.",
+          "nextAction": "Complete the latest metadata-head protected checks, merge PR12 under protection, fast-forward canonical main and retire only the merged task branch; record actual convergence. Retain source publication separately from deployment and field acceptance.",
+          "dependsOn": [
+            "QA-01"
+          ],
+          "evidenceIds": [
+            "E-CI-PRIMARY-CONFIGURATION",
+            "E-PUBLICATION-R18-SOURCE-CHECKPOINT",
+            "E-GIS4-20261018-PUBLICATION"
+          ],
+          "authorityReferencePaths": [
+            "docs/workflow-registry.json"
+          ],
+          "verificationSourcePaths": [
+            ".github/workflows/cplayout-required.yml",
+            "docs/workflow-acceptance-protocol.md"
+          ],
+          "requiredClaimClass": "publication",
+          "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9_protected_checkpoint_62462a1",
+          "qualificationScope": "Actual source checkpoint pushed and exact-head protected CI succeeded at recorded commit; independent matching source reviews retained. No deployment or device/field/human acceptance.",
+          "historicalQualificationScope": "Observed PR3 protected source checkpoint79064: actualCI at98857, both current R18closing reviews, matching source hashes and clean canonical OID convergence verified. The separate metadata successor/task cleanup were pending at the recorded PR3cutoff only; later live refs/final proof supply those outcomes. No future OID or pass is claimed.",
+          "priorQualifiedEdition": "R18_source_checkpoint"
+        },
+        {
+          "id": "GIS-01",
+          "title": "GIS imports, offline package admission and explicit renderer proof",
+          "phase": "P2",
+          "owner": "coordinator",
+          "status": "verified",
+          "sourcePaths": [
+            "packages/core/src/projectGeometryImport.ts",
+            "packages/core/src/projectImports.ts",
+            "packages/core/src/projectKml.ts",
+            "packages/core/src/drawingProjectEdits.test.ts",
+            "packages/core/src/recordedReference.test.ts",
+            "packages/core/src/mapTilePackages.ts",
+            "packages/core/src/mapTilePackages.test.ts",
+            "packages/map-adapters/src/mapWorkbenchStyle.ts",
+            "packages/map-adapters/src/referenceOverlayStyle.ts",
+            "packages/map-adapters/src/WorkspaceMapSurface.web.tsx",
+            "packages/map-adapters/src/WorkspaceMapSurface.native.tsx",
+            "packages/map-adapters/src/workspaceSceneRendering.ts",
+            "packages/project-store/src/mapPackageArchive.ts",
+            "packages/project-store/src/mapPackageArchive.test.ts",
+            "packages/project-store/src/mapPackageArchiveInstallCore.ts",
+            "packages/project-store/src/mapPackageArchiveInstall.native.ts",
+            "tests/web/gis-visual.spec.ts",
+            "tests/web/gis-evidence.ts",
+            "tests/web/gis-fixture.ts",
+            "tests/web/gis-proof-cases.ts",
+            "tests/web/gis-package.spec.ts",
+            "packages/map-adapters/src/referenceOverlayStyle.test.ts",
+            "tools/pmtilesIntegration.test.ts"
+          ],
+          "acceptance": "Supported canonical XY imports preserve complete topology or refuse atomically; changed boundary provenance is cleared without rewriting immutable references. Offline raster resources remain package-contained, copy policy and attribution are enforced, bounds reach renderer descriptors, and separately classified MapLibre/SVG/browser visual proof preserves geometry and camera. Native runtime, raw native PMTiles/MBTiles and label parity require separate packets.",
+          "nextAction": "Preserve converter-fidelity and topology refusals; select separately recorded App resolver/native/glyph packets before claiming their runtime capabilities.",
+          "dependsOn": [
+            "DRAW-01",
+            "RECOVERY-01",
+            "DEP-01"
+          ],
+          "evidenceIds": [
+            "E-GIS-20261018-BROWSER291",
+            "E-GIS-20261018-BOUNDS",
+            "E-GIS3-20261018-BROWSER291",
+            "E-GIS3-20261018-REVIEW-ONE",
+            "E-GIS3-20261018-REVIEW-TWO",
+            "E-GIS4-20261018-BROWSER291",
+            "E-GIS4-20261018-REVIEW-ONE",
+            "E-GIS4-20261018-REVIEW-TWO"
+          ],
+          "requiredClaimClass": "browser",
+          "qualificationScope": "Local final-source proof uses the exact documented formatting equivalence to e977. Subsequent fresh protected source/browser CI on final1d95 passed at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4. Device/physical/field, App package resolver, native transport/glyph, genuine hook loading, general hosted/Windows pixel parity and deployment acceptance remain separate; online Expo recommendation still fails.",
+          "currentQualifiedEdition": "GIS4-20261018-1d95c62541c9"
+        }
+      ],
+      "phases": [
+        {
+          "id": "P0",
+          "title": "Verify baseline, preserve work and consolidate tracking",
+          "status": "verified",
+          "qualificationScope": "Assigned source/current-synthetic-browser scope only; explicit feature/device/physical/hook/update/publication obligations remain separate."
+        },
+        {
+          "id": "P1",
+          "title": "Authenticated customer-first Customer → Project → Field navigation",
+          "status": "verified",
+          "qualificationScope": "Assigned source/current-synthetic-browser scope only; explicit feature/device/physical/hook/update/publication obligations remain separate."
+        },
+        {
+          "id": "P2",
+          "title": "Field designs, matched Survey, retained ancestry and RTK-qualified official maps",
+          "status": "verified",
+          "qualificationScope": "Assigned source/current-synthetic-browser scope only; explicit feature/device/physical/hook/update/publication obligations remain separate."
+        },
+        {
+          "id": "P3",
+          "title": "Operator language, guides and responsive accessibility",
+          "status": "verified",
+          "qualificationScope": "Assigned source/current-synthetic-browser scope only; explicit feature/device/physical/hook/update/publication obligations remain separate."
+        },
+        {
+          "id": "P4",
+          "title": "Stable dependency maintenance and truthful skill/hook records",
+          "status": "in_progress",
+          "qualificationScope": "Assigned source/current-synthetic-browser scope only; explicit feature/device/physical/hook/update/publication obligations remain separate."
+        },
+        {
+          "id": "P5",
+          "title": "Complete clarified-source census, workflow proof, independent reviews and publication",
+          "status": "verified",
+          "qualificationScope": "Complete software/source checkpoint, matching reviews and exact-head protected publication only; canonical merge/sync live handoff and separate operational gates remain distinct."
+        }
+      ],
+      "reviewRounds": {
+        "requiredConsecutivePassingFinalReviews": 2,
+        "acceptedConsecutiveFinalReviews": 2,
+        "initialReviewResult": "request_changes_namespace_contract_loss_preserved_and_corrected",
+        "acceptedFinalReviewEdition": "GIS4-20261018-1d95c62541c9",
+        "boundary": "Two independent matching-source/proof reviews accept bounded software/current browser classes only."
+      },
+      "finalReviewPacket": {
+        "edition": "GIS4-20261018-1d95c62541c9",
+        "acceptedFinalReviews": 2,
+        "sourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
+        "reference": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/independent-reviews.json"
+      },
+      "completedSourceEdition": {
+        "sourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
+        "sourceManifest": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/source.json",
+        "scope": "Final software source with earlier local e977 execution under exact formatting equivalence and subsequent fresh protected hosted source/browser checkpoint. Operational runtime/release gates remain separate."
+      },
+      "currentCompleteAggregate": {
+        "edition": "GIS3-20261018-e977f099f7b3",
+        "result": "pass",
+        "sourceFingerprint": "e977f099f7b3466b5a7f93938f48472dc4e5bfc6b203f727459c3b751ea5fe7d",
+        "qualifiedFinalSourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
+        "reference": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/software-equivalence.json",
+        "boundary": "Actual e977 serialized exit0, qualified for final formatting source only through explicit bounded equivalence; no new whole aggregate. Unconfigured PostgreSQL runtime skip retained.",
+        "environment": "local_native_mirror_earlier_execution"
+      },
+      "currentFullBrowserObservation": {
+        "edition": "GIS3-20261018-e977f099f7b3",
+        "result": "pass",
+        "executed": 291,
+        "sourceFingerprint": "e977f099f7b3466b5a7f93938f48472dc4e5bfc6b203f727459c3b751ea5fe7d",
+        "qualifiedFinalSourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
+        "reference": "docs/evidence/gis-reliability-20261018/editions/namespace-contract-v3/current-browser.json",
+        "environment": "local_native_mirror_earlier_execution"
+      },
+      "currentFocusedBrowser": {
+        "edition": "GIS3-20261018-e977f099f7b3",
+        "qualifiedFinalSourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
+        "result": "pass",
+        "GISExecutions": 24,
+        "reference": "docs/evidence/gis-reliability-20261018/editions/namespace-contract-v3/current-browser.json",
+        "boundary": "Included in actual291 run, not additional debt migration."
+      },
+      "currentAffectedBrowser": {
+        "edition": "GIS3-20261018-e977f099f7b3",
+        "qualifiedFinalSourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
+        "result": "pass",
+        "GISExecutions": 24,
+        "reference": "docs/evidence/gis-reliability-20261018/editions/namespace-contract-v3/current-browser.json",
+        "boundary": "Included in actual291 run, not additional debt migration."
+      },
+      "currentVisibleBrowser": {
+        "edition": "GIS3-20261018-e977f099f7b3",
+        "result": "pass",
+        "sourceFingerprint": "e977f099f7b3466b5a7f93938f48472dc4e5bfc6b203f727459c3b751ea5fe7d",
+        "qualifiedFinalSourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
+        "reference": "docs/evidence/gis-reliability-20261018/editions/namespace-contract-v3/visible-edge.json",
+        "url": "http://127.0.0.1:19018",
+        "boundary": "Actual owned Windows Edge five-viewports, source/export/served binding and cleanup."
+      },
+      "currentLayoutVisualSupplement": {
+        "edition": "GIS3-20261018-e977f099f7b3",
+        "qualifiedFinalSourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
+        "reference": "docs/evidence/gis-reliability-20261018/editions/namespace-contract-v3/visible-edge-supplement.json",
+        "boundary": "Fresh five-viewports, separate320CSSpx reflow/keyboard and genuine native1350→675CSSpx200%zoom pass. Original combined emulation/zoom failure retained; diagnostic observes160CSSpx controls clipping below selected320minimum. No sourcefix/general accessibility/zoom parity/native/field claim."
+      },
+      "currentProtectedCI": {
+        "result": "pass",
+        "sourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
+        "commit": "62462a15bbf4de8ed3dba373ff2adffc94d9afd4",
+        "runUrl": "https://github.com/JakeC-Redlund/CPLayout/actions/runs/39191798726",
+        "browserPassed": 291,
+        "reference": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/publication-checkpoint.json",
+        "boundary": "Fresh hosted source/aggregate and three browser jobs on final formatting source, separate from earlier local e977 executions and their exact equivalence."
+      },
+      "currentPublication": {
+        "edition": "GIS4-20261018-1d95c62541c9_protected_checkpoint_62462a1",
+        "status": "protected_source_checkpoint_published",
+        "sourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
+        "commit": "62462a15bbf4de8ed3dba373ff2adffc94d9afd4",
+        "pullRequest": "https://github.com/JakeC-Redlund/CPLayout/pull/12",
+        "runUrl": "https://github.com/JakeC-Redlund/CPLayout/actions/runs/39191798726",
+        "reference": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/publication-checkpoint.json",
+        "observedAt": "2026-10-19T03:23:45.691736+00:00",
+        "gitTaskAtReceiptCutoff": {
+          "status": "pending_merge_and_sync",
+          "observedAt": "2026-10-19T03:23:45.691736+00:00",
+          "nextAction": "Complete the latest metadata-head protected checks, merge PR12 under protection, fast-forward canonical main and retire only the merged task branch; record actual convergence. Retain source publication separately from deployment and field acceptance."
+        },
+        "canonicalObservationAtReceiptCutoff": {
+          "mainCommit": "84947f38b913f3ee859526ad0e65c5d2af1107d4",
+          "merge": "not_yet_observed",
+          "synchronization": "not_yet_observed"
+        },
+        "boundary": "This is an exact dated publication checkpoint, not a prediction of a later merge. Live protected checks and canonical Git refs are rechecked during final merge/synchronization handoff. No production release inferred."
+      },
+      "dependencyHealth": {
+        "rawAudit": {
+          "high": 16,
+          "moderate": 0,
+          "total": 16
+        },
+        "canonicalInstalledPatches": "verified_native_runtime_owner_with_canonical_lock_and_consumer_binding",
+        "isolatedInstalledPatches": "verified_exact_selected_lock",
+        "currentQualifiedSourceEdition": "GIS4-20261018-1d95c62541c9",
+        "summary": "Selected exact-lock GIS graph and installed mitigations passed local qualification; subsequent protected hosted source/PostgreSQL HTTP and three browser shards (291 passes) passed at62462a1 on observed Node24.21.0/npm11.19.0. Raw16high/0moderate findings remain admitted through verified mitigations; online Expo update recommendation failed. Node20/native/device and general hosted/Windows font/runtime parity remain unqualified.",
+        "onlineExpoCheck": {
+          "result": "fail",
+          "reference": "docs/evidence/gis-reliability-20261018/expo-online-advisory.json",
+          "decision": "docs/evidence/gis-reliability-20261018/sdk57-retention-decision.json"
+        }
+      },
+      "browserDebt": {
+        "deferredCases": 960,
+        "contractsRetired": false,
+        "originalDeferredCases": 960,
+        "migrations": [],
+        "inventory": {
+          "path": "tests/web/browser-proof-inventory.json",
+          "counts": {
+            "files": 35,
+            "uniqueCases": 417,
+            "currentExecutions": 291,
+            "deferredExecutions": 960,
+            "allExecutions": 1251
+          },
+          "qualification": "Actual current291 tuples match inventory;24GIS executions and9zero-noise exact comparisons.960 deferred obligations unchanged.",
+          "runtimeAcceptance": "actual_e977_current291_final_formatting_equivalence_two_reviews",
+          "inventorySha256": "f93040e28fdea5426dfb54074550d4330f8d04a92e408b9b6140433ffd7e77b1",
+          "discoveryReference": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/software-equivalence.json"
+        },
+        "pendingDiscoveryChange": {
+          "source": "Coordinator-owned newreadonlyorphanZIPcase in workspace-management.spec.ts",
+          "expectedTitles": 89,
+          "expectedCurrentExecutions": 267,
+          "actualDiscovery": "complete_coordinator_regeneration_verified",
+          "deferredCases": 960,
+          "boundary": "Historicalneworphanview/exportdiscovery change completed; thatcasepassesincurrentR18tuplepacket.960deferredobligations remain unchanged."
+        }
+      },
+      "gisImplementation": {
+        "reference": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/software-equivalence.json",
+        "status": "bounded_software_browser_accepted",
+        "retainedProj4": "2.20.8",
+        "rejectedProj4": "2.22.0",
+        "nativeRenderer": "SVG active unified surface; separate native MapLibre proof lane",
+        "separateFeaturePackets": [
+          "Portable app:// package runtime resolution in the authenticated browser scene, actual package pixels and finite-bounds request suppression",
+          "Unified native MapLibre integration and installed-device offline package rendering",
+          "Raw native PMTiles/MBTiles transport adapters",
+          "Offline MapLibre labels with verified local font/glyph strategy",
+          "Source-diff packet for togeojson7.1.3 and tokml0.4.0; altitude requirement separate",
+          "Expo58/RN0.88 platform migration",
+          "Coherent Expo57.0.30/metro-runtime57.0.17 patch adoption: root/mobile/backup peer/compiler matrix/mitigations/full qualification",
+          "Current authenticated workspace installed portable-package runtime resolver with account-owned transport and actual package rendering",
+          "Legacy orphan-process test diagnostics and exception-safe recovery; one unchanged-code safety refusal retained with inconclusive cause"
+        ],
+        "retainedUnqualified": [
+          "native/device",
+          "field accuracy",
+          "Google Earth execution",
+          "genuine hook runtime loader",
+          "publication"
+        ],
+        "sourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
+        "followUpPackets": [
+          {
+            "id": "GIS-RESOLVER",
+            "owner": "coordinator with GIS/database/interface reviewers",
+            "status": "pending_separate_feature",
+            "priority": 1,
+            "scope": "Resolve account-owned installed logical map-package references into an ephemeral admitted runtime bundle in the current unified scene path; keep stored metadata portable.",
+            "acceptance": "Actual Customer→Project→Field→Open exercises installed permitted package bytes, nested resources, bounds and attribution offline with zero unexpected outbound requests; source/history and account isolation remain exact. Explicitly refuse unsupported browser file transport.",
+            "dependsOn": []
+          },
+          {
+            "id": "GIS-SDK57-PATCH",
+            "owner": "coordinator with dependency/runtime reviewers",
+            "status": "pending_coherent_review",
+            "priority": 2,
+            "scope": "Source-diff and coherently qualify Expo57.0.30/metro-runtime57.0.17 across root/mobile/backup-artifacts peer, transitive cohort, compiler matrix and installed mitigations; align declared versus qualified toolchain separately.",
+            "acceptance": "No peer/guard bypass. Exact-lock/postinstall/installed matrix, online and locked Expo checks, aggregate and current browser pass; native effects require actual installed-build/device evidence. Retain preceding qualified cohort on failure.",
+            "dependsOn": []
+          },
+          {
+            "id": "GIS-NATIVE-RENDERER",
+            "owner": "coordinator with interface/GIS/runtime reviewers",
+            "status": "pending_separate_feature",
+            "priority": 3,
+            "scope": "Integrate native MapLibre into the current shared-scene workspace; current unified native SVG and legacy MapLibre stay separately classified until proof.",
+            "acceptance": "Installed Android/iOS build/device report exercises the actual package offline, scene/camera/edit continuity, attribution/bounds and exact saved XY. Dependency presence and browser passes grant no native acceptance.",
+            "dependsOn": [
+              "GIS-RESOLVER"
+            ]
+          },
+          {
+            "id": "GIS-NATIVE-ARCHIVES",
+            "owner": "coordinator with GIS/database/runtime reviewers",
+            "status": "pending_transport_selection",
+            "priority": 4,
+            "scope": "Choose and source-verify raw native PMTiles/MBTiles adapters, filesystem/range/cancellation and lifecycle contracts.",
+            "acceptance": "Actual installed-device offline bytes, resource containment, missing tiles, cancellation/resume and recreation pass. No browser file-import feature inferred.",
+            "dependsOn": [
+              "GIS-NATIVE-RENDERER"
+            ]
+          },
+          {
+            "id": "GIS-GLYPHS",
+            "owner": "coordinator with GIS/interface/runtime reviewers",
+            "status": "pending_font_strategy",
+            "priority": 4,
+            "scope": "Select a source-backed local font/glyph/sprite strategy, licensing/distribution rights, hashes and lifecycle before label implementation.",
+            "acceptance": "Actual offline labels remain readable across selected viewports/zoom; no unexpected glyph/sprite network calls; attribution/license and font/OS scope explicit.",
+            "dependsOn": [
+              "GIS-RESOLVER"
+            ]
+          },
+          {
+            "id": "GIS-KML-CONVERTERS",
+            "owner": "coordinator with GIS/preservation reviewers",
+            "status": "pending_source_diff",
+            "priority": 5,
+            "scope": "Compare togeojson7.1.2→7.1.3 and @placemarkio/tokml0.3.9→0.4.0. Keep elevation semantics as a separate requirement before altitude changes.",
+            "acceptance": "Namespace/topology/dimensionality/provenance/round-trip fixtures and frozen-reader contracts pass before changing the retained converter or loosening guards.",
+            "dependsOn": []
+          },
+          {
+            "id": "GIS-PLATFORM58",
+            "owner": "coordinator with native/runtime reviewers",
+            "status": "pending_platform_migration",
+            "priority": 6,
+            "scope": "Independently verify and select a coherent Expo58/RN0.88/native map cohort with current official metadata and source diffs.",
+            "acceptance": "Full platform/dependency/device migration gates and rollback; no automatic adoption based only on latest versions.",
+            "dependsOn": []
+          },
+          {
+            "id": "GIS-LIFECYCLE-DIAGNOSTICS",
+            "owner": "coordinator with QA reviewer",
+            "status": "pending_bounded_investigation",
+            "priority": 3,
+            "scope": "Retained unchanged-code orphan cleanup refusal needs better reason capture and exception-safe owned-resource cleanup; exact transient cause remains inconclusive.",
+            "acceptance": "Preserve strict identity and unknown-listener refusal; reproduce before selecting repair, retain failed receipt, and prove only owned targets are cleaned. Serialize process-oriented integration checks.",
+            "dependsOn": []
+          },
+          {
+            "id": "QA-RTK-TIMING",
+            "owner": "coordinator with QA/GNSS/controller reviewers",
+            "status": "pending_bounded_diagnostic",
+            "priority": 3,
+            "scope": "Capture actual receipt/command timestamp pairs and compare synthetic performance.now/Date contracts under writer contention; reproduce the observed refusal before selecting any repair.",
+            "acceptance": "Keep strict chronology and no-mutation refusal. Preserve initial trace; prove any chosen harness or implementation change with a causal counterprobe and matching whole validation/browser evidence. No clock/environment cause inferred from trace divergence alone.",
+            "dependsOn": []
+          },
+          {
+            "id": "UI-BELOW320-REFLOW",
+            "owner": "coordinator with interface/QA reviewers",
+            "status": "observed_outside_selected_minimum",
+            "priority": 5,
+            "scope": "A160CSSpx viewport clips mode/Fit controls; selectedminimum320 and separate native200%zoom remain the accepted scope. Decide minimum-width support before expanding this lane.",
+            "acceptance": "Ifminimum is expanded, verify unclipped controls/focus/keyboard and exact saved geometry at that actual CSSwidth. Preserve retained failure; do not substitute emulated viewport zoom for native-window proof.",
+            "dependsOn": []
+          },
+          {
+            "id": "QA-CI-COMPACT-NOISE",
+            "owner": "coordinator with QA/interface test-harness reviewers",
+            "status": "pending_bounded_evidence_retention_improvement",
+            "priority": 4,
+            "scope": "Retain raw repeat-noise measurement JSON and compact complete current execution tuples on successful CI without requiring full failure traces. Current291pass and nine strict comparison assertions remain valid; local full measurement receipts are preserved.",
+            "acceptance": "Observe the successful hosted artifact, independently reopen measurement hashes/tuple coverage, preserve all original receipts and keep zero pixel tolerance and renderer requirements.",
+            "dependsOn": []
+          }
+        ],
+        "remainingKnownFacts": {
+          "onlineExpoCheck": "failed_update_recommendation_preserved",
+          "appPackageResolver": "separate_unimplemented_feature",
+          "actualNativeRenderer": "unified SVG; legacy MapLibre lane separate",
+          "PostgreSQLRuntime": "Local aggregate skip retained without service. Actual hosted source PostgreSQL runtime and PostgreSQL HTTP smoke passed in protected run 39191798726; no deployment or installed-device inference.",
+          "NodeQualification": "Local Node24.14.1/npm11.17 retained; hosted setup versions directly observed: {\"node\": \"v24.21.0\", \"npm\": \"11.19.0\", \"yarn\": \"1.22.22\"}. No untested Node20 qualification.",
+          "fontEnvironment": "Local78font hashes retained; hosted exact control-image assertions passed. No rehashed hosted font inventory or general Windows/full-scene pixel parity claim.",
+          "hookRuntime": "unknown;Stopdisabled",
+          "publication": "Pushed source checkpoint and exact-head protected CI verified at 62462a15bbf4de8ed3dba373ff2adffc94d9afd4; dated receipt cutoff precedes canonical merge/sync, which requires live final-handoff checks.",
+          "RTKchronology": "First same-source full run290/1refusal; unchanged3diagnostic repeats and latestfull291pass. Exact initial timestamp pair/cause unconfirmed; no guard/source repair selected.",
+          "below320CSS": "Actual160CSSpx clipping during retained-emulation200%diagnostic, below selected320minimum. Separate320reflow and fresh native1350→675CSSpx200%zoom pass; no general zoom/accessibility parity.",
+          "CIcompactEvidence": "Actual downloaded artifacts retain24GIS results,30captures/60PNG-DOM hashes and621scoped sources. Nine exact control/noise assertions passed; successful CI upload omits raw repeat-noise attachments, while complete local9measurement receipts remain retained."
+        }
+      }
     }
   },
   "publicationAuthorizationHistory": [
@@ -75929,12 +77592,10 @@
     }
   ],
   "currentProtectedCI": {
-    "result": "pass",
-    "sourceFingerprint": "1d95c62541c9a137d4155a9bae45345f6380b9421f49217fafd8da4ceabbcb73",
-    "commit": "62462a15bbf4de8ed3dba373ff2adffc94d9afd4",
-    "runUrl": "https://github.com/JakeC-Redlund/CPLayout/actions/runs/39191798726",
-    "browserPassed": 291,
-    "reference": "docs/evidence/gis-reliability-20261018/editions/formatting-convergence-v4/publication-checkpoint.json",
-    "boundary": "Fresh hosted source/aggregate and three browser jobs on final formatting source, separate from earlier local e977 executions and their exact equivalence."
+    "edition": "GIS5-20261018-4402cc5e519c",
+    "result": "unknown",
+    "sourceFingerprint": "4402cc5e519c0eb1eaf0ab2046001a4236804c225ce4b08584e56ee00043f450",
+    "reference": "docs/evidence/gis-reliability-20261018/editions/package-recovery-v5/correction.json",
+    "boundary": "Successor qualification pending; prior actual outcomes preserved in dated edition history and immutable receipts."
   }
 }
