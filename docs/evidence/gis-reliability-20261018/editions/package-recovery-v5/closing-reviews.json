@@ -1,0 +1,251 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-19T04:41:19.050675+00:00",
+  "sourceFingerprint": "4402cc5e519c0eb1eaf0ab2046001a4236804c225ce4b08584e56ee00043f450",
+  "recording": "Coordinator structured transcription of two actual independent final responses after successful complete CI/artifact inspection. Assessment dispositions and scores are literal; common residuals consolidate the responses without expanding acceptance. Full responses remain in this task conversation.",
+  "reviews": [
+    {
+      "reviewScope": "final_integrated_source_and_proof",
+      "result": "accept_bounded_edition",
+      "sourceFingerprint": "4402cc5e519c0eb1eaf0ab2046001a4236804c225ce4b08584e56ee00043f450",
+      "headCommit": "d0412070131c114624cf26f28dd32e295d8c450c",
+      "protectedRunId": 39197212013,
+      "blockingFindings": [],
+      "weights": {
+        "compatibility": 0.3,
+        "preservation": 0.25,
+        "contextEfficiency": 0.2,
+        "reproducibleProof": 0.15,
+        "maintainability": 0.1
+      },
+      "reviewer": "/root/governance_review",
+      "scores": {
+        "compatibility": 4,
+        "preservation": 5,
+        "contextEfficiency": 4,
+        "reproducibleProof": 4.5,
+        "maintainability": 4
+      },
+      "weightedScore": 4.325,
+      "requirementAssessments": {
+        "GOV-01": "accepted_bounded_source",
+        "ENTRY-01": "accepted_current_browser_scope",
+        "AUTH-01": "accepted_current_browser_scope",
+        "HIERARCHY-01": "accepted_current_browser_scope",
+        "FLOW-01": "accepted_current_browser_scope",
+        "DRAW-01": "accepted_current_browser_scope",
+        "SURVEY-01": "accepted_current_browser_scope",
+        "LAYOUT-01": "accepted_current_browser_scope_with_retained_diagnostic",
+        "ANCESTRY-01": "accepted_current_browser_scope",
+        "RECOVERY-01": "accepted_bounded_recovery_source_and_browser",
+        "UI-01": "accepted_current_browser_scope",
+        "DOC-01": "accepted_bounded_source",
+        "DEP-01": "accepted_exact_selected_cohort_with_admitted_findings",
+        "DEP-02": "accepted_source_configuration_only",
+        "SKILL-01": "accepted_bounded_source",
+        "HOOK-01": "pending_runtime_origin_and_denial_proof",
+        "CLEAN-01": "accepted_preservation_scope",
+        "QA-01": "accepted_bounded_source_and_current_browser_packet",
+        "PUBLISH-01": "accepted_dated_protected_source_checkpoint",
+        "GIS-01": "accepted_bounded_software_and_current_browser"
+      },
+      "scoreRationale": {
+        "compatibility": "The retained coherent dependency cohort and explicit legacy-read/refusal behavior avoid an unqualified migration. Expo patch adoption and native platform qualification remain separate.",
+        "preservation": "The implementation refuses ambiguous replacement before writes and retains original metadata, resources, backups, failed attempts and historical proof without relabeling executions.",
+        "contextEfficiency": "One authority registry, explicit edition history and bounded delta reviews support efficient continuation. Complete-census evidence remains substantial but its scope is necessary and unchanged.",
+        "reproducibleProof": "Fresh exact-head hosted source/PostgreSQL and browser execution, complete committed-source binding and reopened artifact bytes provide strong bounded proof. Missing successful-CI raw noise attachments and separate runtime gates prevent a maximum score.",
+        "maintainability": "Shared recovery admission, synchronous adapter semantics and meaningful negative/positive contract tests improve the implementation. Legacy migration and installed-device lifecycle behavior still require separately designed packets."
+      },
+      "independentlyVerified": [
+        "Recomputed the complete manifest fingerprint and checked all 985 canonical and native-mirror source hashes.",
+        "Reopened and SHA-256 checked all 985 raw committed blobs at d0412070131c114624cf26f28dd32e295d8c450c against the manifest; the complete batch matched.",
+        "Inspected the four-file recovery implementation/test delta, including legacy identity refusal, recorded-metadata comparison, transaction selection, rollback/retry behavior and synchronous native moves.",
+        "Reopened the original 25-pass/20-failure, intermediate 44-pass/1-failure and final 45-pass/0-failure receipts and matching transcript hashes during the recovery-packet review.",
+        "Verified retained run metadata records all five named jobs completed successfully at the exact head.",
+        "Reopened all five collected job logs and verified their hashes and byte counts; each browser shard records 97 actual passes.",
+        "Confirmed the source log records 45 passing native-module memory cases and PostgreSQL runtime execution without SKIP.",
+        "Verified the exact 24 configured GIS project/file/title tuples and renderer requirements against the downloaded execution records.",
+        "Reopened 30 capture bindings and 60 PNG/DOM hashes, with all 622 expected scoped source paths matching the complete manifest.",
+        "Verified the downloaded evidence forms the closed 142-file inventory.",
+        "Verified seven runtime asset-path bindings and the four explicitly listed matching native-export assets, without inferring complete bundle identity.",
+        "Parsed retained raw audit/process evidence, checked stdout/stderr hashes and sizes, and confirmed raw counts equal the mitigation decision with actual audit exit 1.",
+        "Confirmed all 20 acceptance criteria remain unchanged, predecessor history matches the prior authority snapshot, deferred count remains 960, and pending records do not pre-count this review.",
+        "Reviewed the proposed contextual-advisory metadata classification and the exact completed-job REST log identity. Neither establishes generic route limits or hook executable loading."
+      ],
+      "residuals": [
+        "Latest metadata-head protected CI, repaired-thread resolution, protected merge, fast-forward main synchronization and retirement of only the merged task branch require subsequent actual Git evidence.",
+        "Actual hook originating executable, trusted loading, execution and denial remain unknown; contextual advisory does not qualify them. Stop continuation stays disabled.",
+        "Raw audit retains16high/0moderate with verified local mitigation admission, actual npm-audit exit1; no zero-audit or upstream-fix claim.",
+        "Online Expo recommendation remains failed; coherent SDK patch adoption is separately gated. Actual dependency scheduler execution remains separate from configuration.",
+        "Original RTK chronology refusal, unknown exact timestamp pair/cause and diagnostic followup remain retained; no chronology guard weakening.",
+        "960deferred browser obligations remain unverified and unretired.",
+        "Successful CI uploads lack raw repeat-noise measurements; strict comparisons passed, prior complete local measurements remain historical. No independently reopened current-CI raw-noise claim.",
+        "45native-adapter cases use a simulated Expo filesystem; installed-device semantics, process kill/power loss, atomic filesystem guarantees and multiprocess locking remain unqualified.",
+        "Safe legacy packages read in place. Unrecorded replacement/migration refuses until a separately qualified protocol exists.",
+        "Authenticated App logical-package resolver remains unimplemented; unified native renderer is SVG. Legacy native MapLibre/raw PMTiles-MBTiles/offline fonts-glyphs/installed-package rendering remain separate packets.",
+        "Windows Edge/local fonts/isolated bounds receipts retain their original edition; no new Windows/full-scene/cross-platform pixel parity or Node20 qualification.",
+        "160CSS clipping remains outside selected320minimum. No general WCAG/zoom acceptance. No new map-readout defect established; actual touch/keyboard readout scrolling remains unexercised.",
+        "Physical receiver/field accuracy, Google Earth, operational deployment and human acceptance remain unqualified."
+      ]
+    },
+    {
+      "reviewScope": "final_integrated_source_and_proof",
+      "result": "accept_bounded_edition",
+      "sourceFingerprint": "4402cc5e519c0eb1eaf0ab2046001a4236804c225ce4b08584e56ee00043f450",
+      "headCommit": "d0412070131c114624cf26f28dd32e295d8c450c",
+      "protectedRunId": 39197212013,
+      "blockingFindings": [],
+      "weights": {
+        "compatibility": 0.3,
+        "preservation": 0.25,
+        "contextEfficiency": 0.2,
+        "reproducibleProof": 0.15,
+        "maintainability": 0.1
+      },
+      "reviewer": "/root/gis_architecture",
+      "scores": {
+        "compatibility": 5,
+        "preservation": 5,
+        "contextEfficiency": 4,
+        "reproducibleProof": 4,
+        "maintainability": 4
+      },
+      "weightedScore": 4.55,
+      "requirementAssessments": {
+        "GOV-01": "accept_source_scope",
+        "ENTRY-01": "accept_browser_scope",
+        "AUTH-01": "accept_source_and_browser_scope",
+        "HIERARCHY-01": "accept_browser_scope",
+        "FLOW-01": "accept_browser_scope",
+        "DRAW-01": "accept_source_and_browser_scope",
+        "SURVEY-01": "accept_software_browser_scope",
+        "LAYOUT-01": "accept_software_browser_scope",
+        "ANCESTRY-01": "accept_browser_scope",
+        "RECOVERY-01": "accept_source_and_browser_scope",
+        "UI-01": "accept_bounded_browser_scope",
+        "DOC-01": "accept_source_scope",
+        "DEP-01": "accept_selected_cohort_source_scope",
+        "DEP-02": "accept_configuration_source_scope",
+        "SKILL-01": "accept_source_scope",
+        "HOOK-01": "retain_pending",
+        "CLEAN-01": "accept_preservation_source_scope",
+        "QA-01": "accept_bounded_current_source_browser_scope",
+        "PUBLISH-01": "accept_dated_protected_source_checkpoint_only",
+        "GIS-01": "accept_bounded_source_browser_scope"
+      },
+      "acceptanceScope": "The matching frozen software/source edition, actual current synthetic-browser executions, and dated protected source-publication checkpoint. This does not establish final metadata-head CI, merge or synchronization, production deployment, installed-device behavior, physical receiver or field qualification, Google Earth behavior, genuine hook execution, human acceptance, or implementation of the current authenticated App package resolver.",
+      "scoreRationale": "The edition retains the reviewed dependency cohort and geometry authority, repairs demonstrated failures through a bounded four-file delta, and preserves original resources and historical proof. Exact hosted results and independently reopened bindings provide strong reproducibility. Remaining proof-retention gaps, explicit legacy migration refusal and separate runtime integration work keep proof, efficiency and maintainability below the maximum.",
+      "independentlyVerified": {
+        "reviewMethod": "Read-only source, receipt, log and downloaded-artifact inspection with independent byte hashing and tuple reconciliation. No project tests, servers, exports, GitHub operations or file mutations were launched by this reviewer.",
+        "completeSourceBinding": {
+          "sourcePaths": 985,
+          "canonicalFilesRehashed": 985,
+          "nativeMirrorFilesRehashed": 985,
+          "rawCommittedGitBlobsRehashed": 985,
+          "canonicalMismatches": 0,
+          "nativeMirrorMismatches": 0,
+          "committedBlobMismatches": 0,
+          "sourceFingerprintRecomputed": true,
+          "predecessorComparison": {
+            "unchangedPaths": 981,
+            "changedPaths": 3,
+            "addedPaths": 1,
+            "removedPaths": 0
+          }
+        },
+        "recoveryRegressionEvidence": {
+          "receiptSha256": "455bc88647c7fd986172831deb9b73b5f13581d5823ddb7bc06822a155f1e5c6",
+          "referencedTranscriptHashesMatched": 3,
+          "preservedOriginalResult": {
+            "passed": 25,
+            "failed": 20
+          },
+          "initialRecoveryResult": {
+            "passed": 44,
+            "failed": 1
+          },
+          "correctedResult": {
+            "passed": 45,
+            "failed": 0
+          },
+          "plainIdNoWriteRefusalAndRecordedReplacementControlReviewed": true
+        },
+        "protectedExecution": {
+          "receiptSha256": "5270642f9a9af883acf30714c76c754813eea043c37b57e89f28e613a434659c",
+          "artifactInspectionSha256": "f1277a4e4d6a41cadb8100a96a19569edeee2d97559709dd0b467740bbd463a1",
+          "runAndArtifactHeadBindingsMatched": true,
+          "jobsSuccessful": 5,
+          "jobLogHashesAndByteLengthsMatched": 5,
+          "node": "v24.21.0",
+          "npm": "11.19.0",
+          "postgreSQLRuntimeExecuted": true,
+          "postgreSQLHTTPSmokeExecuted": true,
+          "nativeModuleMemoryCasesPassed": 45
+        },
+        "completeCurrentBrowser": {
+          "shardPassedCounts": [
+            97,
+            97,
+            97
+          ],
+          "configuredCurrentTuples": 291,
+          "parsedPassedTuples": 291,
+          "uniquePassedTuples": 291,
+          "exactTupleEquality": true,
+          "missingTuples": 0,
+          "extraTuples": 0,
+          "deferredObligationsRetained": 960
+        },
+        "gisArtifacts": {
+          "configuredExecutions": 24,
+          "uniquePassedExecutions": 24,
+          "exactTupleEquality": true,
+          "captureBindingsReopened": 30,
+          "pngAndDomHashesReopened": 60,
+          "scopedSourcePathsMatched": 622,
+          "expectedScopedSourceSetMatched": true,
+          "scopedFingerprint": "bc7b44f098982598f33f96d218ba01eb1d3f5740c5daa2bfb2eebaacb0221a67",
+          "rendererRequirementsAndActualWorkerRequestBindingsChecked": true,
+          "runtimeAssetPathsBound": 7,
+          "sharedNativeExportAssetFilesRehashed": 4,
+          "allCILocalBundleByteIdentityClaimed": false,
+          "rawCINoiseMeasurementFilesPresent": false
+        },
+        "dependencyAudit": {
+          "rawCounts": {
+            "high": 16,
+            "moderate": 0,
+            "critical": 0,
+            "total": 16
+          },
+          "rawAuditExitStatus": 1,
+          "mitigationAdmission": "admitted-local-mitigations",
+          "stdoutProcessAndDecisionHashesMatched": true
+        },
+        "promotionContract": {
+          "inspected": true,
+          "requiresTwoDistinctMatchingFinalReviews": true,
+          "requiresAll20RequirementAssessments": true,
+          "preservesHookPending": true,
+          "keepsFinalMergeAndSynchronizationSeparate": true
+        }
+      },
+      "residuals": [
+        "Latest metadata-head protected CI, repaired-thread resolution, protected merge, fast-forward main synchronization and retirement of only the merged task branch require subsequent actual Git evidence.",
+        "Actual hook originating executable, trusted loading, execution and denial remain unknown; contextual advisory does not qualify them. Stop continuation stays disabled.",
+        "Raw audit retains16high/0moderate with verified local mitigation admission, actual npm-audit exit1; no zero-audit or upstream-fix claim.",
+        "Online Expo recommendation remains failed; coherent SDK patch adoption is separately gated. Actual dependency scheduler execution remains separate from configuration.",
+        "Original RTK chronology refusal, unknown exact timestamp pair/cause and diagnostic followup remain retained; no chronology guard weakening.",
+        "960deferred browser obligations remain unverified and unretired.",
+        "Successful CI uploads lack raw repeat-noise measurements; strict comparisons passed, prior complete local measurements remain historical. No independently reopened current-CI raw-noise claim.",
+        "45native-adapter cases use a simulated Expo filesystem; installed-device semantics, process kill/power loss, atomic filesystem guarantees and multiprocess locking remain unqualified.",
+        "Safe legacy packages read in place. Unrecorded replacement/migration refuses until a separately qualified protocol exists.",
+        "Authenticated App logical-package resolver remains unimplemented; unified native renderer is SVG. Legacy native MapLibre/raw PMTiles-MBTiles/offline fonts-glyphs/installed-package rendering remain separate packets.",
+        "Windows Edge/local fonts/isolated bounds receipts retain their original edition; no new Windows/full-scene/cross-platform pixel parity or Node20 qualification.",
+        "160CSS clipping remains outside selected320minimum. No general WCAG/zoom acceptance. No new map-readout defect established; actual touch/keyboard readout scrolling remains unexercised.",
+        "Physical receiver/field accuracy, Google Earth, operational deployment and human acceptance remain unqualified."
+      ]
+    }
+  ],
+  "boundary": "Two delegated source/browser software votes. Human/device/field/hook acceptance and later metadata-head CI/merge/main synchronization are separate."
+}
