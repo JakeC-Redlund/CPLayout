@@ -12,9 +12,9 @@ Baseline commit: `2649d1a9b1f1c55dff2eea4a6fe9faaa54be3824`. Publication: publis
 
 The preceding 1118-file edition has aggregate exit 0, 225/225 selected browser passes and six matching Edge figures. Source fingerprint ed96c68a374b62e069a28b6b094daa0bb6a660d2df9b290c38cefeeab295d223; served bundle cf00eb7aa9b6c3a0e20d16db93071ec8d38ca3d733555c0b4118a1193e5b9449. These qualify that checkpoint, not later changes or complete production readiness.
 
-Current candidate: Bounded GIS software/current browser accepted; separate runtime/update packets pending. Actual e977 local source/current browser evidence with explicitly reviewed final formatting equivalence; no new whole execution on the formatting fingerprint. Final delegated review is distinct from human/native/field/GoogleEarth/hook/hosted/publication acceptance.
+Current candidate: Bounded GIS software/current browser accepted; separate runtime/update packets pending. Local e977 executions and exact final formatting equivalence remain preserved; subsequent fresh hosted source/browser execution on final1d95 passed at the recorded protected head. Human/native/field/GoogleEarth/hook/deployment acceptance remains separate.
 
-Dependency observation: Selected exact-lock native dependency environment and installed security/SQLite/cohort/worker identity pass; actualNode24.14.1/npm11.17.0. Raw16high/0moderate retained with admitted local mitigations. Online Expo check exits1 recommending57.0.30/metro-runtime57.0.17; coherent cohort review pending. Node20/hosted/native/device not requalified.
+Dependency observation: Selected exact-lock GIS graph and installed mitigations passed local qualification; subsequent protected hosted source/PostgreSQL HTTP and three browser shards (291 passes) passed at62462a1 on observed Node24.21.0/npm11.19.0. Raw16high/0moderate findings remain admitted through verified mitigations; online Expo update recommendation failed. Node20/native/device and general hosted/Windows font/runtime parity remain unqualified.
 
 Deferred browser obligations: 960; their semantic contracts remain required. Hook execution: unknown; Stop continuation: disabled.
 
@@ -27,29 +27,29 @@ Deferred browser obligations: 960; their semantic contracts remain required. Hoo
 | P2 | verified | Field designs, matched Survey, retained ancestry and RTK-qualified official maps |
 | P3 | verified | Operator language, guides and responsive accessibility |
 | P4 | in_progress | Stable dependency maintenance and truthful skill/hook records |
-| P5 | in_progress | Complete clarified-source census, workflow proof, independent reviews and publication |
+| P5 | verified | Complete clarified-source census, workflow proof, independent reviews and publication |
 
 | Requirement | Status | Owner | Next action |
 | --- | --- | --- | --- |
-| GOV-01: One canonical tracker | verified | governance | Requalify changed source inputs; retain separately pending runtime, deferred-browser and publication obligations. |
-| ENTRY-01: Customer-first entry and project/field selection | verified | interface | Requalify changed source inputs; retain separately pending runtime, deferred-browser and publication obligations. |
-| AUTH-01: Truthful account sign-in and shared service | verified | coordinator/backend | Requalify changed source inputs; retain separately pending runtime, deferred-browser and publication obligations. |
-| HIERARCHY-01: Logical customer/project/field folders and actual field content | verified | interface/backend/domain | Requalify changed source inputs; retain separately pending runtime, deferred-browser and publication obligations. |
-| FLOW-01: Optional Design and required Survey | verified | domain | Requalify changed source inputs; retain separately pending runtime, deferred-browser and publication obligations. |
-| DRAW-01: Manual field and machine geometry | verified | domain/interface | Requalify changed source inputs; retain separately pending runtime, deferred-browser and publication obligations. |
-| SURVEY-01: Receiver collection and qualification | verified | domain | Requalify changed source inputs; retain separately pending runtime, deferred-browser and publication obligations. |
+| GOV-01: One canonical tracker | verified | governance | Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt. |
+| ENTRY-01: Customer-first entry and project/field selection | verified | interface | Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt. |
+| AUTH-01: Truthful account sign-in and shared service | verified | coordinator/backend | Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt. |
+| HIERARCHY-01: Logical customer/project/field folders and actual field content | verified | interface/backend/domain | Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt. |
+| FLOW-01: Optional Design and required Survey | verified | domain | Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt. |
+| DRAW-01: Manual field and machine geometry | verified | domain/interface | Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt. |
+| SURVEY-01: Receiver collection and qualification | verified | domain | Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt. |
 | LAYOUT-01: Official Layout maps under matched Survey with RTK admission | verified | domain | Requalify changed source inputs; retain separately pending runtime, deferred-browser and publication obligations. Retain initial RTK chronology refusal and investigate timing diagnostics without weakening admission. |
-| ANCESTRY-01: Retain ancestors referenced by saved Survey evidence | verified | domain/store/interface | Requalify changed source inputs; retain separately pending runtime, deferred-browser and publication obligations. |
-| RECOVERY-01: Preserve current and unfinished work | verified | coordinator/QA | Requalify changed source inputs; retain separately pending runtime, deferred-browser and publication obligations. |
-| UI-01: Production operator wording | verified | interface | Requalify changed source inputs; retain separately pending runtime, deferred-browser and publication obligations. |
-| DOC-01: Guides, sources and delegated review | verified | governance | Requalify changed source inputs; retain separately pending runtime, deferred-browser and publication obligations. |
+| ANCESTRY-01: Retain ancestors referenced by saved Survey evidence | verified | domain/store/interface | Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt. |
+| RECOVERY-01: Preserve current and unfinished work | verified | coordinator/QA | Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt. |
+| UI-01: Production operator wording | verified | interface | Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt. |
+| DOC-01: Guides, sources and delegated review | verified | governance | Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt. |
 | DEP-01: Installed mitigation and compatible updates | verified | coordinator | Qualify coherent Expo57 patches across backup peer, compiler matrix and installed guards; preserve failed online update recommendation and retained reviewed cohort. |
 | DEP-02: Recurring dependency reports and update PRs | verified | governance | Observe actual scheduled dependency/security workflow runs and retain their hosted execution evidence; current source and PR checks do not prove scheduler activation. |
-| SKILL-01: Truthful selected capability inventory | verified | governance | Requalify changed source inputs; retain separately pending runtime, deferred-browser and publication obligations. |
+| SKILL-01: Truthful selected capability inventory | verified | governance | Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt. |
 | HOOK-01: Source-bound hook execution qualification | pending | coordinator | Select a changed evidence-backed probe before running; do not repeat unknown unchanged probes. |
-| CLEAN-01: Verified retirement without data loss | verified | governance | Requalify changed source inputs; retain separately pending runtime, deferred-browser and publication obligations. |
-| QA-01: Complete workflow proof and review | verified | coordinator/independent QA | Preserve actual full passes and initial chronology-refusal trace; investigate selected diagnostics without weakening RTK chronology. Retain960deferred and device/field/hosted/publication gates. |
-| PUBLISH-01: Reviewable source publication | in_progress | coordinator | Commit the reviewed GIS edition, reconcile current origin/main metadata without source loss, push normally, require exact-head protected CI, merge and sync to the single canonical branch. |
+| CLEAN-01: Verified retirement without data loss | verified | governance | Requalify changed source inputs; retain pending runtime/deferred-browser obligations and the scoped protected publication receipt. |
+| QA-01: Complete workflow proof and review | verified | coordinator/independent QA | Preserve full passes and the first chronology-refusal trace; investigate diagnostics without weakening RTK chronology. Retain960deferred and separate device/field/deployment/hook acceptance. |
+| PUBLISH-01: Reviewable source publication | verified | coordinator | Complete the latest metadata-head protected checks, merge PR12 under protection, fast-forward canonical main and retire only the merged task branch; record actual convergence. Retain source publication separately from deployment and field acceptance. |
 | GIS-01: GIS imports, offline package admission and explicit renderer proof | verified | coordinator | Preserve converter-fidelity and topology refusals; select separately recorded App resolver/native/glyph packets before claiming their runtime capabilities. |
 
 ## Independent review and unresolved defects
@@ -203,6 +203,7 @@ Browser inventory accounting: 35 suites; 417 unique cases; 291 current-scope exe
 | E-GIS4-20261018-BROWSER-FIRST (browser) | fail | current | Retained first e977 complete run290pass/1explicitRTKchronologyrefusal remains relevant under exact unchanged browser/product-source equivalence. Three unchanged isolated repeats pass; original failure/trace and unresolved timestamp-pair/cause remain current evidence. Later passing execution does not erase this result. |
 | E-GIS4-20261018-REVIEW-ONE (source) | pass | current | Independent matching-source and actual-proof acceptance of bounded software/current synthetic browser edition. |
 | E-GIS4-20261018-REVIEW-TWO (source) | pass | current | Independent matching-source and actual-proof acceptance of bounded software/current synthetic browser edition. |
+| E-GIS4-20261018-PUBLICATION (publication) | pass | current | Actual pushed exact-head protected PR checkpoint: source, three browser shards totaling291 passes and cplayout-required succeed, with PostgreSQL-backed source/HTTP smoke and mitigation admission. Two final source/equivalence reviews retained. Merge and canonical synchronization were unobserved at receipt cutoff; deployment/device/field/hook/human acceptance remain separate. |
 
 ## Evidence and history
 
