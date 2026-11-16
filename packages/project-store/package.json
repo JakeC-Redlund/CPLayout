@@ -14,8 +14,8 @@
     "@cplayout/core": "*",
     "@cplayout/geometry": "*",
     "expo-file-system": "~57.0.7",
-    "expo-sharing": "~57.0.22",
-    "expo-sqlite": "57.0.4",
+    "expo-sharing": "~57.0.26",
+    "expo-sqlite": "57.0.5",
     "fflate": "^0.8.2",
     "jsonc-parser": "3.3.1",
     "zod": "4.4.3"
